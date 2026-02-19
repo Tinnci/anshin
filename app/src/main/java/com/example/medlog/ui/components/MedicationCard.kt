@@ -41,6 +41,7 @@ fun MedicationCard(
             item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
             else           -> MaterialTheme.colorScheme.surface
         },
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "cardColor",
     )
 

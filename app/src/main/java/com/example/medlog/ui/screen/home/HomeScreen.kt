@@ -165,6 +165,7 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
             MaterialTheme.colorScheme.tertiaryContainer
         else
             MaterialTheme.colorScheme.primaryContainer,
+        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
         label = "progressBg",
     )
 

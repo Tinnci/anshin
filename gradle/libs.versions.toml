@@ -1,7 +1,7 @@
 [versions]
 agp = "9.0.1"
 kotlin = "2.2.10"
-ksp = "2.2.10-2.0.2"
+ksp = "2.3.6"
 coreKtx = "1.15.+"
 lifecycle = "2.9.+"
 activityCompose = "1.10.+"
@@ -19,6 +19,7 @@ hiltWork = "1.2.+"
 kotlinxSerializationJson = "1.8.+"
 coroutines = "1.10.+"
 splashscreen = "1.0.+"
+glance = "1.1.1"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -57,6 +58,10 @@ androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", v
 junit = { group = "junit", name = "junit", version = "4.13.2" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
 androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.6.1" }
+
+# Glance
+androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
+androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

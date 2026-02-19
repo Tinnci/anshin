@@ -25,6 +25,15 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!-- 静态应用快捷方式（长按图标显示） -->
+            <meta-data
+                android:name="android.app.shortcuts"
+                android:resource="@xml/shortcuts" />
+            <!-- 添加药品快捷方式深链接 -->
+            <intent-filter>
+                <action android:name="com.example.medlog.ADD_MEDICATION" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
         </activity>
 
         <receiver
@@ -38,6 +47,19 @@
         <receiver
             android:name=".notification.MedLogAlarmReceiver"
             android:exported="false" />
+
+        <!-- 桌面小组件 Widget -->
+        <receiver
+            android:name=".widget.MedLogWidgetReceiver"
+            android:exported="true"
+            android:label="@string/shortcut_today_long">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/med_log_widget_info" />
+        </receiver>
 
         <provider
             android:name="androidx.startup.InitializationProvider"

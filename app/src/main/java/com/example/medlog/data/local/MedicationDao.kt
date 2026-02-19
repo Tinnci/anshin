@@ -40,4 +40,8 @@ interface MedicationDao {
 
     @Query("UPDATE medications SET stock = :newStock WHERE id = :id")
     suspend fun updateStock(id: Long, newStock: Double)
+
+    /** Widget 专用：一次性查询全部药品（不返回 Flow） */
+    @Query("SELECT * FROM medications WHERE isArchived = 0 ORDER BY isHighPriority DESC, name")
+    suspend fun getAllMedicationsOnce(): List<Medication>
 }

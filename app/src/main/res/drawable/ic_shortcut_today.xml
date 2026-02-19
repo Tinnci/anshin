@@ -1,0 +1,23 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 圆形背景 -->
+    <path
+        android:fillColor="#1B6391"
+        android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
+    <!-- 药片图标（旋转45°的胶囊形状） -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M38,54 Q38,44 48,44 L60,44 Q70,44 70,54 Q70,64 60,64 L48,64 Q38,64 38,54Z"
+        android:rotation="45"
+        android:pivotX="54"
+        android:pivotY="54" />
+    <path
+        android:fillColor="#93CDF5"
+        android:pathData="M54,44 L60,44 Q70,44 70,54 Q70,64 60,64 L54,64Z"
+        android:rotation="45"
+        android:pivotX="54"
+        android:pivotY="54" />
+</vector>

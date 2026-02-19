@@ -7,6 +7,7 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.LaunchedEffect
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,10 +26,17 @@ import com.example.medlog.ui.screen.home.HomeScreen
 import com.example.medlog.ui.screen.settings.SettingsScreen
 
 @Composable
-fun MedLogApp() {
+fun MedLogApp(openAddMedication: Boolean = false) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // 响应快捷方式"添加药品"intent
+    LaunchedEffect(openAddMedication) {
+        if (openAddMedication) {
+            navController.navigate(Route.AddMedication())
+        }
+    }
 
     val navigateToTopLevel: (TopLevelDestination) -> Unit = remember(navController) {
         { dest ->

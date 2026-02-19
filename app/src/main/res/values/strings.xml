@@ -37,4 +37,12 @@
     <string name="lunch_time">午餐时间</string>
     <string name="dinner_time">晚餐时间</string>
     <string name="bed_time">睡觉时间</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_today_short">今日用药</string>
+    <string name="shortcut_today_long">查看今日用药计划</string>
+    <string name="shortcut_add_short">添加药品</string>
+    <string name="shortcut_add_long">添加新的用药提醒</string>
+    <string name="shortcut_history_short">用药历史</string>
+    <string name="shortcut_history_long">查看用药记录历史</string>
 </resources>

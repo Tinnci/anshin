@@ -1,5 +1,7 @@
 pluginManagement {
     repositories {
+        // 华为云镜像（包含 KSP 2.3.x 等最新版本 — 优先）
+        maven { url = uri("https://repo.huaweicloud.com/repository/maven") }
         // 阿里云镜像（国内加速）
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/gradle-plugin") }
@@ -18,6 +20,8 @@ pluginManagement {
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
+        // 华为云镜像（包含 KSP 2.3.x 等最新版本 — 优先）
+        maven { url = uri("https://repo.huaweicloud.com/repository/maven") }
         // 阿里云镜像（国内加速）
         maven { url = uri("https://maven.aliyun.com/repository/google") }
         maven { url = uri("https://maven.aliyun.com/repository/public") }

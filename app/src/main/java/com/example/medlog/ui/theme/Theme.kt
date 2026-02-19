@@ -86,8 +86,9 @@ fun MedLogTheme(
     }
 
     MaterialTheme(
-        colorScheme = colorScheme,
-        typography  = MedLogTypography,
-        content     = content,
+        colorScheme  = colorScheme,
+        typography   = MedLogTypography,
+        shapes       = MedLogShapes,
+        content      = content,
     )
 }

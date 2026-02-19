@@ -50,4 +50,8 @@ interface MedicationLogDao {
 
     @Query("SELECT COUNT(*) FROM medication_logs WHERE status = 'TAKEN' AND scheduledTimeMs BETWEEN :startMs AND :endMs")
     fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>
+
+    /** Widget 专用：一次性查询某天开始后的所有日志 */
+    @Query("SELECT * FROM medication_logs WHERE scheduledTimeMs >= :startMs AND scheduledTimeMs < :startMs + 86400000")
+    suspend fun getLogsForDateOnce(startMs: Long): List<MedicationLog>
 }

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  静态应用快捷方式（最多显示 4 个）
+  长按桌面图标时展示。
+  deep link 通过 MainActivity intent-filter 解析（ACTION_VIEW + data scheme）。
+-->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- 快捷方式 1：今日用药 -->
+    <shortcut
+        android:shortcutId="today_medications"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_today"
+        android:shortcutShortLabel="@string/shortcut_today_short"
+        android:shortcutLongLabel="@string/shortcut_today_long"
+        android:shortcutDisabledMessage="@string/shortcut_today_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.example.medlog"
+            android:targetClass="com.example.medlog.ui.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+    <!-- 快捷方式 2：添加药品 -->
+    <shortcut
+        android:shortcutId="add_medication"
+        android:enabled="true"
+        android:icon="@drawable/ic_shortcut_add"
+        android:shortcutShortLabel="@string/shortcut_add_short"
+        android:shortcutLongLabel="@string/shortcut_add_long"
+        android:shortcutDisabledMessage="@string/shortcut_add_long">
+        <intent
+            android:action="com.example.medlog.ADD_MEDICATION"
+            android:targetPackage="com.example.medlog"
+            android:targetClass="com.example.medlog.ui.MainActivity" />
+        <categories android:name="android.shortcut.conversation" />
+    </shortcut>
+
+</shortcuts>
