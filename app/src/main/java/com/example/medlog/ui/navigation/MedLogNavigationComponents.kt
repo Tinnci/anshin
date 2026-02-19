@@ -14,6 +14,7 @@ import androidx.compose.material3.PermanentDrawerSheet
 import androidx.compose.material3.PermanentNavigationDrawer
 import androidx.compose.material3.Text
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
+import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldDefaults
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteScaffoldLayout
 import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
@@ -22,7 +23,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
-import androidx.window.core.layout.WindowWidthSizeClass
 
 /** Adaptive navigation wrapper — mirrors Reply's ReplyNavigationWrapper */
 @Composable
@@ -32,11 +32,7 @@ fun MedLogNavigationWrapper(
     content: @Composable () -> Unit,
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
-    val navLayoutType = when (adaptiveInfo.windowSizeClass.windowWidthSizeClass) {
-        WindowWidthSizeClass.EXPANDED -> NavigationSuiteType.NavigationDrawer
-        WindowWidthSizeClass.MEDIUM   -> NavigationSuiteType.NavigationRail
-        else                          -> NavigationSuiteType.NavigationBar
-    }
+    val navLayoutType = NavigationSuiteScaffoldDefaults.calculateFromAdaptiveInfo(adaptiveInfo)
 
     when (navLayoutType) {
         NavigationSuiteType.NavigationDrawer -> {

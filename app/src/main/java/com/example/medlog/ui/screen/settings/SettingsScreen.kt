@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.settings
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -193,6 +194,4 @@ private fun ArchivedMedicationsSheet(
 }
 
 private fun Modifier.clickableSetting(onClick: () -> Unit): Modifier =
-    this.then(
-        androidx.compose.foundation.clickable(onClick = onClick)
-    )
+    this.clickable(onClick = onClick)
