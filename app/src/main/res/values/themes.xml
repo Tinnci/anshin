@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MedLog" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.MedLog.SplashScreen" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_pill_splash</item>
+        <item name="postSplashScreenTheme">@style/Theme.MedLog</item>
+    </style>
+</resources>
