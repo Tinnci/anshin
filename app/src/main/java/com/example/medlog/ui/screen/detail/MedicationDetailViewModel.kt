@@ -2,6 +2,7 @@ package com.example.medlog.ui.screen.detail
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
@@ -10,11 +11,20 @@ import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.ZoneId
 import javax.inject.Inject
 
 data class DetailUiState(
     val medication: Medication? = null,
     val logs: List<MedicationLog> = emptyList(),
+    /** 近30天服药坚持率 */
+    val adherence30d: Float = 0f,
+    /** 近30天已服次数 */
+    val taken30d: Int = 0,
+    /** 近30天计划次数 */
+    val total30d: Int = 0,
+    /** 当前库存占初始设置的比率（0-1） */
     val isLoading: Boolean = true,
 )
 
@@ -33,9 +43,24 @@ class MedicationDetailViewModel @Inject constructor(
             val med = medicationRepo.getMedicationById(id)
             _uiState.value = _uiState.value.copy(medication = med, isLoading = false)
             if (med != null) {
+                // 加载最近60条日志
                 logRepo.getLogsForMedication(id, limit = 60)
                     .catch { }
-                    .collect { logs -> _uiState.value = _uiState.value.copy(logs = logs) }
+                    .collect { logs ->
+                        // 计算近30天坚持率
+                        val now = System.currentTimeMillis()
+                        val thirtyDaysAgoMs = now - 30L * 24 * 60 * 60 * 1000
+                        val recent = logs.filter { it.scheduledTimeMs >= thirtyDaysAgoMs }
+                        val taken = recent.count { it.status == LogStatus.TAKEN }
+                        val total = recent.size
+                        val adherence = if (total == 0) 0f else taken.toFloat() / total.toFloat()
+                        _uiState.value = _uiState.value.copy(
+                            logs = logs,
+                            taken30d = taken,
+                            total30d = total,
+                            adherence30d = adherence,
+                        )
+                    }
             }
         }
     }
@@ -44,7 +69,7 @@ class MedicationDetailViewModel @Inject constructor(
         val id = _uiState.value.medication?.id ?: return
         viewModelScope.launch {
             medicationRepo.archiveMedication(id)
-            notificationHelper.cancelAlarm(id)
+            notificationHelper.cancelAllReminders(id)
         }
     }
 
@@ -52,7 +77,7 @@ class MedicationDetailViewModel @Inject constructor(
         val med = _uiState.value.medication ?: return
         viewModelScope.launch {
             medicationRepo.deleteMedication(med)
-            notificationHelper.cancelAlarm(med.id)
+            notificationHelper.cancelAllReminders(med.id)
         }
     }
 }

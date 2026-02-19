@@ -14,6 +14,9 @@ interface MedicationDao {
     """)
     fun getActiveMedications(): Flow<List<Medication>>
 
+    @Query("SELECT * FROM medications ORDER BY isHighPriority DESC, name")
+    fun getAllMedications(): Flow<List<Medication>>
+
     @Query("SELECT * FROM medications WHERE isArchived = 1 ORDER BY name")
     fun getArchivedMedications(): Flow<List<Medication>>
 

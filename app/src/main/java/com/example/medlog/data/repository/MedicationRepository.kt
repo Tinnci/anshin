@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface MedicationRepository {
     fun getActiveMedications(): Flow<List<Medication>>
     fun getArchivedMedications(): Flow<List<Medication>>
+    fun getAllMedications(): Flow<List<Medication>>
     suspend fun getMedicationById(id: Long): Medication?
     suspend fun addMedication(medication: Medication): Long
     suspend fun updateMedication(medication: Medication)

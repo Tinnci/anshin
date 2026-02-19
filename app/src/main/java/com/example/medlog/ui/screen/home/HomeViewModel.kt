@@ -78,7 +78,7 @@ class HomeViewModel @Inject constructor(
                 item.medication.stock?.let { stock ->
                     medicationRepo.updateStock(item.medication.id, stock + item.medication.doseQuantity)
                 }
-                notificationHelper.scheduleAlarm(item.medication, nextAlarmMs(item.medication))
+                notificationHelper.scheduleAllReminders(item.medication)
             } else {
                 logRepo.deleteLogsForDate(item.medication.id, today.first, today.second)
                 logRepo.insertLog(
@@ -95,7 +95,7 @@ class HomeViewModel @Inject constructor(
                         (stock - item.medication.doseQuantity).coerceAtLeast(0.0),
                     )
                 }
-                notificationHelper.cancelReminder(item.medication.id)
+                notificationHelper.cancelAllReminders(item.medication.id)
             }
         }
     }
@@ -112,7 +112,7 @@ class HomeViewModel @Inject constructor(
                     status = LogStatus.SKIPPED,
                 )
             )
-            notificationHelper.cancelReminder(item.medication.id)
+            notificationHelper.cancelAllReminders(item.medication.id)
         }
     }
 
@@ -138,11 +138,6 @@ class HomeViewModel @Inject constructor(
             set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         return cal.timeInMillis
-    }
-
-    private fun nextAlarmMs(med: Medication): Long {
-        val ms = scheduledMs(med)
-        return if (ms > System.currentTimeMillis()) ms else ms + 24 * 60 * 60 * 1000
     }
 }
 

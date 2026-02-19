@@ -192,23 +192,14 @@ class AddMedicationViewModel @Inject constructor(
             )
             if (existingId == null) {
                 val newId = repository.addMedication(medication)
-                notificationHelper.scheduleAlarm(medication.copy(id = newId), nextAlarmMs(h, m))
+                notificationHelper.scheduleAllReminders(medication.copy(id = newId))
             } else {
                 repository.updateMedication(medication)
-                notificationHelper.cancelAlarm(existingId)
-                notificationHelper.scheduleAlarm(medication, nextAlarmMs(h, m))
+                notificationHelper.cancelAllReminders(existingId)
+                notificationHelper.scheduleAllReminders(medication)
             }
             update { copy(isSaving = false, isSaved = true) }
         }
-    }
-
-    private fun nextAlarmMs(hour: Int, minute: Int): Long {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-        if (cal.timeInMillis <= System.currentTimeMillis()) cal.add(Calendar.DAY_OF_YEAR, 1)
-        return cal.timeInMillis
     }
 
     private inline fun update(block: AddMedicationUiState.() -> AddMedicationUiState) {

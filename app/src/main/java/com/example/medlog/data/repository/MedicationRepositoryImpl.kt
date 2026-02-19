@@ -17,6 +17,9 @@ class MedicationRepositoryImpl @Inject constructor(
     override fun getArchivedMedications(): Flow<List<Medication>> =
         medicationDao.getArchivedMedications()
 
+    override fun getAllMedications(): Flow<List<Medication>> =
+        medicationDao.getAllMedications()
+
     override suspend fun getMedicationById(id: Long): Medication? =
         medicationDao.getMedicationById(id)
 
