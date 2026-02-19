@@ -1,5 +1,9 @@
 package com.example.medlog.ui
 
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -62,17 +66,37 @@ private fun MedLogNavHost(
     NavHost(
         navController = navController,
         startDestination = Route.Home,
+        // 顶层 Tab 切换：淡入淡出
+        enterTransition = { fadeIn() },
+        exitTransition = { fadeOut() },
+        // 深层导航：水平滑动
+        popEnterTransition = {
+            slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn()
+        },
+        popExitTransition = {
+            slideOutHorizontally(targetOffsetX = { it / 4 }) + fadeOut()
+        },
     ) {
-        composable<Route.Home> {
+        // ── 顶层目的地（Tab 切换：只淡入淡出）──────────────
+        composable<Route.Home>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             HomeScreen(
                 onAddMedication = { navController.navigate(Route.AddMedication()) },
                 onMedicationClick = { id -> navController.navigate(Route.MedDetail(id)) },
             )
         }
-        composable<Route.History> {
+        composable<Route.History>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             HistoryScreen()
         }
-        composable<Route.Drugs> {
+        composable<Route.Drugs>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             DrugsScreen(
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
                 onDrugSelect = { drug ->
@@ -85,10 +109,18 @@ private fun MedLogNavHost(
                 },
             )
         }
-        composable<Route.Settings> {
+        composable<Route.Settings>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
             SettingsScreen()
         }
-        composable<Route.MedDetail> { backStackEntry ->
+        composable<Route.MedDetail>(
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn() },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+        ) { backStackEntry ->
             val route: Route.MedDetail = backStackEntry.toRoute()
             MedicationDetailScreen(
                 medicationId = route.medicationId,
@@ -96,7 +128,12 @@ private fun MedLogNavHost(
                 onEdit = { id -> navController.navigate(Route.AddMedication(id)) },
             )
         }
-        composable<Route.AddMedication> { backStackEntry ->
+        composable<Route.AddMedication>(
+            enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
+            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn() },
+            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+        ) { backStackEntry ->
             val route: Route.AddMedication = backStackEntry.toRoute()
             AddMedicationScreen(
                 medicationId = route.medicationId.takeIf { it != -1L },

@@ -140,6 +140,7 @@ fun HomeScreen(
                     },
                     onSkip = { viewModel.skipMedication(item) },
                     onClick = { onMedicationClick(item.medication.id) },
+                    modifier = Modifier.animateItem(),
                 )
             }
 
