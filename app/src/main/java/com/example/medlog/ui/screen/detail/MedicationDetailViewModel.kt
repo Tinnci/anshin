@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
+import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -19,7 +20,8 @@ data class DetailUiState(
 
 @HiltViewModel
 class MedicationDetailViewModel @Inject constructor(
-    private val repository: MedicationRepository,
+    private val medicationRepo: MedicationRepository,
+    private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
 ) : ViewModel() {
 
@@ -28,14 +30,12 @@ class MedicationDetailViewModel @Inject constructor(
 
     fun loadMedication(id: Long) {
         viewModelScope.launch {
-            val med = repository.getMedicationById(id)
+            val med = medicationRepo.getMedicationById(id)
             _uiState.value = _uiState.value.copy(medication = med, isLoading = false)
             if (med != null) {
-                repository.getLogsForMedication(id, limit = 60)
+                logRepo.getLogsForMedication(id, limit = 60)
                     .catch { }
-                    .collect { logs ->
-                        _uiState.value = _uiState.value.copy(logs = logs)
-                    }
+                    .collect { logs -> _uiState.value = _uiState.value.copy(logs = logs) }
             }
         }
     }
@@ -43,7 +43,7 @@ class MedicationDetailViewModel @Inject constructor(
     fun archiveMedication() {
         val id = _uiState.value.medication?.id ?: return
         viewModelScope.launch {
-            repository.archiveMedication(id)
+            medicationRepo.archiveMedication(id)
             notificationHelper.cancelAlarm(id)
         }
     }
@@ -51,7 +51,7 @@ class MedicationDetailViewModel @Inject constructor(
     fun deleteMedication() {
         val med = _uiState.value.medication ?: return
         viewModelScope.launch {
-            repository.deleteMedication(med)
+            medicationRepo.deleteMedication(med)
             notificationHelper.cancelAlarm(med.id)
         }
     }

@@ -1,11 +1,13 @@
 package com.example.medlog.data.repository
 
 import com.example.medlog.data.model.Medication
-import com.example.medlog.data.model.MedicationLog
 import kotlinx.coroutines.flow.Flow
 
+/**
+ * 药品配置领域的唯一真实来源（SSOT）。
+ * 职责：药品 CRUD + 归档 + 库存；不涉及日志（SRP）。
+ */
 interface MedicationRepository {
-    // ── Medications ──────────────────────────────────────────────
     fun getActiveMedications(): Flow<List<Medication>>
     fun getArchivedMedications(): Flow<List<Medication>>
     suspend fun getMedicationById(id: Long): Medication?
@@ -15,12 +17,4 @@ interface MedicationRepository {
     suspend fun archiveMedication(id: Long)
     suspend fun unarchiveMedication(id: Long)
     suspend fun updateStock(id: Long, newStock: Double)
-
-    // ── Logs ──────────────────────────────────────────────────────
-    fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<MedicationLog>>
-    fun getLogsForMedication(medicationId: Long, limit: Int = 60): Flow<List<MedicationLog>>
-    suspend fun logMedication(log: MedicationLog): Long
-    suspend fun deleteLog(log: MedicationLog)
-    suspend fun deleteLogsForDate(medicationId: Long, startMs: Long, endMs: Long)
-    fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>
 }

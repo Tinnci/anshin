@@ -2,15 +2,12 @@ package com.example.medlog.ui.components
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.MoreVert
-import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,80 +32,108 @@ fun MedicationCard(
     val med = item.medication
     val containerColor by animateColorAsState(
         targetValue = when {
-            item.isTaken  -> MaterialTheme.colorScheme.tertiaryContainer
-            item.isSkipped -> MaterialTheme.colorScheme.surfaceVariant
-            else          -> MaterialTheme.colorScheme.surface
+            item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
+            item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
+            else           -> MaterialTheme.colorScheme.surface
         },
         label = "cardColor",
     )
+
+    val borderMod = if (med.isHighPriority && !item.isTaken && !item.isSkipped)
+        Modifier.border(1.5.dp, MaterialTheme.colorScheme.error, MaterialTheme.shapes.medium)
+    else Modifier
 
     var expanded by remember { mutableStateOf(false) }
 
     ElevatedCard(
         modifier = modifier
             .fillMaxWidth()
+            .then(borderMod)
             .clickable(onClick = onClick),
         colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = if (med.isHighPriority && !item.isTaken) 3.dp else 1.dp,
+        ),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Status indicator circle
             StatusCircle(isTaken = item.isTaken, isSkipped = item.isSkipped)
-
             Spacer(Modifier.width(12.dp))
 
             Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = med.name,
-                    style = MaterialTheme.typography.titleMedium,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                ) {
+                    Text(
+                        text = med.name,
+                        style = MaterialTheme.typography.titleMedium,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    if (med.isHighPriority) {
+                        Icon(
+                            Icons.Rounded.PriorityHigh,
+                            contentDescription = "高优先级",
+                            tint = MaterialTheme.colorScheme.error,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                    if (med.isPRN) {
+                        SuggestionChip(
+                            onClick = {},
+                            label = { Text("PRN", style = MaterialTheme.typography.labelSmall) },
+                            modifier = Modifier.height(20.dp),
+                        )
+                    }
+                }
                 Spacer(Modifier.height(2.dp))
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp),
                 ) {
                     val period = TimePeriod.fromKey(med.timePeriod)
-                    Icon(
-                        imageVector = period.icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(14.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    Icon(period.icon, null, Modifier.size(14.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                     val timeText = if (med.timePeriod == "exact") {
-                        "%02d:%02d".format(med.reminderHour, med.reminderMinute)
-                    } else {
-                        period.label
+                        med.reminderTimes.split(",").firstOrNull() ?: "%02d:%02d".format(med.reminderHour, med.reminderMinute)
+                    } else period.label
+                    val doseDisplay = med.doseQuantity.let {
+                        if (it == it.toLong().toDouble()) "${it.toLong()} ${med.doseUnit}"
+                        else "%.1f ${med.doseUnit}".format(it)
                     }
                     Text(
-                        text = "${med.dose} ${med.doseUnit}  ·  $timeText",
+                        text = "$doseDisplay  ·  $timeText",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                // Actual taken time
                 if (item.isTaken && item.log?.actualTakenTimeMs != null) {
-                    val fmt = SimpleDateFormat("HH:mm", Locale.getDefault())
                     Text(
-                        text = "实际服用：${fmt.format(Date(item.log.actualTakenTimeMs))}",
+                        text = "实际服用：${SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date(item.log.actualTakenTimeMs))}",
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
                 }
+                if (item.isSkipped) {
+                    Text("已跳过", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                }
+                if (med.stock != null && med.refillThreshold != null && med.stock <= med.refillThreshold) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                        Icon(Icons.Rounded.Warning, null, Modifier.size(12.dp), tint = MaterialTheme.colorScheme.error)
+                        Text("库存不足（剩余 ${med.stock.toInt()} ${med.doseUnit}）", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.error)
+                    }
+                }
             }
 
-            // Action buttons
             if (!item.isSkipped) {
                 IconButton(onClick = onToggleTaken) {
                     Icon(
-                        imageVector = if (item.isTaken) Icons.Rounded.Check else Icons.Rounded.Check,
+                        imageVector = if (item.isTaken) Icons.Rounded.CheckCircle else Icons.Rounded.RadioButtonUnchecked,
                         contentDescription = if (item.isTaken) "取消" else "标记已服",
                         tint = if (item.isTaken) MaterialTheme.colorScheme.tertiary
-                        else MaterialTheme.colorScheme.outline,
+                               else MaterialTheme.colorScheme.outline,
                     )
                 }
             }
@@ -129,7 +154,7 @@ fun MedicationCard(
                         DropdownMenuItem(
                             text = { Text("撤销") },
                             onClick = { expanded = false; onToggleTaken() },
-                            leadingIcon = { Icon(Icons.Rounded.Schedule, null) },
+                            leadingIcon = { Icon(Icons.Rounded.Undo, null) },
                         )
                     }
                 }
@@ -141,31 +166,19 @@ fun MedicationCard(
 @Composable
 private fun StatusCircle(isTaken: Boolean, isSkipped: Boolean) {
     val bgColor = when {
-        isTaken  -> MaterialTheme.colorScheme.tertiary
+        isTaken   -> MaterialTheme.colorScheme.tertiary
         isSkipped -> MaterialTheme.colorScheme.outlineVariant
-        else     -> Color.Transparent
+        else      -> Color.Transparent
     }
     Box(
-        modifier = Modifier
-            .size(36.dp)
-            .clip(CircleShape)
-            .background(bgColor),
+        modifier = Modifier.size(36.dp).clip(CircleShape).background(bgColor),
         contentAlignment = Alignment.Center,
     ) {
-        if (isTaken) {
-            Icon(
-                Icons.Rounded.Check,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onTertiary,
-                modifier = Modifier.size(20.dp),
-            )
-        } else {
-            Box(
-                modifier = Modifier
-                    .size(36.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-            )
+        when {
+            isTaken  -> Icon(Icons.Rounded.Check, null, tint = MaterialTheme.colorScheme.onTertiary, modifier = Modifier.size(20.dp))
+            isSkipped -> Icon(Icons.Rounded.Remove, null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(20.dp))
+            else      -> Box(Modifier.size(36.dp).clip(CircleShape).background(MaterialTheme.colorScheme.surfaceContainerHigh))
         }
     }
 }
+

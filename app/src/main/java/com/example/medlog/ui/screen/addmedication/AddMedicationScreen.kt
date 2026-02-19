@@ -1,23 +1,49 @@
 package com.example.medlog.ui.screen.addmedication
 
 import android.app.TimePickerDialog
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.medlog.data.model.TimePeriod
+import java.text.SimpleDateFormat
+import java.util.*
+
+private data class FormOption(val key: String, val label: String, val icon: ImageVector)
+
+private val FORM_OPTIONS = listOf(
+    FormOption("tablet",  "片剂", Icons.Rounded.Medication),
+    FormOption("capsule", "胶囊", Icons.Rounded.Science),
+    FormOption("liquid",  "液体", Icons.Rounded.LocalDrink),
+    FormOption("powder",  "粉末", Icons.Rounded.WaterDrop),
+    FormOption("patch",   "贴片", Icons.Rounded.Healing),
+    FormOption("other",   "其他", Icons.Rounded.MoreHoriz),
+)
+
+private val DOSE_UNITS = listOf("片", "粒", "ml", "mg", "滴", "袋", "支", "贴")
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -30,27 +56,24 @@ fun AddMedicationScreen(
     viewModel: AddMedicationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    // Load existing medication once
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.loadExisting(medicationId)
     }
-
-    // Pre-fill from drug database selection
     LaunchedEffect(drugName) {
         if (!drugName.isNullOrEmpty() && medicationId == null) {
             viewModel.prefillFromDrug(drugName, drugCategory.orEmpty())
         }
     }
-
-    // Navigate away after save
     LaunchedEffect(uiState.isSaved) {
         if (uiState.isSaved) onSaved()
     }
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text(if (medicationId == null) "新增药品" else "编辑药品") },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -58,205 +81,472 @@ fun AddMedicationScreen(
                     }
                 },
                 actions = {
-                    IconButton(
+                    FilledTonalButton(
                         onClick = { viewModel.save(medicationId) },
                         enabled = !uiState.isSaving,
+                        modifier = Modifier.padding(end = 12.dp),
                     ) {
-                        Icon(Icons.Filled.Check, contentDescription = "保存")
+                        if (uiState.isSaving) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                            )
+                            Spacer(Modifier.width(8.dp))
+                        }
+                        Text("保存")
                     }
-                }
+                },
+                scrollBehavior = scrollBehavior,
             )
-        }
+        },
     ) { paddingValues ->
         Column(
             modifier = Modifier
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
+                .padding(horizontal = 16.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            // --- Basic Info Section ---
-            SectionTitle("基本信息")
 
-            OutlinedTextField(
-                value = uiState.name,
-                onValueChange = viewModel::onNameChange,
-                label = { Text("药品名称 *") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = uiState.error != null && uiState.name.isBlank(),
-                supportingText = {
-                    if (uiState.error != null && uiState.name.isBlank()) Text(uiState.error!!)
-                },
-                singleLine = true,
-            )
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            // ── 基本信息 ─────────────────────────────────────────
+            FormSection(title = "基本信息", icon = Icons.Rounded.Info) {
                 OutlinedTextField(
-                    value = uiState.dose,
-                    onValueChange = viewModel::onDoseChange,
-                    label = { Text("剂量") },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    value = uiState.name,
+                    onValueChange = viewModel::onNameChange,
+                    label = { Text("药品名称 *") },
+                    modifier = Modifier.fillMaxWidth(),
+                    isError = uiState.error != null && uiState.name.isBlank(),
+                    supportingText = {
+                        if (uiState.error != null && uiState.name.isBlank())
+                            Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+                    },
+                    leadingIcon = { Icon(Icons.Rounded.Medication, null) },
                     singleLine = true,
                 )
                 OutlinedTextField(
-                    value = uiState.doseUnit,
-                    onValueChange = viewModel::onDoseUnitChange,
-                    label = { Text("单位") },
-                    modifier = Modifier.weight(1f),
-                    placeholder = { Text("片/粒/ml") },
+                    value = uiState.category,
+                    onValueChange = viewModel::onCategoryChange,
+                    label = { Text("分类（可选）") },
+                    modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text("如：心血管、消化、抗感染…") },
+                    leadingIcon = { Icon(Icons.Rounded.Category, null) },
                     singleLine = true,
                 )
-            }
-
-            OutlinedTextField(
-                value = uiState.category,
-                onValueChange = viewModel::onCategoryChange,
-                label = { Text("分类（可选）") },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text("例：心血管、消化、抗感染…") },
-                singleLine = true,
-            )
-
-            // --- Reminder Section ---
-            SectionTitle("服药时间")
-
-            TimePeriodSelector(
-                selected = uiState.timePeriod,
-                onSelect = viewModel::onTimePeriodChange,
-            )
-
-            if (uiState.timePeriod == TimePeriod.EXACT) {
-                TimePickerRow(
-                    hour = uiState.reminderHour,
-                    minute = uiState.reminderMinute,
-                    onPick = viewModel::onReminderTimeChange,
-                )
-            }
-
-            // --- Stock Section ---
-            SectionTitle("库存（可选）")
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                OutlinedTextField(
-                    value = uiState.stock,
-                    onValueChange = viewModel::onStockChange,
-                    label = { Text("当前库存") },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                )
-                OutlinedTextField(
-                    value = uiState.refillThreshold,
-                    onValueChange = viewModel::onRefillThresholdChange,
-                    label = { Text("补药提醒阈值") },
-                    modifier = Modifier.weight(1f),
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
-                )
-            }
-
-            // --- Notes Section ---
-            SectionTitle("备注")
-
-            OutlinedTextField(
-                value = uiState.note,
-                onValueChange = viewModel::onNoteChange,
-                label = { Text("备注（可选）") },
-                modifier = Modifier.fillMaxWidth(),
-                minLines = 2,
-                maxLines = 4,
-            )
-
-            // Bottom save button
-            Button(
-                onClick = { viewModel.save(medicationId) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 8.dp),
-                enabled = !uiState.isSaving,
-            ) {
-                if (uiState.isSaving) {
-                    CircularProgressIndicator(
-                        modifier = Modifier.size(18.dp),
-                        strokeWidth = 2.dp,
-                        color = MaterialTheme.colorScheme.onPrimary,
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(Icons.Rounded.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
+                        Column {
+                            Text("高优先级", style = MaterialTheme.typography.bodyMedium)
+                            Text("将在列表顶部显示", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    Switch(
+                        checked = uiState.isHighPriority,
+                        onCheckedChange = viewModel::onHighPriorityChange,
                     )
-                    Spacer(Modifier.width(8.dp))
                 }
-                Text("保存")
             }
+
+            // ── 药品剂型 ─────────────────────────────────────────
+            FormSection(title = "药品剂型", icon = Icons.Rounded.Healing) {
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(3),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(max = 200.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    userScrollEnabled = false,
+                ) {
+                    items(FORM_OPTIONS) { option ->
+                        val isSelected = uiState.form == option.key
+                        ElevatedCard(
+                            onClick = { viewModel.onFormChange(option.key) },
+                            colors = CardDefaults.elevatedCardColors(
+                                containerColor = if (isSelected)
+                                    MaterialTheme.colorScheme.primaryContainer
+                                else
+                                    MaterialTheme.colorScheme.surfaceContainerLow,
+                            ),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .padding(8.dp)
+                                    .fillMaxWidth(),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    option.icon,
+                                    contentDescription = null,
+                                    tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                                           else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    option.label,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── 每次剂量 ─────────────────────────────────────────
+            FormSection(title = "每次剂量", icon = Icons.Rounded.MonitorWeight) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        uiState.doseQuantity.let {
+                            if (it == it.toLong().toDouble()) it.toLong().toString()
+                            else "%.1f".format(it)
+                        },
+                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                        color = MaterialTheme.colorScheme.primary,
+                    )
+                    Slider(
+                        value = uiState.doseQuantity.toFloat(),
+                        onValueChange = { viewModel.onDoseQuantityChange(it.toDouble()) },
+                        valueRange = 0.5f..10f,
+                        steps = 18,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Text(
+                        "滑动选择每次服药数量",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Spacer(Modifier.height(4.dp))
+                Text("单位", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    DOSE_UNITS.forEach { unit ->
+                        FilterChip(
+                            selected = uiState.doseUnit == unit,
+                            onClick = { viewModel.onDoseUnitChange(unit) },
+                            label = { Text(unit) },
+                        )
+                    }
+                }
+            }
+
+            // ── 按需用药 ─────────────────────────────────────────
+            FormSection(title = "用药方式", icon = Icons.Rounded.EventRepeat) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Icon(Icons.Rounded.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
+                        Column {
+                            Text("按需用药 (PRN)", style = MaterialTheme.typography.bodyMedium)
+                            Text("用于镇痛药等非定时药物", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        }
+                    }
+                    Switch(checked = uiState.isPRN, onCheckedChange = viewModel::onIsPRNChange)
+                }
+                AnimatedVisibility(visible = uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
+                    OutlinedTextField(
+                        value = uiState.maxDailyDose,
+                        onValueChange = viewModel::onMaxDailyDoseChange,
+                        label = { Text("每日最大剂量（可选）") },
+                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        suffix = { Text("次/天") },
+                        singleLine = true,
+                    )
+                }
+
+                // ── 服药频率（非PRN才显示）──────────────────────
+                AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
+                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                        Text("服药频率", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf("daily" to "每天", "interval" to "间隔", "specific_days" to "指定天").forEach { (key, label) ->
+                                val selected = uiState.frequencyType == key
+                                FilterChip(
+                                    selected = selected,
+                                    onClick = { viewModel.onFrequencyTypeChange(key) },
+                                    label = { Text(label) },
+                                    modifier = Modifier.weight(1f),
+                                )
+                            }
+                        }
+                        AnimatedVisibility(uiState.frequencyType == "interval") {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                Text("每隔", style = MaterialTheme.typography.bodyMedium)
+                                OutlinedTextField(
+                                    value = uiState.frequencyInterval.toString(),
+                                    onValueChange = { viewModel.onFrequencyIntervalChange(it.toIntOrNull() ?: 1) },
+                                    modifier = Modifier.width(80.dp),
+                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                    singleLine = true,
+                                )
+                                Text("天服用一次", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                        AnimatedVisibility(uiState.frequencyType == "specific_days") {
+                            val days = uiState.frequencyDays.split(",").filter { it.isNotBlank() }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                listOf("一" to 1, "二" to 2, "三" to 3, "四" to 4, "五" to 5, "六" to 6, "日" to 7).forEach { (label, day) ->
+                                    FilterChip(
+                                        selected = days.contains(day.toString()),
+                                        onClick = { viewModel.toggleFrequencyDay(day) },
+                                        label = { Text(label) },
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            // ── 服药时段 & 提醒（非PRN才显示）─────────────────
+            AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
+                FormSection(title = "服药时段", icon = Icons.Rounded.Schedule) {
+                    Text("选择服药的时间段", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Row(
+                        modifier = Modifier
+                            .horizontalScroll(rememberScrollState())
+                            .fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        TimePeriod.entries.forEach { tp ->
+                            FilterChip(
+                                selected = tp == uiState.timePeriod,
+                                onClick = { viewModel.onTimePeriodChange(tp) },
+                                label = { Text(tp.label, style = MaterialTheme.typography.labelSmall) },
+                                leadingIcon = {
+                                    Icon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
+                                },
+                            )
+                        }
+                    }
+                    AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
+                        ReminderTimesRow(
+                            times = uiState.reminderTimes,
+                            onAdd = viewModel::addReminderTime,
+                            onRemove = viewModel::removeReminderTime,
+                        )
+                    }
+                }
+            }
+
+            // ── 起止日期 ─────────────────────────────────────────
+            FormSection(title = "起止日期", icon = Icons.Rounded.DateRange) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    DatePickerField(
+                        label = "开始日期",
+                        timestamp = uiState.startDate,
+                        onPick = { it?.let { ms -> viewModel.onStartDateChange(ms) } },
+                        modifier = Modifier.weight(1f),
+                    )
+                    DatePickerField(
+                        label = "结束（可选）",
+                        timestamp = uiState.endDate,
+                        onPick = viewModel::onEndDateChange,
+                        nullable = true,
+                        modifier = Modifier.weight(1f),
+                    )
+                }
+            }
+
+            // ── 库存管理 ─────────────────────────────────────────
+            FormSection(title = "库存管理（可选）", icon = Icons.Rounded.Inventory) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(
+                        value = uiState.stock,
+                        onValueChange = viewModel::onStockChange,
+                        label = { Text("当前库存") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        suffix = { Text(uiState.doseUnit) },
+                        singleLine = true,
+                    )
+                    OutlinedTextField(
+                        value = uiState.refillThreshold,
+                        onValueChange = viewModel::onRefillThresholdChange,
+                        label = { Text("补药提醒") },
+                        modifier = Modifier.weight(1f),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                        suffix = { Text(uiState.doseUnit) },
+                        singleLine = true,
+                    )
+                }
+            }
+
+            // ── 备注 ─────────────────────────────────────────────
+            FormSection(title = "备注", icon = Icons.Rounded.Notes) {
+                OutlinedTextField(
+                    value = uiState.notes,
+                    onValueChange = viewModel::onNotesChange,
+                    label = { Text("备注（可选）") },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 5,
+                    placeholder = { Text("用法说明、注意事项…") },
+                )
+            }
+
+            Spacer(Modifier.height(8.dp))
         }
     }
 }
 
-@Composable
-private fun SectionTitle(text: String) {
-    Text(
-        text = text,
-        style = MaterialTheme.typography.titleSmall,
-        color = MaterialTheme.colorScheme.primary,
-    )
-    HorizontalDivider()
-}
+// ── 辅助组件 ─────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimePeriodSelector(
-    selected: TimePeriod,
-    onSelect: (TimePeriod) -> Unit,
+private fun FormSection(
+    title: String,
+    icon: ImageVector,
+    content: @Composable ColumnScope.() -> Unit,
 ) {
-    Row(
-        modifier = Modifier
-            .horizontalScroll(rememberScrollState())
-            .fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
     ) {
-        TimePeriod.values().forEach { tp ->
-            FilterChip(
-                selected = tp == selected,
-                onClick = { onSelect(tp) },
-                label = { Text(tp.label, style = MaterialTheme.typography.labelSmall) },
-                leadingIcon = {
-                    Icon(
-                        imageVector = tp.icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(FilterChipDefaults.IconSize),
-                    )
-                }
-            )
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                Text(
+                    title,
+                    style = MaterialTheme.typography.titleSmall,
+                    color = MaterialTheme.colorScheme.primary,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            content()
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun TimePickerRow(hour: Int, minute: Int, onPick: (Int, Int) -> Unit) {
+private fun ReminderTimesRow(
+    times: List<String>,
+    onAdd: (String) -> Unit,
+    onRemove: (String) -> Unit,
+) {
     val context = LocalContext.current
-    val label = "%02d:%02d".format(hour, minute)
     var showPicker by remember { mutableStateOf(false) }
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-    ) {
-        Text("具体时间：", style = MaterialTheme.typography.bodyMedium)
-        AssistChip(
-            onClick = { showPicker = true },
-            label = { Text(label) },
-        )
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Text("提醒时间", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Row(
+            modifier = Modifier.horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            times.forEach { hhmm ->
+                InputChip(
+                    selected = true,
+                    onClick = {},
+                    label = { Text(hhmm) },
+                    trailingIcon = {
+                        IconButton(onClick = { onRemove(hhmm) }, modifier = Modifier.size(18.dp)) {
+                            Icon(Icons.Filled.Close, null, Modifier.size(14.dp))
+                        }
+                    },
+                )
+            }
+            AssistChip(
+                onClick = { showPicker = true },
+                label = { Text("添加") },
+                leadingIcon = { Icon(Icons.Filled.Add, null, Modifier.size(18.dp)) },
+            )
+        }
     }
 
     if (showPicker) {
-        val dialog = TimePickerDialog(
+        val cal = Calendar.getInstance()
+        TimePickerDialog(
             context,
-            { _, h, m -> onPick(h, m); showPicker = false },
-            hour, minute, true,
-        )
-        dialog.setOnDismissListener { showPicker = false }
-        dialog.show()
-        DisposableEffect(Unit) {
-            onDispose { dialog.dismiss() }
+            { _, h, m -> onAdd("%02d:%02d".format(h, m)); showPicker = false },
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            true,
+        ).also {
+            it.setOnDismissListener { showPicker = false }
+            it.show()
         }
+        DisposableEffect(Unit) { onDispose {} }
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DatePickerField(
+    label: String,
+    timestamp: Long?,
+    onPick: (Long?) -> Unit,
+    nullable: Boolean = false,
+    modifier: Modifier = Modifier,
+) {
+    val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
+    val displayText = timestamp?.let { fmt.format(Date(it)) } ?: "未设置"
+    var showPicker by remember { mutableStateOf(false) }
+
+    OutlinedCard(
+        onClick = { showPicker = true },
+        modifier = modifier,
+    ) {
+        Column(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                if (nullable && timestamp != null) {
+                    Spacer(Modifier.weight(1f))
+                    IconButton(onClick = { onPick(null) }, modifier = Modifier.size(16.dp)) {
+                        Icon(Icons.Filled.Close, null, Modifier.size(12.dp))
+                    }
+                }
+            }
+        }
+    }
+
+    if (showPicker) {
+        val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
+        DatePickerDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onPick(state.selectedDateMillis)
+                    showPicker = false
+                }) { Text("确定") }
+            },
+            dismissButton = { TextButton(onClick = { showPicker = false }) { Text("取消") } },
+        ) { DatePicker(state = state) }
+    }
+}
+

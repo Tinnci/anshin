@@ -5,7 +5,7 @@ import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
-/** 每次服药 / 跳过 / 漏服的日志 */
+/** 单次服药 / 跳过 / 漏服事件（SSOT — 日志不可变） */
 @Entity(
     tableName = "medication_logs",
     foreignKeys = [
@@ -16,19 +16,16 @@ import androidx.room.PrimaryKey
             onDelete = ForeignKey.CASCADE,
         )
     ],
-    indices = [Index("medicationId")],
+    indices = [Index("medicationId"), Index("scheduledTimeMs")],
 )
 data class MedicationLog(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val medicationId: Long,
-    val scheduledTimeMs: Long,    // 计划服药时间戳
-    val actualTakenTimeMs: Long?, // 实际服药时间戳，null 表示未记录
-    val status: LogStatus,
+    val scheduledTimeMs: Long,           // 计划服药时间戳（ms）
+    val actualTakenTimeMs: Long? = null, // 实际服药时间戳，null 表示未服
+    val status: LogStatus = LogStatus.TAKEN,
+    val notes: String = "",              // 本次服药备注
 )
 
-enum class LogStatus {
-    TAKEN,   // 已服用
-    SKIPPED, // 跳过
-    MISSED,  // 漏服
-}
+enum class LogStatus { TAKEN, SKIPPED, MISSED }

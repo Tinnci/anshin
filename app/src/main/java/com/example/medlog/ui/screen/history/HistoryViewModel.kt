@@ -3,7 +3,7 @@ package com.example.medlog.ui.screen.history
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.MedicationLog
-import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.LogRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ data class HistoryUiState(
 
 @HiltViewModel
 class HistoryViewModel @Inject constructor(
-    private val repository: MedicationRepository,
+    private val logRepo: LogRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
@@ -31,7 +31,7 @@ class HistoryViewModel @Inject constructor(
         viewModelScope.launch {
             val end = System.currentTimeMillis()
             val start = end - 30L * 24 * 60 * 60 * 1000
-            repository.getLogsForDateRange(start, end)
+            logRepo.getLogsForDateRange(start, end)
                 .catch { }
                 .collect { logs ->
                     val grouped = logs.groupBy { log ->

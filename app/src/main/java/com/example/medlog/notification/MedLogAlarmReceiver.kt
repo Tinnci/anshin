@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
+import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -20,7 +21,10 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
     lateinit var notificationHelper: NotificationHelper
 
     @Inject
-    lateinit var repository: MedicationRepository
+    lateinit var medicationRepo: MedicationRepository
+
+    @Inject
+    lateinit var logRepo: LogRepository
 
     override fun onReceive(context: Context, intent: Intent) {
         val medId = intent.getLongExtra(EXTRA_MED_ID, -1L)
@@ -31,12 +35,11 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
             "ACTION_TAKEN" -> {
                 notificationHelper.cancelReminder(medId)
                 CoroutineScope(Dispatchers.IO).launch {
-                    val now = System.currentTimeMillis()
-                    repository.logMedication(
+                    logRepo.insertLog(
                         MedicationLog(
                             medicationId = medId,
                             scheduledTimeMs = dayStartMs(),
-                            actualTakenTimeMs = now,
+                            actualTakenTimeMs = System.currentTimeMillis(),
                             status = LogStatus.TAKEN,
                         )
                     )
@@ -45,7 +48,7 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
             "ACTION_SKIP" -> {
                 notificationHelper.cancelReminder(medId)
                 CoroutineScope(Dispatchers.IO).launch {
-                    repository.logMedication(
+                    logRepo.insertLog(
                         MedicationLog(
                             medicationId = medId,
                             scheduledTimeMs = dayStartMs(),
@@ -56,13 +59,12 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                 }
             }
             else -> {
-                // Show the reminder notification
                 CoroutineScope(Dispatchers.IO).launch {
-                    val med = repository.getMedicationById(medId) ?: return@launch
+                    val med = medicationRepo.getMedicationById(medId) ?: return@launch
                     notificationHelper.showReminderNotification(
                         medId,
                         medName,
-                        "${med.dose} ${med.doseUnit}",
+                        "${med.doseQuantity} ${med.doseUnit}",
                     )
                 }
             }
@@ -71,11 +73,10 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
 
     private fun dayStartMs(): Long {
         val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         return cal.timeInMillis
     }
+
 }

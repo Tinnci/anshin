@@ -108,7 +108,7 @@ fun MedicationDetailScreen(
                         else period.label
                         DetailRow("服药时段", timeStr)
                         med.stock?.let { DetailRow("库存", "$it ${med.doseUnit}") }
-                        if (med.note.isNotBlank()) DetailRow("备注", med.note)
+                        if (med.notes.isNotBlank()) DetailRow("备注", med.notes)
                     }
                 }
             }

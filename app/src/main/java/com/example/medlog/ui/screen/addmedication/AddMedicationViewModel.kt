@@ -12,23 +12,57 @@ import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
 
+/** 剂型选项 */
+data class DrugForm(val key: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+
 data class AddMedicationUiState(
+    // ── 基础信息 ──────────────────────────────────────────────────
     val name: String = "",
-    val dose: String = "1",
-    val doseUnit: String = "片",
     val category: String = "",
-    val timePeriod: TimePeriod = TimePeriod.EXACT,
-    val reminderHour: Int = 8,
-    val reminderMinute: Int = 0,
-    val daysOfWeek: String = "1,2,3,4,5,6,7",
+    val form: String = "tablet",             // tablet/capsule/liquid/powder
+    val isHighPriority: Boolean = false,
+    val isCustomDrug: Boolean = false,
+
+    // ── 剂量 ──────────────────────────────────────────────────────
+    val doseQuantity: Double = 1.0,          // 每次几片/粒/ml
+    val doseUnit: String = "片",
+
+    // ── 按需 / PRN ────────────────────────────────────────────────
+    val isPRN: Boolean = false,
+    val maxDailyDose: String = "",           // 每日最大剂量（字符串，便于输入）
+
+    // ── 服药时段 & 提醒 ──────────────────────────────────────────
+    val timePeriod: TimePeriod = TimePeriod.MORNING,
+    val reminderTimes: List<String> = listOf("08:00"), // HH:mm 列表
+
+    // ── 频率 ──────────────────────────────────────────────────────
+    val frequencyType: String = "daily",     // daily / interval / specific_days
+    val frequencyInterval: Int = 1,
+    val frequencyDays: String = "1,2,3,4,5,6,7", // 逗号分隔的周天
+
+    // ── 起止日期 ─────────────────────────────────────────────────
+    val startDate: Long = todayStartMs(),
+    val endDate: Long? = null,
+
+    // ── 库存 ─────────────────────────────────────────────────────
     val stock: String = "",
     val refillThreshold: String = "",
-    val note: String = "",
-    val isCustomDrug: Boolean = false,
+
+    // ── 其他 ─────────────────────────────────────────────────────
+    val notes: String = "",
+
+    // ── UI 状态 ──────────────────────────────────────────────────
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val error: String? = null,
 )
+
+private fun todayStartMs(): Long {
+    val cal = Calendar.getInstance()
+    cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0)
+    cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0)
+    return cal.timeInMillis
+}
 
 @HiltViewModel
 class AddMedicationViewModel @Inject constructor(
@@ -39,95 +73,145 @@ class AddMedicationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddMedicationUiState())
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
 
-    /** Pre-fill name/category when navigating from the drug database. */
+    /** 从药品数据库选药后预填名称和分类（仅新增时生效） */
     fun prefillFromDrug(name: String, category: String) {
-        // Only pre-fill when not editing an existing medication
         if (_uiState.value.name.isEmpty()) {
             _uiState.value = _uiState.value.copy(name = name, category = category)
         }
     }
 
+    /** 加载已有药品进行编辑 */
     fun loadExisting(medicationId: Long) {
         viewModelScope.launch {
             val med = repository.getMedicationById(medicationId) ?: return@launch
             _uiState.value = AddMedicationUiState(
-                name              = med.name,
-                dose              = med.dose.toString(),
-                doseUnit          = med.doseUnit,
-                category          = med.category,
-                timePeriod        = TimePeriod.fromKey(med.timePeriod),
-                reminderHour      = med.reminderHour,
-                reminderMinute    = med.reminderMinute,
-                daysOfWeek        = med.daysOfWeek,
-                stock             = med.stock?.toString() ?: "",
-                refillThreshold   = med.refillThreshold?.toString() ?: "",
-                note              = med.note,
-                isCustomDrug      = med.isCustomDrug,
+                name            = med.name,
+                category        = med.category,
+                form            = med.form,
+                isHighPriority  = med.isHighPriority,
+                isCustomDrug    = med.isCustomDrug,
+                doseQuantity    = med.doseQuantity,
+                doseUnit        = med.doseUnit,
+                isPRN           = med.isPRN,
+                maxDailyDose    = med.maxDailyDose?.toString() ?: "",
+                timePeriod      = TimePeriod.fromKey(med.timePeriod),
+                reminderTimes   = med.reminderTimes.split(",").filter { it.isNotBlank() }
+                                      .ifEmpty { listOf("08:00") },
+                frequencyType   = med.frequencyType,
+                frequencyInterval = med.frequencyInterval,
+                frequencyDays   = med.frequencyDays,
+                startDate       = med.startDate,
+                endDate         = med.endDate,
+                stock           = med.stock?.toString() ?: "",
+                refillThreshold = med.refillThreshold?.toString() ?: "",
+                notes           = med.notes,
             )
         }
     }
 
-    fun onNameChange(v: String)            { _uiState.value = _uiState.value.copy(name = v) }
-    fun onDoseChange(v: String)            { _uiState.value = _uiState.value.copy(dose = v) }
-    fun onDoseUnitChange(v: String)        { _uiState.value = _uiState.value.copy(doseUnit = v) }
-    fun onCategoryChange(v: String)        { _uiState.value = _uiState.value.copy(category = v) }
-    fun onTimePeriodChange(v: TimePeriod)  { _uiState.value = _uiState.value.copy(timePeriod = v) }
-    fun onReminderTimeChange(h: Int, m: Int) {
-        _uiState.value = _uiState.value.copy(reminderHour = h, reminderMinute = m)
+    // ── 字段 setters ────────────────────────────────────────────
+
+    fun onNameChange(v: String)              = update { copy(name = v, error = null) }
+    fun onCategoryChange(v: String)          = update { copy(category = v) }
+    fun onFormChange(v: String)              = update { copy(form = v) }
+    fun onHighPriorityChange(v: Boolean)     = update { copy(isHighPriority = v) }
+    fun onCustomDrugChange(v: Boolean)       = update { copy(isCustomDrug = v) }
+
+    fun onDoseQuantityChange(v: Double)      = update { copy(doseQuantity = v) }
+    fun onDoseUnitChange(v: String)          = update { copy(doseUnit = v) }
+
+    fun onIsPRNChange(v: Boolean)            = update { copy(isPRN = v) }
+    fun onMaxDailyDoseChange(v: String)      = update { copy(maxDailyDose = v) }
+
+    fun onTimePeriodChange(v: TimePeriod)    = update { copy(timePeriod = v) }
+
+    fun addReminderTime(hhmm: String) {
+        val existing = _uiState.value.reminderTimes.toMutableList()
+        if (!existing.contains(hhmm)) { existing += hhmm; existing.sort() }
+        update { copy(reminderTimes = existing) }
     }
-    fun onStockChange(v: String)           { _uiState.value = _uiState.value.copy(stock = v) }
-    fun onRefillThresholdChange(v: String) { _uiState.value = _uiState.value.copy(refillThreshold = v) }
-    fun onNoteChange(v: String)            { _uiState.value = _uiState.value.copy(note = v) }
+    fun removeReminderTime(hhmm: String)     = update {
+        copy(reminderTimes = reminderTimes.filterNot { it == hhmm }.ifEmpty { listOf("08:00") })
+    }
+
+    fun onFrequencyTypeChange(v: String)     = update { copy(frequencyType = v) }
+    fun onFrequencyIntervalChange(v: Int)    = update { copy(frequencyInterval = v.coerceIn(1, 90)) }
+    fun toggleFrequencyDay(day: Int) {
+        val current = _uiState.value.frequencyDays.split(",").filter { it.isNotBlank() }.toMutableList()
+        val s = day.toString()
+        if (current.contains(s)) current.remove(s) else current.add(s)
+        val sorted = current.distinct().sortedBy { it.toIntOrNull() ?: 0 }.joinToString(",")
+        update { copy(frequencyDays = sorted.ifBlank { "1" }) }
+    }
+
+    fun onStartDateChange(v: Long)           = update { copy(startDate = v) }
+    fun onEndDateChange(v: Long?)            = update { copy(endDate = v) }
+
+    fun onStockChange(v: String)             = update { copy(stock = v) }
+    fun onRefillThresholdChange(v: String)   = update { copy(refillThreshold = v) }
+    fun onNotesChange(v: String)             = update { copy(notes = v) }
+
+    // ── 保存 ─────────────────────────────────────────────────────
 
     fun save(existingId: Long?) {
         val state = _uiState.value
         if (state.name.isBlank()) {
-            _uiState.value = state.copy(error = "药品名称不能为空")
-            return
+            update { copy(error = "药品名称不能为空") }; return
         }
         viewModelScope.launch {
-            _uiState.value = _uiState.value.copy(isSaving = true)
+            update { copy(isSaving = true) }
+            // 取第一个提醒时间作为 reminderHour/Minute（向后兼容通知调度）
+            val firstTime = state.reminderTimes.firstOrNull() ?: "08:00"
+            val (h, m) = firstTime.split(":").let {
+                (it.getOrNull(0)?.toIntOrNull() ?: 8) to (it.getOrNull(1)?.toIntOrNull() ?: 0)
+            }
             val medication = Medication(
-                id               = existingId ?: 0,
-                name             = state.name.trim(),
-                dose             = state.dose.toDoubleOrNull() ?: 1.0,
-                doseUnit         = state.doseUnit,
-                category         = state.category.trim(),
-                timePeriod       = state.timePeriod.key,
-                reminderHour     = state.reminderHour,
-                reminderMinute   = state.reminderMinute,
-                daysOfWeek       = state.daysOfWeek,
-                stock            = state.stock.toDoubleOrNull(),
-                refillThreshold  = state.refillThreshold.toDoubleOrNull(),
-                note             = state.note,
-                isCustomDrug     = state.isCustomDrug,
+                id              = existingId ?: 0,
+                name            = state.name.trim(),
+                category        = state.category.trim(),
+                form            = state.form,
+                isHighPriority  = state.isHighPriority,
+                isCustomDrug    = state.isCustomDrug,
+                dose            = state.doseQuantity,  // 兼容旧字段
+                doseUnit        = state.doseUnit,
+                doseQuantity    = state.doseQuantity,
+                isPRN           = state.isPRN,
+                maxDailyDose    = state.maxDailyDose.toDoubleOrNull(),
+                timePeriod      = state.timePeriod.key,
+                reminderTimes   = state.reminderTimes.joinToString(","),
+                reminderHour    = h,
+                reminderMinute  = m,
+                frequencyType   = state.frequencyType,
+                frequencyInterval = state.frequencyInterval,
+                frequencyDays   = state.frequencyDays,
+                startDate       = state.startDate,
+                endDate         = state.endDate,
+                stock           = state.stock.toDoubleOrNull(),
+                refillThreshold = state.refillThreshold.toDoubleOrNull(),
+                notes           = state.notes,
             )
             if (existingId == null) {
                 val newId = repository.addMedication(medication)
-                notificationHelper.scheduleAlarm(
-                    medication.copy(id = newId),
-                    nextAlarmMs(state.reminderHour, state.reminderMinute),
-                )
+                notificationHelper.scheduleAlarm(medication.copy(id = newId), nextAlarmMs(h, m))
             } else {
                 repository.updateMedication(medication)
                 notificationHelper.cancelAlarm(existingId)
-                notificationHelper.scheduleAlarm(
-                    medication,
-                    nextAlarmMs(state.reminderHour, state.reminderMinute),
-                )
+                notificationHelper.scheduleAlarm(medication, nextAlarmMs(h, m))
             }
-            _uiState.value = _uiState.value.copy(isSaving = false, isSaved = true)
+            update { copy(isSaving = false, isSaved = true) }
         }
     }
 
     private fun nextAlarmMs(hour: Int, minute: Int): Long {
         val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE, minute)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
+            set(Calendar.HOUR_OF_DAY, hour); set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
         }
         if (cal.timeInMillis <= System.currentTimeMillis()) cal.add(Calendar.DAY_OF_YEAR, 1)
         return cal.timeInMillis
+    }
+
+    private inline fun update(block: AddMedicationUiState.() -> AddMedicationUiState) {
+        _uiState.value = _uiState.value.block()
     }
 }

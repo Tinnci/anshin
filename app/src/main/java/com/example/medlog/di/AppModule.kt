@@ -7,6 +7,8 @@ import com.example.medlog.data.local.MedicationDao
 import com.example.medlog.data.local.MedicationLogDao
 import com.example.medlog.data.repository.DrugRepository
 import com.example.medlog.data.repository.DrugRepositoryImpl
+import com.example.medlog.data.repository.LogRepository
+import com.example.medlog.data.repository.LogRepositoryImpl
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.MedicationRepositoryImpl
 import dagger.Binds
@@ -29,7 +31,7 @@ object DatabaseModule {
             MedLogDatabase::class.java,
             "medlog.db",
         )
-            .addMigrations(MedLogDatabase.MIGRATION_1_2)
+            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
     @Provides
@@ -48,6 +50,12 @@ abstract class RepositoryModule {
     abstract fun bindMedicationRepository(
         impl: MedicationRepositoryImpl,
     ): MedicationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLogRepository(
+        impl: LogRepositoryImpl,
+    ): LogRepository
 
     @Binds
     @Singleton

@@ -7,7 +7,11 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MedicationDao {
 
-    @Query("SELECT * FROM medications WHERE isArchived = 0 ORDER BY reminderHour, reminderMinute")
+    @Query("""
+        SELECT * FROM medications
+        WHERE isArchived = 0
+        ORDER BY isHighPriority DESC, reminderHour, reminderMinute
+    """)
     fun getActiveMedications(): Flow<List<Medication>>
 
     @Query("SELECT * FROM medications WHERE isArchived = 1 ORDER BY name")
@@ -33,7 +37,4 @@ interface MedicationDao {
 
     @Query("UPDATE medications SET stock = :newStock WHERE id = :id")
     suspend fun updateStock(id: Long, newStock: Double)
-
-    @Query("SELECT * FROM medications WHERE name LIKE '%' || :query || '%' AND isCustomDrug = 0")
-    suspend fun searchMedications(query: String): List<Medication>
 }
