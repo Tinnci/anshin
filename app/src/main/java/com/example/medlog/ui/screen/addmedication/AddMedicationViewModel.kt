@@ -39,6 +39,14 @@ class AddMedicationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(AddMedicationUiState())
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
 
+    /** Pre-fill name/category when navigating from the drug database. */
+    fun prefillFromDrug(name: String, category: String) {
+        // Only pre-fill when not editing an existing medication
+        if (_uiState.value.name.isEmpty()) {
+            _uiState.value = _uiState.value.copy(name = name, category = category)
+        }
+    }
+
     fun loadExisting(medicationId: Long) {
         viewModelScope.launch {
             val med = repository.getMedicationById(medicationId) ?: return@launch

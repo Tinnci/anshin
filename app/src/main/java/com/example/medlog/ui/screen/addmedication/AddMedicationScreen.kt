@@ -23,6 +23,8 @@ import com.example.medlog.data.model.TimePeriod
 @Composable
 fun AddMedicationScreen(
     medicationId: Long?,
+    drugName: String? = null,
+    drugCategory: String? = null,
     onBack: () -> Unit,
     onSaved: () -> Unit,
     viewModel: AddMedicationViewModel = hiltViewModel(),
@@ -32,6 +34,13 @@ fun AddMedicationScreen(
     // Load existing medication once
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.loadExisting(medicationId)
+    }
+
+    // Pre-fill from drug database selection
+    LaunchedEffect(drugName) {
+        if (!drugName.isNullOrEmpty() && medicationId == null) {
+            viewModel.prefillFromDrug(drugName, drugCategory.orEmpty())
+        }
     }
 
     // Navigate away after save

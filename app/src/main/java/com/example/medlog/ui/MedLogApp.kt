@@ -75,7 +75,14 @@ private fun MedLogNavHost(
         composable<Route.Drugs> {
             DrugsScreen(
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
-                onMedicationClick = { id -> navController.navigate(Route.MedDetail(id)) },
+                onDrugSelect = { drug ->
+                    navController.navigate(
+                        Route.AddMedication(
+                            drugName = drug.name,
+                            drugCategory = drug.category,
+                        )
+                    )
+                },
             )
         }
         composable<Route.Settings> {
@@ -93,6 +100,8 @@ private fun MedLogNavHost(
             val route: Route.AddMedication = backStackEntry.toRoute()
             AddMedicationScreen(
                 medicationId = route.medicationId.takeIf { it != -1L },
+                drugName = route.drugName.ifEmpty { null },
+                drugCategory = route.drugCategory.ifEmpty { null },
                 onBack = { navController.popBackStack() },
                 onSaved = { navController.popBackStack() },
             )

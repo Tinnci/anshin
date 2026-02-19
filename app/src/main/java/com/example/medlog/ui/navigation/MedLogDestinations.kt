@@ -16,7 +16,16 @@ import kotlinx.serialization.Serializable
     @Serializable data object Drugs         : Route
     @Serializable data object Settings      : Route
     @Serializable data class  MedDetail(val medicationId: Long) : Route
-    @Serializable data class  AddMedication(val medicationId: Long = -1) : Route
+    /**
+     * @param medicationId  编辑模式下已有记录的 id（-1 代表新增）
+     * @param drugName      从药品数据库选中后预填的药品名
+     * @param drugCategory  从药品数据库选中后预填的分类
+     */
+    @Serializable data class AddMedication(
+        val medicationId: Long = -1,
+        val drugName: String = "",
+        val drugCategory: String = "",
+    ) : Route
 }
 
 // ── Top-level navigation destinations ────────────────────────────────────────
@@ -33,3 +42,4 @@ val TOP_LEVEL_DESTINATIONS = listOf(
     TopLevelDestination(Route.Drugs, Icons.Rounded.MedicalServices, com.example.medlog.R.string.tab_drugs),
     TopLevelDestination(Route.Settings, Icons.Rounded.Settings, com.example.medlog.R.string.tab_settings),
 )
+

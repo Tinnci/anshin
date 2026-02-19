@@ -5,6 +5,8 @@ import androidx.room.Room
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.local.MedicationDao
 import com.example.medlog.data.local.MedicationLogDao
+import com.example.medlog.data.repository.DrugRepository
+import com.example.medlog.data.repository.DrugRepositoryImpl
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.MedicationRepositoryImpl
 import dagger.Binds
@@ -26,7 +28,9 @@ object DatabaseModule {
             context,
             MedLogDatabase::class.java,
             "medlog.db",
-        ).build()
+        )
+            .addMigrations(MedLogDatabase.MIGRATION_1_2)
+            .build()
 
     @Provides
     fun provideMedicationDao(db: MedLogDatabase): MedicationDao = db.medicationDao()
@@ -44,4 +48,11 @@ abstract class RepositoryModule {
     abstract fun bindMedicationRepository(
         impl: MedicationRepositoryImpl,
     ): MedicationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDrugRepository(
+        impl: DrugRepositoryImpl,
+    ): DrugRepository
 }
+
