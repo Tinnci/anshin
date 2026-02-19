@@ -1,6 +1,5 @@
 package com.example.medlog.ui.screen.addmedication
 
-import android.app.TimePickerDialog
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -23,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -446,13 +444,13 @@ private fun FormSection(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun ReminderTimesRow(
     times: List<String>,
     onAdd: (String) -> Unit,
     onRemove: (String) -> Unit,
 ) {
-    val context = LocalContext.current
     var showPicker by remember { mutableStateOf(false) }
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -484,17 +482,27 @@ private fun ReminderTimesRow(
 
     if (showPicker) {
         val cal = Calendar.getInstance()
-        TimePickerDialog(
-            context,
-            { _, h, m -> onAdd("%02d:%02d".format(h, m)); showPicker = false },
-            cal.get(Calendar.HOUR_OF_DAY),
-            cal.get(Calendar.MINUTE),
-            true,
-        ).also {
-            it.setOnDismissListener { showPicker = false }
-            it.show()
-        }
-        DisposableEffect(Unit) { onDispose {} }
+        val timePickerState = rememberTimePickerState(
+            initialHour = cal.get(Calendar.HOUR_OF_DAY),
+            initialMinute = cal.get(Calendar.MINUTE),
+            is24Hour = true,
+        )
+        AlertDialog(
+            onDismissRequest = { showPicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    onAdd("%02d:%02d".format(timePickerState.hour, timePickerState.minute))
+                    showPicker = false
+                }) { Text("确认") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPicker = false }) { Text("取消") }
+            },
+            title = { Text("选择提醒时间") },
+            text = {
+                TimePicker(state = timePickerState)
+            },
+        )
     }
 }
 

@@ -12,7 +12,7 @@ import javax.inject.Inject
 
 data class DrugsUiState(
     val drugs: List<Drug> = emptyList(),
-    /** 当前查询结果按首字母分组（仅搜索为空时） */
+    /** 当前查询结果按首字母分组（仅搜索为空且无分类过滤时） */
     val groupedDrugs: Map<String, List<Drug>> = emptyMap(),
     val query: String = "",
     val isLoading: Boolean = true,
@@ -20,6 +20,10 @@ data class DrugsUiState(
     val showTcm: Boolean? = null,   // null = 全部, true = 仅中药, false = 仅西药
     /** 所有可用分类列表 */
     val categories: List<String> = emptyList(),
+    /** 是否包含模糊/语义匹配结果（query 非空时有效） */
+    val hasFuzzyResults: Boolean = false,
+    /** 精确匹配结果数（名称包含 query 的条数） */
+    val exactMatchCount: Int = 0,
 )
 
 @OptIn(FlowPreview::class)
@@ -41,7 +45,7 @@ class DrugsViewModel @Inject constructor(
         _isLoading,
         _categories,
     ) { query, category, tcm, loading, cats ->
-        val filtered = filteredDrugs(query, category, tcm)
+        val (filtered, exactCount) = rankedDrugs(query, category, tcm)
         DrugsUiState(
             query = query,
             selectedCategory = category,
@@ -57,6 +61,8 @@ class DrugsViewModel @Inject constructor(
                 }.toSortedMap()
             } else emptyMap(),
             categories = cats,
+            hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
+            exactMatchCount = exactCount,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
 
@@ -72,14 +78,22 @@ class DrugsViewModel @Inject constructor(
     fun onCategorySelect(cat: String?) { _selectedCategory.value = cat }
     fun onToggleTcm(tcm: Boolean?) { _showTcm.value = tcm }
 
-    private suspend fun filteredDrugs(
+    /**
+     * 执行模糊+语义排名搜索，并应用分类/中西药过滤。
+     * @return Pair(排序后结果, 精确匹配数)
+     */
+    private suspend fun rankedDrugs(
         query: String,
         category: String?,
         tcm: Boolean?,
-    ): List<Drug> {
-        var result = drugRepository.searchDrugs(query)
+    ): Pair<List<Drug>, Int> {
+        var result = drugRepository.searchDrugsRanked(query)
         if (category != null) result = result.filter { it.category == category }
         if (tcm != null) result = result.filter { it.isTcm == tcm }
-        return result
+        val exact = if (query.isNotBlank())
+            result.count { it.nameLower.contains(query.lowercase()) || it.categoryLower.contains(query.lowercase()) }
+        else result.size
+        return result to exact
     }
 }
+

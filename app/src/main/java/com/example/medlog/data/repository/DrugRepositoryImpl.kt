@@ -22,6 +22,16 @@ class DrugRepositoryImpl @Inject constructor(
         else all.filter { it.matches(query) }
     }
 
+    override suspend fun searchDrugsRanked(query: String): List<Drug> {
+        val all = getAllDrugs()
+        if (query.isBlank()) return all
+        return all
+            .map { drug -> drug to drug.relevanceScore(query) }
+            .filter { (_, score) -> score > 0f }
+            .sortedByDescending { (_, score) -> score }
+            .map { (drug, _) -> drug }
+    }
+
     override suspend fun getCategories(isTcm: Boolean?): List<String> =
         getAllDrugs()
             .let { list -> if (isTcm != null) list.filter { it.isTcm == isTcm } else list }
