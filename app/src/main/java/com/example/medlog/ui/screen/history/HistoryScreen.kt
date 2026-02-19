@@ -1,10 +1,7 @@
 package com.example.medlog.ui.screen.history
 
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -109,18 +106,12 @@ fun HistoryScreen(
             val selected = uiState.selectedDate
             val selectedDay = selected?.let { uiState.calendarDays[it] }
             if (selected != null) {
-                item {
-                    AnimatedVisibility(
-                        visible = true,
-                        enter = expandVertically(),
-                        exit = shrinkVertically(),
-                    ) {
-                        DayDetailSection(
-                            date = selected,
-                            day = selectedDay,
-                            modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
-                        )
-                    }
+                item(key = "detail_${selected}") {
+                    DayDetailSection(
+                        date = selected,
+                        day = selectedDay,
+                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                    )
                 }
             }
         }
@@ -216,25 +207,26 @@ private fun MonthCalendarCard(
                 }
             }
 
-            // 周标题
+            // 周标题（中国习惯：周一开始）
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("日", "一", "二", "三", "四", "五", "六").forEach { label ->
+                listOf("一", "二", "三", "四", "五", "六", "日").forEach { label ->
                     Text(
                         label,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (label == "日") MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
             }
 
             Spacer(Modifier.height(4.dp))
 
-            // 日历格
+            // 日历格（周一开始：Mon=0, ..., Sun=6）
             val firstDay = displayedMonth.atDay(1)
-            // dayOfWeek: 1=Mon..7=Sun → 需要映射到 0=Sun..6=Sat
-            val startOffset = (firstDay.dayOfWeek.value % 7)  // 0=Sun,1=Mon,...,6=Sat
+            // dayOfWeek: 1=Mon..7=Sun → 周一对应 col 0
+            val startOffset = firstDay.dayOfWeek.value - 1  // Mon=0, ..., Sun=6
             val daysInMonth = displayedMonth.lengthOfMonth()
             val totalCells = startOffset + daysInMonth
             val rows = (totalCells + 6) / 7
