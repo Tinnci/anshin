@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 // ── Sealed screen routes (type-safe Navigation) ──────────────────────────────
 
 @Serializable sealed interface Route {
+    @Serializable data object Welcome       : Route   // 首次启动引导页
     @Serializable data object Home          : Route
     @Serializable data object History       : Route
     @Serializable data object Drugs         : Route

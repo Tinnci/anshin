@@ -30,6 +30,8 @@ data class SettingsPreferences(
     val lunchHour: Int = 12,  val lunchMinute: Int = 0,
     val dinnerHour: Int = 18, val dinnerMinute: Int = 0,
     val bedHour: Int = 22,   val bedMinute: Int = 0,
+    /** 是否已完成欢迎引导（首次启动标志） */
+    val hasSeenWelcome: Boolean = false,
 )
 
 @Singleton
@@ -51,6 +53,7 @@ class UserPreferencesRepository @Inject constructor(
         val DINNER_MIN     = intPreferencesKey("dinner_minute")
         val BED_HOUR       = intPreferencesKey("bed_hour")
         val BED_MIN        = intPreferencesKey("bed_minute")
+        val HAS_SEEN_WELCOME = booleanPreferencesKey("has_seen_welcome")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -68,6 +71,7 @@ class UserPreferencesRepository @Inject constructor(
                 lunchHour     = prefs[LUNCH_HOUR]     ?: 12, lunchMinute   = prefs[LUNCH_MIN]      ?: 0,
                 dinnerHour    = prefs[DINNER_HOUR]    ?: 18, dinnerMinute  = prefs[DINNER_MIN]     ?: 0,
                 bedHour       = prefs[BED_HOUR]       ?: 22, bedMinute     = prefs[BED_MIN]        ?: 0,
+                hasSeenWelcome = prefs[HAS_SEEN_WELCOME] ?: false,
             )
         }
 
@@ -90,4 +94,7 @@ class UserPreferencesRepository @Inject constructor(
             }
         }
     }
-}
+
+    suspend fun updateHasSeenWelcome(seen: Boolean) {
+        dataStore.edit { it[HAS_SEEN_WELCOME] = seen }
+    }}

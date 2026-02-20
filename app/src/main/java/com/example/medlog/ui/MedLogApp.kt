@@ -9,6 +9,8 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Notifications
 import androidx.compose.material3.*
@@ -18,8 +20,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,10 +43,22 @@ import com.example.medlog.ui.screen.drugs.DrugsScreen
 import com.example.medlog.ui.screen.history.HistoryScreen
 import com.example.medlog.ui.screen.home.HomeScreen
 import com.example.medlog.ui.screen.settings.SettingsScreen
+import com.example.medlog.ui.screen.welcome.WelcomeScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedLogApp(openAddMedication: Boolean = false) {
+    val appViewModel: MedLogAppViewModel = hiltViewModel()
+    val startDest by appViewModel.startDestination.collectAsStateWithLifecycle()
+
+    // DataStore 加载期间显示居中加载指示器
+    if (startDest == null) {
+        Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
@@ -102,29 +121,31 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     }
 
     // Decide whether to show the main navigation wrapper
-    val showMainNav = TOP_LEVEL_DESTINATIONS.any { dest ->
-        currentDestination?.route?.contains(dest.route::class.simpleName ?: "") == true
-    }
+    // Welcome 屏不展示导航栏
+    val isOnWelcome = currentDestination?.hasRoute(Route.Welcome::class) == true
+    val showMainNav = !isOnWelcome && (currentDestination == null ||
+        TOP_LEVEL_DESTINATIONS.any { currentDestination.hasRoute(it.route::class) })
 
-    if (showMainNav || currentDestination == null) {
+    if (showMainNav) {
         MedLogNavigationWrapper(
             currentDestination = currentDestination,
             navigateToTopLevel = navigateToTopLevel,
         ) {
-            MedLogNavHost(navController = navController)
+            MedLogNavHost(navController = navController, startDest = startDest!!)
         }
     } else {
-        MedLogNavHost(navController = navController)
+        MedLogNavHost(navController = navController, startDest = startDest!!)
     }
 }
 
 @Composable
 private fun MedLogNavHost(
     navController: androidx.navigation.NavHostController,
+    startDest: Route,
 ) {
     NavHost(
         navController = navController,
-        startDestination = Route.Home,
+        startDestination = startDest,
         // 顶层 Tab 切换：淡入淡出
         enterTransition = { fadeIn() },
         exitTransition = { fadeOut() },
@@ -136,6 +157,19 @@ private fun MedLogNavHost(
             slideOutHorizontally(targetOffsetX = { it / 4 }) + fadeOut()
         },
     ) {
+        // ── 欢迎引导（首次启动）───────────────────────────
+        composable<Route.Welcome>(
+            enterTransition = { fadeIn() },
+            exitTransition  = { fadeOut() },
+        ) {
+            WelcomeScreen(
+                onFinished = {
+                    navController.navigate(Route.Home) {
+                        popUpTo<Route.Welcome> { inclusive = true }
+                    }
+                },
+            )
+        }
         // ── 顶层目的地（Tab 切换：只淡入淡出）──────────────
         composable<Route.Home>(
             enterTransition = { fadeIn() },
