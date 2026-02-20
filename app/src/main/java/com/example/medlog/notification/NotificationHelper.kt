@@ -15,9 +15,11 @@ import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
 
-const val CHANNEL_REMINDER = "med_reminder"
+const val CHANNEL_REMINDER  = "med_reminder"
 const val CHANNEL_LOW_STOCK = "low_stock"
-const val EXTRA_MED_ID = "med_id"
+const val CHANNEL_PROGRESS  = "med_progress"   // 持久性今日进度通知
+private const val NOTIF_ID_PROGRESS = 9999
+const val EXTRA_MED_ID   = "med_id"
 const val EXTRA_MED_NAME = "med_name"
 const val EXTRA_TIME_INDEX = "time_index"   // 提醒时间在列表中的索引
 
@@ -48,9 +50,63 @@ class NotificationHelper @Inject constructor(
             context.getString(R.string.low_stock_notification_channel),
             NotificationManager.IMPORTANCE_DEFAULT,
         )
-        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel))
+        val progressChannel = NotificationChannel(
+            CHANNEL_PROGRESS,
+            "今日用药进度",
+            NotificationManager.IMPORTANCE_LOW,    // 不打断用户操作
+        ).apply {
+            description = "展示今日整体用药完成进度"
+            setShowBadge(false)
+        }
+        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel))
+    }
+    // ─── 今日进度持久性通知（Live Activity 风格）─────────────────────────────
+
+    /**
+     * 显示/更新今日用药整体进度通知。
+     * - taken == total 时自动取消固定状态，用户可手动关闭。
+     * - total == 0 时移除通知。
+     */
+    fun showOrUpdateProgressNotification(
+        taken: Int,
+        total: Int,
+        pendingNames: List<String>,
+    ) {
+        if (total == 0) { dismissProgressNotification(); return }
+
+        val openAppIntent = context.packageManager
+            .getLaunchIntentForPackage(context.packageName)
+            ?.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        val contentPendingIntent = PendingIntent.getActivity(
+            context, 0, openAppIntent ?: Intent(),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+
+        val allDone = taken == total
+        val title = if (allDone) "🎉 今日用药全部完成！" else "今日用药进度：$taken / $total"
+        val pendingText = if (!allDone && pendingNames.isNotEmpty())
+            "待服：${pendingNames.take(3).joinToString("、")}"
+        else ""
+
+        val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
+            .setSmallIcon(R.drawable.ic_pill_splash)
+            .setContentTitle(title)
+            .apply { if (pendingText.isNotEmpty()) setContentText(pendingText) }
+            .setProgress(total, taken, false)
+            .setContentIntent(contentPendingIntent)
+            .setOnlyAlertOnce(true)         // 更新进度时不再发出声音
+            .setOngoing(!allDone)           // 未完成时固定在通知栏
+            .setAutoCancel(allDone)
+            .setPriority(NotificationCompat.PRIORITY_LOW)
+            .build()
+
+        notificationManager.notify(NOTIF_ID_PROGRESS, notification)
     }
 
+    /** 删除今日进度通知 */
+    fun dismissProgressNotification() {
+        notificationManager.cancel(NOTIF_ID_PROGRESS)
+    }
     // ─── 通知显示 ────────────────────────────────────────────
 
     fun showReminderNotification(

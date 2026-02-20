@@ -196,9 +196,9 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
                 }
             }
             if (total > 0) {
-                LinearProgressIndicator(
+                LinearWavyProgressIndicator(
                     progress = { progress },
-                    modifier = Modifier.fillMaxWidth().height(8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                 )
                 Text(
                     if (allDone) "全部完成！今日用药计划已完成 🎉"

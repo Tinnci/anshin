@@ -65,7 +65,18 @@ class HomeViewModel @Inject constructor(
                     isLoading = false,
                     errorMessage = e.message,
                 )
-            }.collect { _uiState.value = it }
+            }.collect { state ->
+                _uiState.value = state
+                // 实时更新今日进度通知（Live Activity 风格）
+                val pending = state.items
+                    .filter { !it.isTaken && !it.isSkipped }
+                    .map { it.medication.name }
+                notificationHelper.showOrUpdateProgressNotification(
+                    taken        = state.takenCount,
+                    total        = state.totalCount,
+                    pendingNames = pending,
+                )
+            }
         }
     }
 
