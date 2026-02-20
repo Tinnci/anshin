@@ -110,7 +110,7 @@ fun HistoryScreen(
                     DayDetailSection(
                         date = selected,
                         day = selectedDay,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 4.dp),
+                        modifier = Modifier.animateItem().padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
             }

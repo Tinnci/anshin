@@ -272,8 +272,10 @@ private fun DrugGroupedList(
                 }
             }
             items(drugs, key = { it.name + it.fullPath }) { drug ->
-                DrugListItem(drug = drug, query = "", onClick = { onDrugSelect(drug) })
-                HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
+                Column(modifier = Modifier.animateItem()) {
+                    DrugListItem(drug = drug, query = "", onClick = { onDrugSelect(drug) })
+                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
+                }
             }
         }
     }
@@ -288,10 +290,12 @@ private fun DrugFlatList(
     onDrugSelect: (Drug) -> Unit,
 ) {
     LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
-        items(drugs, key = { it.name + it.fullPath }) { drug ->
-            DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
-            HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
-        }
+            items(drugs, key = { it.name + it.fullPath }) { drug ->
+                Column(modifier = Modifier.animateItem()) {
+                    DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
+                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
+                }
+            }
     }
 }
 

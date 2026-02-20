@@ -1,12 +1,16 @@
 package com.example.medlog.ui.screen.home
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.DoneAll
@@ -23,11 +27,12 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.ui.components.MedicationCard
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
     onAddMedication: () -> Unit,
@@ -136,44 +141,56 @@ fun HomeScreen(
             }
 
             // ── 药品卡片列表 ──────────────────────────────────
-            items(uiState.items, key = { it.medication.id }) { item ->
-                MedicationCard(
-                    item = item,
-                    onToggleTaken = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        val wasTaken = item.isTaken
-                        viewModel.toggleMedicationStatus(item)
-                        scope.launch {
-                            val result = snackbarHostState.showSnackbar(
-                                message = if (wasTaken)
-                                    "${item.medication.name} 已重置为待服"
-                                else
-                                    "${item.medication.name} 已标记为已服",
-                                actionLabel = "撤销",
-                                duration = SnackbarDuration.Short,
-                            )
-                            if (result == SnackbarResult.ActionPerformed) {
-                                viewModel.undoByMedicationId(item.medication.id)
+            itemsIndexed(uiState.items, key = { _, it -> it.medication.id }) { index, item ->
+                val motionScheme = MaterialTheme.motionScheme
+                var visible by remember(item.medication.id) { mutableStateOf(false) }
+                LaunchedEffect(item.medication.id) {
+                    delay(index * 40L)
+                    visible = true
+                }
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
+                ) {
+                    MedicationCard(
+                        item = item,
+                        onToggleTaken = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            val wasTaken = item.isTaken
+                            viewModel.toggleMedicationStatus(item)
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = if (wasTaken)
+                                        "${item.medication.name} 已重置为待服"
+                                    else
+                                        "${item.medication.name} 已标记为已服",
+                                    actionLabel = "撤销",
+                                    duration = SnackbarDuration.Short,
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.undoByMedicationId(item.medication.id)
+                                }
                             }
-                        }
-                    },
-                    onSkip = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        viewModel.skipMedication(item)
-                        scope.launch {
-                            val result = snackbarHostState.showSnackbar(
-                                message = "${item.medication.name} 已跳过今日",
-                                actionLabel = "撤销",
-                                duration = SnackbarDuration.Short,
-                            )
-                            if (result == SnackbarResult.ActionPerformed) {
-                                viewModel.undoByMedicationId(item.medication.id)
+                        },
+                        onSkip = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            viewModel.skipMedication(item)
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = "${item.medication.name} 已跳过今日",
+                                    actionLabel = "撤销",
+                                    duration = SnackbarDuration.Short,
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.undoByMedicationId(item.medication.id)
+                                }
                             }
-                        }
-                    },
-                    onClick = { onMedicationClick(item.medication.id) },
-                    modifier = Modifier.animateItem(),
-                )
+                        },
+                        onClick = { onMedicationClick(item.medication.id) },
+                        modifier = Modifier.animateItem(),
+                    )
+                }
             }
 
             // ── 底部间距（FAB 避让）──────────────────────────
