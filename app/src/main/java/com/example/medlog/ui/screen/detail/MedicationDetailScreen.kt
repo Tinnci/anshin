@@ -145,7 +145,14 @@ fun MedicationDetailScreen(
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                         DetailRow("药品名称", med.name)
-                        DetailRow("分类", med.category)
+                        // 分类：优先显示完整路径，其次顶级分类；中成药额外标注
+                        val categoryDisplay = when {
+                            med.fullPath.isNotBlank() -> med.fullPath
+                            med.category.isNotBlank() -> med.category
+                            else -> "—"
+                        }
+                        val categoryValue = if (med.isTcm) "$categoryDisplay（中成药）" else categoryDisplay
+                        DetailRow("分类", categoryValue)
                         DetailRow("剂量", "${med.doseQuantity}×${med.dose} ${med.doseUnit}")
                         if (med.isPRN) {
                             DetailRow("用法", "按需服用 (PRN)")

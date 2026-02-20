@@ -140,56 +140,76 @@ fun HomeScreen(
                 }
             }
 
-            // ── 药品卡片列表 ──────────────────────────────────
-            itemsIndexed(uiState.items, key = { _, it -> it.medication.id }) { index, item ->
-                val motionScheme = MaterialTheme.motionScheme
-                var visible by remember(item.medication.id) { mutableStateOf(false) }
-                LaunchedEffect(item.medication.id) {
-                    delay(index * 40L)
-                    visible = true
+            // ── 药品卡片列表（按分类分组）──────────────────────
+            var globalIndex = 0
+            uiState.groupedItems.forEach { (category, groupItems) ->
+                // 有分类名时显示 sticky 分组标题
+                if (category.isNotBlank()) {
+                    item(key = "header_$category", contentType = "header") {
+                        Text(
+                            text = category,
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 8.dp, bottom = 2.dp),
+                        )
+                    }
                 }
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
-                ) {
-                    MedicationCard(
-                        item = item,
-                        onToggleTaken = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            val wasTaken = item.isTaken
-                            viewModel.toggleMedicationStatus(item)
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = if (wasTaken)
-                                        "${item.medication.name} 已重置为待服"
-                                    else
-                                        "${item.medication.name} 已标记为已服",
-                                    actionLabel = "撤销",
-                                    duration = SnackbarDuration.Short,
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.undoByMedicationId(item.medication.id)
+                itemsIndexed(
+                    groupItems,
+                    key = { _, it -> it.medication.id },
+                ) { _, item ->
+                    val index = globalIndex++
+                    val motionScheme = MaterialTheme.motionScheme
+                    var visible by remember(item.medication.id) { mutableStateOf(false) }
+                    LaunchedEffect(item.medication.id) {
+                        delay(index * 40L)
+                        visible = true
+                    }
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
+                    ) {
+                        MedicationCard(
+                            item = item,
+                            onToggleTaken = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                val wasTaken = item.isTaken
+                                viewModel.toggleMedicationStatus(item)
+                                scope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = if (wasTaken)
+                                            "${item.medication.name} 已重置为待服"
+                                        else
+                                            "${item.medication.name} 已标记为已服",
+                                        actionLabel = "撤销",
+                                        duration = SnackbarDuration.Short,
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.undoByMedicationId(item.medication.id)
+                                    }
                                 }
-                            }
-                        },
-                        onSkip = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.skipMedication(item)
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = "${item.medication.name} 已跳过今日",
-                                    actionLabel = "撤销",
-                                    duration = SnackbarDuration.Short,
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.undoByMedicationId(item.medication.id)
+                            },
+                            onSkip = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.skipMedication(item)
+                                scope.launch {
+                                    val result = snackbarHostState.showSnackbar(
+                                        message = "${item.medication.name} 已跳过今日",
+                                        actionLabel = "撤销",
+                                        duration = SnackbarDuration.Short,
+                                    )
+                                    if (result == SnackbarResult.ActionPerformed) {
+                                        viewModel.undoByMedicationId(item.medication.id)
+                                    }
                                 }
-                            }
-                        },
-                        onClick = { onMedicationClick(item.medication.id) },
-                        modifier = Modifier.animateItem(),
-                    )
+                            },
+                            onClick = { onMedicationClick(item.medication.id) },
+                            modifier = Modifier.animateItem(),
+                        )
+                    }
                 }
             }
 

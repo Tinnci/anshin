@@ -49,4 +49,10 @@ data class Medication(
     val isCustomDrug: Boolean = false,
     val isArchived: Boolean = false,
     val createdAt: Long = System.currentTimeMillis(),
+
+    // ── 药品分类扩展（v4） ────────────────────────────────────────────────────
+    /** 是否为中成药（来自 tcm_drugs_clean.json） */
+    val isTcm: Boolean = false,
+    /** 完整分类路径，如"消化道及代谢 > 口腔病药物 > 龋齿预防药" */
+    val fullPath: String = "",
 )

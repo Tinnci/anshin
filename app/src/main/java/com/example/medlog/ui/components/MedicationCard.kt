@@ -136,6 +136,52 @@ fun MedicationCard(
                         }
                     }
                     Spacer(Modifier.height(2.dp))
+                    // ── 分类 & 中成药标签行 ─────────────────────────────
+                    if (med.category.isNotBlank() || med.isTcm) {
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier.padding(bottom = 2.dp),
+                        ) {
+                            if (med.isTcm) {
+                                SuggestionChip(
+                                    onClick = {},
+                                    label = {
+                                        Text(
+                                            "中成药",
+                                            style = MaterialTheme.typography.labelSmall,
+                                        )
+                                    },
+                                    icon = {
+                                        Icon(
+                                            Icons.Rounded.LocalFlorist,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(12.dp),
+                                        )
+                                    },
+                                    modifier = Modifier.height(22.dp),
+                                    colors = SuggestionChipDefaults.suggestionChipColors(
+                                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        iconContentColor = MaterialTheme.colorScheme.tertiary,
+                                    ),
+                                )
+                            } else if (med.category.isNotBlank()) {
+                                SuggestionChip(
+                                    onClick = {},
+                                    label = {
+                                        Text(
+                                            med.category,
+                                            style = MaterialTheme.typography.labelSmall,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    },
+                                    modifier = Modifier.height(22.dp).widthIn(max = 120.dp),
+                                )
+                            }
+                        }
+                    }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),

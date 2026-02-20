@@ -28,7 +28,33 @@ data class HomeUiState(
     val totalCount: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
-)
+) {
+    /**
+     * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
+     * 当所有药品无分类时返回单个 "" -> all 分组（供卡片列表扁平化渲染）。
+     */
+    val groupedItems: List<Pair<String, List<MedicationWithStatus>>> by lazy {
+        val hasCat = items.any { it.medication.category.isNotBlank() }
+        if (!hasCat) return@lazy listOf("" to items)
+        items
+            .groupBy { it.medication.category.ifBlank { "其他" } }
+            .entries
+            .sortedWith(
+                // 中成药相关分类排序靠前，其次按药名首字母
+                compareBy(
+                    { if (it.key.contains("中成药") || TCM_CATEGORY_KEYWORDS.any { kw -> it.key.contains(kw) }) 0 else 1 },
+                    { it.key },
+                )
+            )
+            .map { it.key to it.value }
+    }
+
+    companion object {
+        private val TCM_CATEGORY_KEYWORDS = listOf(
+            "理气", "补益", "清热", "祛湿", "活血", "止咳", "安神", "妇科", "骨伤", "外科",
+        )
+    }
+}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(

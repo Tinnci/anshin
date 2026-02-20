@@ -55,10 +55,18 @@ data class AddMedicationUiState(
     // ── 其他 ─────────────────────────────────────────────────────
     val notes: String = "",
 
+    // ── 药品分类扩展 ──────────────────────────────────────────────
+    /** 是否中成药（选药时从 Drug 填入） */
+    val isTcm: Boolean = false,
+    /** 完整分类路径（选药时从 Drug.fullPath 填入） */
+    val fullPath: String = "",
+
     // ── UI 状态 ──────────────────────────────────────────────────
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val error: String? = null,
+    val drugSuggestions: List<Drug> = emptyList(),
+    val showDrugSuggestions: Boolean = false,
 )
 
 private fun todayStartMs(): Long {
@@ -102,6 +110,8 @@ class AddMedicationViewModel @Inject constructor(
             _uiState.value = AddMedicationUiState(
                 name            = med.name,
                 category        = med.category,
+                isTcm           = med.isTcm,
+                fullPath        = med.fullPath,
                 form            = med.form,
                 isHighPriority  = med.isHighPriority,
                 isCustomDrug    = med.isCustomDrug,
@@ -139,13 +149,14 @@ class AddMedicationViewModel @Inject constructor(
         }
     }
 
-    /** 从下拉建议中选中一种药，自动填入名称+分类并关闭建议列表 */
+    /** 从下拉建议中选中一种药，自动填入名称+分类+完整路径+是否中成药并关闭建议列表 */
     fun onDrugSelected(drug: Drug) {
-        val cat = drug.category
         update {
             copy(
                 name = drug.name,
-                category = cat,
+                category = drug.category,
+                isTcm = drug.isTcm,
+                fullPath = drug.fullPath,
                 showDrugSuggestions = false,
                 drugSuggestions = emptyList(),
                 error = null,
@@ -246,6 +257,8 @@ class AddMedicationViewModel @Inject constructor(
                 id              = existingId ?: 0,
                 name            = state.name.trim(),
                 category        = state.category.trim(),
+                isTcm           = state.isTcm,
+                fullPath        = state.fullPath.trim(),
                 form            = state.form,
                 isHighPriority  = state.isHighPriority,
                 isCustomDrug    = state.isCustomDrug,

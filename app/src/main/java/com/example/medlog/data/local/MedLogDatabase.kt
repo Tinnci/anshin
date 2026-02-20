@@ -10,7 +10,7 @@ import com.example.medlog.data.model.MedicationLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class],
-    version = 3,
+    version = 4,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
