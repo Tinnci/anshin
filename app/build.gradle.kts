@@ -28,7 +28,7 @@ android {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
+                "proguard-rules.pro",
             )
         }
     }
@@ -42,7 +42,7 @@ android {
     lint {
         lintConfig = file("lint.xml")
         baseline = file("lint-baseline.xml")
-        abortOnError = false          // CI 中可改为 true
+        abortOnError = false // CI 中可改为 true
         htmlReport = true
         xmlReport = true
     }
