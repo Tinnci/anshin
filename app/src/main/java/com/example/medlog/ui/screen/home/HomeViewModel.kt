@@ -6,6 +6,7 @@ import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
+import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.interaction.InteractionRuleEngine
@@ -39,6 +40,8 @@ data class HomeUiState(
     val longestStreak: Int = 0,
     /** 检测到的药品相互作用列表 */
     val interactions: List<DrugInteraction> = emptyList(),
+    /** true = 按服药时段分组；false = 按分类分组 */
+    val groupByTime: Boolean = false,
 ) {
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
@@ -58,6 +61,32 @@ data class HomeUiState(
                 )
             )
             .map { it.key to it.value }
+    }
+
+    /**
+     * 按服药时段分组，组内按提醒小时排序。
+     * PRN 药品没有固定时段，单独归入所设时段或"精确时间"组。
+     */
+    val groupedByTime: List<Pair<String, List<MedicationWithStatus>>> by lazy {
+        val periodOrder = listOf(
+            "morning", "beforeBreakfast", "afterBreakfast",
+            "beforeLunch", "afterLunch", "afternoon",
+            "beforeDinner", "afterDinner", "evening", "bedtime", "exact",
+        )
+        fun orderOf(key: String) = periodOrder.indexOf(key).let { if (it < 0) 99 else it }
+        items
+            .sortedWith(
+                compareBy(
+                    { orderOf(it.medication.timePeriod) },
+                    { it.medication.reminderHour },
+                    { it.medication.reminderMinute },
+                    { it.medication.name },
+                ),
+            )
+            .groupBy { it.medication.timePeriod }
+            .entries
+            .sortedBy { (key, _) -> orderOf(key) }
+            .map { (key, meds) -> TimePeriod.fromKey(key).label to meds }
     }
 
     companion object {
@@ -108,7 +137,8 @@ class HomeViewModel @Inject constructor(
                     errorMessage = e.message,
                 )
             }.collect { state ->
-                _uiState.value = state
+                // 保留用户的分组偏好，不被新状态覆盖
+                _uiState.value = state.copy(groupByTime = _uiState.value.groupByTime)
                 // 实时更新今日进度通知（Live Activity 风格）
                 val pending = state.items
                     .filter { !it.isTaken && !it.isSkipped }
@@ -195,6 +225,11 @@ class HomeViewModel @Inject constructor(
         _uiState.value.items
             .filter { !it.isTaken && !it.isSkipped }
             .forEach { toggleMedicationStatus(it) }
+    }
+
+    /** 切换主页药品列表的分组方式（时间 ↔ 分类） */
+    fun toggleGroupBy() {
+        _uiState.update { it.copy(groupByTime = !it.groupByTime) }
     }
 
     /** 触发服药时检查库存是否低于阈值，低于则推送通知 */

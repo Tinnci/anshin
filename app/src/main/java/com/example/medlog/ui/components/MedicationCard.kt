@@ -74,8 +74,6 @@ fun MedicationCard(
         Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), cardShape)
     else Modifier
 
-    var expanded by remember { mutableStateOf(false) }
-
     // 扁平卡片（elevation = 0），24dp 大圆角，与 Flutter 版对齐
     Card(
         modifier = modifier
@@ -240,11 +238,11 @@ fun MedicationCard(
                     }
                 }
 
-                // ── M3 Expressive ButtonGroup：取药 + 跳过 + 更多 ──
+                // ── M3 Expressive ButtonGroup：取药 + 跳过（无模态菜单）──
                 Spacer(Modifier.width(4.dp))
                 @Suppress("DEPRECATION")
                 ButtonGroup {
-                    // 服药 / 撤销 按钮
+                    // 服药 / 撤销 按钮——始终显示，状态即图标
                     FilledIconButton(
                         onClick = onToggleTaken,
                         modifier = Modifier.size(36.dp),
@@ -260,45 +258,22 @@ fun MedicationCard(
                         ),
                     ) {
                         Icon(
-                            imageVector = if (item.isTaken) Icons.AutoMirrored.Rounded.Undo else Icons.Rounded.Check,
+                            imageVector = if (item.isTaken)
+                                Icons.AutoMirrored.Rounded.Undo
+                            else
+                                Icons.Rounded.Check,
                             contentDescription = if (item.isTaken) "撤销" else "标记已服",
                             modifier = Modifier.size(18.dp),
                         )
                     }
 
-                    // 跳过按钮（仅在未处理时显示）
+                    // 跳过按钮——仅在待服状态时显示
                     if (!item.isTaken && !item.isSkipped) {
                         OutlinedIconButton(
                             onClick = onSkip,
                             modifier = Modifier.size(36.dp),
                         ) {
                             Icon(Icons.Rounded.SkipNext, "跳过", Modifier.size(18.dp))
-                        }
-                    }
-
-                    // 更多操作
-                    Box {
-                        OutlinedIconButton(
-                            onClick = { expanded = true },
-                            modifier = Modifier.size(36.dp),
-                        ) {
-                            Icon(Icons.Rounded.MoreVert, "更多", Modifier.size(18.dp))
-                        }
-                        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-                            if (!item.isTaken && !item.isSkipped) {
-                                DropdownMenuItem(
-                                    text = { Text("跳过今日") },
-                                    onClick = { expanded = false; onSkip() },
-                                    leadingIcon = { Icon(Icons.Rounded.SkipNext, null) },
-                                )
-                            }
-                            if (item.isSkipped || item.isTaken) {
-                                DropdownMenuItem(
-                                    text = { Text("撤销") },
-                                    onClick = { expanded = false; onToggleTaken() },
-                                    leadingIcon = { Icon(Icons.AutoMirrored.Rounded.Undo, null) },
-                                )
-                            }
                         }
                     }
                 }

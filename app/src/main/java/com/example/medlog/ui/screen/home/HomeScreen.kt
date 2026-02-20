@@ -13,11 +13,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Category
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material.icons.rounded.Warning
+import com.example.medlog.data.model.TimePeriod
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -67,7 +70,14 @@ fun HomeScreen(
                         )
                     }
                 },
-                actions = {},
+                actions = {
+                    IconButton(onClick = viewModel::toggleGroupBy) {
+                        Icon(
+                            imageVector = if (uiState.groupByTime) Icons.Rounded.Category else Icons.Rounded.AccessTime,
+                            contentDescription = if (uiState.groupByTime) "切换为分类分组" else "切换为时间分组",
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -179,20 +189,36 @@ fun HomeScreen(
                 }
             }
 
-            // ── 药品卡片列表（按分类分组）──────────────────────
+            // ── 药品卡片列表（可按时段或分类分组）────────────────
+            val activeGrouped = if (uiState.groupByTime) uiState.groupedByTime else uiState.groupedItems
             var globalIndex = 0
-            uiState.groupedItems.forEach { (category, groupItems) ->
-                // 有分类名时显示 sticky 分组标题
+            activeGrouped.forEach { (category, groupItems) ->
+                // 有分类名时显示分组标题
                 if (category.isNotBlank()) {
                     item(key = "header_$category", contentType = "header") {
-                        Text(
-                            text = category,
-                            style = MaterialTheme.typography.labelMedium,
-                            color = MaterialTheme.colorScheme.primary,
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = 8.dp, bottom = 2.dp),
-                        )
+                        ) {
+                            if (uiState.groupByTime) {
+                                val tp = TimePeriod.entries.find { it.label == category }
+                                if (tp != null) {
+                                    Icon(
+                                        tp.icon, null,
+                                        modifier = Modifier.size(14.dp),
+                                        tint = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                            }
+                            Text(
+                                text = category,
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                        }
                     }
                 }
                 itemsIndexed(

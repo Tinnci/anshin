@@ -369,10 +369,19 @@ fun AddMedicationScreen(
                 }
             }
 
-            // ── 服药时段 & 提醒（非PRN才显示）─────────────────
-            AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
-                FormSection(title = "服药时段", icon = Icons.Rounded.Schedule) {
-                    Text("选择服药的时间段", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            // ── 服药时段 & 提醒（PRN 时作为可选提醒时间）─────────────────
+            FormSection(
+                title = if (uiState.isPRN) "提醒时间（可选）" else "服药时段",
+                icon = Icons.Rounded.Schedule,
+            ) {
+                Text(
+                    text = if (uiState.isPRN)
+                        "PRN 药品可设置可选提醒，到时系统会提示您是否需要服药。"
+                    else
+                        "选择服药的时间段",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                     Row(
                         modifier = Modifier
                             .horizontalScroll(rememberScrollState())
@@ -418,14 +427,13 @@ fun AddMedicationScreen(
                             ),
                         )
                     }
-                    // EXACT 时段：用户手动设置多个提醒时间
-                    AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
-                        ReminderTimesRow(
-                            times = uiState.reminderTimes,
-                            onAdd = viewModel::addReminderTime,
-                            onRemove = viewModel::removeReminderTime,
-                        )
-                    }
+                // EXACT 时段：用户手动设置多个提醒时间
+                AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
+                    ReminderTimesRow(
+                        times = uiState.reminderTimes,
+                        onAdd = viewModel::addReminderTime,
+                        onRemove = viewModel::removeReminderTime,
+                    )
                 }
             }
 
