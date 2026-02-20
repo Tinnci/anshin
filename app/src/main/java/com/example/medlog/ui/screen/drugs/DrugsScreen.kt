@@ -51,174 +51,196 @@ fun DrugsScreen(
             )
         },
     ) { padding ->
-        Column(
+        Box(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // ── 搜索框 ──────────────────────────────────────
-            OutlinedTextField(
-                value = uiState.query,
-                onValueChange = viewModel::onQueryChange,
+            // ── 默认浏览列表（非搜索激活状态）────────────────
+            if (!uiState.isSearchActive) {
+                when {
+                    uiState.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize().padding(top = 72.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator()
+                                Spacer(Modifier.height(8.dp))
+                                Text("加载药品数据库…", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                    else -> DrugGroupedList(
+                        groupedDrugs = uiState.groupedDrugs,
+                        onDrugSelect = onDrugSelect,
+                        topPadding = 72.dp,
+                    )
+                }
+            }
+
+            // ── M3 SearchBar ─────────────────────────────────
+            SearchBar(
+                inputField = {
+                    SearchBarDefaults.InputField(
+                        query = uiState.query,
+                        onQueryChange = viewModel::onQueryChange,
+                        onSearch = {},
+                        expanded = uiState.isSearchActive,
+                        onExpandedChange = viewModel::onSearchActiveChange,
+                        placeholder = { Text("搜索药品名称、分类、标签或拼音…") },
+                        leadingIcon = { Icon(Icons.Rounded.Search, null) },
+                        trailingIcon = {
+                            if (uiState.isSearchActive) {
+                                IconButton(onClick = {
+                                    if (uiState.query.isNotEmpty()) viewModel.onQueryChange("")
+                                    else viewModel.onSearchActiveChange(false)
+                                }) {
+                                    Icon(Icons.Rounded.Close, contentDescription = "关闭搜索")
+                                }
+                            }
+                        },
+                    )
+                },
+                expanded = uiState.isSearchActive,
+                onExpandedChange = viewModel::onSearchActiveChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                placeholder = { Text("搜索药品名称、分类、标签或拼音…") },
-                leadingIcon = { Icon(Icons.Rounded.Search, null) },
-                trailingIcon = {
-                    if (uiState.query.isNotEmpty()) {
-                        IconButton(onClick = { viewModel.onQueryChange("") }) {
-                            Icon(Icons.Rounded.Close, contentDescription = "清除")
-                        }
-                    }
-                },
-                singleLine = true,
-                shape = MaterialTheme.shapes.large,
-            )
-
-            // ── 搜索结果计数 + 模糊匹配提示 ────────────────
-            AnimatedVisibility(
-                visible = uiState.query.isNotBlank(),
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                    .padding(horizontal = if (uiState.isSearchActive) 0.dp else 16.dp),
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 2.dp),
-                    verticalAlignment = Alignment.CenterVertically,
+                // ── 西药 / 中药 筛选 + 分类 Chip ───────────────
+                LazyRow(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
                 ) {
-                    Text(
-                        text = "找到 ${uiState.drugs.size} 条结果",
-                        style = MaterialTheme.typography.labelMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    if (uiState.hasFuzzyResults) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(2.dp),
-                        ) {
-                            Icon(
-                                Icons.Rounded.AutoAwesome,
-                                contentDescription = null,
-                                modifier = Modifier.size(12.dp),
-                                tint = MaterialTheme.colorScheme.tertiary,
-                            )
-                            Text(
-                                text = "含模糊/语义匹配",
-                                style = MaterialTheme.typography.labelSmall,
-                                color = MaterialTheme.colorScheme.tertiary,
-                            )
-                        }
-                    }
-                }
-            }
-
-            // ── 西药 / 中药 筛选 + 分类 Chip ───────────────
-            LazyRow(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
-            ) {
-                item {
-                    FilterChip(
-                        selected = uiState.showTcm == null && uiState.selectedCategory == null,
-                        onClick = { viewModel.onToggleTcm(null); viewModel.onCategorySelect(null) },
-                        label = { Text("全部") },
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = uiState.showTcm == false,
-                        onClick = { viewModel.onToggleTcm(false); viewModel.onCategorySelect(null) },
-                        label = { Text("西药") },
-                    )
-                }
-                item {
-                    FilterChip(
-                        selected = uiState.showTcm == true,
-                        onClick = { viewModel.onToggleTcm(true); viewModel.onCategorySelect(null) },
-                        label = { Text("中成药") },
-                    )
-                }
-                if (uiState.categories.isNotEmpty()) {
                     item {
-                        VerticalDivider(
-                            modifier = Modifier
-                                .height(32.dp)
-                                .padding(horizontal = 4.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant,
-                        )
-                    }
-                    items(uiState.categories.take(12)) { cat ->
                         FilterChip(
-                            selected = uiState.selectedCategory == cat,
-                            onClick = {
-                                viewModel.onCategorySelect(if (uiState.selectedCategory == cat) null else cat)
-                                viewModel.onToggleTcm(null)
-                            },
-                            label = { Text(cat) },
+                            selected = uiState.showTcm == null && uiState.selectedCategory == null,
+                            onClick = { viewModel.onToggleTcm(null); viewModel.onCategorySelect(null) },
+                            label = { Text("全部") },
                         )
                     }
-                }
-            }
-
-            // ── 内容区域 ─────────────────────────────────────
-            when {
-                uiState.isLoading -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                            CircularProgressIndicator()
-                            Spacer(Modifier.height(8.dp))
-                            Text("加载药品数据库…", style = MaterialTheme.typography.bodyMedium)
+                    item {
+                        FilterChip(
+                            selected = uiState.showTcm == false,
+                            onClick = { viewModel.onToggleTcm(false); viewModel.onCategorySelect(null) },
+                            label = { Text("西药") },
+                        )
+                    }
+                    item {
+                        FilterChip(
+                            selected = uiState.showTcm == true,
+                            onClick = { viewModel.onToggleTcm(true); viewModel.onCategorySelect(null) },
+                            label = { Text("中成药") },
+                        )
+                    }
+                    if (uiState.categories.isNotEmpty()) {
+                        item {
+                            VerticalDivider(
+                                modifier = Modifier
+                                    .height(32.dp)
+                                    .padding(horizontal = 4.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant,
+                            )
+                        }
+                        items(uiState.categories.take(12)) { cat ->
+                            FilterChip(
+                                selected = uiState.selectedCategory == cat,
+                                onClick = {
+                                    viewModel.onCategorySelect(if (uiState.selectedCategory == cat) null else cat)
+                                    viewModel.onToggleTcm(null)
+                                },
+                                label = { Text(cat) },
+                            )
                         }
                     }
                 }
-                uiState.drugs.isEmpty() -> {
-                    Box(
-                        modifier = Modifier.fillMaxSize(),
-                        contentAlignment = Alignment.Center,
+
+                // ── 搜索结果计数 + 模糊匹配提示 ────────────────
+                AnimatedVisibility(
+                    visible = uiState.query.isNotBlank(),
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp, vertical = 2.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        Column(
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(12.dp),
+                        Text(
+                            text = "找到 ${uiState.drugs.size} 条结果",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        if (uiState.hasFuzzyResults) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(12.dp),
+                                    tint = MaterialTheme.colorScheme.tertiary,
+                                )
+                                Text(
+                                    text = "含模糊/语义匹配",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                )
+                            }
+                        }
+                    }
+                }
+
+                // ── 搜索结果区域 ──────────────────────────────
+                when {
+                    uiState.drugs.isEmpty() && uiState.query.isNotBlank() -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
                         ) {
-                            Icon(
-                                Icons.Rounded.SearchOff,
-                                contentDescription = null,
-                                modifier = Modifier.size(48.dp),
-                                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            Text(
-                                if (uiState.query.isNotEmpty()) "未找到「${uiState.query}」相关药品"
-                                else "暂无药品数据",
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            if (uiState.query.isNotEmpty()) {
+                            Column(
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.SearchOff,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(48.dp),
+                                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                                Text(
+                                    "未找到「${uiState.query}」相关药品",
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
                                 OutlinedButton(onClick = { viewModel.onQueryChange("") }) {
                                     Text("清除搜索")
                                 }
                             }
                         }
                     }
-                }
-                // 有搜索或分类筛选时，显示平铺列表
-                uiState.query.isNotBlank() || uiState.selectedCategory != null -> {
-                    DrugFlatList(
-                        drugs = uiState.drugs,
-                        query = uiState.query,
-                        onDrugSelect = onDrugSelect,
-                    )
-                }
-                // 默认显示首字母分组列表
-                else -> {
-                    DrugGroupedList(
-                        groupedDrugs = uiState.groupedDrugs,
-                        onDrugSelect = onDrugSelect,
-                    )
+                    uiState.query.isNotBlank() || uiState.selectedCategory != null -> {
+                        DrugFlatList(
+                            drugs = uiState.drugs,
+                            query = uiState.query,
+                            onDrugSelect = {
+                                onDrugSelect(it)
+                                viewModel.onSearchActiveChange(false)
+                            },
+                        )
+                    }
+                    uiState.isSearchActive -> {
+                        DrugGroupedList(
+                            groupedDrugs = uiState.groupedDrugs,
+                            onDrugSelect = {
+                                onDrugSelect(it)
+                                viewModel.onSearchActiveChange(false)
+                            },
+                        )
+                    }
                 }
             }
         }
@@ -231,8 +253,9 @@ fun DrugsScreen(
 private fun DrugGroupedList(
     groupedDrugs: Map<String, List<Drug>>,
     onDrugSelect: (Drug) -> Unit,
+    topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
-    LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
+    LazyColumn(contentPadding = PaddingValues(top = topPadding, bottom = 88.dp)) {
         groupedDrugs.forEach { (letter, drugs) ->
             stickyHeader(key = "header_$letter") {
                 Surface(

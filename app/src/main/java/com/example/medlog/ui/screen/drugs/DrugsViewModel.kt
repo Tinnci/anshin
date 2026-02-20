@@ -24,6 +24,8 @@ data class DrugsUiState(
     val hasFuzzyResults: Boolean = false,
     /** 精确匹配结果数（名称包含 query 的条数） */
     val exactMatchCount: Int = 0,
+    /** SearchBar 展开状态 */
+    val isSearchActive: Boolean = false,
 )
 
 @OptIn(FlowPreview::class)
@@ -37,33 +39,39 @@ class DrugsViewModel @Inject constructor(
     private val _showTcm = MutableStateFlow<Boolean?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _categories = MutableStateFlow<List<String>>(emptyList())
+    private val _isSearchActive = MutableStateFlow(false)
 
     val uiState: StateFlow<DrugsUiState> = combine(
-        _query.debounce(200),
-        _selectedCategory,
-        _showTcm,
-        _isLoading,
-        _categories,
-    ) { query, category, tcm, loading, cats ->
-        val (filtered, exactCount) = rankedDrugs(query, category, tcm)
-        DrugsUiState(
-            query = query,
-            selectedCategory = category,
-            showTcm = tcm,
-            isLoading = loading,
-            drugs = filtered,
-            groupedDrugs = if (query.isBlank() && category == null) {
-                filtered.groupBy { drug ->
-                    val initial = drug.initial.ifBlank {
-                        drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-                    }
-                    if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
-                }.toSortedMap()
-            } else emptyMap(),
-            categories = cats,
-            hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
-            exactMatchCount = exactCount,
-        )
+        combine(
+            _query.debounce(200),
+            _selectedCategory,
+            _showTcm,
+            _isLoading,
+            _categories,
+        ) { query, category, tcm, loading, cats ->
+            val (filtered, exactCount) = rankedDrugs(query, category, tcm)
+            DrugsUiState(
+                query = query,
+                selectedCategory = category,
+                showTcm = tcm,
+                isLoading = loading,
+                drugs = filtered,
+                groupedDrugs = if (query.isBlank() && category == null) {
+                    filtered.groupBy { drug ->
+                        val initial = drug.initial.ifBlank {
+                            drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
+                        }
+                        if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
+                    }.toSortedMap()
+                } else emptyMap(),
+                categories = cats,
+                hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
+                exactMatchCount = exactCount,
+            )
+        },
+        _isSearchActive,
+    ) { state, active ->
+        state.copy(isSearchActive = active)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
 
     init {
@@ -77,6 +85,14 @@ class DrugsViewModel @Inject constructor(
     fun onQueryChange(q: String) { _query.value = q }
     fun onCategorySelect(cat: String?) { _selectedCategory.value = cat }
     fun onToggleTcm(tcm: Boolean?) { _showTcm.value = tcm }
+    fun onSearchActiveChange(active: Boolean) {
+        _isSearchActive.value = active
+        if (!active) {
+            _query.value = ""
+            _selectedCategory.value = null
+            _showTcm.value = null
+        }
+    }
 
     /**
      * 执行模糊+语义排名搜索，并应用分类/中西药过滤。
