@@ -6,6 +6,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,8 +14,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Medication
+import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -26,6 +29,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.data.model.DrugInteraction
+import com.example.medlog.data.model.InteractionSeverity
 import com.example.medlog.ui.components.MedicationCard
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -125,7 +130,15 @@ fun HomeScreen(
                     )
                 }
             }
-
+            // ── 药品相互作用警告 ───────────────────────────
+            if (uiState.interactions.isNotEmpty()) {
+                item {
+                    InteractionBannerCard(
+                        interactions = uiState.interactions,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                }
+            }
             // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
             if (pendingItems.size > 1) {
                 item {
@@ -429,3 +442,177 @@ private fun EmptyMedicationState(onAddMedication: () -> Unit) {
 
 private fun todayDateString(): String =
     SimpleDateFormat("M月d日 EEEE", Locale.CHINA).format(Date())
+
+// ── 药品相互作用横幅 ──────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InteractionBannerCard(
+    interactions: List<DrugInteraction>,
+    modifier: Modifier = Modifier,
+) {
+    var showSheet by remember { mutableStateOf(false) }
+
+    val highCount = interactions.count { it.severity == InteractionSeverity.HIGH }
+    val bannerColor = when {
+        highCount > 0 -> MaterialTheme.colorScheme.errorContainer
+        else -> MaterialTheme.colorScheme.tertiaryContainer
+    }
+    val contentColor = when {
+        highCount > 0 -> MaterialTheme.colorScheme.onErrorContainer
+        else -> MaterialTheme.colorScheme.onTertiaryContainer
+    }
+
+    Card(
+        modifier = modifier
+            .fillMaxWidth()
+            .clickable { showSheet = true },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = bannerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Warning,
+                contentDescription = null,
+                tint = contentColor,
+                modifier = Modifier.size(20.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = if (highCount > 0) "⚠️ 发现 $highCount 处高风险配伍" else "发现 ${interactions.size} 处用药配伍提醒",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = contentColor,
+                )
+                Text(
+                    text = "点击查看详情和建议",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = contentColor.copy(alpha = 0.8f),
+                )
+            }
+            Text(
+                text = "${interactions.size}",
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = contentColor,
+            )
+        }
+    }
+
+    if (showSheet) {
+        InteractionDetailSheet(
+            interactions = interactions,
+            onDismiss = { showSheet = false },
+        )
+    }
+}
+
+// ── 相互作用详情 BottomSheet ───────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun InteractionDetailSheet(
+    interactions: List<DrugInteraction>,
+    onDismiss: () -> Unit,
+) {
+    ModalBottomSheet(onDismissRequest = onDismiss) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp)
+                .padding(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Row(
+                Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    "用药相互作用",
+                    style = MaterialTheme.typography.titleLarge,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(onClick = onDismiss) {
+                    Icon(Icons.Rounded.Close, "关闭")
+                }
+            }
+            Text(
+                "以下为基于 ATC 分类的配伍提示，仅供参考，请咨询医生或药师。",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline,
+            )
+            HorizontalDivider()
+            interactions.forEach { interaction ->
+                InteractionItem(interaction)
+            }
+        }
+    }
+}
+
+@Composable
+private fun InteractionItem(interaction: DrugInteraction) {
+    val (bgColor, labelColor, severityLabel) = when (interaction.severity) {
+        InteractionSeverity.HIGH -> Triple(
+            MaterialTheme.colorScheme.errorContainer,
+            MaterialTheme.colorScheme.error,
+            "高风险",
+        )
+        InteractionSeverity.MODERATE -> Triple(
+            MaterialTheme.colorScheme.secondaryContainer,
+            MaterialTheme.colorScheme.secondary,
+            "中度",
+        )
+        InteractionSeverity.LOW -> Triple(
+            MaterialTheme.colorScheme.surfaceContainerHigh,
+            MaterialTheme.colorScheme.tertiary,
+            "注意",
+        )
+    }
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(containerColor = bgColor),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                SuggestionChip(
+                    onClick = {},
+                    label = {
+                        Text(
+                            severityLabel,
+                            style = MaterialTheme.typography.labelSmall,
+                            color = labelColor,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    },
+                )
+                Text(
+                    "${interaction.drugA}  ×  ${interaction.drugB}",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Text(
+                interaction.description,
+                style = MaterialTheme.typography.bodySmall,
+            )
+            Text(
+                "建议：${interaction.advice}",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.Medium,
+            )
+        }
+    }
+}

@@ -2,11 +2,13 @@ package com.example.medlog.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.interaction.InteractionRuleEngine
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -35,6 +37,8 @@ data class HomeUiState(
     val currentStreak: Int = 0,
     /** 历史最长连续天数 */
     val longestStreak: Int = 0,
+    /** 检测到的药品相互作用列表 */
+    val interactions: List<DrugInteraction> = emptyList(),
 ) {
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
@@ -68,6 +72,7 @@ class HomeViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
+    private val interactionEngine: InteractionRuleEngine,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -89,11 +94,13 @@ class HomeViewModel @Inject constructor(
                 val items = meds.map { med ->
                     MedicationWithStatus(med, logs.find { it.medicationId == med.id })
                 }
+                val interactions = interactionEngine.check(meds)
                 HomeUiState(
                     items = items,
                     takenCount = items.count { it.isTaken },
                     totalCount = items.size,
                     isLoading = false,
+                    interactions = interactions,
                 )
             }.catch { e ->
                 _uiState.value = _uiState.value.copy(
