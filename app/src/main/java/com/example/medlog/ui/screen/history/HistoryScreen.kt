@@ -30,6 +30,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
+import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -288,7 +289,7 @@ private fun DayCell(
             isFuture || adherenceDay == null -> Color.Transparent
             adherenceDay.total == 0          -> Color.Transparent
             adherenceDay.rate >= 1f          -> colorScheme.tertiary.copy(alpha = 0.8f)
-            adherenceDay.rate >= 0.5f        -> Color(0xFFF59E0B).copy(alpha = 0.7f)
+            adherenceDay.rate >= 0.5f        -> calendarWarning.copy(alpha = 0.7f)
             else                             -> colorScheme.error.copy(alpha = 0.7f)
         },
         animationSpec = tween(300),

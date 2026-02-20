@@ -59,3 +59,6 @@ val outlineVariantDark              = Color(0xFF40484D)
 val inverseSurfaceDark              = Color(0xFFDEE3E7)
 val inverseOnSurfaceDark            = Color(0xFF2D3135)
 val inversePrimaryDark              = Color(0xFF1B6391)
+
+// 日历热图「部分达标」可视化用色（Amber 500）—— 非 M3 标准色槽，仅用于日历色阶可视化
+val calendarWarning                 = Color(0xFFF59E0B)

@@ -103,7 +103,7 @@ fun HomeScreen(
             // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
             if (pendingItems.size > 1) {
                 item {
-                    Button(
+                    FilledTonalButton(
                         onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             viewModel.takeAll()
@@ -117,7 +117,7 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        colors = ButtonDefaults.buttonColors(
+                        colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
                             contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                         ),
