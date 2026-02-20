@@ -27,15 +27,21 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import android.Manifest
 import android.app.AlarmManager
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
+import androidx.core.content.ContextCompat
+import com.example.medlog.BuildConfig
 import com.example.medlog.data.model.Medication
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
     viewModel: SettingsViewModel = hiltViewModel(),
@@ -53,11 +59,28 @@ fun SettingsScreen(
             else true
         )
     }
+    // 通知权限检测（Android 13+）
+    var canPostNotifications by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            else true
+        )
+    }
     DisposableEffect(lifecycleOwner) {
         val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                canScheduleExactAlarms =
-                    (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()
+            if (event == Lifecycle.Event.ON_RESUME) {
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    canScheduleExactAlarms =
+                        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()
+                }
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                    canPostNotifications = ContextCompat.checkSelfPermission(
+                        context, Manifest.permission.POST_NOTIFICATIONS
+                    ) == PackageManager.PERMISSION_GRANTED
+                }
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)
@@ -142,6 +165,63 @@ fun SettingsScreen(
                 }
             }
 
+            // ── Android 13+ 通知权限警告卡片 ─────────────────────
+            AnimatedVisibility(
+                visible = !canPostNotifications,
+                enter = expandVertically(),
+                exit = shrinkVertically(),
+            ) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    ),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(
+                            Icons.Rounded.NotificationsOff,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                            modifier = Modifier.size(28.dp),
+                        )
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                            Text(
+                                "通知权限未开启",
+                                style = MaterialTheme.typography.titleSmall,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer,
+                            )
+                            Text(
+                                "无法收到服药提醒，请在系统设置中开启通知权限",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.85f),
+                            )
+                        }
+                        FilledTonalButton(
+                            onClick = {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    }
+                                )
+                            },
+                            colors = ButtonDefaults.filledTonalButtonColors(
+                                containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                                contentColor = MaterialTheme.colorScheme.tertiaryContainer,
+                            ),
+                        ) {
+                            Text("前往设置")
+                        }
+                    }
+                }
+            }
+
             // ── 提醒设置 ─────────────────────────────────────────
             SettingsCard(title = "提醒设置", icon = Icons.Rounded.Notifications) {
                 SettingsSwitchRow(
@@ -187,13 +267,18 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
-                        Slider(
-                            value = uiState.persistentIntervalMinutes.toFloat(),
-                            onValueChange = { viewModel.setPersistentInterval(it.toInt()) },
-                            valueRange = 3f..30f,
-                            steps = 8,
+                        FlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                        )
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf(3, 5, 10, 15, 30).forEach { minutes ->
+                                FilterChip(
+                                    selected = uiState.persistentIntervalMinutes == minutes,
+                                    onClick = { viewModel.setPersistentInterval(minutes) },
+                                    label = { Text("$minutes 分钟") },
+                                )
+                            }
+                        }
                     }
                 }
             }
@@ -208,6 +293,41 @@ fun SettingsScreen(
                         .padding(horizontal = 16.dp)
                         .padding(bottom = 4.dp),
                 )
+                // ── 一览行：五个时间快速预览 ──────────────────────
+                FlowRow(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    listOf(
+                        Triple(Icons.Rounded.WbSunny,      "起床", "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
+                        Triple(Icons.Rounded.Coffee,       "早餐", "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
+                        Triple(Icons.Rounded.LunchDining,  "午餐", "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
+                        Triple(Icons.Rounded.DinnerDining, "晚餐", "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
+                        Triple(Icons.Rounded.Bedtime,      "睡觉", "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
+                    ).forEach { (icon, label, time) ->
+                        SuggestionChip(
+                            onClick = {},
+                            enabled = false,
+                            icon = {
+                                Icon(
+                                    icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                )
+                            },
+                            label = {
+                                Text(
+                                    "$label $time",
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            },
+                        )
+                    }
+                }
                 RoutineTimeRow("起床", uiState.wakeHour, uiState.wakeMinute,
                     Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
@@ -251,6 +371,24 @@ fun SettingsScreen(
                 ArchivedMedicationsRow(
                     archived = uiState.archivedMedications,
                     onRestore = viewModel::unarchiveMedication,
+                )
+            }
+
+            // ── 关于 ─────────────────────────────────────────────
+            SettingsCard(title = "关于", icon = Icons.Rounded.Info) {
+                ListItem(
+                    headlineContent = { Text("MedLog") },
+                    supportingContent = {
+                        Text("版本 ${BuildConfig.VERSION_NAME}（构建 ${BuildConfig.VERSION_CODE}）")
+                    },
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.Medication,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
             }
         }
