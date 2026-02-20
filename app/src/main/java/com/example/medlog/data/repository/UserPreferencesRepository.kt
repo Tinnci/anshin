@@ -35,11 +35,18 @@ data class SettingsPreferences(
     val hasSeenWelcome: Boolean = false,
     /**
      * 旅行模式：开启后考虑按「家乡时区」计算提醒时间。
-     * 适用于短期出行、蕊时皮量、抢时差消失等场景。
      */
     val travelMode: Boolean = false,
     /** 家乡时区 ID（如 "Asia/Shanghai"）。空串表示使用内容是设备默认时区。 */
     val homeTimeZoneId: String = "",
+
+    // ── 可选功能开关 ───────────────────────────────────────────────────────────
+    /** 是否启用症状日记（底部导航显示「日记」Tab） */
+    val enableSymptomDiary: Boolean = true,
+    /** 是否启用药品相互作用检测（首页横幅 + 实时检测） */
+    val enableDrugInteractionCheck: Boolean = true,
+    /** 是否启用药品数据库浏览（底部导航显示「药品」Tab） */
+    val enableDrugDatabase: Boolean = true,
 )
 
 @Singleton
@@ -64,6 +71,10 @@ class UserPreferencesRepository @Inject constructor(
         val HAS_SEEN_WELCOME = booleanPreferencesKey("has_seen_welcome")
         val TRAVEL_MODE       = booleanPreferencesKey("travel_mode")
         val HOME_TIMEZONE_ID  = stringPreferencesKey("home_timezone_id")
+        // 可选功能开关
+        val ENABLE_SYMPTOM_DIARY         = booleanPreferencesKey("enable_symptom_diary")
+        val ENABLE_DRUG_INTERACTION      = booleanPreferencesKey("enable_drug_interaction")
+        val ENABLE_DRUG_DATABASE         = booleanPreferencesKey("enable_drug_database")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -84,6 +95,9 @@ class UserPreferencesRepository @Inject constructor(
                 hasSeenWelcome = prefs[HAS_SEEN_WELCOME] ?: false,
                 travelMode    = prefs[TRAVEL_MODE]      ?: false,
                 homeTimeZoneId = prefs[HOME_TIMEZONE_ID]  ?: "",
+                enableSymptomDiary        = prefs[ENABLE_SYMPTOM_DIARY]    ?: true,
+                enableDrugInteractionCheck = prefs[ENABLE_DRUG_INTERACTION] ?: true,
+                enableDrugDatabase        = prefs[ENABLE_DRUG_DATABASE]     ?: true,
             )
         }
 
@@ -115,6 +129,21 @@ class UserPreferencesRepository @Inject constructor(
         dataStore.edit {
             it[TRAVEL_MODE] = enabled
             if (homeTimeZoneId.isNotBlank()) it[HOME_TIMEZONE_ID] = homeTimeZoneId
+        }
+    }
+
+    /**
+     * 更新可选功能开关（null = 保持原值不变）。
+     */
+    suspend fun updateFeatureFlags(
+        enableSymptomDiary: Boolean? = null,
+        enableDrugInteraction: Boolean? = null,
+        enableDrugDatabase: Boolean? = null,
+    ) {
+        dataStore.edit { prefs ->
+            if (enableSymptomDiary != null) prefs[ENABLE_SYMPTOM_DIARY] = enableSymptomDiary
+            if (enableDrugInteraction != null) prefs[ENABLE_DRUG_INTERACTION] = enableDrugInteraction
+            if (enableDrugDatabase != null) prefs[ENABLE_DRUG_DATABASE] = enableDrugDatabase
         }
     }
 }

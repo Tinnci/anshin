@@ -1,5 +1,6 @@
 package com.example.medlog.ui.navigation
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material3.Icon
@@ -37,6 +41,7 @@ import androidx.navigation.NavDestination.Companion.hasRoute
 fun MedLogNavigationWrapper(
     currentDestination: NavDestination?,
     navigateToTopLevel: (TopLevelDestination) -> Unit,
+    destinations: List<TopLevelDestination> = TOP_LEVEL_DESTINATIONS,
     content: @Composable () -> Unit,
 ) {
     val adaptiveInfo = currentWindowAdaptiveInfo()
@@ -53,6 +58,7 @@ fun MedLogNavigationWrapper(
                         MedLogNavDrawerContent(
                             currentDestination = currentDestination,
                             navigateToTopLevel = navigateToTopLevel,
+                            destinations = destinations,
                         )
                     }
                 },
@@ -67,6 +73,7 @@ fun MedLogNavigationWrapper(
                     MedLogNavigationRail(
                         currentDestination = currentDestination,
                         navigateToTopLevel = navigateToTopLevel,
+                        destinations = destinations,
                     )
                 },
                 content = { content() },
@@ -80,9 +87,16 @@ fun MedLogNavigationWrapper(
                     MedLogBottomNavigationBar(
                         currentDestination = currentDestination,
                         navigateToTopLevel = navigateToTopLevel,
+                        destinations = destinations,
                     )
                 },
-                content = { content() },
+                content = {
+                    // NavigationBar 已内部消耗 WindowInsets.navigationBars；
+                    // 此处再次消耗，确保内层 Scaffold 不会重复添加底部 inset（避免空白间隙）
+                    Box(Modifier.consumeWindowInsets(WindowInsets.navigationBars)) {
+                        content()
+                    }
+                },
             )
         }
     }
@@ -92,13 +106,14 @@ fun MedLogNavigationWrapper(
 fun MedLogBottomNavigationBar(
     currentDestination: NavDestination?,
     navigateToTopLevel: (TopLevelDestination) -> Unit,
+    destinations: List<TopLevelDestination> = TOP_LEVEL_DESTINATIONS,
 ) {
     NavigationBar(
         modifier = Modifier.fillMaxWidth(),
         containerColor = MaterialTheme.colorScheme.surfaceContainer,
-        tonalElevation = 0.dp,   // 以色调容器颜色表达层级，无需阴影
+        tonalElevation = 0.dp,
     ) {
-        TOP_LEVEL_DESTINATIONS.forEach { dest ->
+        destinations.forEach { dest ->
             NavigationBarItem(
                 selected = currentDestination?.hasRoute(dest.route::class) == true,
                 onClick = { navigateToTopLevel(dest) },
@@ -113,12 +128,12 @@ fun MedLogBottomNavigationBar(
 fun MedLogNavigationRail(
     currentDestination: NavDestination?,
     navigateToTopLevel: (TopLevelDestination) -> Unit,
+    destinations: List<TopLevelDestination> = TOP_LEVEL_DESTINATIONS,
 ) {
     NavigationRail(
         modifier = Modifier.fillMaxHeight(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         header = {
-            // Expressive 风格：侧边轨道顶部显示品牌图标
             Icon(
                 imageVector = Icons.Rounded.Medication,
                 contentDescription = "MedLog",
@@ -130,7 +145,7 @@ fun MedLogNavigationRail(
         },
     ) {
         Spacer(Modifier.height(8.dp))
-        TOP_LEVEL_DESTINATIONS.forEach { dest ->
+        destinations.forEach { dest ->
             NavigationRailItem(
                 selected = currentDestination?.hasRoute(dest.route::class) == true,
                 onClick = { navigateToTopLevel(dest) },
@@ -145,6 +160,7 @@ fun MedLogNavigationRail(
 fun MedLogNavDrawerContent(
     currentDestination: NavDestination?,
     navigateToTopLevel: (TopLevelDestination) -> Unit,
+    destinations: List<TopLevelDestination> = TOP_LEVEL_DESTINATIONS,
 ) {
     // 抽屉品牌区——图标 + 应用名称
     Icon(
@@ -164,7 +180,7 @@ fun MedLogNavDrawerContent(
     )
     Spacer(Modifier.height(12.dp))
 
-    TOP_LEVEL_DESTINATIONS.forEach { dest ->
+    destinations.forEach { dest ->
         NavigationDrawerItem(
             icon = { Icon(dest.icon, contentDescription = null) },
             label = { Text(stringResource(dest.labelRes)) },

@@ -121,6 +121,18 @@ fun MedLogApp(openAddMedication: Boolean = false) {
         }
     }
 
+    // ── 根据功能开关过滤可见目的地 ─────────────────────────────
+    val featureFlags by appViewModel.featureFlags.collectAsStateWithLifecycle()
+    val enabledDestinations = remember(featureFlags) {
+        TOP_LEVEL_DESTINATIONS.filter { dest ->
+            when (dest.route) {
+                Route.Diary     -> featureFlags.enableSymptomDiary
+                Route.Drugs     -> featureFlags.enableDrugDatabase
+                else            -> true  // Home / History / Settings 始终可见
+            }
+        }
+    }
+
     // Decide whether to show the main navigation wrapper
     // Welcome 屏不展示导航栏
     val isOnWelcome = currentDestination?.hasRoute(Route.Welcome::class) == true
@@ -131,6 +143,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
         MedLogNavigationWrapper(
             currentDestination = currentDestination,
             navigateToTopLevel = navigateToTopLevel,
+            destinations = enabledDestinations,
         ) {
             MedLogNavHost(navController = navController, startDest = startDest!!)
         }

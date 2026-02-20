@@ -49,7 +49,7 @@ fun WelcomeScreen(
         if (uiState.isCompleted) onFinished()
     }
 
-    val pagerState = rememberPagerState(pageCount = { 4 })
+    val pagerState = rememberPagerState(pageCount = { 5 })
     val scope = rememberCoroutineScope()
 
     // 弹簧翻页 fling 行为，snap 时使用 medium-low 弹簧
@@ -86,7 +86,14 @@ fun WelcomeScreen(
                         isCurrentPage = isCurrentPage,
                         onTimeChange  = viewModel::onTimeChange,
                     )
-                    3 -> WelcomePage3(isCurrentPage = isCurrentPage)
+                    3 -> WelcomePage4(
+                        uiState       = uiState,
+                        isCurrentPage = isCurrentPage,
+                        onToggleSymptomDiary         = viewModel::onToggleSymptomDiary,
+                        onToggleDrugInteractionCheck = viewModel::onToggleDrugInteractionCheck,
+                        onToggleDrugDatabase         = viewModel::onToggleDrugDatabase,
+                    )
+                    4 -> WelcomePage3(isCurrentPage = isCurrentPage)
                 }
             }
 
@@ -101,7 +108,7 @@ fun WelcomeScreen(
             ) {
                 // 页面指示点（弹簧宽度 + 颜色过渡）
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(4) { index ->
+                    repeat(5) { index ->
                         val isSelected = pagerState.currentPage == index
                         val width by animateDpAsState(
                             targetValue   = if (isSelected) 24.dp else 8.dp,
@@ -125,7 +132,7 @@ fun WelcomeScreen(
                 }
 
                 // 下一步 / 开始使用
-                val isLastPage = pagerState.currentPage == 3
+                val isLastPage = pagerState.currentPage == 4
                 Button(
                     onClick = {
                         if (isLastPage) {
@@ -490,4 +497,109 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
             modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
         )
     }
+}
+
+// ── 第4页：功能选择 ────────────────────────────────────────────────────────────
+
+@Composable
+private fun WelcomePage4(
+    uiState: WelcomeUiState,
+    isCurrentPage: Boolean,
+    onToggleSymptomDiary: (Boolean) -> Unit,
+    onToggleDrugInteractionCheck: (Boolean) -> Unit,
+    onToggleDrugDatabase: (Boolean) -> Unit,
+) {
+    val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
+    val (subY, subAlpha)     = rememberSlideEntry(isCurrentPage, 20f, 80L)
+    val (cardY, cardAlpha)   = rememberSlideEntry(isCurrentPage, 24f, 160L)
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp)
+            .padding(top = 48.dp, bottom = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        Text(
+            "个性化功能",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.graphicsLayer { translationY = titleY; alpha = titleAlpha },
+        )
+        Text(
+            "以下功能可选择启用，未启用的模块不会出现在导航栏。您也可以随时在「设置」中更改。",
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
+        )
+
+        // 功能选项卡片
+        Card(
+            shape = androidx.compose.foundation.shape.RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { translationY = cardY; alpha = cardAlpha },
+        ) {
+            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                FeatureToggleRow(
+                    title = "症状日记",
+                    description = "记录每日症状、心情与身体状况",
+                    icon = Icons.Rounded.EditNote,
+                    checked = uiState.enableSymptomDiary,
+                    onCheckedChange = onToggleSymptomDiary,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                FeatureToggleRow(
+                    title = "药品数据库",
+                    description = "浏览内置西药 / 中成药查询与添加",
+                    icon = Icons.Rounded.MedicalServices,
+                    checked = uiState.enableDrugDatabase,
+                    onCheckedChange = onToggleDrugDatabase,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                FeatureToggleRow(
+                    title = "药物相互作用检测",
+                    description = "自动检测多药联用的配伍风险",
+                    icon = Icons.Rounded.Warning,
+                    checked = uiState.enableDrugInteractionCheck,
+                    onCheckedChange = onToggleDrugInteractionCheck,
+                )
+            }
+        }
+
+        Text(
+            "⚡ 推荐：所有功能保持开启，随时可以在设置中关闭。",
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.outline,
+        )
+    }
+}
+
+@Composable
+private fun FeatureToggleRow(
+    title: String,
+    description: String,
+    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title, fontWeight = FontWeight.Medium) },
+        supportingContent = {
+            Text(description, style = MaterialTheme.typography.bodySmall)
+        },
+        leadingContent = {
+            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        },
+        trailingContent = {
+            Switch(checked = checked, onCheckedChange = onCheckedChange)
+        },
+        colors = ListItemDefaults.colors(
+            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+        ),
+    )
 }

@@ -18,6 +18,10 @@ data class WelcomeUiState(
     val lunchHour: Int = 12,    val lunchMinute: Int = 0,
     val dinnerHour: Int = 18,   val dinnerMinute: Int = 0,
     val bedHour: Int = 22,      val bedMinute: Int = 0,
+    // 功能开关（第5页选择）
+    val enableSymptomDiary: Boolean = true,
+    val enableDrugInteractionCheck: Boolean = true,
+    val enableDrugDatabase: Boolean = true,
     /** true = 已完成引导，外层导航层监听后跳转 Home */
     val isCompleted: Boolean = false,
 )
@@ -40,6 +44,9 @@ class WelcomeViewModel @Inject constructor(
                 lunchHour     = prefs.lunchHour,     lunchMinute     = prefs.lunchMinute,
                 dinnerHour    = prefs.dinnerHour,    dinnerMinute    = prefs.dinnerMinute,
                 bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
+                enableSymptomDiary         = prefs.enableSymptomDiary,
+                enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
+                enableDrugDatabase         = prefs.enableDrugDatabase,
             )
         }
     }
@@ -55,7 +62,19 @@ class WelcomeViewModel @Inject constructor(
         }
     }
 
-    /** 保存作息时间 + 标记引导已完成，触发导航至 Home */
+    fun onToggleSymptomDiary(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(enableSymptomDiary = enabled)
+    }
+
+    fun onToggleDrugInteractionCheck(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(enableDrugInteractionCheck = enabled)
+    }
+
+    fun onToggleDrugDatabase(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(enableDrugDatabase = enabled)
+    }
+
+    /** 保存作息时间 + 功能开关 + 标记引导已完成，触发导航至 Home */
     fun finishWelcome() {
         viewModelScope.launch {
             val s = _uiState.value
@@ -64,6 +83,11 @@ class WelcomeViewModel @Inject constructor(
             prefsRepository.updateRoutineTime("lunch",     s.lunchHour,     s.lunchMinute)
             prefsRepository.updateRoutineTime("dinner",    s.dinnerHour,    s.dinnerMinute)
             prefsRepository.updateRoutineTime("bed",       s.bedHour,       s.bedMinute)
+            prefsRepository.updateFeatureFlags(
+                enableSymptomDiary   = s.enableSymptomDiary,
+                enableDrugInteraction = s.enableDrugInteractionCheck,
+                enableDrugDatabase   = s.enableDrugDatabase,
+            )
             prefsRepository.updateHasSeenWelcome(true)
             _uiState.value = _uiState.value.copy(isCompleted = true)
         }

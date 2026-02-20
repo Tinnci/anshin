@@ -9,6 +9,7 @@ import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.interaction.InteractionRuleEngine
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -128,6 +129,7 @@ class HomeViewModel @Inject constructor(
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
     private val interactionEngine: InteractionRuleEngine,
+    private val prefsRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -145,11 +147,14 @@ class HomeViewModel @Inject constructor(
             combine(
                 medicationRepo.getActiveMedications(),
                 logRepo.getLogsForDateRange(today.first, today.second),
-            ) { meds, logs ->
+                prefsRepository.settingsFlow,
+            ) { meds, logs, prefs ->
                 val items = meds.map { med ->
                     MedicationWithStatus(med, logs.find { it.medicationId == med.id })
                 }
-                val interactions = interactionEngine.check(meds)
+                val interactions = if (prefs.enableDrugInteractionCheck) {
+                    interactionEngine.check(meds)
+                } else emptyList()
                 val scheduledItems = items.filter { !it.medication.isPRN }
                 HomeUiState(
                     items = items,

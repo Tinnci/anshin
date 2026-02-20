@@ -23,6 +23,10 @@ data class SettingsUiState(
     val bedHour: Int = 22, val bedMinute: Int = 0,
     val travelMode: Boolean = false,
     val homeTimeZoneId: String = "",
+    // ── 可选功能开关 ───────────────────────────────────────────────────────────
+    val enableSymptomDiary: Boolean = true,
+    val enableDrugInteractionCheck: Boolean = true,
+    val enableDrugDatabase: Boolean = true,
 )
 
 @HiltViewModel
@@ -47,6 +51,9 @@ class SettingsViewModel @Inject constructor(
             bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
             travelMode    = prefs.travelMode,
             homeTimeZoneId = prefs.homeTimeZoneId,
+            enableSymptomDiary         = prefs.enableSymptomDiary,
+            enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
+            enableDrugDatabase         = prefs.enableDrugDatabase,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -79,5 +86,17 @@ class SettingsViewModel @Inject constructor(
             val homeTz = if (enabled && savedTzId.isBlank()) currentTz else savedTzId
             prefsRepository.updateTravelMode(enabled, homeTz)
         }
+    }
+
+    fun setEnableSymptomDiary(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableSymptomDiary = enabled) }
+    }
+
+    fun setEnableDrugInteractionCheck(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugInteraction = enabled) }
+    }
+
+    fun setEnableDrugDatabase(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugDatabase = enabled) }
     }
 }

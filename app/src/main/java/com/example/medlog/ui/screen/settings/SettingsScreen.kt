@@ -366,6 +366,41 @@ fun SettingsScreen(
                 )
             }
 
+            // ── 功能配置 ─────────────────────────────────────────
+            SettingsCard(title = "功能配置", icon = Icons.Rounded.Tune) {
+                Text(
+                    "主要功能（今日用药、历史记录、设置）始终启用。以下为可选模块，关闭后相应标签将从导航栏隐藏。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 4.dp),
+                )
+                SettingsSwitchRow(
+                    title = "症状日记",
+                    subtitle = "记录每日症状、心情与备注",
+                    checked = uiState.enableSymptomDiary,
+                    onCheckedChange = viewModel::setEnableSymptomDiary,
+                    icon = Icons.Rounded.EditNote,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                SettingsSwitchRow(
+                    title = "药品数据库",
+                    subtitle = "浏览内置西药 / 中成药数据库",
+                    checked = uiState.enableDrugDatabase,
+                    onCheckedChange = viewModel::setEnableDrugDatabase,
+                    icon = Icons.Rounded.MedicalServices,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                SettingsSwitchRow(
+                    title = "药物相互作用检测",
+                    subtitle = "在首页自动检测配伍风险并提示",
+                    checked = uiState.enableDrugInteractionCheck,
+                    onCheckedChange = viewModel::setEnableDrugInteractionCheck,
+                    icon = Icons.Rounded.Warning,
+                )
+            }
+
             // ── 药品管理 ─────────────────────────────────────────
             SettingsCard(title = "药品管理", icon = Icons.Rounded.MedicalServices) {
                 ArchivedMedicationsRow(
