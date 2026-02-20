@@ -56,25 +56,7 @@ fun HomeScreen(
                         )
                     }
                 },
-                actions = {
-                    if (pendingItems.size > 1) {
-                        FilledTonalIconButton(
-                            onClick = {
-                                scope.launch {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.takeAll()
-                                    snackbarHostState.showSnackbar(
-                                        message = "已全部标记为已服",
-                                        duration = SnackbarDuration.Short,
-                                    )
-                                }
-                            },
-                            modifier = Modifier.padding(end = 8.dp),
-                        ) {
-                            Icon(Icons.Rounded.DoneAll, contentDescription = "全部标记已服")
-                        }
-                    }
-                },
+                actions = {},
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -110,6 +92,39 @@ fun HomeScreen(
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Spacer(Modifier.height(4.dp))
+            }
+
+            // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
+            if (pendingItems.size > 1) {
+                item {
+                    Button(
+                        onClick = {
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            viewModel.takeAll()
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "已全部标记为已服",
+                                    duration = SnackbarDuration.Short,
+                                )
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(52.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.colorScheme.primaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                        ),
+                        shape = MaterialTheme.shapes.large,
+                    ) {
+                        Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            "一键服用全部 (${pendingItems.size})",
+                            style = MaterialTheme.typography.labelLarge,
+                        )
+                    }
+                }
             }
 
             // ── 空状态 ────────────────────────────────────────
