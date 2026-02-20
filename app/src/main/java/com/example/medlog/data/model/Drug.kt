@@ -5,10 +5,11 @@ package com.example.medlog.data.model
  */
 data class Drug(
     val name: String,
-    val category: String,       // 顶级分类，如"消化道及代谢"
-    val fullPath: String = "",  // 完整分类路径
+    val category: String,           // 顶级分类，如"消化道及代谢"
+    val fullPath: String = "",      // 主分类路径（第一条路径）
+    val allPaths: List<String> = emptyList(), // 全部分类路径（复方/多效药可能有多条）
     val isTcm: Boolean = false,
-    val initial: String = "#",  // 拼音首字母 (A-Z or #)
+    val initial: String = "#",      // 拼音首字母 (A-Z or #)
     val tags: List<String> = emptyList(),
     val isCompound: Boolean = false,
 ) {
@@ -16,6 +17,7 @@ data class Drug(
     val nameLower: String = name.lowercase()
     val categoryLower: String = category.lowercase()
     val tagsLower: List<String> = tags.map { it.lowercase() }
+    val allPathsLower: List<String> = allPaths.map { it.lowercase() }
 
     /** 精确/包含匹配（保留向后兼容） */
     fun matches(query: String): Boolean {
@@ -24,6 +26,7 @@ data class Drug(
         return nameLower.contains(q) ||
                categoryLower.contains(q) ||
                fullPath.lowercase().contains(q) ||
+               allPathsLower.any { it.contains(q) } ||
                tagsLower.any { it.contains(q) }
     }
 
@@ -55,6 +58,7 @@ data class Drug(
 
         if (categoryLower.contains(q)) return 0.55f
         if (fullPath.lowercase().contains(q)) return 0.45f
+        if (allPathsLower.any { it.contains(q) }) return 0.40f
 
         // 模糊匹配：字符 bigram 相似度
         val bigram = bigramSimilarity(nameLower, q)

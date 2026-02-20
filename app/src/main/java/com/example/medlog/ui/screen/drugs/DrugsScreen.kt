@@ -8,6 +8,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -15,6 +16,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
@@ -480,10 +482,18 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
         drug.tags.firstOrNull { it.lowercase().contains(query.lowercase()) }
     } else null
 
+    // 多路径药品：提取所有唯一的一级分类作为 badge 列表
+    val extraCategories = if (drug.allPaths.size > 1) {
+        drug.allPaths
+            .mapNotNull { it.split(" > ").firstOrNull()?.trim() }
+            .distinct()
+            .filter { it != drug.category }
+    } else emptyList()
+
     ListItem(
         headlineContent = { Text(drug.name) },
         supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
                     text = buildString {
                         append(drug.category)
@@ -493,6 +503,29 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
+                // 多系统归类 badge 行（如"神经系统 + 消化道及代谢"）
+                if (extraCategories.isNotEmpty()) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.horizontalScroll(rememberScrollState()),
+                    ) {
+                        extraCategories.forEach { cat ->
+                            SuggestionChip(
+                                onClick = {},
+                                label = {
+                                    Text(
+                                        cat,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                },
+                                modifier = Modifier.widthIn(max = 140.dp),
+                            )
+                        }
+                    }
+                }
                 // 语义/模糊匹配原因提示
                 if (tagMatchHint != null) {
                     Text(

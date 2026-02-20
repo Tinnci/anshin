@@ -145,14 +145,42 @@ fun MedicationDetailScreen(
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                         DetailRow("药品名称", med.name)
-                        // 分类：优先显示完整路径，其次顶级分类；中成药额外标注
-                        val categoryDisplay = when {
-                            med.fullPath.isNotBlank() -> med.fullPath
-                            med.category.isNotBlank() -> med.category
-                            else -> "—"
+                        // 分类：支持单路径/多路径（用 \n 分隔的多条 ATC/TCM 路径）
+                        val storedPaths = med.fullPath.split("\n").filter { it.isNotBlank() }
+                        when {
+                            storedPaths.size > 1 -> {
+                                // 多路径药品：每条路径单独一行展示
+                                val tcmSuffix = if (med.isTcm) "（中成药）" else ""
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(vertical = 4.dp),
+                                ) {
+                                    Text(
+                                        "分类",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    storedPaths.forEachIndexed { index, path ->
+                                        Text(
+                                            text = if (index == 0) "$path$tcmSuffix" else path,
+                                            style = MaterialTheme.typography.bodyMedium,
+                                            modifier = Modifier.padding(top = 2.dp),
+                                        )
+                                    }
+                                }
+                                HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                            }
+                            storedPaths.size == 1 -> {
+                                val display = if (med.isTcm) "${storedPaths[0]}（中成药）" else storedPaths[0]
+                                DetailRow("分类", display)
+                            }
+                            med.category.isNotBlank() -> {
+                                val display = if (med.isTcm) "${med.category}（中成药）" else med.category
+                                DetailRow("分类", display)
+                            }
+                            else -> DetailRow("分类", "—")
                         }
-                        val categoryValue = if (med.isTcm) "$categoryDisplay（中成药）" else categoryDisplay
-                        DetailRow("分类", categoryValue)
                         DetailRow("剂量", "${med.doseQuantity}×${med.dose} ${med.doseUnit}")
                         if (med.isPRN) {
                             DetailRow("用法", "按需服用 (PRN)")

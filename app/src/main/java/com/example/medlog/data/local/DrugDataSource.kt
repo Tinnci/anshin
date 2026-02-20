@@ -24,8 +24,8 @@ class DrugDataSource @Inject constructor(
     private val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true }
 
     suspend fun loadAllDrugs(): List<Drug> = withContext(Dispatchers.IO) {
-        val western = parseJsonDrugs("json/drugs.json", isTcm = false)
-        val tcm = parseJsonDrugs("json/tcm_drugs_flat.json", isTcm = true)
+        val western = parseJsonDrugs("json/drugs_clean.json", isTcm = false)
+        val tcm = parseJsonDrugs("json/tcm_drugs_clean.json", isTcm = true)
         (western + tcm).sortedWith(compareBy({ it.initial }, { it.name }))
     }
 
@@ -53,6 +53,7 @@ class DrugDataSource @Inject constructor(
                 name = name,
                 category = category,
                 fullPath = bestPath,
+                allPaths = if (paths.size > 1) paths else emptyList(),
                 isTcm = isTcm,
                 initial = computeInitial(name),
                 isCompound = isCompound,

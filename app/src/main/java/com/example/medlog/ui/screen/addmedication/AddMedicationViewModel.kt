@@ -151,12 +151,14 @@ class AddMedicationViewModel @Inject constructor(
 
     /** 从下拉建议中选中一种药，自动填入名称+分类+完整路径+是否中成药并关闭建议列表 */
     fun onDrugSelected(drug: Drug) {
+        // 多路径药品（复方/多效药）用换行符连接所有路径存储；单路径直接取 fullPath
+        val storedPath = if (drug.allPaths.size > 1) drug.allPaths.joinToString("\n") else drug.fullPath
         update {
             copy(
                 name = drug.name,
                 category = drug.category,
                 isTcm = drug.isTcm,
-                fullPath = drug.fullPath,
+                fullPath = storedPath,
                 showDrugSuggestions = false,
                 drugSuggestions = emptyList(),
                 error = null,
