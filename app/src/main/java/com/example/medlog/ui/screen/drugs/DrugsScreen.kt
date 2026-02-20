@@ -84,9 +84,10 @@ fun DrugsScreen(
                             }
                         }
                     }
-                    // 选了某分类后，展示该分类下的药品平铺列表
+                    // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
                     uiState.selectedCategory != null -> {
                         val selectedCat = uiState.selectedCategory ?: ""
+                        val selectedSub = uiState.selectedSubcategory  // 本地 val 避免 smart cast 问题
                         Column(modifier = Modifier.fillMaxSize().padding(top = 72.dp)) {
                             // 面包屑标题行
                             Row(
@@ -103,25 +104,59 @@ fun DrugsScreen(
                                     Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
-                                Text(
-                                    selectedCat,
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.primary,
-                                    modifier = Modifier.weight(1f),
-                                )
-                                TextButton(
-                                    onClick = {
-                                        viewModel.onCategorySelect(null)
-                                        viewModel.onToggleTcm(null)
-                                    },
-                                ) { Text("返回分类") }
+                                // 面包屑：一级 > 二级（如果已选）
+                                if (selectedSub != null) {
+                                    Text(
+                                        selectedCat,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        " > ",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        selectedSub,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    TextButton(onClick = { viewModel.onSubcategorySelect(null) }) {
+                                        Text("返回子类")
+                                    }
+                                } else {
+                                    Text(
+                                        selectedCat,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.onCategorySelect(null)
+                                            viewModel.onToggleTcm(null)
+                                        },
+                                    ) { Text("返回分类") }
+                                }
                             }
                             HorizontalDivider()
-                            DrugFlatList(
-                                drugs = uiState.drugs,
-                                query = "",
-                                onDrugSelect = onDrugSelect,
-                            )
+                            // 有二级子分类 & 尚未选二级 → 显示二级卡片网格
+                            if (uiState.subcategories.isNotEmpty() && uiState.selectedSubcategory == null) {
+                                SubcategoryGrid(
+                                    subcategories = uiState.subcategories,
+                                    onSubcategoryClick = { viewModel.onSubcategorySelect(it) },
+                                )
+                            } else {
+                                // 选了二级或该一级无二级子类 → 直接显示药品列表
+                                DrugFlatList(
+                                    drugs = uiState.drugs,
+                                    query = "",
+                                    onDrugSelect = onDrugSelect,
+                                )
+                            }
                         }
                     }
                     // 默认：西药/中成药 Tab + 分类卡片网格
@@ -302,6 +337,57 @@ fun DrugsScreen(
                 }
             }
         }
+    }
+}
+
+// ─── 二级子分类网格 ──────────────────────────────────────────────────────────
+
+@Composable
+private fun SubcategoryGrid(
+    subcategories: List<Pair<String, Int>>,
+    onSubcategoryClick: (String) -> Unit,
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 150.dp),
+        contentPadding = PaddingValues(12.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalArrangement = Arrangement.spacedBy(10.dp),
+        modifier = Modifier.fillMaxSize(),
+    ) {
+        items(subcategories, key = { it.first }) { (sub, count) ->
+            Card(
+                onClick = { onSubcategoryClick(sub) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(80.dp),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    verticalArrangement = Arrangement.Center,
+                ) {
+                    Text(
+                        text = sub,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                    Text(
+                        text = "$count 种",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        item { Spacer(Modifier.height(80.dp)) }
     }
 }
 

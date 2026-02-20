@@ -30,6 +30,10 @@ data class DrugsUiState(
     val westernCategories: List<Pair<String, Int>> = emptyList(),
     /** 中成药一级分类及药品数量（用于分类卡片网格） */
     val tcmCategories: List<Pair<String, Int>> = emptyList(),
+    /** 当前选中的二级子分类（null = 未选中，显示二级网格） */
+    val selectedSubcategory: String? = null,
+    /** 当前一级分类下的二级子分类及药品数量 */
+    val subcategories: List<Pair<String, Int>> = emptyList(),
 )
 
 @OptIn(FlowPreview::class)
@@ -40,12 +44,15 @@ class DrugsViewModel @Inject constructor(
 
     private val _query = MutableStateFlow("")
     private val _selectedCategory = MutableStateFlow<String?>(null)
+    private val _selectedSubcategory = MutableStateFlow<String?>(null)
     private val _showTcm = MutableStateFlow<Boolean?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _categories = MutableStateFlow<List<String>>(emptyList())
     private val _isSearchActive = MutableStateFlow(false)
     private val _westernCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
     private val _tcmCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
+    /** 所有药品缓存（init 后填充，用于计算子分类） */
+    private var allDrugsCache: List<Drug> = emptyList()
 
     val uiState: StateFlow<DrugsUiState> = combine(
         combine(
@@ -55,10 +62,33 @@ class DrugsViewModel @Inject constructor(
             _isLoading,
             _categories,
         ) { query, category, tcm, loading, cats ->
-            val (filtered, exactCount) = rankedDrugs(query, category, tcm)
+            val subcat = _selectedSubcategory.value
+            val (filtered, exactCount) = rankedDrugs(query, category, tcm, subcat)
+            // 计算二级子分类列表（仅当选了一级分类、未选二级时显示）
+            val subcats = if (category != null && subcat == null && query.isBlank()) {
+                allDrugsCache
+                    .filter { it.category == category }
+                    .flatMap { drug ->
+                        // 提取属于该一级分类的二级段
+                        (listOf(drug.fullPath) + drug.allPaths)
+                            .filter { it.startsWith(category) }
+                            .mapNotNull { path ->
+                                path.split(" > ").map { it.trim() }.let { parts ->
+                                    if (parts.size >= 2) parts[1] else null
+                                }
+                            }
+                    }
+                    .groupingBy { it }
+                    .eachCount()
+                    .entries
+                    .sortedByDescending { it.value }
+                    .map { it.key to it.value }
+            } else emptyList()
             DrugsUiState(
                 query = query,
                 selectedCategory = category,
+                selectedSubcategory = subcat,
+                subcategories = subcats,
                 showTcm = tcm,
                 isLoading = loading,
                 drugs = filtered,
@@ -99,18 +129,24 @@ class DrugsViewModel @Inject constructor(
                 .map { it.key to it.value.size }
             _westernCategories.value = western
             _tcmCategories.value = tcm
+            allDrugsCache = allDrugs
             _isLoading.value = false
         }
     }
 
     fun onQueryChange(q: String) { _query.value = q }
-    fun onCategorySelect(cat: String?) { _selectedCategory.value = cat }
+    fun onCategorySelect(cat: String?) {
+        _selectedCategory.value = cat
+        _selectedSubcategory.value = null  // 切换一级时清空二级
+    }
+    fun onSubcategorySelect(subcat: String?) { _selectedSubcategory.value = subcat }
     fun onToggleTcm(tcm: Boolean?) { _showTcm.value = tcm }
     fun onSearchActiveChange(active: Boolean) {
         _isSearchActive.value = active
         if (!active) {
             _query.value = ""
             _selectedCategory.value = null
+            _selectedSubcategory.value = null
             _showTcm.value = null
         }
     }
@@ -123,10 +159,19 @@ class DrugsViewModel @Inject constructor(
         query: String,
         category: String?,
         tcm: Boolean?,
+        subcategory: String? = null,
     ): Pair<List<Drug>, Int> {
         var result = drugRepository.searchDrugsRanked(query)
         if (category != null) result = result.filter { it.category == category }
         if (tcm != null) result = result.filter { it.isTcm == tcm }
+        // 二级分类过滤：检查路径第二段是否匹配
+        if (subcategory != null) {
+            result = result.filter { drug ->
+                (listOf(drug.fullPath) + drug.allPaths).any { path ->
+                    path.split(" > ").map { it.trim() }.getOrNull(1) == subcategory
+                }
+            }
+        }
         val exact = if (query.isNotBlank())
             result.count { it.nameLower.contains(query.lowercase()) || it.categoryLower.contains(query.lowercase()) }
         else result.size
