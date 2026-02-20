@@ -1,9 +1,8 @@
 package com.example.medlog.ui.screen.home
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -152,11 +151,13 @@ fun HomeScreen(
 
 // ── 进度卡片（弹性动画进度条）────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Modifier) {
+    val motionScheme = MaterialTheme.motionScheme
     val progress by animateFloatAsState(
         targetValue = if (total == 0) 0f else taken.toFloat() / total,
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+        animationSpec = motionScheme.defaultSpatialSpec(),
         label = "progress",
     )
     val allDone = total > 0 && taken == total
@@ -165,7 +166,7 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
             MaterialTheme.colorScheme.tertiaryContainer
         else
             MaterialTheme.colorScheme.primaryContainer,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "progressBg",
     )
 

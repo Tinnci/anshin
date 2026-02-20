@@ -1,9 +1,8 @@
 package com.example.medlog.ui.components
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -26,6 +25,7 @@ import com.example.medlog.ui.screen.home.MedicationWithStatus
 import java.text.SimpleDateFormat
 import java.util.*
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MedicationCard(
     item: MedicationWithStatus,
@@ -35,20 +35,21 @@ fun MedicationCard(
     modifier: Modifier = Modifier,
 ) {
     val med = item.medication
+    val motionScheme = MaterialTheme.motionScheme
     val containerColor by animateColorAsState(
         targetValue = when {
             item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
             item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
             else           -> MaterialTheme.colorScheme.surface
         },
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardColor",
     )
 
     // 已服用后整张卡片轻微透明，减弱视觉权重
     val cardAlpha by animateFloatAsState(
         targetValue = if (item.isTaken || item.isSkipped) 0.72f else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardAlpha",
     )
 
@@ -204,14 +205,13 @@ fun MedicationCard(
 }
 
 /** 带弹性缩放的状态圆圈 */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
+    val motionScheme = MaterialTheme.motionScheme
     val scale by animateFloatAsState(
         targetValue = if (isTaken) 1f else 0.9f,
-        animationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessMedium,
-        ),
+        animationSpec = motionScheme.defaultSpatialSpec(),
         label = "circleScale",
     )
     val bgColor by animateColorAsState(
@@ -220,7 +220,7 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
             isSkipped -> MaterialTheme.colorScheme.outlineVariant
             else      -> MaterialTheme.colorScheme.surfaceContainerHigh
         },
-        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "circleBg",
     )
     Box(
