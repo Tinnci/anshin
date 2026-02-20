@@ -224,6 +224,28 @@ fun SettingsScreen(
                     Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
             }
 
+            // ── 旅行模式 ─────────────────────────────────────────
+            SettingsCard(title = "旅行模式", icon = Icons.Rounded.FlightTakeoff) {
+                Text(
+                    "跨时区旅行时，保持按家乡时钟提醒服药，避免因时差打乱用药规律。",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
+                        .padding(bottom = 4.dp),
+                )
+                SettingsSwitchRow(
+                    title = "保持家乡时区提醒",
+                    subtitle = if (uiState.travelMode && uiState.homeTimeZoneId.isNotBlank())
+                        "基准：${uiState.homeTimeZoneId}"
+                    else
+                        "关闭时跟随设备时区",
+                    checked = uiState.travelMode,
+                    onCheckedChange = viewModel::setTravelMode,
+                    icon = Icons.Rounded.Schedule,
+                )
+            }
+
             // ── 药品管理 ─────────────────────────────────────────
             SettingsCard(title = "药品管理", icon = Icons.Rounded.MedicalServices) {
                 ArchivedMedicationsRow(

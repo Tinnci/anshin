@@ -5,13 +5,15 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.SymptomLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class],
-    version = 5,
+    version = 6,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -23,6 +25,13 @@ abstract class MedLogDatabase : RoomDatabase() {
     companion object {
         @Volatile private var INSTANCE: MedLogDatabase? = null
 
+        /** v5 → v6: 添加 intervalHours 列（间隔给药小时数） */
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medications ADD COLUMN intervalHours INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         /**
          * Widget 和其他非-DI 场景下的单例访问器。
          * Hilt 应用内仍由 [AppModule] 提供注入版本。
@@ -31,6 +40,7 @@ abstract class MedLogDatabase : RoomDatabase() {
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room
                     .databaseBuilder(context.applicationContext, MedLogDatabase::class.java, "medlog.db")
+                    .addMigrations(MIGRATION_5_6)
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }

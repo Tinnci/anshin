@@ -34,6 +34,7 @@ object DatabaseModule {
             MedLogDatabase::class.java,
             "medlog.db",
         )
+            .addMigrations(MedLogDatabase.MIGRATION_5_6)
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 

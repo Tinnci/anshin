@@ -10,8 +10,14 @@ import android.os.Build
 import androidx.core.app.NotificationCompat
 import com.example.medlog.R
 import com.example.medlog.data.model.Medication
+import com.example.medlog.data.repository.UserPreferencesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 import java.util.Calendar
+import java.util.TimeZone
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -29,14 +35,32 @@ private const val MAX_REMINDER_SLOTS = 20
 @Singleton
 class NotificationHelper @Inject constructor(
     @ApplicationContext private val context: Context,
+    private val prefsRepository: UserPreferencesRepository,
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
     private val alarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
 
+    /** 暂存旅行模式设置，由后台协程从 SettingsPreferences 实时同步 */
+    @Volatile private var travelModeEnabled: Boolean = false
+    @Volatile private var homeTimeZone: TimeZone = TimeZone.getDefault()
+
+    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
     init {
         createChannels()
+        // 监听旅行模式设置变化，更新本地缓存
+        scope.launch {
+            prefsRepository.settingsFlow.collect { prefs ->
+                travelModeEnabled = prefs.travelMode
+                homeTimeZone = if (prefs.travelMode && prefs.homeTimeZoneId.isNotBlank()) {
+                    try { TimeZone.getTimeZone(prefs.homeTimeZoneId) } catch (_: Exception) { TimeZone.getDefault() }
+                } else {
+                    TimeZone.getDefault()
+                }
+            }
+        }
     }
 
     private fun createChannels() {
@@ -152,9 +176,21 @@ class NotificationHelper @Inject constructor(
     /**
      * 根据药品的 reminderTimes、frequencyType、frequencyDays 为每个时间槽
      * 调度下一次提醒闹钟。
+     *
+     * 若 [medication.intervalHours] > 0，则视为「**间隔给药**」模式：
+     *   - 初次调度：triggerMs = now + intervalHours * 3 600 000
+     *   - 后续重调度由 [MedLogAlarmReceiver] 在服药后执行
+     * 否则使用常规时钟时间（computeNextTrigger）。
      */
-    fun scheduleAllReminders(medication: Medication) {
+    fun scheduleAllReminders(medication: Medication, lastTakenMs: Long? = null) {
         if (medication.isPRN) return  // 按需服用不设置闹钟
+        if (medication.intervalHours > 0) {
+            // 间隔给药：单槽，以上次服药时间（或 now）为基准
+            val triggerMs = (lastTakenMs ?: System.currentTimeMillis()) +
+                    medication.intervalHours * 3_600_000L
+            scheduleAlarmSlot(medication, 0, triggerMs)
+            return
+        }
         val times = medication.reminderTimes.split(",").map { it.trim() }
         times.forEachIndexed { index, timeStr ->
             val triggerMs = computeNextTrigger(
@@ -195,7 +231,10 @@ class NotificationHelper @Inject constructor(
         }
     }
 
-    /** 计算指定时间槽的下一次触发时间（毫秒）；若已过期则返回 null */
+    /** 计算指定时间槽的下一次触发时间（毫秒）；若已过期则返回 null
+     *
+     * 当旅行模式开启时，使用 [homeTimeZone] 计算，使挤醒时间始终对应家乡的时钟。
+     */
     fun computeNextTrigger(
         timeStr: String,
         frequencyType: String,
@@ -208,7 +247,9 @@ class NotificationHelper @Inject constructor(
         val (hour, minute) = parts
 
         val now = System.currentTimeMillis()
-        val cal = Calendar.getInstance().apply {
+        // 旅行模式开启时用家乡时区计算闹钟触发时刻
+        val tz = homeTimeZone
+        val cal = Calendar.getInstance(tz).apply {
             set(Calendar.HOUR_OF_DAY, hour)
             set(Calendar.MINUTE, minute)
             set(Calendar.SECOND, 0)
@@ -225,7 +266,7 @@ class NotificationHelper @Inject constructor(
                 // 从 cal 开始往后找最近的匹配 day
                 var found = false
                 for (offset in 0..7) {
-                    val candidate = Calendar.getInstance().apply {
+                    val candidate = Calendar.getInstance(tz).apply {
                         timeInMillis = cal.timeInMillis
                         add(Calendar.DAY_OF_YEAR, offset)
                     }

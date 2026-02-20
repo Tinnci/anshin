@@ -427,13 +427,62 @@ fun AddMedicationScreen(
                             ),
                         )
                     }
-                // EXACT 时段：用户手动设置多个提醒时间
+                // EXACT 时段：用户手动设置多个提醒时间 + 可选间隔给药
                 AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
-                    ReminderTimesRow(
-                        times = uiState.reminderTimes,
-                        onAdd = viewModel::addReminderTime,
-                        onRemove = viewModel::removeReminderTime,
-                    )
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        ReminderTimesRow(
+                            times = uiState.reminderTimes,
+                            onAdd = viewModel::addReminderTime,
+                            onRemove = viewModel::removeReminderTime,
+                        )
+                        // 间隔给药开关（适用于旅行跨时区、抗生素等需精确间隔的场景）
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Timer,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                                Column {
+                                    Text("按间隔给药", style = MaterialTheme.typography.bodyMedium)
+                                    Text(
+                                        "忽略时钟，按固定小时数给药（旅行/跨时区）",
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            Switch(
+                                checked = uiState.intervalHours > 0,
+                                onCheckedChange = { on ->
+                                    viewModel.onIntervalHoursChange(if (on) 8 else 0)
+                                },
+                            )
+                        }
+                        AnimatedVisibility(
+                            visible = uiState.intervalHours > 0,
+                            enter = expandVertically() + fadeIn(),
+                            exit = shrinkVertically() + fadeOut(),
+                        ) {
+                            OutlinedTextField(
+                                value = if (uiState.intervalHours > 0) uiState.intervalHours.toString() else "",
+                                onValueChange = { v -> v.toIntOrNull()?.let { viewModel.onIntervalHoursChange(it) } },
+                                label = { Text("间隔小时数") },
+                                suffix = { Text("小时") },
+                                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                singleLine = true,
+                                modifier = Modifier.fillMaxWidth(),
+                                supportingText = { Text("常见值：每 4 h / 6 h / 8 h / 12 h / 24 h") },
+                            )
+                        }
+                    }
                 }
             }
 

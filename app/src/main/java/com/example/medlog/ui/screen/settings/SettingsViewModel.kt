@@ -5,10 +5,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.UserPreferencesRepository
+import com.example.medlog.domain.ResyncRemindersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import java.util.TimeZone
 
 data class SettingsUiState(
     val archivedMedications: List<Medication> = emptyList(),
@@ -19,12 +21,15 @@ data class SettingsUiState(
     val lunchHour: Int = 12, val lunchMinute: Int = 0,
     val dinnerHour: Int = 18, val dinnerMinute: Int = 0,
     val bedHour: Int = 22, val bedMinute: Int = 0,
+    val travelMode: Boolean = false,
+    val homeTimeZoneId: String = "",
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val prefsRepository: UserPreferencesRepository,
+    private val resyncReminders: ResyncRemindersUseCase,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -40,6 +45,8 @@ class SettingsViewModel @Inject constructor(
             lunchHour     = prefs.lunchHour,     lunchMinute     = prefs.lunchMinute,
             dinnerHour    = prefs.dinnerHour,    dinnerMinute    = prefs.dinnerMinute,
             bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
+            travelMode    = prefs.travelMode,
+            homeTimeZoneId = prefs.homeTimeZoneId,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -56,6 +63,21 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun updateRoutineTime(field: String, hour: Int, minute: Int) {
-        viewModelScope.launch { prefsRepository.updateRoutineTime(field, hour, minute) }
+        viewModelScope.launch {
+            prefsRepository.updateRoutineTime(field, hour, minute)
+            // 作息时间已更新，重新计算所有药品的提醒时间并重调度闹钟
+            val newPrefs = prefsRepository.settingsFlow.first()
+            resyncReminders(newPrefs)
+        }
+    }
+
+    fun setTravelMode(enabled: Boolean) {
+        viewModelScope.launch {
+            // 开启旅行模式时如果尚未保存家乡时区，自动记录当前设备时区
+            val currentTz = java.util.TimeZone.getDefault().id
+            val savedTzId = prefsRepository.settingsFlow.first().homeTimeZoneId
+            val homeTz = if (enabled && savedTzId.isBlank()) currentTz else savedTzId
+            prefsRepository.updateTravelMode(enabled, homeTz)
+        }
     }
 }

@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -32,6 +33,13 @@ data class SettingsPreferences(
     val bedHour: Int = 22,   val bedMinute: Int = 0,
     /** 是否已完成欢迎引导（首次启动标志） */
     val hasSeenWelcome: Boolean = false,
+    /**
+     * 旅行模式：开启后考虑按「家乡时区」计算提醒时间。
+     * 适用于短期出行、蕊时皮量、抢时差消失等场景。
+     */
+    val travelMode: Boolean = false,
+    /** 家乡时区 ID（如 "Asia/Shanghai"）。空串表示使用内容是设备默认时区。 */
+    val homeTimeZoneId: String = "",
 )
 
 @Singleton
@@ -54,6 +62,8 @@ class UserPreferencesRepository @Inject constructor(
         val BED_HOUR       = intPreferencesKey("bed_hour")
         val BED_MIN        = intPreferencesKey("bed_minute")
         val HAS_SEEN_WELCOME = booleanPreferencesKey("has_seen_welcome")
+        val TRAVEL_MODE       = booleanPreferencesKey("travel_mode")
+        val HOME_TIMEZONE_ID  = stringPreferencesKey("home_timezone_id")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -72,6 +82,8 @@ class UserPreferencesRepository @Inject constructor(
                 dinnerHour    = prefs[DINNER_HOUR]    ?: 18, dinnerMinute  = prefs[DINNER_MIN]     ?: 0,
                 bedHour       = prefs[BED_HOUR]       ?: 22, bedMinute     = prefs[BED_MIN]        ?: 0,
                 hasSeenWelcome = prefs[HAS_SEEN_WELCOME] ?: false,
+                travelMode    = prefs[TRAVEL_MODE]      ?: false,
+                homeTimeZoneId = prefs[HOME_TIMEZONE_ID]  ?: "",
             )
         }
 
@@ -97,4 +109,12 @@ class UserPreferencesRepository @Inject constructor(
 
     suspend fun updateHasSeenWelcome(seen: Boolean) {
         dataStore.edit { it[HAS_SEEN_WELCOME] = seen }
-    }}
+    }
+
+    suspend fun updateTravelMode(enabled: Boolean, homeTimeZoneId: String = "") {
+        dataStore.edit {
+            it[TRAVEL_MODE] = enabled
+            if (homeTimeZoneId.isNotBlank()) it[HOME_TIMEZONE_ID] = homeTimeZoneId
+        }
+    }
+}

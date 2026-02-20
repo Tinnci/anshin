@@ -54,8 +54,8 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                         if (med != null) {
                             val newStock = ((med.stock ?: 0.0) - med.doseQuantity).coerceAtLeast(0.0)
                             medicationRepo.updateStock(medId, newStock)
-                            // 重新调度本时间槽的下一轮提醒
-                            rescheduleNext(med, timeIndex)
+                            // 重新调度本时间槽的下一轮提醒（间隔模式传入实际服药时间）
+                            rescheduleNext(med, timeIndex, lastTakenMs = nowMs)
                         }
                     } finally {
                         pendingResult.finish()
@@ -92,17 +92,20 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                             "${med.doseQuantity} ${med.doseUnit}",
                             timeIndex,
                         )
-                        // 为当前时间槽调度下一次触发
-                        val times = med.reminderTimes.split(",").map { it.trim() }
-                        val timeStr = times.getOrNull(timeIndex) ?: return@launch
-                        val nextMs = notificationHelper.computeNextTrigger(
-                            timeStr = timeStr,
-                            frequencyType = med.frequencyType,
-                            frequencyInterval = med.frequencyInterval,
-                            frequencyDays = med.frequencyDays,
-                            endDateMs = med.endDate,
-                        ) ?: return@launch
-                        notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+                        // 间隔给药：等用户服药后再调度（onReceive ACTION_TAKEN 时处理）
+                        // 时钟模式：立即调度下一次固定时间触发
+                        if (med.intervalHours <= 0) {
+                            val times = med.reminderTimes.split(",").map { it.trim() }
+                            val timeStr = times.getOrNull(timeIndex) ?: return@launch
+                            val nextMs = notificationHelper.computeNextTrigger(
+                                timeStr = timeStr,
+                                frequencyType = med.frequencyType,
+                                frequencyInterval = med.frequencyInterval,
+                                frequencyDays = med.frequencyDays,
+                                endDateMs = med.endDate,
+                            ) ?: return@launch
+                            notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+                        }
                     } finally {
                         pendingResult.finish()
                     }
@@ -112,13 +115,24 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
     }
 
     /** 重新调度指定药品某时间槽的下一次提醒 */
-    private suspend fun rescheduleNext(medId: Long, timeIndex: Int) {
+    private suspend fun rescheduleNext(medId: Long, timeIndex: Int, lastTakenMs: Long? = null) {
         val med = medicationRepo.getMedicationById(medId) ?: return
-        rescheduleNext(med, timeIndex)
+        rescheduleNext(med, timeIndex, lastTakenMs)
     }
 
     /** 直接传入已读取的 Medication 对象，避免重复 DB 查询 */
-    private suspend fun rescheduleNext(med: com.example.medlog.data.model.Medication, timeIndex: Int) {
+    private suspend fun rescheduleNext(
+        med: com.example.medlog.data.model.Medication,
+        timeIndex: Int,
+        lastTakenMs: Long? = null,
+    ) {
+        // 间隔给药模式：下一次触发 = 上次服药时间 + interval
+        if (med.intervalHours > 0) {
+            val base = lastTakenMs ?: System.currentTimeMillis()
+            val nextMs = base + med.intervalHours * 3_600_000L
+            notificationHelper.scheduleAlarmSlot(med, 0, nextMs)
+            return
+        }
         val times = med.reminderTimes.split(",").map { it.trim() }
         val timeStr = times.getOrNull(timeIndex) ?: return
         val nextMs = notificationHelper.computeNextTrigger(
