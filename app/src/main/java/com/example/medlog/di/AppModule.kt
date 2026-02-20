@@ -5,12 +5,15 @@ import androidx.room.Room
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.local.MedicationDao
 import com.example.medlog.data.local.MedicationLogDao
+import com.example.medlog.data.local.SymptomLogDao
 import com.example.medlog.data.repository.DrugRepository
 import com.example.medlog.data.repository.DrugRepositoryImpl
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.LogRepositoryImpl
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.MedicationRepositoryImpl
+import com.example.medlog.data.repository.SymptomRepository
+import com.example.medlog.data.repository.SymptomRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -39,6 +42,9 @@ object DatabaseModule {
 
     @Provides
     fun provideMedicationLogDao(db: MedLogDatabase): MedicationLogDao = db.medicationLogDao()
+
+    @Provides
+    fun provideSymptomLogDao(db: MedLogDatabase): SymptomLogDao = db.symptomLogDao()
 }
 
 @Module
@@ -62,5 +68,11 @@ abstract class RepositoryModule {
     abstract fun bindDrugRepository(
         impl: DrugRepositoryImpl,
     ): DrugRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSymptomRepository(
+        impl: SymptomRepositoryImpl,
+    ): SymptomRepository
 }
 

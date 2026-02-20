@@ -43,6 +43,7 @@ import com.example.medlog.ui.screen.drugs.DrugsScreen
 import com.example.medlog.ui.screen.history.HistoryScreen
 import com.example.medlog.ui.screen.home.HomeScreen
 import com.example.medlog.ui.screen.settings.SettingsScreen
+import com.example.medlog.ui.screen.symptom.SymptomDiaryScreen
 import com.example.medlog.ui.screen.welcome.WelcomeScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -201,6 +202,12 @@ private fun MedLogNavHost(
                     )
                 },
             )
+        }
+        composable<Route.Diary>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
+            SymptomDiaryScreen()
         }
         composable<Route.Settings>(
             enterTransition = { fadeIn() },

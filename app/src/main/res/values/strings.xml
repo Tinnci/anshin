@@ -28,6 +28,8 @@
     <string name="settings_routine">作息时间</string>
     <string name="settings_about">关于</string>
     <string name="archived_medications">已归档药品</string>
+    <string name="tab_diary">日记</string>
+    <string name="diary_add">记录症状</string>
     <string name="persistent_reminder">持续提醒</string>
     <string name="persistent_reminder_interval">提醒间隔（分钟）</string>
     <string name="wake_time">起床时间</string>

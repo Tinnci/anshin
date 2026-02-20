@@ -7,16 +7,18 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
+import com.example.medlog.data.model.SymptomLog
 
 @Database(
-    entities = [Medication::class, MedicationLog::class],
-    version = 4,
+    entities = [Medication::class, MedicationLog::class, SymptomLog::class],
+    version = 5,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
 abstract class MedLogDatabase : RoomDatabase() {
     abstract fun medicationDao(): MedicationDao
     abstract fun medicationLogDao(): MedicationLogDao
+    abstract fun symptomLogDao(): SymptomLogDao
 
     companion object {
         @Volatile private var INSTANCE: MedLogDatabase? = null
