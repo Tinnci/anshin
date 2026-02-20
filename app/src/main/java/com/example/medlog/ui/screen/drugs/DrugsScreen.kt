@@ -84,6 +84,7 @@ fun DrugsScreen(
                     }
                     // 选了某分类后，展示该分类下的药品平铺列表
                     uiState.selectedCategory != null -> {
+                        val selectedCat = uiState.selectedCategory ?: ""
                         Column(modifier = Modifier.fillMaxSize().padding(top = 72.dp)) {
                             // 面包屑标题行
                             Row(
@@ -101,7 +102,7 @@ fun DrugsScreen(
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                                 Text(
-                                    uiState.selectedCategory,
+                                    selectedCat,
                                     style = MaterialTheme.typography.titleSmall,
                                     color = MaterialTheme.colorScheme.primary,
                                     modifier = Modifier.weight(1f),
