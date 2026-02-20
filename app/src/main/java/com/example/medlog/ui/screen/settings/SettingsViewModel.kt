@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -23,27 +24,31 @@ data class SettingsUiState(
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
+    private val prefsRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsUiState())
-    val uiState: StateFlow<SettingsUiState> = _uiState.asStateFlow()
-
-    init {
-        viewModelScope.launch {
-            repository.getArchivedMedications()
-                .catch { }
-                .collect { archived ->
-                    _uiState.value = _uiState.value.copy(archivedMedications = archived)
-                }
-        }
-    }
+    val uiState: StateFlow<SettingsUiState> = combine(
+        repository.getArchivedMedications().catch { emit(emptyList()) },
+        prefsRepository.settingsFlow,
+    ) { archived, prefs ->
+        SettingsUiState(
+            archivedMedications     = archived,
+            persistentReminder      = prefs.persistentReminder,
+            persistentIntervalMinutes = prefs.persistentIntervalMinutes,
+            wakeHour      = prefs.wakeHour,      wakeMinute      = prefs.wakeMinute,
+            breakfastHour = prefs.breakfastHour, breakfastMinute = prefs.breakfastMinute,
+            lunchHour     = prefs.lunchHour,     lunchMinute     = prefs.lunchMinute,
+            dinnerHour    = prefs.dinnerHour,    dinnerMinute    = prefs.dinnerMinute,
+            bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
+        )
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun setPersistentReminder(enabled: Boolean) {
-        _uiState.value = _uiState.value.copy(persistentReminder = enabled)
+        viewModelScope.launch { prefsRepository.updatePersistentReminder(enabled) }
     }
 
     fun setPersistentInterval(minutes: Int) {
-        _uiState.value = _uiState.value.copy(persistentIntervalMinutes = minutes)
+        viewModelScope.launch { prefsRepository.updatePersistentInterval(minutes) }
     }
 
     fun unarchiveMedication(id: Long) {
@@ -51,13 +56,6 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun updateRoutineTime(field: String, hour: Int, minute: Int) {
-        _uiState.value = when (field) {
-            "wake"      -> _uiState.value.copy(wakeHour = hour, wakeMinute = minute)
-            "breakfast" -> _uiState.value.copy(breakfastHour = hour, breakfastMinute = minute)
-            "lunch"     -> _uiState.value.copy(lunchHour = hour, lunchMinute = minute)
-            "dinner"    -> _uiState.value.copy(dinnerHour = hour, dinnerMinute = minute)
-            "bed"       -> _uiState.value.copy(bedHour = hour, bedMinute = minute)
-            else        -> _uiState.value
-        }
+        viewModelScope.launch { prefsRepository.updateRoutineTime(field, hour, minute) }
     }
 }
