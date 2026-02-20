@@ -127,6 +127,29 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    /** 撤销服药或跳过操作，根据当前 state 内的最新记录进行回退 */
+    fun undoByMedicationId(medicationId: Long) {
+        viewModelScope.launch {
+            val currentItem = _uiState.value.items.find { it.medication.id == medicationId }
+                ?: return@launch
+            currentItem.log?.let { log ->
+                logRepo.deleteLog(log)
+                if (currentItem.isTaken) {
+                    // 恢复库存并重新设置提醒
+                    currentItem.medication.stock?.let { stock ->
+                        medicationRepo.updateStock(
+                            currentItem.medication.id,
+                            stock + currentItem.medication.doseQuantity,
+                        )
+                    }
+                    notificationHelper.scheduleAllReminders(currentItem.medication)
+                } else if (currentItem.isSkipped) {
+                    notificationHelper.scheduleAllReminders(currentItem.medication)
+                }
+            }
+        }
+    }
+
     fun takeAll() {
         _uiState.value.items
             .filter { !it.isTaken && !it.isSkipped }

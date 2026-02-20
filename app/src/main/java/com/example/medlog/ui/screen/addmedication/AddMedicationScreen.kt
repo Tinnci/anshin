@@ -10,10 +10,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.rounded.Notes
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
@@ -270,18 +272,14 @@ fun AddMedicationScreen(
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                         Text("服药频率", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            listOf("daily" to "每天", "interval" to "间隔", "specific_days" to "指定天").forEach { (key, label) ->
-                                val selected = uiState.frequencyType == key
-                                FilterChip(
-                                    selected = selected,
+                        val freqOptions = listOf("daily" to "每天", "interval" to "间隔", "specific_days" to "指定天")
+                        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                            freqOptions.forEachIndexed { index, (key, label) ->
+                                SegmentedButton(
+                                    selected = uiState.frequencyType == key,
                                     onClick = { viewModel.onFrequencyTypeChange(key) },
-                                    label = { Text(label) },
-                                    modifier = Modifier.weight(1f),
-                                )
+                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = freqOptions.size),
+                                ) { Text(label) }
                             }
                         }
                         AnimatedVisibility(uiState.frequencyType == "interval") {
@@ -392,7 +390,7 @@ fun AddMedicationScreen(
             }
 
             // ── 备注 ─────────────────────────────────────────────
-            FormSection(title = "备注", icon = Icons.Rounded.Notes) {
+            FormSection(title = "备注", icon = Icons.AutoMirrored.Rounded.Notes) {
                 OutlinedTextField(
                     value = uiState.notes,
                     onValueChange = viewModel::onNotesChange,
@@ -417,11 +415,13 @@ private fun FormSection(
     icon: ImageVector,
     content: @Composable ColumnScope.() -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
-        colors = CardDefaults.elevatedCardColors(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -452,6 +452,12 @@ private fun ReminderTimesRow(
     onRemove: (String) -> Unit,
 ) {
     var showPicker by remember { mutableStateOf(false) }
+    val cal = remember { Calendar.getInstance() }
+    val timePickerState = rememberTimePickerState(
+        initialHour = cal.get(Calendar.HOUR_OF_DAY),
+        initialMinute = cal.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
         Text("提醒时间", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -473,36 +479,51 @@ private fun ReminderTimesRow(
                 )
             }
             AssistChip(
-                onClick = { showPicker = true },
-                label = { Text("添加") },
-                leadingIcon = { Icon(Icons.Filled.Add, null, Modifier.size(18.dp)) },
+                onClick = { showPicker = !showPicker },
+                label = { Text(if (showPicker) "收起" else "添加") },
+                leadingIcon = {
+                    Icon(
+                        if (showPicker) Icons.Filled.ExpandLess else Icons.Filled.Add,
+                        null,
+                        Modifier.size(18.dp),
+                    )
+                },
             )
         }
-    }
-
-    if (showPicker) {
-        val cal = Calendar.getInstance()
-        val timePickerState = rememberTimePickerState(
-            initialHour = cal.get(Calendar.HOUR_OF_DAY),
-            initialMinute = cal.get(Calendar.MINUTE),
-            is24Hour = true,
-        )
-        AlertDialog(
-            onDismissRequest = { showPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    onAdd("%02d:%02d".format(timePickerState.hour, timePickerState.minute))
-                    showPicker = false
-                }) { Text("确认") }
-            },
-            dismissButton = {
-                TextButton(onClick = { showPicker = false }) { Text("取消") }
-            },
-            title = { Text("选择提醒时间") },
-            text = {
-                TimePicker(state = timePickerState)
-            },
-        )
+        // 内联内嵌时间输入（无对话框）
+        AnimatedVisibility(showPicker, enter = expandVertically(), exit = shrinkVertically()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Text(
+                        "添加提醒时间",
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    TimeInput(state = timePickerState)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(onClick = { showPicker = false }) { Text("取消") }
+                        Spacer(Modifier.width(8.dp))
+                        FilledTonalButton(onClick = {
+                            onAdd("%02d:%02d".format(timePickerState.hour, timePickerState.minute))
+                            showPicker = false
+                        }) { Text("确认") }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -517,44 +538,68 @@ private fun DatePickerField(
 ) {
     val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
     val displayText = timestamp?.let { fmt.format(Date(it)) } ?: "未设置"
-    var showPicker by remember { mutableStateOf(false) }
+    var expanded by remember { mutableStateOf(false) }
+    val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
 
-    OutlinedCard(
-        onClick = { showPicker = true },
-        modifier = modifier,
-    ) {
-        Column(
-            modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(2.dp),
-        ) {
-            Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+    Column(modifier = modifier) {
+        OutlinedCard(onClick = { expanded = !expanded }) {
             Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp, vertical = 10.dp),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
-                Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                    Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                }
+                Icon(
+                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
                 if (nullable && timestamp != null) {
-                    Spacer(Modifier.weight(1f))
-                    IconButton(onClick = { onPick(null) }, modifier = Modifier.size(16.dp)) {
-                        Icon(Icons.Filled.Close, null, Modifier.size(12.dp))
+                    Spacer(Modifier.width(4.dp))
+                    IconButton(onClick = { onPick(null) }, modifier = Modifier.size(28.dp)) {
+                        Icon(Icons.Filled.Close, null, Modifier.size(14.dp))
                     }
                 }
             }
         }
-    }
-
-    if (showPicker) {
-        val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
-        DatePickerDialog(
-            onDismissRequest = { showPicker = false },
-            confirmButton = {
-                TextButton(onClick = {
-                    onPick(state.selectedDateMillis)
-                    showPicker = false
-                }) { Text("确定") }
-            },
-            dismissButton = { TextButton(onClick = { showPicker = false }) { Text("取消") } },
-        ) { DatePicker(state = state) }
+        // 内联内嵌日期选择器（无对话框）
+        AnimatedVisibility(expanded, enter = expandVertically(), exit = shrinkVertically()) {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                ),
+                elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+            ) {
+                Column {
+                    DatePicker(
+                        state = state,
+                        showModeToggle = false,
+                        modifier = Modifier.fillMaxWidth(),
+                    )
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 12.dp),
+                        horizontalArrangement = Arrangement.End,
+                    ) {
+                        TextButton(onClick = { expanded = false }) { Text("取消") }
+                        Spacer(Modifier.width(8.dp))
+                        FilledTonalButton(onClick = {
+                            onPick(state.selectedDateMillis)
+                            expanded = false
+                        }) { Text("确定") }
+                    }
+                }
+            }
+        }
     }
 }
 

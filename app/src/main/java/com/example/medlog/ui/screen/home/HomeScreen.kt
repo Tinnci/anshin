@@ -140,19 +140,36 @@ fun HomeScreen(
                     item = item,
                     onToggleTaken = {
                         haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        val wasTaken = item.isTaken
                         viewModel.toggleMedicationStatus(item)
                         scope.launch {
-                            val wasTaken = item.isTaken
-                            snackbarHostState.showSnackbar(
+                            val result = snackbarHostState.showSnackbar(
                                 message = if (wasTaken)
                                     "${item.medication.name} 已重置为待服"
                                 else
                                     "${item.medication.name} 已标记为已服",
+                                actionLabel = "撤销",
                                 duration = SnackbarDuration.Short,
                             )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.undoByMedicationId(item.medication.id)
+                            }
                         }
                     },
-                    onSkip = { viewModel.skipMedication(item) },
+                    onSkip = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.skipMedication(item)
+                        scope.launch {
+                            val result = snackbarHostState.showSnackbar(
+                                message = "${item.medication.name} 已跳过今日",
+                                actionLabel = "撤销",
+                                duration = SnackbarDuration.Short,
+                            )
+                            if (result == SnackbarResult.ActionPerformed) {
+                                viewModel.undoByMedicationId(item.medication.id)
+                            }
+                        }
+                    },
                     onClick = { onMedicationClick(item.medication.id) },
                     modifier = Modifier.animateItem(),
                 )
