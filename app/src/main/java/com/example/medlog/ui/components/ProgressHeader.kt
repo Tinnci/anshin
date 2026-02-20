@@ -1,6 +1,7 @@
 package com.example.medlog.ui.components
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,11 +16,13 @@ fun ProgressHeader(
 ) {
     val progress = if (total == 0) 0f else taken.toFloat() / total.toFloat()
 
-    ElevatedCard(
+    Card(
         modifier = modifier,
-        colors = CardDefaults.elevatedCardColors(
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(20.dp),

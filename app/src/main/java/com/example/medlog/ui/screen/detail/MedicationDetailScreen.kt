@@ -287,7 +287,12 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
         animationSpec = tween(600),
         label = "adhColor",
     )
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 "近30天坚持率",

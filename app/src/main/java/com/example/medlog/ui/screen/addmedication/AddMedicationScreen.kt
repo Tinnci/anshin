@@ -165,14 +165,16 @@ fun AddMedicationScreen(
                 ) {
                     items(FORM_OPTIONS) { option ->
                         val isSelected = uiState.form == option.key
-                        ElevatedCard(
+                        Card(
                             onClick = { viewModel.onFormChange(option.key) },
-                            colors = CardDefaults.elevatedCardColors(
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected)
                                     MaterialTheme.colorScheme.primaryContainer
                                 else
                                     MaterialTheme.colorScheme.surfaceContainerLow,
                             ),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                         ) {
                             Column(
                                 modifier = Modifier
