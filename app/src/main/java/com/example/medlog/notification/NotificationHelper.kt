@@ -8,6 +8,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.example.medlog.R
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.UserPreferencesRepository
@@ -29,6 +30,11 @@ const val EXTRA_MED_ID   = "med_id"
 const val EXTRA_MED_NAME = "med_name"
 const val EXTRA_TIME_INDEX = "time_index"   // 提醒时间在列表中的索引
 
+/** 提醒通知分组键 */
+private const val GROUP_REMINDERS = "com.example.medlog.REMINDERS"
+/** 打开主界面的 PendingIntent requestCode */
+private const val REQUEST_OPEN_APP = 10001
+
 /** 最大支持的提醒时间数量，也用于 cancel 所有时间槽 */
 private const val MAX_REMINDER_SLOTS = 20
 
@@ -45,7 +51,20 @@ class NotificationHelper @Inject constructor(
     /** 暂存旅行模式设置，由后台协程从 SettingsPreferences 实时同步 */
     @Volatile private var travelModeEnabled: Boolean = false
     @Volatile private var homeTimeZone: TimeZone = TimeZone.getDefault()
+    /** 品牌蓝（用于通知小图标著色） */
+    private val brandColor: Int by lazy {
+        ContextCompat.getColor(context, R.color.ic_launcher_background)
+    }
 
+    /** 打开主界面的 PendingIntent */
+    private val openAppPendingIntent: PendingIntent
+        get() = PendingIntent.getActivity(
+            context,
+            REQUEST_OPEN_APP,
+            context.packageManager.getLaunchIntentForPackage(context.packageName)
+                ?.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP) ?: Intent(),
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
@@ -68,12 +87,20 @@ class NotificationHelper @Inject constructor(
             CHANNEL_REMINDER,
             context.getString(R.string.reminder_notification_channel),
             NotificationManager.IMPORTANCE_HIGH,
-        )
+        ).apply {
+            description = "范围内在指定时间发送服药提醒"
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 250, 100, 250)   // 双击模式
+            enableLights(true)
+            lightColor = ContextCompat.getColor(context, R.color.ic_launcher_background)
+        }
         val stockChannel = NotificationChannel(
             CHANNEL_LOW_STOCK,
             context.getString(R.string.low_stock_notification_channel),
             NotificationManager.IMPORTANCE_DEFAULT,
-        )
+        ).apply {
+            description = "药品库存不足时发送提醒"
+        }
         val progressChannel = NotificationChannel(
             CHANNEL_PROGRESS,
             "今日用药进度",
@@ -98,30 +125,37 @@ class NotificationHelper @Inject constructor(
     ) {
         if (total == 0) { dismissProgressNotification(); return }
 
-        val openAppIntent = context.packageManager
-            .getLaunchIntentForPackage(context.packageName)
-            ?.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
-        val contentPendingIntent = PendingIntent.getActivity(
-            context, 0, openAppIntent ?: Intent(),
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
-        )
-
         val allDone = taken == total
+        val percent = (taken * 100) / total
         val title = if (allDone) "🎉 今日用药全部完成！" else "今日用药进度：$taken / $total"
-        val pendingText = if (!allDone && pendingNames.isNotEmpty())
-            "待服：${pendingNames.take(3).joinToString("、")}"
-        else ""
+        val bigText = when {
+            allDone -> "恭喜，所有药品均已服用，保持健康！"
+            pendingNames.isNotEmpty() -> pendingNames.joinToString("、")
+            else -> ""
+        }
 
         val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
             .setContentTitle(title)
-            .apply { if (pendingText.isNotEmpty()) setContentText(pendingText) }
+            .setSubText("今日")
+            .apply {
+                if (bigText.isNotEmpty()) setContentText(bigText)
+                if (!allDone) setStyle(
+                    NotificationCompat.BigTextStyle()
+                        .bigText("待服：$bigText")
+                        .setSummaryText("$percent% 完成")
+                )
+            }
             .setProgress(total, taken, false)
-            .setContentIntent(contentPendingIntent)
+            .setContentIntent(openAppPendingIntent)
             .setOnlyAlertOnce(true)         // 更新进度时不再发出声音
             .setOngoing(!allDone)           // 未完成时固定在通知栏
             .setAutoCancel(allDone)
+            .setLocalOnly(true)             // 进度通知仅显示在手机，不同步到可穿戴设备
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setPriority(NotificationCompat.PRIORITY_LOW)
+            .setTicker(if (allDone) "今日用药全部完成" else "今日用药进度更新")
             .build()
 
         notificationManager.notify(NOTIF_ID_PROGRESS, notification)
@@ -158,14 +192,34 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+        // 锁屏公开版本：隐藏药品名称保护隐私
+        val publicVersion = NotificationCompat.Builder(context, CHANNEL_REMINDER)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
+            .setContentTitle("服药提醒")
+            .setContentText("点击查看详情")
+            .build()
+
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
             .setContentTitle("该服药了：$medicationName")
             .setContentText("剂量：$dose")
-            .addAction(0, "✅ 已服用", takenPendingIntent)
-            .addAction(0, "⏭ 跳过", skipPendingIntent)
+            .setSubText("用药提醒")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("请服用 $dose 的 $medicationName")
+            )
+            .addAction(0, "已服用", takenPendingIntent)
+            .addAction(0, "跳过", skipPendingIntent)
+            .setContentIntent(openAppPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
+            .setPublicVersion(publicVersion)
+            .setGroup(GROUP_REMINDERS)
             .setAutoCancel(true)
+            .setTimeoutAfter(2 * 60 * 60 * 1000L)   // 2小时后自动清除
+            .setTicker("该服药了：$medicationName")
             .build()
 
         notificationManager.notify(notificationId, notification)
@@ -330,12 +384,24 @@ class NotificationHelper @Inject constructor(
     // ─── 低库存通知 ──────────────────────────────────────────
 
     fun showLowStockNotification(medicationId: Long, medicationName: String, stock: Double, unit: String) {
+        val openAction = NotificationCompat.Action(
+            0,
+            "查看详情",
+            openAppPendingIntent,
+        )
         val notification = NotificationCompat.Builder(context, CHANNEL_LOW_STOCK)
             .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
             .setContentTitle("$medicationName 库存不足")
             .setContentText("当前库存：$stock $unit，请及时补充")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("您的 $medicationName 剩余库存为 $stock $unit，请尽快补充以不造成漏服。")
+            )
+            .addAction(openAction)
+            .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setAutoCancel(true)
+            .setTicker("$medicationName 库存不足")
             .build()
         notificationManager.notify((medicationId + 10000L).toInt(), notification)
     }

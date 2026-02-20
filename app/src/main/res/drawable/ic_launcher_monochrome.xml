@@ -12,17 +12,12 @@
     android:viewportHeight="108">
 
     <!--
-      Pill bottle silhouette filled opaque white.
-      The system will recolour this according to the wallpaper / Material You tones.
-      We omit the inner cross here so the entire bottle reads as a solid,
-      recognisable shape at the small sizes used by themed-icon pickers.
+      Pill bottle silhouette.
+      Combined with inner cross path and evenOdd fillType to ensure the cross
+      is rendered as a true transparent negative space, correctly picked up by themed coloring.
     -->
     <path
-        android:fillColor="#FFFFFFFF"
-        android:pathData="M33.5,20C28.81,20 25,23.81 25,28.5v51C25,83.19 28.81,87 33.5,87h41C78.69,87 82.5,83.19 82.5,79.5v-51C82.5,23.81 78.69,20 74,20H33.5zM58,25.5h-8v-5.5h8V25.5z" />
-
-    <!-- Transparent cross punch-through so the final tinted icon stays readable -->
-    <path
-        android:fillColor="#00000000"
-        android:pathData="M39,51 L49,51 L49,41 L59,41 L59,51 L69,51 L69,61 L59,61 L59,71 L49,71 L49,61 L39,61 Z" />
+        android:fillColor="#FF000000"
+        android:fillType="evenOdd"
+        android:pathData="M33.5,20C28.81,20 25,23.81 25,28.5v51C25,83.19 28.81,87 33.5,87h41C78.69,87 82.5,83.19 82.5,79.5v-51C82.5,23.81 78.69,20 74,20H33.5zM58,25.5h-8v-5.5h8V25.5z M39,51 L49,51 L49,41 L59,41 L59,51 L69,51 L69,61 L59,61 L59,71 L49,71 L49,61 L39,61 Z" />
 </vector>
