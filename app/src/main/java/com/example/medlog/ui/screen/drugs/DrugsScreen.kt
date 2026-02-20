@@ -1,17 +1,27 @@
 package com.example.medlog.ui.screen.drugs
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.LocalFlorist
+import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
 import androidx.compose.material3.*
@@ -20,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -56,7 +67,7 @@ fun DrugsScreen(
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // ── 默认浏览列表（非搜索激活状态）────────────────
+            // ── 默认浏览视图（非搜索激活状态）────────────────
             if (!uiState.isSearchActive) {
                 when {
                     uiState.isLoading -> {
@@ -71,9 +82,53 @@ fun DrugsScreen(
                             }
                         }
                     }
-                    else -> DrugGroupedList(
-                        groupedDrugs = uiState.groupedDrugs,
-                        onDrugSelect = onDrugSelect,
+                    // 选了某分类后，展示该分类下的药品平铺列表
+                    uiState.selectedCategory != null -> {
+                        Column(modifier = Modifier.fillMaxSize().padding(top = 72.dp)) {
+                            // 面包屑标题行
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                val catIcon = if (uiState.showTcm == true)
+                                    Icons.Rounded.LocalFlorist else Icons.Rounded.Medication
+                                Icon(
+                                    catIcon, null,
+                                    Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                                Text(
+                                    uiState.selectedCategory,
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.weight(1f),
+                                )
+                                TextButton(
+                                    onClick = {
+                                        viewModel.onCategorySelect(null)
+                                        viewModel.onToggleTcm(null)
+                                    },
+                                ) { Text("返回分类") }
+                            }
+                            HorizontalDivider()
+                            DrugFlatList(
+                                drugs = uiState.drugs,
+                                query = "",
+                                onDrugSelect = onDrugSelect,
+                            )
+                        }
+                    }
+                    // 默认：西药/中成药 Tab + 分类卡片网格
+                    else -> DrugCategoryBrowser(
+                        westernCategories = uiState.westernCategories,
+                        tcmCategories = uiState.tcmCategories,
+                        onCategoryClick = { cat, isTcm ->
+                            viewModel.onCategorySelect(cat)
+                            viewModel.onToggleTcm(isTcm)
+                        },
                         topPadding = 72.dp,
                     )
                 }
@@ -242,6 +297,122 @@ fun DrugsScreen(
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+// ─── 分类浏览器（西药/中成药 Tab + 卡片网格） ───────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun DrugCategoryBrowser(
+    westernCategories: List<Pair<String, Int>>,
+    tcmCategories: List<Pair<String, Int>>,
+    onCategoryClick: (String, Boolean) -> Unit,
+    topPadding: androidx.compose.ui.unit.Dp = 0.dp,
+) {
+    var selectedTab by remember { mutableIntStateOf(0) }
+    val tabs = listOf("西 药" to Icons.Rounded.Medication, "中成药" to Icons.Rounded.LocalFlorist)
+
+    Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
+        PrimaryTabRow(selectedTabIndex = selectedTab) {
+            tabs.forEachIndexed { index, (label, icon) ->
+                Tab(
+                    selected = selectedTab == index,
+                    onClick = { selectedTab = index },
+                    text = { Text(label) },
+                    icon = { Icon(icon, null, Modifier.size(16.dp)) },
+                )
+            }
+        }
+        AnimatedContent(
+            targetState = selectedTab,
+            transitionSpec = {
+                fadeIn() togetherWith fadeOut()
+            },
+            label = "tabContent",
+        ) { tab ->
+            val categories = if (tab == 0) westernCategories else tcmCategories
+            val isTcm = tab == 1
+            if (categories.isEmpty()) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                LazyVerticalGrid(
+                    columns = GridCells.Adaptive(minSize = 160.dp),
+                    contentPadding = PaddingValues(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    items(categories, key = { it.first }) { (cat, count) ->
+                        CategoryGridCard(
+                            category = cat,
+                            count = count,
+                            isTcm = isTcm,
+                            onClick = { onCategoryClick(cat, isTcm) },
+                        )
+                    }
+                    // 底部 FAB 避让
+                    item { Spacer(Modifier.height(80.dp)) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CategoryGridCard(
+    category: String,
+    count: Int,
+    isTcm: Boolean,
+    onClick: () -> Unit,
+) {
+    val colorScheme = MaterialTheme.colorScheme
+    Card(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(96.dp),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isTcm)
+                colorScheme.tertiaryContainer.copy(alpha = 0.6f)
+            else
+                colorScheme.secondaryContainer.copy(alpha = 0.6f),
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp),
+            verticalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Icon(
+                imageVector = if (isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+                contentDescription = null,
+                modifier = Modifier.size(20.dp),
+                tint = if (isTcm) colorScheme.tertiary else colorScheme.secondary,
+            )
+            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Text(
+                    text = category,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "$count 种药品",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
             }
         }
     }

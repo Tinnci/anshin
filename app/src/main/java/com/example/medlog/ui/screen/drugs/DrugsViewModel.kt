@@ -26,6 +26,10 @@ data class DrugsUiState(
     val exactMatchCount: Int = 0,
     /** SearchBar 展开状态 */
     val isSearchActive: Boolean = false,
+    /** 西药一级分类及药品数量（用于分类卡片网格） */
+    val westernCategories: List<Pair<String, Int>> = emptyList(),
+    /** 中成药一级分类及药品数量（用于分类卡片网格） */
+    val tcmCategories: List<Pair<String, Int>> = emptyList(),
 )
 
 @OptIn(FlowPreview::class)
@@ -40,6 +44,8 @@ class DrugsViewModel @Inject constructor(
     private val _isLoading = MutableStateFlow(true)
     private val _categories = MutableStateFlow<List<String>>(emptyList())
     private val _isSearchActive = MutableStateFlow(false)
+    private val _westernCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
+    private val _tcmCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
 
     val uiState: StateFlow<DrugsUiState> = combine(
         combine(
@@ -70,14 +76,29 @@ class DrugsViewModel @Inject constructor(
             )
         },
         _isSearchActive,
-    ) { state, active ->
-        state.copy(isSearchActive = active)
+        _westernCategories,
+        _tcmCategories,
+    ) { state, active, western, tcm ->
+        state.copy(isSearchActive = active, westernCategories = western, tcmCategories = tcm)
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
 
     init {
         viewModelScope.launch {
             val allDrugs = drugRepository.getAllDrugs()
             _categories.value = allDrugs.map { it.category }.distinct().sorted()
+            // 预计算分类卡片数据（按药品数量降序）
+            val western = allDrugs.filter { !it.isTcm }
+                .groupBy { it.category }
+                .entries
+                .sortedByDescending { it.value.size }
+                .map { it.key to it.value.size }
+            val tcm = allDrugs.filter { it.isTcm }
+                .groupBy { it.category }
+                .entries
+                .sortedByDescending { it.value.size }
+                .map { it.key to it.value.size }
+            _westernCategories.value = western
+            _tcmCategories.value = tcm
             _isLoading.value = false
         }
     }
