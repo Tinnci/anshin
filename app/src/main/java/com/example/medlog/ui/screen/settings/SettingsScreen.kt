@@ -412,12 +412,24 @@ private fun ArchivedMedicationsRow(
                 archived.forEach { med ->
                     ListItem(
                         headlineContent = { Text(med.name) },
-                        supportingContent = { Text(med.category) },
+                        supportingContent = {
+                            val catText = med.category.ifBlank { null }
+                            val label = when {
+                                med.isTcm && catText != null -> "$catText · 中成药"
+                                med.isTcm -> "中成药"
+                                catText != null -> catText
+                                else -> null
+                            }
+                            if (label != null) Text(label)
+                        },
                         leadingContent = {
                             Icon(
-                                Icons.Rounded.Medication,
+                                if (med.isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
                                 null,
-                                tint = MaterialTheme.colorScheme.outlineVariant,
+                                tint = if (med.isTcm)
+                                    MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
+                                else
+                                    MaterialTheme.colorScheme.outlineVariant,
                                 modifier = Modifier.size(18.dp),
                             )
                         },
