@@ -7,10 +7,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -125,7 +127,12 @@ fun MedicationDetailScreen(
 
             // ── 基本信息卡 ────────────────────────────────────
             item {
-                ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+                ) {
                     Column(
                         modifier = Modifier.padding(16.dp),
                         verticalArrangement = Arrangement.spacedBy(0.dp),
@@ -180,6 +187,8 @@ fun MedicationDetailScreen(
                         stock = stock,
                         refillThreshold = refillThreshold,
                         unit = med.doseUnit,
+                        doseQuantity = med.doseQuantity,
+                        onAdjustStock = { delta -> viewModel.adjustStock(delta) },
                     )
                 }
             }
@@ -349,15 +358,38 @@ private fun StatRow(
     }
 }
 
-// ─── 库存进度卡 ───────────────────────────────────────────────
+// ─── 库存快捷操作卡 ───────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun StockCard(stock: Double, refillThreshold: Double?, unit: String) {
+private fun StockCard(
+    stock: Double,
+    refillThreshold: Double?,
+    unit: String,
+    doseQuantity: Double,
+    onAdjustStock: (Double) -> Unit,
+) {
     val colorScheme = MaterialTheme.colorScheme
     val isLow = refillThreshold != null && stock <= refillThreshold
     val stockColor = if (isLow) colorScheme.error else colorScheme.tertiary
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
-        Column(modifier = Modifier.padding(16.dp)) {
+
+    val stockDisplay = if (stock == stock.toLong().toDouble()) "${stock.toLong()}" else "%.1f".format(stock)
+    val doseDisplay = if (doseQuantity == doseQuantity.toLong().toDouble()) "${doseQuantity.toLong()}" else "%.1f".format(doseQuantity)
+
+    // 常用补药预设量
+    val presets = listOf("+10" to 10.0, "+30" to 30.0, "+60" to 60.0, "+90" to 90.0)
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            // ── 标题行 ──
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -367,28 +399,86 @@ private fun StockCard(stock: Double, refillThreshold: Double?, unit: String) {
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(
-                        Icons.Rounded.Inventory, null,
-                        tint = stockColor, modifier = Modifier.size(18.dp),
-                    )
-                    Text("库存状态", style = MaterialTheme.typography.labelLarge,
-                        color = colorScheme.primary)
+                    Icon(Icons.Rounded.Inventory, null, tint = stockColor, modifier = Modifier.size(18.dp))
+                    Text("库存管理", style = MaterialTheme.typography.labelLarge, color = colorScheme.primary)
                 }
                 Text(
-                    "$stock $unit",
+                    "$stockDisplay $unit",
                     style = MaterialTheme.typography.titleSmall,
                     color = stockColor,
                     fontWeight = FontWeight.SemiBold,
                 )
             }
+
+            // ── 状态提示 ──
             if (refillThreshold != null) {
-                Spacer(Modifier.height(8.dp))
+                Surface(
+                    shape = RoundedCornerShape(8.dp),
+                    color = (if (isLow) colorScheme.errorContainer else colorScheme.tertiaryContainer).copy(alpha = 0.7f),
+                ) {
+                    Text(
+                        if (isLow) "⚠️ 库存低于补货阈值（${refillThreshold} $unit），请及时补充"
+                        else "✔ 库存充足，补货阈值：${refillThreshold} $unit",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (isLow) colorScheme.onErrorContainer else colorScheme.onTertiaryContainer,
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                    )
+                }
+            }
+
+            HorizontalDivider(color = colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+            // ── 快捷调整：M3 Expressive ButtonGroup ──
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
                 Text(
-                    if (isLow) "⚠️ 库存低于补货阈值（${refillThreshold} ${unit}），请及时补充"
-                    else "库存充足，补货阈值：${refillThreshold} ${unit}",
+                    "±1次用量（$doseDisplay $unit）",
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (isLow) colorScheme.error else colorScheme.onSurfaceVariant,
+                    color = colorScheme.onSurfaceVariant,
+                    modifier = Modifier.weight(1f),
                 )
+                @Suppress("DEPRECATION")
+                ButtonGroup {
+                    OutlinedIconButton(
+                        onClick = { onAdjustStock(-doseQuantity) },
+                        modifier = Modifier.size(36.dp),
+                    ) {
+                        Icon(Icons.Rounded.Remove, "减少一次量", Modifier.size(18.dp))
+                    }
+                    FilledIconButton(
+                        onClick = { onAdjustStock(+doseQuantity) },
+                        modifier = Modifier.size(36.dp),
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = colorScheme.primaryContainer,
+                            contentColor = colorScheme.onPrimaryContainer,
+                        ),
+                    ) {
+                        Icon(Icons.Rounded.Add, "增加一次量", Modifier.size(18.dp))
+                    }
+                }
+            }
+
+            // ── 批量补入预设 ──
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+            ) {
+                Text(
+                    "批量",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                presets.forEach { (label, amount) ->
+                    SuggestionChip(
+                        onClick = { onAdjustStock(amount) },
+                        label = { Text(label, style = MaterialTheme.typography.labelSmall) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
         }
     }

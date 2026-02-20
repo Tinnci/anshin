@@ -80,4 +80,17 @@ class MedicationDetailViewModel @Inject constructor(
             notificationHelper.cancelAllReminders(med.id)
         }
     }
+
+    /** 快捷调整库存，delta > 0 补药，< 0 扩展消耗 */
+    fun adjustStock(delta: Double) {
+        val med = _uiState.value.medication ?: return
+        val currentStock = med.stock ?: return
+        viewModelScope.launch {
+            val newStock = (currentStock + delta).coerceAtLeast(0.0)
+            medicationRepo.updateStock(med.id, newStock)
+            // 重载最新状态
+            val updated = medicationRepo.getMedicationById(med.id)
+            _uiState.value = _uiState.value.copy(medication = updated)
+        }
+    }
 }
