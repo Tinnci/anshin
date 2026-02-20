@@ -14,6 +14,7 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.LinearProgressIndicator
 import androidx.glance.appwidget.SizeMode
+import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
@@ -91,7 +92,8 @@ private fun WidgetContent(
     Column(
         modifier = GlanceModifier
             .fillMaxSize()
-            .background(GlanceTheme.colors.surface)
+            .background(GlanceTheme.colors.surfaceVariant)
+            .cornerRadius(16.dp)
             .padding(12.dp)
             .clickable(openAppAction),
         verticalAlignment = Alignment.Vertical.Top,
@@ -116,17 +118,19 @@ private fun WidgetContent(
         }
 
         // ── 进度文字 ─────────────────────────────────────────
+        val allDone = total > 0 && taken == total
         val progressText = when {
-            total == 0     -> "今日无用药计划"
-            taken == total -> "🎉 全部完成！"
-            else           -> "已服 $taken / $total"
+            total == 0  -> "今日无用药计划"
+            allDone     -> "🎉 全部完成！"
+            else        -> "已服 $taken / $total"
         }
         Text(
             text = progressText,
             style = TextStyle(
-                fontSize = if (isCompact) 13.sp else 12.sp,
-                fontWeight = if (isCompact) FontWeight.Bold else FontWeight.Medium,
-                color = GlanceTheme.colors.onSurface,
+                fontSize = if (isCompact) 14.sp else 13.sp,
+                fontWeight = FontWeight.Bold,
+                color = if (allDone) GlanceTheme.colors.tertiary
+                        else GlanceTheme.colors.onSurface,
             ),
         )
 
@@ -136,9 +140,10 @@ private fun WidgetContent(
         if (total > 0) {
             LinearProgressIndicator(
                 progress = taken.toFloat() / total,
-                modifier = GlanceModifier.fillMaxWidth().height(5.dp),
-                color = GlanceTheme.colors.primary,
-                backgroundColor = GlanceTheme.colors.primaryContainer,
+                modifier = GlanceModifier.fillMaxWidth().height(8.dp),
+                color = if (allDone) GlanceTheme.colors.tertiary
+                        else GlanceTheme.colors.primary,
+                backgroundColor = GlanceTheme.colors.surfaceVariant,
             )
         }
 
