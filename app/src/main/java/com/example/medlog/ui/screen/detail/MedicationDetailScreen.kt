@@ -25,6 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -281,7 +282,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> Color(0xFFF59E0B)
+            adherence >= 0.6f -> calendarWarning
             else              -> colorScheme.error
         },
         animationSpec = tween(600),

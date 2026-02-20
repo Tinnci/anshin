@@ -127,7 +127,7 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> Color(0xFFF59E0B)  // 琥珀色
+            adherence >= 0.6f -> calendarWarning  // 琅珀色
             else              -> colorScheme.error
         },
         animationSpec = tween(600),
@@ -341,7 +341,7 @@ private fun LegendRow(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         LegendItem(color = colorScheme.tertiary, label = "全部服用")
-        LegendItem(color = Color(0xFFF59E0B), label = "部分服用")
+        LegendItem(color = calendarWarning, label = "部分服用")
         LegendItem(color = colorScheme.error, label = "漏服")
     }
 }
