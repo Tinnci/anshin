@@ -4,8 +4,6 @@
     <string name="tab_history">历史</string>
     <string name="tab_drugs">药品</string>
     <string name="tab_settings">设置</string>
-    <string name="add_medication">添加药品</string>
-    <string name="mark_taken">标记已服</string>
     <string name="mark_not_taken">标记未服</string>
     <string name="delete">删除</string>
     <string name="archive">归档</string>

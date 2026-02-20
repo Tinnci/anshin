@@ -3,7 +3,6 @@ package com.example.medlog.ui
 import android.content.pm.ShortcutInfo
 import android.content.pm.ShortcutManager
 import android.graphics.drawable.Icon
-import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -33,15 +32,12 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // 更新动态快捷方式（API 25+）
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {
-            registerDynamicShortcuts()
-        }
+        // 更新动态快捷方式
+        registerDynamicShortcuts()
     }
 
     /** 注册/刷新动态快捷方式 */
     private fun registerDynamicShortcuts() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) return
         val sm = getSystemService(ShortcutManager::class.java) ?: return
 
         val historyShortcut = ShortcutInfo.Builder(this, "history_shortcut")

@@ -20,4 +20,11 @@
 
     <!-- 点击区域过小 -->
     <issue id="ClickableViewAccessibility" severity="warning" />
+
+    <!-- Widget XML 中 API 31+ 属性在低版本上会被忽略，属正常行为 -->
+    <issue id="UnusedAttribute" severity="ignore" />
+
+    <!-- 依赖版本升级建议：使用 + 通配符已是灵活版本，不作为错误处理 -->
+    <issue id="GradleDependency" severity="ignore" />
+    <issue id="NewerVersionAvailable" severity="ignore" />
 </lint>

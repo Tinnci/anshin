@@ -566,8 +566,8 @@ private fun DatePickerField(
     label: String,
     timestamp: Long?,
     onPick: (Long?) -> Unit,
-    nullable: Boolean = false,
     modifier: Modifier = Modifier,
+    nullable: Boolean = false,
 ) {
     val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
     val displayText = timestamp?.let { fmt.format(Date(it)) } ?: "未设置"
