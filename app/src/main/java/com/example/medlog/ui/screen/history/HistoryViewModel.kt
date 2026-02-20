@@ -34,6 +34,10 @@ data class HistoryUiState(
     val selectedDate: LocalDate? = null,
     /** 总体坚持率（近30天） */
     val overallAdherence: Float = 0f,
+    /** 当前连续服药天数（从今天/昨天起，每天 ≥1 次 TAKEN 计入） */
+    val currentStreak: Int = 0,
+    /** 历史最长连续天数 */
+    val longestStreak: Int = 0,
     val isLoading: Boolean = true,
 )
 
@@ -97,10 +101,40 @@ class HistoryViewModel @Inject constructor(
                     val overallAdherence = if (totalLogs == 0) 0f
                         else takenLogs.toFloat() / totalLogs.toFloat()
 
+                    // 计算连续打卡 streak（每天 taken >= 1 即视为完成）
+                    val today = LocalDate.now()
+                    // 当前 streak：从今天（或昨天，若今天无记录）向前数
+                    val startDay = if (calendarDays[today]?.taken ?: 0 > 0) today
+                                   else today.minusDays(1)
+                    var current = 0
+                    var cursor = startDay
+                    while (true) {
+                        val day = calendarDays[cursor]
+                        if (day != null && day.taken > 0) {
+                            current++
+                            cursor = cursor.minusDays(1)
+                        } else break
+                    }
+
+                    // 最长 streak：全部日历数据
+                    var longest = 0
+                    var runLen = 0
+                    val allDates = calendarDays.keys.sorted()
+                    var prev: LocalDate? = null
+                    for (d in allDates) {
+                        val hasTaken = calendarDays[d]?.taken ?: 0 > 0
+                        if (!hasTaken) { runLen = 0; prev = null; continue }
+                        runLen = if (prev != null && d == prev!!.plusDays(1)) runLen + 1 else 1
+                        if (runLen > longest) longest = runLen
+                        prev = d
+                    }
+
                     _uiState.update {
                         it.copy(
                             calendarDays = calendarDays,
                             overallAdherence = overallAdherence,
+                            currentStreak = current,
+                            longestStreak = longest,
                             isLoading = false,
                         )
                     }

@@ -85,6 +85,17 @@ fun HistoryScreen(
                 )
             }
 
+            // 连续打卡 streak 卡片（streak > 0 时展示）
+            if (uiState.currentStreak > 0 || uiState.longestStreak > 0) {
+                item {
+                    StreakCard(
+                        currentStreak = uiState.currentStreak,
+                        longestStreak = uiState.longestStreak,
+                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 4.dp),
+                    )
+                }
+            }
+
             // 月历导航 + 日历
             item {
                 MonthCalendarCard(
@@ -469,5 +480,60 @@ private fun DayLogRow(log: MedicationLog, medicationName: String) {
                 LogStatus.MISSED  -> colorScheme.error
             },
         )
+    }
+}
+
+// ─── 连续打卡 Streak 卡片 ────────────────────────────────────────────────────
+
+@Composable
+private fun StreakCard(
+    currentStreak: Int,
+    longestStreak: Int,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 20.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column {
+                Text(
+                    text = "🔥 连续 $currentStreak 天",
+                    style = MaterialTheme.typography.headlineSmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                    fontWeight = FontWeight.Bold,
+                )
+                Text(
+                    text = "坚持服药连续打卡",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
+                )
+            }
+            if (longestStreak > 0) {
+                Column(horizontalAlignment = Alignment.End) {
+                    Text(
+                        text = "最长记录",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f),
+                    )
+                    Text(
+                        text = "$longestStreak 天",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onTertiaryContainer,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+            }
+        }
     }
 }

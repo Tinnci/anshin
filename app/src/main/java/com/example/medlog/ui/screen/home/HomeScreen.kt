@@ -100,6 +100,17 @@ fun HomeScreen(
                 Spacer(Modifier.height(4.dp))
             }
 
+            // ── 连续打卡 Streak badge ─────────────────────────
+            if (uiState.currentStreak > 0) {
+                item {
+                    StreakBadgeRow(
+                        currentStreak = uiState.currentStreak,
+                        longestStreak = uiState.longestStreak,
+                    )
+                    Spacer(Modifier.height(4.dp))
+                }
+            }
+
             // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
             if (pendingItems.size > 1) {
                 item {
@@ -215,6 +226,42 @@ fun HomeScreen(
 
             // ── 底部间距（FAB 避让）──────────────────────────
             item { Spacer(Modifier.height(80.dp)) }
+        }
+    }
+}
+
+// ── 连续打卡 badge ────────────────────────────────────────────────────────────
+
+@Composable
+private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        SuggestionChip(
+            onClick = {},
+            label = {
+                Text(
+                    "🔥 连续 $currentStreak 天",
+                    style = MaterialTheme.typography.labelMedium,
+                )
+            },
+            colors = SuggestionChipDefaults.suggestionChipColors(
+                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
+            ),
+        )
+        if (longestStreak > currentStreak) {
+            SuggestionChip(
+                onClick = {},
+                label = {
+                    Text(
+                        "最长 $longestStreak 天",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                },
+            )
         }
     }
 }

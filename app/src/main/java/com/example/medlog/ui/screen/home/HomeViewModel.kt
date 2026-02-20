@@ -11,6 +11,9 @@ import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -28,6 +31,10 @@ data class HomeUiState(
     val totalCount: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
+    /** 当前连续服药天数 */
+    val currentStreak: Int = 0,
+    /** 历史最长连续天数 */
+    val longestStreak: Int = 0,
 ) {
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
@@ -68,6 +75,7 @@ class HomeViewModel @Inject constructor(
 
     init {
         observeMedications()
+        computeStreak()
     }
 
     private fun observeMedications() {
@@ -180,6 +188,54 @@ class HomeViewModel @Inject constructor(
         _uiState.value.items
             .filter { !it.isTaken && !it.isSkipped }
             .forEach { toggleMedicationStatus(it) }
+    }
+
+    /** 计算连续服药天数，启动时跑一次 */
+    private fun computeStreak() {
+        viewModelScope.launch {
+            val zone = ZoneId.systemDefault()
+            val now = System.currentTimeMillis()
+            // 取近90天日志，足够覆盖合理 streak
+            val startMs = now - 90L * 24 * 60 * 60 * 1000
+            logRepo.getLogsForDateRange(startMs, now)
+                .take(1)
+                .catch { }
+                .collect { logs ->
+                    // 按日期分组，只关心有 TAKEN 记录的日期
+                    val daysWithTaken = logs
+                        .filter { it.status == LogStatus.TAKEN }
+                        .map {
+                            Instant.ofEpochMilli(it.scheduledTimeMs)
+                                .atZone(zone).toLocalDate()
+                        }
+                        .toSet()
+
+                    val today = LocalDate.now()
+                    // 当前 streak：从今天（或昨天）向前连续计数
+                    val startDay = if (today in daysWithTaken) today else today.minusDays(1)
+                    var current = 0
+                    var cursor = startDay
+                    while (cursor in daysWithTaken) {
+                        current++
+                        cursor = cursor.minusDays(1)
+                    }
+
+                    // 历史最长 streak
+                    var longest = 0
+                    var run = 0
+                    var prev: LocalDate? = null
+                    for (d in daysWithTaken.sorted()) {
+                        run = if (prev != null && d == prev!!.plusDays(1)) run + 1 else 1
+                        if (run > longest) longest = run
+                        prev = d
+                    }
+
+                    _uiState.value = _uiState.value.copy(
+                        currentStreak = current,
+                        longestStreak = longest,
+                    )
+                }
+        }
     }
 
     private fun todayRange(): Pair<Long, Long> {
