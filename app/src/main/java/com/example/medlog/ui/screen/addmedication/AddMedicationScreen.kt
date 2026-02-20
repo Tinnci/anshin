@@ -113,19 +113,69 @@ fun AddMedicationScreen(
 
             // ── 基本信息 ─────────────────────────────────────────
             FormSection(title = "基本信息", icon = Icons.Rounded.Info) {
-                OutlinedTextField(
-                    value = uiState.name,
-                    onValueChange = viewModel::onNameChange,
-                    label = { Text("药品名称 *") },
+                // 药品名称：带数据库搜索建议的下拉输入框
+                ExposedDropdownMenuBox(
+                    expanded = uiState.showDrugSuggestions,
+                    onExpandedChange = { if (!it) viewModel.dismissDrugSuggestions() },
                     modifier = Modifier.fillMaxWidth(),
-                    isError = uiState.error != null && uiState.name.isBlank(),
-                    supportingText = {
-                        if (uiState.error != null && uiState.name.isBlank())
-                            Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
-                    },
-                    leadingIcon = { Icon(Icons.Rounded.Medication, null) },
-                    singleLine = true,
-                )
+                ) {
+                    OutlinedTextField(
+                        value = uiState.name,
+                        onValueChange = viewModel::onNameChange,
+                        label = { Text("药品名称 *") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(MenuAnchorType.PrimaryEditable),
+                        isError = uiState.error != null && uiState.name.isBlank(),
+                        supportingText = {
+                            if (uiState.error != null && uiState.name.isBlank())
+                                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+                        },
+                        leadingIcon = { Icon(Icons.Rounded.Medication, null) },
+                        trailingIcon = {
+                            if (uiState.name.isNotBlank()) {
+                                IconButton(onClick = { viewModel.onNameChange("") }) {
+                                    Icon(Icons.Rounded.Close, contentDescription = "清除")
+                                }
+                            }
+                        },
+                        singleLine = true,
+                    )
+                    if (uiState.drugSuggestions.isNotEmpty()) {
+                        ExposedDropdownMenu(
+                            expanded = uiState.showDrugSuggestions,
+                            onDismissRequest = viewModel::dismissDrugSuggestions,
+                        ) {
+                            uiState.drugSuggestions.forEach { drug ->
+                                DropdownMenuItem(
+                                    text = {
+                                        Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                                            Text(
+                                                text = drug.name,
+                                                style = MaterialTheme.typography.bodyMedium,
+                                            )
+                                            Text(
+                                                text = drug.category + if (drug.isTcm) "（中成药）" else "",
+                                                style = MaterialTheme.typography.bodySmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                            )
+                                        }
+                                    },
+                                    leadingIcon = {
+                                        Icon(
+                                            if (drug.isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+                                    },
+                                    onClick = { viewModel.onDrugSelected(drug) },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
+                                )
+                            }
+                        }
+                    }
+                }
+
                 OutlinedTextField(
                     value = uiState.category,
                     onValueChange = viewModel::onCategoryChange,

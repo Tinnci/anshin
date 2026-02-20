@@ -2,8 +2,10 @@ package com.example.medlog.ui.screen.addmedication
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medlog.data.model.Drug
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.data.repository.DrugRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.SettingsPreferences
 import com.example.medlog.data.repository.UserPreferencesRepository
@@ -71,6 +73,7 @@ class AddMedicationViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val notificationHelper: NotificationHelper,
     private val prefsRepository: UserPreferencesRepository,
+    private val drugRepository: DrugRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddMedicationUiState())
@@ -123,7 +126,36 @@ class AddMedicationViewModel @Inject constructor(
 
     // ── 字段 setters ────────────────────────────────────────────
 
-    fun onNameChange(v: String)              = update { copy(name = v, error = null) }
+    fun onNameChange(v: String) {
+        update { copy(name = v, error = null) }
+        // 当名称长度 >= 1 时触发搜索建议
+        if (v.isNotBlank()) {
+            viewModelScope.launch {
+                val results = drugRepository.searchDrugsRanked(v).take(8)
+                update { copy(drugSuggestions = results, showDrugSuggestions = results.isNotEmpty()) }
+            }
+        } else {
+            update { copy(drugSuggestions = emptyList(), showDrugSuggestions = false) }
+        }
+    }
+
+    /** 从下拉建议中选中一种药，自动填入名称+分类并关闭建议列表 */
+    fun onDrugSelected(drug: Drug) {
+        val cat = drug.category
+        update {
+            copy(
+                name = drug.name,
+                category = cat,
+                showDrugSuggestions = false,
+                drugSuggestions = emptyList(),
+                error = null,
+            )
+        }
+    }
+
+    /** 关闭建议下拉（用户点击外部时） */
+    fun dismissDrugSuggestions() = update { copy(showDrugSuggestions = false) }
+
     fun onCategoryChange(v: String)          = update { copy(category = v) }
     fun onFormChange(v: String)              = update { copy(form = v) }
     fun onHighPriorityChange(v: Boolean)     = update { copy(isHighPriority = v) }
