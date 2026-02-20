@@ -256,6 +256,12 @@ class NotificationHelper @Inject constructor(
 
     // ─── 取消提醒 ─────────────────────────────────────────────
 
+    /** 仅取消指定药品某时间槽的通知（不影响其他时间槽的闹钟） */
+    fun cancelReminderNotification(medicationId: Long, timeIndex: Int) {
+        val notificationId = (medicationId * 100 + timeIndex).toInt()
+        notificationManager.cancel(notificationId)
+    }
+
     /** 取消某药品的所有时间槽闹钟 */
     fun cancelAllReminders(medicationId: Long) {
         for (i in 0 until MAX_REMINDER_SLOTS) {

@@ -32,60 +32,80 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
         if (medId == -1L) return
 
         val nowMs = System.currentTimeMillis()
+        // goAsync() 防止系统在协程完成前 kill 进程
+        val pendingResult = goAsync()
 
         when (intent.action) {
             "ACTION_TAKEN" -> {
-                // 用户点击"已服用"操作按钮
-                notificationHelper.cancelAllReminders(medId)
+                // 仅取消本时间槽通知，其他时间槽提醒不受影响
+                notificationHelper.cancelReminderNotification(medId, timeIndex)
                 CoroutineScope(Dispatchers.IO).launch {
-                    logRepo.insertLog(
-                        MedicationLog(
-                            medicationId = medId,
-                            scheduledTimeMs = nowMs,
-                            actualTakenTimeMs = nowMs,
-                            status = LogStatus.TAKEN,
+                    try {
+                        logRepo.insertLog(
+                            MedicationLog(
+                                medicationId = medId,
+                                scheduledTimeMs = nowMs,
+                                actualTakenTimeMs = nowMs,
+                                status = LogStatus.TAKEN,
+                            )
                         )
-                    )
-                    // 重新调度下一轮提醒
-                    rescheduleNext(medId, timeIndex)
+                        // 扣减库存
+                        val med = medicationRepo.getMedicationById(medId)
+                        if (med != null) {
+                            val newStock = ((med.stock ?: 0.0) - med.doseQuantity).coerceAtLeast(0.0)
+                            medicationRepo.updateStock(medId, newStock)
+                            // 重新调度本时间槽的下一轮提醒
+                            rescheduleNext(med, timeIndex)
+                        }
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
             }
             "ACTION_SKIP" -> {
-                // 用户点击"跳过"操作按钮
-                notificationHelper.cancelAllReminders(medId)
+                // 仅取消本时间槽通知，其他时间槽提醒不受影响
+                notificationHelper.cancelReminderNotification(medId, timeIndex)
                 CoroutineScope(Dispatchers.IO).launch {
-                    logRepo.insertLog(
-                        MedicationLog(
-                            medicationId = medId,
-                            scheduledTimeMs = nowMs,
-                            actualTakenTimeMs = null,
-                            status = LogStatus.SKIPPED,
+                    try {
+                        logRepo.insertLog(
+                            MedicationLog(
+                                medicationId = medId,
+                                scheduledTimeMs = nowMs,
+                                actualTakenTimeMs = null,
+                                status = LogStatus.SKIPPED,
+                            )
                         )
-                    )
-                    rescheduleNext(medId, timeIndex)
+                        rescheduleNext(medId, timeIndex)
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
             }
             else -> {
                 // 闹钟触发：显示通知，并调度下一次闹钟
                 CoroutineScope(Dispatchers.IO).launch {
-                    val med = medicationRepo.getMedicationById(medId) ?: return@launch
-                    notificationHelper.showReminderNotification(
-                        medId,
-                        medName,
-                        "${med.doseQuantity} ${med.doseUnit}",
-                        timeIndex,
-                    )
-                    // 为当前时间槽调度下一次触发
-                    val times = med.reminderTimes.split(",").map { it.trim() }
-                    val timeStr = times.getOrNull(timeIndex) ?: return@launch
-                    val nextMs = notificationHelper.computeNextTrigger(
-                        timeStr = timeStr,
-                        frequencyType = med.frequencyType,
-                        frequencyInterval = med.frequencyInterval,
-                        frequencyDays = med.frequencyDays,
-                        endDateMs = med.endDate,
-                    ) ?: return@launch
-                    notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+                    try {
+                        val med = medicationRepo.getMedicationById(medId) ?: return@launch
+                        notificationHelper.showReminderNotification(
+                            medId,
+                            medName,
+                            "${med.doseQuantity} ${med.doseUnit}",
+                            timeIndex,
+                        )
+                        // 为当前时间槽调度下一次触发
+                        val times = med.reminderTimes.split(",").map { it.trim() }
+                        val timeStr = times.getOrNull(timeIndex) ?: return@launch
+                        val nextMs = notificationHelper.computeNextTrigger(
+                            timeStr = timeStr,
+                            frequencyType = med.frequencyType,
+                            frequencyInterval = med.frequencyInterval,
+                            frequencyDays = med.frequencyDays,
+                            endDateMs = med.endDate,
+                        ) ?: return@launch
+                        notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+                    } finally {
+                        pendingResult.finish()
+                    }
                 }
             }
         }
@@ -94,6 +114,11 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
     /** 重新调度指定药品某时间槽的下一次提醒 */
     private suspend fun rescheduleNext(medId: Long, timeIndex: Int) {
         val med = medicationRepo.getMedicationById(medId) ?: return
+        rescheduleNext(med, timeIndex)
+    }
+
+    /** 直接传入已读取的 Medication 对象，避免重复 DB 查询 */
+    private suspend fun rescheduleNext(med: com.example.medlog.data.model.Medication, timeIndex: Int) {
         val times = med.reminderTimes.split(",").map { it.trim() }
         val timeStr = times.getOrNull(timeIndex) ?: return
         val nextMs = notificationHelper.computeNextTrigger(
