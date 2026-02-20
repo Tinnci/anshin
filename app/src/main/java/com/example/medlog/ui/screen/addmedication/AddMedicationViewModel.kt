@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.SettingsPreferences
+import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -68,10 +70,20 @@ private fun todayStartMs(): Long {
 class AddMedicationViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val notificationHelper: NotificationHelper,
+    private val prefsRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(AddMedicationUiState())
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
+
+    /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
+    private val _latestPrefs = MutableStateFlow(SettingsPreferences())
+
+    init {
+        viewModelScope.launch {
+            prefsRepository.settingsFlow.collect { _latestPrefs.value = it }
+        }
+    }
 
     /** 从药品数据库选药后预填名称和分类（仅新增时生效） */
     fun prefillFromDrug(name: String, category: String) {
@@ -123,7 +135,40 @@ class AddMedicationViewModel @Inject constructor(
     fun onIsPRNChange(v: Boolean)            = update { copy(isPRN = v) }
     fun onMaxDailyDoseChange(v: String)      = update { copy(maxDailyDose = v) }
 
-    fun onTimePeriodChange(v: TimePeriod)    = update { copy(timePeriod = v) }
+    fun onTimePeriodChange(v: TimePeriod) {
+        val autoTime = timePeriodToReminderTime(v, _latestPrefs.value)
+        update {
+            copy(
+                timePeriod = v,
+                // EXACT 保留当前时间，其他时段连带带入根据作息设置计算的预喆时间
+                reminderTimes = if (v == TimePeriod.EXACT) reminderTimes else listOf(autoTime),
+            )
+        }
+    }
+
+    /** 根据时段将作息设置转换为 HH:mm 提醒时间 */
+    private fun timePeriodToReminderTime(period: TimePeriod, prefs: SettingsPreferences): String =
+        when (period) {
+            TimePeriod.EXACT            -> _uiState.value.reminderTimes.firstOrNull() ?: "08:00"
+            TimePeriod.MORNING          -> "%02d:%02d".format(prefs.wakeHour,      prefs.wakeMinute)
+            TimePeriod.BEFORE_BREAKFAST -> adjustTime(prefs.breakfastHour, prefs.breakfastMinute, -15)
+            TimePeriod.AFTER_BREAKFAST  -> adjustTime(prefs.breakfastHour, prefs.breakfastMinute, +15)
+            TimePeriod.BEFORE_LUNCH     -> adjustTime(prefs.lunchHour,     prefs.lunchMinute,     -15)
+            TimePeriod.AFTER_LUNCH      -> adjustTime(prefs.lunchHour,     prefs.lunchMinute,     +15)
+            TimePeriod.BEFORE_DINNER    -> adjustTime(prefs.dinnerHour,    prefs.dinnerMinute,    -15)
+            TimePeriod.AFTER_DINNER     -> adjustTime(prefs.dinnerHour,    prefs.dinnerMinute,    +15)
+            TimePeriod.EVENING          -> adjustTime(prefs.bedHour,       prefs.bedMinute,       -60)
+            TimePeriod.BEDTIME          -> "%02d:%02d".format(prefs.bedHour, prefs.bedMinute)
+            TimePeriod.AFTERNOON        -> "15:00"   // 下午固定 15:00
+        }
+
+    /** 截断钟调进/出，返回 HH:mm */
+    private fun adjustTime(hour: Int, minute: Int, deltaMinutes: Int): String {
+        val total = hour * 60 + minute + deltaMinutes
+        val h = ((total / 60) % 24 + 24) % 24
+        val m = ((total % 60)     + 60) % 60
+        return "%02d:%02d".format(h, m)
+    }
 
     fun addReminderTime(hhmm: String) {
         val existing = _uiState.value.reminderTimes.toMutableList()
