@@ -247,22 +247,24 @@ fun MedicationCard(
                         onClick = onToggleTaken,
                         modifier = Modifier.size(36.dp),
                         colors = IconButtonDefaults.filledIconButtonColors(
-                            containerColor = if (item.isTaken)
-                                MaterialTheme.colorScheme.tertiaryContainer
-                            else
-                                MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = if (item.isTaken)
-                                MaterialTheme.colorScheme.onTertiaryContainer
-                            else
-                                MaterialTheme.colorScheme.onPrimaryContainer,
+                            containerColor = when {
+                                item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
+                                item.isSkipped -> MaterialTheme.colorScheme.secondaryContainer
+                                else           -> MaterialTheme.colorScheme.primaryContainer
+                            },
+                            contentColor = when {
+                                item.isTaken   -> MaterialTheme.colorScheme.onTertiaryContainer
+                                item.isSkipped -> MaterialTheme.colorScheme.onSecondaryContainer
+                                else           -> MaterialTheme.colorScheme.onPrimaryContainer
+                            },
                         ),
                     ) {
                         Icon(
-                            imageVector = if (item.isTaken)
+                            imageVector = if (item.isTaken || item.isSkipped)
                                 Icons.AutoMirrored.Rounded.Undo
                             else
                                 Icons.Rounded.Check,
-                            contentDescription = if (item.isTaken) "撤销" else "标记已服",
+                            contentDescription = if (item.isTaken || item.isSkipped) "撤销" else "标记已服",
                             modifier = Modifier.size(18.dp),
                         )
                     }

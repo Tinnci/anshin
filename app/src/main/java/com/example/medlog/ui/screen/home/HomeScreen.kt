@@ -241,19 +241,30 @@ fun HomeScreen(
                             item = item,
                             onToggleTaken = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                val wasTaken = item.isTaken
-                                viewModel.toggleMedicationStatus(item)
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        message = if (wasTaken)
-                                            "${item.medication.name} 已重置为待服"
-                                        else
-                                            "${item.medication.name} 已标记为已服",
-                                        actionLabel = "撤销",
-                                        duration = SnackbarDuration.Short,
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.undoByMedicationId(item.medication.id)
+                                if (item.isSkipped) {
+                                    // 已跳过 → 撤销跳过，回到待服
+                                    viewModel.undoByMedicationId(item.medication.id)
+                                    scope.launch {
+                                        snackbarHostState.showSnackbar(
+                                            message = "${item.medication.name} 已撤销跳过，恢复待服",
+                                            duration = SnackbarDuration.Short,
+                                        )
+                                    }
+                                } else {
+                                    val wasTaken = item.isTaken
+                                    viewModel.toggleMedicationStatus(item)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            message = if (wasTaken)
+                                                "${item.medication.name} 已重置为待服"
+                                            else
+                                                "${item.medication.name} 已标记为已服",
+                                            actionLabel = "撤销",
+                                            duration = SnackbarDuration.Short,
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            viewModel.undoByMedicationId(item.medication.id)
+                                        }
                                     }
                                 }
                             },
