@@ -2,6 +2,8 @@ package com.example.medlog.ui.screen.addmedication
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -338,6 +340,35 @@ fun AddMedicationScreen(
                             )
                         }
                     }
+                    // 非 EXACT 时段：显示自动带入的时间提示
+                    AnimatedVisibility(
+                        visible = uiState.timePeriod != TimePeriod.EXACT,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut(),
+                    ) {
+                        SuggestionChip(
+                            onClick = {},
+                            label = {
+                                Text(
+                                    "提醒时间：${uiState.reminderTimes.firstOrNull() ?: ""}（来自作息设置）",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            },
+                            icon = {
+                                Icon(
+                                    Icons.Rounded.AutoAwesome,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SuggestionChipDefaults.IconSize),
+                                )
+                            },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                iconContentColor = MaterialTheme.colorScheme.secondary,
+                            ),
+                        )
+                    }
+                    // EXACT 时段：用户手动设置多个提醒时间
                     AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
                         ReminderTimesRow(
                             times = uiState.reminderTimes,
