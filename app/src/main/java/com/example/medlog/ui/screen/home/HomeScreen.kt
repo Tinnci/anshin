@@ -111,6 +111,21 @@ fun HomeScreen(
                 }
             }
 
+            // ── 低库存警告 banner ──────────────────────────────
+            val lowStockItems = uiState.items.filter { item ->
+                val stock = item.medication.stock ?: return@filter false
+                val threshold = item.medication.refillThreshold ?: return@filter false
+                stock <= threshold
+            }
+            if (lowStockItems.isNotEmpty()) {
+                item {
+                    LowStockBanner(
+                        medications = lowStockItems.map { it.medication.name to (it.medication.stock!! to it.medication.doseUnit) },
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                }
+            }
+
             // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
             if (pendingItems.size > 1) {
                 item {
@@ -226,6 +241,54 @@ fun HomeScreen(
 
             // ── 底部间距（FAB 避让）──────────────────────────
             item { Spacer(Modifier.height(80.dp)) }
+        }
+    }
+}
+
+// ── 低库存警告 banner ─────────────────────────────────────────────────────────
+
+@Composable
+private fun LowStockBanner(
+    medications: List<Pair<String, Pair<Double, String>>>,
+    modifier: Modifier = Modifier,
+) {
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                imageVector = Icons.Rounded.Medication,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.error,
+                modifier = Modifier.size(20.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = "库存不足提醒",
+                    style = MaterialTheme.typography.labelMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                )
+                medications.forEach { (name, stockPair) ->
+                    val (stock, unit) = stockPair
+                    Text(
+                        text = "· $name：剩余 $stock $unit",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.85f),
+                    )
+                }
+            }
         }
     }
 }

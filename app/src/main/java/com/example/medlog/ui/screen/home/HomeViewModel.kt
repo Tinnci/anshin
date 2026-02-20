@@ -76,6 +76,7 @@ class HomeViewModel @Inject constructor(
     init {
         observeMedications()
         computeStreak()
+        scanLowStockOnLaunch()
     }
 
     private fun observeMedications() {
@@ -135,10 +136,9 @@ class HomeViewModel @Inject constructor(
                     )
                 )
                 item.medication.stock?.let { stock ->
-                    medicationRepo.updateStock(
-                        item.medication.id,
-                        (stock - item.medication.doseQuantity).coerceAtLeast(0.0),
-                    )
+                    val newStock = (stock - item.medication.doseQuantity).coerceAtLeast(0.0)
+                    medicationRepo.updateStock(item.medication.id, newStock)
+                    checkAndNotifyLowStock(item.medication, newStock)
                 }
                 notificationHelper.cancelAllReminders(item.medication.id)
             }
@@ -188,6 +188,42 @@ class HomeViewModel @Inject constructor(
         _uiState.value.items
             .filter { !it.isTaken && !it.isSkipped }
             .forEach { toggleMedicationStatus(it) }
+    }
+
+    /** 触发服药时检查库存是否低于阈值，低于则推送通知 */
+    private fun checkAndNotifyLowStock(med: Medication, newStock: Double) {
+        val threshold = med.refillThreshold ?: return
+        if (newStock <= threshold) {
+            notificationHelper.showLowStockNotification(
+                medicationId = med.id,
+                medicationName = med.name,
+                stock = newStock,
+                unit = med.doseUnit,
+            )
+        }
+    }
+
+    /** App 启动时扫描所有活跃药品，补推低库存通知（防止用户忽略了通知） */
+    private fun scanLowStockOnLaunch() {
+        viewModelScope.launch {
+            medicationRepo.getActiveMedications()
+                .take(1)
+                .catch { }
+                .collect { meds ->
+                    meds.forEach { med ->
+                        val stock = med.stock ?: return@forEach
+                        val threshold = med.refillThreshold ?: return@forEach
+                        if (stock <= threshold) {
+                            notificationHelper.showLowStockNotification(
+                                medicationId = med.id,
+                                medicationName = med.name,
+                                stock = stock,
+                                unit = med.doseUnit,
+                            )
+                        }
+                    }
+                }
+        }
     }
 
     /** 计算连续服药天数，启动时跑一次 */
