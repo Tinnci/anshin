@@ -40,6 +40,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.core.content.ContextCompat
 import com.example.medlog.BuildConfig
 import com.example.medlog.data.model.Medication
+import com.example.medlog.data.repository.ThemeMode
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -221,7 +222,63 @@ fun SettingsScreen(
                     }
                 }
             }
-
+            // ── 外观 ───────────────────────────────────────────────
+            SettingsCard(title = "外观", icon = Icons.Rounded.Palette) {
+                // ―― 主题模式 ――
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 12.dp, bottom = 8.dp),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Icon(
+                            Icons.Rounded.DarkMode,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Text(
+                            "主题",
+                            style = MaterialTheme.typography.bodyMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    }
+                    val themeModes = listOf(
+                        ThemeMode.SYSTEM to "跟随系统",
+                        ThemeMode.LIGHT  to "浅色",
+                        ThemeMode.DARK   to "深色",
+                    )
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        themeModes.forEachIndexed { index, (mode, label) ->
+                            SegmentedButton(
+                                selected = uiState.themeMode == mode,
+                                onClick  = { viewModel.setThemeMode(mode) },
+                                shape    = SegmentedButtonDefaults.itemShape(
+                                    index = index, count = themeModes.size,
+                                ),
+                            ) {
+                                Text(label, style = MaterialTheme.typography.labelMedium)
+                            }
+                        }
+                    }
+                }
+                // ―― Material You 动态颜色（Android 12+）――
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    SettingsSwitchRow(
+                        title = "Material You 动态颜色",
+                        subtitle = "根据壁纸自动匹配应用配色（Android 12+）",
+                        checked = uiState.useDynamicColor,
+                        onCheckedChange = viewModel::setUseDynamicColor,
+                        icon = Icons.Rounded.ColorLens,
+                    )
+                }
+            }
             // ── 提醒设置 ─────────────────────────────────────────
             SettingsCard(title = "提醒设置", icon = Icons.Rounded.Notifications) {
                 SettingsSwitchRow(

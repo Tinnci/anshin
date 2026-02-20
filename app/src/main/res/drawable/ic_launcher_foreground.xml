@@ -1,10 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  Adaptive icon foreground layer.
+  Canvas:   108dp × 108dp
+  Safe zone: 72dp centre square (18dp inset on each side — coordinates 18-90)
+  The icon content (bottle + cross) is fully within the safe zone.
+-->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
+
+    <!--
+      Pill bottle silhouette (body + cap tab).
+      Drawn white so it reads clearly over the blue background layer.
+    -->
     <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M33.5,20C28.81,20 25,23.81 25,28.5v51C25,83.19 28.81,87 33.5,87h41C78.69,87 82.5,83.19 82.5,79.5v-51C82.5,23.81 78.69,20 74,20H33.5zM58,25.5h-8v-5.5h8V25.5zM54,72A11,11 0,0 1,43 61A11,11 0,0 1,54 50A11,11 0,0 1,65 61A11,11 0,0 1,54 72zM58,61h-4v-9h-2c-1,0 -2,0.9 -2,2V61h-4V54c0-2.76 2.24-5 5-5h7V61z" />
+        android:fillColor="@color/ic_launcher_foreground"
+        android:pathData="M33.5,20C28.81,20 25,23.81 25,28.5v51C25,83.19 28.81,87 33.5,87h41C78.69,87 82.5,83.19 82.5,79.5v-51C82.5,23.81 78.69,20 74,20H33.5zM58,25.5h-8v-5.5h8V25.5z" />
+
+    <!--
+      Medical cross (+) centred inside the bottle at (54, 56).
+      Uses the same brand-blue as the background → creates a negative-space
+      "cut-through" effect: the cross appears to reveal the blue behind it.
+      Arm dimensions: 10dp wide × 30dp long (both axes).
+    -->
+    <path
+        android:fillColor="@color/ic_launcher_background"
+        android:pathData="M39,51 L49,51 L49,41 L59,41 L59,51 L69,51 L69,61 L59,61 L59,71 L49,71 L49,61 L39,61 Z" />
 </vector>

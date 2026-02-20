@@ -17,6 +17,9 @@ import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
 
+/** 应用主题模式 */
+enum class ThemeMode { SYSTEM, LIGHT, DARK }
+
 /** DataStore 文件名 */
 private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
     name = "medlog_settings",
@@ -47,6 +50,12 @@ data class SettingsPreferences(
     val enableDrugInteractionCheck: Boolean = true,
     /** 是否启用药品数据库浏览（底部导航显示「药品」Tab） */
     val enableDrugDatabase: Boolean = true,
+
+    // ── 外观偏好 ──────────────────────────────────────────────────────────────
+    /** 深色/浅色/跟随系统 */
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    /** 是否使用 Material You 动态颜色（Android 12+ 才生效） */
+    val useDynamicColor: Boolean = true,
 )
 
 @Singleton
@@ -75,6 +84,9 @@ class UserPreferencesRepository @Inject constructor(
         val ENABLE_SYMPTOM_DIARY         = booleanPreferencesKey("enable_symptom_diary")
         val ENABLE_DRUG_INTERACTION      = booleanPreferencesKey("enable_drug_interaction")
         val ENABLE_DRUG_DATABASE         = booleanPreferencesKey("enable_drug_database")
+        // 外观
+        val THEME_MODE         = stringPreferencesKey("theme_mode")
+        val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -98,6 +110,9 @@ class UserPreferencesRepository @Inject constructor(
                 enableSymptomDiary        = prefs[ENABLE_SYMPTOM_DIARY]    ?: true,
                 enableDrugInteractionCheck = prefs[ENABLE_DRUG_INTERACTION] ?: true,
                 enableDrugDatabase        = prefs[ENABLE_DRUG_DATABASE]     ?: true,
+                themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
+                                    ?: ThemeMode.SYSTEM,
+                useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
             )
         }
 
@@ -145,5 +160,15 @@ class UserPreferencesRepository @Inject constructor(
             if (enableDrugInteraction != null) prefs[ENABLE_DRUG_INTERACTION] = enableDrugInteraction
             if (enableDrugDatabase != null) prefs[ENABLE_DRUG_DATABASE] = enableDrugDatabase
         }
+    }
+
+    /** 更新外观主题模式 */
+    suspend fun updateThemeMode(themeMode: ThemeMode) {
+        dataStore.edit { it[THEME_MODE] = themeMode.name }
+    }
+
+    /** 更新动态颜色（Material You）开关 */
+    suspend fun updateUseDynamicColor(enabled: Boolean) {
+        dataStore.edit { it[USE_DYNAMIC_COLOR] = enabled }
     }
 }

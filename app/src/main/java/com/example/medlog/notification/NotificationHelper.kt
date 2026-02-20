@@ -113,7 +113,7 @@ class NotificationHelper @Inject constructor(
         else ""
 
         val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
-            .setSmallIcon(R.drawable.ic_pill_splash)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .apply { if (pendingText.isNotEmpty()) setContentText(pendingText) }
             .setProgress(total, taken, false)
@@ -159,7 +159,7 @@ class NotificationHelper @Inject constructor(
         )
 
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDER)
-            .setSmallIcon(R.drawable.ic_pill_splash)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("该服药了：$medicationName")
             .setContentText("剂量：$dose")
             .addAction(0, "✅ 已服用", takenPendingIntent)
@@ -331,7 +331,7 @@ class NotificationHelper @Inject constructor(
 
     fun showLowStockNotification(medicationId: Long, medicationName: String, stock: Double, unit: String) {
         val notification = NotificationCompat.Builder(context, CHANNEL_LOW_STOCK)
-            .setSmallIcon(R.drawable.ic_pill_splash)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle("$medicationName 库存不足")
             .setContentText("当前库存：$stock $unit，请及时补充")
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

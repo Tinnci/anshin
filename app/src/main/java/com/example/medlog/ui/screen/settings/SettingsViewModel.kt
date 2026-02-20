@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.ResyncRemindersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -26,8 +27,9 @@ data class SettingsUiState(
     // ── 可选功能开关 ───────────────────────────────────────────────────────────
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
-    val enableDrugDatabase: Boolean = true,
-)
+    val enableDrugDatabase: Boolean = true,    // ── 外观 ──────────────────────────────────────────────────────
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
+    val useDynamicColor: Boolean = true,)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -54,6 +56,8 @@ class SettingsViewModel @Inject constructor(
             enableSymptomDiary         = prefs.enableSymptomDiary,
             enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
             enableDrugDatabase         = prefs.enableDrugDatabase,
+            themeMode       = prefs.themeMode,
+            useDynamicColor = prefs.useDynamicColor,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -98,5 +102,13 @@ class SettingsViewModel @Inject constructor(
 
     fun setEnableDrugDatabase(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugDatabase = enabled) }
+    }
+
+    fun setThemeMode(mode: ThemeMode) {
+        viewModelScope.launch { prefsRepository.updateThemeMode(mode) }
+    }
+
+    fun setUseDynamicColor(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateUseDynamicColor(enabled) }
     }
 }

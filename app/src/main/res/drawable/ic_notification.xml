@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Small notification icon — used in NotificationCompat.Builder.setSmallIcon().
+  Rules:
+    • 24dp canvas, single-colour silhouette
+    • Must be pure white (#FFFFFF) so the system can tint it correctly
+    • No colour information; alpha channel defines the icon shape
+    • Hardcoded #FFFFFF is intentional here (not @color ref) — system tinting
+      overrides the fill colour at runtime anyway
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Pill bottle silhouette: body + cap + circular pill indicator -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M6.5,2C5.12,2 4,3.12 4,4.5v15C4,20.88 5.12,22 6.5,22h11C18.88,22 20,20.88 20,19.5v-15C20,3.12 18.88,2 17.5,2H6.5zM13,3.5h-2v-1.5h2V3.5zM12,18A4,4 0,0 1,8 14A4,4 0,0 1,12 10A4,4 0,0 1,16 14A4,4 0,0 1,12 18z" />
+</vector>

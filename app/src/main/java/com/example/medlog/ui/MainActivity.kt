@@ -7,9 +7,14 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import com.example.medlog.R
+import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.ui.theme.MedLogTheme
 
 /** 从快捷方式 / 通知触发"立即添加"流程时使用的 intent action */
@@ -27,7 +32,18 @@ class MainActivity : ComponentActivity() {
         val openAddMedication = intent?.action == ACTION_ADD_MEDICATION
 
         setContent {
-            MedLogTheme {
+            // 观察主题设置（与 MedLogApp 共享同一个 ViewModel 实例）
+            val appViewModel: MedLogAppViewModel = hiltViewModel()
+            val prefs by appViewModel.featureFlags.collectAsStateWithLifecycle()
+
+            val systemDark = isSystemInDarkTheme()
+            val darkTheme = when (prefs.themeMode) {
+                ThemeMode.LIGHT  -> false
+                ThemeMode.DARK   -> true
+                ThemeMode.SYSTEM -> systemDark
+            }
+
+            MedLogTheme(darkTheme = darkTheme, dynamicColor = prefs.useDynamicColor) {
                 MedLogApp(openAddMedication = openAddMedication)
             }
         }
