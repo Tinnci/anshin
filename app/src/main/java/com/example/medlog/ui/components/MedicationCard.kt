@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -35,6 +36,8 @@ fun MedicationCard(
     onSkip: () -> Unit,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
+    /** true = 内嵌在父卡片中，去掉外圆角并使用透明背景 */
+    flatStyle: Boolean = false,
 ) {
     val med = item.medication
     val motionScheme = MaterialTheme.motionScheme
@@ -68,13 +71,13 @@ fun MedicationCard(
         label = "strip",
     )
 
-    val cardShape = RoundedCornerShape(24.dp)
-    // 高优先级且未完成：显示半透明 primary 描边
-    val borderMod = if (med.isHighPriority && !item.isTaken && !item.isSkipped)
+    val cardShape = if (flatStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(24.dp)
+    // 高优先级且未完成：显示半透明 primary 描边（flatStyle 下省略，由父卡片负责形状）
+    val borderMod = if (med.isHighPriority && !item.isTaken && !item.isSkipped && !flatStyle)
         Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), cardShape)
     else Modifier
 
-    // 扁平卡片（elevation = 0），24dp 大圆角，与 Flutter 版对齐
+    // 扁平卡片（elevation = 0），flatStyle 下背景透明继承父卡片
     Card(
         modifier = modifier
             .fillMaxWidth()
@@ -82,7 +85,9 @@ fun MedicationCard(
             .graphicsLayer { alpha = cardAlpha }
             .clickable(onClick = onClick),
         shape = cardShape,
-        colors = CardDefaults.cardColors(containerColor = containerColor),
+        colors = CardDefaults.cardColors(
+            containerColor = if (flatStyle) Color.Transparent else containerColor,
+        ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         // IntrinsicSize.Min 使左侧色带高度与主内容对齐

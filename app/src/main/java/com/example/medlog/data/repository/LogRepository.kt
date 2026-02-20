@@ -12,6 +12,8 @@ interface LogRepository {
     fun getLogsForMedication(medicationId: Long, limit: Int = 60): Flow<List<MedicationLog>>
     suspend fun getLogForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long): MedicationLog?
     suspend fun insertLog(log: MedicationLog): Long
+    /** 更新已有日志记录（如修改实际服药时间） */
+    suspend fun updateLog(log: MedicationLog)
     suspend fun deleteLog(log: MedicationLog)
     suspend fun deleteLogsForDate(medicationId: Long, startMs: Long, endMs: Long)
     fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>

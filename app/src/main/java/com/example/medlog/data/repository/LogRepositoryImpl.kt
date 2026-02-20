@@ -26,6 +26,9 @@ class LogRepositoryImpl @Inject constructor(
     override suspend fun insertLog(log: MedicationLog): Long =
         logDao.insertLog(log)
 
+    override suspend fun updateLog(log: MedicationLog) =
+        logDao.updateLog(log)
+
     override suspend fun deleteLog(log: MedicationLog) =
         logDao.deleteLog(log)
 

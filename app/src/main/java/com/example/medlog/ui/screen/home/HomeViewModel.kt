@@ -41,7 +41,7 @@ data class HomeUiState(
     /** 检测到的药品相互作用列表 */
     val interactions: List<DrugInteraction> = emptyList(),
     /** true = 按服药时段分组；false = 按分类分组 */
-    val groupByTime: Boolean = false,
+    val groupByTime: Boolean = true,
 ) {
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
@@ -65,9 +65,14 @@ data class HomeUiState(
 
     /**
      * 按服药时段分组，组内按提醒小时排序。
-     * PRN 药品没有固定时段，单独归入所设时段或"精确时间"组。
+     * 同时暴露 [TimePeriod] 对象，供 UI 渲染图标及"一键服用本时段"。
      */
     val groupedByTime: List<Pair<String, List<MedicationWithStatus>>> by lazy {
+        groupedByTimePeriod.map { (tp, meds) -> tp.label to meds }
+    }
+
+    /** 带 [TimePeriod] key 的时段分组，UI 需要时段图标及 key 时使用 */
+    val groupedByTimePeriod: List<Pair<TimePeriod, List<MedicationWithStatus>>> by lazy {
         val periodOrder = listOf(
             "morning", "beforeBreakfast", "afterBreakfast",
             "beforeLunch", "afterLunch", "afternoon",
@@ -86,7 +91,7 @@ data class HomeUiState(
             .groupBy { it.medication.timePeriod }
             .entries
             .sortedBy { (key, _) -> orderOf(key) }
-            .map { (key, meds) -> TimePeriod.fromKey(key).label to meds }
+            .map { (key, meds) -> TimePeriod.fromKey(key) to meds }
     }
 
     companion object {
@@ -224,6 +229,13 @@ class HomeViewModel @Inject constructor(
     fun takeAll() {
         _uiState.value.items
             .filter { !it.isTaken && !it.isSkipped }
+            .forEach { toggleMedicationStatus(it) }
+    }
+
+    /** 仅标记指定时段内的所有待服药品为已服 */
+    fun takeAllForPeriod(timePeriodKey: String) {
+        _uiState.value.items
+            .filter { it.medication.timePeriod == timePeriodKey && !it.isTaken && !it.isSkipped }
             .forEach { toggleMedicationStatus(it) }
     }
 

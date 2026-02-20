@@ -42,6 +42,9 @@ interface MedicationLogDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: MedicationLog): Long
 
+    @Update
+    suspend fun updateLog(log: MedicationLog)
+
     @Delete
     suspend fun deleteLog(log: MedicationLog)
 

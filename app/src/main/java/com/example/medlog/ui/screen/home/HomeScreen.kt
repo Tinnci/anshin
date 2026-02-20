@@ -190,63 +190,20 @@ fun HomeScreen(
             }
 
             // ── 药品卡片列表（可按时段或分类分组）────────────────
-            val activeGrouped = if (uiState.groupByTime) uiState.groupedByTime else uiState.groupedItems
-            var globalIndex = 0
-            activeGrouped.forEach { (category, groupItems) ->
-                // 有分类名时显示分组标题
-                if (category.isNotBlank()) {
-                    item(key = "header_$category", contentType = "header") {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(top = 8.dp, bottom = 2.dp),
-                        ) {
-                            if (uiState.groupByTime) {
-                                val tp = TimePeriod.entries.find { it.label == category }
-                                if (tp != null) {
-                                    Icon(
-                                        tp.icon, null,
-                                        modifier = Modifier.size(14.dp),
-                                        tint = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                            }
-                            Text(
-                                text = category,
-                                style = MaterialTheme.typography.labelMedium,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                    }
-                }
-                itemsIndexed(
-                    groupItems,
-                    key = { _, it -> it.medication.id },
-                ) { _, item ->
-                    val index = globalIndex++
-                    val motionScheme = MaterialTheme.motionScheme
-                    var visible by remember(item.medication.id) { mutableStateOf(false) }
-                    LaunchedEffect(item.medication.id) {
-                        delay(index * 40L)
-                        visible = true
-                    }
-                    AnimatedVisibility(
-                        visible = visible,
-                        enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
-                    ) {
-                        MedicationCard(
-                            item = item,
-                            onToggleTaken = {
+            if (uiState.groupByTime) {
+                // M3 Expressive 风格：每个时段一张卡片，头部含一键服用
+                uiState.groupedByTimePeriod.forEach { (timePeriod, groupItems) ->
+                    item(key = "tgroup_${timePeriod.key}", contentType = "timeGroup") {
+                        TimePeriodGroupCard(
+                            timePeriod = timePeriod,
+                            items = groupItems,
+                            onToggleTaken = { item ->
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 if (item.isSkipped) {
-                                    // 已跳过 → 撤销跳过，回到待服
                                     viewModel.undoByMedicationId(item.medication.id)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            message = "${item.medication.name} 已撤销跳过，恢复待服",
+                                            "${item.medication.name} 已撤销跳过，恢复待服",
                                             duration = SnackbarDuration.Short,
                                         )
                                     }
@@ -255,10 +212,8 @@ fun HomeScreen(
                                     viewModel.toggleMedicationStatus(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = if (wasTaken)
-                                                "${item.medication.name} 已重置为待服"
-                                            else
-                                                "${item.medication.name} 已标记为已服",
+                                            message = if (wasTaken) "${item.medication.name} 已重置为待服"
+                                            else "${item.medication.name} 已标记为已服",
                                             actionLabel = "撤销",
                                             duration = SnackbarDuration.Short,
                                         )
@@ -268,12 +223,12 @@ fun HomeScreen(
                                     }
                                 }
                             },
-                            onSkip = {
+                            onSkip = { item ->
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                                 viewModel.skipMedication(item)
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        message = "${item.medication.name} 已跳过今日",
+                                        "${item.medication.name} 已跳过今日",
                                         actionLabel = "撤销",
                                         duration = SnackbarDuration.Short,
                                     )
@@ -282,9 +237,102 @@ fun HomeScreen(
                                     }
                                 }
                             },
-                            onClick = { onMedicationClick(item.medication.id) },
+                            onTakeAll = {
+                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                viewModel.takeAllForPeriod(timePeriod.key)
+                                scope.launch {
+                                    snackbarHostState.showSnackbar(
+                                        "「${timePeriod.label}」已全部标记为已服",
+                                        duration = SnackbarDuration.Short,
+                                    )
+                                }
+                            },
+                            onClick = onMedicationClick,
                             modifier = Modifier.animateItem(),
                         )
+                    }
+                }
+            } else {
+                // 分类分组：扁平卡片列表
+                uiState.groupedItems.forEach { (category, groupItems) ->
+                    if (category.isNotBlank()) {
+                        item(key = "header_$category", contentType = "header") {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp, bottom = 2.dp),
+                            ) {
+                                Text(
+                                    text = category,
+                                    style = MaterialTheme.typography.labelMedium,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                            }
+                        }
+                    }
+                    itemsIndexed(
+                        groupItems,
+                        key = { _, it -> it.medication.id },
+                    ) { idx, item ->
+                        val motionScheme = MaterialTheme.motionScheme
+                        var visible by remember(item.medication.id) { mutableStateOf(false) }
+                        LaunchedEffect(item.medication.id) {
+                            delay(idx * 30L)   // 基于组内索引，而非全局，避免底部首次出现延迟
+                            visible = true
+                        }
+                        AnimatedVisibility(
+                            visible = visible,
+                            enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                                    slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
+                        ) {
+                            MedicationCard(
+                                item = item,
+                                onToggleTaken = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    if (item.isSkipped) {
+                                        viewModel.undoByMedicationId(item.medication.id)
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                "${item.medication.name} 已撤销跳过，恢复待服",
+                                                duration = SnackbarDuration.Short,
+                                            )
+                                        }
+                                    } else {
+                                        val wasTaken = item.isTaken
+                                        viewModel.toggleMedicationStatus(item)
+                                        scope.launch {
+                                            val result = snackbarHostState.showSnackbar(
+                                                message = if (wasTaken) "${item.medication.name} 已重置为待服"
+                                                else "${item.medication.name} 已标记为已服",
+                                                actionLabel = "撤销",
+                                                duration = SnackbarDuration.Short,
+                                            )
+                                            if (result == SnackbarResult.ActionPerformed) {
+                                                viewModel.undoByMedicationId(item.medication.id)
+                                            }
+                                        }
+                                    }
+                                },
+                                onSkip = {
+                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                    viewModel.skipMedication(item)
+                                    scope.launch {
+                                        val result = snackbarHostState.showSnackbar(
+                                            "${item.medication.name} 已跳过今日",
+                                            actionLabel = "撤销",
+                                            duration = SnackbarDuration.Short,
+                                        )
+                                        if (result == SnackbarResult.ActionPerformed) {
+                                            viewModel.undoByMedicationId(item.medication.id)
+                                        }
+                                    }
+                                },
+                                onClick = { onMedicationClick(item.medication.id) },
+                                modifier = Modifier.animateItem(),
+                            )
+                        }
                     }
                 }
             }
@@ -292,6 +340,135 @@ fun HomeScreen(
             // ── 底部间距（FAB 避让）──────────────────────────
             item { Spacer(Modifier.height(80.dp)) }
         }
+    }
+}
+
+// ── 时段分组卡片（M3 Expressive 风格）─────────────────────────────────────────
+
+/**
+ * 将同一服药时段的所有药品包裹在一张圆角卡片内。
+ *
+ * 卡片头部：时段图标 + 时段名 + 待服数 badge + 「一键服用本时段」按钮。
+ * 卡片内容：每个药品一行，行间以 HorizontalDivider 分隔；进入动画逐项延迟。
+ */
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun TimePeriodGroupCard(
+    timePeriod: com.example.medlog.data.model.TimePeriod,
+    items: List<MedicationWithStatus>,
+    onToggleTaken: (MedicationWithStatus) -> Unit,
+    onSkip: (MedicationWithStatus) -> Unit,
+    onTakeAll: () -> Unit,
+    onClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val pendingCount = items.count { !it.isTaken && !it.isSkipped }
+    val allDone = pendingCount == 0
+    val motionScheme = MaterialTheme.motionScheme
+
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = if (allDone)
+                MaterialTheme.colorScheme.surfaceContainerLowest
+            else
+                MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        elevation = CardDefaults.elevatedCardElevation(
+            defaultElevation = if (allDone) 0.dp else 1.dp,
+        ),
+    ) {
+        // ── 卡片头部 ──────────────────────────────────────────
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                imageVector = timePeriod.icon,
+                contentDescription = null,
+                tint = if (allDone) MaterialTheme.colorScheme.outline
+                       else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp),
+            )
+            Text(
+                text = timePeriod.label,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+                color = if (allDone) MaterialTheme.colorScheme.outline
+                        else MaterialTheme.colorScheme.primary,
+                modifier = Modifier.weight(1f),
+            )
+            // 待服数量 Badge（allDone 时显示 ✓）
+            if (allDone) {
+                Icon(
+                    Icons.Rounded.DoneAll,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(16.dp),
+                )
+            } else {
+                Badge(
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) { Text("$pendingCount") }
+                // 一键服用本时段
+                if (pendingCount > 1) {
+                    FilledTonalIconButton(
+                        onClick = onTakeAll,
+                        modifier = Modifier.size(32.dp),
+                    ) {
+                        Icon(
+                            Icons.Rounded.DoneAll,
+                            contentDescription = "全部服用",
+                            modifier = Modifier.size(16.dp),
+                        )
+                    }
+                }
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
+
+        // ── 药品列表 ──────────────────────────────────────────
+        items.forEachIndexed { idx, item ->
+            var visible by remember(item.medication.id) { mutableStateOf(false) }
+            LaunchedEffect(item.medication.id) {
+                delay(idx * 30L)   // 组内相邻延迟，避免全局累积延迟
+                visible = true
+            }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+            ) {
+                Column {
+                    MedicationCard(
+                        item = item,
+                        onToggleTaken = { onToggleTaken(item) },
+                        onSkip = { onSkip(item) },
+                        onClick = { onClick(item.medication.id) },
+                        modifier = Modifier,
+                        // 卡片内不需要外圆角（已在 ElevatedCard 内）
+                        flatStyle = true,
+                    )
+                    if (idx < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
     }
 }
 

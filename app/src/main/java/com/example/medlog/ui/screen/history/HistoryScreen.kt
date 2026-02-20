@@ -122,6 +122,7 @@ fun HistoryScreen(
                     DayDetailSection(
                         date = selected,
                         day = selectedDay,
+                        onEditTakenTime = viewModel::editTakenTime,
                         modifier = Modifier.animateItem().padding(horizontal = 16.dp, vertical = 4.dp),
                     )
                 }
@@ -380,6 +381,7 @@ private fun LegendItem(color: Color, label: String) {
 private fun DayDetailSection(
     date: LocalDate,
     day: AdherenceDay?,
+    onEditTakenTime: (MedicationLog, Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val colorScheme = MaterialTheme.colorScheme
@@ -427,17 +429,35 @@ private fun DayDetailSection(
             } else {
                 HorizontalDivider(color = colorScheme.outlineVariant)
                 day.logs.forEach { (log, name) ->
-                    DayLogRow(log = log, medicationName = name)
+                    DayLogRow(log = log, medicationName = name, onEditTakenTime = onEditTakenTime)
                 }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DayLogRow(log: MedicationLog, medicationName: String) {
+private fun DayLogRow(
+    log: MedicationLog,
+    medicationName: String,
+    onEditTakenTime: (MedicationLog, Long) -> Unit = { _, _ -> },
+) {
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val colorScheme = MaterialTheme.colorScheme
+
+    // 时间戳编辑对话框状态
+    var showTimePicker by remember { mutableStateOf(false) }
+    val takenCal = remember(log.actualTakenTimeMs) {
+        Calendar.getInstance().apply {
+            timeInMillis = log.actualTakenTimeMs ?: System.currentTimeMillis()
+        }
+    }
+    val timePickerState = rememberTimePickerState(
+        initialHour = takenCal.get(Calendar.HOUR_OF_DAY),
+        initialMinute = takenCal.get(Calendar.MINUTE),
+        is24Hour = true,
+    )
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -478,6 +498,45 @@ private fun DayLogRow(log: MedicationLog, medicationName: String) {
                 LogStatus.TAKEN   -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
+            },
+            modifier = if (log.status == LogStatus.TAKEN)
+                Modifier.clickable { showTimePicker = true }
+            else Modifier,
+        )
+    }
+
+    // 时间戳编辑对话框
+    if (showTimePicker) {
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            title = { Text("修改服药时间") },
+            text = {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(
+                        "当前：${log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: "未记录"}",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 12.dp),
+                    )
+                    TimePicker(state = timePickerState)
+                }
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    // 将选择的 HH:mm 合并到原日期的时间戳
+                    val base = Calendar.getInstance().apply {
+                        timeInMillis = log.actualTakenTimeMs ?: log.scheduledTimeMs
+                        set(Calendar.HOUR_OF_DAY, timePickerState.hour)
+                        set(Calendar.MINUTE, timePickerState.minute)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }
+                    onEditTakenTime(log, base.timeInMillis)
+                    showTimePicker = false
+                }) { Text("确认") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) { Text("取消") }
             },
         )
     }
