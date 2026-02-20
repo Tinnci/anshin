@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.ktlint)
 }
 
 android {
@@ -37,6 +38,13 @@ android {
     }
     buildFeatures {
         compose = true
+    }
+    lint {
+        lintConfig = file("lint.xml")
+        baseline = file("lint-baseline.xml")
+        abortOnError = false          // CI 中可改为 true
+        htmlReport = true
+        xmlReport = true
     }
 }
 
@@ -93,4 +101,18 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+}
+
+ktlint {
+    android.set(true)
+    ignoreFailures.set(false)
+    reporters {
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.PLAIN)
+        reporter(org.jlleitschuh.gradle.ktlint.reporter.ReporterType.CHECKSTYLE)
+    }
+    filter {
+        // 排除自动生成文件
+        exclude("**/generated/**")
+        exclude("**/build/**")
+    }
 }

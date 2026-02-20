@@ -1,0 +1,46 @@
+#!/bin/sh
+# MedLog pre-commit hook
+# 在提交前自动运行 ktlint 检查
+#
+# 安装方式（首次 clone 后执行一次）：
+#   git config core.hooksPath .githooks
+#
+# 或者运行项目根目录的 setup-hooks.sh 脚本
+
+set -e
+
+# 检测 Java Home（兼容 jenv 与系统 JDK）
+if [ -z "$JAVA_HOME" ]; then
+    if command -v jenv >/dev/null 2>&1; then
+        export JAVA_HOME="$(jenv javahome 2>/dev/null || true)"
+    fi
+    if [ -z "$JAVA_HOME" ] && [ -f "/usr/libexec/java_home" ]; then
+        export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
+    fi
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# 只检查本次提交中变动的 .kt / .kts 文件
+STAGED_KT_FILES=$(git diff --cached --name-only --diff-filter=ACMR | grep -E '\.(kt|kts)$' || true)
+
+if [ -z "$STAGED_KT_FILES" ]; then
+    echo "[pre-commit] 无 Kotlin 文件变动，跳过 ktlint 检查。"
+    exit 0
+fi
+
+echo "[pre-commit] 运行 ktlint 检查..."
+
+# 借助 Gradle daemon 加速（首次较慢）
+if ! ./gradlew ktlintCheck --daemon --quiet 2>&1; then
+    echo ""
+    echo "  ktlint 检查未通过。"
+    echo "  自动修复请执行：./gradlew ktlintFormat"
+    echo "  修复后重新 git add 再提交。"
+    echo ""
+    exit 1
+fi
+
+echo "[pre-commit] ktlint 检查通过 ✓"
+exit 0

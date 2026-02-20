@@ -1,0 +1,30 @@
+#!/bin/sh
+# MedLog pre-push hook
+# 在推送前运行 Android Lint 检查（仅 debug 变体）
+
+set -e
+
+if [ -z "$JAVA_HOME" ]; then
+    if command -v jenv >/dev/null 2>&1; then
+        export JAVA_HOME="$(jenv javahome 2>/dev/null || true)"
+    fi
+    if [ -z "$JAVA_HOME" ] && [ -f "/usr/libexec/java_home" ]; then
+        export JAVA_HOME="$(/usr/libexec/java_home -v 17 2>/dev/null || /usr/libexec/java_home)"
+    fi
+fi
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+echo "[pre-push] 运行 Android Lint 检查..."
+
+if ! ./gradlew lintDebug --daemon --quiet 2>&1; then
+    echo ""
+    echo "  Android Lint 发现问题，请查看报告："
+    echo "  app/build/reports/lint-results-debug.html"
+    echo ""
+    exit 1
+fi
+
+echo "[pre-push] Lint 检查通过 ✓"
+exit 0

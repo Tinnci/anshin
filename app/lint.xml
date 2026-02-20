@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<lint>
+    <!-- 硬编码文本应使用字符串资源 -->
+    <issue id="HardcodedText" severity="warning" />
+
+    <!-- 未使用的资源 -->
+    <issue id="UnusedResources" severity="warning" />
+
+    <!-- 多语言翻译缺失（本项目暂不支持多语言，设为 ignore） -->
+    <issue id="MissingTranslation" severity="ignore" />
+
+    <!-- 过时的 API -->
+    <issue id="Deprecated" severity="warning" />
+
+    <!-- 强制使用向量 drawable -->
+    <issue id="VectorDrawableCompat" severity="warning" />
+
+    <!-- ContentDescription 无障碍 -->
+    <issue id="ContentDescription" severity="warning" />
+
+    <!-- 点击区域过小 -->
+    <issue id="ClickableViewAccessibility" severity="warning" />
+</lint>

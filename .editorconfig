@@ -1,0 +1,33 @@
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+indent_size = 4
+indent_style = space
+insert_final_newline = true
+max_line_length = 120
+trim_trailing_whitespace = true
+
+[*.{kt,kts}]
+# ktlint 规则配置
+ktlint_code_style = android_studio
+ij_kotlin_imports_layout = *,java.**,javax.**,kotlin.**,^
+ij_kotlin_allow_trailing_comma = true
+ij_kotlin_allow_trailing_comma_on_call_site = true
+
+# 关闭部分过于严格的规则
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_filename = disabled
+
+[*.xml]
+indent_size = 4
+
+[*.json]
+indent_size = 2
+
+[*.toml]
+indent_size = 4
+
+[*.md]
+trim_trailing_whitespace = false
