@@ -1,13 +1,25 @@
 package com.example.medlog.ui
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Notifications
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.platform.LocalContext
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -25,11 +37,50 @@ import com.example.medlog.ui.screen.history.HistoryScreen
 import com.example.medlog.ui.screen.home.HomeScreen
 import com.example.medlog.ui.screen.settings.SettingsScreen
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MedLogApp(openAddMedication: Boolean = false) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+
+    // ── POST_NOTIFICATIONS 权限请求（Android 13+）────────────────────
+    val context = LocalContext.current
+    var showNotifRationale by remember { mutableStateOf(false) }
+    val requestNotifPermission = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { /* 系统对话框结果由 OS 管理，无需额外处理 */ }
+
+    LaunchedEffect(Unit) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU &&
+            ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS)
+                != PackageManager.PERMISSION_GRANTED
+        ) {
+            showNotifRationale = true
+        }
+    }
+
+    if (showNotifRationale) {
+        AlertDialog(
+            onDismissRequest = { showNotifRationale = false },
+            icon = { Icon(Icons.Rounded.Notifications, contentDescription = null) },
+            title = { Text("开启通知提醒") },
+            text = {
+                Text("MedLog 需要通知权限才能在服药时间准时提醒您。建议开启以确保不会错过用药计划。")
+            },
+            confirmButton = {
+                Button(onClick = {
+                    showNotifRationale = false
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                        requestNotifPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+                    }
+                }) { Text("开启通知") }
+            },
+            dismissButton = {
+                TextButton(onClick = { showNotifRationale = false }) { Text("暂不") }
+            },
+        )
+    }
 
     // 响应快捷方式"添加药品"intent
     LaunchedEffect(openAddMedication) {
