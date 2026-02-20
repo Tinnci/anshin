@@ -16,10 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.Category
+import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Close
 import androidx.compose.material.icons.rounded.DoneAll
+import androidx.compose.material.icons.rounded.Healing
+import androidx.compose.material.icons.rounded.LocalFlorist
 import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material.icons.rounded.Warning
+import androidx.compose.ui.graphics.Color
 import com.example.medlog.data.model.TimePeriod
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -53,8 +57,8 @@ fun HomeScreen(
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
 
-    // Pending items for "take all" button
-    val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped }
+    // Pending items for "take all" button (excluding PRN on-demand meds)
+    val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -122,6 +126,15 @@ fun HomeScreen(
                         currentStreak = uiState.currentStreak,
                         longestStreak = uiState.longestStreak,
                     )
+                    Spacer(Modifier.height(4.dp))
+                }
+            }
+
+            // ── "下一服" 智能提示（部分完成时显示）────────────────
+            val nextUp = uiState.nextUpPeriod
+            if (nextUp != null && uiState.takenCount > 0 && uiState.takenCount < uiState.totalCount) {
+                item {
+                    NextUpChip(period = nextUp.first, time = nextUp.second)
                     Spacer(Modifier.height(4.dp))
                 }
             }
@@ -337,6 +350,33 @@ fun HomeScreen(
                 }
             }
 
+            // ── PRN 按需用药区域 ───────────────────────────────
+            if (uiState.prnItems.isNotEmpty()) {
+                item(key = "prnSection", contentType = "prnSection") {
+                    PRNSectionCard(
+                        items = uiState.prnItems,
+                        onToggleTaken = { item ->
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            val wasTaken = item.isTaken
+                            viewModel.toggleMedicationStatus(item)
+                            scope.launch {
+                                val result = snackbarHostState.showSnackbar(
+                                    message = if (wasTaken) "${item.medication.name} 已撤销"
+                                              else "${item.medication.name} 已记录服用",
+                                    actionLabel = "撤销",
+                                    duration = SnackbarDuration.Short,
+                                )
+                                if (result == SnackbarResult.ActionPerformed) {
+                                    viewModel.undoByMedicationId(item.medication.id)
+                                }
+                            }
+                        },
+                        onClick = onMedicationClick,
+                        modifier = Modifier.animateItem(),
+                    )
+                }
+            }
+
             // ── 底部间距（FAB 避让）──────────────────────────
             item { Spacer(Modifier.height(80.dp)) }
         }
@@ -380,6 +420,12 @@ private fun TimePeriodGroupCard(
         ),
     ) {
         // ── 卡片头部 ──────────────────────────────────────────
+        // 对非精确时段，取首项的提醒时间作为代表性展示时间
+        val representativeTime = if (timePeriod.key != "exact") {
+            items.firstOrNull()?.medication
+                ?.let { "%02d:%02d".format(it.reminderHour, it.reminderMinute) }
+        } else null
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -394,14 +440,23 @@ private fun TimePeriodGroupCard(
                        else MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(18.dp),
             )
-            Text(
-                text = timePeriod.label,
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.SemiBold,
-                color = if (allDone) MaterialTheme.colorScheme.outline
-                        else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.weight(1f),
-            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = timePeriod.label,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = if (allDone) MaterialTheme.colorScheme.outline
+                            else MaterialTheme.colorScheme.primary,
+                )
+                if (representativeTime != null) {
+                    Text(
+                        text = representativeTime,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = if (allDone) MaterialTheme.colorScheme.outlineVariant
+                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             // 待服数量 Badge（allDone 时显示 ✓）
             if (allDone) {
                 Icon(
@@ -553,6 +608,179 @@ private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
                 },
             )
         }
+    }
+}
+
+// ── "下一服"智能提示 Chip ───────────────────────────────────────────────────
+
+@Composable
+private fun NextUpChip(period: TimePeriod, time: String) {
+    SuggestionChip(
+        onClick = {},
+        icon = {
+            Icon(
+                period.icon,
+                contentDescription = null,
+                modifier = Modifier.size(16.dp),
+            )
+        },
+        label = {
+            Text(
+                "下一服 · ${period.label}  $time",
+                style = MaterialTheme.typography.labelMedium,
+            )
+        },
+        colors = SuggestionChipDefaults.suggestionChipColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+            iconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        ),
+    )
+}
+
+// ── PRN 按需用药卡片 ──────────────────────────────────────────────────────────
+
+/**
+ * 专为 [Medication.isPRN] == true 的药品设计的卡片区域。
+ * 不显示"跳过"选项；用"今日已服 N 次"替代进度显示。
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun PRNSectionCard(
+    items: List<MedicationWithStatus>,
+    onToggleTaken: (MedicationWithStatus) -> Unit,
+    onClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val motionScheme = MaterialTheme.motionScheme
+    ElevatedCard(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    ) {
+        // 头部
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Icon(
+                Icons.Rounded.Healing,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(18.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "按需用药",
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Text(
+                    "以下药品无固定时间，需要时点击记录服用",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = 12.dp),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
+
+        // 药品列表
+        items.forEachIndexed { idx, item ->
+            var visible by remember(item.medication.id) { mutableStateOf(false) }
+            LaunchedEffect(item.medication.id) {
+                delay(idx * 30L)
+                visible = true
+            }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+            ) {
+                Column {
+                    ListItem(
+                        headlineContent = {
+                            Text(item.medication.name, fontWeight = FontWeight.Medium)
+                        },
+                        supportingContent = {
+                            val maxDose = item.medication.maxDailyDose
+                            if (maxDose != null) {
+                                Text(
+                                    if (item.isTaken) "今日已服 · 日最大剂量 $maxDose ${item.medication.doseUnit}"
+                                    else "日最大剂量 ${maxDose} ${item.medication.doseUnit}",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (item.isTaken) MaterialTheme.colorScheme.tertiary
+                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                )
+                            } else if (item.isTaken) {
+                                Text(
+                                    "今日已记录服用",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                )
+                            }
+                        },
+                        leadingContent = {
+                            Icon(
+                                if (item.medication.isTcm) Icons.Rounded.LocalFlorist
+                                else Icons.Rounded.Medication,
+                                contentDescription = null,
+                                tint = if (item.isTaken) MaterialTheme.colorScheme.outline
+                                       else MaterialTheme.colorScheme.secondary,
+                            )
+                        },
+                        trailingContent = {
+                            FilledTonalButton(
+                                onClick = { onToggleTaken(item) },
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = 12.dp),
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = if (item.isTaken)
+                                        MaterialTheme.colorScheme.surfaceContainerHigh
+                                    else
+                                        MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = if (item.isTaken)
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    else
+                                        MaterialTheme.colorScheme.onSecondaryContainer,
+                                ),
+                            ) {
+                                Icon(
+                                    if (item.isTaken) Icons.Rounded.CheckCircle else Icons.Rounded.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                )
+                                Spacer(Modifier.width(4.dp))
+                                Text(
+                                    if (item.isTaken) "已服" else "服用",
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        },
+                        modifier = Modifier.clickable { onClick(item.medication.id) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                    if (idx < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = 16.dp),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(4.dp))
     }
 }
 

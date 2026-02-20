@@ -46,11 +46,13 @@ data class HomeUiState(
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
      * 当所有药品无分类时返回单个 "" -> all 分组（供卡片列表扁平化渲染）。
+     * 注意：PRN 按需药品不参与分组，见 [prnItems]。
      */
     val groupedItems: List<Pair<String, List<MedicationWithStatus>>> by lazy {
-        val hasCat = items.any { it.medication.category.isNotBlank() }
-        if (!hasCat) return@lazy listOf("" to items)
-        items
+        val regularItems = items.filter { !it.medication.isPRN }
+        val hasCat = regularItems.any { it.medication.category.isNotBlank() }
+        if (!hasCat) return@lazy listOf("" to regularItems)
+        regularItems
             .groupBy { it.medication.category.ifBlank { "其他" } }
             .entries
             .sortedWith(
@@ -71,7 +73,7 @@ data class HomeUiState(
         groupedByTimePeriod.map { (tp, meds) -> tp.label to meds }
     }
 
-    /** 带 [TimePeriod] key 的时段分组，UI 需要时段图标及 key 时使用 */
+    /** 带 [TimePeriod] key 的时段分组，UI 需要时段图标及 key 时使用。PRN 按需药品除外。 */
     val groupedByTimePeriod: List<Pair<TimePeriod, List<MedicationWithStatus>>> by lazy {
         val periodOrder = listOf(
             "morning", "beforeBreakfast", "afterBreakfast",
@@ -80,6 +82,7 @@ data class HomeUiState(
         )
         fun orderOf(key: String) = periodOrder.indexOf(key).let { if (it < 0) 99 else it }
         items
+            .filter { !it.medication.isPRN }
             .sortedWith(
                 compareBy(
                     { orderOf(it.medication.timePeriod) },
@@ -92,6 +95,24 @@ data class HomeUiState(
             .entries
             .sortedBy { (key, _) -> orderOf(key) }
             .map { (key, meds) -> TimePeriod.fromKey(key) to meds }
+    }
+
+    /** PRN 按需药品列表（单独渲染为"随时需要"区域） */
+    val prnItems: List<MedicationWithStatus> by lazy {
+        items.filter { it.medication.isPRN }
+    }
+
+    /**
+     * 下一个仍有待服药品的时段（用于"下一服"提示 Chip）。
+     * 仅在 [takenCount] 大于 0 且未全部完成时有意义。
+     */
+    val nextUpPeriod: Pair<TimePeriod, String>? by lazy {
+        groupedByTimePeriod
+            .firstOrNull { (_, meds) -> meds.any { !it.isTaken && !it.isSkipped } }
+            ?.let { (tp, meds) ->
+                val med = meds.first { !it.isTaken && !it.isSkipped }
+                tp to "%02d:%02d".format(med.medication.reminderHour, med.medication.reminderMinute)
+            }
     }
 
     companion object {
@@ -129,10 +150,11 @@ class HomeViewModel @Inject constructor(
                     MedicationWithStatus(med, logs.find { it.medicationId == med.id })
                 }
                 val interactions = interactionEngine.check(meds)
+                val scheduledItems = items.filter { !it.medication.isPRN }
                 HomeUiState(
                     items = items,
-                    takenCount = items.count { it.isTaken },
-                    totalCount = items.size,
+                    takenCount = scheduledItems.count { it.isTaken },
+                    totalCount = scheduledItems.size,
                     isLoading = false,
                     interactions = interactions,
                 )
