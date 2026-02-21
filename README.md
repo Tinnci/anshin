@@ -3,7 +3,7 @@
 > **安心 · 安心 · 안심** — 三语语义统一的用药记录应用名称  
 > *Adherence & Notification System for Health Intelligence*
 
-[![CI Build](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml/badge.svg)](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml)
+[![CI Build](https://github.com/Tinnci/anshin/actions/workflows/build.yml/badge.svg)](https://github.com/Tinnci/anshin/actions/workflows/build.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
 [![Material 3](https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white)](https://m3.material.io)
 [![Min SDK](https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white)](https://developer.android.com)
