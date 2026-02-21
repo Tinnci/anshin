@@ -75,7 +75,18 @@ fun WelcomeScreen(
         ActivityResultContracts.RequestPermission()
     ) { granted -> notifGranted = granted }
 
-    val pagerState = rememberPagerState(pageCount = { 6 })
+    // 页面列表：根据 enableTimePeriodMode 动态决定是否包含作息时间页
+    val pageList = remember(uiState.enableTimePeriodMode) {
+        buildList {
+            add("splash")
+            add("intro")
+            add("features")       // 个性化功能优先显示
+            if (uiState.enableTimePeriodMode) add("timePeriod")  // 关闭时跳过
+            add("notification")
+            add("final")
+        }
+    }
+    val pagerState = rememberPagerState(pageCount = { pageList.size })
     val scope = rememberCoroutineScope()
 
     // 弹簧翻页 fling 行为，snap 时使用 medium-low 弹簧
@@ -104,15 +115,10 @@ fun WelcomeScreen(
                     .fillMaxWidth(),
             ) { page ->
                 val isCurrentPage = pagerState.settledPage == page
-                when (page) {
-                    0 -> WelcomePage0(isCurrentPage = isCurrentPage)
-                    1 -> WelcomePage1(isCurrentPage = isCurrentPage)
-                    2 -> WelcomePage2(
-                        uiState       = uiState,
-                        isCurrentPage = isCurrentPage,
-                        onTimeChange  = viewModel::onTimeChange,
-                    )
-                    3 -> WelcomePage4(
+                when (pageList[page]) {
+                    "splash" -> WelcomePage0(isCurrentPage = isCurrentPage)
+                    "intro"  -> WelcomePage1(isCurrentPage = isCurrentPage)
+                    "features" -> WelcomePage4(
                         uiState       = uiState,
                         isCurrentPage = isCurrentPage,
                         onToggleSymptomDiary         = viewModel::onToggleSymptomDiary,
@@ -122,7 +128,12 @@ fun WelcomeScreen(
                         onToggleTimePeriodMode       = viewModel::onToggleTimePeriodMode,
                         onThemeModeChange            = viewModel::onThemeModeChange,
                     )
-                    4 -> WelcomeNotificationPage(
+                    "timePeriod" -> WelcomePage2(
+                        uiState       = uiState,
+                        isCurrentPage = isCurrentPage,
+                        onTimeChange  = viewModel::onTimeChange,
+                    )
+                    "notification" -> WelcomeNotificationPage(
                         isCurrentPage = isCurrentPage,
                         notifGranted  = notifGranted,
                         onRequestPermission = {
@@ -131,7 +142,7 @@ fun WelcomeScreen(
                             }
                         },
                     )
-                    5 -> WelcomePage3(isCurrentPage = isCurrentPage)
+                    "final" -> WelcomePage3(isCurrentPage = isCurrentPage)
                 }
             }
 
@@ -146,7 +157,7 @@ fun WelcomeScreen(
             ) {
                 // 页面指示点（弹簧宽度 + 颜色过渡）
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(6) { index ->
+                    repeat(pageList.size) { index ->
                         val isSelected = pagerState.currentPage == index
                         val width by animateDpAsState(
                             targetValue   = if (isSelected) 24.dp else 8.dp,
@@ -170,7 +181,7 @@ fun WelcomeScreen(
                 }
 
                 // 下一步 / 开始使用
-                val isLastPage = pagerState.currentPage == 5
+                val isLastPage = pagerState.currentPage == pageList.size - 1
                 Button(
                     onClick = {
                         if (isLastPage) {
