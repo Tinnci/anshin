@@ -3,12 +3,14 @@ package com.example.medlog.ui.screen.settings
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.AddToHomeScreen
 import androidx.compose.material.icons.filled.ExpandLess
 import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.rounded.*
@@ -16,10 +18,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -41,6 +46,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.core.content.ContextCompat
 import com.example.medlog.BuildConfig
+import com.example.medlog.R
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.widget.MedLogWidgetReceiver
@@ -481,224 +487,72 @@ fun SettingsScreen(
                         .fillMaxWidth()
                         .padding(horizontal = 16.dp)
                         .padding(top = 4.dp, bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // 简介行
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        // 预览缩略卡片
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.SpaceBetween,
-                            ) {
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.SpaceBetween,
-                                    verticalAlignment = Alignment.CenterVertically,
-                                ) {
-                                    Text(
-                                        "用药日志",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
-                                    )
-                                    Text(
-                                        "2/3",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.primary,
-                                    )
-                                }
-                                LinearProgressIndicator(
-                                    progress = { 0.67f },
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .height(4.dp),
-                                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
-                                )
-                            }
-                        }
+                    Text(
+                        "点击添加按钮，将小组件固定到桌面",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
 
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text(
-                                "今日进度一目了然",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
+                    WidgetPickerCard(
+                        previewRes = R.drawable.widget_preview_today,
+                        name = "今日进度",
+                        description = "显示今日服药进度，支持直接点击打卡确认",
+                        sizes = listOf("2×2", "4×2", "4×4"),
+                        canPin = canPin,
+                    ) {
+                        if (canPin) {
+                            widgetManager.requestPinAppWidget(
+                                ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
                             )
-                            Text(
-                                "支持 2×2 / 4×2 / 4×4，可直接打卡",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        } else {
+                            context.startActivity(
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                },
                             )
                         }
                     }
 
-                    // 添加今日进度按钮
-                    FilledTonalButton(
-                        onClick = {
-                            if (canPin) {
-                                widgetManager.requestPinAppWidget(
-                                    ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
-                                )
-                            } else {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.fromParts("package", context.packageName, null)
-                                    },
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
+                    WidgetPickerCard(
+                        previewRes = R.drawable.widget_preview_next_dose,
+                        name = "下次服药",
+                        description = "显示下次服药时间及倒计时，支持直接打卡",
+                        sizes = listOf("2×2", "4×2"),
+                        canPin = canPin,
                     ) {
-                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("添加「今日进度」小组件", fontWeight = FontWeight.Medium)
-                    }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                    // 下次服药预览 + 添加按钮
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        // 下次服药预览小卡片
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.secondaryContainer,
-                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.Center,
-                            ) {
-                                Text(
-                                    "下次服药",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f),
-                                )
-                                Text(
-                                    "14:30",
-                                    style = MaterialTheme.typography.titleSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.secondary,
-                                )
-                            }
-                        }
-
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text(
-                                "下次服药时间提示",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
+                        if (canPin) {
+                            widgetManager.requestPinAppWidget(
+                                ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
                             )
-                            Text(
-                                "显示下次服药时间及倒计时，支持 2×2 / 4×2",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        } else {
+                            context.startActivity(
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                },
                             )
                         }
                     }
 
-                    // 添加下次服药按钮
-                    FilledTonalButton(
-                        onClick = {
-                            if (canPin) {
-                                widgetManager.requestPinAppWidget(
-                                    ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
-                                )
-                            } else {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.fromParts("package", context.packageName, null)
-                                    },
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
+                    WidgetPickerCard(
+                        previewRes = R.drawable.widget_preview_streak,
+                        name = "连续打卡",
+                        description = "显示连续打卡天数及最近 7 天完成情况",
+                        sizes = listOf("2×2", "4×2"),
+                        canPin = canPin,
                     ) {
-                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("添加「下次服药」小组件", fontWeight = FontWeight.Medium)
-                    }
-
-                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
-
-                    // 连续打卡预览 + 添加按钮
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    ) {
-                        // 连续打卡预览小卡片
-                        Surface(
-                            shape = RoundedCornerShape(12.dp),
-                            color = MaterialTheme.colorScheme.tertiaryContainer,
-                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
-                        ) {
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .padding(8.dp),
-                                verticalArrangement = Arrangement.Center,
-                                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
-                            ) {
-                                Text(
-                                    "🔥",
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
-                                Text(
-                                    "7 天",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
-                                )
-                            }
-                        }
-
-                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
-                            Text(
-                                "连续打卡天数与周统计",
-                                style = MaterialTheme.typography.bodyMedium,
-                                fontWeight = FontWeight.Medium,
+                        if (canPin) {
+                            widgetManager.requestPinAppWidget(
+                                ComponentName(context, StreakWidgetReceiver::class.java), null, null,
                             )
-                            Text(
-                                "显示连续打卡天数及最近 7 天点位图，支持 2×2 / 4×2",
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        } else {
+                            context.startActivity(
+                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                    data = Uri.fromParts("package", context.packageName, null)
+                                },
                             )
                         }
-                    }
-
-                    // 添加连续打卡按钮
-                    FilledTonalButton(
-                        onClick = {
-                            if (canPin) {
-                                widgetManager.requestPinAppWidget(
-                                    ComponentName(context, StreakWidgetReceiver::class.java), null, null,
-                                )
-                            } else {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.fromParts("package", context.packageName, null)
-                                    },
-                                )
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                    ) {
-                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
-                        Spacer(Modifier.width(6.dp))
-                        Text("添加「连续打卡」小组件", fontWeight = FontWeight.Medium)
                     }
                 }
             }
@@ -764,6 +618,77 @@ private fun SettingsCard(
                 )
             }
             content()
+        }
+    }
+}
+
+// ── 小组件选择卡片（预览图 + 说明 + 添加按钮）────────────────────────────────
+
+@Composable
+private fun WidgetPickerCard(
+    previewRes: Int,
+    name: String,
+    description: String,
+    sizes: List<String>,
+    canPin: Boolean,
+    onAdd: () -> Unit,
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
+    ) {
+        // 预览区域
+        Image(
+            painter = painterResource(previewRes),
+            contentDescription = "$name 小组件预览",
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(110.dp)
+                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+            contentScale = ContentScale.FillWidth,
+        )
+        // 信息区域
+        Column(
+            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
+                // 尺寸徽章
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                    sizes.forEach { size ->
+                        SuggestionChip(
+                            onClick = {},
+                            label = { Text(size, style = MaterialTheme.typography.labelSmall) },
+                            modifier = Modifier.height(24.dp),
+                        )
+                    }
+                }
+            }
+            Text(
+                description,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            // 添加按钮
+            FilledTonalButton(
+                onClick = onAdd,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 4.dp),
+            ) {
+                Icon(Icons.AutoMirrored.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
+                Spacer(Modifier.width(6.dp))
+                Text(
+                    if (canPin) "添加到桌面" else "前往设置授权",
+                    fontWeight = FontWeight.Medium,
+                )
+            }
         }
     }
 }
