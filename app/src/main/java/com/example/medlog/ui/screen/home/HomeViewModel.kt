@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.home
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.DrugInteraction
@@ -13,7 +14,9 @@ import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.interaction.InteractionRuleEngine
 import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
+import com.example.medlog.widget.WidgetRefreshWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -132,6 +135,7 @@ class HomeViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -214,6 +218,7 @@ class HomeViewModel @Inject constructor(
                 alarmScheduler.cancelAllAlarms(item.medication.id)
                 notificationHelper.cancelAllReminderNotifications(item.medication.id)
             }
+            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
         }
     }
 
@@ -231,6 +236,7 @@ class HomeViewModel @Inject constructor(
             )
             alarmScheduler.cancelAllAlarms(item.medication.id)
             notificationHelper.cancelAllReminderNotifications(item.medication.id)
+            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
         }
     }
 
@@ -254,6 +260,7 @@ class HomeViewModel @Inject constructor(
                     alarmScheduler.scheduleAllReminders(currentItem.medication)
                 }
             }
+            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
         }
     }
 

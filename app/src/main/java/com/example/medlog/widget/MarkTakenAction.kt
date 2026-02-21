@@ -49,6 +49,7 @@ class MarkTakenAction : ActionCallback {
 
         // 刷新所有小组件实例
         MedLogWidget().updateAll(context)
+        NextDoseWidget().updateAll(context)
     }
 
     companion object {
