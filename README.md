@@ -1,77 +1,97 @@
-# Anshin — 智能用药管理
+# Anshin 安心
 
-> **安心 · 安心 · 안심** — 三语语义统一的用药记录应用名称  
-> *Adherence & Notification System for Health Intelligence*
+<p align="center">
+  <strong>A personal medication tracker that follows your daily rhythm.</strong><br>
+  <em>安心 · 安心 · 안심 — Peace of mind, in every dose.</em>
+</p>
 
-[![CI Build](https://github.com/Tinnci/anshin/actions/workflows/build.yml/badge.svg)](https://github.com/Tinnci/anshin/actions/workflows/build.yml)
-[![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
-[![Material 3](https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white)](https://m3.material.io)
-[![Min SDK](https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white)](https://developer.android.com)
-[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
+<p align="center">
+  <a href="https://github.com/Tinnci/anshin/actions/workflows/build.yml">
+    <img src="https://github.com/Tinnci/anshin/actions/workflows/build.yml/badge.svg" alt="CI Build">
+  </a>
+  <img src="https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
+  <img src="https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white" alt="Material 3">
+  <img src="https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white" alt="Min SDK">
+  <img src="https://img.shields.io/badge/License-Apache%202.0-blue" alt="License">
+</p>
 
-> 原生 Android 应用，使用 **Kotlin · Jetpack Compose · Material 3 Expressive** 构建，
-> 帮助用户追踪每日用药、管理药品库存、并通过精准闹钟按时提醒服药。
+> **Anshin** (*an-shin*) — *Adherence & Notification System for Health Intelligence*  
+> 中文：安心用药，不再遗忘 · 日本語：安心して服薬管理 · 한국어：안심하고 복약 관리
 
----
-
-## 功能特性
-
-| 功能 | 说明 |
-|------|------|
-| 引导欢迎页 | 首次启动 4 页弹簧动画引导，帮助用户完成作息时间设置 |
-| 今日用药 | 首页展示当天全部药品及服药进度，支持一键全部标记；已完成分组可自动折叠 |
-| 状态管理 | 每张药品卡片可标记「已服 / 跳过 / 撤销」，自动扣减/恢复库存 |
-| 精准提醒 | AlarmManager 精准闹钟，通知栏直接操作「已服 / 跳过」 |
-| 作息时段 | 11 种模糊时段（晨起/餐前/餐后/睡前等），自动匹配用户作息设置 |
-| 服药历史 | 近 30 天记录按日期分组，热力图展示每日达标率 |
-| 药品管理 | 添加 / 编辑 / 归档 / 删除；备注、剂量、频率全量管理 |
-| 库存追踪 | 库存量 + 补药阈值，存量不足时主动提醒 |
-| 个性化设置 | 作息时间（晨起·三餐·就寝）、持续提醒开关、提醒间隔 |
-| 自适应布局 | 手机底部栏 → 平板侧边栏 → 大屏抽屉（参考 Reply Sample） |
-| 开机恢复 | 设备重启后自动还原全部闹钟 |
+A native Android app built with **Kotlin · Jetpack Compose · Material 3 Expressive**,  
+helping users track daily medication, manage inventory, and stay on schedule with precise alarms.
 
 ---
 
-## 技术栈
+## Features / 功能特性
 
-| 层 | 技术 |
-|----|------|
-| 语言 | Kotlin 2.2.10 |
-| UI | Jetpack Compose · Material 3 Expressive (1.5.0-alpha14) |
-| 自适应导航 | `material3-adaptive-navigation-suite` |
-| 状态 | Kotlin Coroutines · StateFlow · `collectAsStateWithLifecycle` |
-| 数据库 | Room 2.7 (KSP) |
-| 持久化偏好 | Jetpack DataStore Preferences |
-| 依赖注入 | Hilt 2.59 + HiltViewModel |
-| 后台任务 | WorkManager + Hilt |
-| 导航 | Navigation Compose 2.8（类型安全序列化路由） |
-| 动画 | Compose `Animatable` · Spring physics · `AnimatedVisibility` |
-| 代码质量 | ktlint · Android Lint · EditorConfig |
-| Min/Target SDK | 26 / 36 |
+| Feature | Description |
+|---------|-------------|
+| **Onboarding** | 6-page spring-animated guide — routine times, feature toggles, theme selection |
+| **Today's Doses** | Dashboard with all medications and progress; one-tap mark-all; completed groups auto-collapse |
+| **Status Tracking** | Cards support Taken / Skipped / Undo with automatic stock deduction and restoration |
+| **Precise Reminders** | AlarmManager exact alarms; direct Taken / Skip actions in the notification |
+| **Routine-based Timing** | 11 fuzzy time periods (morning, before/after meals, bedtime…) auto-mapped to personal schedule |
+| **History & Heatmap** | 30-day log grouped by date; heatmap shows daily adherence rate |
+| **Medication Management** | Add / Edit / Archive / Delete; notes, dose, form, frequency, PRN support |
+| **Stock Tracking** | Inventory + refill threshold; proactive low-stock alert |
+| **Health Records** | Blood pressure, blood sugar, weight, and other vital sign logging |
+| **Drug Database** | Browse built-in Chinese/TCM drug catalog for quick add |
+| **Interaction Check** | Automatic multi-drug co-administration risk detection |
+| **QR Share** | Export today's medication status as a QR code for backup / sharing |
+| **OEM Widget Support** | Three homescreen widgets; MIUI / ColorOS / OriginOS permission guidance built-in |
+| **Adaptive Layout** | Phone → Tablet → Large screen auto-switching (bottom bar / rail / drawer) |
+| **Alarm Recovery** | All alarms re-scheduled automatically after device reboot |
+| **Travel Mode** | Keep hometown-timezone reminders when traveling across time zones |
+| **Personalization** | Routine times, early reminder offset, persistent reminder toggle, dark/light/auto theme, dynamic color |
 
 ---
 
-## 项目结构
+## Tech Stack / 技术栈
+
+| Layer | Technology |
+|-------|-----------|
+| Language | Kotlin 2.2.10 |
+| UI | Jetpack Compose · Material 3 Expressive 1.5.0-alpha14 |
+| Adaptive navigation | `material3-adaptive-navigation-suite` |
+| State | Kotlin Coroutines · StateFlow · `collectAsStateWithLifecycle` |
+| Database | Room 2.7 (KSP) |
+| Preferences | Jetpack DataStore |
+| DI | Hilt 2.59 + HiltViewModel |
+| Background | WorkManager + AlarmManager (exact) |
+| Navigation | Navigation Compose 2.8 (type-safe serialized routes) |
+| Animation | `Animatable` · Spring physics · `AnimatedVisibility` |
+| QR Code | ZXing core 3.5.3 |
+| Code Quality | ktlint · Android Lint · EditorConfig |
+| Min / Target SDK | 26 / 36 |
+
+---
+
+## Project Structure / 项目结构
 
 ```
 app/src/main/java/com/example/medlog/
 ├── data/
-│   ├── local/         # Room DAO · Database · TypeConverters
-│   ├── model/         # Medication · MedicationLog · TimePeriod
-│   └── repository/    # MedicationRepository · UserPreferencesRepository (DataStore SSOT)
-├── di/              # Hilt AppModule
-├── notification/    # NotificationHelper · AlarmReceiver · BootReceiver
-└── ui/
-    ├── components/    # MedicationCard · ProgressHeader
-    ├── screen/        # welcome / home / history / drugs / detail / addmedication / settings
-    └── theme/          # Color · Type · Theme (M3 Dynamic Color)
+│   ├── local/          # Room DAOs · Database · TypeConverters
+│   ├── model/          # Medication · MedicationLog · TimePeriod · HealthRecord
+│   └── repository/     # MedicationRepository · UserPreferencesRepository
+├── di/                 # Hilt AppModule (all DB migrations registered)
+├── domain/             # ResyncRemindersUseCase
+├── notification/       # NotificationHelper · AlarmScheduler · BootReceiver
+├── ui/
+│   ├── components/     # MedicationCard · ProgressHeader
+│   ├── navigation/     # NavGraph · Adaptive navigation components
+│   ├── screen/         # welcome / home / history / drugs / diary / health / detail / addmedication / settings
+│   ├── theme/          # Color · Type · Theme (M3 Dynamic Color)
+│   └── utils/          # QrCodeUtils · OemWidgetHelper
+└── widget/             # MedLogWidget · NextDoseWidget · StreakWidget
 ```
 
 ---
 
-## 架构说明
+## Architecture / 架构
 
-遵循 **Clean Architecture + MVVM + SSOT (Single Source of Truth)**：
+Clean Architecture + MVVM + SSOT (Single Source of Truth):
 
 ```
 ┌─────────────────────────────────────────────┐
@@ -88,136 +108,184 @@ app/src/main/java/com/example/medlog/
 └─────────────────────────────────────────────┘
 ```
 
-### SSOT 关键原则
+**Key SSOT principles:**
+- `SettingsPreferences` is the single source of truth for all user preferences.  
+  All ViewModels read from `UserPreferencesRepository.settingsFlow`.
+- `MedLogAppViewModel` resolves `startDestination` from `hasSeenWelcome`, eliminating UI-layer branching.
+- All writes go through typed `updateXxx()` suspend functions to guarantee thread safety.
 
-- `SettingsPreferences` 是用户偏好的**唯一数据源**，所有 ViewModel（`SettingsViewModel`、`AddMedicationViewModel`、`WelcomeViewModel`）均通过 `UserPreferencesRepository.settingsFlow` 读取
-- `MedLogAppViewModel` 根据 `hasSeenWelcome` 决定 `startDestination`，避免 UI 层产生条件分支
-- 所有写操作通过 `updateXxx()` 挂起函数进行，确保线程安全
+**Adaptive navigation** auto-selects based on `WindowWidthSizeClass`:
 
-### 自适应导航
-
-根据 `WindowWidthSizeClass` 自动切换：
-
-| 屏幕宽度 | 导航组件 |
-|---------|---------|
-| Compact | BottomNavigationBar |
-| Medium | NavigationRail |
-| Expanded | PermanentNavigationDrawer |
+| Screen width | Navigation component |
+|-------------|----------------------|
+| Compact | `BottomNavigationBar` |
+| Medium | `NavigationRail` |
+| Expanded | `PermanentNavigationDrawer` |
 
 ---
 
-## Material 3 Expressive 使用清单
+## Material 3 Expressive Components
 
-| 组件 | 使用位置 |
-|------|---------|
-| `ButtonGroup` + `FilledIconButton` / `OutlinedIconButton` | MedicationCard 操作区 |
-| `FilledTonalButton` | HomeScreen「一键服用全部」 |
+| Component | Used in |
+|-----------|---------|
+| `ButtonGroup` + `FilledIconButton` / `OutlinedIconButton` | MedicationCard action row |
+| `FilledTonalButton` | HomeScreen "Mark all taken" |
 | `ExtendedFloatingActionButton` | HomeScreen / DrugsScreen |
-| `SuggestionChip` | AddMedicationScreen 作息时间自动带入提示 |
-| `AnimatedVisibility` + Spring physics | WelcomeScreen 入场动画 |
-| `HorizontalPager` + `PagerDefaults.flingBehavior(spring)` | WelcomeScreen 弹性翻页 |
-| `ElevatedCard` / `Card` (surfaceContainerLow, 0dp elevation) | 全应用卡片统一样式 |
-| `LinearProgressIndicator` | ProgressHeader 今日进度 |
-| `CircularProgressIndicator` | 启动时 DataStore 加载等待 |
-| `calendarWarning` color token | HistoryScreen 热力图 · DetailScreen 达标率 |
+| `SuggestionChip` | AddMedicationScreen routine-time auto-fill hint |
+| `AnimatedVisibility` + Spring physics | WelcomeScreen entrance animation |
+| `HorizontalPager` + `PagerDefaults.flingBehavior(spring)` | WelcomeScreen elastic swipe |
+| `ElevatedCard` / `Card` (surfaceContainerLow, 0dp elevation) | Unified card style throughout |
+| `LinearProgressIndicator` | ProgressHeader today's progress |
+| `CircularProgressIndicator` | DataStore loading state on startup |
+| `calendarWarning` color token | HistoryScreen heatmap · DetailScreen adherence rate |
+
+---
+
+## Internationalization Roadmap / 多语言支持规划
+
+Anshin targets Chinese, Japanese, Korean, and English speakers.  
+Current status: **Chinese (zh) only** — all UI strings are in Chinese.
+
+### Implementation Plan
+
+**Phase 1 — Foundation (current sprint)**
+- [x] Brand name "Anshin" unified across all locales
+- [ ] Audit all hardcoded strings in Compose screens → move to `strings.xml`
+- [ ] Set English as the default locale (`values/strings.xml`) for translatable strings
+
+**Phase 2 — English (EN)**
+- [ ] `app/src/main/res/values-en/strings.xml`
+- [ ] Translate all 200+ UI strings to English
+- [ ] Update notification copy and widget labels
+
+**Phase 3 — Japanese (JA)**
+- [ ] `app/src/main/res/values-ja/strings.xml`
+- [ ] 服薬管理、今日の服薬、服薬履歴…
+- [ ] ja locale date/time format adjustment
+
+**Phase 4 — Korean (KO)**
+- [ ] `app/src/main/res/values-ko/strings.xml`
+- [ ] 복약 관리、오늘의 복약、복약 기록…
+
+**Phase 5 — RTL & Accessibility**
+- [ ] Verify Arabic/Hebrew RTL mirrors for adaptive navigation
+- [ ] TalkBack content description completeness audit
+
+### String Coverage (Current)
+
+| Category | Count | Location |
+|----------|-------|----------|
+| `strings.xml` resources | ~40 | `values/strings.xml` |
+| Hardcoded in Compose screens | ~200+ | Various `*Screen.kt` files |
+
+> **Contributions welcome:** To translate Anshin into your language,  
+> open an issue or PR with `app/src/main/res/values-{lang}/strings.xml`.
 
 ---
 
 
-## 构建与运行
+## Getting Started / 构建与运行
 
-### 前置条件
+### Prerequisites / 前置条件
 
-- **Android Studio** Meerkat 2024.3.2 或更高版本
-- **JDK 17**（推荐使用 jenv 管理）
+- **Android Studio** Meerkat 2024.3.2+
+- **JDK 17** (recommended: manage via `jenv`)
 - **Android SDK 36**
 
-### 快速开始
+### Quick Start
 
 ```bash
-# 1. 克隆仓库
-git clone https://github.com/Tinnci/MedLogAndroid.git
-cd MedLogAndroid
+# 1. Clone the repository / 克隆仓库
+git clone https://github.com/Tinnci/anshin.git
+cd anshin
 
-# 2. 初始化 Git Hooks（每位成员只需执行一次）
+# 2. Initialize Git hooks (once per contributor) / 初始化 Git Hooks（每位成员只需执行一次）
 ./setup-hooks.sh
 
-# 3. 命令行构建
-export JAVA_HOME=$(jenv javahome)   # 或手动设置 JDK 17 路径
+# 3. Build / 构建
+export JAVA_HOME=$(jenv javahome)   # or set JDK 17 path manually / 或手动设置 JDK 17 路径
 ./gradlew assembleDebug
 
-# 4. 安装到设备/模拟器
+# 4. Install on device/emulator / 安装到设备或模拟器
 ./gradlew installDebug
 ```
 
-> **权限提示**：
-> - `POST_NOTIFICATIONS`：Android 13+ 需运行时申请
-> - `SCHEDULE_EXACT_ALARM`：Android 12+ 需在系统设置中开启「精确闹钟」权限
+> **Required permissions / 权限提示:**
+> - `POST_NOTIFICATIONS` — runtime request on Android 13+ / Android 13+ 需运行时申请
+> - `SCHEDULE_EXACT_ALARM` — enable "Alarms & Reminders" in system settings (Android 12+) / Android 12+ 需在系统设置中开启「精确闹钟」权限
 
 ---
 
-## 代码质量
+## Code Quality / 代码质量
 
-### ktlint（Kotlin 代码风格）
+### ktlint
 
 ```bash
-# 检查
-./gradlew ktlintCheck
-
-# 自动修复
-./gradlew ktlintFormat
+./gradlew ktlintCheck    # lint
+./gradlew ktlintFormat   # auto-fix
 ```
 
-风格配置见 [.editorconfig](.editorconfig)，主要规则：
-- `android_studio` 代码风格
-- 最大行宽 120 字符
-- 允许尾随逗号
+Config: [.editorconfig](.editorconfig) — Android Studio style, max line 120, trailing commas allowed.
 
 ### Android Lint
 
 ```bash
-# 运行 Lint（debug 变体）
 ./gradlew lintDebug
-
-# 报告位置
-# app/build/reports/lint-results-debug.html
+# Report: app/build/reports/lint-results-debug.html
 ```
 
-Lint 规则配置见 [app/lint.xml](app/lint.xml)。
+### Pre-commit / Pre-push Hooks
 
-### Pre-commit Hooks
-
-安装后（`./setup-hooks.sh`），每次 `git commit` 前自动运行 `ktlintCheck`；每次 `git push` 前自动运行 `lintDebug`。
+After running `./setup-hooks.sh`:
+- `git commit` → runs `ktlintCheck` automatically
+- `git push` → runs `lintDebug` automatically
 
 ---
 
 ## CI / CD
 
-| Workflow | 触发条件 | 产物 |
-|----------|---------|------|
+| Workflow | Trigger | Artifact |
+|----------|---------|---------|
 | [CI Build](.github/workflows/build.yml) | push / PR → master | Debug APK artifact |
-| [Release](.github/workflows/release.yml) | push `v*.*.*` tag | 签名 Release APK + GitHub Release |
+| [Release](.github/workflows/release.yml) | push `v*.*.*` tag | Signed release APK + GitHub Release |
 
-**发布流程**：
+**Release flow:**
 
 ```bash
-git tag v1.0.0
-git push origin v1.0.0   # 自动触发 Release 工作流
+git tag v1.0.4
+git push origin v1.0.4   # triggers Release workflow automatically
 ```
 
-Release 工作流自动提取版本号、解码 Keystore、编译签名 APK、生成 Changelog 并创建 GitHub Release。  
-签名配置方法见 [.github/SIGNING.md](.github/SIGNING.md)。
+The release workflow extracts the version, decodes the Keystore, builds a signed APK, generates a changelog, and creates a GitHub Release automatically.  
+See [.github/SIGNING.md](.github/SIGNING.md) for signing configuration.
+
+---
+
+## Contributing / 贡献指南
+
+Contributions are welcome in any language.  
+For translations, see the [i18n roadmap](#internationalization-roadmap--多语言支持规划) above.
+
+1. Fork → feature branch → PR
+2. Pass `ktlintCheck` and `lintDebug` before submitting
+3. Follow the existing MVVM + SSOT patterns
 
 ---
 
 ## License
 
 ```
-Copyright 2025 MedLog Contributors
+Copyright 2025 Anshin Contributors
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
     https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 ```
