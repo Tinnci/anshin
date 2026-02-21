@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.Undo
 import androidx.compose.material.icons.rounded.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,6 +30,14 @@ import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.screen.home.MedicationWithStatus
 import java.text.SimpleDateFormat
 import java.util.*
+
+/** 根据药品剂型返回与添加界面一致的 Material Icon */
+private fun formIcon(form: String): ImageVector = when (form) {
+    "capsule" -> Icons.Rounded.Science
+    "liquid"  -> Icons.Rounded.LocalDrink
+    "powder"  -> Icons.Rounded.WaterDrop
+    else      -> Icons.Rounded.Medication  // tablet + 默认
+}
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -115,6 +124,16 @@ fun MedicationCard(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
+                        // ── 剂型图标（与添加界面一致）─────────────────
+                        Icon(
+                            imageVector = formIcon(med.form),
+                            contentDescription = med.form,
+                            modifier = Modifier.size(15.dp),
+                            tint = if (item.isTaken || item.isSkipped)
+                                MaterialTheme.colorScheme.outlineVariant
+                            else
+                                MaterialTheme.colorScheme.primary,
+                        )
                         Text(
                             text = med.name,
                             style = MaterialTheme.typography.titleMedium.copy(
