@@ -55,4 +55,62 @@
     <string name="shortcut_add_long">Add a new medication reminder</string>
     <string name="shortcut_history_short">History</string>
     <string name="shortcut_history_long">View medication log history</string>
+
+    <!-- WelcomeScreen navigation buttons -->
+    <string name="welcome_btn_start">Get Started with Anshin</string>
+    <string name="welcome_btn_next">Next</string>
+    <string name="welcome_btn_skip">Skip</string>
+
+    <!-- Welcome Page 0: Greeting -->
+    <string name="welcome_p0_title">Welcome to Anshin</string>
+    <string name="welcome_p0_body">Your smart medication companion.\nNever miss a dose again.</string>
+
+    <!-- Welcome Page 1: Core features -->
+    <string name="welcome_p1_title">Key Features</string>
+    <string name="welcome_p1_feat1_title">Smart Reminders</string>
+    <string name="welcome_p1_feat1_desc">Sends notifications at the right time based on your daily routine</string>
+    <string name="welcome_p1_feat2_title">Stock Tracking</string>
+    <string name="welcome_p1_feat2_desc">Automatically monitors inventory and alerts you when running low</string>
+    <string name="welcome_p1_feat3_title">Medication Log</string>
+    <string name="welcome_p1_feat3_desc">A visual calendar shows your daily adherence rate and builds healthy habits</string>
+
+    <!-- Welcome Page 2: Routine time setup -->
+    <string name="welcome_p2_title">Set Your Daily Routine</string>
+    <string name="welcome_p2_body">Anshin uses these times to calculate your medication reminders. You can update them anytime in Settings.</string>
+    <string name="welcome_time_edit_cd">Edit</string>
+
+    <!-- Welcome Page 3: Feature selection (Personalization) -->
+    <string name="welcome_p4_title">Personalize</string>
+    <string name="welcome_p4_body">Enable the features you want. Disabled modules won\'t appear in the navigation bar. You can change this anytime in Settings.</string>
+    <string name="welcome_p4_symptom_title">Symptom Diary</string>
+    <string name="welcome_p4_symptom_desc">Log daily symptoms, mood, and physical condition</string>
+    <string name="welcome_p4_drugs_title">Drug Database</string>
+    <string name="welcome_p4_drugs_desc">Browse the built-in Western / TCM drug catalog for quick add</string>
+    <string name="welcome_p4_interaction_title">Drug Interaction Check</string>
+    <string name="welcome_p4_interaction_desc">Automatically detects co-administration risks when taking multiple medications</string>
+    <string name="welcome_p4_health_title">Health Vitals</string>
+    <string name="welcome_p4_health_desc">Record blood pressure, blood sugar, weight, and other health data</string>
+    <string name="welcome_p4_timeperiod_title">Routine-based Timing</string>
+    <string name="welcome_p4_timeperiod_desc">Schedule doses by fuzzy time periods like "after breakfast" or "at bedtime"</string>
+    <string name="welcome_p4_tip">⚡ Tip: Keep all features enabled — you can turn them off anytime in Settings.</string>
+    <string name="welcome_p4_theme_label">Appearance</string>
+    <string name="welcome_p4_theme_system">System</string>
+    <string name="welcome_p4_theme_light">Light</string>
+    <string name="welcome_p4_theme_dark">Dark</string>
+
+    <!-- Welcome Page 4: Notification permission -->
+    <string name="welcome_notif_granted_title">Reminders Are Ready ✓</string>
+    <string name="welcome_notif_request_title">Enable Reminders</string>
+    <string name="welcome_notif_granted_body">Anshin will send you a reminder at each scheduled dose time so you never miss a medication.</string>
+    <string name="welcome_notif_request_body">Anshin needs notification permission to remind you at dose time.\nWe recommend enabling this to stay on track.</string>
+    <string name="welcome_notif_guide">Tap the button below to allow Anshin to send medication reminders</string>
+    <string name="welcome_notif_grant_btn">Enable Medication Reminders</string>
+    <string name="welcome_notif_later">You can also enable this later in System Notification Settings or Anshin\'s Settings</string>
+
+    <!-- Welcome Page 5: All set -->
+    <string name="welcome_p5_title">You\'re All Set!</string>
+    <string name="welcome_p5_body">Let Anshin help you stay on track and take care of your health</string>
+    <string name="welcome_p5_step1">Tap the + button on the home screen to add your first medication</string>
+    <string name="welcome_p5_step2">Set your dose schedule and enable reminders</string>
+    <string name="welcome_p5_step3">When you get a reminder, open the app and mark your dose</string>
 </resources>

@@ -55,4 +55,62 @@
     <string name="shortcut_add_long">新しい服薬リマインダーを追加</string>
     <string name="shortcut_history_short">服薬履歴</string>
     <string name="shortcut_history_long">服薬記録の履歴を確認</string>
+
+    <!-- WelcomeScreen navigation buttons -->
+    <string name="welcome_btn_start">Anshin をはじめる</string>
+    <string name="welcome_btn_next">次へ</string>
+    <string name="welcome_btn_skip">スキップ</string>
+
+    <!-- Welcome Page 0: Greeting -->
+    <string name="welcome_p0_title">Anshin へようこそ</string>
+    <string name="welcome_p0_body">あなたの服薬管理をサポート。\n飲み忘れ、もうありません。</string>
+
+    <!-- Welcome Page 1: Core features -->
+    <string name="welcome_p1_title">主な機能</string>
+    <string name="welcome_p1_feat1_title">スマートリマインダー</string>
+    <string name="welcome_p1_feat1_desc">生活リズムに合わせた最適なタイミングで服薬通知をお届け</string>
+    <string name="welcome_p1_feat2_title">在庫管理</string>
+    <string name="welcome_p1_feat2_desc">薬の残量を自動追跡し、少なくなったらアラートでお知らせ</string>
+    <string name="welcome_p1_feat3_title">服薬記録</string>
+    <string name="welcome_p1_feat3_desc">カレンダーで毎日の服薬達成率を確認し、習慣化をサポート</string>
+
+    <!-- Welcome Page 2: Routine time setup -->
+    <string name="welcome_p2_title">生活リズムを設定</string>
+    <string name="welcome_p2_body">これらの時間をもとに服薬リマインダーを計算します。設定からいつでも変更できます。</string>
+    <string name="welcome_time_edit_cd">編集</string>
+
+    <!-- Welcome Page 3: Feature selection (Personalization) -->
+    <string name="welcome_p4_title">カスタマイズ</string>
+    <string name="welcome_p4_body">使いたい機能を有効にしてください。無効にした機能はナビゲーションに表示されません。設定からいつでも変更できます。</string>
+    <string name="welcome_p4_symptom_title">症状日記</string>
+    <string name="welcome_p4_symptom_desc">毎日の症状・気分・体調を記録</string>
+    <string name="welcome_p4_drugs_title">薬品データベース</string>
+    <string name="welcome_p4_drugs_desc">西洋薬・漢方薬のデータベースから素早く追加</string>
+    <string name="welcome_p4_interaction_title">薬物相互作用チェック</string>
+    <string name="welcome_p4_interaction_desc">複数の薬を同時に服用する際のリスクを自動検出</string>
+    <string name="welcome_p4_health_title">健康バイタル</string>
+    <string name="welcome_p4_health_desc">血圧・血糖値・体重などの健康データを記録</string>
+    <string name="welcome_p4_timeperiod_title">時間帯モード</string>
+    <string name="welcome_p4_timeperiod_desc">「朝食後」「就寝前」などの目安時間帯で服薬スケジュールを設定</string>
+    <string name="welcome_p4_tip">⚡ ヒント：すべての機能を有効にしたままにしておくことをお勧めします。設定からいつでも無効にできます。</string>
+    <string name="welcome_p4_theme_label">外観テーマ</string>
+    <string name="welcome_p4_theme_system">システム</string>
+    <string name="welcome_p4_theme_light">ライト</string>
+    <string name="welcome_p4_theme_dark">ダーク</string>
+
+    <!-- Welcome Page 4: Notification permission -->
+    <string name="welcome_notif_granted_title">リマインダー準備完了 ✓</string>
+    <string name="welcome_notif_request_title">服薬リマインダーを有効にする</string>
+    <string name="welcome_notif_granted_body">Anshin は設定した服薬時間に通知をお届けします。飲み忘れを防ぎましょう。</string>
+    <string name="welcome_notif_request_body">Anshin が服薬時間にリマインドするには通知の許可が必要です。\n飲み忘れを防ぐために有効にすることをお勧めします。</string>
+    <string name="welcome_notif_guide">下のボタンをタップして、Anshin の通知を許可してください</string>
+    <string name="welcome_notif_grant_btn">服薬リマインダーを有効にする</string>
+    <string name="welcome_notif_later">後からシステム通知設定または Anshin の設定から有効にすることもできます</string>
+
+    <!-- Welcome Page 5: All set -->
+    <string name="welcome_p5_title">準備完了！</string>
+    <string name="welcome_p5_body">Anshin で規則正しい服薬習慣を身につけましょう</string>
+    <string name="welcome_p5_step1">ホーム画面の + ボタンをタップして最初の薬を追加</string>
+    <string name="welcome_p5_step2">服薬スケジュールを設定してリマインダーを有効化</string>
+    <string name="welcome_p5_step3">リマインダーが届いたらアプリを開いて服用を記録</string>
 </resources>

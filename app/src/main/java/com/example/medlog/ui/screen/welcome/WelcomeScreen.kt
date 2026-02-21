@@ -41,7 +41,9 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.R
 import com.example.medlog.data.repository.ThemeMode
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -185,7 +187,7 @@ fun WelcomeScreen(
                     shape = MaterialTheme.shapes.large,
                 ) {
                     Text(
-                        if (isLastPage) "开始使用 Anshin" else "下一步",
+                        if (isLastPage) stringResource(R.string.welcome_btn_start) else stringResource(R.string.welcome_btn_next),
                         style = MaterialTheme.typography.labelLarge,
                     )
                     if (isLastPage) {
@@ -200,7 +202,7 @@ fun WelcomeScreen(
                         onClick = { viewModel.finishWelcome() },
                         modifier = Modifier.fillMaxWidth(),
                     ) {
-                        Text("跳过", color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        Text(stringResource(R.string.welcome_btn_skip), color = MaterialTheme.colorScheme.onSurfaceVariant)
                     }
                 }
             }
@@ -289,7 +291,7 @@ private fun WelcomePage0(isCurrentPage: Boolean) {
         }
         Spacer(Modifier.height(32.dp))
         Text(
-            "欢迎使用 Anshin",
+            stringResource(R.string.welcome_p0_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -297,7 +299,7 @@ private fun WelcomePage0(isCurrentPage: Boolean) {
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            "您的智能用药管理助手\n帮助您按时用药、轻松管理药品库存",
+            stringResource(R.string.welcome_p0_body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -312,13 +314,11 @@ private data class Feature(val icon: ImageVector, val title: String, val desc: S
 
 @Composable
 private fun WelcomePage1(isCurrentPage: Boolean) {
-    val features = remember {
-        listOf(
-            Feature(Icons.Rounded.NotificationsActive, "智能提醒",  "根据您的作息时间，在最合适的时机精准推送服药通知"),
-            Feature(Icons.Rounded.Inventory2,          "库存管理",  "自动追踪药品余量，低库存时提醒您及时补充"),
-            Feature(Icons.Rounded.History,             "用药记录",  "可视化日历展示每日用药完成率，帮助养成健康习惯"),
-        )
-    }
+    val features = listOf(
+        Feature(Icons.Rounded.NotificationsActive, stringResource(R.string.welcome_p1_feat1_title), stringResource(R.string.welcome_p1_feat1_desc)),
+        Feature(Icons.Rounded.Inventory2,          stringResource(R.string.welcome_p1_feat2_title), stringResource(R.string.welcome_p1_feat2_desc)),
+        Feature(Icons.Rounded.History,             stringResource(R.string.welcome_p1_feat3_title), stringResource(R.string.welcome_p1_feat3_desc)),
+    )
     val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
 
     Column(
@@ -328,7 +328,7 @@ private fun WelcomePage1(isCurrentPage: Boolean) {
         verticalArrangement = Arrangement.Center,
     ) {
         Text(
-            "核心功能",
+            stringResource(R.string.welcome_p1_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
@@ -394,14 +394,14 @@ private fun WelcomePage2(
             .padding(horizontal = 24.dp, vertical = 32.dp),
     ) {
         Text(
-            "设置作息时间",
+            stringResource(R.string.welcome_p2_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.graphicsLayer { translationY = titleY; alpha = titleAlpha },
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "Anshin 将根据这些时间自动推算服药提醒，可随时在设置中修改",
+            stringResource(R.string.welcome_p2_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
@@ -409,11 +409,11 @@ private fun WelcomePage2(
         Spacer(Modifier.height(24.dp))
 
         listOf(
-            Triple("wake",      "起床时间", Icons.Rounded.WbSunny),
-            Triple("breakfast", "早餐时间", Icons.Rounded.BreakfastDining),
-            Triple("lunch",     "午餐时间", Icons.Rounded.LunchDining),
-            Triple("dinner",    "晚餐时间", Icons.Rounded.DinnerDining),
-            Triple("bed",       "就寝时间", Icons.Rounded.Bedtime),
+            Triple("wake",      stringResource(R.string.wake_time),      Icons.Rounded.WbSunny),
+            Triple("breakfast", stringResource(R.string.breakfast_time), Icons.Rounded.BreakfastDining),
+            Triple("lunch",     stringResource(R.string.lunch_time),     Icons.Rounded.LunchDining),
+            Triple("dinner",    stringResource(R.string.dinner_time),    Icons.Rounded.DinnerDining),
+            Triple("bed",       stringResource(R.string.bed_time),       Icons.Rounded.Bedtime),
         ).forEachIndexed { index, (field, label, icon) ->
             val delay = 120L + index * 60L
             val (cardY, cardAlpha) = rememberSlideEntry(isCurrentPage, 24f, delay)
@@ -463,7 +463,7 @@ private fun RoutineTimeField(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Icon(Icons.Rounded.Edit, contentDescription = "修改", modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.welcome_time_edit_cd), modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 
@@ -476,10 +476,10 @@ private fun RoutineTimeField(
                 FilledTonalButton(onClick = {
                     onChanged(timePickerState.hour, timePickerState.minute)
                     showPicker = false
-                }) { Text("确定") }
+                }) { Text(stringResource(R.string.confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showPicker = false }) { Text("取消") }
+                TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
     }
@@ -539,7 +539,7 @@ private fun WelcomeNotificationPage(
         }
         Spacer(Modifier.height(32.dp))
         Text(
-            if (notifGranted) "提醒已就绪 ✓" else "开启服药提醒",
+            if (notifGranted) stringResource(R.string.welcome_notif_granted_title) else stringResource(R.string.welcome_notif_request_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -547,10 +547,8 @@ private fun WelcomeNotificationPage(
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            if (notifGranted)
-                "Anshin 将在您设定的服药时间准时推送提醒，确保不会错过任何一次用药。"
-            else
-                "Anshin 需要通知权限，才能在服药时间准时提醒您。\n建议开启以确保不会错过用药计划。",
+            if (notifGranted) stringResource(R.string.welcome_notif_granted_body)
+            else stringResource(R.string.welcome_notif_request_body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -560,7 +558,7 @@ private fun WelcomeNotificationPage(
             Spacer(Modifier.height(28.dp))
             // 引导文字：明显的操作指引，尤其适合老年用户
             Text(
-                "请点击下方按钮，允许 Anshin 发送服药提醒",
+                stringResource(R.string.welcome_notif_guide),
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
@@ -584,11 +582,11 @@ private fun WelcomeNotificationPage(
             ) {
                 Icon(Icons.Rounded.NotificationsActive, contentDescription = null, modifier = Modifier.size(22.dp))
                 Spacer(Modifier.width(10.dp))
-                Text("立即开启服药提醒", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.welcome_notif_grant_btn), style = MaterialTheme.typography.titleSmall)
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                "也可稍后在「系统通知设置」或 Anshin「设置」中开启",
+                stringResource(R.string.welcome_notif_later),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -608,13 +606,11 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
     val (titleY, titleAlpha)   = rememberSlideEntry(isCurrentPage, 24f, 180L)
     val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 260L)
 
-    val steps = remember {
-        listOf(
-            QuickStartStep(Icons.Rounded.Add,               "点击首页 ＋ 按钮，添加您的第一个药品"),
-            QuickStartStep(Icons.Rounded.AccessTime,        "设置服药频次和时间，开启准时提醒"),
-            QuickStartStep(Icons.Rounded.CheckCircle,       "每次收到提醒后，打开应用完成服药打卡"),
-        )
-    }
+    val steps = listOf(
+        QuickStartStep(Icons.Rounded.Add,         stringResource(R.string.welcome_p5_step1)),
+        QuickStartStep(Icons.Rounded.AccessTime,  stringResource(R.string.welcome_p5_step2)),
+        QuickStartStep(Icons.Rounded.CheckCircle, stringResource(R.string.welcome_p5_step3)),
+    )
 
     Column(
         modifier = Modifier
@@ -642,7 +638,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         }
         Spacer(Modifier.height(28.dp))
         Text(
-            "一切就绪！",
+            stringResource(R.string.welcome_p5_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -650,7 +646,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "让 Anshin 助您规律用药、守护健康",
+            stringResource(R.string.welcome_p5_body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -730,13 +726,13 @@ private fun WelcomePage4(
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Text(
-            "个性化功能",
+            stringResource(R.string.welcome_p4_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             modifier = Modifier.graphicsLayer { translationY = titleY; alpha = titleAlpha },
         )
         Text(
-            "以下功能可选择启用，未启用的模块不会出现在导航栏。您也可以随时在「设置」中更改。",
+            stringResource(R.string.welcome_p4_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
@@ -754,40 +750,40 @@ private fun WelcomePage4(
         ) {
             Column(modifier = Modifier.padding(vertical = 8.dp)) {
                 FeatureToggleRow(
-                    title = "症状日记",
-                    description = "记录每日症状、心情与身体状况",
+                    title = stringResource(R.string.welcome_p4_symptom_title),
+                    description = stringResource(R.string.welcome_p4_symptom_desc),
                     icon = Icons.Rounded.EditNote,
                     checked = uiState.enableSymptomDiary,
                     onCheckedChange = onToggleSymptomDiary,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 FeatureToggleRow(
-                    title = "药品数据库",
-                    description = "浏览内置西药 / 中成药查询与添加",
+                    title = stringResource(R.string.welcome_p4_drugs_title),
+                    description = stringResource(R.string.welcome_p4_drugs_desc),
                     icon = Icons.Rounded.MedicalServices,
                     checked = uiState.enableDrugDatabase,
                     onCheckedChange = onToggleDrugDatabase,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 FeatureToggleRow(
-                    title = "药物相互作用检测",
-                    description = "自动检测多药联用的配伍风险",
+                    title = stringResource(R.string.welcome_p4_interaction_title),
+                    description = stringResource(R.string.welcome_p4_interaction_desc),
                     icon = Icons.Rounded.Warning,
                     checked = uiState.enableDrugInteractionCheck,
                     onCheckedChange = onToggleDrugInteractionCheck,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 FeatureToggleRow(
-                    title = "健康体征模块",
-                    description = "记录血压、血糖、体重等健康数据",
+                    title = stringResource(R.string.welcome_p4_health_title),
+                    description = stringResource(R.string.welcome_p4_health_desc),
                     icon = Icons.Rounded.MonitorHeart,
                     checked = uiState.enableHealthModule,
                     onCheckedChange = onToggleHealthModule,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 FeatureToggleRow(
-                    title = "作息时间段模式",
-                    description = "允许按「早餐后」「睡前」等模糊时段设置提醇",
+                    title = stringResource(R.string.welcome_p4_timeperiod_title),
+                    description = stringResource(R.string.welcome_p4_timeperiod_desc),
                     icon = Icons.Rounded.Schedule,
                     checked = uiState.enableTimePeriodMode,
                     onCheckedChange = onToggleTimePeriodMode,
@@ -796,7 +792,7 @@ private fun WelcomePage4(
         }
 
         Text(
-            "⚡ 推荐：所有功能保持开启，随时可以在设置中关闭。",
+            stringResource(R.string.welcome_p4_tip),
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline,
         )
@@ -817,13 +813,13 @@ private fun WelcomePage4(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Icon(Icons.Rounded.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
-                    Text("外观主题", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                    Text(stringResource(R.string.welcome_p4_theme_label), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                 }
                 SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                     listOf(
-                        ThemeMode.SYSTEM to "跟随系统",
-                        ThemeMode.LIGHT  to "浅色",
-                        ThemeMode.DARK   to "深色",
+                        ThemeMode.SYSTEM to stringResource(R.string.welcome_p4_theme_system),
+                        ThemeMode.LIGHT  to stringResource(R.string.welcome_p4_theme_light),
+                        ThemeMode.DARK   to stringResource(R.string.welcome_p4_theme_dark),
                     ).forEachIndexed { index, (mode, label) ->
                         SegmentedButton(
                             selected = uiState.themeMode == mode,
