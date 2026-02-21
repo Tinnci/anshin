@@ -53,6 +53,7 @@ import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.widget.MedLogWidgetReceiver
 import com.example.medlog.widget.NextDoseWidgetReceiver
 import com.example.medlog.widget.StreakWidgetReceiver
+import com.example.medlog.ui.utils.OemWidgetHelper
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -575,6 +576,7 @@ fun SettingsScreen(
             SettingsCard(title = "桌面小组件", icon = Icons.Rounded.Widgets) {
                 val widgetManager = AppWidgetManager.getInstance(context)
                 val canPin = widgetManager.isRequestPinAppWidgetSupported
+                val oemNeedsPermission = OemWidgetHelper.requiresExtraPermission
 
                 Column(
                     modifier = Modifier
@@ -584,7 +586,7 @@ fun SettingsScreen(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     if (!canPin) {
-                        // 不支持直接固定时显示内联提示
+                        // 桌面不支持直接固定时，显示手动添加引导
                         Surface(
                             shape = RoundedCornerShape(12.dp),
                             color = MaterialTheme.colorScheme.secondaryContainer,
@@ -601,20 +603,64 @@ fun SettingsScreen(
                                     modifier = Modifier.size(16.dp),
                                 )
                                 Text(
-                                    "您的桐面不支持直接固定小组件。请长按打面空白区域 → 小组件 → MedLog 手动添加。",
+                                    "您的桌面不支持直接固定小组件。${OemWidgetHelper.manualAddGuidance}",
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
                             }
                         }
                     } else {
+                        // 可以固定——显示通用提示
                         Text(
-                            "点击添加按鈕，将小组件固定到桔面",
+                            "点击添加按钮，将小组件固定到桌面",
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
+                        // OEM 专属权限提醒（小米 / OPPO / vivo）
+                        if (oemNeedsPermission) {
+                            Surface(
+                                shape = RoundedCornerShape(12.dp),
+                                color = MaterialTheme.colorScheme.tertiaryContainer,
+                            ) {
+                                Column(
+                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        verticalAlignment = Alignment.Top,
+                                    ) {
+                                        Icon(
+                                            Icons.Rounded.Warning,
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                        Text(
+                                            OemWidgetHelper.permissionNote,
+                                            style = MaterialTheme.typography.bodySmall,
+                                            color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                        )
+                                    }
+                                    OutlinedButton(
+                                        onClick = { OemWidgetHelper.openPermissionSettings(context) },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                    ) {
+                                        Icon(
+                                            Icons.Rounded.OpenInNew,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                        Spacer(Modifier.width(6.dp))
+                                        Text("前往授予「桌面快捷方式」权限", style = MaterialTheme.typography.labelMedium)
+                                    }
+                                }
+                            }
+                        }
                     }
 
+                    // 今日进度小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_today,
                         name = "今日进度",
@@ -628,20 +674,24 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    if (oemNeedsPermission)
+                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                    else
+                                        "请在弹出的对话框中点击「添加」完成安装",
                                     duration = SnackbarDuration.Long,
                                 )
                             }
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    OemWidgetHelper.manualAddGuidance,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
                         }
                     }
 
+                    // 下次服药小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_next_dose,
                         name = "下次服药",
@@ -655,20 +705,24 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    if (oemNeedsPermission)
+                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                    else
+                                        "请在弹出的对话框中点击「添加」完成安装",
                                     duration = SnackbarDuration.Long,
                                 )
                             }
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    OemWidgetHelper.manualAddGuidance,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
                         }
                     }
 
+                    // 连续打卡小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_streak,
                         name = "连续打卡",
@@ -682,14 +736,17 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    if (oemNeedsPermission)
+                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                    else
+                                        "请在弹出的对话框中点击「添加」完成安装",
                                     duration = SnackbarDuration.Long,
                                 )
                             }
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    OemWidgetHelper.manualAddGuidance,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
