@@ -64,114 +64,11 @@ fun DrugsScreen(
             )
         },
     ) { padding ->
-        Box(
+        Column(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding),
         ) {
-            // ── 默认浏览视图（非搜索激活状态）────────────────
-            if (!uiState.isSearchActive) {
-                when {
-                    uiState.isLoading -> {
-                        Box(
-                            modifier = Modifier.fillMaxSize().padding(top = 72.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator()
-                                Spacer(Modifier.height(8.dp))
-                                Text("加载药品数据库…", style = MaterialTheme.typography.bodyMedium)
-                            }
-                        }
-                    }
-                    // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
-                    uiState.selectedCategory != null -> {
-                        val selectedCat = uiState.selectedCategory ?: ""
-                        val selectedSub = uiState.selectedSubcategory  // 本地 val 避免 smart cast 问题
-                        Column(modifier = Modifier.fillMaxSize().padding(top = 72.dp)) {
-                            // 面包屑标题行
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                            ) {
-                                val catIcon = if (uiState.showTcm == true)
-                                    Icons.Rounded.LocalFlorist else Icons.Rounded.Medication
-                                Icon(
-                                    catIcon, null,
-                                    Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                                // 面包屑：一级 > 二级（如果已选）
-                                if (selectedSub != null) {
-                                    Text(
-                                        selectedCat,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        " > ",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        selectedSub,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                    TextButton(onClick = { viewModel.onSubcategorySelect(null) }) {
-                                        Text("返回子类")
-                                    }
-                                } else {
-                                    Text(
-                                        selectedCat,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    TextButton(
-                                        onClick = {
-                                            viewModel.onCategorySelect(null)
-                                            viewModel.onToggleTcm(null)
-                                        },
-                                    ) { Text("返回分类") }
-                                }
-                            }
-                            HorizontalDivider()
-                            // 有二级子分类 & 尚未选二级 → 显示二级卡片网格
-                            if (uiState.subcategories.isNotEmpty() && uiState.selectedSubcategory == null) {
-                                SubcategoryGrid(
-                                    subcategories = uiState.subcategories,
-                                    onSubcategoryClick = { viewModel.onSubcategorySelect(it) },
-                                )
-                            } else {
-                                // 选了二级或该一级无二级子类 → 直接显示药品列表
-                                DrugFlatList(
-                                    drugs = uiState.drugs,
-                                    query = "",
-                                    onDrugSelect = onDrugSelect,
-                                )
-                            }
-                        }
-                    }
-                    // 默认：西药/中成药 Tab + 分类卡片网格
-                    else -> DrugCategoryBrowser(
-                        westernCategories = uiState.westernCategories,
-                        tcmCategories = uiState.tcmCategories,
-                        onCategoryClick = { cat, isTcm ->
-                            viewModel.onCategorySelect(cat)
-                            viewModel.onToggleTcm(isTcm)
-                        },
-                        topPadding = 72.dp,
-                    )
-                }
-            }
-
             // ── M3 SearchBar ─────────────────────────────────
             SearchBar(
                 inputField = {
@@ -336,10 +233,112 @@ fun DrugsScreen(
                     }
                 }
             }
+
+            // ── 默认浏览视图（非搜索激活状态）────────────────
+            if (!uiState.isSearchActive) {
+                when {
+                    uiState.isLoading -> {
+                        Box(
+                            modifier = Modifier.fillMaxSize(),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                                CircularProgressIndicator()
+                                Spacer(Modifier.height(8.dp))
+                                Text("加载药品数据库…", style = MaterialTheme.typography.bodyMedium)
+                            }
+                        }
+                    }
+                    // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
+                    uiState.selectedCategory != null -> {
+                        val selectedCat = uiState.selectedCategory ?: ""
+                        val selectedSub = uiState.selectedSubcategory  // 本地 val 避免 smart cast 问题
+                        Column(modifier = Modifier.fillMaxSize()) {
+                            // 面包屑标题行
+                            Row(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            ) {
+                                val catIcon = if (uiState.showTcm == true)
+                                    Icons.Rounded.LocalFlorist else Icons.Rounded.Medication
+                                Icon(
+                                    catIcon, null,
+                                    Modifier.size(16.dp),
+                                    tint = MaterialTheme.colorScheme.primary,
+                                )
+                                // 面包屑：一级 > 二级（如果已选）
+                                if (selectedSub != null) {
+                                    Text(
+                                        selectedCat,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        " > ",
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                    Text(
+                                        selectedSub,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis,
+                                    )
+                                    TextButton(onClick = { viewModel.onSubcategorySelect(null) }) {
+                                        Text("返回子类")
+                                    }
+                                } else {
+                                    Text(
+                                        selectedCat,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        color = MaterialTheme.colorScheme.primary,
+                                        modifier = Modifier.weight(1f),
+                                    )
+                                    TextButton(
+                                        onClick = {
+                                            viewModel.onCategorySelect(null)
+                                            viewModel.onToggleTcm(null)
+                                        },
+                                    ) { Text("返回分类") }
+                                }
+                            }
+                            HorizontalDivider()
+                            // 有二级子分类 & 尚未选二级 → 显示二级卡片网格
+                            if (uiState.subcategories.isNotEmpty() && uiState.selectedSubcategory == null) {
+                                SubcategoryGrid(
+                                    subcategories = uiState.subcategories,
+                                    onSubcategoryClick = { viewModel.onSubcategorySelect(it) },
+                                )
+                            } else {
+                                // 选了二级或该一级无二级子类 → 直接显示药品列表
+                                DrugFlatList(
+                                    drugs = uiState.drugs,
+                                    query = "",
+                                    onDrugSelect = onDrugSelect,
+                                )
+                            }
+                        }
+                    }
+                    // 默认：西药/中成药 Tab + 分类卡片网格
+                    else -> DrugCategoryBrowser(
+                        westernCategories = uiState.westernCategories,
+                        tcmCategories = uiState.tcmCategories,
+                        onCategoryClick = { cat, isTcm ->
+                            viewModel.onCategorySelect(cat)
+                            viewModel.onToggleTcm(isTcm)
+                        },
+                    )
+                }
+            }
+
         }
     }
 }
-
 // ─── 二级子分类网格 ──────────────────────────────────────────────────────────
 
 @Composable
