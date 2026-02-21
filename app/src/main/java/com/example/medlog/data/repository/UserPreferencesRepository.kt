@@ -56,6 +56,10 @@ data class SettingsPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** 是否使用 Material You 动态颜色（Android 12+ 才生效） */
     val useDynamicColor: Boolean = true,
+
+    // ── 今日页面显示偏好 ───────────────────────────────────────────────────────
+    /** 已全部服用的时段默认折叠，节省屏幕空间 */
+    val autoCollapseCompletedGroups: Boolean = true,
 )
 
 @Singleton
@@ -87,6 +91,8 @@ class UserPreferencesRepository @Inject constructor(
         // 外观
         val THEME_MODE         = stringPreferencesKey("theme_mode")
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
+        // 今日页面显示偏好
+        val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -113,6 +119,7 @@ class UserPreferencesRepository @Inject constructor(
                 themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
+                autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
             )
         }
 
@@ -170,5 +177,10 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新动态颜色（Material You）开关 */
     suspend fun updateUseDynamicColor(enabled: Boolean) {
         dataStore.edit { it[USE_DYNAMIC_COLOR] = enabled }
+    }
+
+    /** 更新「已完成分组默认折叠」开关 */
+    suspend fun updateAutoCollapseCompletedGroups(enabled: Boolean) {
+        dataStore.edit { it[AUTO_COLLAPSE_DONE] = enabled }
     }
 }

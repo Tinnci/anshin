@@ -18,6 +18,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.AccessTime
 import androidx.compose.material.icons.rounded.Add
@@ -267,6 +271,7 @@ fun HomeScreen(
                                 }
                             },
                             onClick = onMedicationClick,
+                            autoCollapse = uiState.autoCollapseCompletedGroups,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -406,11 +411,14 @@ private fun TimePeriodGroupCard(
     onSkip: (MedicationWithStatus) -> Unit,
     onTakeAll: () -> Unit,
     onClick: (Long) -> Unit,
+    autoCollapse: Boolean = true,
     modifier: Modifier = Modifier,
 ) {
     val pendingCount = items.count { !it.isTaken && !it.isSkipped }
     val allDone = pendingCount == 0
     val motionScheme = MaterialTheme.motionScheme
+    // allDone 变化时重算展开状态：已全服且开启自动折叠时默认折叠
+    var isExpanded by remember(allDone) { mutableStateOf(!allDone || !autoCollapse) }
 
     ElevatedCard(
         modifier = modifier.fillMaxWidth(),
@@ -435,6 +443,7 @@ private fun TimePeriodGroupCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
+                .clickable { isExpanded = !isExpanded }
                 .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -466,7 +475,7 @@ private fun TimePeriodGroupCard(
             // 待服数量 Badge（allDone 时显示胶囊徽章）
             if (allDone) {
                 SuggestionChip(
-                    onClick = {},
+                    onClick = { isExpanded = !isExpanded },
                     icon = {
                         Icon(
                             Icons.Rounded.DoneAll,
@@ -488,6 +497,13 @@ private fun TimePeriodGroupCard(
                     ),
                     border = null,
                     modifier = Modifier.height(28.dp),
+                )
+                // 展开/折叠指示箭头
+                Icon(
+                    imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                    contentDescription = if (isExpanded) "折叠" else "展开",
+                    tint = MaterialTheme.colorScheme.outline,
+                    modifier = Modifier.size(16.dp),
                 )
             } else {
                 Badge(
@@ -517,46 +533,55 @@ private fun TimePeriodGroupCard(
             }
         }
 
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 12.dp),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
-        )
+        // ── 展开时才显示分隔线 + 药品列表 ──────────────────────────────
+        AnimatedVisibility(
+            visible = isExpanded,
+            enter = expandVertically(),
+            exit = shrinkVertically(),
+        ) {
+            Column {
+                HorizontalDivider(
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                )
 
-        // ── 药品列表 ──────────────────────────────────────────
-        items.forEachIndexed { idx, item ->
-            var visible by remember(item.medication.id) { mutableStateOf(false) }
-            LaunchedEffect(item.medication.id) {
-                delay(idx * 30L)   // 组内相邻延迟，避免全局累积延迟
-                visible = true
-            }
-            AnimatedVisibility(
-                visible = visible,
-                enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
-            ) {
-                Column {
-                    MedicationCard(
-                        item = item,
-                        onToggleTaken = { onToggleTaken(item) },
-                        onSkip = { onSkip(item) },
-                        onClick = { onClick(item.medication.id) },
-                        modifier = Modifier,
-                        // 卡片内不需要外圆角（已在 ElevatedCard 内）
-                        flatStyle = true,
-                    )
-                    if (idx < items.lastIndex) {
-                        HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
-                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-                        )
+                // ── 药品列表 ──────────────────────────────────────────
+                items.forEachIndexed { idx, item ->
+                    var visible by remember(item.medication.id) { mutableStateOf(false) }
+                    LaunchedEffect(item.medication.id) {
+                        delay(idx * 30L)   // 组内相邻延迟，避免全局累积延迟
+                        visible = true
+                    }
+                    AnimatedVisibility(
+                        visible = visible,
+                        enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+                    ) {
+                        Column {
+                            MedicationCard(
+                                item = item,
+                                onToggleTaken = { onToggleTaken(item) },
+                                onSkip = { onSkip(item) },
+                                onClick = { onClick(item.medication.id) },
+                                modifier = Modifier,
+                                // 卡片内不需要外圆角（已在 ElevatedCard 内）
+                                flatStyle = true,
+                            )
+                            if (idx < items.lastIndex) {
+                                HorizontalDivider(
+                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                )
+                            }
+                        }
                     }
                 }
-            }
-        }
 
-        Spacer(Modifier.height(4.dp))
-    }
-}
+                Spacer(Modifier.height(4.dp))
+            } // Column
+        } // AnimatedVisibility
+    } // ElevatedCard
+} // TimePeriodGroupCard
 
 // ── 低库存警告 banner ─────────────────────────────────────────────────────────
 

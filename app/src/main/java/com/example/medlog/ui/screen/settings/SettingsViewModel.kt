@@ -29,7 +29,9 @@ data class SettingsUiState(
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,    // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val useDynamicColor: Boolean = true,)
+    val useDynamicColor: Boolean = true,
+    // ── 今日页面 ────────────────────────────────────────────────────────────
+    val autoCollapseCompletedGroups: Boolean = true,)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -58,6 +60,7 @@ class SettingsViewModel @Inject constructor(
             enableDrugDatabase         = prefs.enableDrugDatabase,
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
+            autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -110,5 +113,9 @@ class SettingsViewModel @Inject constructor(
 
     fun setUseDynamicColor(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateUseDynamicColor(enabled) }
+    }
+
+    fun setAutoCollapseCompletedGroups(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
     }
 }

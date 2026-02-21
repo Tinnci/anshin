@@ -47,6 +47,8 @@ data class HomeUiState(
     val interactions: List<DrugInteraction> = emptyList(),
     /** true = 按服药时段分组；false = 按分类分组 */
     val groupByTime: Boolean = true,
+    /** 已全部服用的时段默认折叠 */
+    val autoCollapseCompletedGroups: Boolean = true,
 ) {
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
@@ -168,6 +170,7 @@ class HomeViewModel @Inject constructor(
                     totalCount = scheduledItems.size,
                     isLoading = false,
                     interactions = interactions,
+                    autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
                 )
             }.catch { e ->
                 _uiState.value = _uiState.value.copy(

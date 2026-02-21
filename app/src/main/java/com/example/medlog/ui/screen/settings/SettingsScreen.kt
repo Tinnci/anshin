@@ -290,6 +290,17 @@ fun SettingsScreen(
                     )
                 }
             }
+            // ── 今日页面 ─────────────────────────────────────────
+            SettingsCard(title = "今日页面", icon = Icons.Rounded.ViewAgenda) {
+                SettingsSwitchRow(
+                    title = "已完成分组默认折叠",
+                    subtitle = "今日页面中已全部服用的时段将自动折叠，节省屏幕空间",
+                    checked = uiState.autoCollapseCompletedGroups,
+                    onCheckedChange = viewModel::setAutoCollapseCompletedGroups,
+                    icon = Icons.Rounded.UnfoldLess,
+                )
+            }
+
             // ── 提醒设置 ─────────────────────────────────────────
             SettingsCard(title = "提醒设置", icon = Icons.Rounded.Notifications) {
                 SettingsSwitchRow(
