@@ -8,6 +8,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import java.text.Collator
+import java.util.Locale
 import javax.inject.Inject
 
 data class DrugsUiState(
@@ -54,78 +56,86 @@ class DrugsViewModel @Inject constructor(
     /** 所有药品缓存（init 后填充，用于计算子分类） */
     private var allDrugsCache: List<Drug> = emptyList()
 
+    // ── 中间合并：将"过滤参数"收敛成一个 Flow，确保子分类变更也能触发重算 ──────────
+    private val filterParams = combine(
+        _query.debounce(200),
+        _selectedCategory,
+        _selectedSubcategory,
+        _showTcm,
+    ) { q, cat, sub, tcm -> arrayOf<Any?>(q, cat, sub, tcm) }
+
     val uiState: StateFlow<DrugsUiState> = combine(
-        combine(
-            _query.debounce(200),
-            _selectedCategory,
-            _showTcm,
-            _isLoading,
-            _categories,
-        ) { query, category, tcm, loading, cats ->
-            val subcat = _selectedSubcategory.value
-            val (filtered, exactCount) = rankedDrugs(query, category, tcm, subcat)
-            // 计算二级子分类列表（仅当选了一级分类、未选二级时显示）
-            val subcats = if (category != null && subcat == null && query.isBlank()) {
-                allDrugsCache
-                    .filter { it.category == category }
-                    .flatMap { drug ->
-                        // 提取属于该一级分类的二级段
-                        (listOf(drug.fullPath) + drug.allPaths)
-                            .filter { it.startsWith(category) }
-                            .mapNotNull { path ->
-                                path.split(" > ").map { it.trim() }.let { parts ->
-                                    if (parts.size >= 2) parts[1] else null
-                                }
-                            }
-                    }
-                    .groupingBy { it }
-                    .eachCount()
-                    .entries
-                    .sortedByDescending { it.value }
-                    .map { it.key to it.value }
-            } else emptyList()
-            DrugsUiState(
-                query = query,
-                selectedCategory = category,
-                selectedSubcategory = subcat,
-                subcategories = subcats,
-                showTcm = tcm,
-                isLoading = loading,
-                drugs = filtered,
-                groupedDrugs = if (query.isBlank()) {
-                    filtered.groupBy { drug ->
-                        val initial = drug.initial.ifBlank {
-                            drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-                        }
-                        if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
-                    }.toSortedMap()
-                } else emptyMap(),
-                categories = cats,
-                hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
-                exactMatchCount = exactCount,
-            )
-        },
+        filterParams,
+        combine(_isLoading, _categories) { loading, cats -> loading to cats },
         _isSearchActive,
-        _westernCategories,
-        _tcmCategories,
-    ) { state, active, western, tcm ->
-        state.copy(isSearchActive = active, westernCategories = western, tcmCategories = tcm)
+        combine(_westernCategories, _tcmCategories) { w, t -> w to t },
+    ) { fp, (loading, cats), active, (western, tcm) ->
+        val query    = fp[0] as String
+        val category = fp[1] as String?
+        val subcat   = fp[2] as String?
+        val showTcm  = fp[3] as Boolean?
+
+        val (filtered, exactCount) = rankedDrugs(query, category, showTcm, subcat)
+        // 计算二级子分类列表（仅当选了一级分类、未选二级时显示）
+        val subcats = if (category != null && subcat == null && query.isBlank()) {
+            allDrugsCache
+                .filter { it.category == category }
+                .flatMap { drug ->
+                    (listOf(drug.fullPath) + drug.allPaths)
+                        .filter { it.startsWith(category) }
+                        .mapNotNull { path ->
+                            path.split(" > ").map { it.trim() }.let { parts ->
+                                if (parts.size >= 2) parts[1] else null
+                            }
+                        }
+                }
+                .groupingBy { it }
+                .eachCount()
+                .entries
+                .sortedByDescending { it.value }
+                .map { it.key to it.value }
+        } else emptyList()
+
+        DrugsUiState(
+            query = query,
+            selectedCategory = category,
+            selectedSubcategory = subcat,
+            subcategories = subcats,
+            showTcm = showTcm,
+            isLoading = loading,
+            isSearchActive = active,
+            drugs = filtered,
+            groupedDrugs = if (query.isBlank()) {
+                filtered.groupBy { drug ->
+                    val initial = drug.initial.ifBlank {
+                        drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
+                    }
+                    if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
+                }.toSortedMap()
+            } else emptyMap(),
+            categories = cats,
+            westernCategories = western,
+            tcmCategories = tcm,
+            hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
+            exactMatchCount = exactCount,
+        )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
 
     init {
         viewModelScope.launch {
             val allDrugs = drugRepository.getAllDrugs()
             _categories.value = allDrugs.map { it.category }.distinct().sorted()
-            // 预计算分类卡片数据（按药品数量降序）
+            // 按拼音/字典序排列分类卡片（Collator 支持中文拼音排序）
+            val collator = Collator.getInstance(Locale.CHINESE)
             val western = allDrugs.filter { !it.isTcm }
                 .groupBy { it.category }
                 .entries
-                .sortedByDescending { it.value.size }
+                .sortedWith(compareBy(collator) { it.key })
                 .map { it.key to it.value.size }
             val tcm = allDrugs.filter { it.isTcm }
                 .groupBy { it.category }
                 .entries
-                .sortedByDescending { it.value.size }
+                .sortedWith(compareBy(collator) { it.key })
                 .map { it.key to it.value.size }
             _westernCategories.value = western
             _tcmCategories.value = tcm
