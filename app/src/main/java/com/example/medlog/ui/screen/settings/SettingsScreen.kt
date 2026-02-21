@@ -54,6 +54,7 @@ import com.example.medlog.widget.MedLogWidgetReceiver
 import com.example.medlog.widget.NextDoseWidgetReceiver
 import com.example.medlog.widget.StreakWidgetReceiver
 import com.example.medlog.ui.utils.OemWidgetHelper
+import androidx.compose.ui.res.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -110,7 +111,7 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LargeTopAppBar(
-                title = { Text("设置") },
+                title = { Text(stringResource(R.string.tab_settings)) },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -152,13 +153,13 @@ fun SettingsScreen(
                         )
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(
-                                "精确闹钟权限未授予",
+                                stringResource(R.string.settings_alarm_perm_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onErrorContainer,
                             )
                             Text(
-                                "提醒可能最多延迟数分钟，请前往系统设置开启『允许精确闹钟』",
+                                stringResource(R.string.settings_alarm_perm_body),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.85f),
                             )
@@ -178,7 +179,7 @@ fun SettingsScreen(
                                 contentColor = MaterialTheme.colorScheme.errorContainer,
                             ),
                         ) {
-                            Text("前往授权")
+                            Text(stringResource(R.string.settings_alarm_perm_btn))
                         }
                     }
                 }
@@ -211,13 +212,13 @@ fun SettingsScreen(
                         )
                         Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
                             Text(
-                                "通知权限未开启",
+                                stringResource(R.string.settings_notif_perm_title),
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.SemiBold,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer,
                             )
                             Text(
-                                "无法收到服药提醒，请在系统设置中开启通知权限",
+                                stringResource(R.string.settings_notif_perm_body),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.85f),
                             )
@@ -235,13 +236,13 @@ fun SettingsScreen(
                                 contentColor = MaterialTheme.colorScheme.tertiaryContainer,
                             ),
                         ) {
-                            Text("前往设置")
+                            Text(stringResource(R.string.settings_notif_perm_btn))
                         }
                     }
                 }
             }
             // ── 外观 ───────────────────────────────────────────────
-            SettingsCard(title = "外观", icon = Icons.Rounded.Palette) {
+            SettingsCard(title = stringResource(R.string.settings_card_appearance), icon = Icons.Rounded.Palette) {
                 // ―― 主题模式 ――
                 Column(
                     modifier = Modifier
@@ -261,15 +262,15 @@ fun SettingsScreen(
                             modifier = Modifier.size(18.dp),
                         )
                         Text(
-                            "主题",
+                            stringResource(R.string.settings_theme),
                             style = MaterialTheme.typography.bodyMedium,
                             fontWeight = FontWeight.Medium,
                         )
                     }
                     val themeModes = listOf(
-                        ThemeMode.SYSTEM to "跟随系统",
-                        ThemeMode.LIGHT  to "浅色",
-                        ThemeMode.DARK   to "深色",
+                        ThemeMode.SYSTEM to stringResource(R.string.settings_theme_system),
+                        ThemeMode.LIGHT  to stringResource(R.string.settings_theme_light),
+                        ThemeMode.DARK   to stringResource(R.string.settings_theme_dark),
                     )
                     SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                         themeModes.forEachIndexed { index, (mode, label) ->
@@ -289,8 +290,8 @@ fun SettingsScreen(
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                     SettingsSwitchRow(
-                        title = "Material You 动态颜色",
-                        subtitle = "根据壁纸自动匹配应用配色（Android 12+）",
+                        title = stringResource(R.string.settings_dynamic_color_title),
+                        subtitle = stringResource(R.string.settings_dynamic_color_subtitle),
                         checked = uiState.useDynamicColor,
                         onCheckedChange = viewModel::setUseDynamicColor,
                         icon = Icons.Rounded.ColorLens,
@@ -298,10 +299,10 @@ fun SettingsScreen(
                 }
             }
             // ── 今日页面 ─────────────────────────────────────────
-            SettingsCard(title = "今日页面", icon = Icons.Rounded.ViewAgenda) {
+            SettingsCard(title = stringResource(R.string.settings_card_today), icon = Icons.Rounded.ViewAgenda) {
                 SettingsSwitchRow(
-                    title = "已完成分组默认折叠",
-                    subtitle = "今日页面中已全部服用的时段将自动折叠，节省屏幕空间",
+                    title = stringResource(R.string.settings_auto_collapse_title),
+                    subtitle = stringResource(R.string.settings_auto_collapse_subtitle),
                     checked = uiState.autoCollapseCompletedGroups,
                     onCheckedChange = viewModel::setAutoCollapseCompletedGroups,
                     icon = Icons.Rounded.UnfoldLess,
@@ -309,10 +310,10 @@ fun SettingsScreen(
             }
 
             // ── 提醒设置 ─────────────────────────────────────────
-            SettingsCard(title = "提醒设置", icon = Icons.Rounded.Notifications) {
+            SettingsCard(title = stringResource(R.string.settings_card_reminder), icon = Icons.Rounded.Notifications) {
                 SettingsSwitchRow(
-                    title = "持续提醒",
-                    subtitle = "服药未确认时定期重复提醒",
+                    title = stringResource(R.string.settings_persistent_title),
+                    subtitle = stringResource(R.string.settings_persistent_subtitle),
                     checked = uiState.persistentReminder,
                     onCheckedChange = viewModel::setPersistentReminder,
                     icon = Icons.Rounded.NotificationsActive,
@@ -342,12 +343,12 @@ fun SettingsScreen(
                                 modifier = Modifier.size(18.dp),
                             )
                             Text(
-                                "提醒间隔",
+                                stringResource(R.string.settings_interval_label),
                                 style = MaterialTheme.typography.bodyMedium,
                                 modifier = Modifier.weight(1f),
                             )
                             Text(
-                                "${uiState.persistentIntervalMinutes} 分钟",
+                                stringResource(R.string.settings_minutes, uiState.persistentIntervalMinutes),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,
@@ -361,7 +362,7 @@ fun SettingsScreen(
                                 FilterChip(
                                     selected = uiState.persistentIntervalMinutes == minutes,
                                     onClick = { viewModel.setPersistentInterval(minutes) },
-                                    label = { Text("$minutes 分钟") },
+                                    label = { Text(stringResource(R.string.settings_minutes, minutes)) },
                                 )
                             }
                         }
@@ -389,14 +390,14 @@ fun SettingsScreen(
                         )
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                "提前预告提醒",
+                                stringResource(R.string.settings_early_reminder_title),
                                 style = MaterialTheme.typography.bodyMedium,
                                 fontWeight = FontWeight.Medium,
                             )
                             Text(
                                 if (uiState.earlyReminderMinutes > 0)
-                                    "在服药时间前 ${uiState.earlyReminderMinutes} 分钟发送预告"
-                                else "关闭（仅在服药时间精确提醒）",
+                                    stringResource(R.string.settings_early_reminder_body_on, uiState.earlyReminderMinutes)
+                                else stringResource(R.string.settings_early_reminder_body_off),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -406,7 +407,7 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
-                        listOf(0 to "关闭", 15 to "15 分钟", 30 to "30 分钟", 60 to "1 小时").forEach { (mins, label) ->
+                        listOf(0 to stringResource(R.string.settings_off), 15 to stringResource(R.string.settings_minutes, 15), 30 to stringResource(R.string.settings_minutes, 30), 60 to stringResource(R.string.settings_1hour)).forEach { (mins, label) ->
                             FilterChip(
                                 selected = uiState.earlyReminderMinutes == mins,
                                 onClick = { viewModel.setEarlyReminderMinutes(mins) },
@@ -418,14 +419,14 @@ fun SettingsScreen(
             }
 
             // ── 作息时间 ─────────────────────────────────────────
-            SettingsCard(title = "作息时间", icon = Icons.Rounded.Schedule) {
+            SettingsCard(title = stringResource(R.string.settings_routine), icon = Icons.Rounded.Schedule) {
                 // ── 模式开关 ──────────────────────────────────────
                 SettingsSwitchRow(
-                    title = "作息时段提醒模式",
+                    title = stringResource(R.string.settings_routine_mode_title),
                     subtitle = if (uiState.enableTimePeriodMode)
-                        "添加药品时可选「早餐后」「睡前」等时段自动换算时间"
+                        stringResource(R.string.settings_routine_mode_subtitle_on)
                     else
-                        "已关闭，添加药品时仅使用精确时间",
+                        stringResource(R.string.settings_routine_mode_subtitle_off),
                     icon = Icons.Rounded.Schedule,
                     checked = uiState.enableTimePeriodMode,
                     onCheckedChange = { viewModel.setEnableTimePeriodMode(it) },
@@ -439,7 +440,7 @@ fun SettingsScreen(
                     Column {
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                         Text(
-                            "用于模糊时段（如「早餐后」「睡前」）的提醒计算",
+                            stringResource(R.string.settings_routine_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
@@ -456,11 +457,11 @@ fun SettingsScreen(
                             verticalArrangement = Arrangement.spacedBy(4.dp),
                         ) {
                             listOf(
-                                Triple(Icons.Rounded.WbSunny,      "起床", "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
-                                Triple(Icons.Rounded.Coffee,       "早餐", "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
-                                Triple(Icons.Rounded.LunchDining,  "午餐", "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
-                                Triple(Icons.Rounded.DinnerDining, "晚餐", "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
-                                Triple(Icons.Rounded.Bedtime,      "睡觉", "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
+                                Triple(Icons.Rounded.WbSunny,      stringResource(R.string.settings_routine_wake), "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
+                                Triple(Icons.Rounded.Coffee,       stringResource(R.string.settings_routine_breakfast), "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
+                                Triple(Icons.Rounded.LunchDining,  stringResource(R.string.settings_routine_lunch), "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
+                                Triple(Icons.Rounded.DinnerDining, stringResource(R.string.settings_routine_dinner), "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
+                                Triple(Icons.Rounded.Bedtime,      stringResource(R.string.settings_routine_bed), "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
                             ).forEach { (icon, label, time) ->
                                 SuggestionChip(
                                     onClick = {},
@@ -481,28 +482,28 @@ fun SettingsScreen(
                                 )
                             }
                         }
-                        RoutineTimeRow("起床", uiState.wakeHour, uiState.wakeMinute,
+                        RoutineTimeRow(stringResource(R.string.settings_routine_wake), uiState.wakeHour, uiState.wakeMinute,
                             Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                        RoutineTimeRow("早餐", uiState.breakfastHour, uiState.breakfastMinute,
+                        RoutineTimeRow(stringResource(R.string.settings_routine_breakfast), uiState.breakfastHour, uiState.breakfastMinute,
                             Icons.Rounded.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                        RoutineTimeRow("午餐", uiState.lunchHour, uiState.lunchMinute,
+                        RoutineTimeRow(stringResource(R.string.settings_routine_lunch), uiState.lunchHour, uiState.lunchMinute,
                             Icons.Rounded.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                        RoutineTimeRow("晚餐", uiState.dinnerHour, uiState.dinnerMinute,
+                        RoutineTimeRow(stringResource(R.string.settings_routine_dinner), uiState.dinnerHour, uiState.dinnerMinute,
                             Icons.Rounded.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                        RoutineTimeRow("睡觉", uiState.bedHour, uiState.bedMinute,
+                        RoutineTimeRow(stringResource(R.string.settings_routine_bed), uiState.bedHour, uiState.bedMinute,
                             Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
                     }
                 }
             }
 
             // ── 旅行模式 ─────────────────────────────────────────
-            SettingsCard(title = "旅行模式", icon = Icons.Rounded.FlightTakeoff) {
+            SettingsCard(title = stringResource(R.string.settings_card_travel), icon = Icons.Rounded.FlightTakeoff) {
                 Text(
-                    "跨时区旅行时，保持按家乡时钟提醒服药，避免因时差打乱用药规律。",
+                    stringResource(R.string.settings_travel_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
@@ -510,11 +511,11 @@ fun SettingsScreen(
                         .padding(bottom = 4.dp),
                 )
                 SettingsSwitchRow(
-                    title = "保持家乡时区提醒",
+                    title = stringResource(R.string.settings_travel_title),
                     subtitle = if (uiState.travelMode && uiState.homeTimeZoneId.isNotBlank())
-                        "基准：${uiState.homeTimeZoneId}"
+                        stringResource(R.string.settings_travel_subtitle_on, uiState.homeTimeZoneId)
                     else
-                        "关闭时跟随设备时区",
+                        stringResource(R.string.settings_travel_subtitle_off),
                     checked = uiState.travelMode,
                     onCheckedChange = viewModel::setTravelMode,
                     icon = Icons.Rounded.Schedule,
@@ -522,9 +523,9 @@ fun SettingsScreen(
             }
 
             // ── 功能配置 ─────────────────────────────────────────
-            SettingsCard(title = "功能配置", icon = Icons.Rounded.Tune) {
+            SettingsCard(title = stringResource(R.string.settings_card_features), icon = Icons.Rounded.Tune) {
                 Text(
-                    "主要功能（今日用药、历史记录、设置）始终启用。以下为可选模块，关闭后相应标签将从导航栏隐藏。",
+                    stringResource(R.string.settings_features_hint),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
@@ -532,32 +533,32 @@ fun SettingsScreen(
                         .padding(bottom = 4.dp),
                 )
                 SettingsSwitchRow(
-                    title = "症状日记",
-                    subtitle = "记录每日症状、心情与备注",
+                    title = stringResource(R.string.settings_symptom_title),
+                    subtitle = stringResource(R.string.settings_symptom_subtitle),
                     checked = uiState.enableSymptomDiary,
                     onCheckedChange = viewModel::setEnableSymptomDiary,
                     icon = Icons.Rounded.EditNote,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 SettingsSwitchRow(
-                    title = "药品数据库",
-                    subtitle = "浏览内置西药 / 中成药数据库",
+                    title = stringResource(R.string.settings_drug_db_title),
+                    subtitle = stringResource(R.string.settings_drug_db_subtitle),
                     checked = uiState.enableDrugDatabase,
                     onCheckedChange = viewModel::setEnableDrugDatabase,
                     icon = Icons.Rounded.MedicalServices,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 SettingsSwitchRow(
-                    title = "健康体征模块",
-                    subtitle = "记录血压、血糖、体重等健康数据",
+                    title = stringResource(R.string.settings_health_title),
+                    subtitle = stringResource(R.string.settings_health_subtitle),
                     checked = uiState.enableHealthModule,
                     onCheckedChange = viewModel::setEnableHealthModule,
                     icon = Icons.Rounded.MonitorHeart,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 SettingsSwitchRow(
-                    title = "药物相互作用检测",
-                    subtitle = "在首页自动检测配伍风险并提示",
+                    title = stringResource(R.string.settings_interaction_title),
+                    subtitle = stringResource(R.string.settings_interaction_subtitle),
                     checked = uiState.enableDrugInteractionCheck,
                     onCheckedChange = viewModel::setEnableDrugInteractionCheck,
                     icon = Icons.Rounded.Warning,
@@ -565,7 +566,7 @@ fun SettingsScreen(
             }
 
             // ── 药品管理 ─────────────────────────────────────────
-            SettingsCard(title = "药品管理", icon = Icons.Rounded.MedicalServices) {
+            SettingsCard(title = stringResource(R.string.settings_card_meds), icon = Icons.Rounded.MedicalServices) {
                 ArchivedMedicationsRow(
                     archived = uiState.archivedMedications,
                     onRestore = viewModel::unarchiveMedication,
@@ -573,7 +574,7 @@ fun SettingsScreen(
             }
 
             // ── 桌面小组件 ────────────────────────────────────────
-            SettingsCard(title = "桌面小组件", icon = Icons.Rounded.Widgets) {
+            SettingsCard(title = stringResource(R.string.settings_card_widgets), icon = Icons.Rounded.Widgets) {
                 val widgetManager = AppWidgetManager.getInstance(context)
                 val canPin = widgetManager.isRequestPinAppWidgetSupported
                 val oemNeedsPermission = OemWidgetHelper.requiresExtraPermission
@@ -603,7 +604,7 @@ fun SettingsScreen(
                                     modifier = Modifier.size(16.dp),
                                 )
                                 Text(
-                                    "您的桌面不支持直接固定小组件。${OemWidgetHelper.manualAddGuidance}",
+                                    stringResource(R.string.settings_widget_no_pin_hint, OemWidgetHelper.manualAddGuidance),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
@@ -612,7 +613,7 @@ fun SettingsScreen(
                     } else {
                         // 可以固定——显示通用提示
                         Text(
-                            "点击添加按钮，将小组件固定到桌面",
+                            stringResource(R.string.settings_widget_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -653,7 +654,7 @@ fun SettingsScreen(
                                             modifier = Modifier.size(16.dp),
                                         )
                                         Spacer(Modifier.width(6.dp))
-                                        Text("前往授予「桌面快捷方式」权限", style = MaterialTheme.typography.labelMedium)
+                                        Text(stringResource(R.string.settings_widget_oem_btn), style = MaterialTheme.typography.labelMedium)
                                     }
                                 }
                             }
@@ -663,8 +664,8 @@ fun SettingsScreen(
                     // 今日进度小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_today,
-                        name = "今日进度",
-                        description = "显示今日服药进度，支持直接点击打卡确认",
+                        name = stringResource(R.string.settings_widget_today_name),
+                        description = stringResource(R.string.settings_widget_today_desc),
                         sizes = listOf("2×2", "4×2", "4×4"),
                         canPin = canPin,
                     ) {
@@ -675,9 +676,9 @@ fun SettingsScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     if (oemNeedsPermission)
-                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                        context.getString(R.string.settings_widget_pin_oem)
                                     else
-                                        "请在弹出的对话框中点击「添加」完成安装",
+                                        context.getString(R.string.settings_widget_pin_ok),
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -694,8 +695,8 @@ fun SettingsScreen(
                     // 下次服药小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_next_dose,
-                        name = "下次服药",
-                        description = "显示下次服药时间及倒计时，支持直接打卡",
+                        name = stringResource(R.string.settings_widget_next_name),
+                        description = stringResource(R.string.settings_widget_next_desc),
                         sizes = listOf("2×2", "4×2"),
                         canPin = canPin,
                     ) {
@@ -706,9 +707,9 @@ fun SettingsScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     if (oemNeedsPermission)
-                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                        context.getString(R.string.settings_widget_pin_oem)
                                     else
-                                        "请在弹出的对话框中点击「添加」完成安装",
+                                        context.getString(R.string.settings_widget_pin_ok),
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -725,8 +726,8 @@ fun SettingsScreen(
                     // 连续打卡小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_streak,
-                        name = "连续打卡",
-                        description = "显示连续打卡天数及最近 7 天完成情况",
+                        name = stringResource(R.string.settings_widget_streak_name),
+                        description = stringResource(R.string.settings_widget_streak_desc),
                         sizes = listOf("2×2", "4×2"),
                         canPin = canPin,
                     ) {
@@ -737,9 +738,9 @@ fun SettingsScreen(
                             scope.launch {
                                 snackbarHostState.showSnackbar(
                                     if (oemNeedsPermission)
-                                        "若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限"
+                                        context.getString(R.string.settings_widget_pin_oem)
                                     else
-                                        "请在弹出的对话框中点击「添加」完成安装",
+                                        context.getString(R.string.settings_widget_pin_ok),
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -756,11 +757,11 @@ fun SettingsScreen(
             }
 
             // ── 关于 ─────────────────────────────────────────────
-            SettingsCard(title = "关于", icon = Icons.Rounded.Info) {
+            SettingsCard(title = stringResource(R.string.settings_about), icon = Icons.Rounded.Info) {
                 ListItem(
                     headlineContent = { Text("Anshin") },
                     supportingContent = {
-                        Text("版本 ${BuildConfig.VERSION_NAME}（构建 ${BuildConfig.VERSION_CODE}）")
+                        Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE))
                     },
                     leadingContent = {
                         Icon(
@@ -773,8 +774,8 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 ListItem(
-                    headlineContent = { Text("重新查看新手引导") },
-                    supportingContent = { Text("重新浏览功能介绍、作息设置等引导流程") },
+                    headlineContent = { Text(stringResource(R.string.settings_replay_title)) },
+                    supportingContent = { Text(stringResource(R.string.settings_replay_subtitle)) },
                     leadingContent = {
                         Icon(
                             Icons.Rounded.Replay,
@@ -855,7 +856,7 @@ private fun WidgetPickerCard(
         // 预览区域
         Image(
             painter = painterResource(previewRes),
-            contentDescription = "$name 小组件预览",
+            contentDescription = stringResource(R.string.settings_widget_preview_cd, name),
             modifier = Modifier
                 .fillMaxWidth()
                 .height(110.dp)
@@ -899,7 +900,7 @@ private fun WidgetPickerCard(
                 Icon(Icons.AutoMirrored.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(6.dp))
                 Text(
-                    if (canPin) "添加到桌面" else "前往设置授权",
+                    if (canPin) stringResource(R.string.settings_widget_add_btn) else stringResource(R.string.settings_widget_grant_btn),
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -986,12 +987,12 @@ private fun RoutineTimeRow(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.End,
                 ) {
-                    TextButton(onClick = { expanded = false }) { Text("取消") }
+                    TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
                     Spacer(Modifier.width(8.dp))
                     FilledTonalButton(onClick = {
                         onTimeSelected(timeState.hour, timeState.minute)
                         expanded = false
-                    }) { Text("确定") }
+                    }) { Text(stringResource(R.string.confirm)) }
                 }
             }
         }
@@ -1008,11 +1009,11 @@ private fun ArchivedMedicationsRow(
     var expanded by remember { mutableStateOf(false) }
     Column {
         ListItem(
-            headlineContent = { Text("已归档药品") },
+            headlineContent = { Text(stringResource(R.string.archived_medications)) },
             supportingContent = {
                 Text(
-                    if (archived.isEmpty()) "暂无归档药品"
-                    else "${archived.size} 种药品已归档",
+                    if (archived.isEmpty()) stringResource(R.string.settings_archived_empty)
+                    else stringResource(R.string.settings_archived_count, archived.size),
                 )
             },
             leadingContent = {
@@ -1043,8 +1044,8 @@ private fun ArchivedMedicationsRow(
                         supportingContent = {
                             val catText = med.category.ifBlank { null }
                             val label = when {
-                                med.isTcm && catText != null -> "$catText · 中成药"
-                                med.isTcm -> "中成药"
+                                med.isTcm && catText != null -> stringResource(R.string.tcm_cat_label, catText)
+                                med.isTcm -> stringResource(R.string.tcm_label)
                                 catText != null -> catText
                                 else -> null
                             }
@@ -1067,7 +1068,7 @@ private fun ArchivedMedicationsRow(
                                 modifier = Modifier.height(32.dp),
                                 contentPadding = PaddingValues(horizontal = 12.dp),
                             ) {
-                                Text("恢复", style = MaterialTheme.typography.labelMedium)
+                                Text(stringResource(R.string.restore), style = MaterialTheme.typography.labelMedium)
                             }
                         },
                         colors = ListItemDefaults.colors(containerColor = Color.Transparent),

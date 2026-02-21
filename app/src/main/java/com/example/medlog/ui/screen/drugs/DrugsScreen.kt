@@ -37,8 +37,10 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.R
 import com.example.medlog.data.model.Drug
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -55,13 +57,13 @@ fun DrugsScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text("药品数据库") },
+                title = { Text(stringResource(R.string.drugs_title)) },
                 scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButton = {
             ExtendedFloatingActionButton(
-                text = { Text("自定义添加") },
+                text = { Text(stringResource(R.string.drugs_fab_add)) },
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
                 onClick = onAddCustomDrug,
             )
@@ -81,7 +83,7 @@ fun DrugsScreen(
                         onSearch = {},
                         expanded = uiState.isSearchActive,
                         onExpandedChange = viewModel::onSearchActiveChange,
-                        placeholder = { Text("搜索药品名称、分类、标签或拼音…") },
+                        placeholder = { Text(stringResource(R.string.drugs_search_placeholder)) },
                         leadingIcon = { Icon(Icons.Rounded.Search, null) },
                         trailingIcon = {
                             if (uiState.isSearchActive) {
@@ -89,7 +91,7 @@ fun DrugsScreen(
                                     if (uiState.query.isNotEmpty()) viewModel.onQueryChange("")
                                     else viewModel.onSearchActiveChange(false)
                                 }) {
-                                    Icon(Icons.Rounded.Close, contentDescription = "关闭搜索")
+                                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.drugs_close_search_cd))
                                 }
                             }
                         },
@@ -110,21 +112,21 @@ fun DrugsScreen(
                         FilterChip(
                             selected = uiState.showTcm == null && uiState.selectedCategory == null,
                             onClick = { viewModel.onToggleTcm(null); viewModel.onCategorySelect(null) },
-                            label = { Text("全部") },
+                            label = { Text(stringResource(R.string.drugs_tab_all)) },
                         )
                     }
                     item {
                         FilterChip(
                             selected = uiState.showTcm == false,
                             onClick = { viewModel.onToggleTcm(false); viewModel.onCategorySelect(null) },
-                            label = { Text("西药") },
+                            label = { Text(stringResource(R.string.drugs_tab_western)) },
                         )
                     }
                     item {
                         FilterChip(
                             selected = uiState.showTcm == true,
                             onClick = { viewModel.onToggleTcm(true); viewModel.onCategorySelect(null) },
-                            label = { Text("中成药") },
+                            label = { Text(stringResource(R.string.drugs_tab_tcm)) },
                         )
                     }
                     if (uiState.categories.isNotEmpty()) {
@@ -163,7 +165,7 @@ fun DrugsScreen(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
-                            text = "找到 ${uiState.drugs.size} 条结果",
+                            text = stringResource(R.string.drugs_results_count, uiState.drugs.size),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -179,7 +181,7 @@ fun DrugsScreen(
                                     tint = MaterialTheme.colorScheme.tertiary,
                                 )
                                 Text(
-                                    text = "含模糊/语义匹配",
+                                    text = stringResource(R.string.drugs_fuzzy_match),
                                     style = MaterialTheme.typography.labelSmall,
                                     color = MaterialTheme.colorScheme.tertiary,
                                 )
@@ -206,11 +208,11 @@ fun DrugsScreen(
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 Text(
-                                    "未找到「${uiState.query}」相关药品",
+                                    stringResource(R.string.drugs_not_found, uiState.query),
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                                 OutlinedButton(onClick = { viewModel.onQueryChange("") }) {
-                                    Text("清除搜索")
+                                    Text(stringResource(R.string.drugs_clear_search))
                                 }
                             }
                         }
@@ -248,7 +250,7 @@ fun DrugsScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 CircularProgressIndicator()
                                 Spacer(Modifier.height(8.dp))
-                                Text("加载药品数据库…", style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.drugs_loading), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
@@ -293,7 +295,7 @@ fun DrugsScreen(
                                         overflow = TextOverflow.Ellipsis,
                                     )
                                     TextButton(onClick = { viewModel.onSubcategorySelect(null) }) {
-                                        Text("返回子类")
+                                        Text(stringResource(R.string.drugs_back_subcategory))
                                     }
                                 } else {
                                     Text(
@@ -307,7 +309,7 @@ fun DrugsScreen(
                                             viewModel.onCategorySelect(null)
                                             viewModel.onToggleTcm(null)
                                         },
-                                    ) { Text("返回分类") }
+                                    ) { Text(stringResource(R.string.drugs_back_category)) }
                                 }
                             }
                             HorizontalDivider()
@@ -382,7 +384,7 @@ private fun SubcategoryGrid(
                         overflow = TextOverflow.Ellipsis,
                     )
                     Text(
-                        text = "$count 种",
+                        text = stringResource(R.string.drugs_count_suffix, count),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -404,7 +406,7 @@ private fun DrugCategoryBrowser(
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf("西 药" to Icons.Rounded.Medication, "中成药" to Icons.Rounded.LocalFlorist)
+    val tabs = listOf(stringResource(R.string.drugs_tab_western_br) to Icons.Rounded.Medication, stringResource(R.string.drugs_tab_tcm) to Icons.Rounded.LocalFlorist)
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
         PrimaryTabRow(selectedTabIndex = selectedTab) {
@@ -500,7 +502,7 @@ private fun CategoryGridCard(
                     overflow = TextOverflow.Ellipsis,
                 )
                 Text(
-                    text = "$count 种药品",
+                    text = stringResource(R.string.drugs_drug_count, count),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -578,6 +580,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             .filter { it != drug.category }
     } else emptyList()
 
+    val tcmBadge = stringResource(R.string.drugs_tcm_badge)
     ListItem(
         headlineContent = { Text(drug.name) },
         leadingContent = {
@@ -596,7 +599,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                 Text(
                     text = buildString {
                         append(drug.category)
-                        if (drug.isTcm) append("  ·  中成药")
+                        if (drug.isTcm) append(tcmBadge)
                         if (drug.tags.isNotEmpty()) append("  ·  ${drug.tags.take(2).joinToString(", ")}")
                     },
                     style = MaterialTheme.typography.bodySmall,
@@ -628,7 +631,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                 // 语义/模糊匹配原因提示
                 if (tagMatchHint != null) {
                     Text(
-                        text = "标签：$tagMatchHint",
+                        text = stringResource(R.string.drugs_tag_hint, tagMatchHint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.tertiary,
                     )
@@ -639,7 +642,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             if (drug.isCompound) {
                 SuggestionChip(
                     onClick = {},
-                    label = { Text("复方", style = MaterialTheme.typography.labelSmall) },
+                    label = { Text(stringResource(R.string.drugs_compound), style = MaterialTheme.typography.labelSmall) },
                 )
             }
         },

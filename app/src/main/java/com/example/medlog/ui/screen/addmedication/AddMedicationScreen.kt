@@ -29,23 +29,16 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
 import java.text.SimpleDateFormat
 import java.util.*
 
 private data class FormOption(val key: String, val label: String, val icon: ImageVector)
 
-private val FORM_OPTIONS = listOf(
-    FormOption("tablet",  "片剂", Icons.Rounded.Medication),
-    FormOption("capsule", "胶囊", Icons.Rounded.Science),
-    FormOption("liquid",  "液体", Icons.Rounded.LocalDrink),
-    FormOption("powder",  "粉末", Icons.Rounded.WaterDrop),
-    FormOption("patch",   "贴片", Icons.Rounded.Healing),
-    FormOption("other",   "其他", Icons.Rounded.MoreHoriz),
-)
-
-private val DOSE_UNITS = listOf("片", "粒", "ml", "mg", "滴", "袋", "支", "贴")
+// FORM_OPTIONS and DOSE_UNITS moved inside AddMedicationScreen composable
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -59,6 +52,25 @@ fun AddMedicationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsState()
+
+    val formOptions = listOf(
+        FormOption("tablet",  stringResource(R.string.add_form_tablet), Icons.Rounded.Medication),
+        FormOption("capsule", stringResource(R.string.add_form_capsule), Icons.Rounded.Science),
+        FormOption("liquid",  stringResource(R.string.add_form_liquid), Icons.Rounded.LocalDrink),
+        FormOption("powder",  stringResource(R.string.add_form_powder), Icons.Rounded.WaterDrop),
+        FormOption("patch",   stringResource(R.string.add_form_patch), Icons.Rounded.Healing),
+        FormOption("other",   stringResource(R.string.add_form_other), Icons.Rounded.MoreHoriz),
+    )
+    val doseUnits = listOf(
+        stringResource(R.string.add_unit_tablet),
+        stringResource(R.string.add_unit_capsule),
+        "ml",
+        "mg",
+        stringResource(R.string.add_unit_drop),
+        stringResource(R.string.add_unit_bag),
+        stringResource(R.string.add_unit_tube),
+        stringResource(R.string.add_unit_patch_unit),
+    )
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     LaunchedEffect(medicationId) {
@@ -77,10 +89,10 @@ fun AddMedicationScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(if (medicationId == null) "新增药品" else "编辑药品") },
+                title = { Text(if (medicationId == null) stringResource(R.string.add_title_new) else stringResource(R.string.add_title_edit)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.add_back_cd))
                     }
                 },
                 actions = {
@@ -96,7 +108,7 @@ fun AddMedicationScreen(
                             )
                             Spacer(Modifier.width(8.dp))
                         }
-                        Text("保存")
+                        Text(stringResource(R.string.add_save))
                     }
                 },
                 scrollBehavior = scrollBehavior,
@@ -114,7 +126,7 @@ fun AddMedicationScreen(
         ) {
 
             // ── 基本信息 ─────────────────────────────────────────
-            FormSection(title = "基本信息", icon = Icons.Rounded.Info) {
+            FormSection(title = stringResource(R.string.add_section_basic), icon = Icons.Rounded.Info) {
                 // 药品名称：带数据库搜索建议的下拉输入框
                 ExposedDropdownMenuBox(
                     expanded = uiState.showDrugSuggestions,
@@ -124,7 +136,7 @@ fun AddMedicationScreen(
                     OutlinedTextField(
                         value = uiState.name,
                         onValueChange = viewModel::onNameChange,
-                        label = { Text("药品名称 *") },
+                        label = { Text(stringResource(R.string.add_name_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(MenuAnchorType.PrimaryEditable),
@@ -137,7 +149,7 @@ fun AddMedicationScreen(
                         trailingIcon = {
                             if (uiState.name.isNotBlank()) {
                                 IconButton(onClick = { viewModel.onNameChange("") }) {
-                                    Icon(Icons.Rounded.Close, contentDescription = "清除")
+                                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.add_clear_cd))
                                 }
                             }
                         },
@@ -157,7 +169,7 @@ fun AddMedicationScreen(
                                                 style = MaterialTheme.typography.bodyMedium,
                                             )
                                             Text(
-                                                text = drug.category + if (drug.isTcm) "（中成药）" else "",
+                                                text = drug.category + if (drug.isTcm) stringResource(R.string.add_tcm_suffix) else "",
                                                 style = MaterialTheme.typography.bodySmall,
                                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                                             )
@@ -181,9 +193,9 @@ fun AddMedicationScreen(
                 OutlinedTextField(
                     value = uiState.category,
                     onValueChange = viewModel::onCategoryChange,
-                    label = { Text("分类（可选）") },
+                    label = { Text(stringResource(R.string.add_category_label)) },
                     modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text("如：心血管、消化、抗感染…") },
+                    placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
                     leadingIcon = { Icon(Icons.Rounded.Category, null) },
                     singleLine = true,
                 )
@@ -195,8 +207,8 @@ fun AddMedicationScreen(
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Rounded.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
                         Column {
-                            Text("高优先级", style = MaterialTheme.typography.bodyMedium)
-                            Text("将在列表顶部显示", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.add_high_priority), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.add_high_priority_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Switch(
@@ -207,7 +219,7 @@ fun AddMedicationScreen(
             }
 
             // ── 药品剂型 ─────────────────────────────────────────
-            FormSection(title = "药品剂型", icon = Icons.Rounded.Healing) {
+            FormSection(title = stringResource(R.string.add_section_form), icon = Icons.Rounded.Healing) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier
@@ -217,7 +229,7 @@ fun AddMedicationScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     userScrollEnabled = false,
                 ) {
-                    items(FORM_OPTIONS) { option ->
+                    items(formOptions) { option ->
                         val isSelected = uiState.form == option.key
                         Card(
                             onClick = { viewModel.onFormChange(option.key) },
@@ -256,7 +268,7 @@ fun AddMedicationScreen(
             }
 
             // ── 每次剂量 ─────────────────────────────────────────
-            FormSection(title = "每次剂量", icon = Icons.Rounded.MonitorWeight) {
+            FormSection(title = stringResource(R.string.add_section_dose), icon = Icons.Rounded.MonitorWeight) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
                         uiState.doseQuantity.let {
@@ -274,18 +286,18 @@ fun AddMedicationScreen(
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
-                        "滑动选择每次服药数量",
+                        stringResource(R.string.add_dose_slide_hint),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
                 Spacer(Modifier.height(4.dp))
-                Text("单位", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                Text(stringResource(R.string.add_unit_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    DOSE_UNITS.forEach { unit ->
+                    doseUnits.forEach { unit ->
                         FilterChip(
                             selected = uiState.doseUnit == unit,
                             onClick = { viewModel.onDoseUnitChange(unit) },
@@ -296,7 +308,7 @@ fun AddMedicationScreen(
             }
 
             // ── 按需用药 ─────────────────────────────────────────
-            FormSection(title = "用药方式", icon = Icons.Rounded.EventRepeat) {
+            FormSection(title = stringResource(R.string.add_section_usage), icon = Icons.Rounded.EventRepeat) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
@@ -305,8 +317,8 @@ fun AddMedicationScreen(
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                         Icon(Icons.Rounded.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
                         Column {
-                            Text("按需用药 (PRN)", style = MaterialTheme.typography.bodyMedium)
-                            Text("用于镇痛药等非定时药物", style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            Text(stringResource(R.string.add_prn_label), style = MaterialTheme.typography.bodyMedium)
+                            Text(stringResource(R.string.add_prn_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         }
                     }
                     Switch(checked = uiState.isPRN, onCheckedChange = viewModel::onIsPRNChange)
@@ -315,10 +327,10 @@ fun AddMedicationScreen(
                     OutlinedTextField(
                         value = uiState.maxDailyDose,
                         onValueChange = viewModel::onMaxDailyDoseChange,
-                        label = { Text("每日最大剂量（可选）") },
+                        label = { Text(stringResource(R.string.add_max_daily_dose)) },
                         modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                        suffix = { Text("次/天") },
+                        suffix = { Text(stringResource(R.string.add_times_per_day)) },
                         singleLine = true,
                     )
                 }
@@ -327,8 +339,8 @@ fun AddMedicationScreen(
                 AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
-                        Text("服药频率", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                        val freqOptions = listOf("daily" to "每天", "interval" to "间隔", "specific_days" to "指定天")
+                        Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                        val freqOptions = listOf("daily" to stringResource(R.string.add_freq_daily), "interval" to stringResource(R.string.add_freq_interval), "specific_days" to stringResource(R.string.add_freq_specific))
                         SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
                             freqOptions.forEachIndexed { index, (key, label) ->
                                 SegmentedButton(
@@ -340,7 +352,7 @@ fun AddMedicationScreen(
                         }
                         AnimatedVisibility(uiState.frequencyType == "interval") {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("每隔", style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.add_freq_every_n), style = MaterialTheme.typography.bodyMedium)
                                 OutlinedTextField(
                                     value = uiState.frequencyInterval.toString(),
                                     onValueChange = { viewModel.onFrequencyIntervalChange(it.toIntOrNull() ?: 1) },
@@ -348,7 +360,7 @@ fun AddMedicationScreen(
                                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                     singleLine = true,
                                 )
-                                Text("天服用一次", style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.add_freq_interval_suffix), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                         AnimatedVisibility(uiState.frequencyType == "specific_days") {
@@ -357,7 +369,16 @@ fun AddMedicationScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(6.dp),
                             ) {
-                                listOf("一" to 1, "二" to 2, "三" to 3, "四" to 4, "五" to 5, "六" to 6, "日" to 7).forEach { (label, day) ->
+                                val weekLabels = listOf(
+                                    stringResource(R.string.history_weekday_1) to 1,
+                                    stringResource(R.string.history_weekday_2) to 2,
+                                    stringResource(R.string.history_weekday_3) to 3,
+                                    stringResource(R.string.history_weekday_4) to 4,
+                                    stringResource(R.string.history_weekday_5) to 5,
+                                    stringResource(R.string.history_weekday_6) to 6,
+                                    stringResource(R.string.history_weekday_7) to 7,
+                                )
+                                weekLabels.forEach { (label, day) ->
                                     FilterChip(
                                         selected = days.contains(day.toString()),
                                         onClick = { viewModel.toggleFrequencyDay(day) },
@@ -373,14 +394,14 @@ fun AddMedicationScreen(
 
             // ── 服药时段 & 提醒（PRN 时作为可选提醒时间）─────────────────
             FormSection(
-                title = if (uiState.isPRN) "提醒时间（可选）" else "服药时段",
+                title = if (uiState.isPRN) stringResource(R.string.add_section_reminder_optional) else stringResource(R.string.add_section_time_period),
                 icon = Icons.Rounded.Schedule,
             ) {
                 Text(
                     text = if (uiState.isPRN)
-                        "PRN 药品可设置可选提醒，到时系统会提示您是否需要服药。"
+                        stringResource(R.string.add_prn_reminder_hint)
                     else
-                        "选择提醒模式",
+                        stringResource(R.string.add_select_reminder_mode),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -402,7 +423,7 @@ fun AddMedicationScreen(
                                     Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
                                 }
                             },
-                        ) { Text("作息时间") }
+                        ) { Text(stringResource(R.string.add_time_period_mode)) }
                         SegmentedButton(
                             selected = isExactMode,
                             onClick = { if (!isExactMode) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
@@ -412,7 +433,7 @@ fun AddMedicationScreen(
                                     Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
                                 }
                             },
-                        ) { Text("精确时间") }
+                        ) { Text(stringResource(R.string.add_exact_time_mode)) }
                     }
                 }
                 // 作息时间模式：时段选择芯片 + 自动提醒时间提示
@@ -443,7 +464,7 @@ fun AddMedicationScreen(
                             onClick = {},
                             label = {
                                 Text(
-                                    "提醒时间：${uiState.reminderTimes.firstOrNull() ?: ""}（来自作息设置）",
+                                    stringResource(R.string.add_reminder_hint_format, uiState.reminderTimes.firstOrNull().orEmpty()),
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             },
@@ -486,9 +507,9 @@ fun AddMedicationScreen(
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                                 Column {
-                                    Text("按间隔给药", style = MaterialTheme.typography.bodyMedium)
+                                    Text(stringResource(R.string.add_interval_dosing), style = MaterialTheme.typography.bodyMedium)
                                     Text(
-                                        "忽略时钟，按固定小时数给药（旅行/跨时区）",
+                                        stringResource(R.string.add_interval_dosing_subtitle),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -509,12 +530,12 @@ fun AddMedicationScreen(
                             OutlinedTextField(
                                 value = if (uiState.intervalHours > 0) uiState.intervalHours.toString() else "",
                                 onValueChange = { v -> v.toIntOrNull()?.let { viewModel.onIntervalHoursChange(it) } },
-                                label = { Text("间隔小时数") },
-                                suffix = { Text("小时") },
+                                label = { Text(stringResource(R.string.add_interval_hours_label)) },
+                                suffix = { Text(stringResource(R.string.add_interval_hours_unit)) },
                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                 singleLine = true,
                                 modifier = Modifier.fillMaxWidth(),
-                                supportingText = { Text("常见值：每 4 h / 6 h / 8 h / 12 h / 24 h") },
+                                supportingText = { Text(stringResource(R.string.add_interval_hours_hint)) },
                             )
                         }
                     }
@@ -522,16 +543,16 @@ fun AddMedicationScreen(
             }
 
             // ── 起止日期 ─────────────────────────────────────────
-            FormSection(title = "起止日期", icon = Icons.Rounded.DateRange) {
+            FormSection(title = stringResource(R.string.add_section_dates), icon = Icons.Rounded.DateRange) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     DatePickerField(
-                        label = "开始日期",
+                        label = stringResource(R.string.add_date_start),
                         timestamp = uiState.startDate,
                         onPick = { it?.let { ms -> viewModel.onStartDateChange(ms) } },
                         modifier = Modifier.weight(1f),
                     )
                     DatePickerField(
-                        label = "结束（可选）",
+                        label = stringResource(R.string.add_date_end),
                         timestamp = uiState.endDate,
                         onPick = viewModel::onEndDateChange,
                         nullable = true,
@@ -541,12 +562,12 @@ fun AddMedicationScreen(
             }
 
             // ── 库存管理 ─────────────────────────────────────────
-            FormSection(title = "库存管理（可选）", icon = Icons.Rounded.Inventory) {
+            FormSection(title = stringResource(R.string.add_section_stock), icon = Icons.Rounded.Inventory) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     OutlinedTextField(
                         value = uiState.stock,
                         onValueChange = viewModel::onStockChange,
-                        label = { Text("当前库存") },
+                        label = { Text(stringResource(R.string.add_current_stock)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         suffix = { Text(uiState.doseUnit) },
@@ -555,7 +576,7 @@ fun AddMedicationScreen(
                     OutlinedTextField(
                         value = uiState.refillThreshold,
                         onValueChange = viewModel::onRefillThresholdChange,
-                        label = { Text("补药提醒") },
+                        label = { Text(stringResource(R.string.add_refill_remind_label)) },
                         modifier = Modifier.weight(1f),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         suffix = { Text(uiState.doseUnit) },
@@ -564,19 +585,23 @@ fun AddMedicationScreen(
                 }
                 // ── 按天数估算备货提醒 ──────────────────────────────
                 Text(
-                    "时间估算备货提醒",
+                    stringResource(R.string.add_refill_time_est_title),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    "根据当前库存和每日用量，在预计剩余 N 天时提醒你提前购药",
+                    stringResource(R.string.add_refill_time_est_desc),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    listOf(0 to "关闭", 7 to "7 天", 14 to "14 天", 30 to "30 天").forEach { (days, label) ->
+                    val offLabel = stringResource(R.string.add_refill_off)
+                    val refillDaysLabel7 = stringResource(R.string.history_streak_max_days, 7)
+                    val refillDaysLabel14 = stringResource(R.string.history_streak_max_days, 14)
+                    val refillDaysLabel30 = stringResource(R.string.history_streak_max_days, 30)
+                    listOf(0 to offLabel, 7 to refillDaysLabel7, 14 to refillDaysLabel14, 30 to refillDaysLabel30).forEach { (days, label) ->
                         FilterChip(
                             selected = uiState.refillReminderDays == days,
                             onClick = { viewModel.onRefillReminderDaysChange(days) },
@@ -587,15 +612,15 @@ fun AddMedicationScreen(
             }
 
             // ── 备注 ─────────────────────────────────────────────
-            FormSection(title = "备注", icon = Icons.AutoMirrored.Rounded.Notes) {
+            FormSection(title = stringResource(R.string.add_section_notes), icon = Icons.AutoMirrored.Rounded.Notes) {
                 OutlinedTextField(
                     value = uiState.notes,
                     onValueChange = viewModel::onNotesChange,
-                    label = { Text("备注（可选）") },
+                    label = { Text(stringResource(R.string.add_notes_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     minLines = 2,
                     maxLines = 5,
-                    placeholder = { Text("用法说明、注意事项…") },
+                    placeholder = { Text(stringResource(R.string.add_notes_placeholder)) },
                 )
             }
 
@@ -657,7 +682,7 @@ private fun ReminderTimesRow(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-        Text("提醒时间", style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(stringResource(R.string.add_reminder_time_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -677,7 +702,7 @@ private fun ReminderTimesRow(
             }
             AssistChip(
                 onClick = { showPicker = !showPicker },
-                label = { Text(if (showPicker) "收起" else "添加") },
+                label = { Text(if (showPicker) stringResource(R.string.add_reminder_collapse) else stringResource(R.string.add_reminder_add_btn)) },
                 leadingIcon = {
                     Icon(
                         if (showPicker) Icons.Filled.ExpandLess else Icons.Filled.Add,
@@ -702,7 +727,7 @@ private fun ReminderTimesRow(
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Text(
-                        "添加提醒时间",
+                        stringResource(R.string.add_reminder_add_title),
                         style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -711,12 +736,12 @@ private fun ReminderTimesRow(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End,
                     ) {
-                        TextButton(onClick = { showPicker = false }) { Text("取消") }
+                        TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.cancel)) }
                         Spacer(Modifier.width(8.dp))
                         FilledTonalButton(onClick = {
                             onAdd("%02d:%02d".format(timePickerState.hour, timePickerState.minute))
                             showPicker = false
-                        }) { Text("确认") }
+                        }) { Text(stringResource(R.string.confirm)) }
                     }
                 }
             }
@@ -734,7 +759,7 @@ private fun DatePickerField(
     nullable: Boolean = false,
 ) {
     val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
-    val displayText = timestamp?.let { fmt.format(Date(it)) } ?: "未设置"
+    val displayText = timestamp?.let { fmt.format(Date(it)) } ?: stringResource(R.string.add_date_unset)
     var expanded by remember { mutableStateOf(false) }
     val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
 
@@ -787,12 +812,12 @@ private fun DatePickerField(
                             .padding(bottom = 12.dp),
                         horizontalArrangement = Arrangement.End,
                     ) {
-                        TextButton(onClick = { expanded = false }) { Text("取消") }
+                        TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
                         Spacer(Modifier.width(8.dp))
                         FilledTonalButton(onClick = {
                             onPick(state.selectedDateMillis)
                             expanded = false
-                        }) { Text("确定") }
+                        }) { Text(stringResource(R.string.confirm)) }
                     }
                 }
             }

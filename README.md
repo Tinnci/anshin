@@ -143,40 +143,53 @@ Clean Architecture + MVVM + SSOT (Single Source of Truth):
 
 ## Internationalization Roadmap / 多语言支持规划
 
-Anshin targets Chinese, Japanese, Korean, and English speakers.  
-Current status: **Chinese (zh) only** — all UI strings are in Chinese.
+Anshin targets Chinese (ZH), Japanese (JA), Korean (KO), and English (EN) speakers.  
+**Default locale: Chinese** — `values/strings.xml` is the Chinese base; all other locales shadow it.
 
 ### Implementation Plan
 
-**Phase 1 — Foundation (current sprint)**
+**Phase 1 — Foundation** ✅
 - [x] Brand name "Anshin" unified across all locales
-- [ ] Audit all hardcoded strings in Compose screens → move to `strings.xml`
-- [ ] Set English as the default locale (`values/strings.xml`) for translatable strings
+- [x] `values-en/`, `values-ja/`, `values-ko/` directories created with base ~52 shared strings
+- [x] Chinese set as default locale (`values/strings.xml`)
 
-**Phase 2 — English (EN)**
-- [ ] `app/src/main/res/values-en/strings.xml`
-- [ ] Translate all 200+ UI strings to English
-- [ ] Update notification copy and widget labels
+**Phase 2 — WelcomeScreen** ✅
+- [x] All welcome / onboarding strings extracted and translated (ZH / EN / JA / KO)
 
-**Phase 3 — Japanese (JA)**
-- [ ] `app/src/main/res/values-ja/strings.xml`
-- [ ] 服薬管理、今日の服薬、服薬履歴…
-- [ ] ja locale date/time format adjustment
+**Phase 3 — HomeScreen** ✅
+- [x] ~57 strings: dashboard labels, action buttons, empty states, progress copy
 
-**Phase 4 — Korean (KO)**
-- [ ] `app/src/main/res/values-ko/strings.xml`
-- [ ] 복약 관리、오늘의 복약、복약 기록…
+**Phase 4 — SettingsScreen** ✅
+- [x] ~72 strings: alarm/notification, appearance, routine times, travel mode, widgets, about
 
-**Phase 5 — RTL & Accessibility**
-- [ ] Verify Arabic/Hebrew RTL mirrors for adaptive navigation
+**Phase 5 — MedicationDetailScreen** ✅
+- [x] ~52 strings: form labels, section headers, status copy, archive/delete dialogs, stock cards
+
+**Phase 6 — DrugsScreen** ✅
+- [x] ~20 strings: drug database title, search UI, filter tabs, empty states, category navigation
+
+**Phase 7 — HistoryScreen** ✅
+- [x] ~34 strings: adherence messages, calendar weekdays, legend labels, log status copy, streak counter
+
+**Phase 8 — AddMedicationScreen** ✅
+- [x] ~68 strings: all form section titles, field labels, dose units, drug forms, reminder copy
+
+**Phase 9 — Remaining work**
+- [ ] `MedLogAlarmReceiver` / `NotificationHelper` — notification title & body strings
+- [ ] Widget label strings (homescreen widget titles/subtitles)
+- [ ] RTL layout review for Arabic/Hebrew (future)
 - [ ] TalkBack content description completeness audit
 
 ### String Coverage (Current)
 
-| Category | Count | Location |
-|----------|-------|----------|
-| `strings.xml` resources | ~40 | `values/strings.xml` |
-| Hardcoded in Compose screens | ~200+ | Various `*Screen.kt` files |
+| Locale | File | String Count |
+|--------|------|--------------|
+| Chinese (default) | `values/strings.xml` | **398** |
+| English | `values-en/strings.xml` | 398 |
+| Japanese | `values-ja/strings.xml` | 398 |
+| Korean | `values-ko/strings.xml` | 398 |
+
+All 8 major Compose screens are fully extracted — zero hardcoded Chinese strings remain in UI Screen files.
 
 > **Contributions welcome:** To translate Anshin into your language,  
 > open an issue or PR with `app/src/main/res/values-{lang}/strings.xml`.

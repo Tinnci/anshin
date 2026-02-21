@@ -29,6 +29,8 @@ import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
+import androidx.compose.ui.res.stringResource
+import com.example.medlog.R
 import java.util.*
 
 /** 剂型 key → Material Icon（与添加界面保持一致） */
@@ -39,12 +41,13 @@ private fun formIcon(form: String): ImageVector = when (form) {
     else      -> Icons.Rounded.Medication
 }
 
-/** 剂型 key → 中文标签 */
+/** 剂型 key → 本地化标签 */
+@Composable
 private fun formLabel(form: String): String = when (form) {
-    "capsule" -> "胶囊"
-    "liquid"  -> "涡刻"
-    "powder"  -> "粉末"
-    else      -> "片剂"
+    "capsule" -> stringResource(R.string.detail_form_capsule)
+    "liquid"  -> stringResource(R.string.detail_form_liquid)
+    "powder"  -> stringResource(R.string.detail_form_powder)
+    else      -> stringResource(R.string.detail_form_tablet)
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,35 +86,35 @@ fun MedicationDetailScreen(
                             Text(med.name)
                         }
                     } else {
-                        Text("用药详情")
+                        Text(stringResource(R.string.detail_title))
                     }
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "返回")
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.detail_back))
                     }
                 },
                 actions = {
                     if (med != null) {
                         IconButton(onClick = { onEdit(med.id) }) {
-                            Icon(Icons.Rounded.Edit, contentDescription = "编辑")
+                            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.detail_edit_cd))
                         }
                         var menuExpanded by remember { mutableStateOf(false) }
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(Icons.Rounded.MoreVert, contentDescription = "更多")
+                                Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.detail_more_cd))
                             }
                             DropdownMenu(
                                 expanded = menuExpanded,
                                 onDismissRequest = { menuExpanded = false },
                             ) {
                                 DropdownMenuItem(
-                                    text = { Text("归档") },
+                                    text = { Text(stringResource(R.string.archive)) },
                                     onClick = { menuExpanded = false; showArchiveDialog = true },
                                     leadingIcon = { Icon(Icons.Rounded.Archive, null) },
                                 )
                                 DropdownMenuItem(
-                                    text = { Text("删除", color = MaterialTheme.colorScheme.error) },
+                                    text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                     onClick = { menuExpanded = false; showDeleteDialog = true },
                                     leadingIcon = {
                                         Icon(
@@ -143,7 +146,7 @@ fun MedicationDetailScreen(
                 Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text("未找到该药品")
+                Text(stringResource(R.string.detail_not_found))
             }
             return@Scaffold
         }
@@ -175,19 +178,19 @@ fun MedicationDetailScreen(
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
                         Text(
-                            "基本信息",
+                            stringResource(R.string.detail_section_basic),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
-                        DetailRow("药品名称", med.name)
-                        DetailRow("剂型", formLabel(med.form))
+                        DetailRow(stringResource(R.string.detail_label_name), med.name)
+                        DetailRow(stringResource(R.string.detail_label_form), formLabel(med.form))
                         // 分类：支持单路径/多路径（用 \n 分隔的多条 ATC/TCM 路径）
                         val storedPaths = med.fullPath.split("\n").filter { it.isNotBlank() }
                         when {
                             storedPaths.size > 1 -> {
                                 // 多路径药品：每条路径单独一行展示
-                                val tcmSuffix = if (med.isTcm) "（中成药）" else ""
+                                val tcmSuffix = if (med.isTcm) stringResource(R.string.detail_tcm_suffix) else ""
                                 Column(
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -209,44 +212,52 @@ fun MedicationDetailScreen(
                                 HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
                             }
                             storedPaths.size == 1 -> {
-                                val display = if (med.isTcm) "${storedPaths[0]}（中成药）" else storedPaths[0]
-                                DetailRow("分类", display)
+                                val display = if (med.isTcm) "${storedPaths[0]}${stringResource(R.string.detail_tcm_suffix)}" else storedPaths[0]
+                                DetailRow(stringResource(R.string.detail_label_category), display)
                             }
                             med.category.isNotBlank() -> {
-                                val display = if (med.isTcm) "${med.category}（中成药）" else med.category
+                                val display = if (med.isTcm) "${med.category}${stringResource(R.string.detail_tcm_suffix)}" else med.category
                                 DetailRow("分类", display)
                             }
-                            else -> DetailRow("分类", "—")
+                            else -> DetailRow(stringResource(R.string.detail_label_category), "—")
                         }
-                        DetailRow("剂量", "${med.doseQuantity}×${med.dose} ${med.doseUnit}")
+                        DetailRow(stringResource(R.string.detail_label_dose), "${med.doseQuantity}×${med.dose} ${med.doseUnit}")
                         if (med.isPRN) {
-                            DetailRow("用法", "按需服用 (PRN)")
+                            DetailRow(stringResource(R.string.detail_label_usage), stringResource(R.string.detail_usage_prn))
                         } else {
                             val period = TimePeriod.fromKey(med.timePeriod)
                             val timeStr = if (med.timePeriod == "exact")
                                 med.reminderTimes.replace(",", " / ")
                             else period.label
-                            DetailRow("服药时段", timeStr)
+                            DetailRow(stringResource(R.string.detail_label_period), timeStr)
                             val freqStr = when (med.frequencyType) {
-                                "daily"         -> "每日"
-                                "interval"      -> "每${med.frequencyInterval}天"
+                                "daily"         -> stringResource(R.string.detail_freq_daily)
+                                "interval"      -> stringResource(R.string.detail_freq_interval, med.frequencyInterval)
                                 "specific_days" -> {
-                                    val dayNames = listOf("周日", "周一", "周二", "周三", "周四", "周五", "周六")
+                                    val dayNames = listOf(
+                                        stringResource(R.string.detail_day_0),
+                                        stringResource(R.string.detail_day_1),
+                                        stringResource(R.string.detail_day_2),
+                                        stringResource(R.string.detail_day_3),
+                                        stringResource(R.string.detail_day_4),
+                                        stringResource(R.string.detail_day_5),
+                                        stringResource(R.string.detail_day_6),
+                                    )
                                     med.frequencyDays.split(",").mapNotNull { it.trim().toIntOrNull() }
                                         .map { dayNames.getOrElse(it % 7) { it.toString() } }
                                         .joinToString(" ")
                                 }
                                 else -> med.frequencyType
                             }
-                            DetailRow("频率", freqStr)
+                            DetailRow(stringResource(R.string.detail_label_frequency), freqStr)
                         }
-                        if (med.isHighPriority) DetailRow("优先级", "高优先级 ⚡")
-                        med.stock?.let { DetailRow("当前库存", "$it ${med.doseUnit}") }
+                        if (med.isHighPriority) DetailRow(stringResource(R.string.detail_label_priority), stringResource(R.string.detail_priority_high))
+                        med.stock?.let { DetailRow(stringResource(R.string.detail_label_stock), "$it ${med.doseUnit}") }
                         med.endDate?.let {
-                            DetailRow("结束日期", java.text.SimpleDateFormat("yyyy/MM/dd", java.util.Locale.getDefault())
+                            DetailRow(stringResource(R.string.detail_label_end_date), java.text.SimpleDateFormat("yyyy/MM/dd", java.util.Locale.getDefault())
                                 .format(java.util.Date(it)))
                         }
-                        if (med.notes.isNotBlank()) DetailRow("备注", med.notes)
+                        if (med.notes.isNotBlank()) DetailRow(stringResource(R.string.detail_label_notes), med.notes)
                     }
                 }
             }
@@ -274,13 +285,13 @@ fun MedicationDetailScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Text(
-                        "服药历史（近60条）",
+                        stringResource(R.string.detail_history_title),
                         style = MaterialTheme.typography.titleSmall,
                         color = MaterialTheme.colorScheme.primary,
                     )
                     if (uiState.logs.isNotEmpty()) {
                         Text(
-                            "${uiState.taken30d}/${uiState.total30d} 已服（30天内）",
+                            stringResource(R.string.detail_history_count, uiState.taken30d, uiState.total30d),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -291,7 +302,7 @@ fun MedicationDetailScreen(
             if (uiState.logs.isEmpty()) {
                 item {
                     Text(
-                        "暂无服药记录",
+                        stringResource(R.string.detail_no_logs),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -307,17 +318,17 @@ fun MedicationDetailScreen(
     if (showArchiveDialog) {
         AlertDialog(
             onDismissRequest = { showArchiveDialog = false },
-            title = { Text("归档药品") },
-            text = { Text("归档后将保留历史记录，并停止未来的用药提醒。是否继续？") },
+            title = { Text(stringResource(R.string.detail_archive_title)) },
+            text = { Text(stringResource(R.string.detail_archive_body)) },
             confirmButton = {
                 TextButton(onClick = {
                     showArchiveDialog = false
                     viewModel.archiveMedication()
                     onBack()
-                }) { Text("归档") }
+                }) { Text(stringResource(R.string.archive)) }
             },
             dismissButton = {
-                TextButton(onClick = { showArchiveDialog = false }) { Text("取消") }
+                TextButton(onClick = { showArchiveDialog = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
     }
@@ -325,8 +336,8 @@ fun MedicationDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("删除药品") },
-            text = { Text("删除后将清除所有相关记录，此操作不可撤销。") },
+            title = { Text(stringResource(R.string.detail_delete_title)) },
+            text = { Text(stringResource(R.string.detail_delete_body)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -337,7 +348,7 @@ fun MedicationDetailScreen(
                     colors = ButtonDefaults.textButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
-                ) { Text("删除") }
+                ) { Text(stringResource(R.string.delete)) }
             },
             dismissButton = {
                 TextButton(onClick = { showDeleteDialog = false }) { Text("取消") }
@@ -368,7 +379,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
-                "近30天坚持率",
+                stringResource(R.string.detail_adherence_title),
                 style = MaterialTheme.typography.labelLarge,
                 color = colorScheme.primary,
                 modifier = Modifier.padding(bottom = 12.dp),
@@ -397,20 +408,20 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
                     StatRow(
                         icon = Icons.Rounded.CheckCircle,
                         tint = colorScheme.tertiary,
-                        label = "已服用",
-                        value = "$taken 次",
+                        label = stringResource(R.string.medication_taken),
+                        value = stringResource(R.string.detail_count_times, taken),
                     )
                     StatRow(
                         icon = Icons.Rounded.Cancel,
                         tint = colorScheme.error,
-                        label = "漏服/跳过",
-                        value = "${(total - taken).coerceAtLeast(0)} 次",
+                        label = stringResource(R.string.detail_missed_skipped),
+                        value = stringResource(R.string.detail_count_times, (total - taken).coerceAtLeast(0)),
                     )
                     StatRow(
                         icon = Icons.Rounded.DateRange,
                         tint = colorScheme.secondary,
-                        label = "计划总次数",
-                        value = "$total 次",
+                        label = stringResource(R.string.detail_total_count),
+                        value = stringResource(R.string.detail_count_times, total),
                     )
                 }
             }
@@ -478,7 +489,7 @@ private fun StockCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(Icons.Rounded.Inventory, null, tint = stockColor, modifier = Modifier.size(18.dp))
-                    Text("库存管理", style = MaterialTheme.typography.labelLarge, color = colorScheme.primary)
+                    Text(stringResource(R.string.detail_stock_title), style = MaterialTheme.typography.labelLarge, color = colorScheme.primary)
                 }
                 Text(
                     "$stockDisplay $unit",
@@ -495,8 +506,8 @@ private fun StockCard(
                     color = (if (isLow) colorScheme.errorContainer else colorScheme.tertiaryContainer).copy(alpha = 0.7f),
                 ) {
                     Text(
-                        if (isLow) "⚠️ 库存低于补货阈值（${refillThreshold} $unit），请及时补充"
-                        else "✔ 库存充足，补货阈值：${refillThreshold} $unit",
+                        if (isLow) stringResource(R.string.detail_stock_low_warning, refillThreshold.toString(), unit)
+                        else stringResource(R.string.detail_stock_ok, refillThreshold.toString(), unit),
                         style = MaterialTheme.typography.bodySmall,
                         color = if (isLow) colorScheme.onErrorContainer else colorScheme.onTertiaryContainer,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -513,7 +524,7 @@ private fun StockCard(
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 Text(
-                    "±1次用量（$doseDisplay $unit）",
+                    stringResource(R.string.detail_stock_adjust_hint, doseDisplay, unit),
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
@@ -524,7 +535,7 @@ private fun StockCard(
                         onClick = { onAdjustStock(-doseQuantity) },
                         modifier = Modifier.size(36.dp),
                     ) {
-                        Icon(Icons.Rounded.Remove, "减少一次量", Modifier.size(18.dp))
+                        Icon(Icons.Rounded.Remove, stringResource(R.string.detail_stock_decrease_cd), Modifier.size(18.dp))
                     }
                     FilledIconButton(
                         onClick = { onAdjustStock(+doseQuantity) },
@@ -534,7 +545,7 @@ private fun StockCard(
                             contentColor = colorScheme.onPrimaryContainer,
                         ),
                     ) {
-                        Icon(Icons.Rounded.Add, "增加一次量", Modifier.size(18.dp))
+                        Icon(Icons.Rounded.Add, stringResource(R.string.detail_stock_increase_cd), Modifier.size(18.dp))
                     }
                 }
             }
@@ -596,7 +607,7 @@ private fun DetailLogRow(log: MedicationLog) {
             log.actualTakenTimeMs?.let {
                 if (log.status == LogStatus.TAKEN) {
                     Text(
-                        "实际服用：${timeFmt.format(Date(it))}",
+                        stringResource(R.string.detail_log_actual_time, timeFmt.format(Date(it))),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
                     )
@@ -616,9 +627,9 @@ private fun DetailLogRow(log: MedicationLog) {
         ) {
             Text(
                 text = when (log.status) {
-                    LogStatus.TAKEN   -> "已服用"
-                    LogStatus.SKIPPED -> "已跳过"
-                    LogStatus.MISSED  -> "漏服"
+                    LogStatus.TAKEN   -> stringResource(R.string.medication_taken)
+                    LogStatus.SKIPPED -> stringResource(R.string.medication_skipped)
+                    LogStatus.MISSED  -> stringResource(R.string.medication_missed)
                 },
                 style = MaterialTheme.typography.labelSmall,
                 color = statusColor,

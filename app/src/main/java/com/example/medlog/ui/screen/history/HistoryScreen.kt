@@ -27,8 +27,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.R
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.ui.theme.calendarWarning
@@ -52,10 +54,10 @@ fun HistoryScreen(
             LargeTopAppBar(
                 title = {
                     Column {
-                        Text("服药历史")
+                        Text(stringResource(R.string.history_title))
                         if (!uiState.isLoading) {
                             Text(
-                                "近30天坚持率 ${(uiState.overallAdherence * 100).toInt()}%",
+                                stringResource(R.string.history_adherence_header, (uiState.overallAdherence * 100).toInt()),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -175,13 +177,13 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
                 )
             }
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text("近30天坚持率", style = MaterialTheme.typography.titleSmall)
+                Text(stringResource(R.string.history_adherence_title), style = MaterialTheme.typography.titleSmall)
                 Text(
                     when {
-                        adherence >= 0.9f -> "优秀！继续保持 🎉"
-                        adherence >= 0.75f -> "表现良好，再接再厉"
-                        adherence >= 0.5f  -> "还需努力，记得按时服药"
-                        else               -> "坚持率偏低，请重视用药规律"
+                        adherence >= 0.9f -> stringResource(R.string.history_adherence_excellent)
+                        adherence >= 0.75f -> stringResource(R.string.history_adherence_good)
+                        adherence >= 0.5f  -> stringResource(R.string.history_adherence_fair)
+                        else               -> stringResource(R.string.history_adherence_poor)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -217,10 +219,10 @@ private fun MonthCalendarCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = { onNavigate(-1) }) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, "上月")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.history_prev_month_cd))
                 }
                 Text(
-                    "${displayedMonth.year}年${displayedMonth.monthValue}月",
+                    stringResource(R.string.history_month_format, displayedMonth.year, displayedMonth.monthValue),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -228,19 +230,28 @@ private fun MonthCalendarCard(
                     onClick = { onNavigate(1) },
                     enabled = displayedMonth < YearMonth.now(),
                 ) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, "下月")
+                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, stringResource(R.string.history_next_month_cd))
                 }
             }
 
             // 周标题（中国习惯：周一开始）
             Row(modifier = Modifier.fillMaxWidth()) {
-                listOf("一", "二", "三", "四", "五", "六", "日").forEach { label ->
+                val weekDays = listOf(
+                    stringResource(R.string.history_weekday_1),
+                    stringResource(R.string.history_weekday_2),
+                    stringResource(R.string.history_weekday_3),
+                    stringResource(R.string.history_weekday_4),
+                    stringResource(R.string.history_weekday_5),
+                    stringResource(R.string.history_weekday_6),
+                    stringResource(R.string.history_weekday_7),
+                )
+                weekDays.forEachIndexed { index, label ->
                     Text(
                         label,
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (label == "日") MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        color = if (index == 6) MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
                                 else MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
@@ -354,9 +365,9 @@ private fun LegendRow(modifier: Modifier = Modifier) {
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        LegendItem(color = colorScheme.tertiary, label = "全部服用")
-        LegendItem(color = calendarWarning, label = "部分服用")
-        LegendItem(color = colorScheme.error, label = "漏服")
+        LegendItem(color = colorScheme.tertiary, label = stringResource(R.string.history_legend_all))
+        LegendItem(color = calendarWarning, label = stringResource(R.string.history_legend_partial))
+        LegendItem(color = colorScheme.error, label = stringResource(R.string.history_missed))
     }
 }
 
@@ -403,9 +414,9 @@ private fun DayDetailSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "${date.monthValue}月${date.dayOfMonth}日 (${
+                    stringResource(R.string.history_date_format, date.monthValue, date.dayOfMonth,
                         date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.CHINESE)
-                    })",
+                    ),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -414,7 +425,7 @@ private fun DayDetailSection(
                         onClick = {},
                         label = {
                             Text(
-                                "${day.taken}/${day.total} 已服用",
+                                stringResource(R.string.history_taken_count, day.taken, day.total),
                                 style = MaterialTheme.typography.labelSmall,
                             )
                         },
@@ -424,7 +435,7 @@ private fun DayDetailSection(
 
             if (day == null || day.total == 0) {
                 Text(
-                    "当日无服药计划",
+                    stringResource(R.string.history_no_plan),
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
                 )
@@ -447,6 +458,10 @@ private fun DayLogRow(
 ) {
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val colorScheme = MaterialTheme.colorScheme
+    val takenLabel = stringResource(R.string.history_taken)
+    val skippedLabel = stringResource(R.string.history_skipped)
+    val missedLabel = stringResource(R.string.history_missed)
+    val unrecordedLabel = stringResource(R.string.history_time_unrecorded)
 
     // 时间戳编辑对话框状态
     var showTimePicker by remember { mutableStateOf(false) }
@@ -484,16 +499,16 @@ private fun DayLogRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(medicationName, style = MaterialTheme.typography.bodyMedium)
             Text(
-                "计划：${timeFmt.format(Date(log.scheduledTimeMs))}",
+                stringResource(R.string.history_scheduled_time, timeFmt.format(Date(log.scheduledTimeMs))),
                 style = MaterialTheme.typography.bodySmall,
                 color = colorScheme.onSurfaceVariant,
             )
         }
         Text(
             when (log.status) {
-                LogStatus.TAKEN   -> log.actualTakenTimeMs?.let { "已服 ${timeFmt.format(Date(it))}" } ?: "已服"
-                LogStatus.SKIPPED -> "已跳过"
-                LogStatus.MISSED  -> "漏服"
+                LogStatus.TAKEN   -> log.actualTakenTimeMs?.let { stringResource(R.string.history_taken_time, timeFmt.format(Date(it))) } ?: takenLabel
+                LogStatus.SKIPPED -> skippedLabel
+                LogStatus.MISSED  -> missedLabel
             },
             style = MaterialTheme.typography.labelSmall,
             color = when (log.status) {
@@ -511,11 +526,11 @@ private fun DayLogRow(
     if (showTimePicker) {
         AlertDialog(
             onDismissRequest = { showTimePicker = false },
-            title = { Text("修改服药时间") },
+            title = { Text(stringResource(R.string.history_edit_time_title)) },
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        "当前：${log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: "未记录"}",
+                        stringResource(R.string.history_current_time_format, log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: unrecordedLabel),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 12.dp),
@@ -535,10 +550,10 @@ private fun DayLogRow(
                     }
                     onEditTakenTime(log, base.timeInMillis)
                     showTimePicker = false
-                }) { Text("确认") }
+                }) { Text(stringResource(R.string.confirm)) }
             },
             dismissButton = {
-                TextButton(onClick = { showTimePicker = false }) { Text("取消") }
+                TextButton(onClick = { showTimePicker = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
     }
@@ -569,13 +584,13 @@ private fun StreakCard(
         ) {
             Column {
                 Text(
-                    text = "🔥 连续 $currentStreak 天",
+                    text = stringResource(R.string.history_streak_count, currentStreak),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                     fontWeight = FontWeight.Bold,
                 )
                 Text(
-                    text = "坚持服药连续打卡",
+                    text = stringResource(R.string.history_streak_title_text),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
                 )
@@ -583,12 +598,12 @@ private fun StreakCard(
             if (longestStreak > 0) {
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
-                        text = "最长记录",
+                        text = stringResource(R.string.history_streak_max_label),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f),
                     )
                     Text(
-                        text = "$longestStreak 天",
+                        text = stringResource(R.string.history_streak_max_days, longestStreak),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.SemiBold,
