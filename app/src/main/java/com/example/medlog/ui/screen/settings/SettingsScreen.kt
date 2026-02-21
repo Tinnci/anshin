@@ -29,6 +29,8 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import android.Manifest
 import android.app.AlarmManager
+import android.appwidget.AppWidgetManager
+import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -41,6 +43,7 @@ import androidx.core.content.ContextCompat
 import com.example.medlog.BuildConfig
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.ThemeMode
+import com.example.medlog.widget.MedLogWidgetReceiver
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -464,6 +467,110 @@ fun SettingsScreen(
                     archived = uiState.archivedMedications,
                     onRestore = viewModel::unarchiveMedication,
                 )
+            }
+
+            // ── 桌面小组件 ────────────────────────────────────────
+            SettingsCard(title = "桌面小组件", icon = Icons.Rounded.Widgets) {
+                val widgetManager = AppWidgetManager.getInstance(context)
+                val canPin = widgetManager.isRequestPinAppWidgetSupported
+
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 4.dp, bottom = 12.dp),
+                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    // 简介行
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // 预览缩略卡片
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.primaryContainer,
+                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.SpaceBetween,
+                            ) {
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Text(
+                                        "用药日志",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.6f),
+                                    )
+                                    Text(
+                                        "2/3",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = MaterialTheme.colorScheme.primary,
+                                    )
+                                }
+                                LinearProgressIndicator(
+                                    progress = { 0.67f },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(4.dp),
+                                    strokeCap = androidx.compose.ui.graphics.StrokeCap.Round,
+                                )
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(
+                                "今日进度一目了然",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                "在桌面随时查看服药进度，支持 2×2、4×2、4×4 三种尺寸",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+
+                    // 添加按钮
+                    Button(
+                        onClick = {
+                            if (canPin) {
+                                val provider = ComponentName(context, MedLogWidgetReceiver::class.java)
+                                widgetManager.requestPinAppWidget(provider, null, null)
+                            } else {
+                                // 降级：跳转桌面/应用详情
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    }
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        contentPadding = PaddingValues(vertical = 8.dp),
+                    ) {
+                        Icon(
+                            if (canPin) Icons.Rounded.AddToHomeScreen
+                            else        Icons.Rounded.OpenInNew,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        Text(
+                            if (canPin) "添加到桌面 / 负一屏"
+                            else        "前往添加小组件",
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+                }
             }
 
             // ── 关于 ─────────────────────────────────────────────
