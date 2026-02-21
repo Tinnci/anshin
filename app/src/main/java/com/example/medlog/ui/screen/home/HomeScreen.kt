@@ -476,16 +476,23 @@ private fun TimePeriodGroupCard(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) { Text("$pendingCount") }
-                // 一键服用本时段
+                // 一键服用本时段 — pill 形，比单药按钮更大更显眼
                 if (pendingCount > 1) {
-                    FilledTonalIconButton(
+                    Button(
                         onClick = onTakeAll,
-                        modifier = Modifier.size(32.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                        modifier = Modifier.height(40.dp),
                     ) {
                         Icon(
                             Icons.Rounded.DoneAll,
-                            contentDescription = "全部服用",
-                            modifier = Modifier.size(16.dp),
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Spacer(Modifier.width(6.dp))
+                        Text(
+                            "全部服用",
+                            style = MaterialTheme.typography.labelLarge,
+                            fontWeight = FontWeight.Bold,
                         )
                     }
                 }
