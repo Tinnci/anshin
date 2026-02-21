@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="160dp"
+    android:viewportWidth="320"
+    android:viewportHeight="160">
+
+    <!-- 背景：surfaceVariant 圆角矩形 -->
+    <path
+        android:fillColor="#E7E0EC"
+        android:pathData="M20,0 L300,0 Q320,0 320,20 L320,140 Q320,160 300,160 L20,160 Q0,160 0,140 L0,20 Q0,0 20,0 Z" />
+
+    <!-- 标题 "下次服药" 小矩形（左上） -->
+    <path
+        android:fillColor="#49454F"
+        android:pathData="M12,16 L70,16 Q72,16 72,18 L72,24 Q72,26 70,26 L12,26 Q10,26 10,24 L10,18 Q10,16 12,16 Z" />
+
+    <!-- 时间 "14:30" 大矩形（右上，primary色） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M230,12 L310,12 Q312,12 312,15 L312,27 Q312,30 310,30 L230,30 Q228,30 228,27 L228,15 Q228,12 230,12 Z" />
+
+    <!-- 倒计时 "还有 45 分钟" -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,40 L130,40 Q132,40 132,42 L132,48 Q132,50 130,50 L12,50 Q10,50 10,48 L10,42 Q10,40 12,40 Z" />
+
+    <!-- 药品行 1：名称 + 打卡按钮 -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,60 L258,60 Q260,60 260,62 L260,68 Q260,70 258,70 L12,70 Q10,70 10,68 L10,62 Q10,60 12,60 Z" />
+    <!-- 打卡圆按钮 -->
+    <path
+        android:fillColor="#EADDFF"
+        android:pathData="M298,65 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M292,64 L294,66 L304,58" />
+
+    <!-- 药品行 2：名称 + 打卡按钮 -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,78 L200,78 Q202,78 202,80 L202,86 Q202,88 200,88 L12,88 Q10,88 10,86 L10,80 Q10,78 12,78 Z" />
+    <path
+        android:fillColor="#EADDFF"
+        android:pathData="M298,83 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M292,82 L294,84 L304,76" />
+
+    <!-- 药品行 3 -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,96 L230,96 Q232,96 232,98 L232,104 Q232,106 230,106 L12,106 Q10,106 10,104 L10,98 Q10,96 12,96 Z" />
+    <path
+        android:fillColor="#EADDFF"
+        android:pathData="M298,101 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M292,100 L294,102 L304,94" />
+
+</vector>

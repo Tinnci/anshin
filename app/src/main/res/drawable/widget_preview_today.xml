@@ -1,0 +1,67 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="160dp"
+    android:viewportWidth="320"
+    android:viewportHeight="160">
+
+    <!-- 背景：surfaceVariant 圆角矩形 -->
+    <path
+        android:fillColor="#E7E0EC"
+        android:pathData="M20,0 L300,0 Q320,0 320,20 L320,140 Q320,160 300,160 L20,160 Q0,160 0,140 L0,20 Q0,0 20,0 Z" />
+
+    <!-- 标题 "用药日志" 占位矩形 -->
+    <path
+        android:fillColor="#49454F"
+        android:pathData="M14,16 L80,16 Q82,16 82,18 L82,24 Q82,26 80,26 L14,26 Q12,26 12,24 L12,18 Q12,16 14,16 Z" />
+
+    <!-- 计数 "2 / 4" 占位（右上） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M270,14 L308,14 Q310,14 310,16 L310,26 Q310,28 308,28 L270,28 Q268,28 268,26 L268,16 Q268,14 270,14 Z" />
+
+    <!-- 进度条轨道 -->
+    <path
+        android:fillColor="#CAC4D0"
+        android:pathData="M12,36 L308,36 Q310,36 310,39 L310,43 Q310,46 308,46 L12,46 Q10,46 10,43 L10,39 Q10,36 12,36 Z" />
+
+    <!-- 进度填充（50% ≈ 已服 2/4） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M12,36 L160,36 Q161,36 161,39 L161,43 Q161,46 160,46 L12,46 Q10,46 10,43 L10,39 Q10,36 12,36 Z" />
+
+    <!-- 待服标签 -->
+    <path
+        android:fillColor="#49454F"
+        android:pathData="M12,56 L44,56 Q46,56 46,58 L46,63 Q46,65 44,65 L12,65 Q10,65 10,63 L10,58 Q10,56 12,56 Z" />
+
+    <!-- 药品行 1：名称 + 时间 + 打卡按钮 -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,74 L170,74 Q172,74 172,76 L172,82 Q172,84 170,84 L12,84 Q10,84 10,82 L10,76 Q10,74 12,74 Z" />
+    <!-- 时间标签 -->
+    <path
+        android:fillColor="#49454F"
+        android:pathData="M176,74 L220,74 Q222,74 222,76 L222,82 Q222,84 220,84 L176,84 Q174,84 174,82 L174,76 Q174,74 176,74 Z" />
+    <!-- 打卡圆按钮 -->
+    <path
+        android:fillColor="#EADDFF"
+        android:pathData="M298,79 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M292,78 L294,80 L304,72" />
+
+    <!-- 药品行 2：名称 + 时间 + 打卡按钮 -->
+    <path
+        android:fillColor="#1C1B1F"
+        android:pathData="M12,94 L170,94 Q172,94 172,96 L172,102 Q172,104 170,104 L12,104 Q10,104 10,102 L10,96 Q10,94 12,94 Z" />
+    <path
+        android:fillColor="#49454F"
+        android:pathData="M176,94 L220,94 Q222,94 222,96 L222,102 Q222,104 220,104 L176,104 Q174,104 174,102 L174,96 Q174,94 176,94 Z" />
+    <path
+        android:fillColor="#EADDFF"
+        android:pathData="M298,99 m-12,0 a12,12 0 1,0 24,0 a12,12 0 1,0 -24,0" />
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M292,98 L294,100 L304,92" />
+
+</vector>

@@ -1,0 +1,70 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="160dp"
+    android:viewportWidth="320"
+    android:viewportHeight="160">
+
+    <!-- 背景：tertiaryContainer（≥7天激励色） -->
+    <path
+        android:fillColor="#FFD8E4"
+        android:pathData="M20,0 L300,0 Q320,0 320,20 L320,140 Q320,160 300,160 L20,160 Q0,160 0,140 L0,20 Q0,0 20,0 Z" />
+
+    <!-- 标题 "连续打卡" 小矩形（左上） -->
+    <path
+        android:fillColor="#7D5260"
+        android:pathData="M12,14 L72,14 Q74,14 74,16 L74,22 Q74,24 72,24 L12,24 Q10,24 10,22 L10,16 Q10,14 12,14 Z" />
+
+    <!-- 天数大显示（右上：宽矩形表示"7 天"数字） -->
+    <path
+        android:fillColor="#7D5260"
+        android:pathData="M248,10 L310,10 Q312,10 312,14 L312,28 Q312,32 310,32 L248,32 Q246,32 246,28 L246,14 Q246,10 248,10 Z" />
+
+    <!-- 7 天圆点（cy=70，r=14，从左往右；前6天 primary，今天 tertiary） -->
+    <!-- 第 1 天（完成）-->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M29,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 2 天（完成） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M73,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 3 天（完成） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M117,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 4 天（完成） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M160,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 5 天（完成） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M204,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 6 天（完成） -->
+    <path
+        android:fillColor="#6650A4"
+        android:pathData="M247,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+    <!-- 第 7 天（今天 — tertiary 高亮） -->
+    <path
+        android:fillColor="#7D5260"
+        android:pathData="M291,70 m-14,0 a14,14 0 1,0 28,0 a14,14 0 1,0 -28,0" />
+
+    <!-- 每个圆点内的 ✓ 标记（用细斜线表示） -->
+    <path android:fillColor="#FFFFFF" android:pathData="M24,69 L27,72 L35,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M68,69 L71,72 L79,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M112,69 L115,72 L123,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M155,69 L158,72 L166,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M199,69 L202,72 L210,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M242,69 L245,72 L253,64" />
+    <path android:fillColor="#FFFFFF" android:pathData="M286,69 L289,72 L297,64" />
+
+    <!-- 日标签（7 个小矩形，代表一/二/三/四/五/六/日） -->
+    <path android:fillColor="#7D5260" android:pathData="M20,90 L38,90 Q39,90 39,91 L39,97 Q39,98 38,98 L20,98 Q19,98 19,97 L19,91 Q19,90 20,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M64,90 L82,90 Q83,90 83,91 L83,97 Q83,98 82,98 L64,98 Q63,98 63,97 L63,91 Q63,90 64,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M108,90 L126,90 Q127,90 127,91 L127,97 Q127,98 126,98 L108,98 Q107,98 107,97 L107,91 Q107,90 108,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M151,90 L169,90 Q170,90 170,91 L170,97 Q170,98 169,98 L151,98 Q150,98 150,97 L150,91 Q150,90 151,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M195,90 L213,90 Q214,90 214,91 L214,97 Q214,98 213,98 L195,98 Q194,98 194,97 L194,91 Q194,90 195,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M238,90 L256,90 Q257,90 257,91 L257,97 Q257,98 256,98 L238,98 Q237,98 237,97 L237,91 Q237,90 238,90 Z" />
+    <path android:fillColor="#7D5260" android:pathData="M282,90 L300,90 Q301,90 301,91 L301,97 Q301,98 300,98 L282,98 Q281,98 281,97 L281,91 Q281,90 282,90 Z" />
+
+</vector>
