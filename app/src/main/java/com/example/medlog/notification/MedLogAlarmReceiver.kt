@@ -20,6 +20,9 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
     lateinit var notificationHelper: NotificationHelper
 
     @Inject
+    lateinit var alarmScheduler: AlarmScheduler
+
+    @Inject
     lateinit var medicationRepo: MedicationRepository
 
     @Inject
@@ -97,14 +100,14 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                         if (med.intervalHours <= 0) {
                             val times = med.reminderTimes.split(",").map { it.trim() }
                             val timeStr = times.getOrNull(timeIndex) ?: return@launch
-                            val nextMs = notificationHelper.computeNextTrigger(
+                            val nextMs = alarmScheduler.computeNextTrigger(
                                 timeStr = timeStr,
                                 frequencyType = med.frequencyType,
                                 frequencyInterval = med.frequencyInterval,
                                 frequencyDays = med.frequencyDays,
                                 endDateMs = med.endDate,
                             ) ?: return@launch
-                            notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+                            alarmScheduler.scheduleAlarmSlot(med, timeIndex, nextMs)
                         }
                     } finally {
                         pendingResult.finish()
@@ -130,18 +133,18 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
         if (med.intervalHours > 0) {
             val base = lastTakenMs ?: System.currentTimeMillis()
             val nextMs = base + med.intervalHours * 3_600_000L
-            notificationHelper.scheduleAlarmSlot(med, 0, nextMs)
+            alarmScheduler.scheduleAlarmSlot(med, 0, nextMs)
             return
         }
         val times = med.reminderTimes.split(",").map { it.trim() }
         val timeStr = times.getOrNull(timeIndex) ?: return
-        val nextMs = notificationHelper.computeNextTrigger(
+        val nextMs = alarmScheduler.computeNextTrigger(
             timeStr = timeStr,
             frequencyType = med.frequencyType,
             frequencyInterval = med.frequencyInterval,
             frequencyDays = med.frequencyDays,
             endDateMs = med.endDate,
         ) ?: return
-        notificationHelper.scheduleAlarmSlot(med, timeIndex, nextMs)
+        alarmScheduler.scheduleAlarmSlot(med, timeIndex, nextMs)
     }
 }

@@ -3,6 +3,7 @@ package com.example.medlog.domain
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.SettingsPreferences
+import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import com.example.medlog.util.ReminderTimeUtils
 import kotlinx.coroutines.flow.first
@@ -25,6 +26,7 @@ import javax.inject.Singleton
 class ResyncRemindersUseCase @Inject constructor(
     private val medicationRepository: MedicationRepository,
     private val notificationHelper: NotificationHelper,
+    private val alarmScheduler: AlarmScheduler,
 ) {
     /**
      * 传入最新的 [prefs]，对所有活跃（未归档）、非 PRN、非 EXACT 药品：
@@ -49,8 +51,9 @@ class ResyncRemindersUseCase @Inject constructor(
                 reminderMinute = newTime.substringAfter(":").toIntOrNull() ?: med.reminderMinute,
             )
             medicationRepository.updateMedication(updatedMed)
-            notificationHelper.cancelAllReminders(med.id)
-            notificationHelper.scheduleAllReminders(updatedMed)
+            alarmScheduler.cancelAllAlarms(med.id)
+            notificationHelper.cancelAllReminderNotifications(med.id)
+            alarmScheduler.scheduleAllReminders(updatedMed)
         }
     }
 }

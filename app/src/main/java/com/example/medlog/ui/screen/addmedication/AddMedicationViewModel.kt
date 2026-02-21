@@ -10,6 +10,7 @@ import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.SettingsPreferences
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.util.ReminderTimeUtils
+import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -83,6 +84,7 @@ private fun todayStartMs(): Long {
 class AddMedicationViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val notificationHelper: NotificationHelper,
+    private val alarmScheduler: AlarmScheduler,
     private val prefsRepository: UserPreferencesRepository,
     private val drugRepository: DrugRepository,
 ) : ViewModel() {
@@ -269,11 +271,12 @@ class AddMedicationViewModel @Inject constructor(
             )
             if (existingId == null) {
                 val newId = repository.addMedication(medication)
-                notificationHelper.scheduleAllReminders(medication.copy(id = newId))
+                alarmScheduler.scheduleAllReminders(medication.copy(id = newId))
             } else {
                 repository.updateMedication(medication)
-                notificationHelper.cancelAllReminders(existingId)
-                notificationHelper.scheduleAllReminders(medication)
+                alarmScheduler.cancelAllAlarms(existingId)
+                notificationHelper.cancelAllReminderNotifications(existingId)
+                alarmScheduler.scheduleAllReminders(medication)
             }
             update { copy(isSaving = false, isSaved = true) }
         }

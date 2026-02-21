@@ -11,6 +11,7 @@ import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.interaction.InteractionRuleEngine
+import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -128,6 +129,7 @@ class HomeViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
+    private val alarmScheduler: AlarmScheduler,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
 ) : ViewModel() {
@@ -193,7 +195,7 @@ class HomeViewModel @Inject constructor(
                 item.medication.stock?.let { stock ->
                     medicationRepo.updateStock(item.medication.id, stock + item.medication.doseQuantity)
                 }
-                notificationHelper.scheduleAllReminders(item.medication)
+                alarmScheduler.scheduleAllReminders(item.medication)
             } else {
                 logRepo.deleteLogsForDate(item.medication.id, today.first, today.second)
                 logRepo.insertLog(
@@ -209,7 +211,8 @@ class HomeViewModel @Inject constructor(
                     medicationRepo.updateStock(item.medication.id, newStock)
                     checkAndNotifyLowStock(item.medication, newStock)
                 }
-                notificationHelper.cancelAllReminders(item.medication.id)
+                alarmScheduler.cancelAllAlarms(item.medication.id)
+                notificationHelper.cancelAllReminderNotifications(item.medication.id)
             }
         }
     }
@@ -226,7 +229,8 @@ class HomeViewModel @Inject constructor(
                     status = LogStatus.SKIPPED,
                 )
             )
-            notificationHelper.cancelAllReminders(item.medication.id)
+            alarmScheduler.cancelAllAlarms(item.medication.id)
+            notificationHelper.cancelAllReminderNotifications(item.medication.id)
         }
     }
 
@@ -245,9 +249,9 @@ class HomeViewModel @Inject constructor(
                             stock + currentItem.medication.doseQuantity,
                         )
                     }
-                    notificationHelper.scheduleAllReminders(currentItem.medication)
+                    alarmScheduler.scheduleAllReminders(currentItem.medication)
                 } else if (currentItem.isSkipped) {
-                    notificationHelper.scheduleAllReminders(currentItem.medication)
+                    alarmScheduler.scheduleAllReminders(currentItem.medication)
                 }
             }
         }

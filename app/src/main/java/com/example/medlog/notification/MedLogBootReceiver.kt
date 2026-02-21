@@ -18,7 +18,7 @@ class MedLogBootReceiver : BroadcastReceiver() {
     lateinit var repository: MedicationRepository
 
     @Inject
-    lateinit var notificationHelper: NotificationHelper
+    lateinit var alarmScheduler: AlarmScheduler
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action != Intent.ACTION_BOOT_COMPLETED) return
@@ -28,7 +28,7 @@ class MedLogBootReceiver : BroadcastReceiver() {
                 // 设备重启后，重新为所有活跃药品调度多时间段提醒
                 val medications = repository.getActiveMedications().first()
                 medications.forEach { med ->
-                    notificationHelper.scheduleAllReminders(med)
+                    alarmScheduler.scheduleAllReminders(med)
                 }
             } finally {
                 pendingResult.finish()

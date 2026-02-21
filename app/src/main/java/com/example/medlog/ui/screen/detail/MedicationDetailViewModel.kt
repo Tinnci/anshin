@@ -7,6 +7,7 @@ import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -33,6 +34,7 @@ class MedicationDetailViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
+    private val alarmScheduler: AlarmScheduler,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -69,7 +71,8 @@ class MedicationDetailViewModel @Inject constructor(
         val id = _uiState.value.medication?.id ?: return
         viewModelScope.launch {
             medicationRepo.archiveMedication(id)
-            notificationHelper.cancelAllReminders(id)
+            alarmScheduler.cancelAllAlarms(id)
+            notificationHelper.cancelAllReminderNotifications(id)
         }
     }
 
@@ -77,7 +80,8 @@ class MedicationDetailViewModel @Inject constructor(
         val med = _uiState.value.medication ?: return
         viewModelScope.launch {
             medicationRepo.deleteMedication(med)
-            notificationHelper.cancelAllReminders(med.id)
+            alarmScheduler.cancelAllAlarms(med.id)
+            notificationHelper.cancelAllReminderNotifications(med.id)
         }
     }
 
