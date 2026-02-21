@@ -463,13 +463,31 @@ private fun TimePeriodGroupCard(
                     )
                 }
             }
-            // 待服数量 Badge（allDone 时显示 ✓）
+            // 待服数量 Badge（allDone 时显示胶囊徽章）
             if (allDone) {
-                Icon(
-                    Icons.Rounded.DoneAll,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(16.dp),
+                SuggestionChip(
+                    onClick = {},
+                    icon = {
+                        Icon(
+                            Icons.Rounded.DoneAll,
+                            contentDescription = null,
+                            modifier = Modifier.size(14.dp),
+                        )
+                    },
+                    label = {
+                        Text(
+                            "已全服",
+                            style = MaterialTheme.typography.labelMedium,
+                            fontWeight = FontWeight.Medium,
+                        )
+                    },
+                    colors = SuggestionChipDefaults.suggestionChipColors(
+                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                        iconContentColor = MaterialTheme.colorScheme.tertiary,
+                    ),
+                    border = null,
+                    modifier = Modifier.height(28.dp),
                 )
             } else {
                 Badge(
