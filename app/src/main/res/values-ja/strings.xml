@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Anshin</string>
+    <string name="tab_today">今日</string>
+    <string name="tab_history">服薬履歴</string>
+    <string name="tab_drugs">薬品</string>
+    <string name="tab_settings">設定</string>
+    <string name="mark_not_taken">未服用に戻す</string>
+    <string name="delete">削除</string>
+    <string name="archive">アーカイブ</string>
+    <string name="restore">元に戻す</string>
+    <string name="cancel">キャンセル</string>
+    <string name="confirm">確認</string>
+    <string name="save">保存</string>
+    <string name="edit">編集</string>
+    <string name="search">薬品を検索…</string>
+    <string name="no_medications">服薬予定なし — ＋ をタップして追加</string>
+    <string name="medication_taken">服用済み</string>
+    <string name="medication_skipped">スキップ</string>
+    <string name="medication_missed">飲み忘れ</string>
+    <string name="medication_pending">未服用</string>
+    <string name="dose_unit_tablet">錠</string>
+    <string name="dose_unit_capsule">カプセル</string>
+    <string name="dose_unit_ml">ml</string>
+    <string name="reminder_notification_channel">服薬リマインダー</string>
+    <string name="low_stock_notification_channel">残量アラート</string>
+    <string name="settings_theme">テーマ</string>
+    <string name="settings_notifications">通知</string>
+    <string name="settings_routine">生活リズム</string>
+    <string name="settings_about">このアプリについて</string>
+    <string name="archived_medications">アーカイブ済み薬品</string>
+    <string name="tab_diary">日記</string>
+    <string name="tab_health">健康</string>
+    <string name="diary_add">症状を記録</string>
+    <string name="persistent_reminder">継続リマインダー</string>
+    <string name="persistent_reminder_interval">リマインダー間隔（分）</string>
+    <string name="wake_time">起床時間</string>
+    <string name="breakfast_time">朝食時間</string>
+    <string name="lunch_time">昼食時間</string>
+    <string name="dinner_time">夕食時間</string>
+    <string name="bed_time">就寝時間</string>
+
+    <!-- App Shortcuts -->
+    <string name="shortcut_today_short">今日の服薬</string>
+    <string name="shortcut_today_long">今日の服薬スケジュールを確認</string>
+
+    <!-- ホーム画面ウィジェット -->
+    <string name="widget_today_name">Anshin · 今日の進捗</string>
+    <string name="widget_today_desc">今日の服薬進捗を表示。タップで服用確認</string>
+    <string name="widget_next_dose_name">Anshin · 次の服用</string>
+    <string name="widget_next_dose_desc">次の服用時間と薬品名を表示</string>
+    <string name="widget_streak_name">Anshin · 連続記録</string>
+    <string name="widget_streak_desc">連続服薬日数と直近7日間の達成状況を表示</string>
+    <string name="shortcut_add_short">薬品を追加</string>
+    <string name="shortcut_add_long">新しい服薬リマインダーを追加</string>
+    <string name="shortcut_history_short">服薬履歴</string>
+    <string name="shortcut_history_long">服薬記録の履歴を確認</string>
+</resources>
