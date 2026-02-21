@@ -58,6 +58,7 @@ fun AddMedicationScreen(
     viewModel: AddMedicationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsState()
+    val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsState()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     LaunchedEffect(medicationId) {
@@ -384,28 +385,35 @@ fun AddMedicationScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 // ── 精确时间 / 作息时间 模式切换 ─────────────────────────
-                val isExactMode = uiState.timePeriod == TimePeriod.EXACT
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    SegmentedButton(
-                        selected = !isExactMode,
-                        onClick = { if (isExactMode) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
-                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                        icon = {
-                            SegmentedButtonDefaults.Icon(active = !isExactMode) {
-                                Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
-                            }
-                        },
-                    ) { Text("作息时间") }
-                    SegmentedButton(
-                        selected = isExactMode,
-                        onClick = { if (!isExactMode) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
-                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                        icon = {
-                            SegmentedButtonDefaults.Icon(active = isExactMode) {
-                                Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
-                            }
-                        },
-                    ) { Text("精确时间") }
+                // 若用户在设置中关闭了作息时间段模式，强制为精确时间模式
+                val isExactMode = !enableTimePeriodMode || uiState.timePeriod == TimePeriod.EXACT
+                AnimatedVisibility(
+                    visible = enableTimePeriodMode,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        SegmentedButton(
+                            selected = !isExactMode,
+                            onClick = { if (isExactMode) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
+                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                            icon = {
+                                SegmentedButtonDefaults.Icon(active = !isExactMode) {
+                                    Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
+                                }
+                            },
+                        ) { Text("作息时间") }
+                        SegmentedButton(
+                            selected = isExactMode,
+                            onClick = { if (!isExactMode) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
+                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                            icon = {
+                                SegmentedButtonDefaults.Icon(active = isExactMode) {
+                                    Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
+                                }
+                            },
+                        ) { Text("精确时间") }
+                    }
                 }
                 // 作息时间模式：时段选择芯片 + 自动提醒时间提示
                 AnimatedVisibility(

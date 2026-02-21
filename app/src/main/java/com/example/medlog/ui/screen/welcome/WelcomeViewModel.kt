@@ -24,6 +24,8 @@ data class WelcomeUiState(
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,
     val enableHealthModule: Boolean = true,
+    /** 作息时间段模式（关闭后添加药品时只显示精确时间） */
+    val enableTimePeriodMode: Boolean = true,
     // 外观（第4页选择）
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** true = 已完成引导，外层导航层监听后跳转 Home */
@@ -52,6 +54,7 @@ class WelcomeViewModel @Inject constructor(
                 enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
                 enableDrugDatabase         = prefs.enableDrugDatabase,
                 enableHealthModule         = prefs.enableHealthModule,
+                enableTimePeriodMode      = prefs.enableTimePeriodMode,
                 themeMode                  = prefs.themeMode,
             )
         }
@@ -84,6 +87,10 @@ class WelcomeViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(enableHealthModule = enabled)
     }
 
+    fun onToggleTimePeriodMode(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(enableTimePeriodMode = enabled)
+    }
+
     fun onThemeModeChange(mode: ThemeMode) {
         _uiState.value = _uiState.value.copy(themeMode = mode)
     }
@@ -102,6 +109,7 @@ class WelcomeViewModel @Inject constructor(
                 enableDrugInteraction = s.enableDrugInteractionCheck,
                 enableDrugDatabase   = s.enableDrugDatabase,
                 enableHealthModule   = s.enableHealthModule,
+                enableTimePeriodMode = s.enableTimePeriodMode,
             )
             prefsRepository.updateThemeMode(s.themeMode)
             prefsRepository.updateHasSeenWelcome(true)

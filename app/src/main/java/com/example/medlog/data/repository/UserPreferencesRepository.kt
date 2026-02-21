@@ -52,6 +52,8 @@ data class SettingsPreferences(
     val enableDrugDatabase: Boolean = true,
     /** 是否启用健康体征模块（底部导航显示「健康」Tab） */
     val enableHealthModule: Boolean = true,
+    /** 是否启用作息时间段模式（关闭后添加药品时只显示精确时间选择器） */
+    val enableTimePeriodMode: Boolean = true,
 
     // ── 外观偏好 ──────────────────────────────────────────────────────────────
     /** 深色/浅色/跟随系统 */
@@ -96,6 +98,7 @@ class UserPreferencesRepository @Inject constructor(
         val ENABLE_DRUG_INTERACTION      = booleanPreferencesKey("enable_drug_interaction")
         val ENABLE_DRUG_DATABASE         = booleanPreferencesKey("enable_drug_database")
         val ENABLE_HEALTH_MODULE         = booleanPreferencesKey("enable_health_module")
+        val ENABLE_TIME_PERIOD_MODE      = booleanPreferencesKey("enable_time_period_mode")
         // 外观
         val THEME_MODE         = stringPreferencesKey("theme_mode")
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
@@ -127,6 +130,7 @@ class UserPreferencesRepository @Inject constructor(
                 enableDrugInteractionCheck = prefs[ENABLE_DRUG_INTERACTION] ?: true,
                 enableDrugDatabase        = prefs[ENABLE_DRUG_DATABASE]     ?: true,
                 enableHealthModule        = prefs[ENABLE_HEALTH_MODULE]     ?: true,
+                enableTimePeriodMode     = prefs[ENABLE_TIME_PERIOD_MODE]  ?: true,
                 themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
@@ -174,12 +178,14 @@ class UserPreferencesRepository @Inject constructor(
         enableDrugInteraction: Boolean? = null,
         enableDrugDatabase: Boolean? = null,
         enableHealthModule: Boolean? = null,
+        enableTimePeriodMode: Boolean? = null,
     ) {
         dataStore.edit { prefs ->
             if (enableSymptomDiary != null) prefs[ENABLE_SYMPTOM_DIARY] = enableSymptomDiary
             if (enableDrugInteraction != null) prefs[ENABLE_DRUG_INTERACTION] = enableDrugInteraction
             if (enableDrugDatabase != null) prefs[ENABLE_DRUG_DATABASE] = enableDrugDatabase
             if (enableHealthModule != null) prefs[ENABLE_HEALTH_MODULE] = enableHealthModule
+            if (enableTimePeriodMode != null) prefs[ENABLE_TIME_PERIOD_MODE] = enableTimePeriodMode
         }
     }
 

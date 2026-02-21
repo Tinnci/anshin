@@ -418,63 +418,84 @@ fun SettingsScreen(
 
             // ── 作息时间 ─────────────────────────────────────────
             SettingsCard(title = "作息时间", icon = Icons.Rounded.Schedule) {
-                Text(
-                    "用于模糊时段（如「早餐后」「睡前」）的提醒计算",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 4.dp),
+                // ── 模式开关 ──────────────────────────────────────
+                SettingsSwitchRow(
+                    title = "作息时段提醒模式",
+                    subtitle = if (uiState.enableTimePeriodMode)
+                        "添加药品时可选「早餐后」「睡前」等时段自动换算时间"
+                    else
+                        "已关闭，添加药品时仅使用精确时间",
+                    icon = Icons.Rounded.Schedule,
+                    checked = uiState.enableTimePeriodMode,
+                    onCheckedChange = { viewModel.setEnableTimePeriodMode(it) },
                 )
-                // ── 一览行：五个时间快速预览 ──────────────────────
-                FlowRow(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 8.dp),
-                    horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                // ── 仅在作息模式开启时显示详细时间设置 ────────────
+                AnimatedVisibility(
+                    visible = uiState.enableTimePeriodMode,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
                 ) {
-                    listOf(
-                        Triple(Icons.Rounded.WbSunny,      "起床", "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
-                        Triple(Icons.Rounded.Coffee,       "早餐", "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
-                        Triple(Icons.Rounded.LunchDining,  "午餐", "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
-                        Triple(Icons.Rounded.DinnerDining, "晚餐", "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
-                        Triple(Icons.Rounded.Bedtime,      "睡觉", "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
-                    ).forEach { (icon, label, time) ->
-                        SuggestionChip(
-                            onClick = {},
-                            enabled = false,
-                            icon = {
-                                Icon(
-                                    icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(14.dp),
-                                )
-                            },
-                            label = {
-                                Text(
-                                    "$label $time",
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            },
+                    Column {
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        Text(
+                            "用于模糊时段（如「早餐后」「睡前」）的提醒计算",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 8.dp, bottom = 4.dp),
                         )
+                        // ── 一览行：五个时间快速预览 ──────────────────────
+                        FlowRow(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 16.dp)
+                                .padding(bottom = 8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(6.dp),
+                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                        ) {
+                            listOf(
+                                Triple(Icons.Rounded.WbSunny,      "起床", "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
+                                Triple(Icons.Rounded.Coffee,       "早餐", "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
+                                Triple(Icons.Rounded.LunchDining,  "午餐", "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
+                                Triple(Icons.Rounded.DinnerDining, "晚餐", "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
+                                Triple(Icons.Rounded.Bedtime,      "睡觉", "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
+                            ).forEach { (icon, label, time) ->
+                                SuggestionChip(
+                                    onClick = {},
+                                    enabled = false,
+                                    icon = {
+                                        Icon(
+                                            icon,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(14.dp),
+                                        )
+                                    },
+                                    label = {
+                                        Text(
+                                            "$label $time",
+                                            style = MaterialTheme.typography.labelSmall,
+                                        )
+                                    },
+                                )
+                            }
+                        }
+                        RoutineTimeRow("起床", uiState.wakeHour, uiState.wakeMinute,
+                            Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        RoutineTimeRow("早餐", uiState.breakfastHour, uiState.breakfastMinute,
+                            Icons.Rounded.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        RoutineTimeRow("午餐", uiState.lunchHour, uiState.lunchMinute,
+                            Icons.Rounded.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        RoutineTimeRow("晚餐", uiState.dinnerHour, uiState.dinnerMinute,
+                            Icons.Rounded.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        RoutineTimeRow("睡觉", uiState.bedHour, uiState.bedMinute,
+                            Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
                     }
                 }
-                RoutineTimeRow("起床", uiState.wakeHour, uiState.wakeMinute,
-                    Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                RoutineTimeRow("早餐", uiState.breakfastHour, uiState.breakfastMinute,
-                    Icons.Rounded.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                RoutineTimeRow("午餐", uiState.lunchHour, uiState.lunchMinute,
-                    Icons.Rounded.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                RoutineTimeRow("晚餐", uiState.dinnerHour, uiState.dinnerMinute,
-                    Icons.Rounded.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
-                RoutineTimeRow("睡觉", uiState.bedHour, uiState.bedMinute,
-                    Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
             }
 
             // ── 旅行模式 ─────────────────────────────────────────

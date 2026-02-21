@@ -117,6 +117,7 @@ fun WelcomeScreen(
                         onToggleDrugInteractionCheck = viewModel::onToggleDrugInteractionCheck,
                         onToggleDrugDatabase         = viewModel::onToggleDrugDatabase,
                         onToggleHealthModule         = viewModel::onToggleHealthModule,
+                        onToggleTimePeriodMode       = viewModel::onToggleTimePeriodMode,
                         onThemeModeChange            = viewModel::onThemeModeChange,
                     )
                     4 -> WelcomeNotificationPage(
@@ -713,6 +714,7 @@ private fun WelcomePage4(
     onToggleDrugInteractionCheck: (Boolean) -> Unit,
     onToggleDrugDatabase: (Boolean) -> Unit,
     onToggleHealthModule: (Boolean) -> Unit,
+    onToggleTimePeriodMode: (Boolean) -> Unit,
     onThemeModeChange: (ThemeMode) -> Unit,
 ) {
     val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
@@ -781,6 +783,14 @@ private fun WelcomePage4(
                     icon = Icons.Rounded.MonitorHeart,
                     checked = uiState.enableHealthModule,
                     onCheckedChange = onToggleHealthModule,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                FeatureToggleRow(
+                    title = "作息时间段模式",
+                    description = "允许按「早餐后」「睡前」等模糊时段设置提醇",
+                    icon = Icons.Rounded.Schedule,
+                    checked = uiState.enableTimePeriodMode,
+                    onCheckedChange = onToggleTimePeriodMode,
                 )
             }
         }

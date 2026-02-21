@@ -29,6 +29,8 @@ data class SettingsUiState(
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,
     val enableHealthModule: Boolean = true,
+    /** 作息时间段模式：关闭后添加药品时只显示精确时间，隐藏所有作息时间相关 UI */
+    val enableTimePeriodMode: Boolean = true,
     // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = true,
@@ -65,6 +67,7 @@ class SettingsViewModel @Inject constructor(
             enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
             enableDrugDatabase         = prefs.enableDrugDatabase,
             enableHealthModule         = prefs.enableHealthModule,
+            enableTimePeriodMode       = prefs.enableTimePeriodMode,
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
@@ -117,6 +120,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setEnableHealthModule(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateFeatureFlags(enableHealthModule = enabled) }
+    }
+
+    fun setEnableTimePeriodMode(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableTimePeriodMode = enabled) }
     }
 
     fun setThemeMode(mode: ThemeMode) {

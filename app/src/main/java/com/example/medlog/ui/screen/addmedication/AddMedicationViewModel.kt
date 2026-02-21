@@ -97,6 +97,11 @@ class AddMedicationViewModel @Inject constructor(
     /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
     private val _latestPrefs = MutableStateFlow(SettingsPreferences())
 
+    /** 作息时间段模式开关：false 时隐藏作息模式相关 UI，始终以精确时间模式运行 */
+    val enableTimePeriodMode: StateFlow<Boolean> = prefsRepository.settingsFlow
+        .map { it.enableTimePeriodMode }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
     init {
         viewModelScope.launch {
             prefsRepository.settingsFlow.collect { _latestPrefs.value = it }
