@@ -1,4 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+import java.util.Properties
 
 plugins {
     alias(libs.plugins.android.application)
@@ -7,6 +8,17 @@ plugins {
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.ktlint)
+}
+
+// ── 签名属性读取：优先 env var（CI），回退到 local.properties（本地开发）──────────
+private fun signingProp(key: String): String? {
+    System.getenv(key)?.takeIf { it.isNotBlank() }?.let { return it }
+    val f = rootProject.file("local.properties")
+    if (f.exists()) {
+        val p = Properties().apply { load(f.inputStream()) }
+        p.getProperty(key)?.takeIf { it.isNotBlank() }?.let { return it }
+    }
+    return null
 }
 
 android {
@@ -23,13 +35,13 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    // ── 签名配置（CI 发布时通过环境变量注入，本地开发不需设置） ─────────────────
+    // ── 签名配置（env var = CI，local.properties = 本地，均缺失 = 仅 Debug）──────
     signingConfigs {
         create("release") {
-            storeFile = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotBlank() }?.let { file(it) }
-            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
-            keyAlias = System.getenv("KEY_ALIAS") ?: ""
-            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+            storeFile = signingProp("KEYSTORE_PATH")?.let { file(it) }
+            storePassword = signingProp("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = signingProp("KEY_ALIAS") ?: ""
+            keyPassword = signingProp("KEY_PASSWORD") ?: ""
         }
     }
 
@@ -40,8 +52,8 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // 仅当 KEYSTORE_PASSWORD 环境变量存在（CI 发布环境）时才应用签名
-            if (System.getenv("KEYSTORE_PASSWORD")?.isNotBlank() == true) {
+            // 当 KEYSTORE_PASSWORD 可从任意来源读取时才应用签名
+            if (signingProp("KEYSTORE_PASSWORD")?.isNotBlank() == true) {
                 signingConfig = signingConfigs.getByName("release")
             }
         }
