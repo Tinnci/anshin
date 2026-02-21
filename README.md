@@ -1,5 +1,11 @@
 # MedLog — 智能用药管理
 
+[![CI Build](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml/badge.svg)](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml)
+[![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
+[![Material 3](https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white)](https://m3.material.io)
+[![Min SDK](https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white)](https://developer.android.com)
+[![License](https://img.shields.io/badge/License-Apache%202.0-blue)](LICENSE)
+
 > 原生 Android 应用，使用 **Kotlin · Jetpack Compose · Material 3 Expressive** 构建，
 > 帮助用户追踪每日用药、管理药品库存、并通过精准闹钟按时提醒服药。
 
@@ -10,7 +16,7 @@
 | 功能 | 说明 |
 |------|------|
 | 引导欢迎页 | 首次启动 4 页弹簧动画引导，帮助用户完成作息时间设置 |
-| 今日用药 | 首页展示当天全部药品及服药进度，支持一键全部标记 |
+| 今日用药 | 首页展示当天全部药品及服药进度，支持一键全部标记；已完成分组可自动折叠 |
 | 状态管理 | 每张药品卡片可标记「已服 / 跳过 / 撤销」，自动扣减/恢复库存 |
 | 精准提醒 | AlarmManager 精准闹钟，通知栏直接操作「已服 / 跳过」 |
 | 作息时段 | 11 种模糊时段（晨起/餐前/餐后/睡前等），自动匹配用户作息设置 |
@@ -45,36 +51,17 @@
 ## 项目结构
 
 ```
-MedLogAndroid/
-├── .editorconfig                  # 代码风格统一（ktlint 读取）
-├── .githooks/                     # Git hooks（纳入版本控制）
-│   ├── pre-commit                 # 提交前 ktlint 检查
-│   └── pre-push                   # 推送前 Android Lint 检查
-├── setup-hooks.sh                 # 新成员初始化 hooks 脚本
-└── app/
-    ├── lint.xml                   # Android Lint 规则
-    └── src/main/java/com/example/medlog/
-        ├── data/
-        │   ├── local/             # Room DAO · Database · TypeConverters
-        │   ├── model/             # Medication · MedicationLog · TimePeriod
-        │   └── repository/        # Repository 接口 + Impl
-        │       └── UserPreferencesRepository.kt  # DataStore SSOT
-        ├── di/                    # Hilt AppModule
-        ├── notification/          # NotificationHelper · AlarmReceiver · BootReceiver
-        └── ui/
-            ├── MedLogApp.kt       # NavHost · 自适应导航 · 启动目的地
-            ├── MedLogAppViewModel.kt  # 读取 hasSeenWelcome → startDestination
-            ├── components/        # MedicationCard · ProgressHeader
-            ├── navigation/        # Route 密封接口 · 导航组件
-            ├── screen/
-            │   ├── welcome/       # 4 页引导 + 作息设置（WelcomeScreen / ViewModel）
-            │   ├── home/          # 今日用药
-            │   ├── history/       # 历史记录 + 热力图
-            │   ├── drugs/         # 药品列表
-            │   ├── detail/        # 药品详情 + 达标率统计
-            │   ├── addmedication/ # 新增/编辑（自动带入作息时间）
-            │   └── settings/      # 设置（写入 DataStore）
-            └── theme/             # Color · Type · Theme（M3 Dynamic Color）
+app/src/main/java/com/example/medlog/
+├── data/
+│   ├── local/         # Room DAO · Database · TypeConverters
+│   ├── model/         # Medication · MedicationLog · TimePeriod
+│   └── repository/    # MedicationRepository · UserPreferencesRepository (DataStore SSOT)
+├── di/              # Hilt AppModule
+├── notification/    # NotificationHelper · AlarmReceiver · BootReceiver
+└── ui/
+    ├── components/    # MedicationCard · ProgressHeader
+    ├── screen/        # welcome / home / history / drugs / detail / addmedication / settings
+    └── theme/          # Color · Type · Theme (M3 Dynamic Color)
 ```
 
 ---
@@ -133,22 +120,6 @@ MedLogAndroid/
 
 ---
 
-## 数据持久化（DataStore）
-
-`SettingsPreferences` 包含以下字段：
-
-| 字段 | 类型 | 说明 |
-|------|------|------|
-| `persistentReminder` | Boolean | 持续提醒开关 |
-| `reminderInterval` | Int | 提醒间隔（分钟） |
-| `wakeHour / wakeMinute` | Int | 晨起时间 |
-| `breakfastHour / breakfastMinute` | Int | 早餐时间 |
-| `lunchHour / lunchMinute` | Int | 午餐时间 |
-| `dinnerHour / dinnerMinute` | Int | 晚餐时间 |
-| `bedHour / bedMinute` | Int | 就寝时间 |
-| `hasSeenWelcome` | Boolean | 是否已完成引导 |
-
----
 
 ## 构建与运行
 
@@ -162,7 +133,7 @@ MedLogAndroid/
 
 ```bash
 # 1. 克隆仓库
-git clone <repo-url>
+git clone https://github.com/Tinnci/MedLogAndroid.git
 cd MedLogAndroid
 
 # 2. 初始化 Git Hooks（每位成员只需执行一次）
@@ -217,16 +188,22 @@ Lint 规则配置见 [app/lint.xml](app/lint.xml)。
 
 ---
 
-## 提交历史摘要
+## CI / CD
 
-| Commit | 说明 |
-|--------|------|
-| `1823419` | refactor: 全量替换硬编码 `Color(0xFFF59E0B)` → `calendarWarning` token |
-| `dc6b479` | feat(welcome): 弹簧入场动画 + 弹性翻页 + 弹性点状指示器 |
-| `56c9c03` | feat(welcome): 4 页引导流程 + DataStore `hasSeenWelcome` |
-| `0fb5f07` | refactor(ui): `calendarWarning` color token + `Button→FilledTonalButton` |
-| `ac4b7ed` | feat(add): 作息时间自动带入提示 SuggestionChip |
-| `bd99226` | feat(add): AddMedicationViewModel 从 DataStore 自动填充提醒时间 |
+| Workflow | 触发条件 | 产物 |
+|----------|---------|------|
+| [CI Build](.github/workflows/build.yml) | push / PR → master | Debug APK artifact |
+| [Release](.github/workflows/release.yml) | push `v*.*.*` tag | 签名 Release APK + GitHub Release |
+
+**发布流程**：
+
+```bash
+git tag v1.0.0
+git push origin v1.0.0   # 自动触发 Release 工作流
+```
+
+Release 工作流自动提取版本号、解码 Keystore、编译签名 APK、生成 Changelog 并创建 GitHub Release。  
+签名配置方法见 [.github/SIGNING.md](.github/SIGNING.md)。
 
 ---
 
