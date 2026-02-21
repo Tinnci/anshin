@@ -60,9 +60,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.R
 import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.InteractionSeverity
 import com.example.medlog.ui.components.MedicationCard
+import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
@@ -80,7 +82,9 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+    val context = LocalContext.current
     var showQrDialog by remember { mutableStateOf(false) }
+    val undoLabel = context.getString(R.string.home_snackbar_undo)
 
     // Pending items for "take all" button (excluding PRN on-demand meds)
     val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
@@ -91,7 +95,7 @@ fun HomeScreen(
             LargeTopAppBar(
                 title = {
                     Column {
-                        Text("今日用药", fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.home_title), fontWeight = FontWeight.Bold)
                         Text(
                             todayDateString(),
                             style = MaterialTheme.typography.bodyMedium,
@@ -101,12 +105,12 @@ fun HomeScreen(
                 },
                 actions = {
                     IconButton(onClick = { showQrDialog = true }) {
-                        Icon(Icons.Rounded.QrCode2, contentDescription = "分享今日计划")
+                        Icon(Icons.Rounded.QrCode2, contentDescription = stringResource(R.string.home_share_qr_cd))
                     }
                     IconButton(onClick = viewModel::toggleGroupBy) {
                         Icon(
                             imageVector = if (uiState.groupByTime) Icons.Rounded.Category else Icons.Rounded.AccessTime,
-                            contentDescription = if (uiState.groupByTime) "切换为分类分组" else "切换为时间分组",
+                            contentDescription = if (uiState.groupByTime) stringResource(R.string.home_group_toggle_by_category) else stringResource(R.string.home_group_toggle_by_time),
                         )
                     }
                 },
@@ -118,7 +122,7 @@ fun HomeScreen(
             ExtendedFloatingActionButton(
                 onClick = onAddMedication,
                 icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text("添加药品") },
+                text = { Text(stringResource(R.string.home_fab_add)) },
                 expanded = uiState.items.isEmpty(),
             )
         },
@@ -199,7 +203,7 @@ fun HomeScreen(
                             viewModel.takeAll()
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = "已全部标记为已服",
+                                    message = context.getString(R.string.home_snackbar_all_taken),
                                     duration = SnackbarDuration.Short,
                                 )
                             }
@@ -216,7 +220,7 @@ fun HomeScreen(
                         Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))
                         Spacer(Modifier.width(8.dp))
                         Text(
-                            "一键服用全部 (${pendingItems.size})",
+                            stringResource(R.string.home_take_all_btn, pendingItems.size),
                             style = MaterialTheme.typography.labelLarge,
                         )
                     }
@@ -244,7 +248,7 @@ fun HomeScreen(
                                     viewModel.undoByMedicationId(item.medication.id)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            "${item.medication.name} 已撤销跳过，恢复待服",
+                                            context.getString(R.string.home_snackbar_undo_skip, item.medication.name),
                                             duration = SnackbarDuration.Short,
                                         )
                                     }
@@ -253,9 +257,11 @@ fun HomeScreen(
                                     viewModel.toggleMedicationStatus(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = if (wasTaken) "${item.medication.name} 已重置为待服"
-                                            else "${item.medication.name} 已标记为已服",
-                                            actionLabel = "撤销",
+                                            message = context.getString(
+                                                if (wasTaken) R.string.home_snackbar_reset else R.string.home_snackbar_taken,
+                                                item.medication.name,
+                                            ),
+                                            actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -269,8 +275,8 @@ fun HomeScreen(
                                 viewModel.skipMedication(item)
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        "${item.medication.name} 已跳过今日",
-                                        actionLabel = "撤销",
+                                        context.getString(R.string.home_snackbar_skipped, item.medication.name),
+                                        actionLabel = undoLabel,
                                         duration = SnackbarDuration.Short,
                                     )
                                     if (result == SnackbarResult.ActionPerformed) {
@@ -283,7 +289,7 @@ fun HomeScreen(
                                 viewModel.takeAllForPeriod(timePeriod.key)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        "「${timePeriod.label}」已全部标记为已服",
+                                        context.getString(R.string.home_snackbar_period_all_taken, timePeriod.label),
                                         duration = SnackbarDuration.Short,
                                     )
                                 }
@@ -337,7 +343,7 @@ fun HomeScreen(
                                         viewModel.undoByMedicationId(item.medication.id)
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
-                                                "${item.medication.name} 已撤销跳过，恢复待服",
+                                                context.getString(R.string.home_snackbar_undo_skip, item.medication.name),
                                                 duration = SnackbarDuration.Short,
                                             )
                                         }
@@ -346,9 +352,11 @@ fun HomeScreen(
                                         viewModel.toggleMedicationStatus(item)
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
-                                                message = if (wasTaken) "${item.medication.name} 已重置为待服"
-                                                else "${item.medication.name} 已标记为已服",
-                                                actionLabel = "撤销",
+                                                message = context.getString(
+                                                    if (wasTaken) R.string.home_snackbar_reset else R.string.home_snackbar_taken,
+                                                    item.medication.name,
+                                                ),
+                                                actionLabel = undoLabel,
                                                 duration = SnackbarDuration.Short,
                                             )
                                             if (result == SnackbarResult.ActionPerformed) {
@@ -362,8 +370,8 @@ fun HomeScreen(
                                     viewModel.skipMedication(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            "${item.medication.name} 已跳过今日",
-                                            actionLabel = "撤销",
+                                            context.getString(R.string.home_snackbar_skipped, item.medication.name),
+                                            actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
                                         if (result == SnackbarResult.ActionPerformed) {
@@ -390,9 +398,11 @@ fun HomeScreen(
                             viewModel.toggleMedicationStatus(item)
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
-                                    message = if (wasTaken) "${item.medication.name} 已撤销"
-                                              else "${item.medication.name} 已记录服用",
-                                    actionLabel = "撤销",
+                                    message = context.getString(
+                                        if (wasTaken) R.string.home_snackbar_prn_undo else R.string.home_snackbar_prn_taken,
+                                        item.medication.name,
+                                    ),
+                                    actionLabel = undoLabel,
                                     duration = SnackbarDuration.Short,
                                 )
                                 if (result == SnackbarResult.ActionPerformed) {
@@ -509,7 +519,7 @@ private fun TimePeriodGroupCard(
                     },
                     label = {
                         Text(
-                            "已全服",
+                            stringResource(R.string.home_period_all_done_chip),
                             style = MaterialTheme.typography.labelMedium,
                             fontWeight = FontWeight.Medium,
                         )
@@ -525,7 +535,7 @@ private fun TimePeriodGroupCard(
                 // 展开/折叠指示箭头
                 Icon(
                     imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
-                    contentDescription = if (isExpanded) "折叠" else "展开",
+                    contentDescription = if (isExpanded) stringResource(R.string.home_period_collapse) else stringResource(R.string.home_period_expand),
                     tint = MaterialTheme.colorScheme.outline,
                     modifier = Modifier.size(16.dp),
                 )
@@ -548,7 +558,7 @@ private fun TimePeriodGroupCard(
                         )
                         Spacer(Modifier.width(6.dp))
                         Text(
-                            "全部服用",
+                            stringResource(R.string.home_period_take_all_btn),
                             style = MaterialTheme.typography.labelLarge,
                             fontWeight = FontWeight.Bold,
                         )
@@ -637,7 +647,7 @@ private fun LowStockBanner(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = "库存不足提醒",
+                    text = stringResource(R.string.home_low_stock_title),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.onErrorContainer,
@@ -645,7 +655,7 @@ private fun LowStockBanner(
                 medications.forEach { (name, stockPair) ->
                     val (stock, unit) = stockPair
                     Text(
-                        text = "· $name：剩余 $stock $unit",
+                        text = stringResource(R.string.home_low_stock_item, name, stock.toString(), unit),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.85f),
                     )
@@ -667,7 +677,7 @@ private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
             onClick = {},
             label = {
                 Text(
-                    "🔥 连续 $currentStreak 天",
+                    stringResource(R.string.home_streak_current, currentStreak),
                     style = MaterialTheme.typography.labelMedium,
                 )
             },
@@ -681,7 +691,7 @@ private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
                 onClick = {},
                 label = {
                     Text(
-                        "最长 $longestStreak 天",
+                        stringResource(R.string.home_streak_longest, longestStreak),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -706,7 +716,7 @@ private fun NextUpChip(period: TimePeriod, time: String) {
         },
         label = {
             Text(
-                "下一服 · ${period.label}  $time",
+                stringResource(R.string.home_next_up, period.label, time),
                 style = MaterialTheme.typography.labelMedium,
             )
         },
@@ -757,13 +767,13 @@ private fun PRNSectionCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "按需用药",
+                    stringResource(R.string.home_prn_title),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = MaterialTheme.colorScheme.secondary,
                 )
                 Text(
-                    "以下药品无固定时间，需要时点击记录服用",
+                    stringResource(R.string.home_prn_body),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -796,15 +806,15 @@ private fun PRNSectionCard(
                             val maxDose = item.medication.maxDailyDose
                             if (maxDose != null) {
                                 Text(
-                                    if (item.isTaken) "今日已服 · 日最大剂量 $maxDose ${item.medication.doseUnit}"
-                                    else "日最大剂量 ${maxDose} ${item.medication.doseUnit}",
+                                    if (item.isTaken) stringResource(R.string.home_prn_taken_with_max, maxDose.toString(), item.medication.doseUnit)
+                                    else stringResource(R.string.home_prn_max_dose, maxDose.toString(), item.medication.doseUnit),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = if (item.isTaken) MaterialTheme.colorScheme.tertiary
                                             else MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             } else if (item.isTaken) {
                                 Text(
-                                    "今日已记录服用",
+                                    stringResource(R.string.home_prn_taken_once),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.tertiary,
                                 )
@@ -842,7 +852,7 @@ private fun PRNSectionCard(
                                 )
                                 Spacer(Modifier.width(4.dp))
                                 Text(
-                                    if (item.isTaken) "已服" else "服用",
+                                    if (item.isTaken) stringResource(R.string.home_prn_btn_taken) else stringResource(R.string.home_prn_btn_take),
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }
@@ -898,7 +908,7 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    if (total == 0) "今日暂无用药计划" else "今日进度",
+                    if (total == 0) stringResource(R.string.home_progress_no_plan) else stringResource(R.string.home_progress_title),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold,
                 )
@@ -937,8 +947,8 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Text(
-                    if (allDone) "全部完成！今日用药计划已完成 🎉"
-                    else "还剩 ${total - taken} 种药品待服用",
+                    if (allDone) stringResource(R.string.home_progress_all_done)
+                    else stringResource(R.string.home_progress_remaining, total - taken),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -964,19 +974,19 @@ private fun EmptyMedicationState(onAddMedication: () -> Unit) {
             tint = MaterialTheme.colorScheme.outlineVariant,
         )
         Text(
-            "今日尚无用药计划",
+            stringResource(R.string.home_empty_title),
             style = MaterialTheme.typography.titleLarge,
             fontWeight = FontWeight.Bold,
         )
         Text(
-            "点击下方按钮添加您的第一个药品",
+            stringResource(R.string.home_empty_body),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         FilledTonalButton(onClick = onAddMedication) {
             Icon(Icons.Rounded.Add, null, Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
-            Text("添加第一个药品")
+            Text(stringResource(R.string.home_empty_add_btn))
         }
     }
 }
@@ -1027,13 +1037,13 @@ private fun InteractionBannerCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (highCount > 0) "⚠️ 发现 $highCount 处高风险配伍" else "发现 ${interactions.size} 处用药配伍提醒",
+                    text = if (highCount > 0) stringResource(R.string.home_interaction_high_risk, highCount) else stringResource(R.string.home_interaction_normal, interactions.size),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = contentColor,
                 )
                 Text(
-                    text = "点击查看详情和建议",
+                    text = stringResource(R.string.home_interaction_view_detail),
                     style = MaterialTheme.typography.bodySmall,
                     color = contentColor.copy(alpha = 0.8f),
                 )
@@ -1076,17 +1086,17 @@ private fun InteractionDetailSheet(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    "用药相互作用",
+                    stringResource(R.string.home_interaction_sheet_title),
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(onClick = onDismiss) {
-                    Icon(Icons.Rounded.Close, "关闭")
+                    Icon(Icons.Rounded.Close, stringResource(R.string.home_close))
                 }
             }
             Text(
-                "以下为基于 ATC 分类的配伍提示，仅供参考，请咨询医生或药师。",
+                stringResource(R.string.home_interaction_disclaimer),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.outline,
             )
@@ -1100,21 +1110,24 @@ private fun InteractionDetailSheet(
 
 @Composable
 private fun InteractionItem(interaction: DrugInteraction) {
+    val severityHighLabel = stringResource(R.string.home_severity_high)
+    val severityModerateLabel = stringResource(R.string.home_severity_moderate)
+    val severityLowLabel = stringResource(R.string.home_severity_low)
     val (bgColor, labelColor, severityLabel) = when (interaction.severity) {
         InteractionSeverity.HIGH -> Triple(
             MaterialTheme.colorScheme.errorContainer,
             MaterialTheme.colorScheme.error,
-            "高风险",
+            severityHighLabel,
         )
         InteractionSeverity.MODERATE -> Triple(
             MaterialTheme.colorScheme.secondaryContainer,
             MaterialTheme.colorScheme.secondary,
-            "中度",
+            severityModerateLabel,
         )
         InteractionSeverity.LOW -> Triple(
             MaterialTheme.colorScheme.surfaceContainerHigh,
             MaterialTheme.colorScheme.tertiary,
-            "注意",
+            severityLowLabel,
         )
     }
     Card(
@@ -1149,7 +1162,7 @@ private fun InteractionItem(interaction: DrugInteraction) {
                 style = MaterialTheme.typography.bodySmall,
             )
             Text(
-                "建议：${interaction.advice}",
+                stringResource(R.string.home_severity_advice, interaction.advice),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 fontWeight = FontWeight.Medium,
@@ -1196,7 +1209,7 @@ private fun MedicationQrDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("今日用药计划") },
+        title = { Text(stringResource(R.string.home_qr_title)) },
         text = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -1204,7 +1217,7 @@ private fun MedicationQrDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 Text(
-                    "已服 $takenCount / $totalCount",
+                    stringResource(R.string.home_qr_taken_count, takenCount, totalCount),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -1218,7 +1231,7 @@ private fun MedicationQrDialog(
                     if (qrBitmap != null) {
                         Image(
                             painter = BitmapPainter(qrBitmap!!.asImageBitmap()),
-                            contentDescription = "QR 码",
+                            contentDescription = stringResource(R.string.home_qr_cd),
                             modifier = Modifier.size(200.dp),
                         )
                     } else {
@@ -1226,7 +1239,7 @@ private fun MedicationQrDialog(
                     }
                 }
                 Text(
-                    "扫描 QR 码可读取今日用药计划，也可点击下方「分享」发送给他人",
+                    stringResource(R.string.home_qr_instruction),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
@@ -1238,17 +1251,17 @@ private fun MedicationQrDialog(
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, qrText)
-                    putExtra(Intent.EXTRA_TITLE, "今日用药计划")
+                    putExtra(Intent.EXTRA_TITLE, context.getString(R.string.home_share_intent_title))
                 }
-                context.startActivity(Intent.createChooser(intent, "分享今日用药计划"))
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.home_share_chooser)))
             }) {
                 Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
-                Text("分享文本")
+                Text(stringResource(R.string.home_qr_share_btn))
             }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("关闭") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.home_close)) }
         },
     )
 }
