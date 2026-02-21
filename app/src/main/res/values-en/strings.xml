@@ -325,7 +325,7 @@
     <string name="history_adherence_poor">Low adherence, please pay attention</string>
     <string name="history_prev_month_cd">Previous month</string>
     <string name="history_next_month_cd">Next month</string>
-    <string name="history_month_format">%2$s %1$d</string>
+    <string name="history_month_format">%1$d-%2$02d</string>
     <string name="history_weekday_1">M</string>
     <string name="history_weekday_2">T</string>
     <string name="history_weekday_3">W</string>
