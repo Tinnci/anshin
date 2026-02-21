@@ -22,10 +22,13 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
 import androidx.compose.material.icons.rounded.AutoAwesome
 import androidx.compose.material.icons.rounded.Close
+import androidx.compose.material.icons.rounded.LocalDrink
 import androidx.compose.material.icons.rounded.LocalFlorist
 import androidx.compose.material.icons.rounded.Medication
+import androidx.compose.material.icons.rounded.Science
 import androidx.compose.material.icons.rounded.Search
 import androidx.compose.material.icons.rounded.SearchOff
+import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -577,6 +580,17 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
 
     ListItem(
         headlineContent = { Text(drug.name) },
+        leadingContent = {
+            Icon(
+                imageVector = if (drug.isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+                contentDescription = null,
+                modifier = androidx.compose.ui.Modifier.size(20.dp),
+                tint = if (drug.isTcm)
+                    MaterialTheme.colorScheme.tertiary
+                else
+                    MaterialTheme.colorScheme.secondary,
+            )
+        },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(
