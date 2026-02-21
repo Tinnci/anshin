@@ -2,168 +2,36 @@
 <issues format="6" by="lint 9.0.1" type="baseline" client="gradle" dependencies="false" name="AGP (9.0.1)" variant="all" version="9.0.1">
 
     <issue
-        id="UnusedAttribute"
-        message="Attribute `targetCellWidth` is only used in API level 31 and higher (current min is 26)"
-        errorLine1="    android:targetCellWidth=&quot;3&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="VectorRaster"
+        message="Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more"
+        errorLine1="    android:width=&quot;320dp&quot;"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/main/res/xml/med_log_widget_info.xml"
-            line="6"
-            column="5"/>
+            file="src/main/res/drawable/widget_preview_next_dose.xml"
+            line="2"
+            column="20"/>
     </issue>
 
     <issue
-        id="UnusedAttribute"
-        message="Attribute `targetCellHeight` is only used in API level 31 and higher (current min is 26)"
-        errorLine1="    android:targetCellHeight=&quot;2&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="VectorRaster"
+        message="Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more"
+        errorLine1="    android:width=&quot;320dp&quot;"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/main/res/xml/med_log_widget_info.xml"
-            line="7"
-            column="5"/>
+            file="src/main/res/drawable/widget_preview_streak.xml"
+            line="2"
+            column="20"/>
     </issue>
 
     <issue
-        id="UnusedAttribute"
-        message="Attribute `maxResizeWidth` is only used in API level 31 and higher (current min is 26)"
-        errorLine1="    android:maxResizeWidth=&quot;400dp&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        id="VectorRaster"
+        message="Limit vector icons sizes to 200×200 to keep icon drawing fast; see https://developer.android.com/studio/write/vector-asset-studio#when for more"
+        errorLine1="    android:width=&quot;320dp&quot;"
+        errorLine2="                   ~~~~~">
         <location
-            file="src/main/res/xml/med_log_widget_info.xml"
-            line="8"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="UnusedAttribute"
-        message="Attribute `maxResizeHeight` is only used in API level 31 and higher (current min is 26)"
-        errorLine1="    android:maxResizeHeight=&quot;300dp&quot;"
-        errorLine2="    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/xml/med_log_widget_info.xml"
-            line="9"
-            column="5"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.core:core-ktx than 1.15.+ is available: 1.17.0"
-        errorLine1="coreKtx = &quot;1.15.+&quot;"
-        errorLine2="          ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="5"
-            column="11"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.window:window than 1.3.+ is available: 1.5.0"
-        errorLine1="windowSizeClass = &quot;1.3.+&quot;"
-        errorLine2="                  ~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="13"
-            column="19"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.datastore:datastore-preferences than 1.1.+ is available: 1.2.0"
-        errorLine1="datastore = &quot;1.1.+&quot;"
-        errorLine2="            ~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="16"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.work:work-runtime-ktx than 2.10.+ is available: 2.11.1"
-        errorLine1="workManager = &quot;2.10.+&quot;"
-        errorLine2="              ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="17"
-            column="15"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.test.ext:junit than 1.2.1 is available: 1.3.0"
-        errorLine1="androidx-junit = { group = &quot;androidx.test.ext&quot;, name = &quot;junit&quot;, version = &quot;1.2.1&quot; }"
-        errorLine2="                                                                          ~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="61"
-            column="75"/>
-    </issue>
-
-    <issue
-        id="GradleDependency"
-        message="A newer version of androidx.test.espresso:espresso-core than 3.6.1 is available: 3.7.0"
-        errorLine1="androidx-espresso-core = { group = &quot;androidx.test.espresso&quot;, name = &quot;espresso-core&quot;, version = &quot;3.6.1&quot; }"
-        errorLine2="                                                                                               ~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="62"
-            column="96"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlin.android than 2.2.10 is available: 2.3.10"
-        errorLine1="kotlin = &quot;2.2.10&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="3"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlin.plugin.compose than 2.2.10 is available: 2.3.10"
-        errorLine1="kotlin = &quot;2.2.10&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="3"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlin.plugin.serialization than 2.2.10 is available: 2.3.10"
-        errorLine1="kotlin = &quot;2.2.10&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="3"
-            column="10"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.jetbrains.kotlinx:kotlinx-serialization-json than 1.8.+ is available: 1.10.0"
-        errorLine1="kotlinxSerializationJson = &quot;1.8.+&quot;"
-        errorLine2="                           ~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="19"
-            column="28"/>
-    </issue>
-
-    <issue
-        id="NewerVersionAvailable"
-        message="A newer version of org.jlleitschuh.gradle.ktlint than 12.3.0 is available: 14.0.1"
-        errorLine1="ktlint = &quot;12.3.0&quot;"
-        errorLine2="         ~~~~~~~~">
-        <location
-            file="$HOME/Downloads/MedLogAndroid/gradle/libs.versions.toml"
-            line="24"
-            column="10"/>
+            file="src/main/res/drawable/widget_preview_today.xml"
+            line="2"
+            column="20"/>
     </issue>
 
     <issue
@@ -172,31 +40,9 @@
         errorLine1="    modifier: Modifier = Modifier,"
         errorLine2="    ~~~~~~~~">
         <location
-            file="src/main/java/com/example/medlog/ui/screen/addmedication/AddMedicationScreen.kt"
-            line="570"
+            file="src/main/java/com/example/medlog/ui/screen/home/HomeScreen.kt"
+            line="415"
             column="5"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is always >= 26"
-        errorLine1="        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1) {"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/medlog/ui/MainActivity.kt"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="ObsoleteSdkInt"
-        message="Unnecessary; `SDK_INT` is never &lt; 26"
-        errorLine1="        if (Build.VERSION.SDK_INT &lt; Build.VERSION_CODES.N_MR1) return"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/java/com/example/medlog/ui/MainActivity.kt"
-            line="44"
-            column="13"/>
     </issue>
 
     <issue
@@ -208,34 +54,12 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.add_medication` appears to be unused"
-        errorLine1="    &lt;string name=&quot;add_medication&quot;>添加药品&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="7"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.mark_taken` appears to be unused"
-        errorLine1="    &lt;string name=&quot;mark_taken&quot;>标记已服&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="8"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.mark_not_taken` appears to be unused"
         errorLine1="    &lt;string name=&quot;mark_not_taken&quot;>标记未服&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="9"
+            line="7"
             column="13"/>
     </issue>
 
@@ -246,7 +70,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="10"
+            line="8"
             column="13"/>
     </issue>
 
@@ -257,7 +81,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="11"
+            line="9"
             column="13"/>
     </issue>
 
@@ -268,7 +92,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="12"
+            line="10"
             column="13"/>
     </issue>
 
@@ -279,7 +103,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="13"
+            line="11"
             column="13"/>
     </issue>
 
@@ -290,7 +114,7 @@
         errorLine2="            ~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="14"
+            line="12"
             column="13"/>
     </issue>
 
@@ -301,7 +125,7 @@
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="15"
+            line="13"
             column="13"/>
     </issue>
 
@@ -312,7 +136,7 @@
         errorLine2="            ~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="16"
+            line="14"
             column="13"/>
     </issue>
 
@@ -323,7 +147,7 @@
         errorLine2="            ~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="17"
+            line="15"
             column="13"/>
     </issue>
 
@@ -334,7 +158,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="18"
+            line="16"
             column="13"/>
     </issue>
 
@@ -345,7 +169,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="19"
+            line="17"
             column="13"/>
     </issue>
 
@@ -356,7 +180,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="20"
+            line="18"
             column="13"/>
     </issue>
 
@@ -367,7 +191,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="21"
+            line="19"
             column="13"/>
     </issue>
 
@@ -378,7 +202,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="22"
+            line="20"
             column="13"/>
     </issue>
 
@@ -389,7 +213,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="23"
+            line="21"
             column="13"/>
     </issue>
 
@@ -400,7 +224,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="24"
+            line="22"
             column="13"/>
     </issue>
 
@@ -411,7 +235,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="25"
+            line="23"
             column="13"/>
     </issue>
 
@@ -422,7 +246,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="28"
+            line="26"
             column="13"/>
     </issue>
 
@@ -433,7 +257,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="29"
+            line="27"
             column="13"/>
     </issue>
 
@@ -444,7 +268,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="30"
+            line="28"
             column="13"/>
     </issue>
 
@@ -455,7 +279,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="31"
+            line="29"
             column="13"/>
     </issue>
 
@@ -464,6 +288,17 @@
         message="The resource `R.string.archived_medications` appears to be unused"
         errorLine1="    &lt;string name=&quot;archived_medications&quot;>已归档药品&lt;/string>"
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~">
+        <location
+            file="src/main/res/values/strings.xml"
+            line="30"
+            column="13"/>
+    </issue>
+
+    <issue
+        id="UnusedResources"
+        message="The resource `R.string.diary_add` appears to be unused"
+        errorLine1="    &lt;string name=&quot;diary_add&quot;>记录症状&lt;/string>"
+        errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
             line="32"
@@ -548,35 +383,13 @@
     </issue>
 
     <issue
-        id="MonochromeLauncherIcon"
-        message="The application adaptive icon is missing a monochrome tag"
-        errorLine1="&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/mipmap-anydpi-v26/ic_launcher.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
-        id="MonochromeLauncherIcon"
-        message="The application adaptive roundIcon is missing a monochrome tag"
-        errorLine1="&lt;adaptive-icon xmlns:android=&quot;http://schemas.android.com/apk/res/android&quot;>"
-        errorLine2="^">
-        <location
-            file="src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml"
-            line="2"
-            column="1"/>
-    </issue>
-
-    <issue
         id="ReportShortcutUsage"
         message="Calling this method indicates use of dynamic shortcuts, but there are no calls to methods that track shortcut usage, such as `pushDynamicShortcut` or `reportShortcutUsed`. Calling these methods is recommended, as they track shortcut usage and allow launchers to adjust which shortcuts appear based on activation history. Please see https://developer.android.com/develop/ui/views/launch/shortcuts/managing-shortcuts#track-usage"
         errorLine1="        sm.dynamicShortcuts = listOf(historyShortcut)"
         errorLine2="        ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/java/com/example/medlog/ui/MainActivity.kt"
-            line="59"
+            line="71"
             column="9"/>
     </issue>
 
