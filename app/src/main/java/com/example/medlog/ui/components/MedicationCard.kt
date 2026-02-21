@@ -245,15 +245,16 @@ fun MedicationCard(
                     }
                 }
 
-                // ── M3 Expressive ButtonGroup：取药 + 跳过（无模态菜单）──
-                Spacer(Modifier.width(4.dp))
-                @Suppress("DEPRECATION")
-                ButtonGroup {
-                    // 服药 / 撤销 按钮——始终显示，状态即图标
-                    FilledIconButton(
+                // ── 胶囊形操作按钮组 ──────────────────────────────────
+                Spacer(Modifier.width(6.dp))
+                Column(
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    horizontalAlignment = Alignment.End,
+                ) {
+                    // 主操作：服用 / 撤销（pill shape，有图标+文字）
+                    FilledTonalButton(
                         onClick = onToggleTaken,
-                        modifier = Modifier.size(36.dp),
-                        colors = IconButtonDefaults.filledIconButtonColors(
+                        colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = when {
                                 item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
                                 item.isSkipped -> MaterialTheme.colorScheme.secondaryContainer
@@ -265,24 +266,38 @@ fun MedicationCard(
                                 else           -> MaterialTheme.colorScheme.onPrimaryContainer
                             },
                         ),
+                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                        modifier = Modifier.height(36.dp),
                     ) {
                         Icon(
                             imageVector = if (item.isTaken || item.isSkipped)
                                 Icons.AutoMirrored.Rounded.Undo
                             else
                                 Icons.Rounded.Check,
-                            contentDescription = if (item.isTaken || item.isSkipped) "撤销" else "标记已服",
-                            modifier = Modifier.size(18.dp),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                        Spacer(Modifier.width(4.dp))
+                        Text(
+                            text = when {
+                                item.isTaken   -> "撤销"
+                                item.isSkipped -> "撤销"
+                                else           -> "服用"
+                            },
+                            style = MaterialTheme.typography.labelMedium,
                         )
                     }
 
-                    // 跳过按钮——仅在待服状态时显示
+                    // 跳过按钮（仅待服状态时显示）
                     if (!item.isTaken && !item.isSkipped) {
-                        OutlinedIconButton(
+                        OutlinedButton(
                             onClick = onSkip,
-                            modifier = Modifier.size(36.dp),
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            modifier = Modifier.height(30.dp),
                         ) {
-                            Icon(Icons.Rounded.SkipNext, "跳过", Modifier.size(18.dp))
+                            Icon(Icons.Rounded.SkipNext, null, Modifier.size(13.dp))
+                            Spacer(Modifier.width(3.dp))
+                            Text("跳过", style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }
