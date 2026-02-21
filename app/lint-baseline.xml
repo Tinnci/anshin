@@ -98,28 +98,6 @@
 
     <issue
         id="UnusedResources"
-        message="The resource `R.string.cancel` appears to be unused"
-        errorLine1="    &lt;string name=&quot;cancel&quot;>取消&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="11"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.confirm` appears to be unused"
-        errorLine1="    &lt;string name=&quot;confirm&quot;>确认&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="12"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
         message="The resource `R.string.save` appears to be unused"
         errorLine1="    &lt;string name=&quot;save&quot;>保存&lt;/string>"
         errorLine2="            ~~~~~~~~~~~">
@@ -324,61 +302,6 @@
         <location
             file="src/main/res/values/strings.xml"
             line="35"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.wake_time` appears to be unused"
-        errorLine1="    &lt;string name=&quot;wake_time&quot;>起床时间&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="36"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.breakfast_time` appears to be unused"
-        errorLine1="    &lt;string name=&quot;breakfast_time&quot;>早餐时间&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="37"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.lunch_time` appears to be unused"
-        errorLine1="    &lt;string name=&quot;lunch_time&quot;>午餐时间&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="38"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.dinner_time` appears to be unused"
-        errorLine1="    &lt;string name=&quot;dinner_time&quot;>晚餐时间&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="39"
-            column="13"/>
-    </issue>
-
-    <issue
-        id="UnusedResources"
-        message="The resource `R.string.bed_time` appears to be unused"
-        errorLine1="    &lt;string name=&quot;bed_time&quot;>睡觉时间&lt;/string>"
-        errorLine2="            ~~~~~~~~~~~~~~~">
-        <location
-            file="src/main/res/values/strings.xml"
-            line="40"
             column="13"/>
     </issue>
 
