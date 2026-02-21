@@ -41,7 +41,7 @@
         errorLine2="    ~~~~~~~~">
         <location
             file="src/main/java/com/example/medlog/ui/screen/home/HomeScreen.kt"
-            line="415"
+            line="439"
             column="5"/>
     </issue>
 
@@ -301,7 +301,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="32"
+            line="33"
             column="13"/>
     </issue>
 
@@ -312,7 +312,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="33"
+            line="34"
             column="13"/>
     </issue>
 
@@ -323,7 +323,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="34"
+            line="35"
             column="13"/>
     </issue>
 
@@ -334,7 +334,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="35"
+            line="36"
             column="13"/>
     </issue>
 
@@ -345,7 +345,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="36"
+            line="37"
             column="13"/>
     </issue>
 
@@ -356,7 +356,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="37"
+            line="38"
             column="13"/>
     </issue>
 
@@ -367,7 +367,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="38"
+            line="39"
             column="13"/>
     </issue>
 
@@ -378,7 +378,7 @@
         errorLine2="            ~~~~~~~~~~~~~~~">
         <location
             file="src/main/res/values/strings.xml"
-            line="39"
+            line="40"
             column="13"/>
     </issue>
 
