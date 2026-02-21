@@ -379,33 +379,58 @@ fun AddMedicationScreen(
                     text = if (uiState.isPRN)
                         "PRN 药品可设置可选提醒，到时系统会提示您是否需要服药。"
                     else
-                        "选择服药的时间段",
+                        "选择提醒模式",
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-                    Row(
-                        modifier = Modifier
-                            .horizontalScroll(rememberScrollState())
-                            .fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        TimePeriod.entries.forEach { tp ->
-                            FilterChip(
-                                selected = tp == uiState.timePeriod,
-                                onClick = { viewModel.onTimePeriodChange(tp) },
-                                label = { Text(tp.label, style = MaterialTheme.typography.labelSmall) },
-                                leadingIcon = {
-                                    Icon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
-                                },
-                            )
+                // ── 精确时间 / 作息时间 模式切换 ─────────────────────────
+                val isExactMode = uiState.timePeriod == TimePeriod.EXACT
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    SegmentedButton(
+                        selected = !isExactMode,
+                        onClick = { if (isExactMode) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
+                        icon = {
+                            SegmentedButtonDefaults.Icon(active = !isExactMode) {
+                                Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
+                            }
+                        },
+                    ) { Text("作息时间") }
+                    SegmentedButton(
+                        selected = isExactMode,
+                        onClick = { if (!isExactMode) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
+                        shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
+                        icon = {
+                            SegmentedButtonDefaults.Icon(active = isExactMode) {
+                                Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
+                            }
+                        },
+                    ) { Text("精确时间") }
+                }
+                // 作息时间模式：时段选择芯片 + 自动提醒时间提示
+                AnimatedVisibility(
+                    visible = !isExactMode,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut(),
+                ) {
+                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Row(
+                            modifier = Modifier
+                                .horizontalScroll(rememberScrollState())
+                                .fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            TimePeriod.entries.filter { it != TimePeriod.EXACT }.forEach { tp ->
+                                FilterChip(
+                                    selected = tp == uiState.timePeriod,
+                                    onClick = { viewModel.onTimePeriodChange(tp) },
+                                    label = { Text(tp.label, style = MaterialTheme.typography.labelSmall) },
+                                    leadingIcon = {
+                                        Icon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
+                                    },
+                                )
+                            }
                         }
-                    }
-                    // 非 EXACT 时段：显示自动带入的时间提示
-                    AnimatedVisibility(
-                        visible = uiState.timePeriod != TimePeriod.EXACT,
-                        enter = expandVertically() + fadeIn(),
-                        exit = shrinkVertically() + fadeOut(),
-                    ) {
                         SuggestionChip(
                             onClick = {},
                             label = {
@@ -428,8 +453,9 @@ fun AddMedicationScreen(
                             ),
                         )
                     }
-                // EXACT 时段：用户手动设置多个提醒时间 + 可选间隔给药
-                AnimatedVisibility(visible = uiState.timePeriod == TimePeriod.EXACT, enter = expandVertically(), exit = shrinkVertically()) {
+                }
+                // 精确时间模式：用户手动设置多个提醒时间 + 可选间隔给药
+                AnimatedVisibility(visible = isExactMode, enter = expandVertically(), exit = shrinkVertically()) {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                         ReminderTimesRow(
                             times = uiState.reminderTimes,

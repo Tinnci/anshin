@@ -53,39 +53,38 @@ fun MedicationCard(
     val med = item.medication
     val motionScheme = MaterialTheme.motionScheme
 
-    // 卡片底色：未服 → surfaceContainerLow（与 Flutter 一致），已服 → surface（减弱），跳过 → surfaceContainerHigh
+    // 卡片底色：未服 → primaryContainer（需要行动，视觉突出），已服 → surfaceContainerLowest（弱化），跳过 → surfaceContainerHigh
     val containerColor by animateColorAsState(
         targetValue = when {
-            item.isTaken   -> MaterialTheme.colorScheme.surface
+            item.isTaken   -> MaterialTheme.colorScheme.surfaceContainerLowest
             item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
-            else           -> MaterialTheme.colorScheme.surfaceContainerLow
+            else           -> MaterialTheme.colorScheme.primaryContainer
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardColor",
     )
 
-    // 已服用后整张卡片轻微透明，减弱视觉权重
+    // 已服/跳过后整张卡片透明度降低，减弱视觉权重；未服保持完全不透明
     val cardAlpha by animateFloatAsState(
-        targetValue = if (item.isTaken || item.isSkipped) 0.75f else 1f,
+        targetValue = if (item.isTaken || item.isSkipped) 0.60f else 1f,
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardAlpha",
     )
 
-    // 左侧色带颜色：高优先级=primary，普通=secondaryContainer，已服/跳过=outlineVariant
+    // 左侧色带颜色：未服一律显示 primary（强调待服），已服/跳过=outlineVariant（弱化）
     val stripColor by animateColorAsState(
         targetValue = when {
             item.isTaken || item.isSkipped -> MaterialTheme.colorScheme.outlineVariant
-            med.isHighPriority             -> MaterialTheme.colorScheme.primary
-            else                           -> MaterialTheme.colorScheme.secondaryContainer
+            else                           -> MaterialTheme.colorScheme.primary
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "strip",
     )
 
     val cardShape = if (flatStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(24.dp)
-    // 高优先级且未完成：显示半透明 primary 描边（flatStyle 下省略，由父卡片负责形状）
+    // 高优先级且未完成：error 色描边，在 primaryContainer 背景上清晰可见
     val borderMod = if (med.isHighPriority && !item.isTaken && !item.isSkipped && !flatStyle)
-        Modifier.border(1.5.dp, MaterialTheme.colorScheme.primary.copy(alpha = 0.3f), cardShape)
+        Modifier.border(2.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.55f), cardShape)
     else Modifier
 
     // 扁平卡片（elevation = 0），flatStyle 下背景透明继承父卡片
@@ -342,9 +341,9 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
     }
     val bgColor by animateColorAsState(
         targetValue = when {
-            isTaken   -> MaterialTheme.colorScheme.tertiary
+            isTaken   -> MaterialTheme.colorScheme.primary
             isSkipped -> MaterialTheme.colorScheme.outlineVariant
-            else      -> MaterialTheme.colorScheme.surfaceContainerHigh
+            else      -> MaterialTheme.colorScheme.primaryContainer
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "circleBg",
@@ -360,7 +359,7 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
         when {
             isTaken   -> Icon(
                 Icons.Rounded.Check, null,
-                tint = MaterialTheme.colorScheme.onTertiary,
+                tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(20.dp),
             )
             isSkipped -> Icon(
