@@ -16,6 +16,7 @@ import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,6 +56,9 @@ import com.example.medlog.widget.NextDoseWidgetReceiver
 import com.example.medlog.widget.StreakWidgetReceiver
 import com.example.medlog.ui.utils.OemWidgetHelper
 import androidx.compose.ui.res.stringResource
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -101,6 +105,15 @@ fun SettingsScreen(
         }
         lifecycleOwner.lifecycle.addObserver(observer)
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
+    // 通知权限：优先弹系统对话框，被永久拒绝后才跳转到设置页
+    var hasRequestedNotifPerm by rememberSaveable { mutableStateOf(false) }
+    val notifPermLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { isGranted ->
+        canPostNotifications = isGranted
+        hasRequestedNotifPerm = true
     }
 
     val snackbarHostState = remember { SnackbarHostState() }
@@ -225,11 +238,23 @@ fun SettingsScreen(
                         }
                         FilledTonalButton(
                             onClick = {
-                                context.startActivity(
-                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                        data = Uri.fromParts("package", context.packageName, null)
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                    val activity = context as? android.app.Activity
+                                    val shouldShowRationale = activity != null &&
+                                        ActivityCompat.shouldShowRequestPermissionRationale(
+                                            activity, Manifest.permission.POST_NOTIFICATIONS)
+                                    if (!hasRequestedNotifPerm || shouldShowRationale) {
+                                        // 首次或系统允许再次请求 → 弹系统权限对话框
+                                        notifPermLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                                    } else {
+                                        // 被永久拒绝 → 引导跳转系统设置
+                                        context.startActivity(
+                                            Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                                data = Uri.fromParts("package", context.packageName, null)
+                                            }
+                                        )
                                     }
-                                )
+                                }
                             },
                             colors = ButtonDefaults.filledTonalButtonColors(
                                 containerColor = MaterialTheme.colorScheme.onTertiaryContainer,
