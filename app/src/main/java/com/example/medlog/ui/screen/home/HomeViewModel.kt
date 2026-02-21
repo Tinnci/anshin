@@ -315,8 +315,9 @@ class HomeViewModel @Inject constructor(
                 .collect { meds ->
                     meds.forEach { med ->
                         val stock = med.stock ?: return@forEach
-                        val threshold = med.refillThreshold ?: return@forEach
-                        if (stock <= threshold) {
+                        // 数量触发型
+                        val threshold = med.refillThreshold
+                        if (threshold != null && stock <= threshold) {
                             notificationHelper.showLowStockNotification(
                                 medicationId = med.id,
                                 medicationName = med.name,
@@ -324,8 +325,41 @@ class HomeViewModel @Inject constructor(
                                 unit = med.doseUnit,
                             )
                         }
+                        // 时间估算型备货提醒
+                        if (med.refillReminderDays > 0) {
+                            val dailyConsumption = estimateDailyConsumption(med)
+                            if (dailyConsumption > 0) {
+                                val daysRemaining = (stock / dailyConsumption).toInt()
+                                if (daysRemaining <= med.refillReminderDays) {
+                                    notificationHelper.showRefillReminderNotification(
+                                        medicationId = med.id,
+                                        medicationName = med.name,
+                                        daysRemaining = daysRemaining,
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
+        }
+    }
+
+    /**
+     * 估算每日消耗量（单位与 doseUnit 一致）。
+     * - daily: 每天 = doseTimes × doseQuantity
+     * - interval: 每 N 天一次 = doseTimes × doseQuantity / N
+     * - specific_days: 每周 X 天 = doseTimes × doseQuantity × (X/7)
+     */
+    private fun estimateDailyConsumption(med: com.example.medlog.data.model.Medication): Double {
+        val doseTimesPerDay = med.reminderTimes.split(",").filter { it.isNotBlank() }.size
+        val onceAmount = doseTimesPerDay * med.doseQuantity
+        return when (med.frequencyType) {
+            "interval" -> if (med.frequencyInterval > 0) onceAmount / med.frequencyInterval.toDouble() else onceAmount
+            "specific_days" -> {
+                val daysPerWeek = med.frequencyDays.split(",").filter { it.isNotBlank() }.size
+                onceAmount * daysPerWeek / 7.0
+            }
+            else -> onceAmount // daily
         }
     }
 

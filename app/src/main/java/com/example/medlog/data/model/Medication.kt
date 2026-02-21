@@ -43,6 +43,12 @@ data class Medication(
     // ── 库存 ─────────────────────────────────────────────────────────────────
     val stock: Double? = null,
     val refillThreshold: Double? = null,
+    /**
+     * 按时间估算的备货提醒天数（0 = 禁用）。
+     * 当预计剩余天数 < refillReminderDays 时，推送"建议提前备货"通知。
+     * 适用于知道大致服药周期的用户，无需精确计数库存。
+     */
+    val refillReminderDays: Int = 0,
 
     // ── 其他 ─────────────────────────────────────────────────────────────────
     val notes: String = "",

@@ -528,6 +528,28 @@ fun AddMedicationScreen(
                         singleLine = true,
                     )
                 }
+                // ── 按天数估算备货提醒 ──────────────────────────────
+                Text(
+                    "时间估算备货提醒",
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    "根据当前库存和每日用量，在预计剩余 N 天时提醒你提前购药",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    listOf(0 to "关闭", 7 to "7 天", 14 to "14 天", 30 to "30 天").forEach { (days, label) ->
+                        FilterChip(
+                            selected = uiState.refillReminderDays == days,
+                            onClick = { viewModel.onRefillReminderDaysChange(days) },
+                            label = { Text(label) },
+                        )
+                    }
+                }
             }
 
             // ── 备注 ─────────────────────────────────────────────

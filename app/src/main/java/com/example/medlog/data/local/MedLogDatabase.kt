@@ -13,7 +13,7 @@ import com.example.medlog.data.model.SymptomLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class],
-    version = 6,
+    version = 7,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -32,6 +32,13 @@ abstract class MedLogDatabase : RoomDatabase() {
             }
         }
 
+        /** v6 → v7: 添加 refillReminderDays 列（按天数估算备货提醒） */
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medications ADD COLUMN refillReminderDays INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
         /**
          * Widget 和其他非-DI 场景下的单例访问器。
          * Hilt 应用内仍由 [AppModule] 提供注入版本。
@@ -40,7 +47,7 @@ abstract class MedLogDatabase : RoomDatabase() {
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room
                     .databaseBuilder(context.applicationContext, MedLogDatabase::class.java, "medlog.db")
-                    .addMigrations(MIGRATION_5_6)
+                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }

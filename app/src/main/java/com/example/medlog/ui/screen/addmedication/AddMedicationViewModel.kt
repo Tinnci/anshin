@@ -53,6 +53,8 @@ data class AddMedicationUiState(
     // ── 库存 ─────────────────────────────────────────────────────
     val stock: String = "",
     val refillThreshold: String = "",
+    /** 0=禁用, 7/14/30=N 天前不足时提醒备货（基于每日用量估算） */
+    val refillReminderDays: Int = 0,
 
     // ── 其他 ─────────────────────────────────────────────────────
     val notes: String = "",
@@ -134,6 +136,7 @@ class AddMedicationViewModel @Inject constructor(
                 endDate         = med.endDate,
                 stock           = med.stock?.toString() ?: "",
                 refillThreshold = med.refillThreshold?.toString() ?: "",
+                refillReminderDays = med.refillReminderDays,
                 notes           = med.notes,
                 intervalHours   = med.intervalHours,
             )
@@ -225,6 +228,7 @@ class AddMedicationViewModel @Inject constructor(
 
     fun onStockChange(v: String)             = update { copy(stock = v) }
     fun onRefillThresholdChange(v: String)   = update { copy(refillThreshold = v) }
+    fun onRefillReminderDaysChange(v: Int)   = update { copy(refillReminderDays = v) }
     fun onNotesChange(v: String)             = update { copy(notes = v) }
 
     // ── 保存 ─────────────────────────────────────────────────────
@@ -266,6 +270,7 @@ class AddMedicationViewModel @Inject constructor(
                 endDate         = state.endDate,
                 stock           = state.stock.toDoubleOrNull(),
                 refillThreshold = state.refillThreshold.toDoubleOrNull(),
+                refillReminderDays = state.refillReminderDays,
                 notes           = state.notes,
                 intervalHours   = state.intervalHours,
             )

@@ -259,6 +259,28 @@ class NotificationHelper @Inject constructor(
         notificationManager.notify((medicationId + 10000L).toInt(), notification)
     }
 
+    /**
+     * 发送"预计 N 天后用完，建议提前备货"提醒通知。
+     * notifId 使用 medicationId + 20000 偏移，避免与低库存通知冲突。
+     */
+    fun showRefillReminderNotification(medicationId: Long, medicationName: String, daysRemaining: Int) {
+        if (!notificationManager.areNotificationsEnabled()) return
+        val notification = NotificationCompat.Builder(context, CHANNEL_LOW_STOCK)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
+            .setContentTitle("建议提前备货：$medicationName")
+            .setContentText("按当前用量估算，约 $daysRemaining 天后用完")
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText("您的 $medicationName 预计还有约 ${daysRemaining} 天用量，建议提前购买以避免断药。"),
+            )
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setAutoCancel(true)
+            .build()
+        notificationManager.notify((medicationId + 20000L).toInt(), notification)
+    }
+
     // ─── 提前预告通知 ───────────────────────────────────────────────
 
     /**
