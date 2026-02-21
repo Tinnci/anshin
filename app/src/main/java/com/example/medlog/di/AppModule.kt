@@ -2,12 +2,15 @@ package com.example.medlog.di
 
 import android.content.Context
 import androidx.room.Room
+import com.example.medlog.data.local.HealthRecordDao
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.local.MedicationDao
 import com.example.medlog.data.local.MedicationLogDao
 import com.example.medlog.data.local.SymptomLogDao
 import com.example.medlog.data.repository.DrugRepository
 import com.example.medlog.data.repository.DrugRepositoryImpl
+import com.example.medlog.data.repository.HealthRepository
+import com.example.medlog.data.repository.HealthRepositoryImpl
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.LogRepositoryImpl
 import com.example.medlog.data.repository.MedicationRepository
@@ -34,7 +37,11 @@ object DatabaseModule {
             MedLogDatabase::class.java,
             "medlog.db",
         )
-            .addMigrations(MedLogDatabase.MIGRATION_5_6)
+                    .addMigrations(
+                MedLogDatabase.MIGRATION_5_6,
+                MedLogDatabase.MIGRATION_6_7,
+                MedLogDatabase.MIGRATION_7_8,
+            )
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
@@ -46,6 +53,9 @@ object DatabaseModule {
 
     @Provides
     fun provideSymptomLogDao(db: MedLogDatabase): SymptomLogDao = db.symptomLogDao()
+
+    @Provides
+    fun provideHealthRecordDao(db: MedLogDatabase): HealthRecordDao = db.healthRecordDao()
 }
 
 @Module
@@ -75,5 +85,11 @@ abstract class RepositoryModule {
     abstract fun bindSymptomRepository(
         impl: SymptomRepositoryImpl,
     ): SymptomRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHealthRepository(
+        impl: HealthRepositoryImpl,
+    ): HealthRepository
 }
 

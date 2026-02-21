@@ -50,6 +50,8 @@ data class SettingsPreferences(
     val enableDrugInteractionCheck: Boolean = true,
     /** 是否启用药品数据库浏览（底部导航显示「药品」Tab） */
     val enableDrugDatabase: Boolean = true,
+    /** 是否启用健康体征模块（底部导航显示「健康」Tab） */
+    val enableHealthModule: Boolean = true,
 
     // ── 外观偏好 ──────────────────────────────────────────────────────────────
     /** 深色/浅色/跟随系统 */
@@ -93,6 +95,7 @@ class UserPreferencesRepository @Inject constructor(
         val ENABLE_SYMPTOM_DIARY         = booleanPreferencesKey("enable_symptom_diary")
         val ENABLE_DRUG_INTERACTION      = booleanPreferencesKey("enable_drug_interaction")
         val ENABLE_DRUG_DATABASE         = booleanPreferencesKey("enable_drug_database")
+        val ENABLE_HEALTH_MODULE         = booleanPreferencesKey("enable_health_module")
         // 外观
         val THEME_MODE         = stringPreferencesKey("theme_mode")
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
@@ -123,6 +126,7 @@ class UserPreferencesRepository @Inject constructor(
                 enableSymptomDiary        = prefs[ENABLE_SYMPTOM_DIARY]    ?: true,
                 enableDrugInteractionCheck = prefs[ENABLE_DRUG_INTERACTION] ?: true,
                 enableDrugDatabase        = prefs[ENABLE_DRUG_DATABASE]     ?: true,
+                enableHealthModule        = prefs[ENABLE_HEALTH_MODULE]     ?: true,
                 themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
@@ -169,11 +173,13 @@ class UserPreferencesRepository @Inject constructor(
         enableSymptomDiary: Boolean? = null,
         enableDrugInteraction: Boolean? = null,
         enableDrugDatabase: Boolean? = null,
+        enableHealthModule: Boolean? = null,
     ) {
         dataStore.edit { prefs ->
             if (enableSymptomDiary != null) prefs[ENABLE_SYMPTOM_DIARY] = enableSymptomDiary
             if (enableDrugInteraction != null) prefs[ENABLE_DRUG_INTERACTION] = enableDrugInteraction
             if (enableDrugDatabase != null) prefs[ENABLE_DRUG_DATABASE] = enableDrugDatabase
+            if (enableHealthModule != null) prefs[ENABLE_HEALTH_MODULE] = enableHealthModule
         }
     }
 

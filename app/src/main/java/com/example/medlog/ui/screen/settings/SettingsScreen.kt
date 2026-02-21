@@ -521,6 +521,14 @@ fun SettingsScreen(
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
                 SettingsSwitchRow(
+                    title = "健康体征模块",
+                    subtitle = "记录血压、血糖、体重等健康数据",
+                    checked = uiState.enableHealthModule,
+                    onCheckedChange = viewModel::setEnableHealthModule,
+                    icon = Icons.Rounded.MonitorHeart,
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                SettingsSwitchRow(
                     title = "药物相互作用检测",
                     subtitle = "在首页自动检测配伍风险并提示",
                     checked = uiState.enableDrugInteractionCheck,

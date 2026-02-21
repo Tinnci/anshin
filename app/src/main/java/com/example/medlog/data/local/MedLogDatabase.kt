@@ -7,13 +7,14 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.SymptomLog
 
 @Database(
-    entities = [Medication::class, MedicationLog::class, SymptomLog::class],
-    version = 7,
+    entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
+    version = 8,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -21,6 +22,7 @@ abstract class MedLogDatabase : RoomDatabase() {
     abstract fun medicationDao(): MedicationDao
     abstract fun medicationLogDao(): MedicationLogDao
     abstract fun symptomLogDao(): SymptomLogDao
+    abstract fun healthRecordDao(): HealthRecordDao
 
     companion object {
         @Volatile private var INSTANCE: MedLogDatabase? = null
@@ -39,6 +41,24 @@ abstract class MedLogDatabase : RoomDatabase() {
             }
         }
 
+        /** v7 → v8: 新增 health_records 表（健康体征记录） */
+        val MIGRATION_7_8 = object : Migration(7, 8) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS health_records (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        type TEXT NOT NULL,
+                        value REAL NOT NULL,
+                        secondaryValue REAL,
+                        timestamp INTEGER NOT NULL,
+                        notes TEXT NOT NULL
+                    )
+                    """.trimIndent()
+                )
+            }
+        }
+
         /**
          * Widget 和其他非-DI 场景下的单例访问器。
          * Hilt 应用内仍由 [AppModule] 提供注入版本。
@@ -47,7 +67,7 @@ abstract class MedLogDatabase : RoomDatabase() {
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room
                     .databaseBuilder(context.applicationContext, MedLogDatabase::class.java, "medlog.db")
-                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7)
+                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }

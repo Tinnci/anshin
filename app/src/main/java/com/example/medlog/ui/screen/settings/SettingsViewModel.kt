@@ -28,6 +28,7 @@ data class SettingsUiState(
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,
+    val enableHealthModule: Boolean = true,
     // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = true,
@@ -63,6 +64,7 @@ class SettingsViewModel @Inject constructor(
             enableSymptomDiary         = prefs.enableSymptomDiary,
             enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
             enableDrugDatabase         = prefs.enableDrugDatabase,
+            enableHealthModule         = prefs.enableHealthModule,
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
@@ -111,6 +113,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setEnableDrugDatabase(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugDatabase = enabled) }
+    }
+
+    fun setEnableHealthModule(enabled: Boolean) {
+        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableHealthModule = enabled) }
     }
 
     fun setThemeMode(mode: ThemeMode) {

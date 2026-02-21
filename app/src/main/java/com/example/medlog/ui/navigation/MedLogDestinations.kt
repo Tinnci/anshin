@@ -5,6 +5,7 @@ import androidx.compose.material.icons.rounded.EditNote
 import androidx.compose.material.icons.rounded.History
 import androidx.compose.material.icons.rounded.Home
 import androidx.compose.material.icons.rounded.MedicalServices
+import androidx.compose.material.icons.rounded.MonitorHeart
 import androidx.compose.material.icons.rounded.Settings
 import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.serialization.Serializable
@@ -17,6 +18,7 @@ import kotlinx.serialization.Serializable
     @Serializable data object History       : Route
     @Serializable data object Drugs         : Route
     @Serializable data object Diary         : Route
+    @Serializable data object Health        : Route
     @Serializable data object Settings      : Route
     @Serializable data class  MedDetail(val medicationId: Long) : Route
     /**
@@ -44,6 +46,7 @@ val TOP_LEVEL_DESTINATIONS = listOf(
     TopLevelDestination(Route.History, Icons.Rounded.History, com.example.medlog.R.string.tab_history),
     TopLevelDestination(Route.Drugs, Icons.Rounded.MedicalServices, com.example.medlog.R.string.tab_drugs),
     TopLevelDestination(Route.Diary, Icons.Rounded.EditNote, com.example.medlog.R.string.tab_diary),
+    TopLevelDestination(Route.Health, Icons.Rounded.MonitorHeart, com.example.medlog.R.string.tab_health),
     TopLevelDestination(Route.Settings, Icons.Rounded.Settings, com.example.medlog.R.string.tab_settings),
 )
 

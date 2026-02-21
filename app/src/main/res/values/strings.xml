@@ -29,6 +29,7 @@
     <string name="settings_about">关于</string>
     <string name="archived_medications">已归档药品</string>
     <string name="tab_diary">日记</string>
+    <string name="tab_health">健康</string>
     <string name="diary_add">记录症状</string>
     <string name="persistent_reminder">持续提醒</string>
     <string name="persistent_reminder_interval">提醒间隔（分钟）</string>

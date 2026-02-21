@@ -32,6 +32,7 @@ import com.example.medlog.ui.navigation.TopLevelDestination
 import com.example.medlog.ui.screen.addmedication.AddMedicationScreen
 import com.example.medlog.ui.screen.detail.MedicationDetailScreen
 import com.example.medlog.ui.screen.drugs.DrugsScreen
+import com.example.medlog.ui.screen.health.HealthScreen
 import com.example.medlog.ui.screen.history.HistoryScreen
 import com.example.medlog.ui.screen.home.HomeScreen
 import com.example.medlog.ui.screen.settings.SettingsScreen
@@ -82,11 +83,11 @@ fun MedLogApp(openAddMedication: Boolean = false) {
             when (dest.route) {
                 Route.Diary     -> featureFlags.enableSymptomDiary
                 Route.Drugs     -> featureFlags.enableDrugDatabase
+                Route.Health    -> featureFlags.enableHealthModule
                 else            -> true  // Home / History / Settings 始终可见
             }
         }
     }
-
     // Decide whether to show the main navigation wrapper
     // Welcome 屏不展示导航栏
     val isOnWelcome = currentDestination?.hasRoute(Route.Welcome::class) == true
@@ -180,6 +181,12 @@ private fun MedLogNavHost(
             exitTransition = { fadeOut() },
         ) {
             SymptomDiaryScreen()
+        }
+        composable<Route.Health>(
+            enterTransition = { fadeIn() },
+            exitTransition = { fadeOut() },
+        ) {
+            HealthScreen()
         }
         composable<Route.Settings>(
             enterTransition = { fadeIn() },
