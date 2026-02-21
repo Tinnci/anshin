@@ -1172,7 +1172,7 @@ private fun MedicationQrDialog(
     // 构建可读 QR 内容（较短，更易于扫描）
     val qrText = remember(items) {
         buildString {
-            appendLine("MedLog ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
+            appendLine("Anshin ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
             items.forEach { item ->
                 val status = when {
                     item.isTaken   -> "✓"

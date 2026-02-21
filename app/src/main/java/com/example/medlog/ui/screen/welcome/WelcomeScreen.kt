@@ -185,7 +185,7 @@ fun WelcomeScreen(
                     shape = MaterialTheme.shapes.large,
                 ) {
                     Text(
-                        if (isLastPage) "开始使用 MedLog" else "下一步",
+                        if (isLastPage) "开始使用 Anshin" else "下一步",
                         style = MaterialTheme.typography.labelLarge,
                     )
                     if (isLastPage) {
@@ -289,7 +289,7 @@ private fun WelcomePage0(isCurrentPage: Boolean) {
         }
         Spacer(Modifier.height(32.dp))
         Text(
-            "欢迎使用 MedLog",
+            "欢迎使用 Anshin",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -401,7 +401,7 @@ private fun WelcomePage2(
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "MedLog 将根据这些时间自动推算服药提醒，可随时在设置中修改",
+            "Anshin 将根据这些时间自动推算服药提醒，可随时在设置中修改",
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
@@ -548,9 +548,9 @@ private fun WelcomeNotificationPage(
         Spacer(Modifier.height(12.dp))
         Text(
             if (notifGranted)
-                "MedLog 将在您设定的服药时间准时推送提醒，确保不会错过任何一次用药。"
+                "Anshin 将在您设定的服药时间准时推送提醒，确保不会错过任何一次用药。"
             else
-                "MedLog 需要通知权限，才能在服药时间准时提醒您。\n建议开启以确保不会错过用药计划。",
+                "Anshin 需要通知权限，才能在服药时间准时提醒您。\n建议开启以确保不会错过用药计划。",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
@@ -560,7 +560,7 @@ private fun WelcomeNotificationPage(
             Spacer(Modifier.height(28.dp))
             // 引导文字：明显的操作指引，尤其适合老年用户
             Text(
-                "请点击下方按鈕，允许 MedLog 发送服药提醒",
+                "请点击下方按钮，允许 Anshin 发送服药提醒",
                 style = MaterialTheme.typography.bodyMedium,
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
@@ -588,7 +588,7 @@ private fun WelcomeNotificationPage(
             }
             Spacer(Modifier.height(12.dp))
             Text(
-                "也可稍后在「系统通知设置」或 MedLog「设置」中开启",
+                "也可稍后在「系统通知设置」或 Anshin「设置」中开启",
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
@@ -650,7 +650,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         )
         Spacer(Modifier.height(8.dp))
         Text(
-            "让 MedLog 助您规律用药、守护健康",
+            "让 Anshin 助您规律用药、守护健康",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,

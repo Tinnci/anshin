@@ -758,7 +758,7 @@ fun SettingsScreen(
             // ── 关于 ─────────────────────────────────────────────
             SettingsCard(title = "关于", icon = Icons.Rounded.Info) {
                 ListItem(
-                    headlineContent = { Text("MedLog") },
+                    headlineContent = { Text("Anshin") },
                     supportingContent = {
                         Text("版本 ${BuildConfig.VERSION_NAME}（构建 ${BuildConfig.VERSION_CODE}）")
                     },

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">用药日志</string>
+    <string name="app_name">Anshin</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">历史</string>
     <string name="tab_drugs">药品</string>
@@ -44,11 +44,11 @@
     <string name="shortcut_today_long">查看今日用药计划</string>
 
     <!-- 桌面小组件（规范格式：应用名称·小组件名称）-->
-    <string name="widget_today_name">MedLog·今日进度</string>
+    <string name="widget_today_name">Anshin·今日进度</string>
     <string name="widget_today_desc">显示今日服药进度，支持直接点击打卡确认</string>
-    <string name="widget_next_dose_name">MedLog·下次服药</string>
+    <string name="widget_next_dose_name">Anshin·下次服药</string>
     <string name="widget_next_dose_desc">显示今日下次服药时间及对应药品名称</string>
-    <string name="widget_streak_name">MedLog·连续打卡</string>
+    <string name="widget_streak_name">Anshin·连续打卡</string>
     <string name="widget_streak_desc">显示用药连续打卡天数及最近7天完成情况</string>
     <string name="shortcut_add_short">添加药品</string>
     <string name="shortcut_add_long">添加新的用药提醒</string>

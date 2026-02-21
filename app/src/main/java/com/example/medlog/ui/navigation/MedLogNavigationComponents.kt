@@ -136,7 +136,7 @@ fun MedLogNavigationRail(
         header = {
             Icon(
                 imageVector = Icons.Rounded.Medication,
-                contentDescription = "MedLog",
+                contentDescription = "Anshin",
                 modifier = Modifier
                     .padding(top = 8.dp)
                     .size(32.dp),

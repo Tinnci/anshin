@@ -1,4 +1,7 @@
-# MedLog — 智能用药管理
+# Anshin — 智能用药管理
+
+> **安心 · 安心 · 안심** — 三语语义统一的用药记录应用名称  
+> *Adherence & Notification System for Health Intelligence*
 
 [![CI Build](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml/badge.svg)](https://github.com/Tinnci/MedLogAndroid/actions/workflows/build.yml)
 [![Kotlin](https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white)](https://kotlinlang.org)
