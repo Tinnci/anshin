@@ -1,7 +1,9 @@
 package com.example.medlog.data.model
 
+import androidx.annotation.StringRes
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.example.medlog.R
 
 /**
  * 健康体征记录实体。
@@ -29,10 +31,10 @@ data class HealthRecord(
 )
 
 /**
- * 健康体征类型枚举，包含中文标签、单位、正常范围描述。
+ * 健康体征类型枚举，包含标签 StringRes、单位、正常范围描述。
  */
 enum class HealthType(
-    val label: String,
+    @get:StringRes val labelRes: Int,
     val unit: String,
     /** 正常下限（主值）*/
     val normalMin: Double,
@@ -44,7 +46,7 @@ enum class HealthType(
     val normalSecMax: Double? = null,
 ) {
     BLOOD_PRESSURE(
-        label = "血压",
+        labelRes = R.string.health_type_label_blood_pressure,
         unit = "mmHg",
         normalMin = 90.0,
         normalMax = 120.0,
@@ -52,31 +54,31 @@ enum class HealthType(
         normalSecMax = 80.0,
     ),
     BLOOD_GLUCOSE(
-        label = "血糖",
+        labelRes = R.string.health_type_label_blood_glucose,
         unit = "mmol/L",
         normalMin = 3.9,
         normalMax = 6.1,
     ),
     WEIGHT(
-        label = "体重",
+        labelRes = R.string.health_type_label_weight,
         unit = "kg",
         normalMin = 0.0,
         normalMax = Double.MAX_VALUE,   // weight has no universal "normal" range
     ),
     HEART_RATE(
-        label = "心率",
+        labelRes = R.string.health_type_label_heart_rate,
         unit = "bpm",
         normalMin = 60.0,
         normalMax = 100.0,
     ),
     TEMPERATURE(
-        label = "体温",
+        labelRes = R.string.health_type_label_temperature,
         unit = "°C",
         normalMin = 36.1,
         normalMax = 37.3,
     ),
     SPO2(
-        label = "血氧",
+        labelRes = R.string.health_type_label_spo2,
         unit = "%",
         normalMin = 95.0,
         normalMax = 100.0,

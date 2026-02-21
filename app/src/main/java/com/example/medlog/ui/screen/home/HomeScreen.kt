@@ -248,6 +248,7 @@ fun HomeScreen(
                 // M3 Expressive 风格：每个时段一张卡片，头部含一键服用
                 uiState.groupedByTimePeriod.forEach { (timePeriod, groupItems) ->
                     item(key = "tgroup_${timePeriod.key}", contentType = "timeGroup") {
+                        val periodLabel = stringResource(timePeriod.labelRes)
                         TimePeriodGroupCard(
                             timePeriod = timePeriod,
                             items = groupItems,
@@ -295,7 +296,7 @@ fun HomeScreen(
                                 viewModel.takeAllForPeriod(timePeriod.key)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        fmtPeriodAllTaken.format(timePeriod.label),
+                                        fmtPeriodAllTaken.format(periodLabel),
                                         duration = SnackbarDuration.Short,
                                     )
                                 }
@@ -491,7 +492,7 @@ private fun TimePeriodGroupCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = timePeriod.label,
+                    text = stringResource(timePeriod.labelRes),
                     style = MaterialTheme.typography.titleSmall,
                     fontWeight = FontWeight.SemiBold,
                     color = if (allDone) MaterialTheme.colorScheme.outline
@@ -716,7 +717,7 @@ private fun NextUpChip(period: TimePeriod, time: String) {
         },
         label = {
             Text(
-                stringResource(R.string.home_next_up, period.label, time),
+                stringResource(R.string.home_next_up, stringResource(period.labelRes), time),
                 style = MaterialTheme.typography.labelMedium,
             )
         },
@@ -991,8 +992,11 @@ private fun EmptyMedicationState(onAddMedication: () -> Unit) {
     }
 }
 
-private fun todayDateString(): String =
-    SimpleDateFormat("M月d日 EEEE", Locale.CHINA).format(Date())
+@Composable
+private fun todayDateString(): String {
+    val pattern = stringResource(R.string.date_format_day_label)
+    return remember(pattern) { SimpleDateFormat(pattern, Locale.getDefault()).format(Date()) }
+}
 
 // ── 药品相互作用横幅 ──────────────────────────────────────────────────────────
 
@@ -1198,7 +1202,7 @@ private fun MedicationQrDialog(
                 val dose = if (med.doseQuantity == med.doseQuantity.toLong().toDouble())
                     "${med.doseQuantity.toLong()}${med.doseUnit}"
                 else "%.1f${med.doseUnit}".format(med.doseQuantity)
-                val period = TimePeriod.fromKey(med.timePeriod).label
+                val period = context.getString(TimePeriod.fromKey(med.timePeriod).labelRes)
                 appendLine("$status ${med.name} $dose $period")
             }
         }.trimEnd()

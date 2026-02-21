@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionParametersOf
 import androidx.glance.action.actionStartActivity
@@ -32,6 +33,7 @@ import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.example.medlog.R
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.ui.MainActivity
@@ -128,12 +130,13 @@ private fun WidgetContent(
 // ─── 紧凑模式（2×2）────────────────────────────────────────────────────────
 @Composable
 private fun CompactContent(taken: Int, total: Int, allDone: Boolean) {
+    val ctx = LocalContext.current
     when {
         total == 0 -> {
             Text("💊", style = TextStyle(fontSize = 22.sp))
             Spacer(GlanceModifier.height(4.dp))
             Text(
-                "暂无计划",
+                ctx.getString(R.string.widget_no_plan),
                 style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
             )
         }
@@ -148,7 +151,7 @@ private fun CompactContent(taken: Int, total: Int, allDone: Boolean) {
             )
             Spacer(GlanceModifier.height(2.dp))
             Text(
-                "全部完成",
+                ctx.getString(R.string.widget_all_done),
                 style = TextStyle(
                     fontSize = 11.sp,
                     fontWeight = FontWeight.Medium,
@@ -166,7 +169,7 @@ private fun CompactContent(taken: Int, total: Int, allDone: Boolean) {
                 ),
             )
             Spacer(GlanceModifier.height(2.dp))
-            Text("已服", style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
+            Text(ctx.getString(R.string.widget_taken_label), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
             Spacer(GlanceModifier.height(8.dp))
             LinearProgressIndicator(
                 progress        = taken.toFloat() / total,
@@ -187,6 +190,7 @@ private fun StandardContent(
     pendingMeds: List<Triple<Long, String, Int>>,
     maxShow: Int,
 ) {
+    val ctx = LocalContext.current
     // 标题 + 核心数字（F 型阅读动线）
     Row(
         modifier            = GlanceModifier.fillMaxWidth(),
@@ -194,7 +198,7 @@ private fun StandardContent(
         horizontalAlignment = Alignment.Horizontal.Start,
     ) {
         Text(
-            "用药日志",
+            ctx.getString(R.string.widget_app_label),
             style    = TextStyle(
                 fontSize   = 12.sp,
                 fontWeight = FontWeight.Medium,
@@ -205,7 +209,7 @@ private fun StandardContent(
         Text(
             text  = when {
                 total == 0 -> "--"
-                allDone    -> "全部 ✓"
+                allDone    -> ctx.getString(R.string.widget_goal_done)
                 else       -> "$taken / $total"
             },
             style = TextStyle(
@@ -230,9 +234,9 @@ private fun StandardContent(
     // 空数据态
     if (total == 0) {
         Spacer(GlanceModifier.height(10.dp))
-        Text("今日暂无用药计划", style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
+        Text(ctx.getString(R.string.widget_no_plan_today), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
         Text(
-            "点击进入添加 →",
+            ctx.getString(R.string.widget_add_prompt),
             style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.primary),
         )
         return
@@ -242,7 +246,7 @@ private fun StandardContent(
     if (allDone) {
         Spacer(GlanceModifier.height(10.dp))
         Text(
-            "🎉 今日用药全部完成！",
+            ctx.getString(R.string.widget_all_done_msg),
             style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onTertiaryContainer),
         )
         return
@@ -252,7 +256,7 @@ private fun StandardContent(
     if (maxShow > 0 && pendingMeds.isNotEmpty()) {
         Spacer(GlanceModifier.height(8.dp))
         Text(
-            "待服",
+            ctx.getString(R.string.widget_pending_label),
             style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
         )
         Spacer(GlanceModifier.height(2.dp))
@@ -304,7 +308,7 @@ private fun StandardContent(
         if (remaining > 0) {
             Spacer(GlanceModifier.height(3.dp))
             Text(
-                "…还有 $remaining 种",
+                ctx.getString(R.string.widget_remaining_fmt, remaining),
                 style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
             )
         }

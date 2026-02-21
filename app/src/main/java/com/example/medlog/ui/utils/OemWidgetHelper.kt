@@ -7,6 +7,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.provider.Settings
+import com.example.medlog.R
 
 /**
  * OEM 桌面小组件固定（Widget Pinning）兼容辅助工具。
@@ -51,19 +52,12 @@ object OemWidgetHelper {
      *
      * 显示位置：每个 WidgetPickerCard 的下方，或统一显示在小组件 SettingsCard 顶部。
      */
-    val permissionNote: String
-        get() = when (oemType) {
-            OemType.XIAOMI ->
-                "MIUI / HyperOS 设备需手动开启「桌面快捷方式」权限后，固定小组件对话框才会弹出。\n" +
-                "路径：设置 → 应用设置 → 授权管理 → MedLog → 桌面快捷方式 → 允许"
-            OemType.OPPO ->
-                "ColorOS / OxygenOS 设备需手动开启「桌面快捷方式」权限。\n" +
-                "路径：设置 → 隐私 → 权限管理 → MedLog → 桌面快捷方式 → 允许"
-            OemType.VIVO ->
-                "OriginOS / Funtouch OS 设备需手动开启「桌面快捷方式」权限。\n" +
-                "路径：设置 → 隐私权限 → 权限 → 桌面快捷方式 → MedLog → 允许"
-            else -> ""
-        }
+    fun permissionNote(context: Context): String = when (oemType) {
+        OemType.XIAOMI -> context.getString(R.string.oem_miui_pin_guide)
+        OemType.OPPO   -> context.getString(R.string.oem_coloros_pin_guide)
+        OemType.VIVO   -> context.getString(R.string.oem_originos_pin_guide)
+        else           -> ""
+    }
 
     /**
      * 尝试跳转到 OEM 的应用权限详情页，以便用户开启「桌面快捷方式」权限。
@@ -105,8 +99,8 @@ object OemWidgetHelper {
      * 针对 Samsung / Pixel 等不需要额外权限的设备，在无法使用 requestPinAppWidget 时
      * 返回一段通用的手动添加引导文字。
      */
-    val manualAddGuidance: String
-        get() = "请长按桌面空白区域 → 小组件 → MedLog，手动拖拽添加到桌面。"
+    fun manualAddGuidance(context: Context): String =
+        context.getString(R.string.oem_manual_add_guide)
 
     // ── 私有工具 ───────────────────────────────────────────────────────────────
 

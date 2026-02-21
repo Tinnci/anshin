@@ -24,6 +24,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.res.stringResource
+import com.example.medlog.R
 import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.HealthType
 import java.text.SimpleDateFormat
@@ -53,12 +55,12 @@ fun HealthScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("健康体征") },
+                title = { Text(stringResource(R.string.health_screen_title)) },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = viewModel::startAdd) {
-                Icon(Icons.Rounded.Add, contentDescription = "记录体征")
+                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
             }
         },
     ) { innerPadding ->
@@ -87,7 +89,7 @@ fun HealthScreen(
                         FilterChip(
                             selected   = uiState.selectedType == null,
                             onClick    = { viewModel.selectType(null) },
-                            label      = { Text("全部") },
+                            label      = { Text(stringResource(R.string.common_filter_all)) },
                             leadingIcon = if (uiState.selectedType == null) ({
                                 Icon(Icons.Rounded.Check, null, Modifier.size(16.dp))
                             }) else null,
@@ -96,7 +98,7 @@ fun HealthScreen(
                             FilterChip(
                                 selected = uiState.selectedType == type,
                                 onClick  = { viewModel.selectType(if (uiState.selectedType == type) null else type) },
-                                label    = { Text(type.label) },
+                                label    = { Text(stringResource(type.labelRes)) },
                                 leadingIcon = {
                                     Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
                                 },
@@ -141,7 +143,7 @@ fun HealthScreen(
                                     tint = MaterialTheme.colorScheme.outlineVariant,
                                 )
                                 Text(
-                                    "暂无记录，点击 + 开始记录",
+                                    stringResource(R.string.health_empty_hint),
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
@@ -178,16 +180,16 @@ fun HealthScreen(
     if (uiState.deleteTarget != null) {
         AlertDialog(
             onDismissRequest = viewModel::cancelDelete,
-            title = { Text("删除记录") },
-            text  = { Text("确定要删除这条体征记录吗？此操作无法撤销。") },
+            title = { Text(stringResource(R.string.health_delete_title)) },
+            text  = { Text(stringResource(R.string.health_delete_body)) },
             confirmButton = {
                 Button(
                     onClick = viewModel::confirmDelete,
                     colors  = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text("删除") }
+                ) { Text(stringResource(R.string.common_action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = viewModel::cancelDelete) { Text("取消") }
+                TextButton(onClick = viewModel::cancelDelete) { Text(stringResource(R.string.common_action_cancel)) }
             },
         )
     }
@@ -221,7 +223,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
-                    stat.type.label,
+                    stringResource(stat.type.labelRes),
                     style = MaterialTheme.typography.labelMedium,
                     color = if (stat.isAbnormal) MaterialTheme.colorScheme.onErrorContainer
                             else MaterialTheme.colorScheme.onSecondaryContainer,
@@ -238,7 +240,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
             ) {
                 if (stat.avg7d != null) {
                     Text(
-                        "7日均 ${"%.1f".format(stat.avg7d)}",
+                        stringResource(R.string.health_7day_avg, "%.1f".format(stat.avg7d)),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -299,7 +301,7 @@ private fun HealthRecordItem(
                 )
             },
             overlineContent = {
-                Text(type.label)
+                Text(stringResource(type.labelRes))
             },
             supportingContent = {
                 Column {
@@ -327,16 +329,16 @@ private fun HealthRecordItem(
             trailingContent = {
                 Box {
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Rounded.MoreVert, contentDescription = "更多操作")
+                        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.health_more_ops_cd))
                     }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                         DropdownMenuItem(
-                            text = { Text("编辑") },
+                            text = { Text(stringResource(R.string.common_action_edit)) },
                             onClick = { showMenu = false; onEdit() },
                             leadingIcon = { Icon(Icons.Rounded.Edit, null) },
                         )
                         DropdownMenuItem(
-                            text = { Text("删除") },
+                            text = { Text(stringResource(R.string.common_action_delete)) },
                             onClick = { showMenu = false; onDelete() },
                             leadingIcon = { Icon(Icons.Rounded.Delete, null) },
                         )
@@ -377,13 +379,13 @@ private fun AddEditHealthSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                if (draft.editingId == null) "记录体征" else "编辑记录",
+                if (draft.editingId == null) stringResource(R.string.health_sheet_add_title) else stringResource(R.string.health_sheet_edit_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
 
             // ── 类型选择器 ─────────────────────────────────────────────
-            Text("体征类型", style = MaterialTheme.typography.labelMedium,
+            Text(stringResource(R.string.health_type_selector_label), style = MaterialTheme.typography.labelMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant)
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -393,7 +395,7 @@ private fun AddEditHealthSheet(
                     FilterChip(
                         selected    = draft.type == type,
                         onClick     = { onTypeChange(type) },
-                        label       = { Text(type.label) },
+                        label       = { Text(stringResource(type.labelRes)) },
                         leadingIcon = {
                             Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
                         },
@@ -410,7 +412,7 @@ private fun AddEditHealthSheet(
                     OutlinedTextField(
                         value = draft.value,
                         onValueChange = onValueChange,
-                        label = { Text("收缩压") },
+                        label = { Text(stringResource(R.string.health_bp_systolic)) },
                         suffix = { Text("mmHg") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -419,7 +421,7 @@ private fun AddEditHealthSheet(
                     OutlinedTextField(
                         value = draft.secondaryValue,
                         onValueChange = onSecondaryChange,
-                        label = { Text("舒张压") },
+                        label = { Text(stringResource(R.string.health_bp_diastolic)) },
                         suffix = { Text("mmHg") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -430,7 +432,7 @@ private fun AddEditHealthSheet(
                 OutlinedTextField(
                     value = draft.value,
                     onValueChange = onValueChange,
-                    label = { Text(draft.type.label) },
+                    label = { Text(stringResource(draft.type.labelRes)) },
                     suffix = { Text(draft.type.unit) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     singleLine = true,
@@ -438,7 +440,7 @@ private fun AddEditHealthSheet(
                     supportingText = {
                         val type = draft.type
                         if (type != HealthType.WEIGHT) {
-                            Text("正常范围：${type.normalMin}–${type.normalMax} ${type.unit}")
+                            Text(stringResource(R.string.health_normal_range, type.normalMin.toString(), type.normalMax.toString(), type.unit))
                         }
                     },
                 )
@@ -448,7 +450,7 @@ private fun AddEditHealthSheet(
             OutlinedTextField(
                 value = draft.notes,
                 onValueChange = onNotesChange,
-                label = { Text("备注（可选）") },
+                label = { Text(stringResource(R.string.common_notes_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
                 leadingIcon = { Icon(Icons.AutoMirrored.Rounded.Notes, null) },
@@ -462,14 +464,14 @@ private fun AddEditHealthSheet(
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                ) { Text("取消") }
+                ) { Text(stringResource(R.string.common_action_cancel)) }
                 val isValid = draft.value.toDoubleOrNull() != null &&
                     (draft.type != HealthType.BLOOD_PRESSURE || draft.secondaryValue.toDoubleOrNull() != null)
                 Button(
                     onClick  = onSave,
                     enabled  = isValid,
                     modifier = Modifier.weight(2f),
-                ) { Text("保存") }
+                ) { Text(stringResource(R.string.common_action_save)) }
             }
         }
     }

@@ -77,7 +77,7 @@ data class HomeUiState(
      * 同时暴露 [TimePeriod] 对象，供 UI 渲染图标及"一键服用本时段"。
      */
     val groupedByTime: List<Pair<String, List<MedicationWithStatus>>> by lazy {
-        groupedByTimePeriod.map { (tp, meds) -> tp.label to meds }
+        groupedByTimePeriod.map { (tp, meds) -> tp.key to meds }
     }
 
     /** 带 [TimePeriod] key 的时段分组，UI 需要时段图标及 key 时使用。PRN 按需药品除外。 */

@@ -453,7 +453,7 @@ fun AddMedicationScreen(
                                 FilterChip(
                                     selected = tp == uiState.timePeriod,
                                     onClick = { viewModel.onTimePeriodChange(tp) },
-                                    label = { Text(tp.label, style = MaterialTheme.typography.labelSmall) },
+                                    label = { Text(stringResource(tp.labelRes), style = MaterialTheme.typography.labelSmall) },
                                     leadingIcon = {
                                         Icon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
                                     },

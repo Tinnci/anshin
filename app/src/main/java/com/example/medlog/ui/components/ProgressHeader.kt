@@ -6,7 +6,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.example.medlog.R
 
 @Composable
 fun ProgressHeader(
@@ -34,7 +36,7 @@ fun ProgressHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (total == 0) "今日暂无用药计划" else "今日进度",
+                    text = if (total == 0) stringResource(R.string.common_no_plan_today) else stringResource(R.string.progress_header_title),
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
@@ -54,7 +56,7 @@ fun ProgressHeader(
                     trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                 )
                 Text(
-                    text = if (taken == total) "全部完成！🎉" else "还剩 ${total - taken} 种药品待服用",
+                    text = if (taken == total) stringResource(R.string.progress_header_all_done) else stringResource(R.string.progress_header_remaining, total - taken),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                 )

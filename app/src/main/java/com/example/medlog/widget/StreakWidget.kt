@@ -8,6 +8,7 @@ import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
 import androidx.glance.LocalSize
 import androidx.glance.action.actionStartActivity
 import androidx.glance.action.clickable
@@ -30,6 +31,7 @@ import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
+import com.example.medlog.R
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.ui.MainActivity
@@ -78,13 +80,13 @@ class StreakWidget : GlanceAppWidget() {
             val tempCal = cal.clone() as Calendar
             tempCal.add(Calendar.DAY_OF_YEAR, -daysBack)
             val label = when (tempCal.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY    -> "日"
-                Calendar.MONDAY    -> "一"
-                Calendar.TUESDAY   -> "二"
-                Calendar.WEDNESDAY -> "三"
-                Calendar.THURSDAY  -> "四"
-                Calendar.FRIDAY    -> "五"
-                Calendar.SATURDAY  -> "六"
+                Calendar.SUNDAY    -> context.getString(R.string.widget_weekday_sun)
+                Calendar.MONDAY    -> context.getString(R.string.widget_weekday_mon)
+                Calendar.TUESDAY   -> context.getString(R.string.widget_weekday_tue)
+                Calendar.WEDNESDAY -> context.getString(R.string.widget_weekday_wed)
+                Calendar.THURSDAY  -> context.getString(R.string.widget_weekday_thu)
+                Calendar.FRIDAY    -> context.getString(R.string.widget_weekday_fri)
+                Calendar.SATURDAY  -> context.getString(R.string.widget_weekday_sat)
                 else               -> "?"
             }
             tempCal.set(Calendar.HOUR_OF_DAY, 0)
@@ -123,6 +125,7 @@ private fun StreakContent(
 ) {
     val size      = LocalSize.current
     val isCompact = size.width < 160.dp
+    val ctx = LocalContext.current
 
     // 背景色：streak >= 7 使用 tertiaryContainer（高激励色），否则默认
     val bg = if (streak >= 7) GlanceTheme.colors.tertiaryContainer
@@ -143,14 +146,14 @@ private fun StreakContent(
             if (isCompact) {
                 Text("💊", style = TextStyle(fontSize = 20.sp))
                 Spacer(GlanceModifier.height(4.dp))
-                Text("无计划", style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
+                Text(ctx.getString(R.string.widget_no_plan), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
             } else {
                 Text(
-                    "连续打卡",
+                    ctx.getString(R.string.widget_streak_title),
                     style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
                 )
                 Spacer(GlanceModifier.height(8.dp))
-                Text("今日暂无用药计划", style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
+                Text(ctx.getString(R.string.widget_no_plan_today), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
             }
             return@Column
         }
@@ -171,23 +174,23 @@ private fun StreakContent(
                 ),
             )
             Text(
-                "天",
+                ctx.getString(R.string.widget_streak_days_unit),
                 style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
             )
         } else {
-            // ── 标准 4×2 ─────────────────────────────────────────
+            // ── 标准 4×2 ─────────────────────────────────────
             // 标题行
             Row(
                 modifier          = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Vertical.CenterVertically,
             ) {
                 Text(
-                    "连续打卡",
+                    ctx.getString(R.string.widget_streak_title),
                     style    = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
                     modifier = GlanceModifier.defaultWeight(),
                 )
                 Text(
-                    if (streak > 0) "🔥 $streak 天" else "0 天",
+                    if (streak > 0) ctx.getString(R.string.widget_streak_days_fmt, streak) else ctx.getString(R.string.widget_streak_zero),
                     style = TextStyle(
                         fontSize   = 13.sp,
                         fontWeight = FontWeight.Bold,

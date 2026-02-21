@@ -23,9 +23,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.screen.home.MedicationWithStatus
 import java.text.SimpleDateFormat
@@ -145,7 +147,7 @@ fun MedicationCard(
                         if (med.isHighPriority) {
                             Icon(
                                 Icons.Rounded.PriorityHigh,
-                                contentDescription = "高优先级",
+                                contentDescription = stringResource(R.string.med_card_high_priority_cd),
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(16.dp),
                             )
@@ -171,7 +173,7 @@ fun MedicationCard(
                                     onClick = {},
                                     label = {
                                         Text(
-                                            "中成药",
+                                            stringResource(R.string.med_card_tcm_label),
                                             style = MaterialTheme.typography.labelSmall,
                                         )
                                     },
@@ -218,7 +220,7 @@ fun MedicationCard(
                         val timeText = if (med.timePeriod == "exact") {
                             med.reminderTimes.split(",").firstOrNull()
                                 ?: "%02d:%02d".format(med.reminderHour, med.reminderMinute)
-                        } else period.label
+                        } else stringResource(period.labelRes)
                         val doseDisplay = med.doseQuantity.let {
                             if (it == it.toLong().toDouble()) "${it.toLong()} ${med.doseUnit}"
                             else "%.1f ${med.doseUnit}".format(it)
@@ -231,15 +233,16 @@ fun MedicationCard(
                     }
                     if (item.isTaken && item.log?.actualTakenTimeMs != null) {
                         Text(
-                            text = "✓ 已于 ${SimpleDateFormat("HH:mm", Locale.getDefault())
-                                .format(Date(item.log.actualTakenTimeMs))} 服用",
+                            text = stringResource(R.string.med_card_taken_at,
+                                SimpleDateFormat("HH:mm", Locale.getDefault())
+                                    .format(Date(item.log.actualTakenTimeMs))),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                     if (item.isSkipped) {
                         Text(
-                            "今日已跳过",
+                            stringResource(R.string.med_card_skipped_today),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.outline,
                         )
@@ -255,7 +258,7 @@ fun MedicationCard(
                                 tint = MaterialTheme.colorScheme.error,
                             )
                             Text(
-                                "库存不足（剩余 ${med.stock.toInt()} ${med.doseUnit}）",
+                                stringResource(R.string.med_card_low_stock, med.stock.toInt().toString(), med.doseUnit),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.error,
                             )
@@ -298,9 +301,9 @@ fun MedicationCard(
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = when {
-                                item.isTaken   -> "撤销"
-                                item.isSkipped -> "撤销"
-                                else           -> "服用"
+                                item.isTaken   -> stringResource(R.string.home_snackbar_undo)
+                                item.isSkipped -> stringResource(R.string.home_snackbar_undo)
+                                else           -> stringResource(R.string.med_card_btn_take)
                             },
                             style = MaterialTheme.typography.labelMedium,
                         )
@@ -315,7 +318,7 @@ fun MedicationCard(
                         ) {
                             Icon(Icons.Rounded.SkipNext, null, Modifier.size(13.dp))
                             Spacer(Modifier.width(3.dp))
-                            Text("跳过", style = MaterialTheme.typography.labelSmall)
+                                Text(stringResource(R.string.notif_action_skip), style = MaterialTheme.typography.labelSmall)
                         }
                     }
                 }

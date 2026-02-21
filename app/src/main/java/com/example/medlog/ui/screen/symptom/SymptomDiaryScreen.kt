@@ -14,10 +14,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.R
 import com.example.medlog.data.model.SymptomLog
 import java.text.SimpleDateFormat
 import java.util.*
@@ -32,12 +34,13 @@ private fun ratingEmoji(rating: Int) = when (rating) {
     else -> "😊"
 }
 
-private fun ratingLabel(rating: Int) = when (rating) {
-    1 -> "很差"
-    2 -> "较差"
-    3 -> "一般"
-    4 -> "较好"
-    else -> "很好"
+@Composable
+private fun ratingLabel(rating: Int): String = when (rating) {
+    1 -> stringResource(R.string.symptom_rating_1)
+    2 -> stringResource(R.string.symptom_rating_2)
+    3 -> stringResource(R.string.symptom_rating_3)
+    4 -> stringResource(R.string.symptom_rating_4)
+    else -> stringResource(R.string.symptom_rating_5)
 }
 
 // ─── Screen ─────────────────────────────────────────────────────────────────
@@ -53,12 +56,12 @@ fun SymptomDiaryScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("症状日记") },
+                title = { Text(stringResource(R.string.symptom_screen_title)) },
             )
         },
         floatingActionButton = {
             FloatingActionButton(onClick = viewModel::startAdd) {
-                Icon(Icons.Filled.Add, contentDescription = "记录症状")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.symptom_screen_fab_cd))
             }
         },
     ) { innerPadding ->
@@ -80,13 +83,13 @@ fun SymptomDiaryScreen(
                     Text("✏️", style = MaterialTheme.typography.displayMedium)
                     Spacer(Modifier.height(12.dp))
                     Text(
-                        "还没有日记记录",
+                        stringResource(R.string.symptom_empty_title),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     Spacer(Modifier.height(4.dp))
                     Text(
-                        "点击右下角 + 开始记录今天的状态",
+                        stringResource(R.string.symptom_empty_body),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.outline,
                     )
@@ -171,7 +174,7 @@ private fun SymptomLogCard(
                 IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
                     Icon(
                         Icons.Rounded.Edit,
-                        contentDescription = "编辑",
+                        contentDescription = stringResource(R.string.common_action_edit),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp),
                     )
@@ -182,7 +185,7 @@ private fun SymptomLogCard(
                 ) {
                     Icon(
                         Icons.Rounded.Delete,
-                        contentDescription = "删除",
+                        contentDescription = stringResource(R.string.common_action_delete),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(16.dp),
                     )
@@ -203,7 +206,7 @@ private fun SymptomLogCard(
             if (log.symptomList.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "症状",
+                    stringResource(R.string.symptom_card_symptoms_label),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
@@ -222,7 +225,7 @@ private fun SymptomLogCard(
             if (log.sideEffectList.isNotEmpty()) {
                 Spacer(Modifier.height(8.dp))
                 Text(
-                    "副作用",
+                    stringResource(R.string.symptom_card_sideeff_label),
                     style = MaterialTheme.typography.labelSmall,
                     color = MaterialTheme.colorScheme.error,
                 )
@@ -256,8 +259,8 @@ private fun SymptomLogCard(
     if (showDeleteConfirm) {
         AlertDialog(
             onDismissRequest = { showDeleteConfirm = false },
-            title = { Text("删除记录") },
-            text = { Text("确定要删除这条症状日记吗？此操作无法撤销。") },
+            title = { Text(stringResource(R.string.symptom_delete_title)) },
+            text = { Text(stringResource(R.string.symptom_delete_body)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -267,10 +270,10 @@ private fun SymptomLogCard(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                     ),
-                ) { Text("删除") }
+                ) { Text(stringResource(R.string.common_action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text("取消") }
+                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.common_action_cancel)) }
             },
         )
     }
@@ -309,13 +312,13 @@ private fun AddEditDiarySheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                if (draft.editingId == null) "记录今天的状态" else "编辑记录",
+                if (draft.editingId == null) stringResource(R.string.symptom_dialog_add_title) else stringResource(R.string.symptom_dialog_edit_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
 
             // ── 评级选择 ──────────────────────────────────────────────────
-            Text("整体感受", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.symptom_rating_label), style = MaterialTheme.typography.titleSmall)
             Row(
                 Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceEvenly,
@@ -346,7 +349,7 @@ private fun AddEditDiarySheet(
             HorizontalDivider()
 
             // ── 症状快选 ──────────────────────────────────────────────────
-            Text("症状（可多选）", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.symptom_section_symptoms), style = MaterialTheme.typography.titleSmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PRESET_SYMPTOMS.forEach { s ->
                     FilterChip(
@@ -364,20 +367,20 @@ private fun AddEditDiarySheet(
                 OutlinedTextField(
                     value = draft.customSymptom,
                     onValueChange = onCustomSymptomChange,
-                    label = { Text("自定义症状") },
+                    label = { Text(stringResource(R.string.symptom_custom_input_label)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
                 FilledTonalButton(
                     onClick = onAddCustomSymptom,
                     enabled = draft.customSymptom.isNotBlank(),
-                ) { Text("添加") }
+                ) { Text(stringResource(R.string.common_action_add)) }
             }
 
             HorizontalDivider()
 
             // ── 副作用快选 ─────────────────────────────────────────────────
-            Text("副作用（可多选）", style = MaterialTheme.typography.titleSmall)
+            Text(stringResource(R.string.symptom_section_side_effects), style = MaterialTheme.typography.titleSmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                 PRESET_SIDE_EFFECTS.forEach { se ->
                     FilterChip(
@@ -399,14 +402,14 @@ private fun AddEditDiarySheet(
                 OutlinedTextField(
                     value = draft.customSideEffect,
                     onValueChange = onCustomSideEffectChange,
-                    label = { Text("自定义副作用") },
+                    label = { Text(stringResource(R.string.symptom_custom_se_label)) },
                     singleLine = true,
                     modifier = Modifier.weight(1f),
                 )
                 FilledTonalButton(
                     onClick = onAddCustomSideEffect,
                     enabled = draft.customSideEffect.isNotBlank(),
-                ) { Text("添加") }
+                ) { Text(stringResource(R.string.common_action_add)) }
             }
 
             HorizontalDivider()
@@ -415,7 +418,7 @@ private fun AddEditDiarySheet(
             OutlinedTextField(
                 value = draft.note,
                 onValueChange = onNoteChange,
-                label = { Text("备注（可选）") },
+                label = { Text(stringResource(R.string.common_notes_hint)) },
                 minLines = 2,
                 maxLines = 4,
                 modifier = Modifier.fillMaxWidth(),
@@ -429,11 +432,11 @@ private fun AddEditDiarySheet(
                 OutlinedButton(
                     onClick = onDismiss,
                     modifier = Modifier.weight(1f),
-                ) { Text("取消") }
+                ) { Text(stringResource(R.string.common_action_cancel)) }
                 Button(
                     onClick = onSave,
                     modifier = Modifier.weight(2f),
-                ) { Text("保存记录") }
+                ) { Text(stringResource(R.string.symptom_save_btn)) }
             }
         }
     }

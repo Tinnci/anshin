@@ -197,7 +197,7 @@ fun MedicationDetailScreen(
                                         .padding(vertical = 4.dp),
                                 ) {
                                     Text(
-                                        "分类",
+                                        stringResource(R.string.detail_category_label),
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -217,7 +217,7 @@ fun MedicationDetailScreen(
                             }
                             med.category.isNotBlank() -> {
                                 val display = if (med.isTcm) "${med.category}${stringResource(R.string.detail_tcm_suffix)}" else med.category
-                                DetailRow("分类", display)
+                                DetailRow(stringResource(R.string.detail_category_label), display)
                             }
                             else -> DetailRow(stringResource(R.string.detail_label_category), "—")
                         }
@@ -228,7 +228,7 @@ fun MedicationDetailScreen(
                             val period = TimePeriod.fromKey(med.timePeriod)
                             val timeStr = if (med.timePeriod == "exact")
                                 med.reminderTimes.replace(",", " / ")
-                            else period.label
+                            else stringResource(period.labelRes)
                             DetailRow(stringResource(R.string.detail_label_period), timeStr)
                             val freqStr = when (med.frequencyType) {
                                 "daily"         -> stringResource(R.string.detail_freq_daily)
@@ -351,7 +351,7 @@ fun MedicationDetailScreen(
                 ) { Text(stringResource(R.string.delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("取消") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.common_action_cancel)) }
             },
         )
     }
@@ -557,7 +557,7 @@ private fun StockCard(
                 horizontalArrangement = Arrangement.spacedBy(6.dp),
             ) {
                 Text(
-                    "批量",
+                    stringResource(R.string.detail_batch_label),
                     style = MaterialTheme.typography.labelMedium,
                     color = colorScheme.onSurfaceVariant,
                 )
@@ -577,7 +577,8 @@ private fun StockCard(
 
 @Composable
 private fun DetailLogRow(log: MedicationLog) {
-    val dateFmt = remember { SimpleDateFormat("M月d日 HH:mm", Locale.getDefault()) }
+    val logItemFmt = stringResource(R.string.date_format_log_item)
+    val dateFmt = remember(logItemFmt) { SimpleDateFormat(logItemFmt, Locale.getDefault()) }
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = when (log.status) {

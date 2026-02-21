@@ -631,7 +631,7 @@ fun SettingsScreen(
                                     modifier = Modifier.size(16.dp),
                                 )
                                 Text(
-                                    stringResource(R.string.settings_widget_no_pin_hint, OemWidgetHelper.manualAddGuidance),
+                                    stringResource(R.string.settings_widget_no_pin_hint, OemWidgetHelper.manualAddGuidance(context)),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSecondaryContainer,
                                 )
@@ -665,7 +665,7 @@ fun SettingsScreen(
                                             modifier = Modifier.size(16.dp),
                                         )
                                         Text(
-                                            OemWidgetHelper.permissionNote,
+                                        OemWidgetHelper.permissionNote(context),
                                             style = MaterialTheme.typography.bodySmall,
                                             color = MaterialTheme.colorScheme.onTertiaryContainer,
                                         )
@@ -709,7 +709,7 @@ fun SettingsScreen(
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance,
+                                    OemWidgetHelper.manualAddGuidance(context),
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -737,7 +737,7 @@ fun SettingsScreen(
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance,
+                                    OemWidgetHelper.manualAddGuidance(context),
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -765,7 +765,7 @@ fun SettingsScreen(
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance,
+                                    OemWidgetHelper.manualAddGuidance(context),
                                     duration = SnackbarDuration.Long,
                                 )
                             }

@@ -31,6 +31,7 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import com.example.medlog.R
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
@@ -172,7 +173,7 @@ fun MedLogNavDrawerContent(
         tint = MaterialTheme.colorScheme.primary,
     )
     Text(
-        text = "用药日志",
+        text = stringResource(R.string.nav_drawer_title),
         style = MaterialTheme.typography.titleLarge,
         fontWeight = FontWeight.Bold,
         color = MaterialTheme.colorScheme.primary,
