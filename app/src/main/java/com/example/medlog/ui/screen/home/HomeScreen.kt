@@ -84,7 +84,16 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showQrDialog by remember { mutableStateOf(false) }
-    val undoLabel = context.getString(R.string.home_snackbar_undo)
+    // 预捕获所有 snackbar 字符串，保证语言切换时内容同步更新
+    val undoLabel = stringResource(R.string.home_snackbar_undo)
+    val msgAllTaken = stringResource(R.string.home_snackbar_all_taken)
+    val fmtUndoSkip = stringResource(R.string.home_snackbar_undo_skip)
+    val fmtReset = stringResource(R.string.home_snackbar_reset)
+    val fmtTaken = stringResource(R.string.home_snackbar_taken)
+    val fmtSkipped = stringResource(R.string.home_snackbar_skipped)
+    val fmtPeriodAllTaken = stringResource(R.string.home_snackbar_period_all_taken)
+    val fmtPrnUndo = stringResource(R.string.home_snackbar_prn_undo)
+    val fmtPrnTaken = stringResource(R.string.home_snackbar_prn_taken)
 
     // Pending items for "take all" button (excluding PRN on-demand meds)
     val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
@@ -203,7 +212,7 @@ fun HomeScreen(
                             viewModel.takeAll()
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    message = context.getString(R.string.home_snackbar_all_taken),
+                                    message = msgAllTaken,
                                     duration = SnackbarDuration.Short,
                                 )
                             }
@@ -248,7 +257,7 @@ fun HomeScreen(
                                     viewModel.undoByMedicationId(item.medication.id)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            context.getString(R.string.home_snackbar_undo_skip, item.medication.name),
+                                            fmtUndoSkip.format(item.medication.name),
                                             duration = SnackbarDuration.Short,
                                         )
                                     }
@@ -257,10 +266,7 @@ fun HomeScreen(
                                     viewModel.toggleMedicationStatus(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = context.getString(
-                                                if (wasTaken) R.string.home_snackbar_reset else R.string.home_snackbar_taken,
-                                                item.medication.name,
-                                            ),
+                                            message = (if (wasTaken) fmtReset else fmtTaken).format(item.medication.name),
                                             actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
@@ -275,7 +281,7 @@ fun HomeScreen(
                                 viewModel.skipMedication(item)
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        context.getString(R.string.home_snackbar_skipped, item.medication.name),
+                                        fmtSkipped.format(item.medication.name),
                                         actionLabel = undoLabel,
                                         duration = SnackbarDuration.Short,
                                     )
@@ -289,7 +295,7 @@ fun HomeScreen(
                                 viewModel.takeAllForPeriod(timePeriod.key)
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        context.getString(R.string.home_snackbar_period_all_taken, timePeriod.label),
+                                        fmtPeriodAllTaken.format(timePeriod.label),
                                         duration = SnackbarDuration.Short,
                                     )
                                 }
@@ -343,7 +349,7 @@ fun HomeScreen(
                                         viewModel.undoByMedicationId(item.medication.id)
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
-                                                context.getString(R.string.home_snackbar_undo_skip, item.medication.name),
+                                                fmtUndoSkip.format(item.medication.name),
                                                 duration = SnackbarDuration.Short,
                                             )
                                         }
@@ -352,10 +358,7 @@ fun HomeScreen(
                                         viewModel.toggleMedicationStatus(item)
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
-                                                message = context.getString(
-                                                    if (wasTaken) R.string.home_snackbar_reset else R.string.home_snackbar_taken,
-                                                    item.medication.name,
-                                                ),
+                                                message = (if (wasTaken) fmtReset else fmtTaken).format(item.medication.name),
                                                 actionLabel = undoLabel,
                                                 duration = SnackbarDuration.Short,
                                             )
@@ -370,7 +373,7 @@ fun HomeScreen(
                                     viewModel.skipMedication(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            context.getString(R.string.home_snackbar_skipped, item.medication.name),
+                                            fmtSkipped.format(item.medication.name),
                                             actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
@@ -398,10 +401,7 @@ fun HomeScreen(
                             viewModel.toggleMedicationStatus(item)
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
-                                    message = context.getString(
-                                        if (wasTaken) R.string.home_snackbar_prn_undo else R.string.home_snackbar_prn_taken,
-                                        item.medication.name,
-                                    ),
+                                    message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.name),
                                     actionLabel = undoLabel,
                                     duration = SnackbarDuration.Short,
                                 )
@@ -1179,6 +1179,8 @@ private fun MedicationQrDialog(
     onDismiss: () -> Unit,
 ) {
     val context = LocalContext.current
+    val shareIntentTitle = stringResource(R.string.home_share_intent_title)
+    val shareChooserTitle = stringResource(R.string.home_share_chooser)
     val takenCount = remember(items) { items.count { it.isTaken } }
     val totalCount = items.size
 
@@ -1251,9 +1253,9 @@ private fun MedicationQrDialog(
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
                     putExtra(Intent.EXTRA_TEXT, qrText)
-                    putExtra(Intent.EXTRA_TITLE, context.getString(R.string.home_share_intent_title))
+                    putExtra(Intent.EXTRA_TITLE, shareIntentTitle)
                 }
-                context.startActivity(Intent.createChooser(intent, context.getString(R.string.home_share_chooser)))
+                context.startActivity(Intent.createChooser(intent, shareChooserTitle))
             }) {
                 Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))

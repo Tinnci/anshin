@@ -118,6 +118,8 @@ fun SettingsScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    val msgWidgetPinOem = stringResource(R.string.settings_widget_pin_oem)
+    val msgWidgetPinOk = stringResource(R.string.settings_widget_pin_ok)
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -700,10 +702,7 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission)
-                                        context.getString(R.string.settings_widget_pin_oem)
-                                    else
-                                        context.getString(R.string.settings_widget_pin_ok),
+                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -731,10 +730,7 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission)
-                                        context.getString(R.string.settings_widget_pin_oem)
-                                    else
-                                        context.getString(R.string.settings_widget_pin_ok),
+                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
@@ -762,10 +758,7 @@ fun SettingsScreen(
                             )
                             scope.launch {
                                 snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission)
-                                        context.getString(R.string.settings_widget_pin_oem)
-                                    else
-                                        context.getString(R.string.settings_widget_pin_ok),
+                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
                                     duration = SnackbarDuration.Long,
                                 )
                             }
