@@ -92,7 +92,7 @@ class DrugsViewModel @Inject constructor(
                 showTcm = tcm,
                 isLoading = loading,
                 drugs = filtered,
-                groupedDrugs = if (query.isBlank() && category == null) {
+                groupedDrugs = if (query.isBlank()) {
                     filtered.groupBy { drug ->
                         val initial = drug.initial.ifBlank {
                             drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"

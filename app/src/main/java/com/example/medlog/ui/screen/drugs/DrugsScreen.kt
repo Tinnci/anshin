@@ -318,11 +318,11 @@ fun DrugsScreen(
                                     onSubcategoryClick = { viewModel.onSubcategorySelect(it) },
                                 )
                             } else {
-                                // 选了二级或该一级无二级子类 → 直接显示药品列表
-                                DrugFlatList(
-                                    drugs = uiState.drugs,
-                                    query = "",
+                                // 选了二级或该一级无二级子类 → 按首字母分组展示
+                                DrugGroupedList(
+                                    groupedDrugs = uiState.groupedDrugs,
                                     onDrugSelect = onDrugSelect,
+                                    topPadding = 4.dp,
                                 )
                             }
                         }
