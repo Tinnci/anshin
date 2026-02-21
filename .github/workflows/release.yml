@@ -52,24 +52,52 @@ jobs:
           echo "version_name : $TAG"
           echo "version_code : $VERSION_CODE"
 
-      # ── 4. 代码质量检查 ───────────────────────────────────────
+      # ── 4. 解码 Keystore（Secret 缺失时跳过，构建未签名 APK）────
+      - name: Decode keystore
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
+            echo "KEYSTORE_PATH=${{ github.workspace }}/keystore.jks" >> "$GITHUB_ENV"
+            echo "signed=true" >> "$GITHUB_OUTPUT"
+            echo "Keystore decoded. APK will be signed."
+          else
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            echo "No KEYSTORE_BASE64 secret found. APK will be unsigned."
+          fi
+
+      # ── 5. 代码质量检查 ───────────────────────────────────────
       - name: Run ktlint
         run: ./gradlew ktlintCheck
 
-      # ── 5. 构建 Release APK（使用 debug 签名，未正式签名）─────
+      # ── 6. 构建 Release APK ───────────────────────────────────────────
       - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}
+          # 签名参数：空展时 build.gradle.kts 自动跳过签名
+          KEYSTORE_PATH: ${{ env.KEYSTORE_PATH }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # ── 6. 重命名 APK，加上版本号 ────────────────────────────
+      # ── 7. 重命名 APK（已签名/未签名 区分后缀）────────────────────
       - name: Rename APK
+        id: apk
         run: |
           APK_DIR="app/build/outputs/apk/release"
-          NEW_NAME="MedLog-v${{ steps.version.outputs.version_name }}-unsigned.apk"
+          VER="${{ steps.version.outputs.version_name }}"
+          if [ "${{ steps.keystore.outputs.signed }}" = "true" ]; then
+            NEW_NAME="MedLog-v${VER}.apk"
+          else
+            NEW_NAME="MedLog-v${VER}-unsigned.apk"
+          fi
           find "$APK_DIR" -name "*.apk" | head -1 | xargs -I{} mv {} "$APK_DIR/$NEW_NAME"
-          echo "APK renamed to $NEW_NAME"
+          echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
+          echo "APK: $NEW_NAME"
 
       # ── 7. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
       - name: Generate changelog
@@ -109,5 +137,5 @@ jobs:
             | Commit | ${{ github.sha }} |
 
             > ⚠️ 此 APK **未正式签名**，仅供开发/测试使用。正式发布前需配置 Release 签名。
-          files: app/build/outputs/apk/release/MedLog-v${{ steps.version.outputs.version_name }}-unsigned.apk
+          files: app/build/outputs/apk/release/${{ steps.apk.outputs.apk_name }}
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}

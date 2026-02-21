@@ -23,6 +23,16 @@ android {
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    // ── 签名配置（CI 发布时通过环境变量注入，本地开发不需设置） ─────────────────
+    signingConfigs {
+        create("release") {
+            storeFile = System.getenv("KEYSTORE_PATH")?.takeIf { it.isNotBlank() }?.let { file(it) }
+            storePassword = System.getenv("KEYSTORE_PASSWORD") ?: ""
+            keyAlias = System.getenv("KEY_ALIAS") ?: ""
+            keyPassword = System.getenv("KEY_PASSWORD") ?: ""
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -30,6 +40,10 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
+            // 仅当 KEYSTORE_PASSWORD 环境变量存在（CI 发布环境）时才应用签名
+            if (System.getenv("KEYSTORE_PASSWORD")?.isNotBlank() == true) {
+                signingConfig = signingConfigs.getByName("release")
+            }
         }
     }
     compileOptions {

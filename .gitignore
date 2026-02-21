@@ -23,3 +23,7 @@ gradle-app.setting
 ```/proguard/
 proguard/
 crash-log.txt
+
+# Keystore files — never commit signing secrets
+*.jks
+*.b64
