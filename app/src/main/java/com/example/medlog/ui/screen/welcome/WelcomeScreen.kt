@@ -1,5 +1,10 @@
 package com.example.medlog.ui.screen.welcome
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
@@ -23,18 +28,20 @@ import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -49,7 +56,22 @@ fun WelcomeScreen(
         if (uiState.isCompleted) onFinished()
     }
 
-    val pagerState = rememberPagerState(pageCount = { 5 })
+    // ── 通知权限（Android 13+）──────────────────────────────
+    val context = LocalContext.current
+    var notifGranted by remember {
+        mutableStateOf(
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU)
+                ContextCompat.checkSelfPermission(
+                    context, Manifest.permission.POST_NOTIFICATIONS
+                ) == PackageManager.PERMISSION_GRANTED
+            else true  // <13 默认已有通知权限
+        )
+    }
+    val notifLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted -> notifGranted = granted }
+
+    val pagerState = rememberPagerState(pageCount = { 6 })
     val scope = rememberCoroutineScope()
 
     // 弹簧翻页 fling 行为，snap 时使用 medium-low 弹簧
@@ -93,7 +115,16 @@ fun WelcomeScreen(
                         onToggleDrugInteractionCheck = viewModel::onToggleDrugInteractionCheck,
                         onToggleDrugDatabase         = viewModel::onToggleDrugDatabase,
                     )
-                    4 -> WelcomePage3(isCurrentPage = isCurrentPage)
+                    4 -> WelcomeNotificationPage(
+                        isCurrentPage = isCurrentPage,
+                        notifGranted  = notifGranted,
+                        onRequestPermission = {
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                                notifLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+                            }
+                        },
+                    )
+                    5 -> WelcomePage3(isCurrentPage = isCurrentPage)
                 }
             }
 
@@ -108,7 +139,7 @@ fun WelcomeScreen(
             ) {
                 // 页面指示点（弹簧宽度 + 颜色过渡）
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    repeat(5) { index ->
+                    repeat(6) { index ->
                         val isSelected = pagerState.currentPage == index
                         val width by animateDpAsState(
                             targetValue   = if (isSelected) 24.dp else 8.dp,
@@ -132,7 +163,7 @@ fun WelcomeScreen(
                 }
 
                 // 下一步 / 开始使用
-                val isLastPage = pagerState.currentPage == 4
+                val isLastPage = pagerState.currentPage == 5
                 Button(
                     onClick = {
                         if (isLastPage) {
@@ -449,13 +480,18 @@ private fun RoutineTimeField(
     }
 }
 
-// ── 第3页：准备完毕 ──────────────────────────────────────────────────────────
+// ── 第4页：通知权限 ──────────────────────────────────────────────────────────
 
 @Composable
-private fun WelcomePage3(isCurrentPage: Boolean) {
-    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.2f, 0L)
-    val (titleY, titleAlpha)   = rememberSlideEntry(isCurrentPage, 24f, 180L)
-    val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 280L)
+private fun WelcomeNotificationPage(
+    isCurrentPage: Boolean,
+    notifGranted: Boolean,
+    onRequestPermission: () -> Unit,
+) {
+    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.3f, 0L)
+    val (titleY, titleAlpha)   = rememberSlideEntry(isCurrentPage, 24f, 150L)
+    val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 240L)
+    val (btnY,   btnAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 320L)
 
     Column(
         modifier = Modifier
@@ -465,24 +501,26 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         verticalArrangement = Arrangement.Center,
     ) {
         Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.tertiaryContainer,
+            shape = RoundedCornerShape(28.dp),
+            color = if (notifGranted) MaterialTheme.colorScheme.tertiaryContainer
+                    else MaterialTheme.colorScheme.secondaryContainer,
             modifier = Modifier
                 .size(96.dp)
                 .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
-                    Icons.Rounded.CheckCircle,
+                    if (notifGranted) Icons.Rounded.NotificationsActive else Icons.Rounded.Notifications,
                     contentDescription = null,
                     modifier = Modifier.size(52.dp),
-                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                    tint = if (notifGranted) MaterialTheme.colorScheme.onTertiaryContainer
+                           else MaterialTheme.colorScheme.onSecondaryContainer,
                 )
             }
         }
         Spacer(Modifier.height(32.dp))
         Text(
-            "一切就绪！",
+            if (notifGranted) "提醒已就绪 ✓" else "开启服药提醒",
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
@@ -490,12 +528,144 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         )
         Spacer(Modifier.height(12.dp))
         Text(
-            "现在开始添加您的第一个药品\n让 MedLog 助您规律用药、守护健康",
+            if (notifGranted)
+                "MedLog 将在您设定的服药时间准时推送提醒，确保不会错过任何一次用药。"
+            else
+                "MedLog 需要通知权限，才能在服药时间准时提醒您。\n建议开启以确保不会错过用药计划。",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
         )
+        if (!notifGranted) {
+            Spacer(Modifier.height(28.dp))
+            FilledTonalButton(
+                onClick = onRequestPermission,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .graphicsLayer { translationY = btnY; alpha = btnAlpha },
+                shape = MaterialTheme.shapes.large,
+            ) {
+                Icon(Icons.Rounded.Notifications, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(8.dp))
+                Text("授权通知权限", style = MaterialTheme.typography.labelLarge)
+            }
+            Spacer(Modifier.height(8.dp))
+            Text(
+                "也可稍后在系统设置或 MedLog 设置中开启",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.outline,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.graphicsLayer { alpha = btnAlpha },
+            )
+        }
+    }
+}
+
+// ── 第5页：准备完毕 + 快速开始 ──────────────────────────────────────────────
+
+private data class QuickStartStep(val icon: ImageVector, val text: String)
+
+@Composable
+private fun WelcomePage3(isCurrentPage: Boolean) {
+    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.2f, 0L)
+    val (titleY, titleAlpha)   = rememberSlideEntry(isCurrentPage, 24f, 180L)
+    val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 260L)
+
+    val steps = remember {
+        listOf(
+            QuickStartStep(Icons.Rounded.Add,               "点击首页 ＋ 按钮，添加您的第一个药品"),
+            QuickStartStep(Icons.Rounded.AccessTime,        "设置服药频次和时间，开启准时提醒"),
+            QuickStartStep(Icons.Rounded.CheckCircle,       "每次收到提醒后，打开应用完成服药打卡"),
+        )
+    }
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 32.dp)
+            .padding(top = 48.dp, bottom = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Surface(
+            shape = CircleShape,
+            color = MaterialTheme.colorScheme.tertiaryContainer,
+            modifier = Modifier
+                .size(88.dp)
+                .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    Icons.Rounded.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                )
+            }
+        }
+        Spacer(Modifier.height(28.dp))
+        Text(
+            "一切就绪！",
+            style = MaterialTheme.typography.headlineMedium,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { translationY = titleY; alpha = titleAlpha },
+        )
+        Spacer(Modifier.height(8.dp))
+        Text(
+            "让 MedLog 助您规律用药、守护健康",
+            style = MaterialTheme.typography.bodyLarge,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
+        )
+        Spacer(Modifier.height(32.dp))
+        // 快速开始步骤
+        Card(
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { translationY = subY; alpha = subAlpha },
+        ) {
+            Column(modifier = Modifier.padding(vertical = 8.dp)) {
+                steps.forEachIndexed { index, step ->
+                    val (rowY, rowAlpha) = rememberSlideEntry(isCurrentPage, 20f, 300L + index * 80L)
+                    ListItem(
+                        headlineContent = {
+                            Text(step.text, style = MaterialTheme.typography.bodyMedium)
+                        },
+                        leadingContent = {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(36.dp),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Icon(
+                                        step.icon,
+                                        contentDescription = null,
+                                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        modifier = Modifier.size(18.dp),
+                                    )
+                                }
+                            }
+                        },
+                        colors = ListItemDefaults.colors(
+                            containerColor = androidx.compose.ui.graphics.Color.Transparent,
+                        ),
+                        modifier = Modifier.graphicsLayer { translationY = rowY; alpha = rowAlpha },
+                    )
+                    if (index < steps.lastIndex) {
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    }
+                }
+            }
+        }
     }
 }
 

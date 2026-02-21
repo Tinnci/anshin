@@ -56,6 +56,7 @@ import com.example.medlog.widget.StreakWidgetReceiver
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 fun SettingsScreen(
+    onNavigateToWelcome: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -584,7 +585,23 @@ fun SettingsScreen(
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
-            }
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                ListItem(
+                    headlineContent = { Text("重新查看新手引导") },
+                    supportingContent = { Text("重新浏览功能介绍、作息设置等引导流程") },
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.Replay,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    modifier = Modifier.clickable {
+                        viewModel.resetWelcome()
+                        onNavigateToWelcome()
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                )            }
         }
     }
 }

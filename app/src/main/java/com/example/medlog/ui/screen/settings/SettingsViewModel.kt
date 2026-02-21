@@ -118,4 +118,9 @@ class SettingsViewModel @Inject constructor(
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
     }
+
+    /** 重置欢迎引导状态，下次启动或手动调用时回到引导页 */
+    fun resetWelcome() {
+        viewModelScope.launch { prefsRepository.updateHasSeenWelcome(false) }
+    }
 }
