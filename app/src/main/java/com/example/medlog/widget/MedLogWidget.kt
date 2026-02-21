@@ -65,8 +65,18 @@ class MedLogWidget : GlanceAppWidget() {
         val takenIds    = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
         val total       = medications.size
         val taken       = medications.count { it.id in takenIds }
-        // 待服药品：传递 id+name 对，供打卡按钮使用
-        val pending     = medications.filter { it.id !in takenIds }.map { it.id to it.name }
+        val nowMinutes  = java.util.Calendar.getInstance().let {
+            it.get(java.util.Calendar.HOUR_OF_DAY) * 60 + it.get(java.util.Calendar.MINUTE)
+        }
+
+        // 待服药品：id + 名称 + 下次服药时间（分钟数，用于显示标签）
+        val pending = medications.filter { it.id !in takenIds }.map { med ->
+            val times = parseReminderTimes(med.reminderTimes).map { (h, m) -> h * 60 + m }
+            val nextTime = times.filter { it > nowMinutes }.minOrNull()
+                ?: times.minOrNull()
+                ?: (med.reminderHour * 60 + med.reminderMinute)
+            Triple(med.id, med.name, nextTime)
+        }.sortedBy { it.third }  // 按时间升序
 
         provideContent {
             GlanceTheme {
@@ -80,7 +90,7 @@ class MedLogWidget : GlanceAppWidget() {
 private fun WidgetContent(
     taken: Int,
     total: Int,
-    pendingMeds: List<Pair<Long, String>>,
+    pendingMeds: List<Triple<Long, String, Int>>,
 ) {
     val size      = LocalSize.current
     val isCompact = size.width < 160.dp
@@ -174,7 +184,7 @@ private fun StandardContent(
     taken: Int,
     total: Int,
     allDone: Boolean,
-    pendingMeds: List<Pair<Long, String>>,
+    pendingMeds: List<Triple<Long, String, Int>>,
     maxShow: Int,
 ) {
     // 标题 + 核心数字（F 型阅读动线）
@@ -247,7 +257,7 @@ private fun StandardContent(
         )
         Spacer(GlanceModifier.height(2.dp))
 
-        pendingMeds.take(maxShow).forEach { (medId, name) ->
+        pendingMeds.take(maxShow).forEach { (medId, name, scheduledMinutes) ->
             Spacer(GlanceModifier.height(3.dp))
             Row(
                 modifier          = GlanceModifier.fillMaxWidth(),
@@ -258,6 +268,12 @@ private fun StandardContent(
                     "· $name",
                     style    = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurface),
                     modifier = GlanceModifier.defaultWeight(),
+                )
+                // 服药时间标签
+                val timeLabel = "%02d:%02d".format(scheduledMinutes / 60, scheduledMinutes % 60)
+                Text(
+                    timeLabel,
+                    style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
                 )
                 // 圆形打卡按钮 ✓（点击标记已服）
                 Box(
@@ -294,12 +310,3 @@ private fun StandardContent(
         }
     }
 }
-
-private fun todayStart(): Long =
-    Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
-

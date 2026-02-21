@@ -50,6 +50,7 @@ class MarkTakenAction : ActionCallback {
         // 刷新所有小组件实例
         MedLogWidget().updateAll(context)
         NextDoseWidget().updateAll(context)
+        StreakWidget().updateAll(context)
     }
 
     companion object {
@@ -57,12 +58,3 @@ class MarkTakenAction : ActionCallback {
             ActionParameters.Key("med_id")
     }
 }
-
-/** 今日 00:00:00 的时间戳 */
-private fun todayStart(): Long =
-    Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, 0)
-        set(Calendar.MINUTE, 0)
-        set(Calendar.SECOND, 0)
-        set(Calendar.MILLISECOND, 0)
-    }.timeInMillis

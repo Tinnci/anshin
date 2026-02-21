@@ -57,4 +57,8 @@ interface MedicationLogDao {
     /** Widget 专用：一次性查询某天开始后的所有日志 */
     @Query("SELECT * FROM medication_logs WHERE scheduledTimeMs >= :startMs AND scheduledTimeMs < :startMs + 86400000")
     suspend fun getLogsForDateOnce(startMs: Long): List<MedicationLog>
+
+    /** Widget / Streak 专用：一次性查询时间范围内的所有日志 */
+    @Query("SELECT * FROM medication_logs WHERE scheduledTimeMs BETWEEN :startMs AND :endMs")
+    suspend fun getLogsForRangeOnce(startMs: Long, endMs: Long): List<MedicationLog>
 }

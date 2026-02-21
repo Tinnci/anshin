@@ -47,6 +47,8 @@
     <string name="widget_today_desc">显示今日服药进度，支持直接点击打卡确认</string>
     <string name="widget_next_dose_name">MedLog·下次服药</string>
     <string name="widget_next_dose_desc">显示今日下次服药时间及对应药品名称</string>
+    <string name="widget_streak_name">MedLog·连续打卡</string>
+    <string name="widget_streak_desc">显示用药连续打卡天数及最近7天完成情况</string>
     <string name="shortcut_add_short">添加药品</string>
     <string name="shortcut_add_long">添加新的用药提醒</string>
     <string name="shortcut_history_short">用药历史</string>

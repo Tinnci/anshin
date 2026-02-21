@@ -28,6 +28,7 @@ class WidgetRefreshWorker(
     override suspend fun doWork(): Result {
         MedLogWidget().updateAll(context)
         NextDoseWidget().updateAll(context)
+        StreakWidget().updateAll(context)
         return Result.success()
     }
 

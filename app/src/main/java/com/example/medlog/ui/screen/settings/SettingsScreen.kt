@@ -45,6 +45,7 @@ import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.widget.MedLogWidgetReceiver
 import com.example.medlog.widget.NextDoseWidgetReceiver
+import com.example.medlog.widget.StreakWidgetReceiver
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -629,6 +630,75 @@ fun SettingsScreen(
                         Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
                         Spacer(Modifier.width(6.dp))
                         Text("添加「下次服药」小组件", fontWeight = FontWeight.Medium)
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                    // 连续打卡预览 + 添加按钮
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // 连续打卡预览小卡片
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.tertiaryContainer,
+                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = androidx.compose.ui.Alignment.CenterHorizontally,
+                            ) {
+                                Text(
+                                    "🔥",
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
+                                Text(
+                                    "7 天",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.onTertiaryContainer,
+                                )
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(
+                                "连续打卡天数与周统计",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                "显示连续打卡天数及最近 7 天点位图，支持 2×2 / 4×2",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+
+                    // 添加连续打卡按钮
+                    FilledTonalButton(
+                        onClick = {
+                            if (canPin) {
+                                widgetManager.requestPinAppWidget(
+                                    ComponentName(context, StreakWidgetReceiver::class.java), null, null,
+                                )
+                            } else {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    },
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("添加「连续打卡」小组件", fontWeight = FontWeight.Medium)
                     }
                 }
             }
