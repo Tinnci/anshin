@@ -646,7 +646,7 @@ private fun WidgetPickerCard(
 ) {
     ElevatedCard(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = RoundedCornerShape(24.dp),
         elevation = CardDefaults.elevatedCardElevation(defaultElevation = 1.dp),
     ) {
         // 预览区域
@@ -656,7 +656,7 @@ private fun WidgetPickerCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(110.dp)
-                .clip(RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp)),
+                .clip(RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp)),
             contentScale = ContentScale.FillWidth,
         )
         // 信息区域

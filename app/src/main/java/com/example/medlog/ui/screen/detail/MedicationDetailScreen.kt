@@ -18,6 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -47,6 +48,7 @@ fun MedicationDetailScreen(
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = { Text(med?.name ?: "用药详情") },
@@ -130,7 +132,7 @@ fun MedicationDetailScreen(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(24.dp),
+                    shape = RoundedCornerShape(28.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
@@ -325,7 +327,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
     )
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -422,7 +424,7 @@ private fun StockCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
