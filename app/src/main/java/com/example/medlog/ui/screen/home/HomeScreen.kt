@@ -511,7 +511,7 @@ private fun TimePeriodGroupCard(
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) { Text("$pendingCount") }
                 // 一键服用本时段 — pill 形，比单药按钮更大更显眼
-                if (pendingCount > 1) {
+                if (pendingCount >= 1) {
                     Button(
                         onClick = onTakeAll,
                         contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
