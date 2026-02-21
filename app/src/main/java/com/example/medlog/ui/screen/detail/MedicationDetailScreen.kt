@@ -19,6 +19,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -29,6 +30,22 @@ import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import java.util.*
+
+/** 剂型 key → Material Icon（与添加界面保持一致） */
+private fun formIcon(form: String): ImageVector = when (form) {
+    "capsule" -> Icons.Rounded.Science
+    "liquid"  -> Icons.Rounded.LocalDrink
+    "powder"  -> Icons.Rounded.WaterDrop
+    else      -> Icons.Rounded.Medication
+}
+
+/** 剂型 key → 中文标签 */
+private fun formLabel(form: String): String = when (form) {
+    "capsule" -> "胶囊"
+    "liquid"  -> "涡刻"
+    "powder"  -> "粉末"
+    else      -> "片剂"
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -51,7 +68,24 @@ fun MedicationDetailScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
-                title = { Text(med?.name ?: "用药详情") },
+                title = {
+                    if (med != null) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Icon(
+                                imageVector = formIcon(med.form),
+                                contentDescription = formLabel(med.form),
+                                modifier = Modifier.size(24.dp),
+                                tint = MaterialTheme.colorScheme.primary,
+                            )
+                            Text(med.name)
+                        }
+                    } else {
+                        Text("用药详情")
+                    }
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = "返回")
@@ -147,6 +181,7 @@ fun MedicationDetailScreen(
                             modifier = Modifier.padding(bottom = 8.dp),
                         )
                         DetailRow("药品名称", med.name)
+                        DetailRow("剂型", formLabel(med.form))
                         // 分类：支持单路径/多路径（用 \n 分隔的多条 ATC/TCM 路径）
                         val storedPaths = med.fullPath.split("\n").filter { it.isNotBlank() }
                         when {
