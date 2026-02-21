@@ -27,11 +27,16 @@ data class SettingsUiState(
     // ── 可选功能开关 ───────────────────────────────────────────────────────────
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
-    val enableDrugDatabase: Boolean = true,    // ── 外观 ──────────────────────────────────────────────────────
+    val enableDrugDatabase: Boolean = true,
+    // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = true,
     // ── 今日页面 ────────────────────────────────────────────────────────────
-    val autoCollapseCompletedGroups: Boolean = true,)
+    val autoCollapseCompletedGroups: Boolean = true,
+    // ── 提前预告提醒 ─────────────────────────────────────────────────────────
+    /** 0=关闭 ; 15/30/60=提前对应分钟 */
+    val earlyReminderMinutes: Int = 0,
+)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -61,6 +66,7 @@ class SettingsViewModel @Inject constructor(
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
+            earlyReminderMinutes = prefs.earlyReminderMinutes,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -117,6 +123,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {
         viewModelScope.launch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
+    }
+
+    fun setEarlyReminderMinutes(minutes: Int) {
+        viewModelScope.launch { prefsRepository.updateEarlyReminderMinutes(minutes) }
     }
 
     /** 重置欢迎引导状态，下次启动或手动调用时回到引导页 */

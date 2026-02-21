@@ -361,6 +361,54 @@ fun SettingsScreen(
                         }
                     }
                 }
+                // ── 提前预告提醒 ──────────────────────────────────
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp)
+                        .padding(top = 12.dp, bottom = 4.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Icon(
+                            Icons.Rounded.AccessAlarm,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                "提前预告提醒",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                if (uiState.earlyReminderMinutes > 0)
+                                    "在服药时间前 ${uiState.earlyReminderMinutes} 分钟发送预告"
+                                else "关闭（仅在服药时间精确提醒）",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        listOf(0 to "关闭", 15 to "15 分钟", 30 to "30 分钟", 60 to "1 小时").forEach { (mins, label) ->
+                            FilterChip(
+                                selected = uiState.earlyReminderMinutes == mins,
+                                onClick = { viewModel.setEarlyReminderMinutes(mins) },
+                                label = { Text(label) },
+                            )
+                        }
+                    }
+                }
             }
 
             // ── 作息时间 ─────────────────────────────────────────

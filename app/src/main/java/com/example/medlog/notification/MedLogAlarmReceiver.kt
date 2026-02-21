@@ -32,6 +32,7 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
         val medId = intent.getLongExtra(EXTRA_MED_ID, -1L)
         val medName = intent.getStringExtra(EXTRA_MED_NAME) ?: return
         val timeIndex = intent.getIntExtra(EXTRA_TIME_INDEX, 0)
+        val isEarly = intent.getBooleanExtra(EXTRA_IS_EARLY, false)
         if (medId == -1L) return
 
         val nowMs = System.currentTimeMillis()
@@ -85,7 +86,26 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                 }
             }
             else -> {
-                // 闹钟触发：显示通知，并调度下一次闹钟
+                // 提前预告闹钟：只显示通知，不记录日志、不重新调度
+                if (isEarly) {
+                    val earlyMinutes = intent.getIntExtra("early_minutes", 15)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val med = medicationRepo.getMedicationById(medId) ?: return@launch
+                            notificationHelper.showEarlyReminderNotification(
+                                medId,
+                                medName,
+                                "${med.doseQuantity} ${med.doseUnit}",
+                                earlyMinutes,
+                                timeIndex,
+                            )
+                        } finally {
+                            pendingResult.finish()
+                        }
+                    }
+                    return
+                }
+                // 正式服药时间到：显示通知，并调度下一次闹钟
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val med = medicationRepo.getMedicationById(medId) ?: return@launch
@@ -108,6 +128,8 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                                 endDateMs = med.endDate,
                             ) ?: return@launch
                             alarmScheduler.scheduleAlarmSlot(med, timeIndex, nextMs)
+                            // 同时为下次主提醒调度配套的提前预告
+                            alarmScheduler.scheduleAllReminders(med)
                         }
                     } finally {
                         pendingResult.finish()

@@ -143,6 +143,9 @@ class HomeViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
 
+    /** 上次推送今日进度通知时的 (taken, total)；避免重复更新通知 */
+    private var lastProgressNotifState = -1 to -1
+
     init {
         observeMedications()
         computeStreak()
@@ -180,15 +183,20 @@ class HomeViewModel @Inject constructor(
             }.collect { state ->
                 // 保留用户的分组偏好，不被新状态覆盖
                 _uiState.value = state.copy(groupByTime = _uiState.value.groupByTime)
-                // 实时更新今日进度通知（Live Activity 风格）
-                val pending = state.items
-                    .filter { !it.isTaken && !it.isSkipped }
-                    .map { it.medication.name }
-                notificationHelper.showOrUpdateProgressNotification(
-                    taken        = state.takenCount,
-                    total        = state.totalCount,
-                    pendingNames = pending,
-                )
+                // 实时更新今日进度通知（去重：仅在 taken/total 真正变化时更新）
+                val taken = state.takenCount
+                val total = state.totalCount
+                if (taken != lastProgressNotifState.first || total != lastProgressNotifState.second) {
+                    lastProgressNotifState = taken to total
+                    val pending = state.items
+                        .filter { !it.isTaken && !it.isSkipped }
+                        .map { it.medication.name }
+                    notificationHelper.showOrUpdateProgressNotification(
+                        taken        = taken,
+                        total        = total,
+                        pendingNames = pending,
+                    )
+                }
             }
         }
     }

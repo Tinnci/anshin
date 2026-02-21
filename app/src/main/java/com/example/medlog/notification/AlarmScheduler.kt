@@ -18,6 +18,8 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val MAX_REMINDER_SLOTS = 20
+/** PendingIntent requestCode 偏移：提前预告闹钟用，避免与正式提醒冲突 */
+const val EARLY_REMINDER_CODE_OFFSET = 50_000
 
 /**
  * 闹钟调度器。
@@ -38,6 +40,9 @@ class AlarmScheduler @Inject constructor(
     /** 旅行模式：家乡时区，由后台协程实时同步 */
     @Volatile private var homeTimeZone: TimeZone = TimeZone.getDefault()
 
+    /** 提前预告提醒分钟数（0 = 关闭），由 DataStore 实时同步 */
+    @Volatile private var earlyReminderMinutes: Int = 0
+
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
@@ -50,6 +55,7 @@ class AlarmScheduler @Inject constructor(
                 } else {
                     TimeZone.getDefault()
                 }
+                earlyReminderMinutes = prefs.earlyReminderMinutes
             }
         }
     }
@@ -69,6 +75,7 @@ class AlarmScheduler @Inject constructor(
             val triggerMs = (lastTakenMs ?: System.currentTimeMillis()) +
                     medication.intervalHours * 3_600_000L
             scheduleAlarmSlot(medication, 0, triggerMs)
+            scheduleEarlyReminderIfNeeded(medication, 0, triggerMs)
             return
         }
         val times = medication.reminderTimes.split(",").map { it.trim() }
@@ -81,6 +88,7 @@ class AlarmScheduler @Inject constructor(
                 endDateMs        = medication.endDate,
             ) ?: return@forEachIndexed
             scheduleAlarmSlot(medication, index, triggerMs)
+            scheduleEarlyReminderIfNeeded(medication, index, triggerMs)
         }
     }
 
@@ -113,6 +121,26 @@ class AlarmScheduler @Inject constructor(
     fun cancelAllAlarms(medicationId: Long) {
         for (i in 0 until MAX_REMINDER_SLOTS) {
             val requestCode = (medicationId * 100 + i).toInt()
+            val intent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                Intent(context, MedLogAlarmReceiver::class.java),
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+            ) ?: continue
+            alarmManager.cancel(intent)
+            intent.cancel()
+        }
+        // 一并取消所有提前预告闹钟
+        cancelEarlyReminderAlarms(medicationId)
+    }
+
+    /**
+     * 取消某药品的所有提前预告闹钟。
+     * 内部用于 [cancelAllAlarms]，也可独立调用。
+     */
+    fun cancelEarlyReminderAlarms(medicationId: Long) {
+        for (i in 0 until MAX_REMINDER_SLOTS) {
+            val requestCode = (medicationId * 100 + i).toInt() + EARLY_REMINDER_CODE_OFFSET
             val intent = PendingIntent.getBroadcast(
                 context,
                 requestCode,
@@ -184,6 +212,31 @@ class AlarmScheduler @Inject constructor(
     }
 
     // ─── 私有辅助 ─────────────────────────────────────────────────────────
+
+    /**
+     * 若用户开启了「提前 N 分钟预告」，则为指定时间槽调度一个提前预告闹钟。
+     * 如果 [mainTriggerMs] 减去偏移后已过去或不足 1 分钟，则跳过。
+     */
+    private fun scheduleEarlyReminderIfNeeded(medication: Medication, timeIndex: Int, mainTriggerMs: Long) {
+        val mins = earlyReminderMinutes
+        if (mins <= 0) return
+        val earlyTriggerMs = mainTriggerMs - mins * 60_000L
+        if (earlyTriggerMs <= System.currentTimeMillis() + 60_000L) return  // 时机已过
+        val requestCode = (medication.id * 100 + timeIndex).toInt() + EARLY_REMINDER_CODE_OFFSET
+        val intent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            Intent(context, MedLogAlarmReceiver::class.java).apply {
+                putExtra(EXTRA_MED_ID,    medication.id)
+                putExtra(EXTRA_MED_NAME,  medication.name)
+                putExtra(EXTRA_TIME_INDEX, timeIndex)
+                putExtra(EXTRA_IS_EARLY,  true)
+                putExtra("early_minutes", mins)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        scheduleExact(intent, earlyTriggerMs)
+    }
 
     /** 调度一次性精确闹钟（compat：Android 12+需要精确闹钟权限）*/
     private fun scheduleExact(intent: PendingIntent, triggerAtMs: Long) {

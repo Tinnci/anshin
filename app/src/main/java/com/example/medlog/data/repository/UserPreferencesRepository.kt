@@ -60,7 +60,12 @@ data class SettingsPreferences(
     // ── 今日页面显示偏好 ───────────────────────────────────────────────────────
     /** 已全部服用的时段默认折叠，节省屏幕空间 */
     val autoCollapseCompletedGroups: Boolean = true,
-)
+    // ── 提醒弹性设置 ───────────────────────────────────────────
+    /**
+     * 提前 N 分钟发送预告提醒。
+     * 0 = 关闭（不发预告）；15 / 30 / 60 = 提前对应分钟数发送
+     */
+    val earlyReminderMinutes: Int = 0,)
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
@@ -93,6 +98,8 @@ class UserPreferencesRepository @Inject constructor(
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
         // 今日页面显示偏好
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
+        // 提前预告提醒
+        val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -120,6 +127,7 @@ class UserPreferencesRepository @Inject constructor(
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
+                earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
             )
         }
 
@@ -182,5 +190,10 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新「已完成分组默认折叠」开关 */
     suspend fun updateAutoCollapseCompletedGroups(enabled: Boolean) {
         dataStore.edit { it[AUTO_COLLAPSE_DONE] = enabled }
+    }
+
+    /** 更新提前预告提醒分钟数（0 = 关闭） */
+    suspend fun updateEarlyReminderMinutes(minutes: Int) {
+        dataStore.edit { it[EARLY_REMINDER_MINUTES] = minutes }
     }
 }

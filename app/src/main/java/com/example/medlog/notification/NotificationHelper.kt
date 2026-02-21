@@ -13,13 +13,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-const val CHANNEL_REMINDER  = "med_reminder"
-const val CHANNEL_LOW_STOCK = "low_stock"
-const val CHANNEL_PROGRESS  = "med_progress"   // 持久性今日进度通知
+const val CHANNEL_REMINDER       = "med_reminder"
+const val CHANNEL_LOW_STOCK      = "low_stock"
+const val CHANNEL_PROGRESS       = "med_progress"    // 持久性今日进度通知
+const val CHANNEL_EARLY_REMINDER = "early_reminder"  // 提前预告提醒
 private const val NOTIF_ID_PROGRESS = 9999
-const val EXTRA_MED_ID   = "med_id"
-const val EXTRA_MED_NAME = "med_name"
-const val EXTRA_TIME_INDEX = "time_index"   // 提醒时间在列表中的索引
+const val EXTRA_MED_ID    = "med_id"
+const val EXTRA_MED_NAME  = "med_name"
+const val EXTRA_TIME_INDEX = "time_index"  // 提醒时间在列表中的索引
+const val EXTRA_IS_EARLY  = "is_early"    // 是否为提前预告通知
 
 /** 提醒通知分组键 */
 private const val GROUP_REMINDERS = "com.example.medlog.REMINDERS"
@@ -88,7 +90,14 @@ class NotificationHelper @Inject constructor(
             description = "展示今日整体用药完成进度"
             setShowBadge(false)
         }
-        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel))
+        val earlyChannel = NotificationChannel(
+            CHANNEL_EARLY_REMINDER,
+            "提前服药预告",
+            NotificationManager.IMPORTANCE_DEFAULT,
+        ).apply {
+            description = "在正式服药时间前 N 分钟发送预告提醒，提前做好准备"
+        }
+        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel, earlyChannel))
     }
     // ─── 今日进度持久性通知（Live Activity 风格）─────────────────────────────
 
@@ -102,6 +111,7 @@ class NotificationHelper @Inject constructor(
         total: Int,
         pendingNames: List<String>,
     ) {
+        if (!notificationManager.areNotificationsEnabled()) return
         if (total == 0) { dismissProgressNotification(); return }
 
         val allDone = taken == total
@@ -152,6 +162,7 @@ class NotificationHelper @Inject constructor(
         dose: String,
         timeIndex: Int = 0,
     ) {
+        if (!notificationManager.areNotificationsEnabled()) return
         val baseIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
@@ -225,6 +236,7 @@ class NotificationHelper @Inject constructor(
     // ─── 低库存通知 ──────────────────────────────────────────
 
     fun showLowStockNotification(medicationId: Long, medicationName: String, stock: Double, unit: String) {
+        if (!notificationManager.areNotificationsEnabled()) return
         val openAction = NotificationCompat.Action(
             0,
             "查看详情",
@@ -245,5 +257,44 @@ class NotificationHelper @Inject constructor(
             .setTicker("$medicationName 库存不足")
             .build()
         notificationManager.notify((medicationId + 10000L).toInt(), notification)
+    }
+
+    // ─── 提前预告通知 ───────────────────────────────────────────────
+
+    /**
+     * 发送"X 分钟后记得服用"预告通知。
+     * @param minutesBefore 距正式服药时间的分钟数
+     */
+    fun showEarlyReminderNotification(
+        medicationId: Long,
+        medicationName: String,
+        dose: String,
+        minutesBefore: Int,
+        timeIndex: Int = 0,
+    ) {
+        if (!notificationManager.areNotificationsEnabled()) return
+        val notificationId = (medicationId * 100 + timeIndex).toInt() + 50_000
+        val notification = NotificationCompat.Builder(context, CHANNEL_EARLY_REMINDER)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
+            .setContentTitle("${minutesBefore} 分钟后记得服药")
+            .setContentText("准备好 $medicationName（$dose）")
+            .setSubText("即将服药提醒")
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText("请提前做好准备，$minutesBefore 分钟后需要服用 $dose 的 $medicationName。")
+            )
+            .setContentIntent(openAppPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setTimeoutAfter(minutesBefore * 60_000L + 5 * 60_000L)  // 超时 = 预告时间 + 5 分钟
+            .setTicker("${minutesBefore} 分钟后记得服药")
+            .build()
+        notificationManager.notify(notificationId, notification)
+    }
+
+    /** 取消指定药品某时间槽的提前通知 */
+    fun cancelEarlyReminderNotification(medicationId: Long, timeIndex: Int) {
+        notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + 50_000)
     }
 }
