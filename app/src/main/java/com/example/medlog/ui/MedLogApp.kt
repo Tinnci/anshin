@@ -9,6 +9,9 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -152,6 +155,11 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     }
 }
 
+// 导航动画弹性 spec（文件级常量，避免在 composable 回调中访问 MaterialTheme）
+private val navSpringSpec = spring<IntOffset>(dampingRatio = 0.82f, stiffness = 360f)
+private val navFadeIn  = fadeIn(tween(durationMillis = 200))
+private val navFadeOut = fadeOut(tween(durationMillis = 160))
+
 @Composable
 private fun MedLogNavHost(
     navController: androidx.navigation.NavHostController,
@@ -229,10 +237,10 @@ private fun MedLogNavHost(
             SettingsScreen()
         }
         composable<Route.MedDetail>(
-            enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
-            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn() },
-            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            enterTransition    = { slideInHorizontally(navSpringSpec) { it } + navFadeIn },
+            exitTransition     = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition  = { slideOutHorizontally(tween(280)) { it } + navFadeOut },
         ) { backStackEntry ->
             val route: Route.MedDetail = backStackEntry.toRoute()
             MedicationDetailScreen(
@@ -242,10 +250,10 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.AddMedication>(
-            enterTransition = { slideInHorizontally(initialOffsetX = { it }) + fadeIn() },
-            exitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
-            popEnterTransition = { slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn() },
-            popExitTransition = { slideOutHorizontally(targetOffsetX = { it }) + fadeOut() },
+            enterTransition    = { slideInHorizontally(navSpringSpec) { it } + navFadeIn },
+            exitTransition     = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition  = { slideOutHorizontally(tween(280)) { it } + navFadeOut },
         ) { backStackEntry ->
             val route: Route.AddMedication = backStackEntry.toRoute()
             AddMedicationScreen(

@@ -1,7 +1,9 @@
 package com.example.medlog.ui.components
 
 import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -289,16 +291,21 @@ fun MedicationCard(
     }
 }
 
-/** 带弹性缩放的状态圆圈 */
+/** 带弹性缩放的状态圆圈：标记服用时触发 overshoot bounce */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
     val motionScheme = MaterialTheme.motionScheme
-    val scale by animateFloatAsState(
-        targetValue = if (isTaken) 1f else 0.9f,
-        animationSpec = motionScheme.defaultSpatialSpec(),
-        label = "circleScale",
-    )
+    // 用 Animatable 实现自定义弹性序列：未服 → 0.9，服用 → 超调 1.25 → 稳定 1.0
+    val scale = remember { Animatable(if (isTaken) 1f else 0.9f) }
+    LaunchedEffect(isTaken) {
+        if (isTaken) {
+            scale.animateTo(1.25f, animationSpec = spring(dampingRatio = 0.30f, stiffness = 700f))
+            scale.animateTo(1.00f, animationSpec = spring(dampingRatio = 0.55f, stiffness = 400f))
+        } else {
+            scale.animateTo(0.9f, animationSpec = motionScheme.defaultEffectsSpec())
+        }
+    }
     val bgColor by animateColorAsState(
         targetValue = when {
             isTaken   -> MaterialTheme.colorScheme.tertiary
@@ -311,7 +318,7 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
     Box(
         modifier = Modifier
             .size(36.dp)
-            .scale(scale)
+            .scale(scale.value)
             .clip(CircleShape)
             .background(bgColor),
         contentAlignment = Alignment.Center,

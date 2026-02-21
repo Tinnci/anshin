@@ -1,10 +1,16 @@
 package com.example.medlog.ui.screen.home
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.animation.togetherWith
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -823,13 +829,32 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
                     fontWeight = FontWeight.SemiBold,
                 )
                 if (total > 0) {
-                    Text(
-                        "$taken / $total",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = if (allDone) MaterialTheme.colorScheme.tertiary
-                                else MaterialTheme.colorScheme.primary,
-                        fontWeight = FontWeight.Bold,
-                    )
+                    // 数字滚动动画：taken 变化时上滑出、下滑入
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        AnimatedContent(
+                            targetState = taken,
+                            transitionSpec = {
+                                (slideInVertically(spring(stiffness = 500f)) { -it / 2 } + fadeIn(tween(160))) togetherWith
+                                    (slideOutVertically(tween(120)) { it / 2 } + fadeOut(tween(100)))
+                            },
+                            label = "takenNum",
+                        ) { t ->
+                            Text(
+                                text = "$t",
+                                style = MaterialTheme.typography.titleMedium,
+                                color = if (allDone) MaterialTheme.colorScheme.tertiary
+                                        else MaterialTheme.colorScheme.primary,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Text(
+                            text = " / $total",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = if (allDone) MaterialTheme.colorScheme.tertiary
+                                    else MaterialTheme.colorScheme.primary,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
                 }
             }
             if (total > 0) {
