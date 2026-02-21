@@ -22,6 +22,7 @@ splashscreen = "1.0.+"
 glance = "1.1.1"
 material3 = "1.5.0-alpha14"    # Expressive APIs (MotionScheme 等) 在 1.5.0-alpha 中正式公开
 ktlint = "12.3.0"
+zxing = "3.5.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -64,6 +65,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 # Glance
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
 androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
+zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

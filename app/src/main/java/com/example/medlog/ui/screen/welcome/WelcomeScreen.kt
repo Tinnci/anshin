@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerDefaults
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.medlog.data.repository.ThemeMode
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -114,6 +116,8 @@ fun WelcomeScreen(
                         onToggleSymptomDiary         = viewModel::onToggleSymptomDiary,
                         onToggleDrugInteractionCheck = viewModel::onToggleDrugInteractionCheck,
                         onToggleDrugDatabase         = viewModel::onToggleDrugDatabase,
+                        onToggleHealthModule         = viewModel::onToggleHealthModule,
+                        onThemeModeChange            = viewModel::onThemeModeChange,
                     )
                     4 -> WelcomeNotificationPage(
                         isCurrentPage = isCurrentPage,
@@ -493,6 +497,20 @@ private fun WelcomeNotificationPage(
     val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 240L)
     val (btnY,   btnAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 320L)
 
+    // 未授权时按钮脐冲动画，吸引老年用户注意
+    val pulseScale = remember { Animatable(1f) }
+    LaunchedEffect(isCurrentPage, notifGranted) {
+        if (isCurrentPage && !notifGranted) {
+            while (true) {
+                pulseScale.animateTo(1.06f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow))
+                pulseScale.animateTo(1.0f,  spring(Spring.DampingRatioNoBouncy,     Spring.StiffnessMediumLow))
+                delay(1200)
+            }
+        } else {
+            pulseScale.snapTo(1f)
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -539,23 +557,39 @@ private fun WelcomeNotificationPage(
         )
         if (!notifGranted) {
             Spacer(Modifier.height(28.dp))
-            FilledTonalButton(
+            // 引导文字：明显的操作指引，尤其适合老年用户
+            Text(
+                "请点击下方按鈕，允许 MedLog 发送服药提醒",
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Medium,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.graphicsLayer { alpha = btnAlpha },
+            )
+            Spacer(Modifier.height(12.dp))
+            // 升级为充填按鈕 + 脐冲缩放动画
+            Button(
                 onClick = onRequestPermission,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(48.dp)
-                    .graphicsLayer { translationY = btnY; alpha = btnAlpha },
-                shape = MaterialTheme.shapes.large,
+                    .height(56.dp)
+                    .graphicsLayer {
+                        scaleX = pulseScale.value
+                        scaleY = pulseScale.value
+                        translationY = btnY
+                        alpha = btnAlpha
+                    },
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
-                Icon(Icons.Rounded.Notifications, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(8.dp))
-                Text("授权通知权限", style = MaterialTheme.typography.labelLarge)
+                Icon(Icons.Rounded.NotificationsActive, contentDescription = null, modifier = Modifier.size(22.dp))
+                Spacer(Modifier.width(10.dp))
+                Text("立即开启服药提醒", style = MaterialTheme.typography.titleSmall)
             }
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(12.dp))
             Text(
-                "也可稍后在系统设置或 MedLog 设置中开启",
+                "也可稍后在「系统通知设置」或 MedLog「设置」中开启",
                 style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.outline,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.graphicsLayer { alpha = btnAlpha },
             )
@@ -678,6 +712,8 @@ private fun WelcomePage4(
     onToggleSymptomDiary: (Boolean) -> Unit,
     onToggleDrugInteractionCheck: (Boolean) -> Unit,
     onToggleDrugDatabase: (Boolean) -> Unit,
+    onToggleHealthModule: (Boolean) -> Unit,
+    onThemeModeChange: (ThemeMode) -> Unit,
 ) {
     val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
     val (subY, subAlpha)     = rememberSlideEntry(isCurrentPage, 20f, 80L)
@@ -738,6 +774,14 @@ private fun WelcomePage4(
                     checked = uiState.enableDrugInteractionCheck,
                     onCheckedChange = onToggleDrugInteractionCheck,
                 )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                FeatureToggleRow(
+                    title = "健康体征模块",
+                    description = "记录血压、血糖、体重等健康数据",
+                    icon = Icons.Rounded.MonitorHeart,
+                    checked = uiState.enableHealthModule,
+                    onCheckedChange = onToggleHealthModule,
+                )
             }
         }
 
@@ -746,6 +790,40 @@ private fun WelcomePage4(
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.outline,
         )
+
+        // 外观主题选择
+        Card(
+            shape = RoundedCornerShape(24.dp),
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .graphicsLayer { translationY = cardY; alpha = cardAlpha },
+        ) {
+            Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Icon(Icons.Rounded.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    Text("外观主题", style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
+                }
+                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    listOf(
+                        ThemeMode.SYSTEM to "跟随系统",
+                        ThemeMode.LIGHT  to "浅色",
+                        ThemeMode.DARK   to "深色",
+                    ).forEachIndexed { index, (mode, label) ->
+                        SegmentedButton(
+                            selected = uiState.themeMode == mode,
+                            onClick = { onThemeModeChange(mode) },
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = 3),
+                        ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                    }
+                }
+            }
+        }
     }
 }
 

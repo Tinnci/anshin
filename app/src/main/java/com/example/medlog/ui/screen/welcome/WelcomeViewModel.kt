@@ -2,6 +2,7 @@ package com.example.medlog.ui.screen.welcome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.data.repository.UserPreferencesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -22,6 +23,9 @@ data class WelcomeUiState(
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,
+    val enableHealthModule: Boolean = true,
+    // 外观（第4页选择）
+    val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** true = 已完成引导，外层导航层监听后跳转 Home */
     val isCompleted: Boolean = false,
 )
@@ -47,6 +51,8 @@ class WelcomeViewModel @Inject constructor(
                 enableSymptomDiary         = prefs.enableSymptomDiary,
                 enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
                 enableDrugDatabase         = prefs.enableDrugDatabase,
+                enableHealthModule         = prefs.enableHealthModule,
+                themeMode                  = prefs.themeMode,
             )
         }
     }
@@ -74,6 +80,14 @@ class WelcomeViewModel @Inject constructor(
         _uiState.value = _uiState.value.copy(enableDrugDatabase = enabled)
     }
 
+    fun onToggleHealthModule(enabled: Boolean) {
+        _uiState.value = _uiState.value.copy(enableHealthModule = enabled)
+    }
+
+    fun onThemeModeChange(mode: ThemeMode) {
+        _uiState.value = _uiState.value.copy(themeMode = mode)
+    }
+
     /** 保存作息时间 + 功能开关 + 标记引导已完成，触发导航至 Home */
     fun finishWelcome() {
         viewModelScope.launch {
@@ -87,7 +101,9 @@ class WelcomeViewModel @Inject constructor(
                 enableSymptomDiary   = s.enableSymptomDiary,
                 enableDrugInteraction = s.enableDrugInteractionCheck,
                 enableDrugDatabase   = s.enableDrugDatabase,
+                enableHealthModule   = s.enableHealthModule,
             )
+            prefsRepository.updateThemeMode(s.themeMode)
             prefsRepository.updateHasSeenWelcome(true)
             _uiState.value = _uiState.value.copy(isCompleted = true)
         }

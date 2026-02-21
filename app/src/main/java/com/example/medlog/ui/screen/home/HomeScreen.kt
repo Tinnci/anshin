@@ -12,6 +12,9 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.BitmapPainter
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -42,6 +45,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.platform.LocalContext
+import android.content.Intent
+import androidx.compose.foundation.Image
+import androidx.compose.runtime.produceState
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.text.style.TextAlign
+import com.example.medlog.ui.utils.generateQrBitmap
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import androidx.compose.material.icons.rounded.QrCode2
+import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -66,6 +80,7 @@ fun HomeScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
+    var showQrDialog by remember { mutableStateOf(false) }
 
     // Pending items for "take all" button (excluding PRN on-demand meds)
     val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
@@ -85,6 +100,9 @@ fun HomeScreen(
                     }
                 },
                 actions = {
+                    IconButton(onClick = { showQrDialog = true }) {
+                        Icon(Icons.Rounded.QrCode2, contentDescription = "分享今日计划")
+                    }
                     IconButton(onClick = viewModel::toggleGroupBy) {
                         Icon(
                             imageVector = if (uiState.groupByTime) Icons.Rounded.Category else Icons.Rounded.AccessTime,
@@ -391,6 +409,12 @@ fun HomeScreen(
             // ── 底部间距（FAB 避让）──────────────────────────
             item { Spacer(Modifier.height(80.dp)) }
         }
+    }
+    if (showQrDialog) {
+        MedicationQrDialog(
+            items = uiState.items,
+            onDismiss = { showQrDialog = false },
+        )
     }
 }
 
@@ -1132,4 +1156,99 @@ private fun InteractionItem(interaction: DrugInteraction) {
             )
         }
     }
+}
+// ── 今日用药 QR 码分享对话框 ─────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MedicationQrDialog(
+    items: List<MedicationWithStatus>,
+    onDismiss: () -> Unit,
+) {
+    val context = LocalContext.current
+    val takenCount = remember(items) { items.count { it.isTaken } }
+    val totalCount = items.size
+
+    // 构建可读 QR 内容（较短，更易于扫描）
+    val qrText = remember(items) {
+        buildString {
+            appendLine("MedLog ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
+            items.forEach { item ->
+                val status = when {
+                    item.isTaken   -> "✓"
+                    item.isSkipped -> "-"
+                    else           -> "○"
+                }
+                val med = item.medication
+                val dose = if (med.doseQuantity == med.doseQuantity.toLong().toDouble())
+                    "${med.doseQuantity.toLong()}${med.doseUnit}"
+                else "%.1f${med.doseUnit}".format(med.doseQuantity)
+                val period = TimePeriod.fromKey(med.timePeriod).label
+                appendLine("$status ${med.name} $dose $period")
+            }
+        }.trimEnd()
+    }
+
+    // 在后台线程生成 QR 位图
+    val qrBitmap by produceState<android.graphics.Bitmap?>(null, qrText) {
+        value = withContext(Dispatchers.Default) { generateQrBitmap(qrText) }
+    }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("今日用药计划") },
+        text = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                Text(
+                    "已服 $takenCount / $totalCount",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Box(
+                    modifier = Modifier
+                        .size(220.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color.White),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (qrBitmap != null) {
+                        Image(
+                            painter = BitmapPainter(qrBitmap!!.asImageBitmap()),
+                            contentDescription = "QR 码",
+                            modifier = Modifier.size(200.dp),
+                        )
+                    } else {
+                        CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                    }
+                }
+                Text(
+                    "扫描 QR 码可读取今日用药计划，也可点击下方「分享」发送给他人",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    textAlign = TextAlign.Center,
+                )
+            }
+        },
+        confirmButton = {
+            TextButton(onClick = {
+                val intent = Intent(Intent.ACTION_SEND).apply {
+                    type = "text/plain"
+                    putExtra(Intent.EXTRA_TEXT, qrText)
+                    putExtra(Intent.EXTRA_TITLE, "今日用药计划")
+                }
+                context.startActivity(Intent.createChooser(intent, "分享今日用药计划"))
+            }) {
+                Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
+                Spacer(Modifier.width(4.dp))
+                Text("分享文本")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("关闭") }
+        },
+    )
 }

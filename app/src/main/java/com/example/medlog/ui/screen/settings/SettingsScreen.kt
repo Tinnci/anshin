@@ -45,6 +45,7 @@ import android.provider.Settings
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.core.content.ContextCompat
+import kotlinx.coroutines.launch
 import com.example.medlog.BuildConfig
 import com.example.medlog.R
 import com.example.medlog.data.model.Medication
@@ -100,8 +101,12 @@ fun SettingsScreen(
         onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
     }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LargeTopAppBar(
                 title = { Text("设置") },
@@ -557,11 +562,37 @@ fun SettingsScreen(
                         .padding(top = 4.dp, bottom = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text(
-                        "点击添加按钮，将小组件固定到桌面",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                    if (!canPin) {
+                        // 不支持直接固定时显示内联提示
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Info,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                                Text(
+                                    "您的桐面不支持直接固定小组件。请长按打面空白区域 → 小组件 → MedLog 手动添加。",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer,
+                                )
+                            }
+                        }
+                    } else {
+                        Text(
+                            "点击添加按鈕，将小组件固定到桔面",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
 
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_today,
@@ -574,12 +605,19 @@ fun SettingsScreen(
                             widgetManager.requestPinAppWidget(
                                 ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
                             )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         } else {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                },
-                            )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         }
                     }
 
@@ -594,12 +632,19 @@ fun SettingsScreen(
                             widgetManager.requestPinAppWidget(
                                 ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
                             )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         } else {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                },
-                            )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         }
                     }
 
@@ -614,12 +659,19 @@ fun SettingsScreen(
                             widgetManager.requestPinAppWidget(
                                 ComponentName(context, StreakWidgetReceiver::class.java), null, null,
                             )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请在弹出的对话框中点击「添加」完成安装",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         } else {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                },
-                            )
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    "请长按打面空白区域 → 小组件 → MedLog 手动添加",
+                                    duration = SnackbarDuration.Long,
+                                )
+                            }
                         }
                     }
                 }
