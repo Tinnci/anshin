@@ -44,6 +44,7 @@ import com.example.medlog.BuildConfig
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.widget.MedLogWidgetReceiver
+import com.example.medlog.widget.NextDoseWidgetReceiver
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
@@ -532,43 +533,102 @@ fun SettingsScreen(
                                 fontWeight = FontWeight.Medium,
                             )
                             Text(
-                                "在桌面随时查看服药进度，支持 2×2、4×2、4×4 三种尺寸",
+                                "支持 2×2 / 4×2 / 4×4，可直接打卡",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                     }
 
-                    // 添加按钮
-                    Button(
+                    // 添加今日进度按钮
+                    FilledTonalButton(
                         onClick = {
                             if (canPin) {
-                                val provider = ComponentName(context, MedLogWidgetReceiver::class.java)
-                                widgetManager.requestPinAppWidget(provider, null, null)
+                                widgetManager.requestPinAppWidget(
+                                    ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
+                                )
                             } else {
-                                // 降级：跳转桌面/应用详情
                                 context.startActivity(
                                     Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
                                         data = Uri.fromParts("package", context.packageName, null)
-                                    }
+                                    },
                                 )
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        contentPadding = PaddingValues(vertical = 8.dp),
                     ) {
-                        Icon(
-                            if (canPin) Icons.Rounded.AddToHomeScreen
-                            else        Icons.Rounded.OpenInNew,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            if (canPin) "添加到桌面 / 负一屏"
-                            else        "前往添加小组件",
-                            fontWeight = FontWeight.SemiBold,
-                        )
+                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("添加「今日进度」小组件", fontWeight = FontWeight.Medium)
+                    }
+
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+
+                    // 下次服药预览 + 添加按钮
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        // 下次服药预览小卡片
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.secondaryContainer,
+                            modifier = Modifier.size(width = 72.dp, height = 52.dp),
+                        ) {
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .padding(8.dp),
+                                verticalArrangement = Arrangement.Center,
+                            ) {
+                                Text(
+                                    "下次服药",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.6f),
+                                )
+                                Text(
+                                    "14:30",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    fontWeight = FontWeight.Bold,
+                                    color = MaterialTheme.colorScheme.secondary,
+                                )
+                            }
+                        }
+
+                        Column(verticalArrangement = Arrangement.spacedBy(3.dp)) {
+                            Text(
+                                "下次服药时间提示",
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                "显示下次服药时间及倒计时，支持 2×2 / 4×2",
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+
+                    // 添加下次服药按钮
+                    FilledTonalButton(
+                        onClick = {
+                            if (canPin) {
+                                widgetManager.requestPinAppWidget(
+                                    ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
+                                )
+                            } else {
+                                context.startActivity(
+                                    Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = Uri.fromParts("package", context.packageName, null)
+                                    },
+                                )
+                            }
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        Icon(Icons.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
+                        Spacer(Modifier.width(6.dp))
+                        Text("添加「下次服药」小组件", fontWeight = FontWeight.Medium)
                     }
                 }
             }

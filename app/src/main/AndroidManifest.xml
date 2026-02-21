@@ -48,17 +48,30 @@
             android:name=".notification.MedLogAlarmReceiver"
             android:exported="false" />
 
-        <!-- 桌面小组件 Widget -->
+        <!-- 桌面小组件：今日进度 -->
         <receiver
             android:name=".widget.MedLogWidgetReceiver"
             android:exported="true"
-            android:label="@string/shortcut_today_long">
+            android:label="@string/widget_today_name">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/med_log_widget_info" />
+        </receiver>
+
+        <!-- 桌面小组件：下次服药 -->
+        <receiver
+            android:name=".widget.NextDoseWidgetReceiver"
+            android:exported="true"
+            android:label="@string/widget_next_dose_name">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/next_dose_widget_info" />
         </receiver>
 
         <provider
