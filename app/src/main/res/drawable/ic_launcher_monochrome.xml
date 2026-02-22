@@ -1,23 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-  Adaptive icon monochrome layer (API 33+ / Android 13+).
-  Used for "themed icons" — the system applies a single tint colour.
-  Must be a single-colour silhouette on a transparent background.
-  Same canvas / safe zone as ic_launcher_foreground.xml.
--->
-<vector xmlns:android="http://schemas.android.com/apk/res/android"
-    android:width="108dp"
-    android:height="108dp"
-    android:viewportWidth="108"
-    android:viewportHeight="108">
-
-    <!--
-      Pill bottle silhouette.
-      Combined with inner cross path and evenOdd fillType to ensure the cross
-      is rendered as a true transparent negative space, correctly picked up by themed coloring.
-    -->
-    <path
-        android:fillColor="#FF000000"
-        android:fillType="evenOdd"
-        android:pathData="M33.5,20C28.81,20 25,23.81 25,28.5v51C25,83.19 28.81,87 33.5,87h41C78.69,87 82.5,83.19 82.5,79.5v-51C82.5,23.81 78.69,20 74,20H33.5zM58,25.5h-8v-5.5h8V25.5z M40,54 L51,65 L68,46 L62,40 L51,52 L46,47 Z" />
+<vector xmlns:android="http://schemas.android.com/apk/res/android" android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
+    <path android:fillColor="#FF000000" android:pathData="M82,48 L74,48 L64,52 L56,61 L56,63 L54,66 L53,75 L60,70 L67,63 L69,64 L57,78 L68,77 L75,73 L78,70 L82,62 L82,58 L83,57 L83,49 Z M49,32 L49,34 L62,48 L64,48 L67,46 L69,46 L70,45 L73,45 L74,44 L84,44 L85,42 L85,38 L84,37 L84,35 L82,33 L82,32 L78,30 L71,30 L66,34 L65,34 L60,30 L53,30 Z M27,32 L24,36 L24,38 L23,39 L23,43 L25,48 L47,71 L50,72 L50,66 L51,65 L52,60 L56,54 L60,51 L41,31 L39,31 L38,30 L31,30 Z M32,32 L38,32 L40,34 L41,34 L43,36 L43,37 L50,44 L50,45 L41,54 L40,54 L40,55 L38,57 L37,57 L29,49 L29,48 L26,45 L26,43 L25,42 L25,40 L26,39 L26,37 L30,33 L31,33 Z" android:fillType="evenOdd"/>
 </vector>
