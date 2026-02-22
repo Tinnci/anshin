@@ -603,4 +603,20 @@
     <string name="oem_originos_pin_guide">OriginOS / Funtouch OS에서는 \'바탕화면 바로가기\' 권한이 필요합니다.
 경로: 설정 → 개인 정보 → 권한 → 바탕화면 바로가기 → MedLog → 허용</string>
     <string name="oem_manual_add_guide">홈 화면 빈 곳을 길게 눌러 → 위젯 → MedLog를 선택하고 끌어 추가하세요.</string>
+
+    <!-- QR 내보내기 / 가져오기 -->
+    <string name="qr_tab_today">오늘 점검</string>
+    <string name="qr_tab_export">계획 내보내기</string>
+    <string name="qr_scan_import">QR 스캔 가져오기</string>
+    <string name="qr_scan_title">QR 코드 스캔</string>
+    <string name="qr_scan_hint">QR 코드를 프레임 안에 맞춰 주세요</string>
+    <string name="qr_scan_permission_rationale">QR 코드를 스캔하려면 카메라 권한이 필요합니다</string>
+    <string name="qr_scan_grant_permission">권한 부여</string>
+    <string name="qr_export_too_large">약품이 너무 많아 QR 코드로 생성할 수 없습니다. 텍스트 공유를 사용하세요</string>
+    <string name="qr_import_preview_title">가져오기 미리보기</string>
+    <string name="qr_import_medication_count">%d가지 약품</string>
+    <string name="qr_import_mode_merge">병합(기존 유지)</string>
+    <string name="qr_import_mode_replace">대체(전체 삭제 후 다시 가져오기)</string>
+    <string name="qr_import_confirm">가져오기 확인</string>
+    <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔해 주세요</string>
 </resources>

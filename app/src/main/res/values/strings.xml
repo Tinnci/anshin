@@ -602,4 +602,20 @@
     <string name="oem_originos_pin_guide">OriginOS / Funtouch OS 设备需手动开启「桌面快捷方式」权限。
 路径：设置 → 隐私权限 → 权限 → 桌面快捷方式 → MedLog → 允许</string>
     <string name="oem_manual_add_guide">请长按桌面空白区域 → 小组件 → MedLog，手动拖拽添加到桌面。</string>
+
+    <!-- QR 导出 / 导入 -->
+    <string name="qr_tab_today">今日打卡</string>
+    <string name="qr_tab_export">导出计划</string>
+    <string name="qr_scan_import">扫描导入</string>
+    <string name="qr_scan_title">扫描二维码</string>
+    <string name="qr_scan_hint">将二维码对准取景框</string>
+    <string name="qr_scan_permission_rationale">需要相机权限以扫描二维码</string>
+    <string name="qr_scan_grant_permission">授予权限</string>
+    <string name="qr_export_too_large">药品较多，无法生成二维码，请使用文字分享</string>
+    <string name="qr_import_preview_title">导入预览</string>
+    <string name="qr_import_medication_count">%d 种药品</string>
+    <string name="qr_import_mode_merge">合并（保留现有）</string>
+    <string name="qr_import_mode_replace">替换（清空重导）</string>
+    <string name="qr_import_confirm">确认导入</string>
+    <string name="qr_invalid">无效的二维码，请扫描由 Anshin 生成的导出码</string>
 </resources>

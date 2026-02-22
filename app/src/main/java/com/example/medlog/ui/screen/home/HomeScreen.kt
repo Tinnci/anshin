@@ -55,6 +55,7 @@ import com.example.medlog.ui.utils.generateQrBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import androidx.compose.material.icons.rounded.QrCode2
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.IosShare
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -85,6 +86,8 @@ fun HomeScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     var showQrDialog by remember { mutableStateOf(false) }
+    val importPreview by viewModel.importPreview.collectAsStateWithLifecycle()
+    val importError by viewModel.importError.collectAsStateWithLifecycle()
     // 预捕获所有 snackbar 字符串，保证语言切换时内容同步更新
     val undoLabel = stringResource(R.string.home_snackbar_undo)
     val msgAllTaken = stringResource(R.string.home_snackbar_all_taken)
@@ -426,6 +429,32 @@ fun HomeScreen(
         MedicationQrDialog(
             items = uiState.items,
             onDismiss = { showQrDialog = false },
+            generateExportUri = viewModel::generateExportUri,
+            onQrScanned = viewModel::onQrScanned,
+        )
+    }
+
+    // ── 导入预览对话框 ─────────────────────────────────────────────────────────
+    if (importPreview != null) {
+        ImportPreviewDialog(
+            plan = importPreview!!,
+            onMerge = { viewModel.confirmImport(com.example.medlog.domain.ImportMode.MERGE) },
+            onReplace = { viewModel.confirmImport(com.example.medlog.domain.ImportMode.REPLACE) },
+            onDismiss = viewModel::clearImportPreview,
+        )
+    }
+
+    // ── 无效 QR 码提示 ─────────────────────────────────────────────────────────
+    if (importError != null) {
+        AlertDialog(
+            onDismissRequest = viewModel::clearImportPreview,
+            title = { Text(stringResource(R.string.qr_scan_title)) },
+            text = { Text(stringResource(R.string.qr_invalid)) },
+            confirmButton = {
+                TextButton(onClick = viewModel::clearImportPreview) {
+                    Text(stringResource(R.string.home_close))
+                }
+            },
         )
     }
 }
@@ -1182,6 +1211,8 @@ private fun InteractionItem(interaction: DrugInteraction) {
 private fun MedicationQrDialog(
     items: List<MedicationWithStatus>,
     onDismiss: () -> Unit,
+    generateExportUri: () -> String?,
+    onQrScanned: (String) -> Unit,
 ) {
     val context = LocalContext.current
     val shareIntentTitle = stringResource(R.string.home_share_intent_title)
@@ -1189,13 +1220,16 @@ private fun MedicationQrDialog(
     val takenCount = remember(items) { items.count { it.isTaken } }
     val totalCount = items.size
 
-    // Pre-compute period label strings at composition scope (avoids LocalContext.getString in remember)
+    var selectedTab by remember { mutableIntStateOf(0) }
+    var showScanner by remember { mutableStateOf(false) }
+
+    // Pre-compute period label strings at composition scope
     val periodStrings: Map<String, String> = com.example.medlog.data.model.TimePeriod.entries.associate { tp ->
         tp.key to stringResource(tp.labelRes)
     }
 
-    // 构建可读 QR 内容（较短，更易于扫描）
-    val qrText = remember(items, periodStrings) {
+    // ── Tab 0：今日打卡文本 ────────────────────────────────────────────────────
+    val todayQrText = remember(items, periodStrings) {
         buildString {
             appendLine("Anshin ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
             items.forEach { item ->
@@ -1214,11 +1248,23 @@ private fun MedicationQrDialog(
         }.trimEnd()
     }
 
-    // 在后台线程生成 QR 位图
-    val qrBitmap by produceState<android.graphics.Bitmap?>(null, qrText) {
-        value = withContext(Dispatchers.Default) { generateQrBitmap(qrText) }
+    // ── Tab 1：计划导出 URI ────────────────────────────────────────────────────
+    val exportUri = remember(selectedTab) {
+        if (selectedTab == 1) generateExportUri() else null
     }
-    val bitmap = qrBitmap  // 捕获快照以允许智能转换
+
+    // QR 位图（两个 tab 各自用对应文本）
+    val activeQrText = if (selectedTab == 0) todayQrText else (exportUri ?: "")
+    val canShowQr = exportUri != null &&
+        com.example.medlog.domain.PlanExportCodec.canDisplayAsQr(exportUri)
+
+    val todayQrBitmap by produceState<android.graphics.Bitmap?>(null, todayQrText) {
+        value = withContext(Dispatchers.Default) { generateQrBitmap(todayQrText) }
+    }
+    val exportQrBitmap by produceState<android.graphics.Bitmap?>(null, exportUri, canShowQr) {
+        if (canShowQr && exportUri != null)
+            value = withContext(Dispatchers.Default) { generateQrBitmap(exportUri) }
+    }
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1229,41 +1275,79 @@ private fun MedicationQrDialog(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                Text(
-                    stringResource(R.string.home_qr_taken_count, takenCount, totalCount),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-                Box(
-                    modifier = Modifier
-                        .size(220.dp)
-                        .clip(RoundedCornerShape(12.dp))
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    if (bitmap != null) {
-                        Image(
-                            painter = BitmapPainter(bitmap.asImageBitmap()),
-                            contentDescription = stringResource(R.string.home_qr_cd),
-                            modifier = Modifier.size(200.dp),
+                // ── Tab 切换 ────────────────────────────────────────
+                TabRow(selectedTabIndex = selectedTab) {
+                    Tab(
+                        selected = selectedTab == 0,
+                        onClick = { selectedTab = 0 },
+                        text = { Text(stringResource(R.string.qr_tab_today)) },
+                    )
+                    Tab(
+                        selected = selectedTab == 1,
+                        onClick = { selectedTab = 1 },
+                        text = { Text(stringResource(R.string.qr_tab_export)) },
+                    )
+                }
+
+                // ── Tab 0 内容 ───────────────────────────────────────
+                if (selectedTab == 0) {
+                    Text(
+                        stringResource(R.string.home_qr_taken_count, takenCount, totalCount),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    QrImageBox(bitmap = todayQrBitmap)
+                    Text(
+                        stringResource(R.string.home_qr_instruction),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                    )
+                }
+
+                // ── Tab 1 内容 ───────────────────────────────────────
+                if (selectedTab == 1) {
+                    if (exportUri == null) {
+                        CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                    } else if (canShowQr) {
+                        QrImageBox(bitmap = exportQrBitmap)
+                        Text(
+                            stringResource(R.string.home_qr_instruction),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
                         )
                     } else {
-                        CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                        Text(
+                            stringResource(R.string.qr_export_too_large),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            textAlign = TextAlign.Center,
+                        )
                     }
                 }
-                Text(
-                    stringResource(R.string.home_qr_instruction),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
+
+                // ── 扫码导入按钮（两个 tab 均可用）───────────────────
+                OutlinedButton(
+                    onClick = { showScanner = true },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Icon(
+                        Icons.Rounded.QrCodeScanner,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                    )
+                    Spacer(Modifier.width(6.dp))
+                    Text(stringResource(R.string.qr_scan_import))
+                }
             }
         },
         confirmButton = {
             TextButton(onClick = {
+                val shareText = if (selectedTab == 1 && exportUri != null) exportUri else todayQrText
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
-                    putExtra(Intent.EXTRA_TEXT, qrText)
+                    putExtra(Intent.EXTRA_TEXT, shareText)
                     putExtra(Intent.EXTRA_TITLE, shareIntentTitle)
                 }
                 context.startActivity(Intent.createChooser(intent, shareChooserTitle))
@@ -1271,6 +1355,106 @@ private fun MedicationQrDialog(
                 Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(4.dp))
                 Text(stringResource(R.string.home_qr_share_btn))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.home_close)) }
+        },
+    )
+
+    // ── 扫描器全屏覆盖层 ───────────────────────────────────────────────────────
+    if (showScanner) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showScanner = false },
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+            ),
+        ) {
+            com.example.medlog.ui.qr.QrScannerPage(
+                onResult = { raw ->
+                    showScanner = false
+                    onQrScanned(raw)
+                    onDismiss()
+                },
+                onBack = { showScanner = false },
+            )
+        }
+    }
+}
+
+// ── QR 图像盒子（两个 tab 共用）──────────────────────────────────────────────
+
+@Composable
+private fun QrImageBox(bitmap: android.graphics.Bitmap?) {
+    Box(
+        modifier = Modifier
+            .size(220.dp)
+            .clip(RoundedCornerShape(12.dp))
+            .background(Color.White),
+        contentAlignment = Alignment.Center,
+    ) {
+        if (bitmap != null) {
+            Image(
+                painter = BitmapPainter(bitmap.asImageBitmap()),
+                contentDescription = stringResource(R.string.home_qr_cd),
+                modifier = Modifier.size(200.dp),
+            )
+        } else {
+            CircularProgressIndicator(modifier = Modifier.size(40.dp))
+        }
+    }
+}
+
+// ── 导入预览对话框 ──────────────────────────────────────────────────────────
+
+@Composable
+private fun ImportPreviewDialog(
+    plan: com.example.medlog.domain.PlanExport,
+    onMerge: () -> Unit,
+    onReplace: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text(stringResource(R.string.qr_import_preview_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Text(
+                    stringResource(R.string.qr_import_medication_count, plan.meds.size),
+                    style = MaterialTheme.typography.bodyMedium,
+                )
+                LazyColumn(
+                    modifier = Modifier.heightIn(max = 240.dp),
+                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                ) {
+                    items(plan.meds) { med ->
+                        Text(
+                            "• ${med.name}",
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+        },
+        confirmButton = {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+            ) {
+                Button(
+                    onClick = { onMerge(); onDismiss() },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.qr_import_mode_merge))
+                }
+                OutlinedButton(
+                    onClick = { onReplace(); onDismiss() },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    Text(stringResource(R.string.qr_import_mode_replace))
+                }
             }
         },
         dismissButton = {

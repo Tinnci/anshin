@@ -626,4 +626,20 @@ Path: Settings → Privacy → Permission management → MedLog → Desktop shor
     <string name="oem_originos_pin_guide">On OriginOS / Funtouch OS, enable \'Desktop shortcut\' permission.
 Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → Allow</string>
     <string name="oem_manual_add_guide">Long-press a blank area on your home screen → Widgets → MedLog, then drag to add.</string>
+
+    <!-- QR export / import -->
+    <string name="qr_tab_today">Today\u2019s Status</string>
+    <string name="qr_tab_export">Export Plan</string>
+    <string name="qr_scan_import">Scan to Import</string>
+    <string name="qr_scan_title">Scan QR Code</string>
+    <string name="qr_scan_hint">Align QR code within the frame</string>
+    <string name="qr_scan_permission_rationale">Camera permission is required to scan QR codes</string>
+    <string name="qr_scan_grant_permission">Grant Permission</string>
+    <string name="qr_export_too_large">Too many medications to fit in a QR code. Please use the text share instead.</string>
+    <string name="qr_import_preview_title">Import Preview</string>
+    <string name="qr_import_medication_count">%d medication(s)</string>
+    <string name="qr_import_mode_merge">Merge (keep existing)</string>
+    <string name="qr_import_mode_replace">Replace (clear &amp; import)</string>
+    <string name="qr_import_confirm">Confirm Import</string>
+    <string name="qr_invalid">Invalid QR code. Please scan an Anshin export code.</string>
 </resources>

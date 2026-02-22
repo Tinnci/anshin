@@ -130,6 +130,13 @@ dependencies {
     // QR code generation
     implementation(libs.zxing.core)
 
+    // QR code scanning (CameraX + ML Kit)
+    implementation(libs.camerax.core)
+    implementation(libs.camerax.camera2)
+    implementation(libs.camerax.lifecycle)
+    implementation(libs.camerax.view)
+    implementation(libs.mlkit.barcode)
+
     // Baseline Profile installer（让 ART 在首次安装时即时应用 baseline-prof.txt 中的预编译规则）
     implementation(libs.androidx.profileinstaller)
 

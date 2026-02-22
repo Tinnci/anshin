@@ -12,6 +12,10 @@ import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.domain.StreakCalculator
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.ToggleMedicationDoseUseCase
+import com.example.medlog.domain.ImportPlanUseCase
+import com.example.medlog.domain.ImportMode
+import com.example.medlog.domain.PlanExport
+import com.example.medlog.domain.PlanExportCodec
 import com.example.medlog.domain.todayRange
 import com.example.medlog.interaction.InteractionRuleEngine
 import com.example.medlog.notification.NotificationHelper
@@ -134,12 +138,22 @@ class HomeViewModel @Inject constructor(
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
     private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
+    private val importPlanUseCase: ImportPlanUseCase,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    // ── QR 导出/导入状态 ──────────────────────────────────────────────────────
+    /** 扫描到的待确认计划；非 null 时触发导入预览对话框 */
+    private val _importPreview = MutableStateFlow<PlanExport?>(null)
+    val importPreview: StateFlow<PlanExport?> = _importPreview.asStateFlow()
+
+    /** 二维码解码错误消息（格式不匹配等） */
+    private val _importError = MutableStateFlow<String?>(null)
+    val importError: StateFlow<String?> = _importError.asStateFlow()
 
     /** 上次推送今日进度通知时的 (taken, total)；避免重复更新通知 */
     private var lastProgressNotifState = -1 to -1
@@ -351,6 +365,37 @@ class HomeViewModel @Inject constructor(
                 }
         }
     }
+
+    // ── QR 导出/导入方法 ──────────────────────────────────────────────────────
+
+    /** 解码扫描到的 QR 内容，若合法则设置导入预览 */
+    fun onQrScanned(raw: String) {
+        val plan = PlanExportCodec.decode(raw)
+        if (plan == null || plan.meds.isEmpty()) {
+            _importError.value = "invalid_qr"
+            return
+        }
+        _importPreview.value = plan
+    }
+
+    /** 用户选择导入模式后执行实际导入 */
+    fun confirmImport(mode: ImportMode) {
+        val plan = _importPreview.value ?: return
+        viewModelScope.launch {
+            importPlanUseCase(plan, mode)
+            _importPreview.value = null
+        }
+    }
+
+    /** 取消导入预览（用户点击关闭/取消） */
+    fun clearImportPreview() {
+        _importPreview.value = null
+        _importError.value = null
+    }
+
+    /** 生成当前活跃药品的导出 URI；若列表为空返回 null */
+    fun generateExportUri(): String? =
+        PlanExportCodec.encode(uiState.value.items.map { it.medication })
 
 }
 

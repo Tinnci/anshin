@@ -25,6 +25,8 @@ profileinstaller = "1.4.+"
 material3 = "1.5.0-alpha14"    # Expressive APIs (MotionScheme 等) 在 1.5.0-alpha 中正式公开
 ktlint = "12.3.0"
 zxing = "3.5.3"
+camerax = "1.4.2"
+mlkitBarcode = "17.3.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -74,6 +76,11 @@ androidx-glance-material3 = { group = "androidx.glance", name = "glance-material
 androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
+camerax-core     = { module = "androidx.camera:camera-core",      version.ref = "camerax" }
+camerax-camera2  = { module = "androidx.camera:camera-camera2",   version.ref = "camerax" }
+camerax-lifecycle = { module = "androidx.camera:camera-lifecycle", version.ref = "camerax" }
+camerax-view     = { module = "androidx.camera:camera-view",       version.ref = "camerax" }
+mlkit-barcode    = { module = "com.google.mlkit:barcode-scanning",  version.ref = "mlkitBarcode" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -601,4 +601,20 @@
     <string name="oem_originos_pin_guide">OriginOS / Funtouch OS では「デスクトップショートカット」権限が必要です。
 パス：設定 → プライバシー → 権限 → デスクトップショートカット → MedLog → 許可</string>
     <string name="oem_manual_add_guide">ホーム画面の空白領域を長押し → ウィジェット → MedLog を選んでドラッグ追加してください。</string>
+
+    <!-- QR エクスポート / インポート -->
+    <string name="qr_tab_today">今日の記録</string>
+    <string name="qr_tab_export">プランを出力</string>
+    <string name="qr_scan_import">QRをスキャン</string>
+    <string name="qr_scan_title">QRコードをスキャン</string>
+    <string name="qr_scan_hint">QRコードをフレーム内に合わせてください</string>
+    <string name="qr_scan_permission_rationale">QRコードをスキャンするにはカメラの許可が必要です</string>
+    <string name="qr_scan_grant_permission">許可を付与</string>
+    <string name="qr_export_too_large">薬が多すぎてQRコードに収まりません。テキスト共有をご利用ください</string>
+    <string name="qr_import_preview_title">インポートプレビュー</string>
+    <string name="qr_import_medication_count">%d 種類の薬</string>
+    <string name="qr_import_mode_merge">マージ（既存を保持）</string>
+    <string name="qr_import_mode_replace">置換（全削除して再インポート）</string>
+    <string name="qr_import_confirm">インポートする</string>
+    <string name="qr_invalid">無効なQRコードです。Anshinのエクスポートコードをスキャンしてください</string>
 </resources>
