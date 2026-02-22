@@ -1,0 +1,31 @@
+# ── local.properties.template ────────────────────────────────────────────────
+# 复制此文件为 local.properties 并填写真实路径/密码。
+# local.properties 已加入 .gitignore，请勿提交到 Git。
+# Copy this file as local.properties and fill in real values.
+# local.properties is .gitignored — never commit it.
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Android SDK 路径（Android Studio 自动生成，通常无需修改）
+sdk.dir=/Users/<your-username>/Library/Android/sdk
+
+# ── Release 签名 ─────────────────────────────────────────────────────────────
+# 填写本机 JKS Keystore 文件的绝对路径
+KEYSTORE_PATH=/path/to/your/medlog-release.jks
+
+# Keystore 创建命令（首次使用时执行，保留 -storepass 和 -keypass 的值填入下方）:
+#   keytool -genkeypair -v \
+#     -keystore medlog-release.jks -alias release \
+#     -keyalg RSA -keysize 4096 -validity 10000 \
+#     -storepass <YOUR_STORE_PASS> -keypass <YOUR_KEY_PASS> \
+#     -dname "CN=MedLog, OU=Dev, O=Example, L=City, S=State, C=CN"
+KEYSTORE_PASSWORD=<YOUR_STORE_PASS>
+KEY_ALIAS=release
+KEY_PASSWORD=<YOUR_KEY_PASS>
+
+# ── GitHub Actions 所需 Secrets（在 Repo → Settings → Secrets → Actions 配置）──
+# KEYSTORE_BASE64  : base64 编码的 JKS 文件内容
+#   生成命令：base64 -i medlog-release.jks | pbcopy   (macOS)
+#             base64 -w0 medlog-release.jks | xclip    (Linux)
+# KEYSTORE_PASSWORD: 同上 KEYSTORE_PASSWORD
+# KEY_ALIAS        : 同上 KEY_ALIAS
+# KEY_PASSWORD     : 同上 KEY_PASSWORD

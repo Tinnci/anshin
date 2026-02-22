@@ -47,7 +47,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            // R8 混淆 + 资源压缩（与 isShrinkResources 配合，ProGuard 规则由 proguard-rules.pro 管理）
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
@@ -56,6 +58,10 @@ android {
             if (signingProp("KEYSTORE_PASSWORD")?.isNotBlank() == true) {
                 signingConfig = signingConfigs.getByName("release")
             }
+        }
+        debug {
+            // Debug 构建可选启用部分混淆以便提前发现 ProGuard 问题
+            isMinifyEnabled = false
         }
     }
     compileOptions {
@@ -123,6 +129,9 @@ dependencies {
 
     // QR code generation
     implementation(libs.zxing.core)
+
+    // Baseline Profile installer（让 ART 在首次安装时即时应用 baseline-prof.txt 中的预编译规则）
+    implementation(libs.androidx.profileinstaller)
 
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)

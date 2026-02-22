@@ -72,7 +72,31 @@ jobs:
       - name: Run ktlint
         run: ./gradlew ktlintCheck
 
-      # ── 6. 构建 Release APK ───────────────────────────────────────────
+      # ── 6. 单元测试 ───────────────────────────────────────────
+      - name: Run unit tests
+        run: ./gradlew testReleaseUnitTest
+
+      - name: Upload unit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: app/build/test-results/
+          retention-days: 7
+
+      # ── 7. Lint 检查 ──────────────────────────────────────────
+      - name: Run Android Lint
+        run: ./gradlew lintRelease
+
+      - name: Upload Lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report-${{ github.run_number }}
+          path: app/build/reports/lint-results-release.html
+          retention-days: 7
+
+      # ── 8. 构建 Release APK ───────────────────────────────────────────
       - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
@@ -84,7 +108,7 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # ── 7. 重命名 APK（已签名/未签名 区分后缀）────────────────────
+      # ── 9. 重命名 APK（已签名/未签名 区分后缀）────────────────────
       - name: Rename APK
         id: apk
         run: |
@@ -99,7 +123,7 @@ jobs:
           echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
           echo "APK: $NEW_NAME"
 
-      # ── 7. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
+      # ── 10. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
       - name: Generate changelog
         id: changelog
         run: |
@@ -117,7 +141,7 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      # ── 8. 发布 GitHub Release，附带 APK ─────────────────────
+      # ── 11. 发布 GitHub Release，附带 APK ─────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
@@ -135,7 +159,6 @@ jobs:
             | versionCode | `${{ steps.version.outputs.version_code }}` |
             | 构建号 | `#${{ github.run_number }}` |
             | Commit | ${{ github.sha }} |
-
-            > ⚠️ 此 APK **未正式签名**，仅供开发/测试使用。正式发布前需配置 Release 签名。
+            | 签名状态 | ${{ steps.keystore.outputs.signed == 'true' && '✅ 已签名（Release Keystore）' || '⚠️ 未签名（KEYSTORE_BASE64 Secret 未配置）' }} |
           files: app/build/outputs/apk/release/${{ steps.apk.outputs.apk_name }}
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}

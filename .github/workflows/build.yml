@@ -38,6 +38,28 @@ jobs:
       - name: Run ktlint
         run: ./gradlew ktlintCheck
 
+      - name: Run unit tests
+        run: ./gradlew testDebugUnitTest
+
+      - name: Upload unit test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ github.run_number }}
+          path: app/build/test-results/
+          retention-days: 7
+
+      - name: Run Android Lint
+        run: ./gradlew lintDebug
+
+      - name: Upload Lint report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: lint-report-${{ github.run_number }}
+          path: app/build/reports/lint-results-debug.html
+          retention-days: 7
+
       - name: Build Debug APK
         run: ./gradlew assembleDebug
 
