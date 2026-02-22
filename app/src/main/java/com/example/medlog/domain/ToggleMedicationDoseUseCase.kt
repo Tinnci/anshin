@@ -100,6 +100,15 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         WidgetRefreshWorker.scheduleImmediateRefresh(context)
     }
 
+    /**
+     * 取消某药品的所有闹钟及提醒通知。
+     * 供 [MedicationDetailViewModel] 在归档/删除药品时调用，保持 SRP。
+     */
+    suspend fun cancelAllReminders(medId: Long) {
+        alarmScheduler.cancelAllAlarms(medId)
+        notificationHelper.cancelAllReminderNotifications(medId)
+    }
+
     private fun scheduledMs(med: Medication): Long = Calendar.getInstance().apply {
         set(Calendar.HOUR_OF_DAY, med.reminderHour)
         set(Calendar.MINUTE, med.reminderMinute)

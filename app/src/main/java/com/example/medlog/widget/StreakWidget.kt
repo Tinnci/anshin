@@ -33,11 +33,14 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.example.medlog.R
 import com.example.medlog.data.model.LogStatus
+import com.example.medlog.domain.StreakCalculator
 import com.example.medlog.domain.daysAgoStart
 import com.example.medlog.domain.todayEnd
 import com.example.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
-import java.util.Calendar
+import java.time.DayOfWeek
+import java.time.Instant
+import java.time.ZoneId
 
 /**
  * 连续打卡桌面小组件（Jetpack Glance M3）
@@ -58,57 +61,55 @@ class StreakWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val ep          = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        val medications = ep.medicationRepository().getActiveOnce()
-        val total       = medications.size
+        val ep            = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        val medications   = ep.medicationRepository().getActiveOnce()
+        // PRN（按需）药品无固定服药计划，不计入每日完成判断
+        val scheduledMeds = medications.filter { !it.isPRN }
+        val total         = scheduledMeds.size
+        val scheduledIds  = scheduledMeds.map { it.id }.toSet()
 
-        // 查询最近30 天的所有日志（用于 Streak 计算）
+        // 查询最近 30 天的所有日志（用于 Streak 计算）
         val rangeStart = daysAgoStart(29)
         val rangeEnd   = todayEnd()
         val allLogs    = ep.logRepository().getLogsForRangeOnce(rangeStart, rangeEnd)
+        val zone       = ZoneId.systemDefault()
 
-        // 判断某天是否完成（全部药品均已标记 TAKEN）
-        fun dayComplete(dayStart: Long): Boolean {
+        // 判断某天是否完成（所有计划药品均已标记 TAKEN）
+        fun dayComplete(dayStartMs: Long): Boolean {
             if (total == 0) return false
-            val dayEnd   = dayStart + 86_400_000L - 1
-            val taken    = allLogs.count { it.scheduledTimeMs in dayStart..dayEnd && it.status == LogStatus.TAKEN }
+            val dayEndMs = dayStartMs + 86_400_000L - 1
+            val taken    = allLogs.count {
+                it.scheduledTimeMs in dayStartMs..dayEndMs &&
+                it.status == LogStatus.TAKEN &&
+                it.medicationId in scheduledIds
+            }
             return taken >= total
         }
 
-        // 最近 7 天完成情况：Pair(isComplete, 周几标签)
-        // index 0 = 6 天前, index 6 = 今天
-        val cal = Calendar.getInstance()
-        val dayData = (6 downTo 0).reversed().map { daysBack ->
-            val tempCal = cal.clone() as Calendar
-            tempCal.add(Calendar.DAY_OF_YEAR, -daysBack)
-            val label = when (tempCal.get(Calendar.DAY_OF_WEEK)) {
-                Calendar.SUNDAY    -> context.getString(R.string.widget_weekday_sun)
-                Calendar.MONDAY    -> context.getString(R.string.widget_weekday_mon)
-                Calendar.TUESDAY   -> context.getString(R.string.widget_weekday_tue)
-                Calendar.WEDNESDAY -> context.getString(R.string.widget_weekday_wed)
-                Calendar.THURSDAY  -> context.getString(R.string.widget_weekday_thu)
-                Calendar.FRIDAY    -> context.getString(R.string.widget_weekday_fri)
-                Calendar.SATURDAY  -> context.getString(R.string.widget_weekday_sat)
-                else               -> "?"
-            }
-            tempCal.set(Calendar.HOUR_OF_DAY, 0)
-            tempCal.set(Calendar.MINUTE, 0)
-            tempCal.set(Calendar.SECOND, 0)
-            tempCal.set(Calendar.MILLISECOND, 0)
-            val dayStart = tempCal.timeInMillis
-            Pair(dayComplete(dayStart), label)
+        // SSOT：使用 domain/StreakCalculator 计算连续天数
+        val daysWithActivity = (0..29).mapNotNullTo(mutableSetOf()) { daysBack ->
+            val dayStart = daysAgoStart(daysBack)
+            if (dayComplete(dayStart)) Instant.ofEpochMilli(dayStart).atZone(zone).toLocalDate()
+            else null
         }
+        val streak = StreakCalculator.currentStreak(daysWithActivity)
 
-        // 计算连续天数（从今日起倒推，连续完成的天数）
-        var streak = 0
-        for (daysBack in 0..29) {
-            val tempCal = cal.clone() as Calendar
-            tempCal.add(Calendar.DAY_OF_YEAR, -daysBack)
-            tempCal.set(Calendar.HOUR_OF_DAY, 0)
-            tempCal.set(Calendar.MINUTE, 0)
-            tempCal.set(Calendar.SECOND, 0)
-            tempCal.set(Calendar.MILLISECOND, 0)
-            if (dayComplete(tempCal.timeInMillis)) streak++ else break
+        // 最近 7 天完成情况（index 0 = 6天前，index 6 = 今天）
+        // 注意：(6 downTo 0)映射得 daysBack=6在 index 0，daysBack=0在 index 6，与 isToday = (index == size-1) 匹配
+        val dayData = (6 downTo 0).map { daysBack ->
+            val dayStartMs = daysAgoStart(daysBack)
+            val localDate  = Instant.ofEpochMilli(dayStartMs).atZone(zone).toLocalDate()
+            val label = when (localDate.dayOfWeek) {
+                DayOfWeek.SUNDAY    -> context.getString(R.string.widget_weekday_sun)
+                DayOfWeek.MONDAY    -> context.getString(R.string.widget_weekday_mon)
+                DayOfWeek.TUESDAY   -> context.getString(R.string.widget_weekday_tue)
+                DayOfWeek.WEDNESDAY -> context.getString(R.string.widget_weekday_wed)
+                DayOfWeek.THURSDAY  -> context.getString(R.string.widget_weekday_thu)
+                DayOfWeek.FRIDAY    -> context.getString(R.string.widget_weekday_fri)
+                DayOfWeek.SATURDAY  -> context.getString(R.string.widget_weekday_sat)
+                else                -> "?"
+            }
+            Pair(dayComplete(dayStartMs), label)
         }
 
         provideContent {

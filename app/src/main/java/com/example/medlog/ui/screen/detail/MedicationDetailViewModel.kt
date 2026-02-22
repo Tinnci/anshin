@@ -7,8 +7,7 @@ import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
-import com.example.medlog.notification.AlarmScheduler
-import com.example.medlog.notification.NotificationHelper
+import com.example.medlog.domain.ToggleMedicationDoseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -33,8 +32,7 @@ data class DetailUiState(
 class MedicationDetailViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
-    private val notificationHelper: NotificationHelper,
-    private val alarmScheduler: AlarmScheduler,
+    private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -71,8 +69,7 @@ class MedicationDetailViewModel @Inject constructor(
         val id = _uiState.value.medication?.id ?: return
         viewModelScope.launch {
             medicationRepo.archiveMedication(id)
-            alarmScheduler.cancelAllAlarms(id)
-            notificationHelper.cancelAllReminderNotifications(id)
+            toggleDoseUseCase.cancelAllReminders(id)
         }
     }
 
@@ -80,8 +77,7 @@ class MedicationDetailViewModel @Inject constructor(
         val med = _uiState.value.medication ?: return
         viewModelScope.launch {
             medicationRepo.deleteMedication(med)
-            alarmScheduler.cancelAllAlarms(med.id)
-            notificationHelper.cancelAllReminderNotifications(med.id)
+            toggleDoseUseCase.cancelAllReminders(med.id)
         }
     }
 
