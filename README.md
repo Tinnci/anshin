@@ -9,6 +9,9 @@
   <a href="https://github.com/Tinnci/anshin/actions/workflows/build.yml">
     <img src="https://github.com/Tinnci/anshin/actions/workflows/build.yml/badge.svg" alt="CI Build">
   </a>
+  <a href="https://github.com/Tinnci/anshin/releases/latest">
+    <img src="https://img.shields.io/github/v/release/Tinnci/anshin?label=Latest%20Release&color=4CAF50" alt="Latest Release">
+  </a>
   <img src="https://img.shields.io/badge/Kotlin-2.2-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white" alt="Material 3">
   <img src="https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white" alt="Min SDK">
@@ -44,6 +47,21 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 | **Alarm Recovery** | All alarms re-scheduled automatically after device reboot |
 | **Travel Mode** | Keep hometown-timezone reminders when traveling across time zones |
 | **Personalization** | Routine times, early reminder offset, persistent reminder toggle, dark/light/auto theme, dynamic color |
+
+---
+
+## Screenshots / 应用截图
+
+<p align="center">
+  <img src="screenshots/home.png" width="180" alt="今日用药">
+  <img src="screenshots/history.png" width="180" alt="历史记录">
+  <img src="screenshots/drugs.png" width="180" alt="药品数据库">
+</p>
+<p align="center">
+  <img src="screenshots/diary.png" width="180" alt="健康日记">
+  <img src="screenshots/health.png" width="180" alt="健康监测">
+  <img src="screenshots/settings.png" width="180" alt="个人设置">
+</p>
 
 ---
 
@@ -84,7 +102,7 @@ app/src/main/java/com/example/medlog/
 │   ├── screen/         # welcome / home / history / drugs / diary / health / detail / addmedication / settings
 │   ├── theme/          # Color · Type · Theme (M3 Dynamic Color)
 │   └── utils/          # QrCodeUtils · OemWidgetHelper
-└── widget/             # MedLogWidget · NextDoseWidget · StreakWidget
+└── widget/             # AnshinWidget · NextDoseWidget · StreakWidget
 ```
 
 ---
@@ -265,8 +283,8 @@ After running `./setup-hooks.sh`:
 **Release flow:**
 
 ```bash
-git tag v1.0.4
-git push origin v1.0.4   # triggers Release workflow automatically
+git tag v1.2.3
+git push origin v1.2.3   # triggers Release workflow automatically
 ```
 
 The release workflow extracts the version, decodes the Keystore, builds a signed APK, generates a changelog, and creates a GitHub Release automatically.  
