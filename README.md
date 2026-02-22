@@ -306,7 +306,7 @@ For translations, see the [i18n roadmap](#internationalization-roadmap--多语�
 ## License
 
 ```
-Copyright 2025 Anshin Contributors
+Copyright 2025 tinnci
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
