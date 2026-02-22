@@ -400,6 +400,9 @@
     <string name="add_form_other">Other</string>
     <string name="add_section_dose">Dose Amount</string>
     <string name="add_dose_slide_hint">Slide to select dose quantity</string>
+    <string name="add_dose_custom_input">Custom dose input</string>
+    <string name="add_dose_custom_dialog_title">Custom Dose</string>
+    <string name="add_dose_custom_dialog_hint">Enter quantity (e.g. 0.25, 1.5)</string>
     <string name="add_unit_label">Unit</string>
     <string name="add_unit_tablet">tablet</string>
     <string name="add_unit_capsule">capsule</string>

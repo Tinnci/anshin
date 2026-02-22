@@ -385,6 +385,9 @@
     <string name="add_form_other">その他</string>
     <string name="add_section_dose">1回用量</string>
     <string name="add_dose_slide_hint">スライドで用量を選択</string>
+    <string name="add_dose_custom_input">カスタム入力</string>
+    <string name="add_dose_custom_dialog_title">カスタム用量</string>
+    <string name="add_dose_custom_dialog_hint">数量を入力（0.25、 1.5 など）</string>
     <string name="add_unit_label">単位</string>
     <string name="add_unit_tablet">錠</string>
     <string name="add_unit_capsule">カプセル</string>

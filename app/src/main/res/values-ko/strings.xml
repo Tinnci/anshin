@@ -385,6 +385,9 @@
     <string name="add_form_other">기타</string>
     <string name="add_section_dose">1회 용량</string>
     <string name="add_dose_slide_hint">슬라이드로 용량 선택</string>
+    <string name="add_dose_custom_input">사용자 정의 입력</string>
+    <string name="add_dose_custom_dialog_title">사용자 정의 용량</string>
+    <string name="add_dose_custom_dialog_hint">수량 입력(예: 0.25, 1.5)</string>
     <string name="add_unit_label">단위</string>
     <string name="add_unit_tablet">정</string>
     <string name="add_unit_capsule">캡슐</string>

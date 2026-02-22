@@ -384,6 +384,9 @@
     <string name="add_form_other">其他</string>
     <string name="add_section_dose">每次剂量</string>
     <string name="add_dose_slide_hint">滑动选择每次服药数量</string>
+    <string name="add_dose_custom_input">自定义输入剂量</string>
+    <string name="add_dose_custom_dialog_title">自定义剂量</string>
+    <string name="add_dose_custom_dialog_hint">输入数量（如 0.25、1.5）</string>
     <string name="add_unit_label">单位</string>
     <string name="add_unit_tablet">片</string>
     <string name="add_unit_capsule">粒</string>

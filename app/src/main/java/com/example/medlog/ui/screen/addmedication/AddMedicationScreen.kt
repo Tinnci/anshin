@@ -53,6 +53,8 @@ fun AddMedicationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsState()
+    var showCustomDoseDialog by remember { mutableStateOf(false) }
+    var customDoseText     by remember { mutableStateOf("") }
 
     val formOptions = listOf(
         FormOption("tablet",  stringResource(R.string.add_form_tablet), Icons.Rounded.Medication),
@@ -271,19 +273,41 @@ fun AddMedicationScreen(
             // ── 每次剂量 ─────────────────────────────────────────
             FormSection(title = stringResource(R.string.add_section_dose), icon = Icons.Rounded.MonitorWeight) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text(
-                        uiState.doseQuantity.let {
-                            if (it == it.toLong().toDouble()) it.toLong().toString()
-                            else "%.1f".format(it)
-                        },
-                        style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
-                        color = MaterialTheme.colorScheme.primary,
-                    )
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
+                    ) {
+                        Text(
+                            uiState.doseQuantity.let {
+                                if (it == it.toLong().toDouble()) it.toLong().toString()
+                                else "%.2f".format(it).trimEnd('0').trimEnd('.')
+                            },
+                            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                        IconButton(
+                            onClick = {
+                                customDoseText = uiState.doseQuantity.let {
+                                    if (it == it.toLong().toDouble()) it.toLong().toString()
+                                    else "%.2f".format(it).trimEnd('0').trimEnd('.')
+                                }
+                                showCustomDoseDialog = true
+                            },
+                            modifier = Modifier.size(32.dp),
+                        ) {
+                            Icon(
+                                Icons.Rounded.Edit,
+                                contentDescription = stringResource(R.string.add_dose_custom_input),
+                                modifier = Modifier.size(16.dp),
+                                tint = MaterialTheme.colorScheme.outline,
+                            )
+                        }
+                    }
                     Slider(
-                        value = uiState.doseQuantity.toFloat(),
+                        value = uiState.doseQuantity.toFloat().coerceIn(0.25f, 20f),
                         onValueChange = { viewModel.onDoseQuantityChange(it.toDouble()) },
-                        valueRange = 0.5f..10f,
-                        steps = 18,
+                        valueRange = 0.25f..10f,
+                        steps = 38,
                         modifier = Modifier.fillMaxWidth(),
                     )
                     Text(
@@ -627,6 +651,34 @@ fun AddMedicationScreen(
 
             Spacer(Modifier.height(8.dp))
         }
+    }
+
+    // ── 自定义剂量输入对话框 ─────────────────────────────────────────────
+    if (showCustomDoseDialog) {
+        AlertDialog(
+            onDismissRequest = { showCustomDoseDialog = false },
+            title = { Text(stringResource(R.string.add_dose_custom_dialog_title)) },
+            text = {
+                OutlinedTextField(
+                    value = customDoseText,
+                    onValueChange = { customDoseText = it },
+                    label = { Text(stringResource(R.string.add_dose_custom_dialog_hint)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    singleLine = true,
+                )
+            },
+            confirmButton = {
+                TextButton(onClick = {
+                    customDoseText.toDoubleOrNull()?.let { v ->
+                        if (v > 0.0) viewModel.onDoseQuantityChange(v.coerceIn(0.125, 99.0))
+                    }
+                    showCustomDoseDialog = false
+                }) { Text(stringResource(R.string.confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showCustomDoseDialog = false }) { Text(stringResource(R.string.cancel)) }
+            },
+        )
     }
 }
 

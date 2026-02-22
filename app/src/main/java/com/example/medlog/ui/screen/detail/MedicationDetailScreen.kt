@@ -222,7 +222,12 @@ fun MedicationDetailScreen(
                             }
                             else -> DetailRow(stringResource(R.string.detail_label_category), "—")
                         }
-                        DetailRow(stringResource(R.string.detail_label_dose), "${med.doseQuantity}×${med.dose} ${med.doseUnit}")
+                        DetailRow(stringResource(R.string.detail_label_dose), run {
+                            val qty = med.doseQuantity
+                            val qtyStr = if (qty == qty.toLong().toDouble()) "${qty.toLong()}"
+                                         else "%.2f".format(qty).trimEnd('0').trimEnd('.')
+                            "$qtyStr ${med.doseUnit}"
+                        })
                         if (med.isPRN) {
                             DetailRow(stringResource(R.string.detail_label_usage), stringResource(R.string.detail_usage_prn))
                         } else {
