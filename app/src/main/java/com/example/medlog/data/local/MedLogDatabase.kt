@@ -14,7 +14,7 @@ import com.example.medlog.data.model.SymptomLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
-    version = 8,
+    version = 9,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -59,15 +59,23 @@ abstract class MedLogDatabase : RoomDatabase() {
             }
         }
 
+        /** v8 → v9: 为 medications.isArchived 添加索引（加速已存档/未存档过滤查询） */
+        val MIGRATION_8_9 = object : Migration(8, 9) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_medications_isArchived ON medications (isArchived)"
+                )
+            }
+        }
+
         /**
-         * Widget 和其他非-DI 场景下的单例访问器。
          * Hilt 应用内仍由 [AppModule] 提供注入版本。
          */
         fun getInstance(context: Context): MedLogDatabase =
             INSTANCE ?: synchronized(this) {
                 INSTANCE ?: Room
                     .databaseBuilder(context.applicationContext, MedLogDatabase::class.java, "medlog.db")
-                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8)
+                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
                     .fallbackToDestructiveMigration(dropAllTables = true)
                     .build()
                     .also { INSTANCE = it }

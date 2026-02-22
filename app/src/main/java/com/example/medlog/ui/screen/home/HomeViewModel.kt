@@ -10,6 +10,7 @@ import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.domain.StreakCalculator
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.interaction.InteractionRuleEngine
 import com.example.medlog.notification.AlarmScheduler
@@ -384,24 +385,8 @@ class HomeViewModel @Inject constructor(
                         .toSet()
 
                     val today = LocalDate.now()
-                    // 当前 streak：从今天（或昨天）向前连续计数
-                    val startDay = if (today in daysWithTaken) today else today.minusDays(1)
-                    var current = 0
-                    var cursor = startDay
-                    while (cursor in daysWithTaken) {
-                        current++
-                        cursor = cursor.minusDays(1)
-                    }
-
-                    // 历史最长 streak
-                    var longest = 0
-                    var run = 0
-                    var prev: LocalDate? = null
-                    for (d in daysWithTaken.sorted()) {
-                        run = if (prev != null && d == prev!!.plusDays(1)) run + 1 else 1
-                        if (run > longest) longest = run
-                        prev = d
-                    }
+                    val current = StreakCalculator.currentStreak(daysWithTaken, today)
+                    val longest = StreakCalculator.longestStreak(daysWithTaken)
 
                     _uiState.value = _uiState.value.copy(
                         currentStreak = current,

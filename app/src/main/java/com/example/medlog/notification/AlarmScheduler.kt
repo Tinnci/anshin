@@ -249,15 +249,4 @@ class AlarmScheduler @Inject constructor(
         }
     }
 
-    // ─── 废弃兼容层（保持二进制兼容；不在新代码中使用）─────────────────
-
-    /** @deprecated 请使用 [cancelAllAlarms] */
-    @Deprecated("Use cancelAllAlarms instead", ReplaceWith("cancelAllAlarms(medicationId)"))
-    fun cancelAlarm(medicationId: Long) = cancelAllAlarms(medicationId)
-
-    /** @deprecated 请使用 [scheduleAllReminders]；保留以兼容旧调用 */
-    @Deprecated("Use scheduleAllReminders instead",
-        ReplaceWith("scheduleAlarmSlot(medication, 0, triggerAtMs)"))
-    fun scheduleAlarm(medication: Medication, triggerAtMs: Long) =
-        scheduleAlarmSlot(medication, 0, triggerAtMs)
 }

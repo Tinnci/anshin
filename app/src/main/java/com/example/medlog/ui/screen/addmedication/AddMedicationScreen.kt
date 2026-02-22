@@ -144,7 +144,7 @@ fun AddMedicationScreen(
                         isError = uiState.error != null && uiState.name.isBlank(),
                         supportingText = {
                             if (uiState.error != null && uiState.name.isBlank())
-                                Text(uiState.error!!, color = MaterialTheme.colorScheme.error)
+                                Text(uiState.error ?: "", color = MaterialTheme.colorScheme.error)
                         },
                         leadingIcon = { Icon(Icons.Rounded.Medication, null) },
                         trailingIcon = {

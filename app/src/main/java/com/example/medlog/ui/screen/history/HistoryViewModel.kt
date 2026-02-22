@@ -9,9 +9,10 @@ import com.example.medlog.data.repository.MedicationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.medlog.domain.StreakCalculator
 import java.time.Instant
-import java.time.LocalDate
 import java.time.YearMonth
+import java.time.LocalDate
 import java.time.ZoneId
 import javax.inject.Inject
 
@@ -102,32 +103,13 @@ class HistoryViewModel @Inject constructor(
                         else takenLogs.toFloat() / totalLogs.toFloat()
 
                     // 计算连续打卡 streak（每天 taken >= 1 即视为完成）
+                    val activeDays = calendarDays.entries
+                        .filter { it.value.taken > 0 }
+                        .map { it.key }
+                        .toSet()
                     val today = LocalDate.now()
-                    // 当前 streak：从今天（或昨天，若今天无记录）向前数
-                    val startDay = if (calendarDays[today]?.taken ?: 0 > 0) today
-                                   else today.minusDays(1)
-                    var current = 0
-                    var cursor = startDay
-                    while (true) {
-                        val day = calendarDays[cursor]
-                        if (day != null && day.taken > 0) {
-                            current++
-                            cursor = cursor.minusDays(1)
-                        } else break
-                    }
-
-                    // 最长 streak：全部日历数据
-                    var longest = 0
-                    var runLen = 0
-                    val allDates = calendarDays.keys.sorted()
-                    var prev: LocalDate? = null
-                    for (d in allDates) {
-                        val hasTaken = calendarDays[d]?.taken ?: 0 > 0
-                        if (!hasTaken) { runLen = 0; prev = null; continue }
-                        runLen = if (prev != null && d == prev!!.plusDays(1)) runLen + 1 else 1
-                        if (runLen > longest) longest = runLen
-                        prev = d
-                    }
+                    val current = StreakCalculator.currentStreak(activeDays, today)
+                    val longest = StreakCalculator.longestStreak(activeDays)
 
                     _uiState.update {
                         it.copy(

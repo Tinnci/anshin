@@ -43,10 +43,9 @@ import com.example.medlog.ui.screen.welcome.WelcomeScreen
 @Composable
 fun MedLogApp(openAddMedication: Boolean = false) {
     val appViewModel: MedLogAppViewModel = hiltViewModel()
-    val startDest by appViewModel.startDestination.collectAsStateWithLifecycle()
-
-    // DataStore 加载期间显示居中加载指示器
-    if (startDest == null) {
+    val startDestState by appViewModel.startDestination.collectAsStateWithLifecycle()
+    // DataStore 加载期间显示居中加载指示器；捕获到本地 val 以消除后续 !! 需求
+    val startDest = startDestState ?: run {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
@@ -100,10 +99,10 @@ fun MedLogApp(openAddMedication: Boolean = false) {
             navigateToTopLevel = navigateToTopLevel,
             destinations = enabledDestinations,
         ) {
-            MedLogNavHost(navController = navController, startDest = startDest!!)
+            MedLogNavHost(navController = navController, startDest = startDest)
         }
     } else {
-        MedLogNavHost(navController = navController, startDest = startDest!!)
+        MedLogNavHost(navController = navController, startDest = startDest)
     }
 }
 

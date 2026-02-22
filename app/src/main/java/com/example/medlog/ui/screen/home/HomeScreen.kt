@@ -190,7 +190,7 @@ fun HomeScreen(
             if (lowStockItems.isNotEmpty()) {
                 item {
                     LowStockBanner(
-                        medications = lowStockItems.map { it.medication.name to (it.medication.stock!! to it.medication.doseUnit) },
+                        medications = lowStockItems.map { it.medication.name to ((it.medication.stock ?: 0.0) to it.medication.doseUnit) },
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
@@ -1218,6 +1218,7 @@ private fun MedicationQrDialog(
     val qrBitmap by produceState<android.graphics.Bitmap?>(null, qrText) {
         value = withContext(Dispatchers.Default) { generateQrBitmap(qrText) }
     }
+    val bitmap = qrBitmap  // 捕获快照以允许智能转换
 
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1240,9 +1241,9 @@ private fun MedicationQrDialog(
                         .background(Color.White),
                     contentAlignment = Alignment.Center,
                 ) {
-                    if (qrBitmap != null) {
+                    if (bitmap != null) {
                         Image(
-                            painter = BitmapPainter(qrBitmap!!.asImageBitmap()),
+                            painter = BitmapPainter(bitmap.asImageBitmap()),
                             contentDescription = stringResource(R.string.home_qr_cd),
                             modifier = Modifier.size(200.dp),
                         )

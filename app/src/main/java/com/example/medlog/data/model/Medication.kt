@@ -1,13 +1,17 @@
 package com.example.medlog.data.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
  * 用药配置实体（SSOT — 唯一真实来源）
  * database: medications v3
  */
-@Entity(tableName = "medications")
+@Entity(
+    tableName = "medications",
+    indices = [Index("isArchived")],
+)
 data class Medication(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
