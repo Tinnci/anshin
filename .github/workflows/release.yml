@@ -74,7 +74,7 @@ jobs:
 
       # ── 6. 单元测试 ───────────────────────────────────────────
       - name: Run unit tests
-        run: ./gradlew testReleaseUnitTest
+        run: ./gradlew :app:testDebugUnitTest
 
       - name: Upload unit test results
         if: always()
