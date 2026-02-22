@@ -556,6 +556,7 @@
     <string name="widget_next_dose_h_fmt">还有约 %d 小时</string>
     <string name="widget_next_dose_no_pending">暂无待服药品</string>
     <string name="widget_next_dose_more_fmt">+%d 种</string>
+    <string name="widget_next_dose_count_fmt">共 %d 种药</string>
     <string name="widget_next_dose_remaining_fmt">…还有 %d 种</string>
     <string name="oem_miui_pin_guide">MIUI / HyperOS 设备需手动开启「桌面快捷方式」权限后，固定小组件对话框才会弹出。
 路径：设置 → 应用设置 → 授权管理 → MedLog → 桌面快捷方式 → 允许</string>

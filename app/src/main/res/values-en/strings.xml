@@ -557,6 +557,7 @@
     <string name="widget_next_dose_h_fmt">In ~%d h</string>
     <string name="widget_next_dose_no_pending">No pending meds</string>
     <string name="widget_next_dose_more_fmt">+%d more</string>
+    <string name="widget_next_dose_count_fmt">%d medications</string>
     <string name="widget_next_dose_remaining_fmt">…%d more</string>
     <string name="oem_miui_pin_guide">On MIUI / HyperOS, enable \'Desktop shortcut\' permission to allow widget pinning.
 Path: Settings → App settings → Permissions → MedLog → Desktop shortcut → Allow</string>

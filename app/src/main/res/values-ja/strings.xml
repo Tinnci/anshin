@@ -557,6 +557,7 @@
     <string name="widget_next_dose_h_fmt">あと約 %d 時間</string>
     <string name="widget_next_dose_no_pending">服薬予定なし</string>
     <string name="widget_next_dose_more_fmt">+%d 種</string>
+    <string name="widget_next_dose_count_fmt">%d 種類の薬</string>
     <string name="widget_next_dose_remaining_fmt">…あと %d 種</string>
     <string name="oem_miui_pin_guide">MIUI / HyperOS では「デスクトップショートカット」権限を有効にする必要があります。
 パス：設定 → アプリ設定 → 認証管理 → MedLog → デスクトップショートカット → 許可</string>

@@ -557,6 +557,7 @@
     <string name="widget_next_dose_h_fmt">약 %d시간 후</string>
     <string name="widget_next_dose_no_pending">대기 중인 약 없음</string>
     <string name="widget_next_dose_more_fmt">+%d 종</string>
+    <string name="widget_next_dose_count_fmt">%d종 약</string>
     <string name="widget_next_dose_remaining_fmt">…%d 종 더</string>
     <string name="oem_miui_pin_guide">MIUI / HyperOS에서는 위젯 고정 대화상자를 활성화하려면 \'바탕화면 바로가기\' 권한을 수동으로 활성화해야 합니다.
 경로: 설정 → 앱 설정 → 권한 관리 → MedLog → 바탕화면 바로가기 → 허용</string>

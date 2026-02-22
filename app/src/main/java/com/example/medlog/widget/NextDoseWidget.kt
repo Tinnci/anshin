@@ -188,22 +188,19 @@ private fun NextDoseContent(
                 Text(ctx.getString(R.string.widget_next_dose_no_pending), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
             }
             isCompact -> {
-                // 2×2：大号时间 + 第一个药品名（紧凑，无交互按钮）
+                // 2×2：大号时间 + 第一个药品名（仅 1 种）或薯品总数（多种）
                 Text(
                     timeStr,
                     style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, color = GlanceTheme.colors.primary),
                 )
                 Spacer(GlanceModifier.height(2.dp))
                 Text(
-                    nextMedPairs.firstOrNull()?.second ?: "",
+                    if (nextMedPairs.size == 1)
+                        nextMedPairs.first().second
+                    else
+                        ctx.getString(R.string.widget_next_dose_count_fmt, nextMedPairs.size),
                     style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurface),
                 )
-                if (nextMedPairs.size > 1) {
-                    Text(
-                        ctx.getString(R.string.widget_next_dose_more_fmt, nextMedPairs.size - 1),
-                        style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
-                    )
-                }
             }
             else -> {
                 // 4×2：完整显示 + 打卡按钮
@@ -229,10 +226,20 @@ private fun NextDoseContent(
                     style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurface),
                 )
                 Spacer(GlanceModifier.height(6.dp))
-                // 药品列表 + ✓ 打卡按钮
-                nextMedPairs.take(3).forEach { (medId, name) ->
+                // 药品列表 + ✓ 打卡按钮（行之间插入细分隔线）
+                nextMedPairs.take(3).forEachIndexed { idx, (medId, name) ->
+                    if (idx > 0) {
+                        Spacer(
+                            GlanceModifier
+                                .fillMaxWidth()
+                                .height(1.dp)
+                                .background(GlanceTheme.colors.outline),
+                        )
+                    }
                     Row(
-                        modifier          = GlanceModifier.fillMaxWidth(),
+                        modifier          = GlanceModifier
+                            .fillMaxWidth()
+                            .padding(vertical = 3.dp),
                         verticalAlignment = Alignment.Vertical.CenterVertically,
                     ) {
                         Text(
@@ -258,7 +265,6 @@ private fun NextDoseContent(
                             )
                         }
                     }
-                    Spacer(GlanceModifier.height(2.dp))
                 }
                 if (nextMedPairs.size > 3) {
                     Text(
