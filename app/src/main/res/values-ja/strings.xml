@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Anshin</string>
+    <string name="app_name">安心服薬</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">服薬履歴</string>
     <string name="tab_drugs">薬品</string>

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Anshin</string>
+    <string name="app_name">安心用药提醒</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">历史</string>
     <string name="tab_drugs">药品</string>

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Anshin</string>
+    <string name="app_name">안심 복약</string>
     <string name="tab_today">오늘</string>
     <string name="tab_history">복약 기록</string>
     <string name="tab_drugs">약품</string>
