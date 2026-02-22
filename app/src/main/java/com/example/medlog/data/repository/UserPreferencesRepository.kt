@@ -8,7 +8,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
-import androidx.datastore.preferences.preferencesDataStore
+import com.example.medlog.data.local.settingsDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -21,9 +21,7 @@ import javax.inject.Singleton
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
 /** DataStore 文件名 */
-private val Context.settingsDataStore: DataStore<Preferences> by preferencesDataStore(
-    name = "medlog_settings",
-)
+// 已移至 data/local/SettingsDataStore.kt 统一管理
 
 /** 用户偏好设置数据容器 */
 data class SettingsPreferences(
@@ -69,7 +67,14 @@ data class SettingsPreferences(
      * 提前 N 分钟发送预告提醒。
      * 0 = 关闭（不发预告）；15 / 30 / 60 = 提前对应分钟数发送
      */
-    val earlyReminderMinutes: Int = 0,)
+    val earlyReminderMinutes: Int = 0,
+    // ── 小组件显示偏好 ──────────────────────────────────────────────────────────
+    /**
+     * 小组件节点是否显示可交互服药被按按钮（true）还是仅显示待服状态指示（false）。
+     * true = 操作模式（默认）；false = 状态模式
+     */
+    val widgetShowActions: Boolean = true,
+)
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
@@ -106,6 +111,8 @@ class UserPreferencesRepository @Inject constructor(
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
         // 提前预告提醒
         val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
+        // 小组件显示偏好
+        val WIDGET_SHOW_ACTIONS = booleanPreferencesKey("widget_show_actions")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -136,6 +143,7 @@ class UserPreferencesRepository @Inject constructor(
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
+                widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
             )
         }
 
@@ -207,5 +215,10 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新提前预告提醒分钟数（0 = 关闭） */
     suspend fun updateEarlyReminderMinutes(minutes: Int) {
         dataStore.edit { it[EARLY_REMINDER_MINUTES] = minutes }
+    }
+
+    /** 更新小组件显示模式（true = 操作按物，false = 状态显示） */
+    suspend fun updateWidgetShowActions(enabled: Boolean) {
+        dataStore.edit { it[WIDGET_SHOW_ACTIONS] = enabled }
     }
 }

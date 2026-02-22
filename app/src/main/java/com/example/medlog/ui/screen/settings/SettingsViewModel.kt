@@ -1,5 +1,7 @@
 package com.example.medlog.ui.screen.settings
 
+import android.content.Context
+import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
@@ -7,7 +9,9 @@ import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.ResyncRemindersUseCase
+import com.example.medlog.widget.MedLogWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,6 +43,9 @@ data class SettingsUiState(
     // ── 提前预告提醒 ─────────────────────────────────────────────────────────
     /** 0=关闭 ; 15/30/60=提前对应分钟 */
     val earlyReminderMinutes: Int = 0,
+    // ── 小组件显示偏好 ──────────────────────────────────────────────────────────
+    /** true = 显示交互服药按钮；false = 仅显示状态指示 */
+    val widgetShowActions: Boolean = true,
 )
 
 @HiltViewModel
@@ -46,6 +53,7 @@ class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val prefsRepository: UserPreferencesRepository,
     private val resyncReminders: ResyncRemindersUseCase,
+    @ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
@@ -72,6 +80,7 @@ class SettingsViewModel @Inject constructor(
             useDynamicColor = prefs.useDynamicColor,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
+            widgetShowActions = prefs.widgetShowActions,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -140,6 +149,18 @@ class SettingsViewModel @Inject constructor(
 
     fun setEarlyReminderMinutes(minutes: Int) {
         viewModelScope.launch { prefsRepository.updateEarlyReminderMinutes(minutes) }
+    }
+
+    fun setWidgetShowActions(enabled: Boolean) {
+        viewModelScope.launch {
+            prefsRepository.updateWidgetShowActions(enabled)
+            // SSOT 刷新：设置变更后立即更新所有上屏小组件
+            val widget = MedLogWidget()
+            val manager = GlanceAppWidgetManager(appContext)
+            manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
+                widget.update(appContext, id)
+            }
+        }
     }
 
     /** 重置欢迎引导状态，下次启动或手动调用时回到引导页 */

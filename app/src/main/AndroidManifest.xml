@@ -37,6 +37,17 @@
             </intent-filter>
         </activity>
 
+        <!-- 桌面小组件设置页（长按小组件 → 小组件设置；或主应用设置页跳转） -->
+        <activity
+            android:name=".widget.WidgetSettingsActivity"
+            android:exported="true"
+            android:label="@string/widget_settings_title"
+            android:theme="@style/Theme.MedLog">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
+
         <receiver
             android:name=".notification.MedLogBootReceiver"
             android:exported="true">

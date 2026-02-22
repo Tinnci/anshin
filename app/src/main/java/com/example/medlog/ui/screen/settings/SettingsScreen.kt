@@ -688,6 +688,18 @@ fun SettingsScreen(
                         }
                     }
 
+                    // 今日进度小组件显示模式开关（SSOT：与小组件长按设置共享同一 DataStore）
+                    SettingsSwitchRow(
+                        title    = stringResource(R.string.widget_settings_show_actions),
+                        subtitle = if (uiState.widgetShowActions)
+                            stringResource(R.string.widget_settings_show_actions_body)
+                        else
+                            stringResource(R.string.widget_settings_status_body),
+                        checked         = uiState.widgetShowActions,
+                        onCheckedChange = { viewModel.setWidgetShowActions(it) },
+                        icon            = Icons.Rounded.TouchApp,
+                    )
+
                     // 今日进度小组件
                     WidgetPickerCard(
                         previewRes = R.drawable.widget_preview_today,

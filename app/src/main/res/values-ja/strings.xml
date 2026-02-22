@@ -557,8 +557,13 @@
     <string name="widget_next_dose_h_fmt">あと約 %d 時間</string>
     <string name="widget_next_dose_no_pending">服薬予定なし</string>
     <string name="widget_next_dose_more_fmt">+%d 種</string>
-    <string name="widget_next_dose_count_fmt">%d 種類の薬</string>
-    <string name="widget_next_dose_remaining_fmt">…あと %d 種</string>
+    <string name="widget_next_dose_count_fmt">%d 種類の薬</string>    <!-- ウィジェット服薬ボタン -->
+    <string name="widget_action_btn">服</string>
+    <!-- ウィジェット設定 -->
+    <string name="widget_settings_title">ウィジェット設定</string>
+    <string name="widget_settings_show_actions">服薬ボタン</string>
+    <string name="widget_settings_show_actions_body">ウィジェットにワンタップ服薬ボタンを表示</string>
+    <string name="widget_settings_status_body">状態表示のみ、ボタンなし</string>    <string name="widget_next_dose_remaining_fmt">…あと %d 種</string>
     <string name="oem_miui_pin_guide">MIUI / HyperOS では「デスクトップショートカット」権限を有効にする必要があります。
 パス：設定 → アプリ設定 → 認証管理 → MedLog → デスクトップショートカット → 許可</string>
     <string name="oem_coloros_pin_guide">ColorOS / OxygenOS では「デスクトップショートカット」権限が必要です。

@@ -557,6 +557,13 @@
     <string name="widget_next_dose_no_pending">暂无待服药品</string>
     <string name="widget_next_dose_more_fmt">+%d 种</string>
     <string name="widget_next_dose_count_fmt">共 %d 种药</string>
+    <!-- 小组件服药按鈕文字 -->
+    <string name="widget_action_btn">服</string>
+    <!-- 小组件设置页 -->
+    <string name="widget_settings_title">小组件设置</string>
+    <string name="widget_settings_show_actions">快捷服药按鈕</string>
+    <string name="widget_settings_show_actions_body">在小组件中显示一键服药按鈕，无需开启 App 即可记录</string>
+    <string name="widget_settings_status_body">仅显示待服状态指示，不显示可交互按鈕</string>
     <string name="widget_next_dose_remaining_fmt">…还有 %d 种</string>
     <string name="oem_miui_pin_guide">MIUI / HyperOS 设备需手动开启「桌面快捷方式」权限后，固定小组件对话框才会弹出。
 路径：设置 → 应用设置 → 授权管理 → MedLog → 桌面快捷方式 → 允许</string>

@@ -558,6 +558,13 @@
     <string name="widget_next_dose_no_pending">No pending meds</string>
     <string name="widget_next_dose_more_fmt">+%d more</string>
     <string name="widget_next_dose_count_fmt">%d medications</string>
+    <!-- Widget action button text -->
+    <string name="widget_action_btn">Take</string>
+    <!-- Widget settings screen -->
+    <string name="widget_settings_title">Widget Settings</string>
+    <string name="widget_settings_show_actions">Quick-take button</string>
+    <string name="widget_settings_show_actions_body">Show a one-tap take button on the widget</string>
+    <string name="widget_settings_status_body">Show status indicators only, no interactive buttons</string>
     <string name="widget_next_dose_remaining_fmt">…%d more</string>
     <string name="oem_miui_pin_guide">On MIUI / HyperOS, enable \'Desktop shortcut\' permission to allow widget pinning.
 Path: Settings → App settings → Permissions → MedLog → Desktop shortcut → Allow</string>
