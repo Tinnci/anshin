@@ -5,35 +5,22 @@
     <string name="tab_history">服薬履歴</string>
     <string name="tab_drugs">薬品</string>
     <string name="tab_settings">設定</string>
-    <string name="mark_not_taken">未服用に戻す</string>
     <string name="delete">削除</string>
     <string name="archive">アーカイブ</string>
     <string name="restore">元に戻す</string>
     <string name="cancel">キャンセル</string>
     <string name="confirm">確認</string>
-    <string name="save">保存</string>
-    <string name="edit">編集</string>
-    <string name="search">薬品を検索…</string>
-    <string name="no_medications">服薬予定なし — ＋ をタップして追加</string>
     <string name="medication_taken">服用済み</string>
     <string name="medication_skipped">スキップ</string>
     <string name="medication_missed">飲み忘れ</string>
-    <string name="medication_pending">未服用</string>
-    <string name="dose_unit_tablet">錠</string>
-    <string name="dose_unit_capsule">カプセル</string>
-    <string name="dose_unit_ml">ml</string>
     <string name="reminder_notification_channel">服薬リマインダー</string>
     <string name="low_stock_notification_channel">残量アラート</string>
     <string name="settings_theme">テーマ</string>
-    <string name="settings_notifications">通知</string>
     <string name="settings_routine">生活リズム</string>
     <string name="settings_about">このアプリについて</string>
     <string name="archived_medications">アーカイブ済み薬品</string>
     <string name="tab_diary">日記</string>
     <string name="tab_health">健康</string>
-    <string name="diary_add">症状を記録</string>
-    <string name="persistent_reminder">継続リマインダー</string>
-    <string name="persistent_reminder_interval">リマインダー間隔（分）</string>
     <string name="wake_time">起床時間</string>
     <string name="breakfast_time">朝食時間</string>
     <string name="lunch_time">昼食時間</string>
@@ -173,8 +160,6 @@
     <string name="home_qr_cd">QR コード</string>
     <string name="home_qr_instruction">QR コードをスキャンして今日の服薬プランを確認。または下の「共有」をタップ</string>
     <string name="home_qr_share_btn">テキストを共有</string>
-    <string name="home_qr_share_intent_title">今日の服薬プラン</string>
-    <string name="home_qr_share_chooser">今日の服薬プランを共有</string>
 
     <!-- Welcome Page 5: All set -->
     <string name="welcome_p5_title">準備完了！</string>
@@ -312,7 +297,6 @@
     <string name="detail_stock_adjust_hint">±1回分（%1$s %2$s）</string>
     <string name="detail_stock_decrease_cd">1回分を減らす</string>
     <string name="detail_stock_increase_cd">1回分を増やす</string>
-    <string name="detail_stock_bulk">一括追加</string>
     <string name="detail_log_actual_time">実際の服用：%s</string>
     <string name="drugs_title">薬品データベース</string>
     <string name="drugs_fab_add">カスタム追加</string>
@@ -489,13 +473,11 @@
         <item quantity="other">%1$d 分後に %3$s の %2$s を服用する必要があります。準備してください。</item>
     </plurals>
     <string name="notif_early_ticker">%d 分後に服薬</string>
-    <string name="settings_notif_perm_btn_settings">設定へ</string>
     <string name="common_action_delete">削除</string>
     <string name="common_action_cancel">キャンセル</string>
     <string name="common_action_edit">編集</string>
     <string name="common_action_save">保存</string>
     <string name="common_action_add">追加</string>
-    <string name="common_irrev_warning">この操作は取り消せません。</string>
     <string name="common_notes_hint">メモ（任意）</string>
     <string name="common_no_plan_today">本日の服薬予定はありません</string>
     <string name="common_filter_all">すべて</string>
@@ -598,9 +580,6 @@
     <string name="widget_next_dose_1h_min_fmt">あと 1 時間 %d 分</string>
     <string name="widget_next_dose_h_fmt">あと約 %d 時間</string>
     <string name="widget_next_dose_no_pending">服薬予定なし</string>
-    <plurals name="widget_next_dose_more_fmt">
-        <item quantity="other">+%d 種</item>
-    </plurals>
     <plurals name="widget_next_dose_count_fmt">
         <item quantity="other">%d 種類の薬</item>
     </plurals>    <!-- ウィジェット服薬ボタン -->

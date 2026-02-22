@@ -31,6 +31,12 @@ class MainActivity : ComponentActivity() {
         // 处理 ADD_MEDICATION 快捷方式 intent
         val openAddMedication = intent?.action == ACTION_ADD_MEDICATION
 
+        // 报告快捷方式使用（提升排名），当从 history 快捷方式启动时
+        if (intent?.extras?.getString("navigate_to") == "history") {
+            getSystemService(ShortcutManager::class.java)
+                ?.reportShortcutUsed("history_shortcut")
+        }
+
         setContent {
             // 观察主题设置（与 MedLogApp 共享同一个 ViewModel 实例）
             val appViewModel: MedLogAppViewModel = hiltViewModel()
@@ -50,6 +56,15 @@ class MainActivity : ComponentActivity() {
 
         // 更新动态快捷方式
         registerDynamicShortcuts()
+    }
+
+    override fun onNewIntent(intent: android.content.Intent) {
+        super.onNewIntent(intent)
+        // 当 Activity 已在前台时，从快捷方式再次启动也需要报告使用
+        if (intent.extras?.getString("navigate_to") == "history") {
+            getSystemService(ShortcutManager::class.java)
+                ?.reportShortcutUsed("history_shortcut")
+        }
     }
 
     /** 注册/刷新动态快捷方式 */

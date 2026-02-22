@@ -5,35 +5,22 @@
     <string name="tab_history">복약 기록</string>
     <string name="tab_drugs">약품</string>
     <string name="tab_settings">설정</string>
-    <string name="mark_not_taken">미복용으로 표시</string>
     <string name="delete">삭제</string>
     <string name="archive">보관</string>
     <string name="restore">복원</string>
     <string name="cancel">취소</string>
     <string name="confirm">확인</string>
-    <string name="save">저장</string>
-    <string name="edit">편집</string>
-    <string name="search">약품 검색…</string>
-    <string name="no_medications">복약 일정 없음 — + 를 눌러 추가</string>
     <string name="medication_taken">복용 완료</string>
     <string name="medication_skipped">건너뜀</string>
     <string name="medication_missed">복용 안 함</string>
-    <string name="medication_pending">복용 전</string>
-    <string name="dose_unit_tablet">정</string>
-    <string name="dose_unit_capsule">캡슐</string>
-    <string name="dose_unit_ml">ml</string>
     <string name="reminder_notification_channel">복약 알림</string>
     <string name="low_stock_notification_channel">재고 부족 알림</string>
     <string name="settings_theme">테마</string>
-    <string name="settings_notifications">알림</string>
     <string name="settings_routine">생활 패턴</string>
     <string name="settings_about">앱 정보</string>
     <string name="archived_medications">보관된 약품</string>
     <string name="tab_diary">일기</string>
     <string name="tab_health">건강</string>
-    <string name="diary_add">증상 기록</string>
-    <string name="persistent_reminder">지속 알림</string>
-    <string name="persistent_reminder_interval">알림 간격 (분)</string>
     <string name="wake_time">기상 시간</string>
     <string name="breakfast_time">아침 식사 시간</string>
     <string name="lunch_time">점심 식사 시간</string>
@@ -173,8 +160,6 @@
     <string name="home_qr_cd">QR 코드</string>
     <string name="home_qr_instruction">QR 코드를 스캔하여 오늘의 복약 계획을 확인하거나 아래 공유 버튼을 눌러 전송</string>
     <string name="home_qr_share_btn">텍스트 공유</string>
-    <string name="home_qr_share_intent_title">오늘의 복약 계획</string>
-    <string name="home_qr_share_chooser">오늘의 복약 계획 공유</string>
 
     <!-- Welcome Page 5: All set -->
     <string name="welcome_p5_title">준비 완료!</string>
@@ -312,7 +297,6 @@
     <string name="detail_stock_adjust_hint">±1회 용량 (%1$s %2$s)</string>
     <string name="detail_stock_decrease_cd">1회 감소</string>
     <string name="detail_stock_increase_cd">1회 증가</string>
-    <string name="detail_stock_bulk">일괄 추가</string>
     <string name="detail_log_actual_time">복용 시간: %s</string>
     <string name="drugs_title">약품 데이터베이스</string>
     <string name="drugs_fab_add">직접 추가</string>
@@ -489,13 +473,11 @@
         <item quantity="other">%1$d분 후 %3$s의 %2$s를 복용해야 합니다. 미리 준비하세요.</item>
     </plurals>
     <string name="notif_early_ticker">%d분 후 복약</string>
-    <string name="settings_notif_perm_btn_settings">설정으로 이동</string>
     <string name="common_action_delete">삭제</string>
     <string name="common_action_cancel">취소</string>
     <string name="common_action_edit">편집</string>
     <string name="common_action_save">저장</string>
     <string name="common_action_add">추가</string>
-    <string name="common_irrev_warning">이 작업은 되돌릴 수 없습니다.</string>
     <string name="common_notes_hint">메모 (선택 사항)</string>
     <string name="common_no_plan_today">오늘 예정된 복약이 없습니다</string>
     <string name="common_filter_all">전체</string>
@@ -598,9 +580,6 @@
     <string name="widget_next_dose_1h_min_fmt">1시간 %d분 후</string>
     <string name="widget_next_dose_h_fmt">약 %d시간 후</string>
     <string name="widget_next_dose_no_pending">대기 중인 약 없음</string>
-    <plurals name="widget_next_dose_more_fmt">
-        <item quantity="other">+%d 종</item>
-    </plurals>
     <plurals name="widget_next_dose_count_fmt">
         <item quantity="other">%d종 약</item>
     </plurals>

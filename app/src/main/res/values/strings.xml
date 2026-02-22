@@ -4,35 +4,22 @@
     <string name="tab_history">历史</string>
     <string name="tab_drugs">药品</string>
     <string name="tab_settings">设置</string>
-    <string name="mark_not_taken">标记未服</string>
     <string name="delete">删除</string>
     <string name="archive">归档</string>
     <string name="restore">恢复</string>
     <string name="cancel">取消</string>
     <string name="confirm">确认</string>
-    <string name="save">保存</string>
-    <string name="edit">编辑</string>
-    <string name="search">搜索药品…</string>
-    <string name="no_medications">暂无用药计划，点击 + 添加</string>
     <string name="medication_taken">已服用</string>
     <string name="medication_skipped">已跳过</string>
     <string name="medication_missed">漏服</string>
-    <string name="medication_pending">待服用</string>
-    <string name="dose_unit_tablet">片</string>
-    <string name="dose_unit_capsule">粒</string>
-    <string name="dose_unit_ml">ml</string>
     <string name="reminder_notification_channel">用药提醒</string>
     <string name="low_stock_notification_channel">库存预警</string>
     <string name="settings_theme">主题</string>
-    <string name="settings_notifications">通知</string>
     <string name="settings_routine">作息时间</string>
     <string name="settings_about">关于</string>
     <string name="archived_medications">已归档药品</string>
     <string name="tab_diary">日记</string>
     <string name="tab_health">健康</string>
-    <string name="diary_add">记录症状</string>
-    <string name="persistent_reminder">持续提醒</string>
-    <string name="persistent_reminder_interval">提醒间隔（分钟）</string>
     <string name="wake_time">起床时间</string>
     <string name="breakfast_time">早餐时间</string>
     <string name="lunch_time">午餐时间</string>
@@ -172,8 +159,6 @@
     <string name="home_qr_cd">QR 码</string>
     <string name="home_qr_instruction">扫描 QR 码可读取今日用药计划，也可点击下方「分享」发送给他人</string>
     <string name="home_qr_share_btn">分享文本</string>
-    <string name="home_qr_share_intent_title">今日用药计划</string>
-    <string name="home_qr_share_chooser">分享今日用药计划</string>
 
     <!-- Welcome Page 5: All set -->
     <string name="welcome_p5_title">一切就绪！</string>
@@ -311,7 +296,6 @@
     <string name="detail_stock_adjust_hint">±1次用量（%1$s %2$s）</string>
     <string name="detail_stock_decrease_cd">减少一次量</string>
     <string name="detail_stock_increase_cd">增加一次量</string>
-    <string name="detail_stock_bulk">批量</string>
     <string name="detail_log_actual_time">实际服用：%s</string>
     <string name="drugs_title">药品数据库</string>
     <string name="drugs_fab_add">自定义添加</string>
@@ -488,13 +472,11 @@
         <item quantity="other">请提前做好准备，%1$d 分钟后需要服用 %2$s 的 %3$s。</item>
     </plurals>
     <string name="notif_early_ticker">%d 分钟后记得服药</string>
-    <string name="settings_notif_perm_btn_settings">前往设置</string>
     <string name="common_action_delete">删除</string>
     <string name="common_action_cancel">取消</string>
     <string name="common_action_edit">编辑</string>
     <string name="common_action_save">保存</string>
     <string name="common_action_add">添加</string>
-    <string name="common_irrev_warning">此操作无法撤销。</string>
     <string name="common_notes_hint">备注（可选）</string>
     <string name="common_no_plan_today">今日暂无用药计划</string>
     <string name="common_filter_all">全部</string>
@@ -597,9 +579,6 @@
     <string name="widget_next_dose_1h_min_fmt">还有 1 小时 %d 分钟</string>
     <string name="widget_next_dose_h_fmt">还有约 %d 小时</string>
     <string name="widget_next_dose_no_pending">暂无待服药品</string>
-    <plurals name="widget_next_dose_more_fmt">
-        <item quantity="other">+%d 种</item>
-    </plurals>
     <plurals name="widget_next_dose_count_fmt">
         <item quantity="other">共 %d 种药</item>
     </plurals>

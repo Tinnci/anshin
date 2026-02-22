@@ -447,8 +447,8 @@ private fun TimePeriodGroupCard(
     onSkip: (MedicationWithStatus) -> Unit,
     onTakeAll: () -> Unit,
     onClick: (Long) -> Unit,
-    autoCollapse: Boolean = true,
     modifier: Modifier = Modifier,
+    autoCollapse: Boolean = true,
 ) {
     val pendingCount = items.count { !it.isTaken && !it.isSkipped }
     val allDone = pendingCount == 0
@@ -1189,8 +1189,13 @@ private fun MedicationQrDialog(
     val takenCount = remember(items) { items.count { it.isTaken } }
     val totalCount = items.size
 
+    // Pre-compute period label strings at composition scope (avoids LocalContext.getString in remember)
+    val periodStrings: Map<String, String> = com.example.medlog.data.model.TimePeriod.entries.associate { tp ->
+        tp.key to stringResource(tp.labelRes)
+    }
+
     // 构建可读 QR 内容（较短，更易于扫描）
-    val qrText = remember(items) {
+    val qrText = remember(items, periodStrings) {
         buildString {
             appendLine("Anshin ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
             items.forEach { item ->
@@ -1203,7 +1208,7 @@ private fun MedicationQrDialog(
                 val dose = if (med.doseQuantity == med.doseQuantity.toLong().toDouble())
                     "${med.doseQuantity.toLong()}${med.doseUnit}"
                 else "%.1f${med.doseUnit}".format(med.doseQuantity)
-                val period = context.getString(TimePeriod.fromKey(med.timePeriod).labelRes)
+                val period = periodStrings[med.timePeriod] ?: ""
                 appendLine("$status ${med.name} $dose $period")
             }
         }.trimEnd()
