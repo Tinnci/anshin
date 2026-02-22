@@ -53,7 +53,7 @@ class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val prefsRepository: UserPreferencesRepository,
     private val resyncReminders: ResyncRemindersUseCase,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(

@@ -39,7 +39,7 @@ private const val MAX_REMINDER_SLOTS = 20
  */
 @Singleton
 class NotificationHelper @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager

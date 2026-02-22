@@ -138,7 +138,7 @@ class HomeViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
-    @ApplicationContext private val appContext: Context,
+    @param:ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())

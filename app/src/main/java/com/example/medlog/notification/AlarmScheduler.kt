@@ -31,7 +31,7 @@ const val EARLY_REMINDER_CODE_OFFSET = 50_000
  */
 @Singleton
 class AlarmScheduler @Inject constructor(
-    @ApplicationContext private val context: Context,
+    @param:ApplicationContext private val context: Context,
     private val prefsRepository: UserPreferencesRepository,
 ) {
     private val alarmManager =

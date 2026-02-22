@@ -140,7 +140,7 @@ fun AddMedicationScreen(
                         label = { Text(stringResource(R.string.add_name_label)) },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .menuAnchor(MenuAnchorType.PrimaryEditable),
+                            .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                         isError = uiState.error != null && uiState.name.isBlank(),
                         supportingText = {
                             if (uiState.error != null && uiState.name.isBlank())
