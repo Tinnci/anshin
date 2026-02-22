@@ -17,6 +17,8 @@ import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.MedicationRepositoryImpl
 import com.example.medlog.data.repository.SymptomRepository
 import com.example.medlog.data.repository.SymptomRepositoryImpl
+import com.example.medlog.widget.GlanceWidgetRefresher
+import com.example.medlog.widget.WidgetRefresher
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -92,5 +94,11 @@ abstract class RepositoryModule {
     abstract fun bindHealthRepository(
         impl: HealthRepositoryImpl,
     ): HealthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWidgetRefresher(
+        impl: GlanceWidgetRefresher,
+    ): WidgetRefresher
 }
 

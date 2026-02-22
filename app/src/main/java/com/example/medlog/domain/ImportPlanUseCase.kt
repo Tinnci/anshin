@@ -1,10 +1,8 @@
 package com.example.medlog.domain
 
-import android.content.Context
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.notification.AlarmScheduler
-import com.example.medlog.widget.WidgetRefreshWorker
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.example.medlog.widget.WidgetRefresher
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -21,7 +19,7 @@ class ImportPlanUseCase @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val alarmScheduler: AlarmScheduler,
     private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
-    @param:ApplicationContext private val context: Context,
+    private val widgetRefresher: WidgetRefresher,
 ) {
     suspend operator fun invoke(plan: PlanExport, mode: ImportMode) {
         val newMeds = plan.meds.map { with(PlanExportCodec) { it.toMedication() } }
@@ -51,6 +49,6 @@ class ImportPlanUseCase @Inject constructor(
             }
         }
 
-        WidgetRefreshWorker.scheduleImmediateRefresh(context)
+        widgetRefresher.refreshAll()
     }
 }

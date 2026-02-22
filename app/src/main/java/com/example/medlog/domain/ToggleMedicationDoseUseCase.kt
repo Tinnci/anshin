@@ -1,6 +1,5 @@
 package com.example.medlog.domain
 
-import android.content.Context
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
@@ -8,8 +7,7 @@ import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
-import com.example.medlog.widget.WidgetRefreshWorker
-import dagger.hilt.android.qualifiers.ApplicationContext
+import com.example.medlog.widget.WidgetRefresher
 import java.util.Calendar
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,7 +27,7 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val alarmScheduler: AlarmScheduler,
     private val notificationHelper: NotificationHelper,
-    @param:ApplicationContext private val context: Context,
+    private val widgetRefresher: WidgetRefresher,
 ) {
     /**
      * 标记为已服 — 写日志、扣库存、取消闹钟/通知、刷新 Widget。
@@ -52,7 +50,7 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         }
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
-        WidgetRefreshWorker.scheduleImmediateRefresh(context)
+        widgetRefresher.refreshAll()
     }
 
     /**
@@ -80,7 +78,7 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         )
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
-        WidgetRefreshWorker.scheduleImmediateRefresh(context)
+        widgetRefresher.refreshAll()
     }
 
     /** 撤销已服 — 删除日志、恢复库存、重设闹钟、刷新 Widget */
@@ -90,14 +88,14 @@ class ToggleMedicationDoseUseCase @Inject constructor(
             medicationRepo.updateStock(med.id, stock + med.doseQuantity)
         }
         alarmScheduler.scheduleAllReminders(med)
-        WidgetRefreshWorker.scheduleImmediateRefresh(context)
+        widgetRefresher.refreshAll()
     }
 
     /** 撤销跳过 — 删除日志、重设闹钟、刷新 Widget */
     suspend fun undoSkipped(med: Medication, log: MedicationLog) {
         logRepo.deleteLog(log)
         alarmScheduler.scheduleAllReminders(med)
-        WidgetRefreshWorker.scheduleImmediateRefresh(context)
+        widgetRefresher.refreshAll()
     }
 
     /**
