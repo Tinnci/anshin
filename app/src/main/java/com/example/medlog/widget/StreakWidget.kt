@@ -32,9 +32,11 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.example.medlog.R
-import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.model.LogStatus
+import com.example.medlog.domain.daysAgoStart
+import com.example.medlog.domain.todayEnd
 import com.example.medlog.ui.MainActivity
+import dagger.hilt.android.EntryPointAccessors
 import java.util.Calendar
 
 /**
@@ -56,14 +58,14 @@ class StreakWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val db          = MedLogDatabase.getInstance(context)
-        val medications = db.medicationDao().getAllMedicationsOnce()
+        val ep          = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        val medications = ep.medicationRepository().getActiveOnce()
         val total       = medications.size
 
-        // 查询最近 30 天的所有日志（用于 Streak 计算）
+        // 查询最近30 天的所有日志（用于 Streak 计算）
         val rangeStart = daysAgoStart(29)
         val rangeEnd   = todayEnd()
-        val allLogs    = db.medicationLogDao().getLogsForRangeOnce(rangeStart, rangeEnd)
+        val allLogs    = ep.logRepository().getLogsForRangeOnce(rangeStart, rangeEnd)
 
         // 判断某天是否完成（全部药品均已标记 TAKEN）
         fun dayComplete(dayStart: Long): Boolean {

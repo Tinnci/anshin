@@ -33,9 +33,11 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.example.medlog.R
-import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.model.LogStatus
+import com.example.medlog.domain.todayEnd
+import com.example.medlog.domain.todayStart
 import com.example.medlog.ui.MainActivity
+import dagger.hilt.android.EntryPointAccessors
 import java.util.Calendar
 
 /**
@@ -58,9 +60,9 @@ class NextDoseWidget : GlanceAppWidget() {
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val db          = MedLogDatabase.getInstance(context)
-        val medications = db.medicationDao().getAllMedicationsOnce()
-        val logs        = db.medicationLogDao().getLogsForDateOnce(todayStart())
+        val ep          = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        val medications = ep.medicationRepository().getActiveOnce()
+        val logs        = ep.logRepository().getLogsForRangeOnce(todayStart(), todayEnd())
 
         val takenIds  = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
         val total     = medications.size

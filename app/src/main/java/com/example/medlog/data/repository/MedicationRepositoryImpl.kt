@@ -40,4 +40,7 @@ class MedicationRepositoryImpl @Inject constructor(
 
     override suspend fun updateStock(id: Long, newStock: Double) =
         medicationDao.updateStock(id, newStock)
+
+    override suspend fun getActiveOnce(): List<Medication> =
+        medicationDao.getAllMedicationsOnce()
 }

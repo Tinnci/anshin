@@ -1,6 +1,5 @@
 package com.example.medlog.ui.screen.home
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.DrugInteraction
@@ -12,12 +11,11 @@ import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.domain.StreakCalculator
 import com.example.medlog.data.repository.UserPreferencesRepository
+import com.example.medlog.domain.ToggleMedicationDoseUseCase
+import com.example.medlog.domain.todayRange
 import com.example.medlog.interaction.InteractionRuleEngine
-import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
-import com.example.medlog.widget.WidgetRefreshWorker
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
@@ -135,10 +133,9 @@ class HomeViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val notificationHelper: NotificationHelper,
-    private val alarmScheduler: AlarmScheduler,
+    private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
-    @param:ApplicationContext private val appContext: Context,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
@@ -204,51 +201,21 @@ class HomeViewModel @Inject constructor(
 
     fun toggleMedicationStatus(item: MedicationWithStatus) {
         viewModelScope.launch {
-            val now = System.currentTimeMillis()
-            val today = todayRange()
             if (item.isTaken) {
-                item.log?.let { logRepo.deleteLog(it) }
-                item.medication.stock?.let { stock ->
-                    medicationRepo.updateStock(item.medication.id, stock + item.medication.doseQuantity)
-                }
-                alarmScheduler.scheduleAllReminders(item.medication)
+                item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
             } else {
-                logRepo.deleteLogsForDate(item.medication.id, today.first, today.second)
-                logRepo.insertLog(
-                    MedicationLog(
-                        medicationId = item.medication.id,
-                        scheduledTimeMs = scheduledMs(item.medication),
-                        actualTakenTimeMs = now,
-                        status = LogStatus.TAKEN,
-                    )
-                )
+                toggleDoseUseCase.markTaken(item.medication, item.log)
                 item.medication.stock?.let { stock ->
                     val newStock = (stock - item.medication.doseQuantity).coerceAtLeast(0.0)
-                    medicationRepo.updateStock(item.medication.id, newStock)
                     checkAndNotifyLowStock(item.medication, newStock)
                 }
-                alarmScheduler.cancelAllAlarms(item.medication.id)
-                notificationHelper.cancelAllReminderNotifications(item.medication.id)
             }
-            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
         }
     }
 
     fun skipMedication(item: MedicationWithStatus) {
         viewModelScope.launch {
-            val today = todayRange()
-            logRepo.deleteLogsForDate(item.medication.id, today.first, today.second)
-            logRepo.insertLog(
-                MedicationLog(
-                    medicationId = item.medication.id,
-                    scheduledTimeMs = scheduledMs(item.medication),
-                    actualTakenTimeMs = null,
-                    status = LogStatus.SKIPPED,
-                )
-            )
-            alarmScheduler.cancelAllAlarms(item.medication.id)
-            notificationHelper.cancelAllReminderNotifications(item.medication.id)
-            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
+            toggleDoseUseCase.markSkipped(item.medication)
         }
     }
 
@@ -257,22 +224,11 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val currentItem = _uiState.value.items.find { it.medication.id == medicationId }
                 ?: return@launch
-            currentItem.log?.let { log ->
-                logRepo.deleteLog(log)
-                if (currentItem.isTaken) {
-                    // 恢复库存并重新设置提醒
-                    currentItem.medication.stock?.let { stock ->
-                        medicationRepo.updateStock(
-                            currentItem.medication.id,
-                            stock + currentItem.medication.doseQuantity,
-                        )
-                    }
-                    alarmScheduler.scheduleAllReminders(currentItem.medication)
-                } else if (currentItem.isSkipped) {
-                    alarmScheduler.scheduleAllReminders(currentItem.medication)
-                }
+            val log = currentItem.log ?: return@launch
+            when {
+                currentItem.isTaken   -> toggleDoseUseCase.undoTaken(currentItem.medication, log)
+                currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(currentItem.medication, log)
             }
-            WidgetRefreshWorker.scheduleImmediateRefresh(appContext)
         }
     }
 
@@ -396,22 +352,5 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun todayRange(): Pair<Long, Long> {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, 0); set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-        val start = cal.timeInMillis
-        return start to (start + 24 * 60 * 60 * 1000 - 1)
-    }
-
-    private fun scheduledMs(med: Medication): Long {
-        val cal = Calendar.getInstance().apply {
-            set(Calendar.HOUR_OF_DAY, med.reminderHour)
-            set(Calendar.MINUTE, med.reminderMinute)
-            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-        }
-        return cal.timeInMillis
-    }
 }
 

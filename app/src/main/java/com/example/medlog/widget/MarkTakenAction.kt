@@ -5,18 +5,15 @@ import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
 import androidx.glance.appwidget.updateAll
-import com.example.medlog.data.local.MedLogDatabase
-import com.example.medlog.data.model.LogStatus
-import com.example.medlog.data.model.MedicationLog
-import java.util.Calendar
+import dagger.hilt.android.EntryPointAccessors
 
 /**
  * 小组件内"直接打卡"回调。
  *
  * 点击某药品旁的 ✓ 按钮时触发：
- * 1. 查找今日该药品的日志记录
- * 2. 若不存在或非 TAKEN → 写入 / 更新为 TAKEN
- * 3. 刷新所有 MedLogWidget 实例
+ * 1. 通过 [WidgetEntryPoint] 获取 [com.example.medlog.domain.ToggleMedicationDoseUseCase]
+ * 2. 调用 markTakenById：写入日志、扣库存、取消闹钟、取消通知（完整副作用，与主应用一致）
+ * 3. 刷新所有 Widget 实例
  */
 class MarkTakenAction : ActionCallback {
 
@@ -27,27 +24,13 @@ class MarkTakenAction : ActionCallback {
     ) {
         val medId = parameters[medIdKey] ?: return
 
-        val db      = MedLogDatabase.getInstance(context)
-        val dao     = db.medicationLogDao()
-        val start   = todayStart()
-        val end     = start + 24 * 60 * 60 * 1000L - 1L
-        val existing = dao.getLogForMedicationAndDate(medId, start, end)
+        val entryPoint = EntryPointAccessors.fromApplication(
+            context.applicationContext,
+            WidgetEntryPoint::class.java,
+        )
+        entryPoint.toggleMedicationDoseUseCase().markTakenById(medId)
 
-        val now = System.currentTimeMillis()
-        if (existing == null) {
-            dao.insertLog(
-                MedicationLog(
-                    medicationId      = medId,
-                    scheduledTimeMs   = start,
-                    actualTakenTimeMs = now,
-                    status            = LogStatus.TAKEN,
-                ),
-            )
-        } else if (existing.status != LogStatus.TAKEN) {
-            dao.updateLog(existing.copy(status = LogStatus.TAKEN, actualTakenTimeMs = now))
-        }
-
-        // 刷新所有小组件实例
+        // 立即重新渲染所有小组件实例
         MedLogWidget().updateAll(context)
         NextDoseWidget().updateAll(context)
         StreakWidget().updateAll(context)
@@ -58,3 +41,4 @@ class MarkTakenAction : ActionCallback {
             ActionParameters.Key("med_id")
     }
 }
+

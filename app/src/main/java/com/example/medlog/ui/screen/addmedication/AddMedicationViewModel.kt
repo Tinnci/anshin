@@ -10,12 +10,12 @@ import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.SettingsPreferences
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.util.ReminderTimeUtils
+import com.example.medlog.domain.todayStart
 import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 /** 剂型选项 */
@@ -47,7 +47,7 @@ data class AddMedicationUiState(
     val frequencyDays: String = "1,2,3,4,5,6,7", // 逗号分隔的周天
 
     // ── 起止日期 ─────────────────────────────────────────────────
-    val startDate: Long = todayStartMs(),
+    val startDate: Long = todayStart(),
     val endDate: Long? = null,
 
     // ── 库存 ─────────────────────────────────────────────────────
@@ -74,13 +74,6 @@ data class AddMedicationUiState(
     val drugSuggestions: List<Drug> = emptyList(),
     val showDrugSuggestions: Boolean = false,
 )
-
-private fun todayStartMs(): Long {
-    val cal = Calendar.getInstance()
-    cal.set(Calendar.HOUR_OF_DAY, 0); cal.set(Calendar.MINUTE, 0)
-    cal.set(Calendar.SECOND, 0); cal.set(Calendar.MILLISECOND, 0)
-    return cal.timeInMillis
-}
 
 @HiltViewModel
 class AddMedicationViewModel @Inject constructor(

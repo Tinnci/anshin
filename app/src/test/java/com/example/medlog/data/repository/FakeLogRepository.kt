@@ -60,4 +60,7 @@ class FakeLogRepository : LogRepository {
         _logs.map { list ->
             list.count { it.scheduledTimeMs in startMs..endMs && it.status == LogStatus.TAKEN }
         }
+
+    override suspend fun getLogsForRangeOnce(startMs: Long, endMs: Long): List<MedicationLog> =
+        _logs.value.filter { it.scheduledTimeMs in startMs..endMs }
 }

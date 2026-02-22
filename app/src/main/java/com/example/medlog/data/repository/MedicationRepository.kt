@@ -18,4 +18,6 @@ interface MedicationRepository {
     suspend fun archiveMedication(id: Long)
     suspend fun unarchiveMedication(id: Long)
     suspend fun updateStock(id: Long, newStock: Double)
+    /** Widget / 一次性读取活跃药品列表（非 Flow），用于 Glance Widget 刷新 */
+    suspend fun getActiveOnce(): List<Medication>
 }

@@ -37,4 +37,7 @@ class LogRepositoryImpl @Inject constructor(
 
     override fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int> =
         logDao.getTakenCountForDateRange(startMs, endMs)
+
+    override suspend fun getLogsForRangeOnce(startMs: Long, endMs: Long): List<MedicationLog> =
+        logDao.getLogsForRangeOnce(startMs, endMs)
 }

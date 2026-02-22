@@ -58,4 +58,7 @@ class FakeMedicationRepository : MedicationRepository {
             if (it.id == id) it.copy(stock = newStock) else it
         }
     }
+
+    override suspend fun getActiveOnce(): List<Medication> =
+        _medications.value.filter { !it.isArchived }
 }
