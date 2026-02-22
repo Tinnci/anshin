@@ -558,7 +558,7 @@
     <string name="widget_next_dose_no_pending">服薬予定なし</string>
     <string name="widget_next_dose_more_fmt">+%d 種</string>
     <string name="widget_next_dose_count_fmt">%d 種類の薬</string>    <!-- ウィジェット服薬ボタン -->
-    <string name="widget_action_btn">服</string>
+    <string name="widget_action_btn">飲</string>
     <!-- ウィジェット設定 -->
     <string name="widget_settings_title">ウィジェット設定</string>
     <string name="widget_settings_show_actions">服薬ボタン</string>
