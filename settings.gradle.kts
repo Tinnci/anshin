@@ -33,5 +33,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "MedLog"
+rootProject.name = "Anshin"
 include(":app")
