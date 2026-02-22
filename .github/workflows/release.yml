@@ -115,9 +115,9 @@ jobs:
           APK_DIR="app/build/outputs/apk/release"
           VER="${{ steps.version.outputs.version_name }}"
           if [ "${{ steps.keystore.outputs.signed }}" = "true" ]; then
-            NEW_NAME="MedLog-v${VER}.apk"
+            NEW_NAME="Anshin-v${VER}.apk"
           else
-            NEW_NAME="MedLog-v${VER}-unsigned.apk"
+            NEW_NAME="Anshin-v${VER}-unsigned.apk"
           fi
           find "$APK_DIR" -name "*.apk" | head -1 | xargs -I{} mv {} "$APK_DIR/$NEW_NAME"
           echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
@@ -145,7 +145,7 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
-          name: "MedLog v${{ steps.version.outputs.version_name }}"
+          name: "Anshin v${{ steps.version.outputs.version_name }}"
           body: |
             ## 更新内容
 
