@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.glance.GlanceId
 import androidx.glance.action.ActionParameters
 import androidx.glance.appwidget.action.ActionCallback
-import androidx.glance.appwidget.updateAll
 import dagger.hilt.android.EntryPointAccessors
 
 /**
@@ -29,11 +28,7 @@ class MarkTakenAction : ActionCallback {
             WidgetEntryPoint::class.java,
         )
         entryPoint.toggleMedicationDoseUseCase().markTakenById(medId)
-
-        // 立即重新渲染所有小组件实例
-        MedLogWidget().updateAll(context)
-        NextDoseWidget().updateAll(context)
-        StreakWidget().updateAll(context)
+        // Widget 刷新已由 ToggleMedicationDoseUseCase → WidgetRefresher.refreshAll() 统一处理，无需在此重复调用
     }
 
     companion object {
