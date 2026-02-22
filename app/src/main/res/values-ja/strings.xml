@@ -617,4 +617,7 @@
     <string name="qr_import_mode_replace">置換（全削除して再インポート）</string>
     <string name="qr_import_confirm">インポートする</string>
     <string name="qr_invalid">無効なQRコードです。Anshinのエクスポートコードをスキャンしてください</string>
+    <string name="qr_import_success">%d種類の薬をインポートしました</string>
+    <string name="qr_export_med_count">%d種類の薬がエクスポートされます</string>
+    <string name="qr_export_empty">エクスポートできる薬がありません</string>
 </resources>

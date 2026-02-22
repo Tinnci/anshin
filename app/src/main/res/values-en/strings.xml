@@ -642,4 +642,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="qr_import_mode_replace">Replace (clear &amp; import)</string>
     <string name="qr_import_confirm">Confirm Import</string>
     <string name="qr_invalid">Invalid QR code. Please scan an Anshin export code.</string>
+    <string name="qr_import_success">Successfully imported %d medication(s)</string>
+    <string name="qr_export_med_count">%d medication(s) will be exported</string>
+    <string name="qr_export_empty">No medications to export</string>
 </resources>

@@ -619,4 +619,7 @@
     <string name="qr_import_mode_replace">대체(전체 삭제 후 다시 가져오기)</string>
     <string name="qr_import_confirm">가져오기 확인</string>
     <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔해 주세요</string>
+    <string name="qr_import_success">%d가지 약품을 가져왔습니다</string>
+    <string name="qr_export_med_count">%d가지 약품이 내보내집니다</string>
+    <string name="qr_export_empty">내보낼 약품이 없습니다</string>
 </resources>

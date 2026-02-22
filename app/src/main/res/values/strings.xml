@@ -618,4 +618,7 @@
     <string name="qr_import_mode_replace">替换（清空重导）</string>
     <string name="qr_import_confirm">确认导入</string>
     <string name="qr_invalid">无效的二维码，请扫描由 Anshin 生成的导出码</string>
+    <string name="qr_import_success">已成功导入 %d 种药品</string>
+    <string name="qr_export_med_count">共 %d 种药品将被导出</string>
+    <string name="qr_export_empty">没有可导出的药品</string>
 </resources>

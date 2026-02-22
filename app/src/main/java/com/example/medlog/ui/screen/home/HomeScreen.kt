@@ -98,6 +98,14 @@ fun HomeScreen(
     val fmtPeriodAllTaken = stringResource(R.string.home_snackbar_period_all_taken)
     val fmtPrnUndo = stringResource(R.string.home_snackbar_prn_undo)
     val fmtPrnTaken = stringResource(R.string.home_snackbar_prn_taken)
+    val fmtImportSuccess = stringResource(R.string.qr_import_success)
+
+    // 收集导入成功事件 → Snackbar
+    LaunchedEffect(Unit) {
+        viewModel.importSuccess.collect { count ->
+            snackbarHostState.showSnackbar(fmtImportSuccess.format(count))
+        }
+    }
 
     // Pending items for "take all" button (excluding PRN on-demand meds)
     val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
@@ -1307,8 +1315,23 @@ private fun MedicationQrDialog(
 
                 // ── Tab 1 内容 ───────────────────────────────────────
                 if (selectedTab == 1) {
+                    // 药品数量摘要
+                    Text(
+                        stringResource(R.string.qr_export_med_count, items.size),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                     if (exportUri == null) {
-                        CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                        if (items.isEmpty()) {
+                            Text(
+                                stringResource(R.string.qr_export_empty),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                                textAlign = TextAlign.Center,
+                            )
+                        } else {
+                            CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                        }
                     } else if (canShowQr) {
                         QrImageBox(bitmap = exportQrBitmap)
                         Text(
@@ -1318,12 +1341,31 @@ private fun MedicationQrDialog(
                             textAlign = TextAlign.Center,
                         )
                     } else {
-                        Text(
-                            stringResource(R.string.qr_export_too_large),
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            textAlign = TextAlign.Center,
-                        )
+                        // 数据过大提示 — 使用 Card 展示更友好
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.errorContainer,
+                            ),
+                        ) {
+                            Column(
+                                modifier = Modifier.padding(12.dp),
+                                horizontalAlignment = Alignment.CenterHorizontally,
+                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Warning,
+                                    contentDescription = null,
+                                    tint = MaterialTheme.colorScheme.onErrorContainer,
+                                )
+                                Text(
+                                    stringResource(R.string.qr_export_too_large),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onErrorContainer,
+                                    textAlign = TextAlign.Center,
+                                )
+                            }
+                        }
                     }
                 }
 

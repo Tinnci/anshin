@@ -155,6 +155,10 @@ class HomeViewModel @Inject constructor(
     private val _importError = MutableStateFlow<String?>(null)
     val importError: StateFlow<String?> = _importError.asStateFlow()
 
+    /** 导入成功事件（值为导入的药品数量）；供 HomeScreen 显示 Snackbar */
+    private val _importSuccess = MutableSharedFlow<Int>(replay = 0, extraBufferCapacity = 1)
+    val importSuccess: SharedFlow<Int> = _importSuccess.asSharedFlow()
+
     /** 上次推送今日进度通知时的 (taken, total)；避免重复更新通知 */
     private var lastProgressNotifState = -1 to -1
 
@@ -381,9 +385,11 @@ class HomeViewModel @Inject constructor(
     /** 用户选择导入模式后执行实际导入 */
     fun confirmImport(mode: ImportMode) {
         val plan = _importPreview.value ?: return
+        val count = plan.meds.size
         viewModelScope.launch {
             importPlanUseCase(plan, mode)
             _importPreview.value = null
+            _importSuccess.emit(count)
         }
     }
 

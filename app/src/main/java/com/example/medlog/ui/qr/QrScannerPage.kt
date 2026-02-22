@@ -24,6 +24,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
@@ -53,6 +55,7 @@ fun QrScannerPage(
     onBack: () -> Unit,
 ) {
     val context       = LocalContext.current
+    val haptic        = LocalHapticFeedback.current
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
@@ -89,7 +92,10 @@ fun QrScannerPage(
             if (hasPermission) {
                 CameraPreview(
                     modifier = Modifier.fillMaxSize(),
-                    onQrScanned = onResult,
+                    onQrScanned = { raw ->
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        onResult(raw)
+                    },
                 )
                 // 取景框叠加层
                 Box(
