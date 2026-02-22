@@ -45,8 +45,10 @@ data class SettingsUiState(
     val earlyReminderMinutes: Int = 0,
     // ── 小组件显示偏好 ──────────────────────────────────────────────────────────
     /** true = 显示交互服药按钮；false = 仅显示状态指示 */
-    val widgetShowActions: Boolean = true,
-)
+    val widgetShowActions: Boolean = true,    // ── 漏服再提醒 ──────────────────────────────────────────────────
+    val followUpReminderEnabled: Boolean = false,
+    val followUpDelayMinutes: Int = 15,
+    val followUpMaxCount: Int = 1,)
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
@@ -81,6 +83,9 @@ class SettingsViewModel @Inject constructor(
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
             widgetShowActions = prefs.widgetShowActions,
+            followUpReminderEnabled = prefs.followUpReminderEnabled,
+            followUpDelayMinutes    = prefs.followUpDelayMinutes,
+            followUpMaxCount        = prefs.followUpMaxCount,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
@@ -160,6 +165,13 @@ class SettingsViewModel @Inject constructor(
             manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
                 widget.update(appContext, id)
             }
+        }
+    }
+
+    /** 更新漏服再提醒设置 */
+    fun setFollowUpSettings(enabled: Boolean? = null, delayMinutes: Int? = null, maxCount: Int? = null) {
+        viewModelScope.launch {
+            prefsRepository.updateFollowUpSettings(enabled, delayMinutes, maxCount)
         }
     }
 

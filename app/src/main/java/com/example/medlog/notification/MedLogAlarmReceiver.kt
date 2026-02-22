@@ -7,9 +7,11 @@ import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.data.repository.UserPreferencesRepository
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -28,11 +30,15 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
     @Inject
     lateinit var logRepo: LogRepository
 
+    @Inject
+    lateinit var prefsRepository: UserPreferencesRepository
+
     override fun onReceive(context: Context, intent: Intent) {
         val medId = intent.getLongExtra(EXTRA_MED_ID, -1L)
         val medName = intent.getStringExtra(EXTRA_MED_NAME) ?: return
         val timeIndex = intent.getIntExtra(EXTRA_TIME_INDEX, 0)
         val isEarly = intent.getBooleanExtra(EXTRA_IS_EARLY, false)
+        val isFollowUp = intent.getBooleanExtra(EXTRA_IS_FOLLOW_UP, false)
         if (medId == -1L) return
 
         val nowMs = System.currentTimeMillis()
@@ -43,6 +49,8 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
             "ACTION_TAKEN" -> {
                 // 仅取消本时间槽通知，其他时间槽提醒不受影响
                 notificationHelper.cancelReminderNotification(medId, timeIndex)
+                notificationHelper.cancelFollowUpNotification(medId, timeIndex)
+                alarmScheduler.cancelFollowUpAlarms(medId)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         logRepo.insertLog(
@@ -69,6 +77,8 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
             "ACTION_SKIP" -> {
                 // 仅取消本时间槽通知，其他时间槽提醒不受影响
                 notificationHelper.cancelReminderNotification(medId, timeIndex)
+                notificationHelper.cancelFollowUpNotification(medId, timeIndex)
+                alarmScheduler.cancelFollowUpAlarms(medId)
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         logRepo.insertLog(
@@ -104,8 +114,49 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                         }
                     }
                     return
-                }
-                // 正式服药时间到：显示通知，并调度下一次闹钟
+                }                // 漏服再提醒闳钟触发
+                if (isFollowUp) {
+                    val followUpCount    = intent.getIntExtra(EXTRA_FOLLOW_UP_COUNT, 1)
+                    val followUpMaxCount = intent.getIntExtra(EXTRA_FOLLOW_UP_MAX_COUNT, 1)
+                    val followUpDelayMs  = intent.getLongExtra(EXTRA_FOLLOW_UP_DELAY_MS, 15 * 60_000L)
+                    val scheduledMs      = intent.getLongExtra(EXTRA_SCHEDULED_MS, nowMs)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        try {
+                            val med = medicationRepo.getMedicationById(medId) ?: return@launch
+                            // 检查用户是否已在原时间前后窗口内服辩或跳过该药
+                            val windowMs   = 30 * 60_000L
+                            val existingLog = logRepo.getLogForMedicationAndDate(
+                                medicationId = medId,
+                                startMs = scheduledMs - windowMs,
+                                endMs   = scheduledMs + followUpDelayMs * followUpCount + windowMs,
+                            )
+                            if (existingLog != null &&
+                                existingLog.status != com.example.medlog.data.model.LogStatus.MISSED
+                            ) return@launch  // 已服辩或跳过，不显示再提醒
+                            // 显示漏服再提醒通知
+                            notificationHelper.showFollowUpNotification(
+                                medId, medName,
+                                "${med.doseQuantity} ${med.doseUnit}",
+                                timeIndex, followUpCount,
+                            )
+                            // 若还没到最大次数，继续调度下一次
+                            if (followUpCount < followUpMaxCount) {
+                                alarmScheduler.scheduleFollowUpAlarm(
+                                    medication       = med,
+                                    timeIndex        = timeIndex,
+                                    scheduledMs      = scheduledMs,
+                                    followUpCount    = followUpCount + 1,
+                                    followUpMaxCount = followUpMaxCount,
+                                    delayMs          = followUpDelayMs,
+                                    triggerAtMs      = nowMs + followUpDelayMs,
+                                )
+                            }
+                        } finally {
+                            pendingResult.finish()
+                        }
+                    }
+                    return
+                }                // 正式服药时间到：显示通知，并调度下一次闹钟
                 CoroutineScope(Dispatchers.IO).launch {
                     try {
                         val med = medicationRepo.getMedicationById(medId) ?: return@launch
@@ -130,6 +181,20 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                             alarmScheduler.scheduleAlarmSlot(med, timeIndex, nextMs)
                             // 同时为下次主提醒调度配套的提前预告
                             alarmScheduler.scheduleAllReminders(med)
+                        }
+                        // 若已开启漏服再提醒，调度第一次再提醒闳钟
+                        val prefs = prefsRepository.settingsFlow.first()
+                        if (prefs.followUpReminderEnabled && prefs.followUpMaxCount > 0) {
+                            val delayMs = prefs.followUpDelayMinutes * 60_000L
+                            alarmScheduler.scheduleFollowUpAlarm(
+                                medication       = med,
+                                timeIndex        = timeIndex,
+                                scheduledMs      = nowMs,
+                                followUpCount    = 1,
+                                followUpMaxCount = prefs.followUpMaxCount,
+                                delayMs          = delayMs,
+                                triggerAtMs      = nowMs + delayMs,
+                            )
                         }
                     } finally {
                         pendingResult.finish()

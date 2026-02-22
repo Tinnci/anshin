@@ -17,11 +17,18 @@ const val CHANNEL_REMINDER       = "med_reminder"
 const val CHANNEL_LOW_STOCK      = "low_stock"
 const val CHANNEL_PROGRESS       = "med_progress"    // 持久性今日进度通知
 const val CHANNEL_EARLY_REMINDER = "early_reminder"  // 提前预告提醒
+const val CHANNEL_FOLLOW_UP      = "follow_up"       // 漏服再提醒
 private const val NOTIF_ID_PROGRESS = 9999
 const val EXTRA_MED_ID    = "med_id"
 const val EXTRA_MED_NAME  = "med_name"
 const val EXTRA_TIME_INDEX = "time_index"  // 提醒时间在列表中的索引
 const val EXTRA_IS_EARLY  = "is_early"    // 是否为提前预告通知
+// 漏服再提醒相关 extras
+const val EXTRA_IS_FOLLOW_UP        = "is_follow_up"
+const val EXTRA_FOLLOW_UP_COUNT     = "follow_up_count"
+const val EXTRA_FOLLOW_UP_MAX_COUNT = "follow_up_max_count"
+const val EXTRA_FOLLOW_UP_DELAY_MS  = "follow_up_delay_ms"
+const val EXTRA_SCHEDULED_MS        = "scheduled_ms"
 
 /** 提醒通知分组键 */
 private const val GROUP_REMINDERS = "com.example.medlog.REMINDERS"
@@ -101,7 +108,16 @@ class NotificationHelper @Inject constructor(
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 300)             // 单次轻震
         }
-        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel, earlyChannel))
+        val followUpChannel = NotificationChannel(
+            CHANNEL_FOLLOW_UP,
+            context.getString(R.string.notif_ch_follow_up_name),
+            NotificationManager.IMPORTANCE_HIGH,
+        ).apply {
+            description = context.getString(R.string.notif_ch_follow_up_desc)
+            enableVibration(true)
+            vibrationPattern = longArrayOf(0, 300, 150, 300, 150, 300)  // 三连震第警示
+        }
+        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel, earlyChannel, followUpChannel))
     }
     // ─── 今日进度持久性通知（Live Activity 风格）─────────────────────────────
 
@@ -326,5 +342,63 @@ class NotificationHelper @Inject constructor(
     /** 取消指定药品某时间槽的提前通知 */
     fun cancelEarlyReminderNotification(medicationId: Long, timeIndex: Int) {
         notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + 50_000)
+    }
+
+    // ─── 漏服再提醒通知 ─────────────────────────────────────────
+
+    /**
+     * 展示“漏服再提醒”通知。
+     * @param followUpCount 第几次再提醒（从 1 开始）
+     */
+    fun showFollowUpNotification(
+        medicationId: Long,
+        medicationName: String,
+        dose: String,
+        timeIndex: Int,
+        followUpCount: Int,
+    ) {
+        if (!notificationManager.areNotificationsEnabled()) return
+        val baseIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+            putExtra(EXTRA_MED_ID, medicationId)
+            putExtra(EXTRA_MED_NAME, medicationName)
+            putExtra(EXTRA_TIME_INDEX, timeIndex)
+        }
+        val notificationId = (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET
+        val takenPendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId * 10 + 1,
+            baseIntent.apply { action = "ACTION_TAKEN" },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val skipPendingIntent = PendingIntent.getBroadcast(
+            context,
+            notificationId * 10 + 2,
+            baseIntent.apply { action = "ACTION_SKIP" },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        val notification = NotificationCompat.Builder(context, CHANNEL_FOLLOW_UP)
+            .setSmallIcon(R.drawable.ic_notification)
+            .setColor(brandColor)
+            .setContentTitle(context.getString(R.string.notif_follow_up_title, medicationName))
+            .setContentText(context.getString(R.string.notif_follow_up_body, dose))
+            .setSubText(context.getString(R.string.notif_follow_up_subtext, followUpCount))
+            .setStyle(NotificationCompat.BigTextStyle()
+                .bigText(context.getString(R.string.notif_follow_up_big_text, medicationName, dose))
+            )
+            .addAction(0, context.getString(R.string.medication_taken), takenPendingIntent)
+            .addAction(0, context.getString(R.string.notif_action_skip), skipPendingIntent)
+            .setContentIntent(openAppPendingIntent)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
+            .setCategory(NotificationCompat.CATEGORY_REMINDER)
+            .setAutoCancel(true)
+            .setTimeoutAfter(60 * 60 * 1000L)  // 1 小时后自动清除
+            .setTicker(context.getString(R.string.notif_follow_up_ticker, medicationName))
+            .build()
+        notificationManager.notify(notificationId, notification)
+    }
+
+    /** 取消漏服再提醒通知 */
+    fun cancelFollowUpNotification(medicationId: Long, timeIndex: Int) {
+        notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET)
     }
 }

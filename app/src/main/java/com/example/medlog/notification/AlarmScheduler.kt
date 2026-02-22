@@ -20,6 +20,8 @@ import javax.inject.Singleton
 private const val MAX_REMINDER_SLOTS = 20
 /** PendingIntent requestCode 偏移：提前预告闹钟用，避免与正式提醒冲突 */
 const val EARLY_REMINDER_CODE_OFFSET = 50_000
+/** PendingIntent requestCode 偏移：漏服再提醒闳钟 */
+const val FOLLOW_UP_CODE_OFFSET = 100_000
 
 /**
  * 闹钟调度器。
@@ -132,6 +134,8 @@ class AlarmScheduler @Inject constructor(
         }
         // 一并取消所有提前预告闹钟
         cancelEarlyReminderAlarms(medicationId)
+        // 一并取消漏服再提醒闳钟
+        cancelFollowUpAlarms(medicationId)
     }
 
     /**
@@ -150,6 +154,62 @@ class AlarmScheduler @Inject constructor(
             alarmManager.cancel(intent)
             intent.cancel()
         }
+    }
+
+    /**
+     * 取消某药品的所有漏服再提醒闳钟。
+     */
+    fun cancelFollowUpAlarms(medicationId: Long) {
+        for (i in 0 until MAX_REMINDER_SLOTS) {
+            val requestCode = (medicationId * 100 + i).toInt() + FOLLOW_UP_CODE_OFFSET
+            val intent = PendingIntent.getBroadcast(
+                context,
+                requestCode,
+                Intent(context, MedLogAlarmReceiver::class.java),
+                PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+            ) ?: continue
+            alarmManager.cancel(intent)
+            intent.cancel()
+        }
+    }
+
+    /**
+     * 调度漏服再提醒闳钟。
+     *
+     * @param medication 药品对象
+     * @param timeIndex  提醒时间槽索引
+     * @param scheduledMs 原始闳钟触发时间（用于对藏日志查询）
+     * @param followUpCount 当前是第几次再提醒（从 1 开始）
+     * @param followUpMaxCount 最大再提醒次数
+     * @param delayMs 再提醒间隔毫秒时
+     * @param triggerAtMs 本次闳钟触发时间
+     */
+    fun scheduleFollowUpAlarm(
+        medication: Medication,
+        timeIndex: Int,
+        scheduledMs: Long,
+        followUpCount: Int,
+        followUpMaxCount: Int,
+        delayMs: Long,
+        triggerAtMs: Long,
+    ) {
+        val requestCode = (medication.id * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET
+        val intent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            Intent(context, MedLogAlarmReceiver::class.java).apply {
+                putExtra(EXTRA_MED_ID,             medication.id)
+                putExtra(EXTRA_MED_NAME,            medication.name)
+                putExtra(EXTRA_TIME_INDEX,          timeIndex)
+                putExtra(EXTRA_IS_FOLLOW_UP,        true)
+                putExtra(EXTRA_FOLLOW_UP_COUNT,     followUpCount)
+                putExtra(EXTRA_FOLLOW_UP_MAX_COUNT, followUpMaxCount)
+                putExtra(EXTRA_FOLLOW_UP_DELAY_MS,  delayMs)
+                putExtra(EXTRA_SCHEDULED_MS,        scheduledMs)
+            },
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+        )
+        scheduleExact(intent, triggerAtMs)
     }
 
     // ─── 计算下次触发时间 ────────────────────────────────────────────────

@@ -620,4 +620,20 @@
     <string name="qr_import_success">%d種類の薬をインポートしました</string>
     <string name="qr_export_med_count">%d種類の薬がエクスポートされます</string>
     <string name="qr_export_empty">エクスポートできる薬がありません</string>
+    <!-- 飲み忘れフォローアップ通知チャンネル -->
+    <string name="notif_ch_follow_up_name">飲み忘れリマインダー</string>
+    <string name="notif_ch_follow_up_desc">服薬時間を過ぎても記録がない場合に自動で再通知します</string>
+    <!-- 飲み忘れフォローアップ通知文言 -->
+    <string name="notif_follow_up_title">飲み忘れ：%s</string>
+    <string name="notif_follow_up_body">用量：%s</string>
+    <string name="notif_follow_up_subtext">フォローアップ #%d</string>
+    <string name="notif_follow_up_big_text">%1$s（用量：%2$s）をまだ服用していないようです。早めに服用してください。</string>
+    <string name="notif_follow_up_ticker">%s 飲み忘れリマインダー</string>
+    <!-- 設定画面：飲み忘れリマインダー -->
+    <string name="settings_follow_up_section">飲み忘れ自動再通知</string>
+    <string name="settings_follow_up_enable">飲み忘れリマインダーを有効にする</string>
+    <string name="settings_follow_up_enable_desc">服薬時間を過ぎても記録がない場合、自動で再通知します</string>
+    <string name="settings_follow_up_delay">再通知間隔</string>
+    <string name="settings_follow_up_count">最大再通知回数</string>
+    <string name="settings_follow_up_delay_min">%d 分</string>
 </resources>

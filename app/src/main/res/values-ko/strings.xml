@@ -622,4 +622,20 @@
     <string name="qr_import_success">%d가지 약품을 가져왔습니다</string>
     <string name="qr_export_med_count">%d가지 약품이 내보내집니다</string>
     <string name="qr_export_empty">내보낼 약품이 없습니다</string>
+    <!-- 복약 누락 재알림 채널 -->
+    <string name="notif_ch_follow_up_name">복약 누락 재알림</string>
+    <string name="notif_ch_follow_up_desc">예정 시간에 복약을 기록하지 않으면 자동으로 다시 알립니다</string>
+    <!-- 복약 누락 재알림 알림 문구 -->
+    <string name="notif_follow_up_title">복약 누락: %s</string>
+    <string name="notif_follow_up_body">용량: %s</string>
+    <string name="notif_follow_up_subtext">재알림 #%d</string>
+    <string name="notif_follow_up_big_text">%1$s (용량: %2$s)을(를) 아직 복용하지 않은 것 같습니다. 빨리 복용해 주세요.</string>
+    <string name="notif_follow_up_ticker">%s 복약 누락 알림</string>
+    <!-- 설정 화면: 복약 누락 재알림 -->
+    <string name="settings_follow_up_section">복약 누락 자동 재알림</string>
+    <string name="settings_follow_up_enable">복약 누락 재알림 활성화</string>
+    <string name="settings_follow_up_enable_desc">예정 시간에 복약을 기록하지 않으면 자동으로 재알림을 보냅니다</string>
+    <string name="settings_follow_up_delay">재알림 간격</string>
+    <string name="settings_follow_up_count">최대 재알림 횟수</string>
+    <string name="settings_follow_up_delay_min">%d분</string>
 </resources>

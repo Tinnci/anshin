@@ -447,6 +447,73 @@ fun SettingsScreen(
                 }
             }
 
+            // ── 漏服自动再提醒 ────────────────────────────────────
+            SettingsCard(
+                title = stringResource(R.string.settings_follow_up_section),
+                icon = Icons.Rounded.NotificationAdd,
+            ) {
+                SettingsSwitchRow(
+                    title = stringResource(R.string.settings_follow_up_enable),
+                    subtitle = stringResource(R.string.settings_follow_up_enable_desc),
+                    icon = Icons.Rounded.AlarmAdd,
+                    checked = uiState.followUpReminderEnabled,
+                    onCheckedChange = { viewModel.setFollowUpSettings(enabled = it) },
+                )
+                AnimatedVisibility(
+                    visible = uiState.followUpReminderEnabled,
+                    enter = expandVertically(),
+                    exit = shrinkVertically(),
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 16.dp)
+                            .padding(bottom = 12.dp),
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        HorizontalDivider()
+                        // ── 再提醒间隔 ────────────────────────────
+                        Text(
+                            stringResource(R.string.settings_follow_up_delay),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf(10, 15, 30, 60).forEach { mins ->
+                                FilterChip(
+                                    selected = uiState.followUpDelayMinutes == mins,
+                                    onClick = { viewModel.setFollowUpSettings(delayMinutes = mins) },
+                                    label = { Text(stringResource(R.string.settings_follow_up_delay_min, mins)) },
+                                )
+                            }
+                        }
+                        // ── 最多再提醒次数 ─────────────────────────
+                        Text(
+                            stringResource(R.string.settings_follow_up_count),
+                            style = MaterialTheme.typography.bodySmall,
+                            fontWeight = FontWeight.Medium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                        FlowRow(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            listOf(1, 2, 3).forEach { count ->
+                                FilterChip(
+                                    selected = uiState.followUpMaxCount == count,
+                                    onClick = { viewModel.setFollowUpSettings(maxCount = count) },
+                                    label = { Text("$count") },
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
             // ── 作息时间 ─────────────────────────────────────────
             SettingsCard(title = stringResource(R.string.settings_routine), icon = Icons.Rounded.Schedule) {
                 // ── 模式开关 ──────────────────────────────────────

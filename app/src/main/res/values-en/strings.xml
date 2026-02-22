@@ -645,4 +645,20 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="qr_import_success">Successfully imported %d medication(s)</string>
     <string name="qr_export_med_count">%d medication(s) will be exported</string>
     <string name="qr_export_empty">No medications to export</string>
+    <!-- Missed-dose follow-up notification channel -->
+    <string name="notif_ch_follow_up_name">Missed Dose Follow-up</string>
+    <string name="notif_ch_follow_up_desc">Sends a follow-up reminder if you haven\'t logged your medication on time</string>
+    <!-- Missed-dose follow-up notification copy -->
+    <string name="notif_follow_up_title">Missed dose: %s</string>
+    <string name="notif_follow_up_body">Dose: %s</string>
+    <string name="notif_follow_up_subtext">Follow-up reminder #%d</string>
+    <string name="notif_follow_up_big_text">It looks like you haven\'t taken %1$s (dose: %2$s) yet. Please take it soon.</string>
+    <string name="notif_follow_up_ticker">Missed dose reminder: %s</string>
+    <!-- Settings: follow-up reminder -->
+    <string name="settings_follow_up_section">Missed-Dose Follow-up Reminder</string>
+    <string name="settings_follow_up_enable">Enable Follow-up Reminder</string>
+    <string name="settings_follow_up_enable_desc">Automatically resend a reminder if a dose isn\'t logged on time</string>
+    <string name="settings_follow_up_delay">Reminder Interval</string>
+    <string name="settings_follow_up_count">Max. Follow-up Count</string>
+    <string name="settings_follow_up_delay_min">%d min</string>
 </resources>

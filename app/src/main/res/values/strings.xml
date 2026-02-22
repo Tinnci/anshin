@@ -621,4 +621,20 @@
     <string name="qr_import_success">已成功导入 %d 种药品</string>
     <string name="qr_export_med_count">共 %d 种药品将被导出</string>
     <string name="qr_export_empty">没有可导出的药品</string>
+    <!-- 漏服再提醒通知渠道 -->
+    <string name="notif_ch_follow_up_name">漏服再提醒</string>
+    <string name="notif_ch_follow_up_desc">未在预定时间服药时自动再次提醒</string>
+    <!-- 漏服再提醒通知文案 -->
+    <string name="notif_follow_up_title">漏服提醒：%s</string>
+    <string name="notif_follow_up_body">剂量：%s</string>
+    <string name="notif_follow_up_subtext">第 %d 次再提醒</string>
+    <string name="notif_follow_up_big_text">您好像还没有服用 %1$s（剂量 %2$s），请及时服药</string>
+    <string name="notif_follow_up_ticker">%s 漏服提醒</string>
+    <!-- 设置页：漏服再提醒 -->
+    <string name="settings_follow_up_section">漏服自动再提醒</string>
+    <string name="settings_follow_up_enable">开启漏服再提醒</string>
+    <string name="settings_follow_up_enable_desc">在指定时间未服药时，自动发送再次提醒</string>
+    <string name="settings_follow_up_delay">再提醒间隔</string>
+    <string name="settings_follow_up_count">最多再提醒次数</string>
+    <string name="settings_follow_up_delay_min">%d 分钟</string>
 </resources>

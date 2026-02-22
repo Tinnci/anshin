@@ -74,6 +74,10 @@ data class SettingsPreferences(
      * true = 操作模式（默认）；false = 状态模式
      */
     val widgetShowActions: Boolean = true,
+    // ── 漏服再提醒 ──────────────────────────────────────────────────────────────
+    val followUpReminderEnabled: Boolean = false,
+    val followUpDelayMinutes: Int = 15,
+    val followUpMaxCount: Int = 1,
 )
 
 @Singleton
@@ -113,6 +117,10 @@ class UserPreferencesRepository @Inject constructor(
         val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
         // 小组件显示偏好
         val WIDGET_SHOW_ACTIONS = booleanPreferencesKey("widget_show_actions")
+        // 漏服再提醒
+        val FOLLOW_UP_ENABLED       = booleanPreferencesKey("follow_up_reminder_enabled")
+        val FOLLOW_UP_DELAY_MINUTES = intPreferencesKey("follow_up_delay_minutes")
+        val FOLLOW_UP_MAX_COUNT     = intPreferencesKey("follow_up_max_count")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -144,6 +152,9 @@ class UserPreferencesRepository @Inject constructor(
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
                 widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
+                followUpReminderEnabled = prefs[FOLLOW_UP_ENABLED] ?: false,
+                followUpDelayMinutes    = prefs[FOLLOW_UP_DELAY_MINUTES] ?: 15,
+                followUpMaxCount        = prefs[FOLLOW_UP_MAX_COUNT] ?: 1,
             )
         }
 
@@ -221,4 +232,15 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun updateWidgetShowActions(enabled: Boolean) {
         dataStore.edit { it[WIDGET_SHOW_ACTIONS] = enabled }
     }
-}
+    /** 更新漏服再提醒设置 */
+    suspend fun updateFollowUpSettings(
+        enabled: Boolean? = null,
+        delayMinutes: Int? = null,
+        maxCount: Int? = null,
+    ) {
+        dataStore.edit { prefs ->
+            if (enabled != null)      prefs[FOLLOW_UP_ENABLED]       = enabled
+            if (delayMinutes != null) prefs[FOLLOW_UP_DELAY_MINUTES] = delayMinutes
+            if (maxCount != null)     prefs[FOLLOW_UP_MAX_COUNT]     = maxCount
+        }
+    }}
