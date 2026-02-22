@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -425,7 +426,7 @@ private fun DayDetailSection(
                         onClick = {},
                         label = {
                             Text(
-                                stringResource(R.string.history_taken_count, day.taken, day.total),
+                                pluralStringResource(R.plurals.history_taken_count, day.taken, day.taken, day.total),
                                 style = MaterialTheme.typography.labelSmall,
                             )
                         },
@@ -584,7 +585,7 @@ private fun StreakCard(
         ) {
             Column {
                 Text(
-                    text = stringResource(R.string.history_streak_count, currentStreak),
+                    text = pluralStringResource(R.plurals.history_streak_count, currentStreak, currentStreak),
                     style = MaterialTheme.typography.headlineSmall,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                     fontWeight = FontWeight.Bold,
@@ -603,7 +604,7 @@ private fun StreakCard(
                         color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.6f),
                     )
                     Text(
-                        text = stringResource(R.string.history_streak_max_days, longestStreak),
+                        text = pluralStringResource(R.plurals.history_streak_max_days, longestStreak, longestStreak),
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.SemiBold,

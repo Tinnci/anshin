@@ -198,7 +198,7 @@ private fun NextDoseContent(
                     if (nextMedPairs.size == 1)
                         nextMedPairs.first().second
                     else
-                        ctx.getString(R.string.widget_next_dose_count_fmt, nextMedPairs.size),
+                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_count_fmt, nextMedPairs.size, nextMedPairs.size),
                     style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurface),
                 )
             }
@@ -268,7 +268,7 @@ private fun NextDoseContent(
                 }
                 if (nextMedPairs.size > 3) {
                     Text(
-                        ctx.getString(R.string.widget_next_dose_remaining_fmt, nextMedPairs.size - 3),
+                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_remaining_fmt, nextMedPairs.size - 3, nextMedPairs.size - 3),
                         style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
                     )
                 }

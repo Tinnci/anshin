@@ -55,6 +55,7 @@ import com.example.medlog.widget.MedLogWidgetReceiver
 import com.example.medlog.widget.NextDoseWidgetReceiver
 import com.example.medlog.widget.StreakWidgetReceiver
 import com.example.medlog.ui.utils.OemWidgetHelper
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -1043,7 +1044,7 @@ private fun ArchivedMedicationsRow(
             supportingContent = {
                 Text(
                     if (archived.isEmpty()) stringResource(R.string.settings_archived_empty)
-                    else stringResource(R.string.settings_archived_count, archived.size),
+                    else pluralStringResource(R.plurals.settings_archived_count, archived.size, archived.size),
                 )
             },
             leadingContent = {

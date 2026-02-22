@@ -29,6 +29,7 @@ import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import com.example.medlog.R
 import java.util.*
@@ -232,7 +233,7 @@ fun MedicationDetailScreen(
                             DetailRow(stringResource(R.string.detail_label_period), timeStr)
                             val freqStr = when (med.frequencyType) {
                                 "daily"         -> stringResource(R.string.detail_freq_daily)
-                                "interval"      -> stringResource(R.string.detail_freq_interval, med.frequencyInterval)
+                                "interval"      -> pluralStringResource(R.plurals.detail_freq_interval, med.frequencyInterval, med.frequencyInterval)
                                 "specific_days" -> {
                                     val dayNames = listOf(
                                         stringResource(R.string.detail_day_0),
@@ -291,7 +292,7 @@ fun MedicationDetailScreen(
                     )
                     if (uiState.logs.isNotEmpty()) {
                         Text(
-                            stringResource(R.string.detail_history_count, uiState.taken30d, uiState.total30d),
+                            pluralStringResource(R.plurals.detail_history_count, uiState.taken30d, uiState.taken30d, uiState.total30d),
                             style = MaterialTheme.typography.labelSmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -409,19 +410,19 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
                         icon = Icons.Rounded.CheckCircle,
                         tint = colorScheme.tertiary,
                         label = stringResource(R.string.medication_taken),
-                        value = stringResource(R.string.detail_count_times, taken),
+                        value = pluralStringResource(R.plurals.detail_count_times, taken, taken),
                     )
                     StatRow(
                         icon = Icons.Rounded.Cancel,
                         tint = colorScheme.error,
                         label = stringResource(R.string.detail_missed_skipped),
-                        value = stringResource(R.string.detail_count_times, (total - taken).coerceAtLeast(0)),
+                        value = pluralStringResource(R.plurals.detail_count_times, (total - taken).coerceAtLeast(0), (total - taken).coerceAtLeast(0)),
                     )
                     StatRow(
                         icon = Icons.Rounded.DateRange,
                         tint = colorScheme.secondary,
                         label = stringResource(R.string.detail_total_count),
-                        value = stringResource(R.string.detail_count_times, total),
+                        value = pluralStringResource(R.plurals.detail_count_times, total, total),
                     )
                 }
             }

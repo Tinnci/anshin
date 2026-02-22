@@ -390,7 +390,7 @@ private fun StandardContent(
         if (remaining > 0) {
             Spacer(GlanceModifier.height(3.dp))
             Text(
-                ctx.getString(R.string.widget_remaining_fmt, remaining),
+                ctx.resources.getQuantityString(R.plurals.widget_remaining_fmt, remaining, remaining),
                 style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
             )
         }

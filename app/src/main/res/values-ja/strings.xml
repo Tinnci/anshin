@@ -131,8 +131,12 @@
     <string name="home_period_take_all_btn">まとめて服用</string>
     <string name="home_low_stock_title">残量不足アラート</string>
     <string name="home_low_stock_item">· %1$s：残 %2$s %3$s</string>
-    <string name="home_streak_current">🔥 %d 日連続</string>
-    <string name="home_streak_longest">最長 %d 日</string>
+    <plurals name="home_streak_current">
+        <item quantity="other">🔥 %d 日連続</item>
+    </plurals>
+    <plurals name="home_streak_longest">
+        <item quantity="other">最長 %d 日</item>
+    </plurals>
     <string name="home_next_up">次回：%1$s  %2$s</string>
     <string name="home_prn_title">頓服</string>
     <string name="home_prn_body">固定時間なし — 必要なときにタップして服用を記録</string>
@@ -144,12 +148,18 @@
     <string name="home_progress_no_plan">今日の服薬予定なし</string>
     <string name="home_progress_title">今日の進捗</string>
     <string name="home_progress_all_done">完了！今日の服薬をすべて達成しました 🎉</string>
-    <string name="home_progress_remaining">残り %d 件</string>
+    <plurals name="home_progress_remaining">
+        <item quantity="other">残り %d 件</item>
+    </plurals>
     <string name="home_empty_title">今日の服薬予定はありません</string>
     <string name="home_empty_body">下のボタンをタップして最初の薬を追加しましょう</string>
     <string name="home_empty_add_btn">最初の薬を追加</string>
-    <string name="home_interaction_high_risk">⚠️ 高リスクの相互作用が %d 件見つかりました</string>
-    <string name="home_interaction_normal">服薬の相互作用が %d 件あります</string>
+    <plurals name="home_interaction_high_risk">
+        <item quantity="other">⚠️ 高リスクの相互作用が %d 件見つかりました</item>
+    </plurals>
+    <plurals name="home_interaction_normal">
+        <item quantity="other">服薬の相互作用が %d 件あります</item>
+    </plurals>
     <string name="home_interaction_view_detail">タップして詳細と対処法を確認</string>
     <string name="home_interaction_sheet_title">薬物相互作用</string>
     <string name="home_close">閉じる</string>
@@ -241,7 +251,9 @@
     <string name="settings_replay_title">オンボーディングを再表示</string>
     <string name="settings_replay_subtitle">機能紹介と生活習慣設定ガイドを再閲覧</string>
     <string name="settings_archived_empty">アーカイブ済みの薬品なし</string>
-    <string name="settings_archived_count">%d 件の薬品がアーカイブ済み</string>
+    <plurals name="settings_archived_count">
+        <item quantity="other">%d 件の薬品がアーカイブ済み</item>
+    </plurals>
     <string name="tcm_label">漢方薬</string>
     <string name="tcm_cat_label">%s · 漢方薬</string>
     <string name="detail_form_capsule">カプセル</string>
@@ -267,7 +279,9 @@
     <string name="detail_label_notes">メモ</string>
     <string name="detail_usage_prn">必要時服用 (PRN)</string>
     <string name="detail_freq_daily">毎日</string>
-    <string name="detail_freq_interval">%d日ごと</string>
+    <plurals name="detail_freq_interval">
+        <item quantity="other">%d日ごと</item>
+    </plurals>
     <string name="detail_day_0">日</string>
     <string name="detail_day_1">月</string>
     <string name="detail_day_2">火</string>
@@ -278,7 +292,9 @@
     <string name="detail_tcm_suffix">（漢方薬）</string>
     <string name="detail_priority_high">高優先度 ⚡</string>
     <string name="detail_history_title">服薬履歴（直近60件）</string>
-    <string name="detail_history_count">%1$d/%2$d 服用済み（30日間）</string>
+    <plurals name="detail_history_count">
+        <item quantity="other">%1$d/%2$d 服用済み（30日間）</item>
+    </plurals>
     <string name="detail_no_logs">服薬記録なし</string>
     <string name="detail_archive_title">薬品をアーカイブ</string>
     <string name="detail_archive_body">履歴は保持されますが、今後のリマインダーは停止します。続けますか？</string>
@@ -287,7 +303,9 @@
     <string name="detail_adherence_title">30日間の服薬率</string>
     <string name="detail_missed_skipped">漏服/スキップ</string>
     <string name="detail_total_count">計画合計回数</string>
-    <string name="detail_count_times">%d 回</string>
+    <plurals name="detail_count_times">
+        <item quantity="other">%d 回</item>
+    </plurals>
     <string name="detail_stock_title">在庫管理</string>
     <string name="detail_stock_low_warning">⚠️ 在庫が補充閾値（%1$s %2$s）を下回っています。補充してください。</string>
     <string name="detail_stock_ok">✔ 在庫は十分です。補充閾値：%1$s %2$s</string>
@@ -304,15 +322,21 @@
     <string name="drugs_tab_western">西洋薬</string>
     <string name="drugs_tab_tcm">漢方薬</string>
     <string name="drugs_tab_western_br">西洋薬</string>
-    <string name="drugs_results_count">%d 件見つかりました</string>
+    <plurals name="drugs_results_count">
+        <item quantity="other">%d 件見つかりました</item>
+    </plurals>
     <string name="drugs_fuzzy_match">あいまい/意味検索含む</string>
     <string name="drugs_not_found">「%s」に関する薬品が見つかりません</string>
     <string name="drugs_clear_search">検索クリア</string>
     <string name="drugs_loading">薬品データベースを読み込み中…</string>
     <string name="drugs_back_subcategory">サブカテゴリに戻る</string>
     <string name="drugs_back_category">カテゴリに戻る</string>
-    <string name="drugs_count_suffix">%d 種</string>
-    <string name="drugs_drug_count">%d 種の薬品</string>
+    <plurals name="drugs_count_suffix">
+        <item quantity="other">%d 種</item>
+    </plurals>
+    <plurals name="drugs_drug_count">
+        <item quantity="other">%d 種の薬品</item>
+    </plurals>
     <string name="drugs_tcm_badge">  ·  漢方薬</string>
     <string name="drugs_tag_hint">タグ：%s</string>
     <string name="drugs_compound">複合</string>
@@ -337,7 +361,9 @@
     <string name="history_legend_partial">一部服用</string>
     <string name="history_missed">飲み忘れ</string>
     <string name="history_date_format">%1$d月%2$d日 (%3$s)</string>
-    <string name="history_taken_count">%1$d/%2$d 服用済み</string>
+    <plurals name="history_taken_count">
+        <item quantity="other">%1$d/%2$d 服用済み</item>
+    </plurals>
     <string name="history_no_plan">この日の服薬計画なし</string>
     <string name="history_scheduled_time">予定：%s</string>
     <string name="history_taken_time">服用 %s</string>
@@ -346,10 +372,14 @@
     <string name="history_edit_time_title">服薬時刻を編集</string>
     <string name="history_current_time_format">現在：%s</string>
     <string name="history_time_unrecorded">未記録</string>
-    <string name="history_streak_count">🔥 %d 日連続</string>
+    <plurals name="history_streak_count">
+        <item quantity="other">🔥 %d 日連続</item>
+    </plurals>
     <string name="history_streak_title_text">連続服薬記録</string>
     <string name="history_streak_max_label">最長記録</string>
-    <string name="history_streak_max_days">%d 日</string>
+    <plurals name="history_streak_max_days">
+        <item quantity="other">%d 日</item>
+    </plurals>
     <string name="add_title_new">薬品を追加</string>
     <string name="add_title_edit">薬品を編集</string>
     <string name="add_back_cd">戻る</string>
@@ -446,12 +476,18 @@
     <string name="notif_stock_big_text">%1$s の在庫が %2$s %3$s になりました。飲み忘れを防ぐため早めに補充してください。</string>
     <string name="notif_stock_ticker">%s の在庫不足</string>
     <string name="notif_refill_title">補充を推奨：%s</string>
-    <string name="notif_refill_body">現在の用量で約 %d 日分が残っています</string>
-    <string name="notif_refill_big_text">%1$s の残りは約 %2$d 日分です。早めに購入することをお勧めします。</string>
+    <plurals name="notif_refill_body">
+        <item quantity="other">現在の用量で約 %d 日分が残っています</item>
+    </plurals>
+    <plurals name="notif_refill_big_text">
+        <item quantity="other">%1$s の残りは約 %2$d 日分です。早めに購入することをお勧めします。</item>
+    </plurals>
     <string name="notif_early_title">%d 分後に服薬</string>
     <string name="notif_early_body">%1$s（%2$s）を準備してください</string>
     <string name="notif_early_subtext">まもなく服薬</string>
-    <string name="notif_early_big_text">%1$d 分後に %3$s の %2$s を服用する必要があります。準備してください。</string>
+    <plurals name="notif_early_big_text">
+        <item quantity="other">%1$d 分後に %3$s の %2$s を服用する必要があります。準備してください。</item>
+    </plurals>
     <string name="notif_early_ticker">%d 分後に服薬</string>
     <string name="settings_notif_perm_btn_settings">設定へ</string>
     <string name="common_action_delete">削除</string>
@@ -488,7 +524,9 @@
     <string name="med_card_btn_take">服薬</string>
     <string name="progress_header_title">本日の進捗</string>
     <string name="progress_header_all_done">すべて完了！🎉</string>
-    <string name="progress_header_remaining">残り %d 種類</string>
+    <plurals name="progress_header_remaining">
+        <item quantity="other">残り %d 種類</item>
+    </plurals>
     <string name="symptom_screen_title">症状日記</string>
     <string name="symptom_screen_fab_cd">症状を記録</string>
     <string name="symptom_empty_title">まだ日記がありません</string>
@@ -536,11 +574,15 @@
     <string name="widget_no_plan_today">本日の服薬予定はありません</string>
     <string name="widget_add_prompt">タップして追加 →</string>
     <string name="widget_goal_done">すべて ✓</string>
-    <string name="widget_remaining_fmt">…あと %d 種</string>
+    <plurals name="widget_remaining_fmt">
+        <item quantity="other">…あと %d 種</item>
+    </plurals>
     <string name="widget_app_label">服薬ログ</string>
     <string name="widget_today_done_label">本日完了</string>
     <string name="widget_streak_title">連続記録</string>
-    <string name="widget_streak_days_fmt">🔥 %d 日</string>
+    <plurals name="widget_streak_days_fmt">
+        <item quantity="other">🔥 %d 日</item>
+    </plurals>
     <string name="widget_streak_zero">0 日</string>
     <string name="widget_streak_days_unit">日</string>
     <string name="widget_weekday_sun">日</string>
@@ -556,14 +598,20 @@
     <string name="widget_next_dose_1h_min_fmt">あと 1 時間 %d 分</string>
     <string name="widget_next_dose_h_fmt">あと約 %d 時間</string>
     <string name="widget_next_dose_no_pending">服薬予定なし</string>
-    <string name="widget_next_dose_more_fmt">+%d 種</string>
-    <string name="widget_next_dose_count_fmt">%d 種類の薬</string>    <!-- ウィジェット服薬ボタン -->
+    <plurals name="widget_next_dose_more_fmt">
+        <item quantity="other">+%d 種</item>
+    </plurals>
+    <plurals name="widget_next_dose_count_fmt">
+        <item quantity="other">%d 種類の薬</item>
+    </plurals>    <!-- ウィジェット服薬ボタン -->
     <string name="widget_action_btn">飲</string>
     <!-- ウィジェット設定 -->
     <string name="widget_settings_title">ウィジェット設定</string>
     <string name="widget_settings_show_actions">服薬ボタン</string>
     <string name="widget_settings_show_actions_body">ウィジェットにワンタップ服薬ボタンを表示</string>
-    <string name="widget_settings_status_body">状態表示のみ、ボタンなし</string>    <string name="widget_next_dose_remaining_fmt">…あと %d 種</string>
+    <string name="widget_settings_status_body">状態表示のみ、ボタンなし</string>    <plurals name="widget_next_dose_remaining_fmt">
+        <item quantity="other">…あと %d 種</item>
+    </plurals>
     <string name="oem_miui_pin_guide">MIUI / HyperOS では「デスクトップショートカット」権限を有効にする必要があります。
 パス：設定 → アプリ設定 → 認証管理 → MedLog → デスクトップショートカット → 許可</string>
     <string name="oem_coloros_pin_guide">ColorOS / OxygenOS では「デスクトップショートカット」権限が必要です。

@@ -29,6 +29,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.medlog.R
@@ -598,9 +599,9 @@ fun AddMedicationScreen(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     val offLabel = stringResource(R.string.add_refill_off)
-                    val refillDaysLabel7 = stringResource(R.string.history_streak_max_days, 7)
-                    val refillDaysLabel14 = stringResource(R.string.history_streak_max_days, 14)
-                    val refillDaysLabel30 = stringResource(R.string.history_streak_max_days, 30)
+                    val refillDaysLabel7 = pluralStringResource(R.plurals.history_streak_max_days, 7, 7)
+                    val refillDaysLabel14 = pluralStringResource(R.plurals.history_streak_max_days, 14, 14)
+                    val refillDaysLabel30 = pluralStringResource(R.plurals.history_streak_max_days, 30, 30)
                     listOf(0 to offLabel, 7 to refillDaysLabel7, 14 to refillDaysLabel14, 30 to refillDaysLabel30).forEach { (days, label) ->
                         FilterChip(
                             selected = uiState.refillReminderDays == days,

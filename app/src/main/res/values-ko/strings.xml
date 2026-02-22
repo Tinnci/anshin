@@ -131,8 +131,12 @@
     <string name="home_period_take_all_btn">모두 복용</string>
     <string name="home_low_stock_title">재고 부족 알림</string>
     <string name="home_low_stock_item">· %1$s: 남은 수량 %2$s %3$s</string>
-    <string name="home_streak_current">🔥 %d일 연속</string>
-    <string name="home_streak_longest">최장 %d일</string>
+    <plurals name="home_streak_current">
+        <item quantity="other">🔥 %d일 연속</item>
+    </plurals>
+    <plurals name="home_streak_longest">
+        <item quantity="other">최장 %d일</item>
+    </plurals>
     <string name="home_next_up">다음 복약: %1$s  %2$s</string>
     <string name="home_prn_title">필요시 복약</string>
     <string name="home_prn_body">고정 시간 없음 — 필요할 때 눌러서 복용 기록</string>
@@ -144,12 +148,18 @@
     <string name="home_progress_no_plan">오늘 복약 일정 없음</string>
     <string name="home_progress_title">오늘의 진행</string>
     <string name="home_progress_all_done">완료! 오늘의 복약 계획을 모두 달성했습니다 🎉</string>
-    <string name="home_progress_remaining">%d개 남음</string>
+    <plurals name="home_progress_remaining">
+        <item quantity="other">%d개 남음</item>
+    </plurals>
     <string name="home_empty_title">오늘 예약된 복약 없음</string>
     <string name="home_empty_body">아래 버튼을 눌러 첫 번째 약품을 추가하세요</string>
     <string name="home_empty_add_btn">첫 약품 추가</string>
-    <string name="home_interaction_high_risk">⚠️ 고위험 상호작용 %d건 발견</string>
-    <string name="home_interaction_normal">약물 상호작용 %d건 있음</string>
+    <plurals name="home_interaction_high_risk">
+        <item quantity="other">⚠️ 고위험 상호작용 %d건 발견</item>
+    </plurals>
+    <plurals name="home_interaction_normal">
+        <item quantity="other">약물 상호작용 %d건 있음</item>
+    </plurals>
     <string name="home_interaction_view_detail">눌러서 세부 사항 및 권장 사항 확인</string>
     <string name="home_interaction_sheet_title">약물 상호작용</string>
     <string name="home_close">닫기</string>
@@ -241,7 +251,9 @@
     <string name="settings_replay_title">온보딩 다시 보기</string>
     <string name="settings_replay_subtitle">기능 소개 및 생활리듬 설정 가이드 다시 탐색</string>
     <string name="settings_archived_empty">보관된 약품 없음</string>
-    <string name="settings_archived_count">%d개 약품 보관됨</string>
+    <plurals name="settings_archived_count">
+        <item quantity="other">%d개 약품 보관됨</item>
+    </plurals>
     <string name="tcm_label">한방약</string>
     <string name="tcm_cat_label">%s · 한방약</string>
     <string name="detail_form_capsule">캡슐</string>
@@ -267,7 +279,9 @@
     <string name="detail_label_notes">메모</string>
     <string name="detail_usage_prn">필요 시 복용 (PRN)</string>
     <string name="detail_freq_daily">매일</string>
-    <string name="detail_freq_interval">매 %d일</string>
+    <plurals name="detail_freq_interval">
+        <item quantity="other">매 %d일</item>
+    </plurals>
     <string name="detail_day_0">일</string>
     <string name="detail_day_1">월</string>
     <string name="detail_day_2">화</string>
@@ -278,7 +292,9 @@
     <string name="detail_tcm_suffix"> (한방약)</string>
     <string name="detail_priority_high">높은 우선순위 ⚡</string>
     <string name="detail_history_title">복약 기록 (최근 60개)</string>
-    <string name="detail_history_count">%1$d/%2$d 복용 (30일)</string>
+    <plurals name="detail_history_count">
+        <item quantity="other">%1$d/%2$d 복용 (30일)</item>
+    </plurals>
     <string name="detail_no_logs">복약 기록 없음</string>
     <string name="detail_archive_title">약품 보관</string>
     <string name="detail_archive_body">기록은 유지되지만 이후 알림은 중단됩니다. 계속하시겠습니까?</string>
@@ -287,7 +303,9 @@
     <string name="detail_adherence_title">30일 준수율</string>
     <string name="detail_missed_skipped">누락/건너뜀</string>
     <string name="detail_total_count">계획 총 횟수</string>
-    <string name="detail_count_times">%d회</string>
+    <plurals name="detail_count_times">
+        <item quantity="other">%d회</item>
+    </plurals>
     <string name="detail_stock_title">재고 관리</string>
     <string name="detail_stock_low_warning">⚠️ 재고가 재보충 기준(%1$s %2$s) 이하입니다. 보충하세요.</string>
     <string name="detail_stock_ok">✔ 재고 충분. 재보충 기준: %1$s %2$s</string>
@@ -304,15 +322,21 @@
     <string name="drugs_tab_western">양약</string>
     <string name="drugs_tab_tcm">한약</string>
     <string name="drugs_tab_western_br">양  약</string>
-    <string name="drugs_results_count">%d개 결과</string>
+    <plurals name="drugs_results_count">
+        <item quantity="other">%d개 결과</item>
+    </plurals>
     <string name="drugs_fuzzy_match">퍼지/의미적 매칭 포함</string>
     <string name="drugs_not_found">\"%s\" 관련 약품을 찾을 수 없습니다</string>
     <string name="drugs_clear_search">검색 지우기</string>
     <string name="drugs_loading">약품 데이터베이스 로딩…</string>
     <string name="drugs_back_subcategory">하위 카테고리로 돌아가기</string>
     <string name="drugs_back_category">카테고리로 돌아가기</string>
-    <string name="drugs_count_suffix">%d 종</string>
-    <string name="drugs_drug_count">%d 종 약품</string>
+    <plurals name="drugs_count_suffix">
+        <item quantity="other">%d 종</item>
+    </plurals>
+    <plurals name="drugs_drug_count">
+        <item quantity="other">%d 종 약품</item>
+    </plurals>
     <string name="drugs_tcm_badge">  ·  한약</string>
     <string name="drugs_tag_hint">태그: %s</string>
     <string name="drugs_compound">복합</string>
@@ -337,7 +361,9 @@
     <string name="history_legend_partial">부분 복약</string>
     <string name="history_missed">누락</string>
     <string name="history_date_format">%1$d월 %2$d일 (%3$s)</string>
-    <string name="history_taken_count">%1$d/%2$d 복용</string>
+    <plurals name="history_taken_count">
+        <item quantity="other">%1$d/%2$d 복용</item>
+    </plurals>
     <string name="history_no_plan">이날 복약 계획 없음</string>
     <string name="history_scheduled_time">계획: %s</string>
     <string name="history_taken_time">복용 %s</string>
@@ -346,10 +372,14 @@
     <string name="history_edit_time_title">복용 시간 수정</string>
     <string name="history_current_time_format">현재: %s</string>
     <string name="history_time_unrecorded">미기록</string>
-    <string name="history_streak_count">🔥 %d일 연속</string>
+    <plurals name="history_streak_count">
+        <item quantity="other">🔥 %d일 연속</item>
+    </plurals>
     <string name="history_streak_title_text">연속 복약 기록</string>
     <string name="history_streak_max_label">최장 기록</string>
-    <string name="history_streak_max_days">%d 일</string>
+    <plurals name="history_streak_max_days">
+        <item quantity="other">%d 일</item>
+    </plurals>
     <string name="add_title_new">약품 추가</string>
     <string name="add_title_edit">약품 편집</string>
     <string name="add_back_cd">뒤로</string>
@@ -446,12 +476,18 @@
     <string name="notif_stock_big_text">%1$s 재고가 %2$s %3$s 남았습니다. 복약 누락을 방지하기 위해 빨리 보충하세요.</string>
     <string name="notif_stock_ticker">%s 재고 부족</string>
     <string name="notif_refill_title">보충 권장: %s</string>
-    <string name="notif_refill_body">현재 용량 기준 약 %d일치 남음</string>
-    <string name="notif_refill_big_text">%1$s은 약 %2$d일치가 남아 있습니다. 미리 구매하는 것을 권장합니다.</string>
+    <plurals name="notif_refill_body">
+        <item quantity="other">현재 용량 기준 약 %d일치 남음</item>
+    </plurals>
+    <plurals name="notif_refill_big_text">
+        <item quantity="other">%1$s은 약 %2$d일치가 남아 있습니다. 미리 구매하는 것을 권장합니다.</item>
+    </plurals>
     <string name="notif_early_title">%d분 후 복약</string>
     <string name="notif_early_body">%1$s (%2$s) 준비하세요</string>
     <string name="notif_early_subtext">복약 예정 알림</string>
-    <string name="notif_early_big_text">%1$d분 후 %3$s의 %2$s를 복용해야 합니다. 미리 준비하세요.</string>
+    <plurals name="notif_early_big_text">
+        <item quantity="other">%1$d분 후 %3$s의 %2$s를 복용해야 합니다. 미리 준비하세요.</item>
+    </plurals>
     <string name="notif_early_ticker">%d분 후 복약</string>
     <string name="settings_notif_perm_btn_settings">설정으로 이동</string>
     <string name="common_action_delete">삭제</string>
@@ -488,7 +524,9 @@
     <string name="med_card_btn_take">복용</string>
     <string name="progress_header_title">오늘의 진행상황</string>
     <string name="progress_header_all_done">모두 완료! 🎉</string>
-    <string name="progress_header_remaining">남은 약 %d 종</string>
+    <plurals name="progress_header_remaining">
+        <item quantity="other">남은 약 %d 종</item>
+    </plurals>
     <string name="symptom_screen_title">증상 일기</string>
     <string name="symptom_screen_fab_cd">증상 기록</string>
     <string name="symptom_empty_title">아직 일기 기록이 없습니다</string>
@@ -536,11 +574,15 @@
     <string name="widget_no_plan_today">오늘 복약 예정 없음</string>
     <string name="widget_add_prompt">탭하여 추가 →</string>
     <string name="widget_goal_done">전부 ✓</string>
-    <string name="widget_remaining_fmt">…%d 종 더</string>
+    <plurals name="widget_remaining_fmt">
+        <item quantity="other">…%d 종 더</item>
+    </plurals>
     <string name="widget_app_label">복약 로그</string>
     <string name="widget_today_done_label">오늘 완료</string>
     <string name="widget_streak_title">연속 기록</string>
-    <string name="widget_streak_days_fmt">🔥 %d 일</string>
+    <plurals name="widget_streak_days_fmt">
+        <item quantity="other">🔥 %d 일</item>
+    </plurals>
     <string name="widget_streak_zero">0 일</string>
     <string name="widget_streak_days_unit">일</string>
     <string name="widget_weekday_sun">일</string>
@@ -556,8 +598,12 @@
     <string name="widget_next_dose_1h_min_fmt">1시간 %d분 후</string>
     <string name="widget_next_dose_h_fmt">약 %d시간 후</string>
     <string name="widget_next_dose_no_pending">대기 중인 약 없음</string>
-    <string name="widget_next_dose_more_fmt">+%d 종</string>
-    <string name="widget_next_dose_count_fmt">%d종 약</string>
+    <plurals name="widget_next_dose_more_fmt">
+        <item quantity="other">+%d 종</item>
+    </plurals>
+    <plurals name="widget_next_dose_count_fmt">
+        <item quantity="other">%d종 약</item>
+    </plurals>
     <!-- 위젯 복용 버튼 -->
     <string name="widget_action_btn">복용</string>
     <!-- 위젯 설정 -->
@@ -565,7 +611,9 @@
     <string name="widget_settings_show_actions">빠른 복용 버튼</string>
     <string name="widget_settings_show_actions_body">위젯에 원터치 복용 버튼 표시</string>
     <string name="widget_settings_status_body">상태 표시만, 버튼 없음</string>
-    <string name="widget_next_dose_remaining_fmt">…%d 종 더</string>
+    <plurals name="widget_next_dose_remaining_fmt">
+        <item quantity="other">…%d 종 더</item>
+    </plurals>
     <string name="oem_miui_pin_guide">MIUI / HyperOS에서는 위젯 고정 대화상자를 활성화하려면 \'바탕화면 바로가기\' 권한을 수동으로 활성화해야 합니다.
 경로: 설정 → 앱 설정 → 권한 관리 → MedLog → 바탕화면 바로가기 → 허용</string>
     <string name="oem_coloros_pin_guide">ColorOS / OxygenOS에서는 \'바탕화면 바로가기\' 권한이 필요합니다.

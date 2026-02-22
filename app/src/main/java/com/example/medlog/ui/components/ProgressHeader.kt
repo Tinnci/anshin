@@ -6,6 +6,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
@@ -56,7 +57,7 @@ fun ProgressHeader(
                     trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                 )
                 Text(
-                    text = if (taken == total) stringResource(R.string.progress_header_all_done) else stringResource(R.string.progress_header_remaining, total - taken),
+                    text = if (taken == total) stringResource(R.string.progress_header_all_done) else pluralStringResource(R.plurals.progress_header_remaining, total - taken, total - taken),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                 )

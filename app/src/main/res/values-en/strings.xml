@@ -131,8 +131,14 @@
     <string name="home_period_take_all_btn">Take all</string>
     <string name="home_low_stock_title">Low Stock Alert</string>
     <string name="home_low_stock_item">· %1$s: %2$s %3$s remaining</string>
-    <string name="home_streak_current">🔥 %d day streak</string>
-    <string name="home_streak_longest">Best: %d days</string>
+    <plurals name="home_streak_current">
+        <item quantity="one">🔥 1 day streak</item>
+        <item quantity="other">🔥 %d day streak</item>
+    </plurals>
+    <plurals name="home_streak_longest">
+        <item quantity="one">Best: 1 day</item>
+        <item quantity="other">Best: %d days</item>
+    </plurals>
     <string name="home_next_up">Next: %1$s  %2$s</string>
     <string name="home_prn_title">As Needed</string>
     <string name="home_prn_body">No fixed schedule — tap to log a dose when needed</string>
@@ -144,12 +150,21 @@
     <string name="home_progress_no_plan">No medications today</string>
     <string name="home_progress_title">Today\'s Progress</string>
     <string name="home_progress_all_done">All done! Today\'s plan complete 🎉</string>
-    <string name="home_progress_remaining">%d medication(s) remaining</string>
+    <plurals name="home_progress_remaining">
+        <item quantity="one">1 medication remaining</item>
+        <item quantity="other">%d medications remaining</item>
+    </plurals>
     <string name="home_empty_title">No medications scheduled today</string>
     <string name="home_empty_body">Tap the button below to add your first medication</string>
     <string name="home_empty_add_btn">Add First Medication</string>
-    <string name="home_interaction_high_risk">⚠️ %d high-risk interaction(s) found</string>
-    <string name="home_interaction_normal">%d drug interaction reminder(s)</string>
+    <plurals name="home_interaction_high_risk">
+        <item quantity="one">⚠️ 1 high-risk interaction found</item>
+        <item quantity="other">⚠️ %d high-risk interactions found</item>
+    </plurals>
+    <plurals name="home_interaction_normal">
+        <item quantity="one">1 drug interaction reminder</item>
+        <item quantity="other">%d drug interaction reminders</item>
+    </plurals>
     <string name="home_interaction_view_detail">Tap to view details and recommendations</string>
     <string name="home_interaction_sheet_title">Drug Interactions</string>
     <string name="home_close">Close</string>
@@ -241,7 +256,10 @@
     <string name="settings_replay_title">View Onboarding Again</string>
     <string name="settings_replay_subtitle">Re-browse feature introduction and routine setup guide</string>
     <string name="settings_archived_empty">No archived medications</string>
-    <string name="settings_archived_count">%d medication(s) archived</string>
+    <plurals name="settings_archived_count">
+        <item quantity="one">1 medication archived</item>
+        <item quantity="other">%d medications archived</item>
+    </plurals>
     <string name="tcm_label">TCM</string>
     <string name="tcm_cat_label">%s · TCM</string>
     <string name="detail_form_capsule">Capsule</string>
@@ -267,7 +285,10 @@
     <string name="detail_label_notes">Notes</string>
     <string name="detail_usage_prn">As needed (PRN)</string>
     <string name="detail_freq_daily">Daily</string>
-    <string name="detail_freq_interval">Every %d day(s)</string>
+    <plurals name="detail_freq_interval">
+        <item quantity="one">Every day</item>
+        <item quantity="other">Every %d days</item>
+    </plurals>
     <string name="detail_day_0">Sun</string>
     <string name="detail_day_1">Mon</string>
     <string name="detail_day_2">Tue</string>
@@ -278,7 +299,10 @@
     <string name="detail_tcm_suffix"> (TCM)</string>
     <string name="detail_priority_high">High Priority ⚡</string>
     <string name="detail_history_title">Medication History (last 60)</string>
-    <string name="detail_history_count">%1$d/%2$d taken (30 days)</string>
+    <plurals name="detail_history_count">
+        <item quantity="one">%1$d/%2$d taken (30 days)</item>
+        <item quantity="other">%1$d/%2$d taken (30 days)</item>
+    </plurals>
     <string name="detail_no_logs">No medication logs</string>
     <string name="detail_archive_title">Archive Medication</string>
     <string name="detail_archive_body">Historical records will be kept, but future reminders will stop. Continue?</string>
@@ -287,7 +311,10 @@
     <string name="detail_adherence_title">30-Day Adherence</string>
     <string name="detail_missed_skipped">Missed/Skipped</string>
     <string name="detail_total_count">Total Scheduled</string>
-    <string name="detail_count_times">%d time(s)</string>
+    <plurals name="detail_count_times">
+        <item quantity="one">1 time</item>
+        <item quantity="other">%d times</item>
+    </plurals>
     <string name="detail_stock_title">Stock Management</string>
     <string name="detail_stock_low_warning">⚠️ Stock below refill threshold (%1$s %2$s). Please replenish soon.</string>
     <string name="detail_stock_ok">✔ Stock sufficient. Refill threshold: %1$s %2$s</string>
@@ -304,15 +331,24 @@
     <string name="drugs_tab_western">Western</string>
     <string name="drugs_tab_tcm">TCM</string>
     <string name="drugs_tab_western_br">WM</string>
-    <string name="drugs_results_count">Found %d results</string>
+    <plurals name="drugs_results_count">
+        <item quantity="one">Found 1 result</item>
+        <item quantity="other">Found %d results</item>
+    </plurals>
     <string name="drugs_fuzzy_match">Includes fuzzy/semantic match</string>
     <string name="drugs_not_found">No drugs found for “%s”</string>
     <string name="drugs_clear_search">Clear search</string>
     <string name="drugs_loading">Loading drug database…</string>
     <string name="drugs_back_subcategory">Back to subcategory</string>
     <string name="drugs_back_category">Back to category</string>
-    <string name="drugs_count_suffix">%d items</string>
-    <string name="drugs_drug_count">%d drugs</string>
+    <plurals name="drugs_count_suffix">
+        <item quantity="one">1 item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
+    <plurals name="drugs_drug_count">
+        <item quantity="one">1 drug</item>
+        <item quantity="other">%d drugs</item>
+    </plurals>
     <string name="drugs_tcm_badge">  ·  TCM</string>
     <string name="drugs_tag_hint">Tag: %s</string>
     <string name="drugs_compound">Compound</string>
@@ -337,7 +373,10 @@
     <string name="history_legend_partial">Partial</string>
     <string name="history_missed">Missed</string>
     <string name="history_date_format">%3$s, %1$d/%2$d</string>
-    <string name="history_taken_count">%1$d/%2$d taken</string>
+    <plurals name="history_taken_count">
+        <item quantity="one">%1$d/%2$d taken</item>
+        <item quantity="other">%1$d/%2$d taken</item>
+    </plurals>
     <string name="history_no_plan">No medications planned</string>
     <string name="history_scheduled_time">Planned: %s</string>
     <string name="history_taken_time">Taken %s</string>
@@ -346,10 +385,16 @@
     <string name="history_edit_time_title">Edit Taken Time</string>
     <string name="history_current_time_format">Current: %s</string>
     <string name="history_time_unrecorded">Not recorded</string>
-    <string name="history_streak_count">🔥 %d day streak</string>
+    <plurals name="history_streak_count">
+        <item quantity="one">🔥 1 day streak</item>
+        <item quantity="other">🔥 %d day streak</item>
+    </plurals>
     <string name="history_streak_title_text">Consecutive days streak</string>
     <string name="history_streak_max_label">Best streak</string>
-    <string name="history_streak_max_days">%d days</string>
+    <plurals name="history_streak_max_days">
+        <item quantity="one">1 day</item>
+        <item quantity="other">%d days</item>
+    </plurals>
     <string name="add_title_new">Add Medication</string>
     <string name="add_title_edit">Edit Medication</string>
     <string name="add_back_cd">Back</string>
@@ -446,12 +491,21 @@
     <string name="notif_stock_big_text">Your %1$s stock is at %2$s %3$s. Please refill to avoid missed doses.</string>
     <string name="notif_stock_ticker">Low stock: %s</string>
     <string name="notif_refill_title">Time to reorder: %s</string>
-    <string name="notif_refill_body">Estimated ~%d days of supply remaining</string>
-    <string name="notif_refill_big_text">Your %1$s has approximately %2$d days of supply left. Consider reordering soon.</string>
+    <plurals name="notif_refill_body">
+        <item quantity="one">Estimated ~1 day of supply remaining</item>
+        <item quantity="other">Estimated ~%d days of supply remaining</item>
+    </plurals>
+    <plurals name="notif_refill_big_text">
+        <item quantity="one">Your %1$s has approximately 1 day of supply left. Consider reordering soon.</item>
+        <item quantity="other">Your %1$s has approximately %2$d days of supply left. Consider reordering soon.</item>
+    </plurals>
     <string name="notif_early_title">%d min until next dose</string>
     <string name="notif_early_body">Prepare %1$s (%2$s)</string>
     <string name="notif_early_subtext">Upcoming dose reminder</string>
-    <string name="notif_early_big_text">Get ready — you need to take %2$s of %3$s in %1$d minutes.</string>
+    <plurals name="notif_early_big_text">
+        <item quantity="one">Get ready — you need to take %2$s of %3$s in 1 minute.</item>
+        <item quantity="other">Get ready — you need to take %2$s of %3$s in %1$d minutes.</item>
+    </plurals>
     <string name="notif_early_ticker">%d min until next dose</string>
     <string name="settings_notif_perm_btn_settings">Go to Settings</string>
     <string name="common_action_delete">Delete</string>
@@ -488,7 +542,10 @@
     <string name="med_card_btn_take">Take</string>
     <string name="progress_header_title">Today\'s progress</string>
     <string name="progress_header_all_done">All done! 🎉</string>
-    <string name="progress_header_remaining">%d medication(s) remaining</string>
+    <plurals name="progress_header_remaining">
+        <item quantity="one">1 medication remaining</item>
+        <item quantity="other">%d medications remaining</item>
+    </plurals>
     <string name="symptom_screen_title">Symptom Diary</string>
     <string name="symptom_screen_fab_cd">Log symptoms</string>
     <string name="symptom_empty_title">No diary entries yet</string>
@@ -536,11 +593,17 @@
     <string name="widget_no_plan_today">No medications today</string>
     <string name="widget_add_prompt">Tap to add →</string>
     <string name="widget_goal_done">All ✓</string>
-    <string name="widget_remaining_fmt">…%d more</string>
+    <plurals name="widget_remaining_fmt">
+        <item quantity="one">…1 more</item>
+        <item quantity="other">…%d more</item>
+    </plurals>
     <string name="widget_app_label">Med Log</string>
     <string name="widget_today_done_label">Done today</string>
     <string name="widget_streak_title">Streak</string>
-    <string name="widget_streak_days_fmt">🔥 %d days</string>
+    <plurals name="widget_streak_days_fmt">
+        <item quantity="one">🔥 1 day</item>
+        <item quantity="other">🔥 %d days</item>
+    </plurals>
     <string name="widget_streak_zero">0 days</string>
     <string name="widget_streak_days_unit">d</string>
     <string name="widget_weekday_sun">Sun</string>
@@ -556,8 +619,14 @@
     <string name="widget_next_dose_1h_min_fmt">In 1h %d min</string>
     <string name="widget_next_dose_h_fmt">In ~%d h</string>
     <string name="widget_next_dose_no_pending">No pending meds</string>
-    <string name="widget_next_dose_more_fmt">+%d more</string>
-    <string name="widget_next_dose_count_fmt">%d medications</string>
+    <plurals name="widget_next_dose_more_fmt">
+        <item quantity="one">+1 more</item>
+        <item quantity="other">+%d more</item>
+    </plurals>
+    <plurals name="widget_next_dose_count_fmt">
+        <item quantity="one">1 medication</item>
+        <item quantity="other">%d medications</item>
+    </plurals>
     <!-- Widget action button text -->
     <string name="widget_action_btn">Take</string>
     <!-- Widget settings screen -->
@@ -565,7 +634,10 @@
     <string name="widget_settings_show_actions">Quick-take button</string>
     <string name="widget_settings_show_actions_body">Show a one-tap take button on the widget</string>
     <string name="widget_settings_status_body">Show status indicators only, no interactive buttons</string>
-    <string name="widget_next_dose_remaining_fmt">…%d more</string>
+    <plurals name="widget_next_dose_remaining_fmt">
+        <item quantity="one">…1 more</item>
+        <item quantity="other">…%d more</item>
+    </plurals>
     <string name="oem_miui_pin_guide">On MIUI / HyperOS, enable \'Desktop shortcut\' permission to allow widget pinning.
 Path: Settings → App settings → Permissions → MedLog → Desktop shortcut → Allow</string>
     <string name="oem_coloros_pin_guide">On ColorOS / OxygenOS, enable \'Desktop shortcut\' permission.

@@ -190,7 +190,7 @@ private fun StreakContent(
                     modifier = GlanceModifier.defaultWeight(),
                 )
                 Text(
-                    if (streak > 0) ctx.getString(R.string.widget_streak_days_fmt, streak) else ctx.getString(R.string.widget_streak_zero),
+                    if (streak > 0) ctx.resources.getQuantityString(R.plurals.widget_streak_days_fmt, streak, streak) else ctx.getString(R.string.widget_streak_zero),
                     style = TextStyle(
                         fontSize   = 13.sp,
                         fontWeight = FontWeight.Bold,

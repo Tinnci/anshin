@@ -277,10 +277,10 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(brandColor)
             .setContentTitle(context.getString(R.string.notif_refill_title, medicationName))
-            .setContentText(context.getString(R.string.notif_refill_body, daysRemaining))
+            .setContentText(context.resources.getQuantityString(R.plurals.notif_refill_body, daysRemaining, daysRemaining))
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText(context.getString(R.string.notif_refill_big_text, medicationName, daysRemaining)),
+                    .bigText(context.resources.getQuantityString(R.plurals.notif_refill_big_text, daysRemaining, medicationName, daysRemaining)),
             )
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -311,7 +311,7 @@ class NotificationHelper @Inject constructor(
             .setContentText(context.getString(R.string.notif_early_body, medicationName, dose))
             .setSubText(context.getString(R.string.notif_early_subtext))
             .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notif_early_big_text, minutesBefore, dose, medicationName))
+                .bigText(context.resources.getQuantityString(R.plurals.notif_early_big_text, minutesBefore, minutesBefore, dose, medicationName))
             )
             .setContentIntent(openAppPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

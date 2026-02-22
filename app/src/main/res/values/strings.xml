@@ -130,8 +130,12 @@
     <string name="home_period_take_all_btn">全部服用</string>
     <string name="home_low_stock_title">库存不足提醒</string>
     <string name="home_low_stock_item">· %1$s：剩余 %2$s %3$s</string>
-    <string name="home_streak_current">🔥 连续 %d 天</string>
-    <string name="home_streak_longest">最长 %d 天</string>
+    <plurals name="home_streak_current">
+        <item quantity="other">🔥 连续 %d 天</item>
+    </plurals>
+    <plurals name="home_streak_longest">
+        <item quantity="other">最长 %d 天</item>
+    </plurals>
     <string name="home_next_up">下一服 · %1$s  %2$s</string>
     <string name="home_prn_title">按需用药</string>
     <string name="home_prn_body">以下药品无固定时间，需要时点击记录服用</string>
@@ -143,12 +147,18 @@
     <string name="home_progress_no_plan">今日暂无用药计划</string>
     <string name="home_progress_title">今日进度</string>
     <string name="home_progress_all_done">全部完成！今日用药计划已完成 🎉</string>
-    <string name="home_progress_remaining">还剩 %d 种药品待服用</string>
+    <plurals name="home_progress_remaining">
+        <item quantity="other">还剩 %d 种药品待服用</item>
+    </plurals>
     <string name="home_empty_title">今日尚无用药计划</string>
     <string name="home_empty_body">点击下方按钮添加您的第一个药品</string>
     <string name="home_empty_add_btn">添加第一个药品</string>
-    <string name="home_interaction_high_risk">⚠️ 发现 %d 处高风险配伍</string>
-    <string name="home_interaction_normal">发现 %d 处用药配伍提醒</string>
+    <plurals name="home_interaction_high_risk">
+        <item quantity="other">⚠️ 发现 %d 处高风险配伍</item>
+    </plurals>
+    <plurals name="home_interaction_normal">
+        <item quantity="other">发现 %d 处用药配伍提醒</item>
+    </plurals>
     <string name="home_interaction_view_detail">点击查看详情和建议</string>
     <string name="home_interaction_sheet_title">用药相互作用</string>
     <string name="home_close">关闭</string>
@@ -240,7 +250,9 @@
     <string name="settings_replay_title">重新查看新手引导</string>
     <string name="settings_replay_subtitle">重新浏览功能介绍、作息设置等引导流程</string>
     <string name="settings_archived_empty">暂无归档药品</string>
-    <string name="settings_archived_count">%d 种药品已归档</string>
+    <plurals name="settings_archived_count">
+        <item quantity="other">%d 种药品已归档</item>
+    </plurals>
     <string name="tcm_label">中成药</string>
     <string name="tcm_cat_label">%s · 中成药</string>
     <string name="detail_form_capsule">胶囊</string>
@@ -266,7 +278,9 @@
     <string name="detail_label_notes">备注</string>
     <string name="detail_usage_prn">按需服用 (PRN)</string>
     <string name="detail_freq_daily">每日</string>
-    <string name="detail_freq_interval">每%d天</string>
+    <plurals name="detail_freq_interval">
+        <item quantity="other">每%d天</item>
+    </plurals>
     <string name="detail_day_0">周日</string>
     <string name="detail_day_1">周一</string>
     <string name="detail_day_2">周二</string>
@@ -277,7 +291,9 @@
     <string name="detail_tcm_suffix">（中成药）</string>
     <string name="detail_priority_high">高优先级 ⚡</string>
     <string name="detail_history_title">服药历史（近60条）</string>
-    <string name="detail_history_count">%1$d/%2$d 已服（30天内）</string>
+    <plurals name="detail_history_count">
+        <item quantity="other">%1$d/%2$d 已服（30天内）</item>
+    </plurals>
     <string name="detail_no_logs">暂无服药记录</string>
     <string name="detail_archive_title">归档药品</string>
     <string name="detail_archive_body">归档后将保留历史记录，并停止未来的用药提醒。是否继续？</string>
@@ -286,7 +302,9 @@
     <string name="detail_adherence_title">近30天坚持率</string>
     <string name="detail_missed_skipped">漏服/跳过</string>
     <string name="detail_total_count">计划总次数</string>
-    <string name="detail_count_times">%d 次</string>
+    <plurals name="detail_count_times">
+        <item quantity="other">%d 次</item>
+    </plurals>
     <string name="detail_stock_title">库存管理</string>
     <string name="detail_stock_low_warning">⚠️ 库存低于补货阈值（%1$s %2$s），请及时补充</string>
     <string name="detail_stock_ok">✔ 库存充足，补货阈值：%1$s %2$s</string>
@@ -303,15 +321,21 @@
     <string name="drugs_tab_western">西药</string>
     <string name="drugs_tab_tcm">中成药</string>
     <string name="drugs_tab_western_br">西 药</string>
-    <string name="drugs_results_count">找到 %d 条结果</string>
+    <plurals name="drugs_results_count">
+        <item quantity="other">找到 %d 条结果</item>
+    </plurals>
     <string name="drugs_fuzzy_match">含模糊/语义匹配</string>
     <string name="drugs_not_found">未找到「%s」相关药品</string>
     <string name="drugs_clear_search">清除搜索</string>
     <string name="drugs_loading">加载药品数据库…</string>
     <string name="drugs_back_subcategory">返回子类</string>
     <string name="drugs_back_category">返回分类</string>
-    <string name="drugs_count_suffix">%d 种</string>
-    <string name="drugs_drug_count">%d 种药品</string>
+    <plurals name="drugs_count_suffix">
+        <item quantity="other">%d 种</item>
+    </plurals>
+    <plurals name="drugs_drug_count">
+        <item quantity="other">%d 种药品</item>
+    </plurals>
     <string name="drugs_tcm_badge">  ·  中成药</string>
     <string name="drugs_tag_hint">标签：%s</string>
     <string name="drugs_compound">复方</string>
@@ -336,7 +360,9 @@
     <string name="history_legend_partial">部分服用</string>
     <string name="history_missed">漏服</string>
     <string name="history_date_format">%1$d月%2$d日 (%3$s)</string>
-    <string name="history_taken_count">%1$d/%2$d 已服用</string>
+    <plurals name="history_taken_count">
+        <item quantity="other">%1$d/%2$d 已服用</item>
+    </plurals>
     <string name="history_no_plan">当日无服药计划</string>
     <string name="history_scheduled_time">计划：%s</string>
     <string name="history_taken_time">已服 %s</string>
@@ -345,10 +371,14 @@
     <string name="history_edit_time_title">修改服药时间</string>
     <string name="history_current_time_format">当前：%s</string>
     <string name="history_time_unrecorded">未记录</string>
-    <string name="history_streak_count">🔥 连续 %d 天</string>
+    <plurals name="history_streak_count">
+        <item quantity="other">🔥 连续 %d 天</item>
+    </plurals>
     <string name="history_streak_title_text">坚持服药连续打卡</string>
     <string name="history_streak_max_label">最长记录</string>
-    <string name="history_streak_max_days">%d 天</string>
+    <plurals name="history_streak_max_days">
+        <item quantity="other">%d 天</item>
+    </plurals>
     <string name="add_title_new">新增药品</string>
     <string name="add_title_edit">编辑药品</string>
     <string name="add_back_cd">返回</string>
@@ -445,12 +475,18 @@
     <string name="notif_stock_big_text">您的 %1$s 剩余库存为 %2$s %3$s，请尽快补充以不造成漏服。</string>
     <string name="notif_stock_ticker">%s 库存不足</string>
     <string name="notif_refill_title">建议提前备货：%s</string>
-    <string name="notif_refill_body">按当前用量估算，约 %d 天后用完</string>
-    <string name="notif_refill_big_text">您的 %1$s 预计还有约 %2$d 天用量，建议提前购买以避免断药。</string>
+    <plurals name="notif_refill_body">
+        <item quantity="other">按当前用量估算，约 %d 天后用完</item>
+    </plurals>
+    <plurals name="notif_refill_big_text">
+        <item quantity="other">您的 %1$s 预计还有约 %2$d 天用量，建议提前购买以避免断药。</item>
+    </plurals>
     <string name="notif_early_title">%d 分钟后记得服药</string>
     <string name="notif_early_body">准备好 %1$s（%2$s）</string>
     <string name="notif_early_subtext">即将服药提醒</string>
-    <string name="notif_early_big_text">请提前做好准备，%1$d 分钟后需要服用 %2$s 的 %3$s。</string>
+    <plurals name="notif_early_big_text">
+        <item quantity="other">请提前做好准备，%1$d 分钟后需要服用 %2$s 的 %3$s。</item>
+    </plurals>
     <string name="notif_early_ticker">%d 分钟后记得服药</string>
     <string name="settings_notif_perm_btn_settings">前往设置</string>
     <string name="common_action_delete">删除</string>
@@ -487,7 +523,9 @@
     <string name="med_card_btn_take">服用</string>
     <string name="progress_header_title">今日进度</string>
     <string name="progress_header_all_done">全部完成！🎉</string>
-    <string name="progress_header_remaining">还剩 %d 种药品待服用</string>
+    <plurals name="progress_header_remaining">
+        <item quantity="other">还剩 %d 种药品待服用</item>
+    </plurals>
     <string name="symptom_screen_title">症状日记</string>
     <string name="symptom_screen_fab_cd">记录症状</string>
     <string name="symptom_empty_title">还没有日记记录</string>
@@ -535,11 +573,15 @@
     <string name="widget_no_plan_today">今日暂无用药计划</string>
     <string name="widget_add_prompt">点击进入添加 →</string>
     <string name="widget_goal_done">全部 ✓</string>
-    <string name="widget_remaining_fmt">…还有 %d 种</string>
+    <plurals name="widget_remaining_fmt">
+        <item quantity="other">…还有 %d 种</item>
+    </plurals>
     <string name="widget_app_label">用药日志</string>
     <string name="widget_today_done_label">今日完成</string>
     <string name="widget_streak_title">连续打卡</string>
-    <string name="widget_streak_days_fmt">🔥 %d 天</string>
+    <plurals name="widget_streak_days_fmt">
+        <item quantity="other">🔥 %d 天</item>
+    </plurals>
     <string name="widget_streak_zero">0 天</string>
     <string name="widget_streak_days_unit">天</string>
     <string name="widget_weekday_sun">日</string>
@@ -555,8 +597,12 @@
     <string name="widget_next_dose_1h_min_fmt">还有 1 小时 %d 分钟</string>
     <string name="widget_next_dose_h_fmt">还有约 %d 小时</string>
     <string name="widget_next_dose_no_pending">暂无待服药品</string>
-    <string name="widget_next_dose_more_fmt">+%d 种</string>
-    <string name="widget_next_dose_count_fmt">共 %d 种药</string>
+    <plurals name="widget_next_dose_more_fmt">
+        <item quantity="other">+%d 种</item>
+    </plurals>
+    <plurals name="widget_next_dose_count_fmt">
+        <item quantity="other">共 %d 种药</item>
+    </plurals>
     <!-- 小组件服药按钮文字 -->
     <string name="widget_action_btn">服</string>
     <!-- 小组件设置页 -->
@@ -564,7 +610,9 @@
     <string name="widget_settings_show_actions">快捷服药按钮</string>
     <string name="widget_settings_show_actions_body">在小组件中显示一键服药按钮，无需开启 App 即可记录</string>
     <string name="widget_settings_status_body">仅显示待服状态指示，不显示可交互按钮</string>
-    <string name="widget_next_dose_remaining_fmt">…还有 %d 种</string>
+    <plurals name="widget_next_dose_remaining_fmt">
+        <item quantity="other">…还有 %d 种</item>
+    </plurals>
     <string name="oem_miui_pin_guide">MIUI / HyperOS 设备需手动开启「桌面快捷方式」权限后，固定小组件对话框才会弹出。
 路径：设置 → 应用设置 → 授权管理 → MedLog → 桌面快捷方式 → 允许</string>
     <string name="oem_coloros_pin_guide">ColorOS / OxygenOS 设备需手动开启「桌面快捷方式」权限。

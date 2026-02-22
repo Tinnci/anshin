@@ -64,6 +64,7 @@ import com.example.medlog.R
 import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.InteractionSeverity
 import com.example.medlog.ui.components.MedicationCard
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -678,7 +679,7 @@ private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
             onClick = {},
             label = {
                 Text(
-                    stringResource(R.string.home_streak_current, currentStreak),
+                    pluralStringResource(R.plurals.home_streak_current, currentStreak, currentStreak),
                     style = MaterialTheme.typography.labelMedium,
                 )
             },
@@ -692,7 +693,7 @@ private fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
                 onClick = {},
                 label = {
                     Text(
-                        stringResource(R.string.home_streak_longest, longestStreak),
+                        pluralStringResource(R.plurals.home_streak_longest, longestStreak, longestStreak),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -949,7 +950,7 @@ private fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Mo
                 )
                 Text(
                     if (allDone) stringResource(R.string.home_progress_all_done)
-                    else stringResource(R.string.home_progress_remaining, total - taken),
+                    else pluralStringResource(R.plurals.home_progress_remaining, total - taken, total - taken),
                     style = MaterialTheme.typography.bodySmall,
                 )
             }
@@ -1041,7 +1042,7 @@ private fun InteractionBannerCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (highCount > 0) stringResource(R.string.home_interaction_high_risk, highCount) else stringResource(R.string.home_interaction_normal, interactions.size),
+                    text = if (highCount > 0) pluralStringResource(R.plurals.home_interaction_high_risk, highCount, highCount) else pluralStringResource(R.plurals.home_interaction_normal, interactions.size, interactions.size),
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = contentColor,
