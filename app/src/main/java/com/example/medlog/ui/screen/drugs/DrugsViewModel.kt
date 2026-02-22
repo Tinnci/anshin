@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.drugs
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Drug
 import com.example.medlog.data.repository.DrugRepository
@@ -42,7 +43,7 @@ data class DrugsUiState(
 @HiltViewModel
 class DrugsViewModel @Inject constructor(
     private val drugRepository: DrugRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _query = MutableStateFlow("")
     private val _selectedCategory = MutableStateFlow<String?>(null)

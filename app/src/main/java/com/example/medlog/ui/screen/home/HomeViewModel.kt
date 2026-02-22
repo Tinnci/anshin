@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.home
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.LogStatus
@@ -18,6 +19,7 @@ import com.example.medlog.domain.PlanExport
 import com.example.medlog.domain.PlanExportCodec
 import com.example.medlog.domain.todayRange
 import com.example.medlog.interaction.InteractionRuleEngine
+import com.example.medlog.domain.ProgressNotificationUseCase
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -141,7 +143,8 @@ class HomeViewModel @Inject constructor(
     private val importPlanUseCase: ImportPlanUseCase,
     private val interactionEngine: InteractionRuleEngine,
     private val prefsRepository: UserPreferencesRepository,
-) : ViewModel() {
+    private val progressNotif: ProgressNotificationUseCase,
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HomeUiState())
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
@@ -159,6 +162,17 @@ class HomeViewModel @Inject constructor(
     private val _importSuccess = MutableSharedFlow<Int>(replay = 0, extraBufferCapacity = 1)
     val importSuccess: SharedFlow<Int> = _importSuccess.asSharedFlow()
 
+    /**
+     * 药品相互作用列表 — 仅在 getActiveMedications 或 enableDrugInteractionCheck 实际变化时重新计算，
+     * 避免每次服药日志更新都触发 O(n²) 的 interactionEngine.check()。
+     */
+    private val _interactions: StateFlow<List<DrugInteraction>> = combine(
+        medicationRepo.getActiveMedications().distinctUntilChanged(),
+        prefsRepository.settingsFlow.map { it.enableDrugInteractionCheck }.distinctUntilChanged(),
+    ) { meds, enableCheck ->
+        if (enableCheck) interactionEngine.check(meds) else emptyList()
+    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+
     /** 上次推送今日进度通知时的 (taken, total)；避免重复更新通知 */
     private var lastProgressNotifState = -1 to -1
 
@@ -175,13 +189,11 @@ class HomeViewModel @Inject constructor(
                 medicationRepo.getActiveMedications(),
                 logRepo.getLogsForDateRange(today.first, today.second),
                 prefsRepository.settingsFlow,
-            ) { meds, logs, prefs ->
+                _interactions,
+            ) { meds, logs, prefs, interactions ->
                 val items = meds.map { med ->
                     MedicationWithStatus(med, logs.find { it.medicationId == med.id })
                 }
-                val interactions = if (prefs.enableDrugInteractionCheck) {
-                    interactionEngine.check(meds)
-                } else emptyList()
                 val scheduledItems = items.filter { !it.medication.isPRN }
                 HomeUiState(
                     items = items,
@@ -207,7 +219,7 @@ class HomeViewModel @Inject constructor(
                     val pending = state.items
                         .filter { !it.isTaken && !it.isSkipped }
                         .map { it.medication.name }
-                    notificationHelper.showOrUpdateProgressNotification(
+                    progressNotif(
                         taken        = taken,
                         total        = total,
                         pendingNames = pending,
@@ -218,7 +230,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toggleMedicationStatus(item: MedicationWithStatus) {
-        viewModelScope.launch {
+        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
             if (item.isTaken) {
                 item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
             } else {
@@ -232,17 +244,17 @@ class HomeViewModel @Inject constructor(
     }
 
     fun skipMedication(item: MedicationWithStatus) {
-        viewModelScope.launch {
+        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
             toggleDoseUseCase.markSkipped(item.medication)
         }
     }
 
     /** 撤销服药或跳过操作，根据当前 state 内的最新记录进行回退 */
     fun undoByMedicationId(medicationId: Long) {
-        viewModelScope.launch {
+        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
             val currentItem = _uiState.value.items.find { it.medication.id == medicationId }
-                ?: return@launch
-            val log = currentItem.log ?: return@launch
+                ?: return@safeLaunch
+            val log = currentItem.log ?: return@safeLaunch
             when {
                 currentItem.isTaken   -> toggleDoseUseCase.undoTaken(currentItem.medication, log)
                 currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(currentItem.medication, log)
@@ -386,7 +398,7 @@ class HomeViewModel @Inject constructor(
     fun confirmImport(mode: ImportMode) {
         val plan = _importPreview.value ?: return
         val count = plan.meds.size
-        viewModelScope.launch {
+        safeLaunch(onError = { e -> _importError.value = e.message }) {
             importPlanUseCase(plan, mode)
             _importPreview.value = null
             _importSuccess.emit(count)

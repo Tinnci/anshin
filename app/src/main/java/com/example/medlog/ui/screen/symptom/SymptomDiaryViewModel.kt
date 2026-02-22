@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.symptom
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.SymptomLog
 import com.example.medlog.data.repository.SymptomRepository
@@ -46,7 +47,7 @@ data class SymptomDiaryUiState(
 @HiltViewModel
 class SymptomDiaryViewModel @Inject constructor(
     private val repo: SymptomRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _dialogState = MutableStateFlow<Pair<Boolean, DiaryDraftState>>(false to DiaryDraftState())
 

@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.addmedication
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Drug
 import com.example.medlog.data.model.Medication
@@ -82,7 +83,7 @@ class AddMedicationViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val prefsRepository: UserPreferencesRepository,
     private val drugRepository: DrugRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(AddMedicationUiState())
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
@@ -110,8 +111,8 @@ class AddMedicationViewModel @Inject constructor(
 
     /** 加载已有药品进行编辑 */
     fun loadExisting(medicationId: Long) {
-        viewModelScope.launch {
-            val med = repository.getMedicationById(medicationId) ?: return@launch
+        safeLaunch(onError = { e -> update { copy(error = e.message) } }) {
+            val med = repository.getMedicationById(medicationId) ?: return@safeLaunch
             _uiState.value = AddMedicationUiState(
                 name            = med.name,
                 category        = med.category,
@@ -147,7 +148,7 @@ class AddMedicationViewModel @Inject constructor(
         update { copy(name = v, error = null) }
         // 当名称长度 >= 1 时触发搜索建议
         if (v.isNotBlank()) {
-            viewModelScope.launch {
+            safeLaunch {
                 val results = drugRepository.searchDrugsRanked(v).take(8)
                 update { copy(drugSuggestions = results, showDrugSuggestions = results.isNotEmpty()) }
             }
@@ -236,7 +237,7 @@ class AddMedicationViewModel @Inject constructor(
         if (state.name.isBlank()) {
             update { copy(error = "药品名称不能为空") }; return
         }
-        viewModelScope.launch {
+        safeLaunch(onError = { e -> update { copy(isSaving = false, error = e.message) } }) {
             update { copy(isSaving = true) }
             // 取第一个提醒时间作为 reminderHour/Minute（向后兼容通知调度）
             val firstTime = state.reminderTimes.firstOrNull() ?: "08:00"

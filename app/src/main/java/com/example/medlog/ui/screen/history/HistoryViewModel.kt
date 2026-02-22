@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.history
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
@@ -46,7 +47,7 @@ data class HistoryUiState(
 class HistoryViewModel @Inject constructor(
     private val logRepo: LogRepository,
     private val medicationRepo: MedicationRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HistoryUiState())
     val uiState: StateFlow<HistoryUiState> = _uiState.asStateFlow()

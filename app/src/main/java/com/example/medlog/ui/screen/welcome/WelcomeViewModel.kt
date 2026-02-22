@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.welcome
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.data.repository.UserPreferencesRepository
@@ -35,7 +36,7 @@ data class WelcomeUiState(
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val prefsRepository: UserPreferencesRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(WelcomeUiState())
     val uiState: StateFlow<WelcomeUiState> = _uiState.asStateFlow()

@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.detail
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
@@ -33,7 +34,7 @@ class MedicationDetailViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
     val uiState: StateFlow<DetailUiState> = _uiState.asStateFlow()
@@ -67,7 +68,7 @@ class MedicationDetailViewModel @Inject constructor(
 
     fun archiveMedication() {
         val id = _uiState.value.medication?.id ?: return
-        viewModelScope.launch {
+        safeLaunch {
             medicationRepo.archiveMedication(id)
             toggleDoseUseCase.cancelAllReminders(id)
         }
@@ -75,7 +76,7 @@ class MedicationDetailViewModel @Inject constructor(
 
     fun deleteMedication() {
         val med = _uiState.value.medication ?: return
-        viewModelScope.launch {
+        safeLaunch {
             medicationRepo.deleteMedication(med)
             toggleDoseUseCase.cancelAllReminders(med.id)
         }
@@ -85,7 +86,7 @@ class MedicationDetailViewModel @Inject constructor(
     fun adjustStock(delta: Double) {
         val med = _uiState.value.medication ?: return
         val currentStock = med.stock ?: return
-        viewModelScope.launch {
+        safeLaunch {
             val newStock = (currentStock + delta).coerceAtLeast(0.0)
             medicationRepo.updateStock(med.id, newStock)
             // 重载最新状态

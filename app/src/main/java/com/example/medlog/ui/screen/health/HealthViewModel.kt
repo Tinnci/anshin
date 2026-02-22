@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.health
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.HealthType
@@ -56,7 +57,7 @@ data class HealthUiState(
 @HiltViewModel
 class HealthViewModel @Inject constructor(
     private val repository: HealthRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HealthUiState())
     val uiState: StateFlow<HealthUiState> = _uiState.asStateFlow()

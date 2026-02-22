@@ -3,6 +3,7 @@ package com.example.medlog.ui.screen.settings
 import android.content.Context
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.MedicationRepository
@@ -56,7 +57,7 @@ class SettingsViewModel @Inject constructor(
     private val prefsRepository: UserPreferencesRepository,
     private val resyncReminders: ResyncRemindersUseCase,
     @param:ApplicationContext private val appContext: Context,
-) : ViewModel() {
+) : BaseViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
         repository.getArchivedMedications().catch { emit(emptyList()) },
@@ -90,19 +91,19 @@ class SettingsViewModel @Inject constructor(
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 
     fun setPersistentReminder(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updatePersistentReminder(enabled) }
+        safeLaunch { prefsRepository.updatePersistentReminder(enabled) }
     }
 
     fun setPersistentInterval(minutes: Int) {
-        viewModelScope.launch { prefsRepository.updatePersistentInterval(minutes) }
+        safeLaunch { prefsRepository.updatePersistentInterval(minutes) }
     }
 
     fun unarchiveMedication(id: Long) {
-        viewModelScope.launch { repository.unarchiveMedication(id) }
+        safeLaunch { repository.unarchiveMedication(id) }
     }
 
     fun updateRoutineTime(field: String, hour: Int, minute: Int) {
-        viewModelScope.launch {
+        safeLaunch {
             prefsRepository.updateRoutineTime(field, hour, minute)
             // 作息时间已更新，重新计算所有药品的提醒时间并重调度闹钟
             val newPrefs = prefsRepository.settingsFlow.first()
@@ -111,7 +112,7 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setTravelMode(enabled: Boolean) {
-        viewModelScope.launch {
+        safeLaunch {
             // 开启旅行模式时如果尚未保存家乡时区，自动记录当前设备时区
             val currentTz = java.util.TimeZone.getDefault().id
             val savedTzId = prefsRepository.settingsFlow.first().homeTimeZoneId
@@ -121,43 +122,43 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setEnableSymptomDiary(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableSymptomDiary = enabled) }
+        safeLaunch { prefsRepository.updateFeatureFlags(enableSymptomDiary = enabled) }
     }
 
     fun setEnableDrugInteractionCheck(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugInteraction = enabled) }
+        safeLaunch { prefsRepository.updateFeatureFlags(enableDrugInteraction = enabled) }
     }
 
     fun setEnableDrugDatabase(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableDrugDatabase = enabled) }
+        safeLaunch { prefsRepository.updateFeatureFlags(enableDrugDatabase = enabled) }
     }
 
     fun setEnableHealthModule(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableHealthModule = enabled) }
+        safeLaunch { prefsRepository.updateFeatureFlags(enableHealthModule = enabled) }
     }
 
     fun setEnableTimePeriodMode(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateFeatureFlags(enableTimePeriodMode = enabled) }
+        safeLaunch { prefsRepository.updateFeatureFlags(enableTimePeriodMode = enabled) }
     }
 
     fun setThemeMode(mode: ThemeMode) {
-        viewModelScope.launch { prefsRepository.updateThemeMode(mode) }
+        safeLaunch { prefsRepository.updateThemeMode(mode) }
     }
 
     fun setUseDynamicColor(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateUseDynamicColor(enabled) }
+        safeLaunch { prefsRepository.updateUseDynamicColor(enabled) }
     }
 
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {
-        viewModelScope.launch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
+        safeLaunch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
     }
 
     fun setEarlyReminderMinutes(minutes: Int) {
-        viewModelScope.launch { prefsRepository.updateEarlyReminderMinutes(minutes) }
+        safeLaunch { prefsRepository.updateEarlyReminderMinutes(minutes) }
     }
 
     fun setWidgetShowActions(enabled: Boolean) {
-        viewModelScope.launch {
+        safeLaunch {
             prefsRepository.updateWidgetShowActions(enabled)
             // SSOT 刷新：设置变更后立即更新所有上屏小组件
             val widget = MedLogWidget()
@@ -170,13 +171,13 @@ class SettingsViewModel @Inject constructor(
 
     /** 更新漏服再提醒设置 */
     fun setFollowUpSettings(enabled: Boolean? = null, delayMinutes: Int? = null, maxCount: Int? = null) {
-        viewModelScope.launch {
+        safeLaunch {
             prefsRepository.updateFollowUpSettings(enabled, delayMinutes, maxCount)
         }
     }
 
     /** 重置欢迎引导状态，下次启动或手动调用时回到引导页 */
     fun resetWelcome() {
-        viewModelScope.launch { prefsRepository.updateHasSeenWelcome(false) }
+        safeLaunch { prefsRepository.updateHasSeenWelcome(false) }
     }
 }

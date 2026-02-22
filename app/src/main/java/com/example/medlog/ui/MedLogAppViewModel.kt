@@ -1,6 +1,7 @@
 package com.example.medlog.ui
 
 import androidx.lifecycle.ViewModel
+import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.repository.SettingsPreferences
 import com.example.medlog.data.repository.UserPreferencesRepository
@@ -19,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MedLogAppViewModel @Inject constructor(
     prefsRepository: UserPreferencesRepository,
-) : ViewModel() {
+) : BaseViewModel() {
 
     val startDestination: StateFlow<Route?> = prefsRepository.settingsFlow
         .map { prefs -> if (prefs.hasSeenWelcome) Route.Home else Route.Welcome }
