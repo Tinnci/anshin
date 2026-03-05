@@ -1,8 +1,6 @@
 package com.example.medlog.data.local
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
@@ -25,8 +23,6 @@ abstract class MedLogDatabase : RoomDatabase() {
     abstract fun healthRecordDao(): HealthRecordDao
 
     companion object {
-        @Volatile private var INSTANCE: MedLogDatabase? = null
-
         /** v5 → v6: 添加 intervalHours 列（间隔给药小时数） */
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {
@@ -67,18 +63,5 @@ abstract class MedLogDatabase : RoomDatabase() {
                 )
             }
         }
-
-        /**
-         * Hilt 应用内仍由 [AppModule] 提供注入版本。
-         */
-        fun getInstance(context: Context): MedLogDatabase =
-            INSTANCE ?: synchronized(this) {
-                INSTANCE ?: Room
-                    .databaseBuilder(context.applicationContext, MedLogDatabase::class.java, "medlog.db")
-                    .addMigrations(MIGRATION_5_6, MIGRATION_6_7, MIGRATION_7_8, MIGRATION_8_9)
-                    .fallbackToDestructiveMigration(dropAllTables = true)
-                    .build()
-                    .also { INSTANCE = it }
-            }
     }
 }

@@ -186,22 +186,29 @@ class NotificationHelper @Inject constructor(
         timeIndex: Int = 0,
     ) {
         if (!notificationManager.areNotificationsEnabled()) return
-        val baseIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+        val notificationId = (medicationId * 100 + timeIndex).toInt()
+        val takenIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+            action = "ACTION_TAKEN"
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
         }
-        val notificationId = (medicationId * 100 + timeIndex).toInt()
+        val skipIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+            action = "ACTION_SKIP"
+            putExtra(EXTRA_MED_ID, medicationId)
+            putExtra(EXTRA_MED_NAME, medicationName)
+            putExtra(EXTRA_TIME_INDEX, timeIndex)
+        }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId * 10 + 1,
-            baseIntent.apply { action = "ACTION_TAKEN" },
+            takenIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val skipPendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId * 10 + 2,
-            baseIntent.apply { action = "ACTION_SKIP" },
+            skipIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
@@ -358,22 +365,29 @@ class NotificationHelper @Inject constructor(
         followUpCount: Int,
     ) {
         if (!notificationManager.areNotificationsEnabled()) return
-        val baseIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+        val notificationId = (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET
+        val takenIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+            action = "ACTION_TAKEN"
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
         }
-        val notificationId = (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET
+        val skipIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
+            action = "ACTION_SKIP"
+            putExtra(EXTRA_MED_ID, medicationId)
+            putExtra(EXTRA_MED_NAME, medicationName)
+            putExtra(EXTRA_TIME_INDEX, timeIndex)
+        }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId * 10 + 1,
-            baseIntent.apply { action = "ACTION_TAKEN" },
+            takenIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val skipPendingIntent = PendingIntent.getBroadcast(
             context,
             notificationId * 10 + 2,
-            baseIntent.apply { action = "ACTION_SKIP" },
+            skipIntent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         val notification = NotificationCompat.Builder(context, CHANNEL_FOLLOW_UP)
