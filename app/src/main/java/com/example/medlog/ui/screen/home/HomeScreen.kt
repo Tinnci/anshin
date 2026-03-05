@@ -99,12 +99,14 @@ fun HomeScreen(
     val fmtPeriodAllTaken = stringResource(R.string.home_snackbar_period_all_taken)
     val fmtPrnUndo = stringResource(R.string.home_snackbar_prn_undo)
     val fmtPrnTaken = stringResource(R.string.home_snackbar_prn_taken)
-    val fmtImportSuccess = stringResource(R.string.qr_import_success)
 
     // 收集导入成功事件 → Snackbar
+    @Suppress("LocalContextResourcesRead") // resources 在组合时捕获，用于 LaunchedEffect 中的 plurals
+    val importResources = context.resources
     LaunchedEffect(Unit) {
         viewModel.importSuccess.collect { count ->
-            snackbarHostState.showSnackbar(fmtImportSuccess.format(count))
+            val msg = importResources.getQuantityString(R.plurals.qr_import_success, count, count)
+            snackbarHostState.showSnackbar(msg)
         }
     }
 

@@ -46,6 +46,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.graphics.painter.BitmapPainter
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -167,7 +168,7 @@ internal fun MedicationQrDialog(
                 if (selectedTab == 1) {
                     // 药品数量摘要
                     Text(
-                        stringResource(R.string.qr_export_med_count, items.size),
+                        pluralStringResource(R.plurals.qr_export_med_count, items.size, items.size),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -313,7 +314,7 @@ internal fun ImportPreviewDialog(
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                 Text(
-                    stringResource(R.string.qr_import_medication_count, plan.meds.size),
+                    pluralStringResource(R.plurals.qr_import_medication_count, plan.meds.size, plan.meds.size),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 LazyColumn(

@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools">
     <string name="app_name">安心用药提醒</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">历史</string>
@@ -613,13 +613,18 @@
     <string name="qr_scan_grant_permission">授予权限</string>
     <string name="qr_export_too_large">药品较多，无法生成二维码，请使用文字分享</string>
     <string name="qr_import_preview_title">导入预览</string>
-    <string name="qr_import_medication_count">%d 种药品</string>
+    <plurals name="qr_import_medication_count">
+        <item quantity="other">%d 种药品</item>
+    </plurals>
     <string name="qr_import_mode_merge">合并（保留现有）</string>
     <string name="qr_import_mode_replace">替换（清空重导）</string>
-    <string name="qr_import_confirm">确认导入</string>
     <string name="qr_invalid">无效的二维码，请扫描由 Anshin 生成的导出码</string>
-    <string name="qr_import_success">已成功导入 %d 种药品</string>
-    <string name="qr_export_med_count">共 %d 种药品将被导出</string>
+    <plurals name="qr_import_success">
+        <item quantity="other">已成功导入 %d 种药品</item>
+    </plurals>
+    <plurals name="qr_export_med_count">
+        <item quantity="other">共 %d 种药品将被导出</item>
+    </plurals>
     <string name="qr_export_empty">没有可导出的药品</string>
     <!-- 漏服再提醒通知渠道 -->
     <string name="notif_ch_follow_up_name">漏服再提醒</string>
@@ -642,7 +647,7 @@
     <string name="error_name_required">药品名称不能为空</string>
     <string name="category_other">其他</string>
     <string name="unknown_medication">未知药品</string>
-    <string name="default_dose_unit">片</string>
+    <string name="default_dose_unit" tools:ignore="UnusedResources">片</string>
     <string-array name="preset_symptoms">
         <item>头痛</item>
         <item>恶心</item>
