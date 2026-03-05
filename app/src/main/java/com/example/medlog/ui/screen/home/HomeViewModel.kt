@@ -10,6 +10,7 @@ import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.domain.NINETY_DAYS_MS
 import com.example.medlog.domain.StreakCalculator
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.ToggleMedicationDoseUseCase
@@ -358,7 +359,7 @@ class HomeViewModel @Inject constructor(
             val zone = ZoneId.systemDefault()
             val now = System.currentTimeMillis()
             // 取近90天日志，足够覆盖合理 streak
-            val startMs = now - 90L * 24 * 60 * 60 * 1000
+            val startMs = now - NINETY_DAYS_MS
             logRepo.getLogsForDateRange(startMs, now)
                 .take(1)
                 .catch { }

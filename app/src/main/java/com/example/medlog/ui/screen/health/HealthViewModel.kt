@@ -6,6 +6,8 @@ import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.HealthType
 import com.example.medlog.data.repository.HealthRepository
+import com.example.medlog.domain.SEVEN_DAYS_MS
+import com.example.medlog.ui.util.formatDose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -89,7 +91,7 @@ class HealthViewModel @Inject constructor(
     private fun collectStats() {
         viewModelScope.launch {
             // 7 天 range
-            val sevenDaysAgo = System.currentTimeMillis() - 7L * 24 * 60 * 60 * 1000
+            val sevenDaysAgo = System.currentTimeMillis() - SEVEN_DAYS_MS
             combine(
                 repository.getLatestRecordPerType(),
                 repository.getRecordsInRange(sevenDaysAgo, System.currentTimeMillis()),
@@ -159,14 +161,8 @@ class HealthViewModel @Inject constructor(
                 showAddSheet = true,
                 draft = HealthDraftState(
                     type = HealthType.fromName(record.type),
-                    value = record.value.let { v ->
-                        if (v == v.toLong().toDouble()) v.toLong().toString()
-                        else "%.1f".format(v)
-                    },
-                    secondaryValue = record.secondaryValue?.let { v ->
-                        if (v == v.toLong().toDouble()) v.toLong().toString()
-                        else "%.1f".format(v)
-                    } ?: "",
+                    value = record.value.formatDose(),
+                    secondaryValue = record.secondaryValue?.formatDose() ?: "",
                     timestamp = record.timestamp,
                     notes = record.notes,
                     editingId = record.id,

@@ -139,7 +139,7 @@ fun DrugsScreen(
                                 color = MaterialTheme.colorScheme.outlineVariant,
                             )
                         }
-                        items(uiState.categories.take(12)) { cat ->
+                        items(uiState.categories.take(12), key = { it }) { cat ->
                             FilterChip(
                                 selected = uiState.selectedCategory == cat,
                                 onClick = {

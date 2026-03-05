@@ -32,10 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.util.icon
 import com.example.medlog.ui.util.labelRes
+import com.example.medlog.ui.util.formatDosePrecise
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -53,8 +55,8 @@ fun AddMedicationScreen(
     onSaved: () -> Unit,
     viewModel: AddMedicationViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.uiState.collectAsState()
-    val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsState()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsStateWithLifecycle()
     var showCustomDoseDialog by remember { mutableStateOf(false) }
     var customDoseText     by remember { mutableStateOf("") }
 
@@ -236,7 +238,7 @@ fun AddMedicationScreen(
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     userScrollEnabled = false,
                 ) {
-                    items(formOptions) { option ->
+                    items(formOptions, key = { it.key }) { option ->
                         val isSelected = uiState.form == option.key
                         Card(
                             onClick = { viewModel.onFormChange(option.key) },
@@ -282,19 +284,13 @@ fun AddMedicationScreen(
                         horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            uiState.doseQuantity.let {
-                                if (it == it.toLong().toDouble()) it.toLong().toString()
-                                else "%.2f".format(it).trimEnd('0').trimEnd('.')
-                            },
+                            uiState.doseQuantity.formatDosePrecise(),
                             style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
                             color = MaterialTheme.colorScheme.primary,
                         )
                         IconButton(
                             onClick = {
-                                customDoseText = uiState.doseQuantity.let {
-                                    if (it == it.toLong().toDouble()) it.toLong().toString()
-                                    else "%.2f".format(it).trimEnd('0').trimEnd('.')
-                                }
+                                customDoseText = uiState.doseQuantity.formatDosePrecise()
                                 showCustomDoseDialog = true
                             },
                             modifier = Modifier.size(32.dp),

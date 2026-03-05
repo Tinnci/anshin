@@ -28,6 +28,8 @@ import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.util.labelRes
+import com.example.medlog.ui.util.formatDose
+import com.example.medlog.ui.util.formatDosePrecise
 import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
@@ -36,12 +38,7 @@ import com.example.medlog.R
 import java.util.*
 
 /** 剂型 key → Material Icon（与添加界面保持一致） */
-private fun formIcon(form: String): ImageVector = when (form) {
-    "capsule" -> Icons.Rounded.Science
-    "liquid"  -> Icons.Rounded.LocalDrink
-    "powder"  -> Icons.Rounded.WaterDrop
-    else      -> Icons.Rounded.Medication
-}
+import com.example.medlog.ui.util.formIcon
 
 /** 剂型 key → 本地化标签 */
 @Composable
@@ -223,12 +220,8 @@ fun MedicationDetailScreen(
                             }
                             else -> DetailRow(stringResource(R.string.detail_label_category), "—")
                         }
-                        DetailRow(stringResource(R.string.detail_label_dose), run {
-                            val qty = med.doseQuantity
-                            val qtyStr = if (qty == qty.toLong().toDouble()) "${qty.toLong()}"
-                                         else "%.2f".format(qty).trimEnd('0').trimEnd('.')
-                            "$qtyStr ${med.doseUnit}"
-                        })
+                        DetailRow(stringResource(R.string.detail_label_dose),
+                            "${med.doseQuantity.formatDosePrecise()} ${med.doseUnit}")
                         if (med.isPRN) {
                             DetailRow(stringResource(R.string.detail_label_usage), stringResource(R.string.detail_usage_prn))
                         } else {
@@ -260,9 +253,9 @@ fun MedicationDetailScreen(
                         }
                         if (med.isHighPriority) DetailRow(stringResource(R.string.detail_label_priority), stringResource(R.string.detail_priority_high))
                         med.stock?.let { DetailRow(stringResource(R.string.detail_label_stock), "$it ${med.doseUnit}") }
+                        val endDateFmt = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
                         med.endDate?.let {
-                            DetailRow(stringResource(R.string.detail_label_end_date), java.text.SimpleDateFormat("yyyy/MM/dd", java.util.Locale.getDefault())
-                                .format(java.util.Date(it)))
+                            DetailRow(stringResource(R.string.detail_label_end_date), endDateFmt.format(Date(it)))
                         }
                         if (med.notes.isNotBlank()) DetailRow(stringResource(R.string.detail_label_notes), med.notes)
                     }
@@ -469,8 +462,8 @@ private fun StockCard(
     val isLow = refillThreshold != null && stock <= refillThreshold
     val stockColor = if (isLow) colorScheme.error else colorScheme.tertiary
 
-    val stockDisplay = if (stock == stock.toLong().toDouble()) "${stock.toLong()}" else "%.1f".format(stock)
-    val doseDisplay = if (doseQuantity == doseQuantity.toLong().toDouble()) "${doseQuantity.toLong()}" else "%.1f".format(doseQuantity)
+    val stockDisplay = stock.formatDose()
+    val doseDisplay = doseQuantity.formatDose()
 
     // 常用补药预设量
     val presets = listOf("+10" to 10.0, "+30" to 30.0, "+60" to 60.0, "+90" to 90.0)

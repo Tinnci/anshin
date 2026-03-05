@@ -204,7 +204,7 @@ internal fun TimePeriodGroupCard(
                 items.forEachIndexed { idx, item ->
                     var visible by remember(item.medication.id) { mutableStateOf(false) }
                     LaunchedEffect(item.medication.id) {
-                        delay(idx * 30L)   // 组内相邻延迟，避免全局累积延迟
+                        delay(idx * STAGGER_DELAY_MS)   // 组内相邻延迟，避免全局累积延迟
                         visible = true
                     }
                     AnimatedVisibility(

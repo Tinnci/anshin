@@ -106,7 +106,7 @@ internal fun PRNSectionCard(
         items.forEachIndexed { idx, item ->
             var visible by remember(item.medication.id) { mutableStateOf(false) }
             LaunchedEffect(item.medication.id) {
-                delay(idx * 30L)
+                delay(idx * STAGGER_DELAY_MS)
                 visible = true
             }
             AnimatedVisibility(

@@ -8,6 +8,7 @@ import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.LogRepository
 import com.example.medlog.data.repository.MedicationRepository
+import com.example.medlog.domain.THIRTY_DAYS_MS
 import com.example.medlog.domain.ToggleMedicationDoseUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
@@ -50,7 +51,7 @@ class MedicationDetailViewModel @Inject constructor(
                     .collect { logs ->
                         // 计算近30天坚持率
                         val now = System.currentTimeMillis()
-                        val thirtyDaysAgoMs = now - 30L * 24 * 60 * 60 * 1000
+                        val thirtyDaysAgoMs = now - THIRTY_DAYS_MS
                         val recent = logs.filter { it.scheduledTimeMs >= thirtyDaysAgoMs }
                         val taken = recent.count { it.status == LogStatus.TAKEN }
                         val total = recent.size

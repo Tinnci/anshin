@@ -53,6 +53,7 @@ import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.util.labelRes
+import com.example.medlog.ui.util.formatDose
 import com.example.medlog.domain.PlanExport
 import com.example.medlog.domain.PlanExportCodec
 import com.example.medlog.ui.utils.generateQrBitmap
@@ -97,9 +98,7 @@ internal fun MedicationQrDialog(
                     else           -> "○"
                 }
                 val med = item.medication
-                val dose = if (med.doseQuantity == med.doseQuantity.toLong().toDouble())
-                    "${med.doseQuantity.toLong()}${med.doseUnit}"
-                else "%.1f${med.doseUnit}".format(med.doseQuantity)
+                val dose = "${med.doseQuantity.formatDose()}${med.doseUnit}"
                 val period = periodStrings[med.timePeriod] ?: ""
                 appendLine("$status ${med.name} $dose $period")
             }
@@ -321,7 +320,7 @@ internal fun ImportPreviewDialog(
                     modifier = Modifier.heightIn(max = 240.dp),
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                 ) {
-                    items(plan.meds) { med ->
+                    items(plan.meds, key = { it.name }) { med ->
                         Text(
                             "• ${med.name}",
                             style = MaterialTheme.typography.bodySmall,

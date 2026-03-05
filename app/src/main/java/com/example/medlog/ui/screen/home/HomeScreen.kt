@@ -73,6 +73,9 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+/** 列表项交错入场动画的逐项延迟（毫秒） */
+internal const val STAGGER_DELAY_MS = 30L
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HomeScreen(
@@ -111,7 +114,9 @@ fun HomeScreen(
     }
 
     // Pending items for "take all" button (excluding PRN on-demand meds)
-    val pendingItems = uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
+    val pendingItems = remember(uiState.items) {
+        uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
+    }
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -350,7 +355,7 @@ fun HomeScreen(
                         val motionScheme = MaterialTheme.motionScheme
                         var visible by remember(item.medication.id) { mutableStateOf(false) }
                         LaunchedEffect(item.medication.id) {
-                            delay(idx * 30L)   // 基于组内索引，而非全局，避免底部首次出现延迟
+                            delay(idx * STAGGER_DELAY_MS)   // 基于组内索引，而非全局，避免底部首次出现延迟
                             visible = true
                         }
                         AnimatedVisibility(

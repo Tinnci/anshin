@@ -10,7 +10,9 @@ import com.example.medlog.data.repository.MedicationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import com.example.medlog.domain.NINETY_DAYS_MS
 import com.example.medlog.domain.StreakCalculator
+import com.example.medlog.domain.THIRTY_DAYS_MS
 import java.time.Instant
 import java.time.YearMonth
 import java.time.LocalDate
@@ -77,7 +79,7 @@ class HistoryViewModel @Inject constructor(
 
             // 2. 加载近90天的日志，按日期聚合
             val now = System.currentTimeMillis()
-            val startMs = now - 90L * 24 * 60 * 60 * 1000
+            val startMs = now - NINETY_DAYS_MS
             logRepo.getLogsForDateRange(startMs, now)
                 .catch { }
                 .collect { logs ->
@@ -100,7 +102,7 @@ class HistoryViewModel @Inject constructor(
                     }
 
                     // 计算近30天坚持率
-                    val thirtyDaysAgo = Instant.ofEpochMilli(now - 30L * 24 * 60 * 60 * 1000)
+                    val thirtyDaysAgo = Instant.ofEpochMilli(now - THIRTY_DAYS_MS)
                         .atZone(zone).toLocalDate()
                     val recentDays = calendarDays.filterKeys { it >= thirtyDaysAgo }
                     val totalLogs = recentDays.values.sumOf { it.total }

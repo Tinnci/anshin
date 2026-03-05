@@ -36,12 +36,8 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /** 根据药品剂型返回与添加界面一致的 Material Icon */
-private fun formIcon(form: String): ImageVector = when (form) {
-    "capsule" -> Icons.Rounded.Science
-    "liquid"  -> Icons.Rounded.LocalDrink
-    "powder"  -> Icons.Rounded.WaterDrop
-    else      -> Icons.Rounded.Medication  // tablet + 默认
-}
+import com.example.medlog.ui.util.formIcon
+import com.example.medlog.ui.util.formatDose
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -223,10 +219,7 @@ fun MedicationCard(
                             med.reminderTimes.split(",").firstOrNull()
                                 ?: "%02d:%02d".format(med.reminderHour, med.reminderMinute)
                         } else stringResource(period.labelRes)
-                        val doseDisplay = med.doseQuantity.let {
-                            if (it == it.toLong().toDouble()) "${it.toLong()} ${med.doseUnit}"
-                            else "%.1f ${med.doseUnit}".format(it)
-                        }
+                        val doseDisplay = "${med.doseQuantity.formatDose()} ${med.doseUnit}"
                         Text(
                             text = "$doseDisplay  ·  $timeText",
                             style = MaterialTheme.typography.bodySmall,
@@ -234,10 +227,10 @@ fun MedicationCard(
                         )
                     }
                     if (item.isTaken && item.log?.actualTakenTimeMs != null) {
+                        val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
                         Text(
                             text = stringResource(R.string.med_card_taken_at,
-                                SimpleDateFormat("HH:mm", Locale.getDefault())
-                                    .format(Date(item.log.actualTakenTimeMs))),
+                                timeFmt.format(Date(item.log.actualTakenTimeMs))),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )
