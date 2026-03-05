@@ -28,8 +28,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
-import androidx.compose.material3.TabRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -117,8 +117,10 @@ internal fun MedicationQrDialog(
         value = withContext(Dispatchers.Default) { generateQrBitmap(todayQrText) }
     }
     val exportQrBitmap by produceState<android.graphics.Bitmap?>(null, exportUri, canShowQr) {
-        if (canShowQr && exportUri != null)
-            value = withContext(Dispatchers.Default) { generateQrBitmap(exportUri) }
+        val uri = exportUri
+        if (uri != null && PlanExportCodec.canDisplayAsQr(uri)) {
+            value = withContext(Dispatchers.Default) { generateQrBitmap(uri) }
+        }
     }
 
     AlertDialog(
@@ -131,7 +133,7 @@ internal fun MedicationQrDialog(
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // ── Tab 切换 ────────────────────────────────────────
-                TabRow(selectedTabIndex = selectedTab) {
+                PrimaryTabRow(selectedTabIndex = selectedTab) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
