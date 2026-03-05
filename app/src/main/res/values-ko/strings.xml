@@ -638,4 +638,32 @@
     <string name="settings_follow_up_delay">재알림 간격</string>
     <string name="settings_follow_up_count">최대 재알림 횟수</string>
     <string name="settings_follow_up_delay_min">%d분</string>
+
+    <!-- i18n: extracted from Kotlin hardcoded strings -->
+    <string name="error_name_required">약품명을 입력해 주세요</string>
+    <string name="category_other">기타</string>
+    <string name="unknown_medication">알 수 없는 약품</string>
+    <string name="default_dose_unit">정</string>
+    <string-array name="preset_symptoms">
+        <item>두통</item>
+        <item>메스꺼움</item>
+        <item>피로</item>
+        <item>불면</item>
+        <item>어지러움</item>
+        <item>발열</item>
+        <item>복통</item>
+        <item>발진</item>
+        <item>심계항진</item>
+        <item>갈증</item>
+    </string-array>
+    <string-array name="preset_side_effects">
+        <item>위장 불편</item>
+        <item>구강 건조</item>
+        <item>식욕 감소</item>
+        <item>졸음</item>
+        <item>피부 가려움</item>
+        <item>설사</item>
+        <item>변비</item>
+        <item>시야 흐림</item>
+    </string-array>
 </resources>

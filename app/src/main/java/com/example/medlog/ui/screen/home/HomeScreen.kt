@@ -38,6 +38,7 @@ import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.ui.graphics.Color
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.labelRes
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -332,7 +333,8 @@ fun HomeScreen(
                                     .padding(top = 8.dp, bottom = 2.dp),
                             ) {
                                 Text(
-                                    text = category,
+                                    text = if (category == HomeUiState.UNCATEGORIZED_KEY)
+                                        stringResource(R.string.category_other) else category,
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                 )

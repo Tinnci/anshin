@@ -199,7 +199,7 @@ class HealthViewModel @Inject constructor(
             timestamp      = draft.timestamp,
             notes          = draft.notes,
         )
-        viewModelScope.launch {
+        safeLaunch {
             if (draft.editingId == null) repository.addRecord(record)
             else repository.updateRecord(record)
             _uiState.update { it.copy(showAddSheet = false) }
@@ -210,7 +210,7 @@ class HealthViewModel @Inject constructor(
     fun cancelDelete() = _uiState.update { it.copy(deleteTarget = null) }
     fun confirmDelete() {
         val target = _uiState.value.deleteTarget ?: return
-        viewModelScope.launch {
+        safeLaunch {
             repository.deleteRecord(target)
             _uiState.update { it.copy(deleteTarget = null) }
         }

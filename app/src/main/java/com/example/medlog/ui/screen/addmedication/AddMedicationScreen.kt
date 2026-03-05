@@ -34,6 +34,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.icon
+import com.example.medlog.ui.util.labelRes
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -143,10 +145,12 @@ fun AddMedicationScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
-                        isError = uiState.error != null && uiState.name.isBlank(),
+                        isError = (uiState.errorRes != null || uiState.error != null) && uiState.name.isBlank(),
                         supportingText = {
-                            if (uiState.error != null && uiState.name.isBlank())
-                                Text(uiState.error ?: "", color = MaterialTheme.colorScheme.error)
+                            if (uiState.name.isBlank()) {
+                                val msg = uiState.errorRes?.let { stringResource(it) } ?: uiState.error
+                                if (msg != null) Text(msg, color = MaterialTheme.colorScheme.error)
+                            }
                         },
                         leadingIcon = { Icon(Icons.Rounded.Medication, null) },
                         trailingIcon = {

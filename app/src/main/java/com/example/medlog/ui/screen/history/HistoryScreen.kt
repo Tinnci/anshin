@@ -443,7 +443,12 @@ private fun DayDetailSection(
             } else {
                 HorizontalDivider(color = colorScheme.outlineVariant)
                 day.logs.forEach { (log, name) ->
-                    DayLogRow(log = log, medicationName = name, onEditTakenTime = onEditTakenTime)
+                    DayLogRow(
+                        log = log,
+                        medicationName = if (name == HistoryViewModel.UNKNOWN_MEDICATION_NAME)
+                            stringResource(R.string.unknown_medication) else name,
+                        onEditTakenTime = onEditTakenTime,
+                    )
                 }
             }
         }

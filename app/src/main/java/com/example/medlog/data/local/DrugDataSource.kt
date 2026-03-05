@@ -30,7 +30,7 @@ class DrugDataSource @Inject constructor(
     }
 
     private fun parseJsonDrugs(assetPath: String, isTcm: Boolean): List<Drug> = try {
-        val text = context.assets.open(assetPath).bufferedReader().readText()
+        val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
         val root = lenientJson.parseToJsonElement(text).jsonObject
         val result = ArrayList<Drug>(root.size)
 

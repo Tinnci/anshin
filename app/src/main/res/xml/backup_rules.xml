@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    备份规则：排除敏感医疗数据（Room 数据库、DataStore 偏好设置）。
+    仅允许备份非敏感的 SharedPreferences 和缓存。
+-->
+<full-backup-content>
+    <exclude domain="database" path="." />
+    <exclude domain="sharedpref" path="." />
+    <exclude domain="file" path="datastore/" />
+</full-backup-content>

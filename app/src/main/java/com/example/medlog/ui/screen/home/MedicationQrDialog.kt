@@ -51,6 +51,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.labelRes
 import com.example.medlog.domain.PlanExport
 import com.example.medlog.domain.PlanExportCodec
 import com.example.medlog.ui.utils.generateQrBitmap

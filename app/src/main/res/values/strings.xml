@@ -637,4 +637,32 @@
     <string name="settings_follow_up_delay">再提醒间隔</string>
     <string name="settings_follow_up_count">最多再提醒次数</string>
     <string name="settings_follow_up_delay_min">%d 分钟</string>
+
+    <!-- i18n: extracted from Kotlin hardcoded strings -->
+    <string name="error_name_required">药品名称不能为空</string>
+    <string name="category_other">其他</string>
+    <string name="unknown_medication">未知药品</string>
+    <string name="default_dose_unit">片</string>
+    <string-array name="preset_symptoms">
+        <item>头痛</item>
+        <item>恶心</item>
+        <item>疲倦</item>
+        <item>失眠</item>
+        <item>头晕</item>
+        <item>发烧</item>
+        <item>胃痛</item>
+        <item>皮疹</item>
+        <item>心悸</item>
+        <item>口渴</item>
+    </string-array>
+    <string-array name="preset_side_effects">
+        <item>胃部不适</item>
+        <item>口干</item>
+        <item>食欲减退</item>
+        <item>嗜睡</item>
+        <item>皮肤瘙痒</item>
+        <item>腹泻</item>
+        <item>便秘</item>
+        <item>视力模糊</item>
+    </string-array>
 </resources>

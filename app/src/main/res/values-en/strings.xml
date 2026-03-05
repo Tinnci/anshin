@@ -661,4 +661,32 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_follow_up_delay">Reminder Interval</string>
     <string name="settings_follow_up_count">Max. Follow-up Count</string>
     <string name="settings_follow_up_delay_min">%d min</string>
+
+    <!-- i18n: extracted from Kotlin hardcoded strings -->
+    <string name="error_name_required">Medication name is required</string>
+    <string name="category_other">Other</string>
+    <string name="unknown_medication">Unknown medication</string>
+    <string name="default_dose_unit">tablet</string>
+    <string-array name="preset_symptoms">
+        <item>Headache</item>
+        <item>Nausea</item>
+        <item>Fatigue</item>
+        <item>Insomnia</item>
+        <item>Dizziness</item>
+        <item>Fever</item>
+        <item>Stomach pain</item>
+        <item>Rash</item>
+        <item>Palpitations</item>
+        <item>Thirst</item>
+    </string-array>
+    <string-array name="preset_side_effects">
+        <item>Stomach discomfort</item>
+        <item>Dry mouth</item>
+        <item>Loss of appetite</item>
+        <item>Drowsiness</item>
+        <item>Itchy skin</item>
+        <item>Diarrhea</item>
+        <item>Constipation</item>
+        <item>Blurred vision</item>
+    </string-array>
 </resources>

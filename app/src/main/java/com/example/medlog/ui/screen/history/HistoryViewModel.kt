@@ -54,6 +54,11 @@ class HistoryViewModel @Inject constructor(
 
     private val zone = ZoneId.systemDefault()
 
+    companion object {
+        /** 哨兵值：未知药品名，Compose UI 层用 stringResource 解析显示文本 */
+        const val UNKNOWN_MEDICATION_NAME = "\u0000__unknown__"
+    }
+
     init {
         loadData()
     }
@@ -89,7 +94,7 @@ class HistoryViewModel @Inject constructor(
                             logs = dayLogs
                                 .sortedBy { it.scheduledTimeMs }
                                 .map { log ->
-                                    log to (medicationNames[log.medicationId] ?: "未知药品")
+                                    log to (medicationNames[log.medicationId] ?: UNKNOWN_MEDICATION_NAME)
                                 },
                         )
                     }

@@ -45,6 +45,11 @@ class AlarmScheduler @Inject constructor(
     /** 提前预告提醒分钟数（0 = 关闭），由 DataStore 实时同步 */
     @Volatile private var earlyReminderMinutes: Int = 0
 
+    /**
+     * 进程级别 CoroutineScope，生命周期与 Application 一致。
+     * 作为 @Singleton 不需要手动 cancel；在 instrumented test 中
+     * 可通过注入 application-scoped scope 控制生命周期。
+     */
     private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {

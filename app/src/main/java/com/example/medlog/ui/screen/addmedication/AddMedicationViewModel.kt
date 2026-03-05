@@ -2,6 +2,8 @@ package com.example.medlog.ui.screen.addmedication
 
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.annotation.StringRes
+import com.example.medlog.R
 import com.example.medlog.data.model.Drug
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.TimePeriod
@@ -32,6 +34,7 @@ data class AddMedicationUiState(
 
     // ── 剂量 ──────────────────────────────────────────────────────
     val doseQuantity: Double = 1.0,          // 每次几片/粒/ml
+    // TODO i18n: 默认单位应从 R.string.default_dose_unit 获取，需要 Context 或从 Composable 初始化
     val doseUnit: String = "片",
 
     // ── 按需 / PRN ────────────────────────────────────────────────
@@ -72,6 +75,8 @@ data class AddMedicationUiState(
     val isSaving: Boolean = false,
     val isSaved: Boolean = false,
     val error: String? = null,
+    /** 验证错误资源 ID（优先于 error 文本显示） */
+    @StringRes val errorRes: Int? = null,
     val drugSuggestions: List<Drug> = emptyList(),
     val showDrugSuggestions: Boolean = false,
 )
@@ -162,7 +167,7 @@ class AddMedicationViewModel @Inject constructor(
     // ── 字段 setters ────────────────────────────────────────────
 
     fun onNameChange(v: String) {
-        update { copy(name = v, error = null) }
+        update { copy(name = v, error = null, errorRes = null) }
         _nameQuery.value = v
     }
 
@@ -179,6 +184,7 @@ class AddMedicationViewModel @Inject constructor(
                 showDrugSuggestions = false,
                 drugSuggestions = emptyList(),
                 error = null,
+                errorRes = null,
             )
         }
     }
@@ -244,7 +250,7 @@ class AddMedicationViewModel @Inject constructor(
     fun save(existingId: Long?) {
         val state = _uiState.value
         if (state.name.isBlank()) {
-            update { copy(error = "药品名称不能为空") }; return
+            update { copy(errorRes = R.string.error_name_required) }; return
         }
         safeLaunch(onError = { e -> update { copy(isSaving = false, error = e.message) } }) {
             update { copy(isSaving = true) }

@@ -29,6 +29,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.icon
+import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.screen.home.MedicationWithStatus
 import java.text.SimpleDateFormat
 import java.util.*

@@ -27,6 +27,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource

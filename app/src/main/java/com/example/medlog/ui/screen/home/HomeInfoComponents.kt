@@ -41,6 +41,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.util.icon
+import com.example.medlog.ui.util.labelRes
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

@@ -15,6 +15,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -351,7 +352,7 @@ private fun AddEditDiarySheet(
             // ── 症状快选 ──────────────────────────────────────────────────
             Text(stringResource(R.string.symptom_section_symptoms), style = MaterialTheme.typography.titleSmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PRESET_SYMPTOMS.forEach { s ->
+                stringArrayResource(R.array.preset_symptoms).forEach { s ->
                     FilterChip(
                         selected = s in draft.symptoms,
                         onClick = { onToggleSymptom(s) },
@@ -382,7 +383,7 @@ private fun AddEditDiarySheet(
             // ── 副作用快选 ─────────────────────────────────────────────────
             Text(stringResource(R.string.symptom_section_side_effects), style = MaterialTheme.typography.titleSmall)
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                PRESET_SIDE_EFFECTS.forEach { se ->
+                stringArrayResource(R.array.preset_side_effects).forEach { se ->
                     FilterChip(
                         selected = se in draft.sideEffects,
                         onClick = { onToggleSideEffect(se) },

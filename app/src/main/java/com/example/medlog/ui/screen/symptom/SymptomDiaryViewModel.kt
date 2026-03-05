@@ -15,9 +15,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 // ─── 常用症状 / 副作用预设列表 ──────────────────────────────────────────────────
-
-val PRESET_SYMPTOMS = listOf("头痛", "恶心", "疲倦", "失眠", "头晕", "发烧", "胃痛", "皮疹", "心悸", "口渴")
-val PRESET_SIDE_EFFECTS = listOf("胃部不适", "口干", "食欲减退", "嗜睡", "皮肤瘙痒", "腹泻", "便秘", "视力模糊")
+// 已迁移至 string-array 资源 R.array.preset_symptoms / R.array.preset_side_effects
+// Compose UI 层通过 stringArrayResource() 加载，见 SymptomDiaryScreen.kt
 
 // ─── Dialog 草稿状态 ───────────────────────────────────────────────────────────
 
@@ -133,7 +132,7 @@ class SymptomDiaryViewModel @Inject constructor(
 
     fun saveLog() {
         val draft = _dialogState.value.second
-        viewModelScope.launch {
+        safeLaunch {
             if (draft.editingId == null) {
                 repo.insert(
                     SymptomLog(
@@ -167,7 +166,7 @@ class SymptomDiaryViewModel @Inject constructor(
     // ── 删除 ─────────────────────────────────────────────────────────────────
 
     fun deleteLog(id: Long) {
-        viewModelScope.launch { repo.deleteById(id) }
+        safeLaunch { repo.deleteById(id) }
     }
 
     // ── 私有帮助函数 ─────────────────────────────────────────────────────────

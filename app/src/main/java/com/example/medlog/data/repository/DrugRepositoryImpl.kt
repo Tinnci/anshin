@@ -2,6 +2,8 @@ package com.example.medlog.data.repository
 
 import com.example.medlog.data.local.DrugDataSource
 import com.example.medlog.data.model.Drug
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -11,10 +13,13 @@ class DrugRepositoryImpl @Inject constructor(
 ) : DrugRepository {
 
     /** 内存缓存，应用生命周期内只加载一次 */
-    private var cache: List<Drug>? = null
+    @Volatile private var cache: List<Drug>? = null
+    private val cacheMutex = Mutex()
 
     override suspend fun getAllDrugs(): List<Drug> =
-        cache ?: dataSource.loadAllDrugs().also { cache = it }
+        cache ?: cacheMutex.withLock {
+            cache ?: dataSource.loadAllDrugs().also { cache = it }
+        }
 
     override suspend fun searchDrugs(query: String): List<Drug> {
         val all = getAllDrugs()
