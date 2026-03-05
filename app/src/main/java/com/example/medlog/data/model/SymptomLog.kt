@@ -1,6 +1,7 @@
 package com.example.medlog.data.model
 
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 
 /**
@@ -8,7 +9,13 @@ import androidx.room.PrimaryKey
  *
  * 每条记录代表用户在某一时刻记录的身体感受，可选关联具体药品。
  */
-@Entity(tableName = "symptom_logs")
+@Entity(
+    tableName = "symptom_logs",
+    indices = [
+        Index("recordedAt"),
+        Index("medicationId"),
+    ],
+)
 data class SymptomLog(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

@@ -1,5 +1,6 @@
 package com.example.medlog.domain
 
+import com.example.medlog.data.local.TransactionRunner
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
@@ -23,6 +24,7 @@ import javax.inject.Singleton
  */
 @Singleton
 class ToggleMedicationDoseUseCase @Inject constructor(
+    private val transactionRunner: TransactionRunner,
     private val logRepo: LogRepository,
     private val medicationRepo: MedicationRepository,
     private val alarmScheduler: AlarmScheduler,
@@ -36,17 +38,19 @@ class ToggleMedicationDoseUseCase @Inject constructor(
      */
     suspend fun markTaken(med: Medication, existingLog: MedicationLog?) {
         val (start, end) = todayRange()
-        logRepo.deleteLogsForDate(med.id, start, end)
-        logRepo.insertLog(
-            MedicationLog(
-                medicationId = med.id,
-                scheduledTimeMs = scheduledMs(med),
-                actualTakenTimeMs = System.currentTimeMillis(),
-                status = LogStatus.TAKEN,
-            ),
-        )
-        med.stock?.let { stock ->
-            medicationRepo.updateStock(med.id, (stock - med.doseQuantity).coerceAtLeast(0.0))
+        transactionRunner.withTransaction {
+            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.insertLog(
+                MedicationLog(
+                    medicationId = med.id,
+                    scheduledTimeMs = scheduledMs(med),
+                    actualTakenTimeMs = System.currentTimeMillis(),
+                    status = LogStatus.TAKEN,
+                ),
+            )
+            med.stock?.let { stock ->
+                medicationRepo.updateStock(med.id, (stock - med.doseQuantity).coerceAtLeast(0.0))
+            }
         }
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
@@ -67,15 +71,17 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     /** 标记为跳过 — 写日志、取消闹钟/通知、刷新 Widget */
     suspend fun markSkipped(med: Medication) {
         val (start, end) = todayRange()
-        logRepo.deleteLogsForDate(med.id, start, end)
-        logRepo.insertLog(
-            MedicationLog(
-                medicationId = med.id,
-                scheduledTimeMs = scheduledMs(med),
-                actualTakenTimeMs = null,
-                status = LogStatus.SKIPPED,
-            ),
-        )
+        transactionRunner.withTransaction {
+            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.insertLog(
+                MedicationLog(
+                    medicationId = med.id,
+                    scheduledTimeMs = scheduledMs(med),
+                    actualTakenTimeMs = null,
+                    status = LogStatus.SKIPPED,
+                ),
+            )
+        }
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
         widgetRefresher.refreshAll()

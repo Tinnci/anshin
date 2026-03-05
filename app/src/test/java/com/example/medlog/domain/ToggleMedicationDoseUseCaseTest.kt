@@ -1,5 +1,6 @@
 package com.example.medlog.domain
 
+import com.example.medlog.data.local.TransactionRunner
 import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.model.MedicationLog
@@ -31,6 +32,11 @@ class ToggleMedicationDoseUseCaseTest {
     private lateinit var widgetRefresher: FakeWidgetRefresher
     private lateinit var useCase: ToggleMedicationDoseUseCase
 
+    /** 测试用 TransactionRunner：直接执行 block，不启动真实事务 */
+    private val fakeTransactionRunner = object : TransactionRunner {
+        override suspend fun <R> withTransaction(block: suspend () -> R): R = block()
+    }
+
     // ── 测试辅助 ──────────────────────────────────────────────────────────────
 
     private fun med(id: Long = 1L, stock: Double? = null) = Medication(
@@ -59,6 +65,7 @@ class ToggleMedicationDoseUseCaseTest {
         notificationHelper = mock()
         widgetRefresher = FakeWidgetRefresher()
         useCase = ToggleMedicationDoseUseCase(
+            transactionRunner = fakeTransactionRunner,
             logRepo = logRepo,
             medicationRepo = medicationRepo,
             alarmScheduler = alarmScheduler,

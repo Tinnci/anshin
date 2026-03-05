@@ -2,6 +2,7 @@ package com.example.medlog.data.model
 
 import androidx.annotation.StringRes
 import androidx.room.Entity
+import androidx.room.Index
 import androidx.room.PrimaryKey
 import com.example.medlog.R
 
@@ -14,7 +15,13 @@ import com.example.medlog.R
  * - 体温：value = °C; secondaryValue = null
  * - 血氧：value = %; secondaryValue = null
  */
-@Entity(tableName = "health_records")
+@Entity(
+    tableName = "health_records",
+    indices = [
+        Index("type"),
+        Index("timestamp"),
+    ],
+)
 data class HealthRecord(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,

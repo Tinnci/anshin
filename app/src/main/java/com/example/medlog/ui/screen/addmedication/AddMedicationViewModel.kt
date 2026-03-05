@@ -1,6 +1,5 @@
 package com.example.medlog.ui.screen.addmedication
 
-import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.Drug
@@ -15,6 +14,7 @@ import com.example.medlog.domain.todayStart
 import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -91,6 +91,9 @@ class AddMedicationViewModel @Inject constructor(
     /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
     private val _latestPrefs = MutableStateFlow(SettingsPreferences())
 
+    /** 药品名称搜索查询 Flow，用于 debounce */
+    private val _nameQuery = MutableStateFlow("")
+
     /** 作息时间段模式开关：false 时隐藏作息模式相关 UI，始终以精确时间模式运行 */
     val enableTimePeriodMode: StateFlow<Boolean> = prefsRepository.settingsFlow
         .map { it.enableTimePeriodMode }
@@ -99,6 +102,20 @@ class AddMedicationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             prefsRepository.settingsFlow.collect { _latestPrefs.value = it }
+        }
+        // 搜索建议：300ms debounce 避免每次击键都触发全库搜索
+        @OptIn(FlowPreview::class)
+        viewModelScope.launch {
+            _nameQuery
+                .debounce(300)
+                .collectLatest { query ->
+                    if (query.isNotBlank()) {
+                        val results = drugRepository.searchDrugsRanked(query).take(8)
+                        update { copy(drugSuggestions = results, showDrugSuggestions = results.isNotEmpty()) }
+                    } else {
+                        update { copy(drugSuggestions = emptyList(), showDrugSuggestions = false) }
+                    }
+                }
         }
     }
 
@@ -146,15 +163,7 @@ class AddMedicationViewModel @Inject constructor(
 
     fun onNameChange(v: String) {
         update { copy(name = v, error = null) }
-        // 当名称长度 >= 1 时触发搜索建议
-        if (v.isNotBlank()) {
-            safeLaunch {
-                val results = drugRepository.searchDrugsRanked(v).take(8)
-                update { copy(drugSuggestions = results, showDrugSuggestions = results.isNotEmpty()) }
-            }
-        } else {
-            update { copy(drugSuggestions = emptyList(), showDrugSuggestions = false) }
-        }
+        _nameQuery.value = v
     }
 
     /** 从下拉建议中选中一种药，自动填入名称+分类+完整路径+是否中成药并关闭建议列表 */

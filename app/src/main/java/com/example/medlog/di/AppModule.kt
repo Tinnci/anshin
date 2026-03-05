@@ -6,7 +6,9 @@ import com.example.medlog.data.local.HealthRecordDao
 import com.example.medlog.data.local.MedLogDatabase
 import com.example.medlog.data.local.MedicationDao
 import com.example.medlog.data.local.MedicationLogDao
+import com.example.medlog.data.local.RoomTransactionRunner
 import com.example.medlog.data.local.SymptomLogDao
+import com.example.medlog.data.local.TransactionRunner
 import com.example.medlog.data.repository.DrugRepository
 import com.example.medlog.data.repository.DrugRepositoryImpl
 import com.example.medlog.data.repository.HealthRepository
@@ -44,6 +46,7 @@ object DatabaseModule {
                 MedLogDatabase.MIGRATION_6_7,
                 MedLogDatabase.MIGRATION_7_8,
                 MedLogDatabase.MIGRATION_8_9,
+                MedLogDatabase.MIGRATION_9_10,
             )
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
@@ -100,5 +103,11 @@ abstract class RepositoryModule {
     abstract fun bindWidgetRefresher(
         impl: GlanceWidgetRefresher,
     ): WidgetRefresher
+
+    @Binds
+    @Singleton
+    abstract fun bindTransactionRunner(
+        impl: RoomTransactionRunner,
+    ): TransactionRunner
 }
 

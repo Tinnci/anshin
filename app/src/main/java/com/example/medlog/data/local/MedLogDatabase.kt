@@ -12,7 +12,7 @@ import com.example.medlog.data.model.SymptomLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
-    version = 9,
+    version = 10,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -61,6 +61,16 @@ abstract class MedLogDatabase : RoomDatabase() {
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_medications_isArchived ON medications (isArchived)"
                 )
+            }
+        }
+
+        /** v9 → v10: 为 symptom_logs 和 health_records 添加查询索引 */
+        val MIGRATION_9_10 = object : Migration(9, 10) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_symptom_logs_recordedAt ON symptom_logs (recordedAt)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_symptom_logs_medicationId ON symptom_logs (medicationId)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_health_records_type ON health_records (type)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_health_records_timestamp ON health_records (timestamp)")
             }
         }
     }

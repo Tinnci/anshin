@@ -86,7 +86,8 @@ class MedLogWidget : GlanceAppWidget() {
         }.sortedBy { it.third }  // 按时间升序
 
         // 读取小组件显示设置（SSOT：与主应用共享同一 DataStore）
-        val widgetPrefs = context.settingsDataStore.data.first()
+        val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val widgetShowActions = widgetPrefs[UserPreferencesRepository.WIDGET_SHOW_ACTIONS] ?: true
 
         provideContent {
