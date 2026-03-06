@@ -2,7 +2,8 @@
 <!--
   Monochrome icon layer — Android 13+ themed icons.
   Simplified silhouette: clipboard frame + metal clip + capsule pill.
-  The system applies its own tint; actual colour here doesn't matter.
+  Coordinates match the main foreground (scale 0.76, pivot 54,56).
+  The system applies its own tint colour; colours here are irrelevant.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -10,33 +11,33 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Clipboard frame (outer shape with inner paper cut-out via evenOdd) -->
+    <!-- Clipboard frame (outer filled shape with paper cut-out via evenOdd) -->
     <path
         android:fillColor="#FF000000"
         android:fillType="evenOdd"
-        android:pathData="M22,27 Q22,22 27,22 L81,22 Q86,22 86,27 L86,96 Q86,100 81,100 L27,100 Q22,100 22,96 Z
-                          M25,39 L83,39 L83,97 L25,97 Z"/>
+        android:pathData="M29.7,34 Q29.7,30.2 33.5,30.2 L74.5,30.2 Q78.3,30.2 78.3,34 L78.3,86.4 Q78.3,89.4 74.5,89.4 L33.5,89.4 Q29.7,89.4 29.7,86.4 Z
+                          M32,44.6 L76.0,44.6 L76.0,87.2 L32,87.2 Z"/>
 
-    <!-- Metal clip -->
+    <!-- Metal clip (solid filled) -->
     <path
         android:fillColor="#FF000000"
-        android:pathData="M37,15 Q37,12 40,12 L68,12 Q71,12 71,15 L71,40 L37,40 Z"/>
+        android:pathData="M43.4,24.8 Q43.4,22.6 45.6,22.6 L62.4,22.6 Q64.6,22.6 64.6,24.8 L64.6,43.8 L43.4,43.8 Z"/>
 
-    <!-- Pill — left half (semicircle cap + rectangle) -->
+    <!-- Pill — left half (semicircle arc around left cap) -->
     <path
         android:fillColor="#FF000000"
-        android:pathData="M54,65 L39,65 A12,12 0 0,0 39,89 L54,89 Z"/>
+        android:pathData="M54,64.4 L42.6,64.4 A8.4,8.4 0 0,0 42.6,81.1 L54,81.1 Z"/>
 
     <!-- Pill — right half -->
     <path
         android:fillColor="#FF000000"
-        android:pathData="M54,65 L69,65 A12,12 0 0,1 69,89 L54,89 Z"/>
+        android:pathData="M54,64.4 L65.4,64.4 A8.4,8.4 0 0,1 65.4,81.1 L54,81.1 Z"/>
 
-    <!-- Pill centre seam (white gap gives split-capsule look in monochrome) -->
+    <!-- Pill centre seam (white gap signals split-capsule in monochrome) -->
     <path
         android:fillColor="#00000000"
         android:strokeColor="#FFFFFFFF"
-        android:strokeWidth="2"
-        android:pathData="M54,64 L54,90"/>
+        android:strokeWidth="1.6"
+        android:pathData="M54,63.6 L54,81.8"/>
 
 </vector>

@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
   App icon foreground — medical clipboard + red/blue capsule pill style.
-  Viewport: 108×108 dp.  Safe zone (guaranteed visible): 18–90 dp.
+  Viewport: 108×108 dp.  Design pivot (54, 56), scale 0.76 → generous padding on all sides.
+  Clipboard board: (30, 30)–(78, 89)  |  Pill: y 64–81
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:aapt="http://schemas.android.com/aapt"
@@ -10,12 +11,12 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- ── 1. Clipboard board (silver/gray rounded-rect frame) ──────────── -->
-    <path android:pathData="M22,27 Q22,22 27,22 L81,22 Q86,22 86,27 L86,96 Q86,100 81,100 L27,100 Q22,100 22,96 Z">
+    <!-- ── 1. Clipboard board (silver rounded-rect) ───────────────────────── -->
+    <path android:pathData="M29.7,34 Q29.7,30.2 33.5,30.2 L74.5,30.2 Q78.3,30.2 78.3,34 L78.3,86.4 Q78.3,89.4 74.5,89.4 L33.5,89.4 Q29.7,89.4 29.7,86.4 Z">
         <aapt:attr name="android:fillColor">
             <gradient android:type="linear"
-                android:startX="22" android:startY="22"
-                android:endX="86" android:endY="100">
+                android:startX="30" android:startY="30"
+                android:endX="78"  android:endY="89">
                 <item android:offset="0"   android:color="#FFD8D8D8"/>
                 <item android:offset="0.6" android:color="#FFBBBBBB"/>
                 <item android:offset="1"   android:color="#FF999999"/>
@@ -23,119 +24,118 @@
         </aapt:attr>
     </path>
 
-    <!-- ── 2. Back paper page (depth effect) ─────────────────────────────── -->
+    <!-- ── 2. Back paper page ─────────────────────────────────────────────── -->
     <path android:fillColor="#FFE4E4E4"
-        android:pathData="M27,43 L81,43 L81,98 L27,98 Z"/>
+        android:pathData="M33.5,46.1 L74.5,46.1 L74.5,87.9 L33.5,87.9 Z"/>
 
     <!-- ── 3. Front paper page (white) ───────────────────────────────────── -->
     <path android:fillColor="#FFFFFFFF"
-        android:pathData="M25,41 Q25,39 27,39 L81,39 Q83,39 83,41 L83,97 L25,97 Z"/>
+        android:pathData="M32,44.6 Q32,43.1 33.5,43.1 L74.5,43.1 Q76.0,43.1 76.0,44.6 L76.0,87.2 L32,87.2 Z"/>
 
     <!-- ── 4. Red margin line ─────────────────────────────────────────────── -->
     <path android:fillColor="#FFFFB3B3"
-        android:pathData="M34,43 L35.4,43 L35.4,96 L34,96 Z"/>
+        android:pathData="M38.8,46.1 L39.9,46.1 L39.9,86.4 L38.8,86.4 Z"/>
 
     <!-- ── 5. Blue horizontal ruled lines ────────────────────────────────── -->
     <path android:fillColor="#FFBBDEFB"
-        android:pathData="M29,50 L79,50 L79,51.2 L29,51.2 Z
-                          M29,57 L79,57 L79,58.2 L29,58.2 Z
-                          M29,64 L79,64 L79,65.2 L29,65.2 Z"/>
+        android:pathData="M35,51.4 L73,51.4 L73,52.4 L35,52.4 Z
+                          M35,56.8 L73,56.8 L73,57.7 L35,57.7 Z
+                          M35,62.1 L73,62.1 L73,63.0 L35,63.0 Z"/>
 
-    <!-- ── 6. DATE: field label (dark gray short bar) ────────────────────── -->
+    <!-- ── 6. DATE label ──────────────────────────────────────────────────── -->
     <path android:fillColor="#FF757575"
-        android:pathData="M37,45.5 L55,45.5 L55,47 L37,47 Z"/>
-    <!-- DATE field value underline -->
+        android:pathData="M41.1,48 L54.8,48 L54.8,49.2 L41.1,49.2 Z"/>
+    <!-- DATE value underline -->
     <path android:fillColor="#FFCCCCCC"
-        android:pathData="M57,46 L70,46 L70,47 L57,47 Z"/>
+        android:pathData="M56.3,48.4 L66.2,48.4 L66.2,49.2 L56.3,49.2 Z"/>
 
-    <!-- ── 7. PATIENT: field label ────────────────────────────────────────── -->
+    <!-- ── 7. PATIENT label ───────────────────────────────────────────────── -->
     <path android:fillColor="#FF757575"
-        android:pathData="M37,52 L63,52 L63,53.5 L37,53.5 Z"/>
+        android:pathData="M41.1,53 L60.8,53 L60.8,54.1 L41.1,54.1 Z"/>
     <!-- PATIENT value underline -->
     <path android:fillColor="#FFCCCCCC"
-        android:pathData="M65,52.5 L70,52.5 L70,53.5 L65,53.5 Z"/>
+        android:pathData="M62.4,53.3 L66.2,53.3 L66.2,54.1 L62.4,54.1 Z"/>
 
-    <!-- ── 8. LOG: field label ────────────────────────────────────────────── -->
+    <!-- ── 8. LOG label ───────────────────────────────────────────────────── -->
     <path android:fillColor="#FF757575"
-        android:pathData="M37,58.5 L50,58.5 L50,60 L37,60 Z"/>
+        android:pathData="M41.1,57.9 L51.0,57.9 L51.0,59.0 L41.1,59.0 Z"/>
 
-    <!-- ── 9. AM checkbox (hollow square outline) ────────────────────────── -->
+    <!-- ── 9. AM checkbox (hollow square) ────────────────────────────────── -->
     <path android:fillColor="#00000000"
         android:strokeColor="#FF9E9E9E"
-        android:strokeWidth="1.2"
-        android:pathData="M68,44 L73,44 L73,49 L68,49 Z"/>
+        android:strokeWidth="0.9"
+        android:pathData="M64.6,46.9 L68.4,46.9 L68.4,50.7 L64.6,50.7 Z"/>
     <!-- AM text bar -->
     <path android:fillColor="#FF9E9E9E"
-        android:pathData="M74.5,45 L78,45 L78,48 L74.5,48 Z"/>
+        android:pathData="M69.6,47.6 L72.2,47.6 L72.2,49.9 L69.6,49.9 Z"/>
 
-    <!-- ── 10. PM checkbox (hollow square outline) ───────────────────────── -->
+    <!-- ── 10. PM checkbox (hollow square) ───────────────────────────────── -->
     <path android:fillColor="#00000000"
         android:strokeColor="#FF9E9E9E"
-        android:strokeWidth="1.2"
-        android:pathData="M68,51 L73,51 L73,56 L68,56 Z"/>
+        android:strokeWidth="0.9"
+        android:pathData="M64.6,52.2 L68.4,52.2 L68.4,56.0 L64.6,56.0 Z"/>
     <!-- PM text bar -->
     <path android:fillColor="#FF9E9E9E"
-        android:pathData="M74.5,52 L78,52 L78,55 L74.5,55 Z"/>
+        android:pathData="M69.6,53.0 L72.2,53.0 L72.2,55.2 L69.6,55.2 Z"/>
 
     <!-- ── 11. Metal clip body (silver gradient) ─────────────────────────── -->
-    <path android:pathData="M40,15 Q40,12 43,12 L65,12 Q68,12 68,15 L68,40 L40,40 Z">
+    <path android:pathData="M43.4,24.8 Q43.4,22.6 45.6,22.6 L62.4,22.6 Q64.6,22.6 64.6,24.8 L64.6,43.8 L43.4,43.8 Z">
         <aapt:attr name="android:fillColor">
             <gradient android:type="linear"
-                android:startX="40" android:startY="12"
-                android:endX="68" android:endY="40">
-                <item android:offset="0"   android:color="#FFEEEEEE"/>
+                android:startX="43.4" android:startY="22.6"
+                android:endX="64.6"   android:endY="43.8">
+                <item android:offset="0"    android:color="#FFEEEEEE"/>
                 <item android:offset="0.35" android:color="#FF888888"/>
                 <item android:offset="0.65" android:color="#FFAAAAAA"/>
-                <item android:offset="1"   android:color="#FFD0D0D0"/>
+                <item android:offset="1"    android:color="#FFD0D0D0"/>
             </gradient>
         </aapt:attr>
     </path>
 
     <!-- ── 12. Clip spring coil detail ───────────────────────────────────── -->
     <path android:fillColor="#FF555555"
-        android:pathData="M43,12 L65,12 L65,13.5 L43,13.5 Z"/>
+        android:pathData="M45.6,22.6 L62.4,22.6 L62.4,23.7 L45.6,23.7 Z"/>
     <path android:fillColor="#FF999999"
-        android:pathData="M44,13.5 L64,13.5 L64,15 L44,15 Z"/>
+        android:pathData="M46.4,23.7 L61.6,23.7 L61.6,24.8 L46.4,24.8 Z"/>
 
     <!-- ── 13. Pill — left red half ──────────────────────────────────────── -->
-    <!--  Capsule geometry: y=67–89 (h=22, r=11),  x=28–80 (w=52)
-          Left cap centre (39,78); divider at x=54; right cap centre (69,78).
-          Left red path: from top-centre, arc around left cap, back to bottom-centre. -->
-    <path android:pathData="M54,67 L39,67 A11,11 0 0,0 39,89 L54,89 Z">
+    <!--  Capsule: y = 64.4–81.1 (h=16.7, r=8.35); x = 33.6–74.4 (w=40.8)
+          Left cap centre (42.6, 72.8); divider x=54; right cap (65.4, 72.8). -->
+    <path android:pathData="M54,64.4 L42.6,64.4 A8.4,8.4 0 0,0 42.6,81.1 L54,81.1 Z">
         <aapt:attr name="android:fillColor">
             <gradient android:type="linear"
-                android:startX="28" android:startY="67"
-                android:endX="54"  android:endY="89">
-                <item android:offset="0"   android:color="#FFFFCDD2"/>
+                android:startX="34.2" android:startY="64.4"
+                android:endX="54"     android:endY="81.1">
+                <item android:offset="0"    android:color="#FFFFCDD2"/>
                 <item android:offset="0.45" android:color="#FFF44336"/>
-                <item android:offset="1"   android:color="#FFB71C1C"/>
+                <item android:offset="1"    android:color="#FFB71C1C"/>
             </gradient>
         </aapt:attr>
     </path>
 
     <!-- ── 14. Pill — right blue half ────────────────────────────────────── -->
-    <path android:pathData="M54,67 L69,67 A11,11 0 0,1 69,89 L54,89 Z">
+    <path android:pathData="M54,64.4 L65.4,64.4 A8.4,8.4 0 0,1 65.4,81.1 L54,81.1 Z">
         <aapt:attr name="android:fillColor">
             <gradient android:type="linear"
-                android:startX="54" android:startY="67"
-                android:endX="80"  android:endY="89">
-                <item android:offset="0"   android:color="#FFBBDEFB"/>
+                android:startX="54" android:startY="64.4"
+                android:endX="74"   android:endY="81.1">
+                <item android:offset="0"    android:color="#FFBBDEFB"/>
                 <item android:offset="0.45" android:color="#FF42A5F5"/>
-                <item android:offset="1"   android:color="#FF1565C0"/>
+                <item android:offset="1"    android:color="#FF1565C0"/>
             </gradient>
         </aapt:attr>
     </path>
 
-    <!-- ── 15. Pill centre seam (white divider line) ─────────────────────── -->
+    <!-- ── 15. Pill centre seam (white divider) ──────────────────────────── -->
     <path android:fillColor="#FFFFFFFF"
-        android:pathData="M53.1,66 L54.9,66 L54.9,90 L53.1,90 Z"/>
+        android:pathData="M53.3,63.6 L54.7,63.6 L54.7,81.8 L53.3,81.8 Z"/>
 
-    <!-- ── 16. Pill glossy highlight (top shine) ─────────────────────────── -->
-    <path android:pathData="M39,67 Q54,61 69,67 Q61,64 54,64 Q47,64 39,67 Z">
+    <!-- ── 16. Pill glossy top highlight ─────────────────────────────────── -->
+    <path android:pathData="M42.6,64.4 Q54,59.8 65.4,64.4 Q59.3,62.1 54,62.1 Q48.7,62.1 42.6,64.4 Z">
         <aapt:attr name="android:fillColor">
             <gradient android:type="linear"
-                android:startX="39" android:startY="61"
-                android:endX="69"  android:endY="70">
+                android:startX="42.6" android:startY="59.8"
+                android:endX="65.4"   android:endY="66.6">
                 <item android:offset="0" android:color="#99FFFFFF"/>
                 <item android:offset="1" android:color="#00FFFFFF"/>
             </gradient>
