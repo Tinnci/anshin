@@ -507,6 +507,9 @@
     <string name="med_card_skipped_today">오늘 건너뜀</string>
     <string name="med_card_low_stock">재고 부족 (%1$s %2$s 남음)</string>
     <string name="med_card_btn_take">복용</string>
+    <string name="med_card_btn_partial">일부 복용</string>
+    <string name="med_card_partial_taken">일부 복용 %1$s %2$s(%3$s)</string>
+    <string name="med_card_partial_input_hint">실제 복용한 용량을 입력하세요 (예정: %1$s %2$s)</string>
     <string name="progress_header_title">오늘의 진행상황</string>
     <string name="progress_header_all_done">모두 완료! 🎉</string>
     <plurals name="progress_header_remaining">

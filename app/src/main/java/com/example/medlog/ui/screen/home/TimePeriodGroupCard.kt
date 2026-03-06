@@ -68,8 +68,9 @@ internal fun TimePeriodGroupCard(
     onClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
     autoCollapse: Boolean = true,
+    onPartialTake: ((MedicationWithStatus, Double) -> Unit)? = null,
 ) {
-    val pendingCount = items.count { !it.isTaken && !it.isSkipped }
+    val pendingCount = items.count { !it.isHandled }
     val allDone = pendingCount == 0
     val motionScheme = MaterialTheme.motionScheme
     // allDone 变化时重算展开状态：已全服且开启自动折叠时默认折叠
@@ -221,6 +222,9 @@ internal fun TimePeriodGroupCard(
                                 modifier = Modifier,
                                 // 卡片内不需要外圆角（已在 ElevatedCard 内）
                                 flatStyle = true,
+                                onPartialTake = if (onPartialTake != null) {
+                                    { qty -> onPartialTake(item, qty) }
+                                } else null,
                             )
                             if (idx < items.lastIndex) {
                                 HorizontalDivider(

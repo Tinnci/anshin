@@ -37,6 +37,9 @@ data class MedicationWithStatus(
 ) {
     val isTaken get() = log?.status == LogStatus.TAKEN
     val isSkipped get() = log?.status == LogStatus.SKIPPED
+    val isPartial get() = log?.status == LogStatus.PARTIAL
+    /** 今日已有操作（已服、已跳过、部分服用），不再需要服药提醒 */
+    val isHandled get() = isTaken || isSkipped || isPartial
 }
 
 data class HomeUiState(
@@ -121,9 +124,9 @@ data class HomeUiState(
      */
     val nextUpPeriod: Pair<TimePeriod, String>? by lazy {
         groupedByTimePeriod
-            .firstOrNull { (_, meds) -> meds.any { !it.isTaken && !it.isSkipped } }
+            .firstOrNull { (_, meds) -> meds.any { !it.isHandled } }
             ?.let { (tp, meds) ->
-                val med = meds.first { !it.isTaken && !it.isSkipped }
+                val med = meds.first { !it.isHandled }
                 tp to "%02d:%02d".format(med.medication.reminderHour, med.medication.reminderMinute)
             }
     }
@@ -234,13 +237,15 @@ class HomeViewModel @Inject constructor(
 
     fun toggleMedicationStatus(item: MedicationWithStatus) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            if (item.isTaken) {
-                item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
-            } else {
-                toggleDoseUseCase.markTaken(item.medication, item.log)
-                item.medication.stock?.let { stock ->
-                    val newStock = (stock - item.medication.doseQuantity).coerceAtLeast(0.0)
-                    checkAndNotifyLowStock(item.medication, newStock)
+            when {
+                item.isTaken   -> item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
+                item.isPartial -> item.log?.let { toggleDoseUseCase.undoPartial(item.medication, it) }
+                else -> {
+                    toggleDoseUseCase.markTaken(item.medication, item.log)
+                    item.medication.stock?.let { stock ->
+                        val newStock = (stock - item.medication.doseQuantity).coerceAtLeast(0.0)
+                        checkAndNotifyLowStock(item.medication, newStock)
+                    }
                 }
             }
         }
@@ -252,7 +257,18 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 撤销服药或跳过操作，根据当前 state 内的最新记录进行回退 */
+    /** 标记为部分服用：将实际服用剂量写入日志，并按 actualQty 扣减库存 */
+    fun markPartialDose(item: MedicationWithStatus, actualQty: Double) {
+        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
+            toggleDoseUseCase.markPartial(item.medication, item.log, actualQty)
+            item.medication.stock?.let { stock ->
+                val newStock = (stock - actualQty).coerceAtLeast(0.0)
+                checkAndNotifyLowStock(item.medication, newStock)
+            }
+        }
+    }
+
+    /** 撤销服药/跳过/部分服用操作，根据当前 state 内的最新记录进行回退 */
     fun undoByMedicationId(medicationId: Long) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
             val currentItem = _uiState.value.items.find { it.medication.id == medicationId }
@@ -261,20 +277,21 @@ class HomeViewModel @Inject constructor(
             when {
                 currentItem.isTaken   -> toggleDoseUseCase.undoTaken(currentItem.medication, log)
                 currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(currentItem.medication, log)
+                currentItem.isPartial -> toggleDoseUseCase.undoPartial(currentItem.medication, log)
             }
         }
     }
 
     fun takeAll() {
         _uiState.value.items
-            .filter { !it.isTaken && !it.isSkipped }
+            .filter { !it.isHandled }
             .forEach { toggleMedicationStatus(it) }
     }
 
     /** 仅标记指定时段内的所有待服药品为已服 */
     fun takeAllForPeriod(timePeriodKey: String) {
         _uiState.value.items
-            .filter { it.medication.timePeriod == timePeriodKey && !it.isTaken && !it.isSkipped }
+            .filter { it.medication.timePeriod == timePeriodKey && !it.isHandled }
             .forEach { toggleMedicationStatus(it) }
     }
 

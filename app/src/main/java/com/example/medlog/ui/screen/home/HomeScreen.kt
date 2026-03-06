@@ -283,11 +283,11 @@ fun HomeScreen(
                                         )
                                     }
                                 } else {
-                                    val wasTaken = item.isTaken
+                                    val wasHandled = item.isTaken || item.isPartial
                                     viewModel.toggleMedicationStatus(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = (if (wasTaken) fmtReset else fmtTaken).format(item.medication.name),
+                                            message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.name),
                                             actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
@@ -310,6 +310,9 @@ fun HomeScreen(
                                         viewModel.undoByMedicationId(item.medication.id)
                                     }
                                 }
+                            },
+                            onPartialTake = { item, qty ->
+                                viewModel.markPartialDose(item, qty)
                             },
                             onTakeAll = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -376,11 +379,11 @@ fun HomeScreen(
                                             )
                                         }
                                     } else {
-                                        val wasTaken = item.isTaken
+                                        val wasHandled = item.isTaken || item.isPartial
                                         viewModel.toggleMedicationStatus(item)
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
-                                                message = (if (wasTaken) fmtReset else fmtTaken).format(item.medication.name),
+                                                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.name),
                                                 actionLabel = undoLabel,
                                                 duration = SnackbarDuration.Short,
                                             )
@@ -406,6 +409,7 @@ fun HomeScreen(
                                 },
                                 onClick = { onMedicationClick(item.medication.id) },
                                 modifier = Modifier.animateItem(),
+                                onPartialTake = { qty -> viewModel.markPartialDose(item, qty) },
                             )
                         }
                     }

@@ -585,6 +585,7 @@ private fun DetailLogRow(log: MedicationLog) {
         LogStatus.TAKEN   -> colorScheme.tertiary
         LogStatus.SKIPPED -> colorScheme.outline
         LogStatus.MISSED  -> colorScheme.error
+        LogStatus.PARTIAL -> colorScheme.secondary
     }
     Row(
         modifier = Modifier
@@ -631,6 +632,7 @@ private fun DetailLogRow(log: MedicationLog) {
                     LogStatus.TAKEN   -> stringResource(R.string.medication_taken)
                     LogStatus.SKIPPED -> stringResource(R.string.medication_skipped)
                     LogStatus.MISSED  -> stringResource(R.string.medication_missed)
+                    LogStatus.PARTIAL -> stringResource(R.string.history_legend_partial)
                 },
                 style = MaterialTheme.typography.labelSmall,
                 color = statusColor,

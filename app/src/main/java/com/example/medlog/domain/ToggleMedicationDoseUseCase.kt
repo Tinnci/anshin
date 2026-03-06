@@ -105,6 +105,43 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     }
 
     /**
+     * 标记为部分服用 — 写日志（含实际剂量）、按实际剂量扣库存、取消闹钟/通知、刷新 Widget。
+     *
+     * @param actualQty 本次实际服用的剂量（< [Medication.doseQuantity]）
+     */
+    suspend fun markPartial(med: Medication, existingLog: MedicationLog?, actualQty: Double) {
+        val (start, end) = todayRange()
+        transactionRunner.withTransaction {
+            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.insertLog(
+                MedicationLog(
+                    medicationId = med.id,
+                    scheduledTimeMs = scheduledMs(med),
+                    actualTakenTimeMs = System.currentTimeMillis(),
+                    status = LogStatus.PARTIAL,
+                    actualDoseQuantity = actualQty,
+                ),
+            )
+            med.stock?.let { stock ->
+                medicationRepo.updateStock(med.id, (stock - actualQty).coerceAtLeast(0.0))
+            }
+        }
+        alarmScheduler.cancelAllAlarms(med.id)
+        notificationHelper.cancelAllReminderNotifications(med.id)
+        widgetRefresher.refreshAll()
+    }
+
+    /** 撤销部分服用 — 删除日志、按记录的实际剂量恢复库存、重设闹钟、刷新 Widget */
+    suspend fun undoPartial(med: Medication, log: MedicationLog) {
+        logRepo.deleteLog(log)
+        med.stock?.let { stock ->
+            medicationRepo.updateStock(med.id, stock + (log.actualDoseQuantity ?: 0.0))
+        }
+        alarmScheduler.scheduleAllReminders(med)
+        widgetRefresher.refreshAll()
+    }
+
+    /**
      * 取消某药品的所有闹钟及提醒通知。
      * 供 [MedicationDetailViewModel] 在归档/删除药品时调用，保持 SRP。
      */

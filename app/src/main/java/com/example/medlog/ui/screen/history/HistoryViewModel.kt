@@ -23,10 +23,12 @@ import javax.inject.Inject
 data class AdherenceDay(
     val date: LocalDate,
     val taken: Int,
+    val partial: Int,
     val total: Int,
     val logs: List<Pair<MedicationLog, String>>,  // log + 药名
 ) {
-    val rate: Float get() = if (total == 0) 0f else taken.toFloat() / total.toFloat()
+    /** 将 partial 按 0.5 权重计入合规率以体现部分服用在日历上显示为橙色 */
+    val rate: Float get() = if (total == 0) 0f else (taken + partial * 0.5f) / total.toFloat()
 }
 
 data class HistoryUiState(
@@ -92,6 +94,7 @@ class HistoryViewModel @Inject constructor(
                         AdherenceDay(
                             date = date,
                             taken = dayLogs.count { it.status == LogStatus.TAKEN },
+                            partial = dayLogs.count { it.status == LogStatus.PARTIAL },
                             total = dayLogs.size,
                             logs = dayLogs
                                 .sortedBy { it.scheduledTimeMs }
@@ -106,13 +109,14 @@ class HistoryViewModel @Inject constructor(
                         .atZone(zone).toLocalDate()
                     val recentDays = calendarDays.filterKeys { it >= thirtyDaysAgo }
                     val totalLogs = recentDays.values.sumOf { it.total }
-                    val takenLogs = recentDays.values.sumOf { it.taken }
+                    val takenLogs = recentDays.values.sumOf { it.taken } +
+                        recentDays.values.sumOf { it.partial } * 0.5
                     val overallAdherence = if (totalLogs == 0) 0f
-                        else takenLogs.toFloat() / totalLogs.toFloat()
+                        else (takenLogs / totalLogs.toDouble()).toFloat()
 
-                    // 计算连续打卡 streak（每天 taken >= 1 即视为完成）
+                    // 计算连续打卡 streak（每天 taken >= 1 或 partial >= 1 即视为完成）
                     val activeDays = calendarDays.entries
-                        .filter { it.value.taken > 0 }
+                        .filter { it.value.taken > 0 || it.value.partial > 0 }
                         .map { it.key }
                         .toSet()
                     val today = LocalDate.now()

@@ -525,6 +525,9 @@
     <string name="med_card_skipped_today">Skipped today</string>
     <string name="med_card_low_stock">Low stock (%1$s %2$s remaining)</string>
     <string name="med_card_btn_take">Take</string>
+    <string name="med_card_btn_partial">Partial</string>
+    <string name="med_card_partial_taken">Partial %1$s %2$s @ %3$s</string>
+    <string name="med_card_partial_input_hint">Enter actual dose taken (planned: %1$s %2$s)</string>
     <string name="progress_header_title">Today\'s progress</string>
     <string name="progress_header_all_done">All done! 🎉</string>
     <plurals name="progress_header_remaining">

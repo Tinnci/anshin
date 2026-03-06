@@ -49,32 +49,40 @@ fun MedicationCard(
     modifier: Modifier = Modifier,
     /** true = 内嵌在父卡片中，去掉外圆角并使用透明背景 */
     flatStyle: Boolean = false,
+    /** 部分服用回调；传入实际剂量, null 表示不展示该功能 */
+    onPartialTake: ((Double) -> Unit)? = null,
 ) {
     val med = item.medication
     val motionScheme = MaterialTheme.motionScheme
 
-    // 卡片底色：未服 → primaryContainer（需要行动，视觉突出），已服 → surfaceContainerLowest（弱化），跳过 → surfaceContainerHigh
+    // 部分服用对话框状态
+    var showPartialDialog by remember { mutableStateOf(false) }
+    var partialInput by remember { mutableStateOf("") }
+
+    // 卡片底色：未服 → primaryContainer（需要行动，视觉突出），已服 → surfaceContainerLowest（弱化），跳过 → surfaceContainerHigh，部分 → secondaryContainer
     val containerColor by animateColorAsState(
         targetValue = when {
             item.isTaken   -> MaterialTheme.colorScheme.surfaceContainerLowest
             item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
+            item.isPartial -> MaterialTheme.colorScheme.secondaryContainer
             else           -> MaterialTheme.colorScheme.primaryContainer
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardColor",
     )
 
-    // 已服/跳过后整张卡片透明度降低，减弱视觉权重；未服保持完全不透明
+    // 已服/跳过/部分服用后整张卡片透明度降低，减弱视觉权重；未服保持完全不透明
     val cardAlpha by animateFloatAsState(
-        targetValue = if (item.isTaken || item.isSkipped) 0.60f else 1f,
+        targetValue = if (item.isHandled) 0.60f else 1f,
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardAlpha",
     )
 
-    // 左侧色带颜色：未服一律显示 primary（强调待服），已服/跳过=outlineVariant（弱化）
+    // 左侧色带颜色：未服一律显示 primary（强调待服），已服/跳过=outlineVariant（弱化），部分=secondary
     val stripColor by animateColorAsState(
         targetValue = when {
             item.isTaken || item.isSkipped -> MaterialTheme.colorScheme.outlineVariant
+            item.isPartial                 -> MaterialTheme.colorScheme.secondary
             else                           -> MaterialTheme.colorScheme.primary
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
@@ -83,7 +91,7 @@ fun MedicationCard(
 
     val cardShape = if (flatStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(24.dp)
     // 高优先级且未完成：error 色描边，在 primaryContainer 背景上清晰可见
-    val borderMod = if (med.isHighPriority && !item.isTaken && !item.isSkipped && !flatStyle)
+    val borderMod = if (med.isHighPriority && !item.isHandled && !flatStyle)
         Modifier.border(2.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.55f), cardShape)
     else Modifier
 
@@ -115,7 +123,11 @@ fun MedicationCard(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                AnimatedStatusCircle(isTaken = item.isTaken, isSkipped = item.isSkipped)
+                AnimatedStatusCircle(
+                    isTaken = item.isTaken,
+                    isSkipped = item.isSkipped,
+                    isPartial = item.isPartial,
+                )
                 Spacer(Modifier.width(12.dp))
 
                 Column(modifier = Modifier.weight(1f)) {
@@ -235,6 +247,21 @@ fun MedicationCard(
                             color = MaterialTheme.colorScheme.tertiary,
                         )
                     }
+                    if (item.isPartial) {
+                        val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+                        val qty = item.log?.actualDoseQuantity
+                        val timeStr = item.log?.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
+                        Text(
+                            text = stringResource(
+                                R.string.med_card_partial_taken,
+                                qty?.let { it.formatDose() } ?: "",
+                                med.doseUnit,
+                                timeStr ?: "",
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.secondary,
+                        )
+                    }
                     if (item.isSkipped) {
                         Text(
                             stringResource(R.string.med_card_skipped_today),
@@ -274,11 +301,13 @@ fun MedicationCard(
                             containerColor = when {
                                 item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
                                 item.isSkipped -> MaterialTheme.colorScheme.secondaryContainer
+                                item.isPartial -> MaterialTheme.colorScheme.secondaryContainer
                                 else           -> MaterialTheme.colorScheme.primaryContainer
                             },
                             contentColor = when {
                                 item.isTaken   -> MaterialTheme.colorScheme.onTertiaryContainer
                                 item.isSkipped -> MaterialTheme.colorScheme.onSecondaryContainer
+                                item.isPartial -> MaterialTheme.colorScheme.onSecondaryContainer
                                 else           -> MaterialTheme.colorScheme.onPrimaryContainer
                             },
                         ),
@@ -286,7 +315,7 @@ fun MedicationCard(
                         modifier = Modifier.height(36.dp),
                     ) {
                         Icon(
-                            imageVector = if (item.isTaken || item.isSkipped)
+                            imageVector = if (item.isHandled)
                                 Icons.AutoMirrored.Rounded.Undo
                             else
                                 Icons.Rounded.Check,
@@ -296,8 +325,7 @@ fun MedicationCard(
                         Spacer(Modifier.width(4.dp))
                         Text(
                             text = when {
-                                item.isTaken   -> stringResource(R.string.home_snackbar_undo)
-                                item.isSkipped -> stringResource(R.string.home_snackbar_undo)
+                                item.isHandled -> stringResource(R.string.home_snackbar_undo)
                                 else           -> stringResource(R.string.med_card_btn_take)
                             },
                             style = MaterialTheme.typography.labelMedium,
@@ -305,7 +333,7 @@ fun MedicationCard(
                     }
 
                     // 跳过按钮（仅待服状态时显示）
-                    if (!item.isTaken && !item.isSkipped) {
+                    if (!item.isHandled) {
                         OutlinedButton(
                             onClick = onSkip,
                             contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
@@ -316,21 +344,78 @@ fun MedicationCard(
                                 Text(stringResource(R.string.notif_action_skip), style = MaterialTheme.typography.labelSmall)
                         }
                     }
+
+                    // 部分服用按钮（仅待服状态且相应回调已提供时显示）
+                    if (!item.isHandled && onPartialTake != null) {
+                        OutlinedButton(
+                            onClick = {
+                                partialInput = ""
+                                showPartialDialog = true
+                            },
+                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
+                            modifier = Modifier.height(30.dp),
+                        ) {
+                            Icon(Icons.Rounded.Adjust, null, Modifier.size(13.dp))
+                            Spacer(Modifier.width(3.dp))
+                            Text(stringResource(R.string.med_card_btn_partial), style = MaterialTheme.typography.labelSmall)
+                        }
+                    }
                 }
             }
         }
     }
-}
 
-/** 带弹性缩放的状态圆圈：标记服用时触发 overshoot bounce */
+    // 部分服用对话框
+    if (showPartialDialog && onPartialTake != null) {
+        AlertDialog(
+            onDismissRequest = { showPartialDialog = false },
+            title = { Text(stringResource(R.string.med_card_btn_partial)) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = stringResource(R.string.med_card_partial_input_hint,
+                            med.doseQuantity.formatDose(), med.doseUnit),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    OutlinedTextField(
+                        value = partialInput,
+                        onValueChange = { partialInput = it },
+                        singleLine = true,
+                        suffix = { Text(med.doseUnit) },
+                        keyboardOptions = androidx.compose.foundation.text.KeyboardOptions(
+                            keyboardType = androidx.compose.ui.text.input.KeyboardType.Decimal,
+                        ),
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        val qty = partialInput.toDoubleOrNull()
+                        if (qty != null && qty > 0) {
+                            onPartialTake(qty.coerceAtMost(med.doseQuantity))
+                            showPartialDialog = false
+                        }
+                    }
+                ) { Text(stringResource(R.string.confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showPartialDialog = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
+}
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
+private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial: Boolean = false) {
     val motionScheme = MaterialTheme.motionScheme
     // 用 Animatable 实现自定义弹性序列：未服 → 0.9，服用 → 超调 1.25 → 稳定 1.0
     val scale = remember { Animatable(if (isTaken) 1f else 0.9f) }
-    LaunchedEffect(isTaken) {
-        if (isTaken) {
+    LaunchedEffect(isTaken, isPartial) {
+        if (isTaken || isPartial) {
             scale.animateTo(1.25f, animationSpec = spring(dampingRatio = 0.30f, stiffness = 700f))
             scale.animateTo(1.00f, animationSpec = spring(dampingRatio = 0.55f, stiffness = 400f))
         } else {
@@ -340,6 +425,7 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
     val bgColor by animateColorAsState(
         targetValue = when {
             isTaken   -> MaterialTheme.colorScheme.primary
+            isPartial -> MaterialTheme.colorScheme.secondary
             isSkipped -> MaterialTheme.colorScheme.outlineVariant
             else      -> MaterialTheme.colorScheme.primaryContainer
         },
@@ -358,6 +444,11 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean) {
             isTaken   -> Icon(
                 Icons.Rounded.Check, null,
                 tint = MaterialTheme.colorScheme.onPrimary,
+                modifier = Modifier.size(20.dp),
+            )
+            isPartial -> Icon(
+                Icons.Rounded.Adjust, null,
+                tint = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.size(20.dp),
             )
             isSkipped -> Icon(

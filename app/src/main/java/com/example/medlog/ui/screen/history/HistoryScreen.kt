@@ -13,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.automirrored.rounded.ArrowForward
+import androidx.compose.material.icons.rounded.Adjust
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.SkipNext
@@ -467,6 +468,7 @@ private fun DayLogRow(
     val takenLabel = stringResource(R.string.history_taken)
     val skippedLabel = stringResource(R.string.history_skipped)
     val missedLabel = stringResource(R.string.history_missed)
+    val partialLabel = stringResource(R.string.history_legend_partial)
     val unrecordedLabel = stringResource(R.string.history_time_unrecorded)
 
     // 时间戳编辑对话框状态
@@ -493,12 +495,14 @@ private fun DayLogRow(
                 LogStatus.TAKEN   -> Icons.Rounded.CheckCircle
                 LogStatus.SKIPPED -> Icons.Rounded.SkipNext
                 LogStatus.MISSED  -> Icons.Rounded.Cancel
+                LogStatus.PARTIAL -> Icons.Rounded.Adjust
             },
             contentDescription = null,
             tint = when (log.status) {
                 LogStatus.TAKEN   -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
+                LogStatus.PARTIAL -> calendarWarning
             },
             modifier = Modifier.size(18.dp),
         )
@@ -515,12 +519,18 @@ private fun DayLogRow(
                 LogStatus.TAKEN   -> log.actualTakenTimeMs?.let { stringResource(R.string.history_taken_time, timeFmt.format(Date(it))) } ?: takenLabel
                 LogStatus.SKIPPED -> skippedLabel
                 LogStatus.MISSED  -> missedLabel
+                LogStatus.PARTIAL -> {
+                    val qtyStr = log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
+                    val timeStr = log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
+                    if (timeStr != null) "$partialLabel $qtyStr @ $timeStr" else "$partialLabel $qtyStr"
+                }
             },
             style = MaterialTheme.typography.labelSmall,
             color = when (log.status) {
                 LogStatus.TAKEN   -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
+                LogStatus.PARTIAL -> calendarWarning
             },
             modifier = if (log.status == LogStatus.TAKEN)
                 Modifier.clickable { showTimePicker = true }

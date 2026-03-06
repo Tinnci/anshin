@@ -507,6 +507,9 @@
     <string name="med_card_skipped_today">本日スキップ</string>
     <string name="med_card_low_stock">在庫不足（残り %1$s %2$s）</string>
     <string name="med_card_btn_take">服薬</string>
+    <string name="med_card_btn_partial">一部服用</string>
+    <string name="med_card_partial_taken">一部服用 %1$s %2$s（%3$s）</string>
+    <string name="med_card_partial_input_hint">実際に服用した量を入力してください（予定: %1$s %2$s）</string>
     <string name="progress_header_title">本日の進捗</string>
     <string name="progress_header_all_done">すべて完了！🎉</string>
     <plurals name="progress_header_remaining">
