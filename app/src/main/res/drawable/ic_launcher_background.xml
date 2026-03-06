@@ -5,8 +5,8 @@
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-  <path
-      android:pathData="M0,0h108v108h-108z">
+  <!-- Light silver-white background matching the clipboard icon style -->
+  <path android:pathData="M0,0h108v108h-108z">
     <aapt:attr name="android:fillColor">
       <gradient
           android:startX="0"
@@ -14,9 +14,8 @@
           android:endX="108"
           android:endY="108"
           android:type="linear">
-        <item android:offset="0" android:color="#FFB3A6F0" />
-        <item android:offset="0.5" android:color="#FFD1C4E9" />
-        <item android:offset="1" android:color="#FFAEEED3" />
+        <item android:offset="0" android:color="#FFFAFAFA"/>
+        <item android:offset="1" android:color="#FFE8E8E8"/>
       </gradient>
     </aapt:attr>
   </path>
