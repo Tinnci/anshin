@@ -20,7 +20,7 @@ import javax.inject.Singleton
  *
  * [HomeViewModel] 和 [MarkTakenAction] 均通过此用例执行服药操作，确保 SSOT。
  *
- * 低库存/补药提醒通知属于"观察型"副作用，仍由 [HomeViewModel] 负责（SRP）。
+ * 低库存/补药提醒通知也由此用例统一触发，而非分散在 ViewModel 中（SRP）。
  */
 @Singleton
 class ToggleMedicationDoseUseCase @Inject constructor(
@@ -31,19 +31,26 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val widgetRefresher: WidgetRefresher,
 ) {
+    /** 某个时间槽上下文中日志匹配的时间窗口（4 小时） */
+    private val SLOT_WINDOW_MS = 4 * 3_600_000L
+
     /**
      * 标记为已服 — 写日志、扣库存、取消闹钟/通知、刷新 Widget。
      *
-     * 若今日已有日志记录，先删除再重写，保证幂等性。
+     * 若该时间槽今日已有日志记录，先删除再重写，保证幂等性。
+     *
+     * @param timeSlotIndex 提醒时间槽索引（0 为默认/单时间槽）
      */
-    suspend fun markTaken(med: Medication, existingLog: MedicationLog?) {
-        val (start, end) = todayRange()
+    suspend fun markTaken(med: Medication, existingLog: MedicationLog?, timeSlotIndex: Int = 0) {
+        val slotMs = scheduledMsForSlot(med, timeSlotIndex)
+        val windowStart = slotMs - SLOT_WINDOW_MS
+        val windowEnd = slotMs + SLOT_WINDOW_MS
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
-                    scheduledTimeMs = scheduledMs(med),
+                    scheduledTimeMs = slotMs,
                     actualTakenTimeMs = System.currentTimeMillis(),
                     status = LogStatus.TAKEN,
                 ),
@@ -55,6 +62,7 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
         widgetRefresher.refreshAll()
+        checkAndNotifyLowStock(med)
     }
 
     /**
@@ -69,14 +77,16 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     }
 
     /** 标记为跳过 — 写日志、取消闹钟/通知、刷新 Widget */
-    suspend fun markSkipped(med: Medication) {
-        val (start, end) = todayRange()
+    suspend fun markSkipped(med: Medication, timeSlotIndex: Int = 0) {
+        val slotMs = scheduledMsForSlot(med, timeSlotIndex)
+        val windowStart = slotMs - SLOT_WINDOW_MS
+        val windowEnd = slotMs + SLOT_WINDOW_MS
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
-                    scheduledTimeMs = scheduledMs(med),
+                    scheduledTimeMs = slotMs,
                     actualTakenTimeMs = null,
                     status = LogStatus.SKIPPED,
                 ),
@@ -108,15 +118,18 @@ class ToggleMedicationDoseUseCase @Inject constructor(
      * 标记为部分服用 — 写日志（含实际剂量）、按实际剂量扣库存、取消闹钟/通知、刷新 Widget。
      *
      * @param actualQty 本次实际服用的剂量（< [Medication.doseQuantity]）
+     * @param timeSlotIndex 提醒时间槽索引（0 为默认/单时间槽）
      */
-    suspend fun markPartial(med: Medication, existingLog: MedicationLog?, actualQty: Double) {
-        val (start, end) = todayRange()
+    suspend fun markPartial(med: Medication, existingLog: MedicationLog?, actualQty: Double, timeSlotIndex: Int = 0) {
+        val slotMs = scheduledMsForSlot(med, timeSlotIndex)
+        val windowStart = slotMs - SLOT_WINDOW_MS
+        val windowEnd = slotMs + SLOT_WINDOW_MS
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, start, end)
+            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
-                    scheduledTimeMs = scheduledMs(med),
+                    scheduledTimeMs = slotMs,
                     actualTakenTimeMs = System.currentTimeMillis(),
                     status = LogStatus.PARTIAL,
                     actualDoseQuantity = actualQty,
@@ -129,6 +142,7 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         alarmScheduler.cancelAllAlarms(med.id)
         notificationHelper.cancelAllReminderNotifications(med.id)
         widgetRefresher.refreshAll()
+        checkAndNotifyLowStock(med, actualQty)
     }
 
     /** 撤销部分服用 — 删除日志、按记录的实际剂量恢复库存、重设闹钟、刷新 Widget */
@@ -150,9 +164,45 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         notificationHelper.cancelAllReminderNotifications(medId)
     }
 
-    private fun scheduledMs(med: Medication): Long = Calendar.getInstance().apply {
-        set(Calendar.HOUR_OF_DAY, med.reminderHour)
-        set(Calendar.MINUTE, med.reminderMinute)
-        set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
-    }.timeInMillis
+    private fun scheduledMs(med: Medication): Long = scheduledMsForSlot(med, 0)
+
+    /**
+     * 计算指定时间槽的今日计划服药时间戳（毫秒）。
+     *
+     * - [timeSlotIndex] = 0 对应 [Medication.reminderTimes] 中的第一个时间
+     * - 若索引越界则回退到 reminderHour/reminderMinute（向后兼容）
+     */
+    private fun scheduledMsForSlot(med: Medication, timeSlotIndex: Int): Long {
+        val times = med.reminderTimes.split(",").map { it.trim() }.filter { it.isNotBlank() }
+        val timeStr = times.getOrNull(timeSlotIndex)
+        val (hour, minute) = if (timeStr != null) {
+            val parts = timeStr.split(":").mapNotNull { it.toIntOrNull() }
+            (parts.getOrElse(0) { med.reminderHour }) to (parts.getOrElse(1) { med.reminderMinute })
+        } else {
+            med.reminderHour to med.reminderMinute
+        }
+        return Calendar.getInstance().apply {
+            set(Calendar.HOUR_OF_DAY, hour)
+            set(Calendar.MINUTE, minute)
+            set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+        }.timeInMillis
+    }
+
+    /**
+     * 服药后检查库存是否低于阈值，低于则推送低库存通知。
+     * 统一在 UseCase 内处理，避免 ViewModel 重复计算。
+     */
+    private fun checkAndNotifyLowStock(med: Medication, consumedQty: Double = med.doseQuantity) {
+        val stock = med.stock ?: return
+        val newStock = (stock - consumedQty).coerceAtLeast(0.0)
+        val threshold = med.refillThreshold ?: return
+        if (newStock <= threshold) {
+            notificationHelper.showLowStockNotification(
+                medicationId = med.id,
+                medicationName = med.name,
+                stock = newStock,
+                unit = med.doseUnit,
+            )
+        }
+    }
 }

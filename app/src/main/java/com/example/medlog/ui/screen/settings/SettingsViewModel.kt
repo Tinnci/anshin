@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.settings
 
 import android.content.Context
+import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
@@ -60,7 +61,7 @@ class SettingsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        repository.getArchivedMedications().catch { emit(emptyList()) },
+        repository.getArchivedMedications().catch { e -> Log.e("SettingsVM", "Failed to load archived meds", e); emit(emptyList()) },
         prefsRepository.settingsFlow,
     ) { archived, prefs ->
         SettingsUiState(

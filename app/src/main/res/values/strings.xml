@@ -650,7 +650,7 @@
     <string name="error_name_required">药品名称不能为空</string>
     <string name="category_other">其他</string>
     <string name="unknown_medication">未知药品</string>
-    <string name="default_dose_unit" tools:ignore="UnusedResources">片</string>
+    <string name="default_dose_unit">片</string>
     <string-array name="preset_symptoms">
         <item>头痛</item>
         <item>恶心</item>

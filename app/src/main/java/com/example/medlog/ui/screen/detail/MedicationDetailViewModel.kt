@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.detail
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
@@ -47,7 +48,7 @@ class MedicationDetailViewModel @Inject constructor(
             if (med != null) {
                 // 加载最近60条日志
                 logRepo.getLogsForMedication(id, limit = 60)
-                    .catch { }
+                    .catch { e -> Log.e("DetailVM", "Failed to load medication logs", e) }
                     .collect { logs ->
                         // 计算近30天坚持率
                         val now = System.currentTimeMillis()

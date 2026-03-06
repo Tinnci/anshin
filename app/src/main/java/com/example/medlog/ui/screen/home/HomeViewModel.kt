@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.home
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
@@ -34,6 +35,16 @@ import javax.inject.Inject
 data class MedicationWithStatus(
     val medication: Medication,
     val log: MedicationLog? = null,
+    /**
+     * 对于拥有多个提醒时间的药品，标识当前条目对应的时间槽索引。
+     * 单时间槽药品始终为 0。
+     */
+    val timeSlotIndex: Int = 0,
+    /**
+     * 本条目对应的计划提醒时间 "HH:mm"。
+     * 便于 UI 显示每个时间槽的具体时间。
+     */
+    val scheduledTime: String = "",
 ) {
     val isTaken get() = log?.status == LogStatus.TAKEN
     val isSkipped get() = log?.status == LogStatus.SKIPPED
@@ -197,8 +208,40 @@ class HomeViewModel @Inject constructor(
                 prefsRepository.settingsFlow,
                 _interactions,
             ) { meds, logs, prefs, interactions ->
-                val items = meds.map { med ->
-                    MedicationWithStatus(med, logs.find { it.medicationId == med.id })
+                val items = meds.flatMap { med ->
+                    val medLogs = logs.filter { it.medicationId == med.id }
+                    val times = med.reminderTimes.split(",").map { it.trim() }.filter { it.isNotBlank() }
+                    if (times.size <= 1 || med.isPRN) {
+                        // 单时间槽或 PRN：与旧行为一致
+                        listOf(MedicationWithStatus(
+                            medication = med,
+                            log = medLogs.firstOrNull(),
+                            timeSlotIndex = 0,
+                            scheduledTime = times.firstOrNull() ?: "",
+                        ))
+                    } else {
+                        // 多时间槽：每个提醒时间展开为独立条目
+                        times.mapIndexed { index, timeStr ->
+                            val parts = timeStr.split(":").mapNotNull { it.toIntOrNull() }
+                            val slotHour = parts.getOrElse(0) { 0 }
+                            val slotMinute = parts.getOrElse(1) { 0 }
+                            val slotMs = Calendar.getInstance().apply {
+                                set(Calendar.HOUR_OF_DAY, slotHour)
+                                set(Calendar.MINUTE, slotMinute)
+                                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                            }.timeInMillis
+                            // 匹配最接近该时间槽的日志（±4 小时窗口以防跨时段冲突）
+                            val matchedLog = medLogs.filter { log ->
+                                kotlin.math.abs(log.scheduledTimeMs - slotMs) < 4 * 3_600_000L
+                            }.minByOrNull { kotlin.math.abs(it.scheduledTimeMs - slotMs) }
+                            MedicationWithStatus(
+                                medication = med,
+                                log = matchedLog,
+                                timeSlotIndex = index,
+                                scheduledTime = timeStr,
+                            )
+                        }
+                    }
                 }
                 val scheduledItems = items.filter { !it.medication.isPRN }
                 HomeUiState(
@@ -240,31 +283,21 @@ class HomeViewModel @Inject constructor(
             when {
                 item.isTaken   -> item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
                 item.isPartial -> item.log?.let { toggleDoseUseCase.undoPartial(item.medication, it) }
-                else -> {
-                    toggleDoseUseCase.markTaken(item.medication, item.log)
-                    item.medication.stock?.let { stock ->
-                        val newStock = (stock - item.medication.doseQuantity).coerceAtLeast(0.0)
-                        checkAndNotifyLowStock(item.medication, newStock)
-                    }
-                }
+                else -> toggleDoseUseCase.markTaken(item.medication, item.log, item.timeSlotIndex)
             }
         }
     }
 
     fun skipMedication(item: MedicationWithStatus) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            toggleDoseUseCase.markSkipped(item.medication)
+            toggleDoseUseCase.markSkipped(item.medication, item.timeSlotIndex)
         }
     }
 
     /** 标记为部分服用：将实际服用剂量写入日志，并按 actualQty 扣减库存 */
     fun markPartialDose(item: MedicationWithStatus, actualQty: Double) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            toggleDoseUseCase.markPartial(item.medication, item.log, actualQty)
-            item.medication.stock?.let { stock ->
-                val newStock = (stock - actualQty).coerceAtLeast(0.0)
-                checkAndNotifyLowStock(item.medication, newStock)
-            }
+            toggleDoseUseCase.markPartial(item.medication, item.log, actualQty, item.timeSlotIndex)
         }
     }
 
@@ -300,25 +333,12 @@ class HomeViewModel @Inject constructor(
         _uiState.update { it.copy(groupByTime = !it.groupByTime) }
     }
 
-    /** 触发服药时检查库存是否低于阈值，低于则推送通知 */
-    private fun checkAndNotifyLowStock(med: Medication, newStock: Double) {
-        val threshold = med.refillThreshold ?: return
-        if (newStock <= threshold) {
-            notificationHelper.showLowStockNotification(
-                medicationId = med.id,
-                medicationName = med.name,
-                stock = newStock,
-                unit = med.doseUnit,
-            )
-        }
-    }
-
     /** App 启动时扫描所有活跃药品，补推低库存通知（防止用户忽略了通知） */
     private fun scanLowStockOnLaunch() {
         viewModelScope.launch {
             medicationRepo.getActiveMedications()
                 .take(1)
-                .catch { }
+                .catch { e -> Log.e("HomeVM", "Failed to scan low stock medications", e) }
                 .collect { meds ->
                     meds.forEach { med ->
                         val stock = med.stock ?: return@forEach
@@ -379,7 +399,7 @@ class HomeViewModel @Inject constructor(
             val startMs = now - NINETY_DAYS_MS
             logRepo.getLogsForDateRange(startMs, now)
                 .take(1)
-                .catch { }
+                .catch { e -> Log.e("HomeVM", "Failed to compute streak data", e) }
                 .collect { logs ->
                     // 按日期分组，只关心有 TAKEN 记录的日期
                     val daysWithTaken = logs

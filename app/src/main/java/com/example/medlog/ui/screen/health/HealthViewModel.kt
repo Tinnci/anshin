@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.health
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
@@ -80,7 +81,7 @@ class HealthViewModel @Inject constructor(
                     if (type == null) repository.getAllRecords()
                     else repository.getRecordsByType(type.name)
                 }
-                .catch { }
+                .catch { e -> Log.e("HealthVM", "Failed to collect health records", e) }
                 .collect { records ->
                     _uiState.update { it.copy(records = records, isLoading = false) }
                 }
@@ -98,7 +99,7 @@ class HealthViewModel @Inject constructor(
             ) { latest, week ->
                 buildStats(latest, week)
             }
-                .catch { }
+                .catch { e -> Log.e("HealthVM", "Failed to collect health stats", e) }
                 .collect { stats -> _uiState.update { it.copy(stats = stats) } }
         }
     }

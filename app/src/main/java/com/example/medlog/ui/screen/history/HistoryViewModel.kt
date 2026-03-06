@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.history
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
@@ -76,14 +77,14 @@ class HistoryViewModel @Inject constructor(
                 medicationRepo.getArchivedMedications(),
             ) { active, archived -> active + archived }
                 .take(1)
-                .catch { }
+                .catch { e -> Log.e("HistoryVM", "Failed to load medication names", e) }
                 .collect { meds -> meds.forEach { medicationNames[it.id] = it.name } }
 
             // 2. 加载近90天的日志，按日期聚合
             val now = System.currentTimeMillis()
             val startMs = now - NINETY_DAYS_MS
             logRepo.getLogsForDateRange(startMs, now)
-                .catch { }
+                .catch { e -> Log.e("HistoryVM", "Failed to load medication logs", e) }
                 .collect { logs ->
                     val byDay = logs.groupBy { log ->
                         Instant.ofEpochMilli(log.scheduledTimeMs)

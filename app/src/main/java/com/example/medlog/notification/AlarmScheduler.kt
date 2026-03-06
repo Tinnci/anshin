@@ -7,10 +7,9 @@ import android.content.Intent
 import android.os.Build
 import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.UserPreferencesRepository
+import com.example.medlog.di.ApplicationScope
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import java.util.TimeZone
@@ -20,7 +19,7 @@ import javax.inject.Singleton
 private const val MAX_REMINDER_SLOTS = 20
 /** PendingIntent requestCode 偏移：提前预告闹钟用，避免与正式提醒冲突 */
 const val EARLY_REMINDER_CODE_OFFSET = 50_000
-/** PendingIntent requestCode 偏移：漏服再提醒闳钟 */
+/** PendingIntent requestCode 偏移：漏服再提醒闹钟 */
 const val FOLLOW_UP_CODE_OFFSET = 100_000
 
 /**
@@ -35,6 +34,7 @@ const val FOLLOW_UP_CODE_OFFSET = 100_000
 class AlarmScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val prefsRepository: UserPreferencesRepository,
+    @ApplicationScope private val scope: CoroutineScope,
 ) {
     private val alarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
@@ -44,13 +44,6 @@ class AlarmScheduler @Inject constructor(
 
     /** 提前预告提醒分钟数（0 = 关闭），由 DataStore 实时同步 */
     @Volatile private var earlyReminderMinutes: Int = 0
-
-    /**
-     * 进程级别 CoroutineScope，生命周期与 Application 一致。
-     * 作为 @Singleton 不需要手动 cancel；在 instrumented test 中
-     * 可通过注入 application-scoped scope 控制生命周期。
-     */
-    private val scope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     init {
         // 监听旅行模式 / 家乡时区变化
@@ -139,7 +132,7 @@ class AlarmScheduler @Inject constructor(
         }
         // 一并取消所有提前预告闹钟
         cancelEarlyReminderAlarms(medicationId)
-        // 一并取消漏服再提醒闳钟
+        // 一并取消漏服再提醒闹钟
         cancelFollowUpAlarms(medicationId)
     }
 
@@ -162,7 +155,7 @@ class AlarmScheduler @Inject constructor(
     }
 
     /**
-     * 取消某药品的所有漏服再提醒闳钟。
+     * 取消某药品的所有漏服再提醒闹钟。
      */
     fun cancelFollowUpAlarms(medicationId: Long) {
         for (i in 0 until MAX_REMINDER_SLOTS) {
@@ -179,15 +172,15 @@ class AlarmScheduler @Inject constructor(
     }
 
     /**
-     * 调度漏服再提醒闳钟。
+     * 调度漏服再提醒闹钟。
      *
      * @param medication 药品对象
      * @param timeIndex  提醒时间槽索引
-     * @param scheduledMs 原始闳钟触发时间（用于对藏日志查询）
+     * @param scheduledMs 原始闹钟触发时间（用于对照日志查询）
      * @param followUpCount 当前是第几次再提醒（从 1 开始）
      * @param followUpMaxCount 最大再提醒次数
      * @param delayMs 再提醒间隔毫秒时
-     * @param triggerAtMs 本次闳钟触发时间
+     * @param triggerAtMs 本次闹钟触发时间
      */
     fun scheduleFollowUpAlarm(
         medication: Medication,
@@ -230,51 +223,15 @@ class AlarmScheduler @Inject constructor(
         frequencyInterval: Int,
         frequencyDays: String,
         endDateMs: Long?,
-    ): Long? {
-        val parts = timeStr.split(":").mapNotNull { it.trim().toIntOrNull() }
-        if (parts.size < 2) return null
-        val (hour, minute) = parts
-
-        val now = System.currentTimeMillis()
-        val tz  = homeTimeZone
-        val cal = Calendar.getInstance(tz).apply {
-            set(Calendar.HOUR_OF_DAY, hour)
-            set(Calendar.MINUTE,      minute)
-            set(Calendar.SECOND,      0)
-            set(Calendar.MILLISECOND, 0)
-        }
-        if (cal.timeInMillis <= now) cal.add(Calendar.DAY_OF_YEAR, 1)
-
-        val triggerMs: Long = when (frequencyType) {
-            "specific_days" -> {
-                val days = frequencyDays.split(",")
-                    .mapNotNull { it.trim().toIntOrNull() }
-                    .map { if (it == 7) Calendar.SUNDAY else it + 1 }
-                var found = false
-                for (offset in 0..7) {
-                    val candidate = Calendar.getInstance(tz).apply {
-                        timeInMillis = cal.timeInMillis
-                        add(Calendar.DAY_OF_YEAR, offset)
-                    }
-                    if (candidate.get(Calendar.DAY_OF_WEEK) in days && candidate.timeInMillis > now) {
-                        cal.timeInMillis = candidate.timeInMillis
-                        found = true
-                        break
-                    }
-                }
-                if (!found) return null
-                cal.timeInMillis
-            }
-            "interval" -> {
-                if (frequencyInterval > 1) cal.add(Calendar.DAY_OF_YEAR, frequencyInterval - 1)
-                cal.timeInMillis
-            }
-            else -> cal.timeInMillis  // "daily"
-        }
-
-        if (endDateMs != null && triggerMs > endDateMs) return null
-        return triggerMs
-    }
+    ): Long? = computeNextTriggerPure(
+        timeStr = timeStr,
+        frequencyType = frequencyType,
+        frequencyInterval = frequencyInterval,
+        frequencyDays = frequencyDays,
+        endDateMs = endDateMs,
+        tz = homeTimeZone,
+        nowMs = System.currentTimeMillis(),
+    )
 
     // ─── 私有辅助 ─────────────────────────────────────────────────────────
 
@@ -314,4 +271,70 @@ class AlarmScheduler @Inject constructor(
         }
     }
 
+}
+
+// ─── 纯函数（可独立单元测试） ──────────────────────────────────────────────
+
+/**
+ * [AlarmScheduler.computeNextTrigger] 的纯函数版本，不依赖实例状态。
+ *
+ * @param timeStr        "HH:mm" 格式
+ * @param frequencyType  "daily" | "interval" | "specific_days"
+ * @param frequencyInterval 间隔天数（interval 类型）
+ * @param frequencyDays  "1,2,3,4,5,6,7" 格式周几列表
+ * @param endDateMs      结束时间戳，超过则返回 null
+ * @param tz             计算使用的时区
+ * @param nowMs          当前时刻（注入以便测试）
+ */
+fun computeNextTriggerPure(
+    timeStr: String,
+    frequencyType: String,
+    frequencyInterval: Int,
+    frequencyDays: String,
+    endDateMs: Long?,
+    tz: TimeZone = TimeZone.getDefault(),
+    nowMs: Long = System.currentTimeMillis(),
+): Long? {
+    val parts = timeStr.split(":").mapNotNull { it.trim().toIntOrNull() }
+    if (parts.size < 2) return null
+    val (hour, minute) = parts
+
+    val cal = Calendar.getInstance(tz).apply {
+        timeInMillis = nowMs
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE,      minute)
+        set(Calendar.SECOND,      0)
+        set(Calendar.MILLISECOND, 0)
+    }
+    if (cal.timeInMillis <= nowMs) cal.add(Calendar.DAY_OF_YEAR, 1)
+
+    val triggerMs: Long = when (frequencyType) {
+        "specific_days" -> {
+            val days = frequencyDays.split(",")
+                .mapNotNull { it.trim().toIntOrNull() }
+                .map { if (it == 7) Calendar.SUNDAY else it + 1 }
+            var found = false
+            for (offset in 0..7) {
+                val candidate = Calendar.getInstance(tz).apply {
+                    timeInMillis = cal.timeInMillis
+                    add(Calendar.DAY_OF_YEAR, offset)
+                }
+                if (candidate.get(Calendar.DAY_OF_WEEK) in days && candidate.timeInMillis > nowMs) {
+                    cal.timeInMillis = candidate.timeInMillis
+                    found = true
+                    break
+                }
+            }
+            if (!found) return null
+            cal.timeInMillis
+        }
+        "interval" -> {
+            if (frequencyInterval > 1) cal.add(Calendar.DAY_OF_YEAR, frequencyInterval - 1)
+            cal.timeInMillis
+        }
+        else -> cal.timeInMillis  // "daily"
+    }
+
+    if (endDateMs != null && triggerMs > endDateMs) return null
+    return triggerMs
 }

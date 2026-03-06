@@ -1,5 +1,6 @@
 package com.example.medlog.ui.screen.addmedication
 
+import android.content.Context
 import com.example.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.annotation.StringRes
@@ -16,6 +17,7 @@ import com.example.medlog.domain.todayStart
 import com.example.medlog.notification.AlarmScheduler
 import com.example.medlog.notification.NotificationHelper
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -34,8 +36,7 @@ data class AddMedicationUiState(
 
     // ── 剂量 ──────────────────────────────────────────────────────
     val doseQuantity: Double = 1.0,          // 每次几片/粒/ml
-    // TODO i18n: 默认单位应从 R.string.default_dose_unit 获取，需要 Context 或从 Composable 初始化
-    val doseUnit: String = "片",
+    val doseUnit: String = "",               // 由 ViewModel 初始化时从 R.string.default_dose_unit 填充
 
     // ── 按需 / PRN ────────────────────────────────────────────────
     val isPRN: Boolean = false,
@@ -88,9 +89,14 @@ class AddMedicationViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val prefsRepository: UserPreferencesRepository,
     private val drugRepository: DrugRepository,
+    @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
-    private val _uiState = MutableStateFlow(AddMedicationUiState())
+    private val _uiState = MutableStateFlow(
+        AddMedicationUiState(
+            doseUnit = appContext.getString(R.string.default_dose_unit),
+        )
+    )
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
 
     /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
