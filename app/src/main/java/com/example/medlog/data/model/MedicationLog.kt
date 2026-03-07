@@ -29,4 +29,4 @@ data class MedicationLog(
     val actualDoseQuantity: Double? = null, // 实际服用剂量（部分服用时 < 计划剂量）
 )
 
-enum class LogStatus { TAKEN, SKIPPED, MISSED, PARTIAL }
+enum class LogStatus { TAKEN, SKIPPED, MISSED, PARTIAL, PENDING }

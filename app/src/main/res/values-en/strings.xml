@@ -356,6 +356,7 @@
     <string name="history_legend_all">All taken</string>
     <string name="history_legend_partial">Partial</string>
     <string name="history_missed">Missed</string>
+    <string name="history_pending">Pending</string>
     <string name="history_date_format">%3$s, %1$d/%2$d</string>
     <plurals name="history_taken_count">
         <item quantity="one">%1$d/%2$d taken</item>

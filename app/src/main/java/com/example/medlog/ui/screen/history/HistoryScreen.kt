@@ -16,6 +16,7 @@ import androidx.compose.material.icons.automirrored.rounded.ArrowForward
 import androidx.compose.material.icons.rounded.Adjust
 import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
+import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.SkipNext
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -314,7 +315,7 @@ private fun DayCell(
         targetValue = when {
             isSelected   -> colorScheme.primary
             isFuture || adherenceDay == null -> Color.Transparent
-            adherenceDay.total == 0          -> Color.Transparent
+            adherenceDay.resolved == 0       -> Color.Transparent
             adherenceDay.rate >= 1f          -> colorScheme.tertiary.copy(alpha = 0.8f)
             adherenceDay.rate >= 0.5f        -> calendarWarning.copy(alpha = 0.7f)
             else                             -> colorScheme.error.copy(alpha = 0.7f)
@@ -326,7 +327,7 @@ private fun DayCell(
         targetValue = when {
             isSelected                          -> colorScheme.onPrimary
             isFuture                            -> colorScheme.onSurface.copy(alpha = 0.35f)
-            adherenceDay != null && adherenceDay.total > 0 -> Color.White
+            adherenceDay != null && adherenceDay.resolved > 0 -> Color.White
             isToday                             -> colorScheme.primary
             else                                -> colorScheme.onSurface
         },
@@ -370,6 +371,7 @@ private fun LegendRow(modifier: Modifier = Modifier) {
         LegendItem(color = colorScheme.tertiary, label = stringResource(R.string.history_legend_all))
         LegendItem(color = calendarWarning, label = stringResource(R.string.history_legend_partial))
         LegendItem(color = colorScheme.error, label = stringResource(R.string.history_missed))
+        LegendItem(color = colorScheme.outline, label = stringResource(R.string.history_pending))
     }
 }
 
@@ -469,6 +471,7 @@ private fun DayLogRow(
     val skippedLabel = stringResource(R.string.history_skipped)
     val missedLabel = stringResource(R.string.history_missed)
     val partialLabel = stringResource(R.string.history_legend_partial)
+    val pendingLabel = stringResource(R.string.history_pending)
     val unrecordedLabel = stringResource(R.string.history_time_unrecorded)
 
     // 时间戳编辑对话框状态
@@ -496,6 +499,7 @@ private fun DayLogRow(
                 LogStatus.SKIPPED -> Icons.Rounded.SkipNext
                 LogStatus.MISSED  -> Icons.Rounded.Cancel
                 LogStatus.PARTIAL -> Icons.Rounded.Adjust
+                LogStatus.PENDING -> Icons.Rounded.Schedule
             },
             contentDescription = null,
             tint = when (log.status) {
@@ -503,6 +507,7 @@ private fun DayLogRow(
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
                 LogStatus.PARTIAL -> calendarWarning
+                LogStatus.PENDING -> colorScheme.outline
             },
             modifier = Modifier.size(18.dp),
         )
@@ -519,6 +524,7 @@ private fun DayLogRow(
                 LogStatus.TAKEN   -> log.actualTakenTimeMs?.let { stringResource(R.string.history_taken_time, timeFmt.format(Date(it))) } ?: takenLabel
                 LogStatus.SKIPPED -> skippedLabel
                 LogStatus.MISSED  -> missedLabel
+                LogStatus.PENDING -> pendingLabel
                 LogStatus.PARTIAL -> {
                     val qtyStr = log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
                     val timeStr = log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
@@ -531,6 +537,7 @@ private fun DayLogRow(
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
                 LogStatus.PARTIAL -> calendarWarning
+                LogStatus.PENDING -> colorScheme.outline
             },
             modifier = if (log.status == LogStatus.TAKEN)
                 Modifier.clickable { showTimePicker = true }

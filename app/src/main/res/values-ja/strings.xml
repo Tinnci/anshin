@@ -344,6 +344,7 @@
     <string name="history_legend_all">全服用</string>
     <string name="history_legend_partial">一部服用</string>
     <string name="history_missed">飲み忘れ</string>
+    <string name="history_pending">未服薬</string>
     <string name="history_date_format">%1$d月%2$d日 (%3$s)</string>
     <plurals name="history_taken_count">
         <item quantity="other">%1$d/%2$d 服用済み</item>

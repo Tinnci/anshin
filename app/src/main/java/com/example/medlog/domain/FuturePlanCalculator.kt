@@ -53,12 +53,14 @@ class FuturePlanCalculator @Inject constructor() {
         days: Int = 7,
         fromMs: Long = System.currentTimeMillis(),
         tz: TimeZone = TimeZone.getDefault(),
+        includeArchived: Boolean = false,
     ): List<FuturePlanItem> {
         val result = mutableListOf<FuturePlanItem>()
         val startOfDay = startOfDay(fromMs, tz)
 
         for (med in medications) {
-            if (med.isPRN || med.isArchived) continue
+            if (med.isPRN) continue
+            if (med.isArchived && !includeArchived) continue
 
             // 间隔给药：按 intervalHours 推进
             if (med.intervalHours > 0) {

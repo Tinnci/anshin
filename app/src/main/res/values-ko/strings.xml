@@ -344,6 +344,7 @@
     <string name="history_legend_all">완전 복약</string>
     <string name="history_legend_partial">부분 복약</string>
     <string name="history_missed">누락</string>
+    <string name="history_pending">대기</string>
     <string name="history_date_format">%1$d월 %2$d일 (%3$s)</string>
     <plurals name="history_taken_count">
         <item quantity="other">%1$d/%2$d 복용</item>

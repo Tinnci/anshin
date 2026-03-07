@@ -5,6 +5,7 @@ import com.example.medlog.data.model.LogStatus
 import com.example.medlog.data.model.MedicationLog
 import com.example.medlog.data.repository.FakeLogRepository
 import com.example.medlog.data.repository.FakeMedicationRepository
+import com.example.medlog.domain.FuturePlanCalculator
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
@@ -70,7 +71,7 @@ class HistoryViewModelTest {
         )
     }
 
-    private fun buildViewModel() = HistoryViewModel(logRepo, medRepo)
+    private fun buildViewModel() = HistoryViewModel(logRepo, medRepo, FuturePlanCalculator())
 
     // ── 初始加载状态 ───────────────────────────────────────────────────────────
 
