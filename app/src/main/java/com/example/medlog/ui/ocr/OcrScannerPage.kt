@@ -3,6 +3,8 @@ package com.example.medlog.ui.ocr
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Handler
+import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -101,8 +103,8 @@ fun OcrScannerPage(
                     OcrCameraPreview(
                         modifier = Modifier.fillMaxSize(),
                         isProcessing = isProcessing,
+                        onCaptureRequested = { isProcessing = true },
                         onCapture = { imageProxy ->
-                            isProcessing = true
                             processImage(imageProxy) { texts ->
                                 recognizedTexts = texts
                                 isProcessing = false
@@ -167,6 +169,7 @@ fun OcrScannerPage(
 private fun OcrCameraPreview(
     modifier: Modifier = Modifier,
     isProcessing: Boolean,
+    onCaptureRequested: () -> Unit,
     onCapture: (ImageProxy) -> Unit,
 ) {
     val context = LocalContext.current
@@ -212,6 +215,7 @@ private fun OcrCameraPreview(
         FloatingActionButton(
             onClick = {
                 if (!isProcessing) {
+                    onCaptureRequested()  // 在 Main 线程设置 isProcessing = true
                     imageCapture.takePicture(
                         executor,
                         object : ImageCapture.OnImageCapturedCallback() {
@@ -290,6 +294,8 @@ private fun OcrResultList(
 
 // ── ML Kit 文字识别处理 ──────────────────────────────────────────────────────
 
+private val mainHandler = Handler(Looper.getMainLooper())
+
 @SuppressLint("UnsafeOptInUsageError")
 private fun processImage(
     imageProxy: ImageProxy,
@@ -298,7 +304,7 @@ private fun processImage(
     val mediaImage = imageProxy.image
     if (mediaImage == null) {
         imageProxy.close()
-        onResult(emptyList())
+        mainHandler.post { onResult(emptyList()) }
         return
     }
 
@@ -320,5 +326,6 @@ private fun processImage(
         }
         .addOnCompleteListener {
             imageProxy.close()
+            recognizer.close()
         }
 }

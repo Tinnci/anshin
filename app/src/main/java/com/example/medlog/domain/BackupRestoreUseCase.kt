@@ -4,6 +4,8 @@ import android.content.Context
 import android.net.Uri
 import com.example.medlog.data.local.MedLogDatabase
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.io.IOException
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,7 +31,7 @@ class BackupRestoreUseCase @Inject constructor(
      * @param uri 用户通过 SAF 选择的目标文件 URI
      * @throws IOException 如果写入失败
      */
-    suspend fun backup(uri: Uri) {
+    suspend fun backup(uri: Uri) = withContext(Dispatchers.IO) {
         // 强制 WAL checkpoint，将所有日志合并到主数据库文件
         database.openHelper.writableDatabase.execSQL("PRAGMA wal_checkpoint(FULL)")
 
@@ -52,7 +54,7 @@ class BackupRestoreUseCase @Inject constructor(
      * @throws IOException 如果读取或写入失败
      * @throws IllegalArgumentException 如果文件不是有效的 SQLite 数据库
      */
-    suspend fun restore(uri: Uri) {
+    suspend fun restore(uri: Uri) = withContext(Dispatchers.IO) {
         // 1. 读取备份文件到临时文件，验证是否为有效 SQLite
         val tempFile = context.cacheDir.resolve("restore_temp.db")
         try {
@@ -63,7 +65,8 @@ class BackupRestoreUseCase @Inject constructor(
             } ?: throw IOException("Cannot open input stream for URI: $uri")
 
             // 验证 SQLite 魔数（前 16 字节为 "SQLite format 3\000"）
-            val header = tempFile.inputStream().use { it.readNBytes(16) }
+            val header = ByteArray(16)
+            tempFile.inputStream().use { it.read(header) }
             val magicString = String(header, 0, minOf(header.size, 15))
             if (!magicString.startsWith("SQLite format 3")) {
                 throw IllegalArgumentException("Not a valid SQLite database file")
