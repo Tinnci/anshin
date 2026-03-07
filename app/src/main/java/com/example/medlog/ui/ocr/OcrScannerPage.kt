@@ -8,6 +8,7 @@ import android.os.Looper
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -40,6 +41,8 @@ import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.ChevronRight
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FitnessCenter
+import androidx.compose.material.icons.rounded.FlashOff
+import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.WaterDrop
@@ -63,6 +66,9 @@ import com.example.medlog.data.model.HealthType
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.chinese.ChineseTextRecognizerOptions
+import com.google.mlkit.vision.text.japanese.JapaneseTextRecognizerOptions
+import com.google.mlkit.vision.text.korean.KoreanTextRecognizerOptions
+import java.util.Locale
 import java.util.concurrent.Executors
 
 private const val TAG = "OcrScannerPage"
@@ -252,7 +258,16 @@ private fun OcrCameraPreview(
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val executor = remember { Executors.newSingleThreadExecutor() }
-    val imageCapture = remember { ImageCapture.Builder().build() }
+    // OCR 优化：最大化图像质量以提高文字识别精度
+    val imageCapture = remember {
+        ImageCapture.Builder()
+            .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
+            .build()
+    }
+
+    // 闪光灯状态
+    var isFlashOn by remember { mutableStateOf(false) }
+    var camera by remember { mutableStateOf<Camera?>(null) }
 
     DisposableEffect(Unit) {
         onDispose { executor.shutdown() }
@@ -273,13 +288,18 @@ private fun OcrCameraPreview(
 
         runCatching {
             cameraProvider.unbindAll()
-            cameraProvider.bindToLifecycle(
+            camera = cameraProvider.bindToLifecycle(
                 lifecycleOwner,
                 CameraSelector.DEFAULT_BACK_CAMERA,
                 preview,
                 imageCapture,
             )
         }.onFailure { Log.e(TAG, "Camera bind failed", it) }
+    }
+
+    // 闪光灯切换
+    LaunchedEffect(isFlashOn, camera) {
+        camera?.cameraControl?.enableTorch(isFlashOn)
     }
 
     // 按下缩放动画
@@ -341,6 +361,29 @@ private fun OcrCameraPreview(
                     )
                 }
             }
+        }
+
+        // 闪光灯切换按钮
+        SmallFloatingActionButton(
+            onClick = { isFlashOn = !isFlashOn },
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(end = 24.dp, bottom = 48.dp),
+            containerColor = if (isFlashOn) {
+                MaterialTheme.colorScheme.primary
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            },
+            contentColor = if (isFlashOn) {
+                MaterialTheme.colorScheme.onPrimary
+            } else {
+                MaterialTheme.colorScheme.onSurface
+            },
+        ) {
+            Icon(
+                if (isFlashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
+                contentDescription = stringResource(R.string.ocr_flash_toggle),
+            )
         }
     }
 }
@@ -824,8 +867,8 @@ private fun processImage(
     }
 
     val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-    // 使用中文识别器（同时支持拉丁字母）
-    val recognizer = TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
+    // 根据设备语言选择最佳文字识别器
+    val recognizer = createLocalizedTextRecognizer()
 
     recognizer.process(inputImage)
         .addOnSuccessListener { visionText ->
@@ -843,4 +886,16 @@ private fun processImage(
             imageProxy.close()
             recognizer.close()
         }
+}
+
+/**
+ * 根据设备语言创建对应的 ML Kit 文字识别器（非捆绑库，按需下载模型）。
+ * - ja → 日语识别器（含平假名/片假名/汉字/拉丁字母）
+ * - ko → 韩语识别器（含韩文/拉丁字母）
+ * - 其他 → 中文识别器（含中文/拉丁字母，默认）
+ */
+private fun createLocalizedTextRecognizer() = when (Locale.getDefault().language) {
+    "ja" -> TextRecognition.getClient(JapaneseTextRecognizerOptions.Builder().build())
+    "ko" -> TextRecognition.getClient(KoreanTextRecognizerOptions.Builder().build())
+    else -> TextRecognition.getClient(ChineseTextRecognizerOptions.Builder().build())
 }

@@ -693,6 +693,7 @@
     <string name="ocr_health_tap_to_record">点击即可快速记录</string>
     <string name="ocr_health_raw_text">原始文字</string>
     <string name="ocr_health_fab_cd">拍照识别体征</string>
+    <string name="ocr_flash_toggle">切换闪光灯</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>
     </plurals>

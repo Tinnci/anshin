@@ -687,6 +687,7 @@
     <string name="ocr_health_tap_to_record">タップして記録</string>
     <string name="ocr_health_raw_text">元のテキスト</string>
     <string name="ocr_health_fab_cd">バイタルデータを撮影</string>
+    <string name="ocr_flash_toggle">フラッシュ切替</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d種類の薬をインポートしました</item>
     </plurals>

@@ -29,6 +29,8 @@ camerax = "1.4.2"
 mlkitBarcode = "17.3.0"
 mlkitTextRecognition = "16.0.1"
 mlkitTextRecognitionCjk = "16.0.1"
+mlkitTextRecognitionJa = "16.0.1"
+mlkitTextRecognitionKo = "16.0.1"
 mockitoKotlin = "5.2.1"
 
 [libraries]
@@ -86,6 +88,8 @@ camerax-view     = { module = "androidx.camera:camera-view",       version.ref =
 mlkit-barcode    = { module = "com.google.mlkit:barcode-scanning",  version.ref = "mlkitBarcode" }
 mlkit-text-recognition     = { module = "com.google.mlkit:text-recognition",       version.ref = "mlkitTextRecognition" }
 mlkit-text-recognition-cjk = { module = "com.google.mlkit:text-recognition-chinese", version.ref = "mlkitTextRecognitionCjk" }
+mlkit-text-recognition-ja  = { module = "com.google.mlkit:text-recognition-japanese", version.ref = "mlkitTextRecognitionJa" }
+mlkit-text-recognition-ko  = { module = "com.google.mlkit:text-recognition-korean",   version.ref = "mlkitTextRecognitionKo" }
 mockito-kotlin   = { module = "org.mockito.kotlin:mockito-kotlin",   version.ref = "mockitoKotlin" }
 
 [plugins]
