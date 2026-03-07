@@ -123,6 +123,45 @@ fun SettingsScreen(
     val msgWidgetPinOem = stringResource(R.string.settings_widget_pin_oem)
     val msgWidgetPinOk = stringResource(R.string.settings_widget_pin_ok)
 
+    // ── 备份/恢复 ─────────────────────────
+    val backupInProgress by viewModel.backupInProgress.collectAsStateWithLifecycle()
+    var showRestoreConfirmDialog by remember { mutableStateOf(false) }
+    var pendingRestoreUri by remember { mutableStateOf<Uri?>(null) }
+
+    val backupLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.CreateDocument("application/octet-stream")
+    ) { uri -> if (uri != null) viewModel.backup(uri) }
+
+    val restoreLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        if (uri != null) {
+            pendingRestoreUri = uri
+            showRestoreConfirmDialog = true
+        }
+    }
+
+    // 收集一次性事件
+    LaunchedEffect(Unit) {
+        viewModel.backupEvent.collect { event ->
+            when (event) {
+                is SettingsViewModel.BackupEvent.Success -> {
+                    snackbarHostState.showSnackbar(context.getString(event.messageResId))
+                }
+                is SettingsViewModel.BackupEvent.Error -> {
+                    snackbarHostState.showSnackbar(event.message)
+                }
+                is SettingsViewModel.BackupEvent.RestoreSuccess -> {
+                    // 恢复成功 → 重启进程
+                    val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+                    intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    context.startActivity(intent)
+                    Runtime.getRuntime().exit(0)
+                }
+            }
+        }
+    }
+
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -855,6 +894,56 @@ fun SettingsScreen(
                 }
             }
 
+            // ── 备份与恢复 ──────────────────────────────────────────
+            SettingsCard(
+                title = stringResource(R.string.settings_backup_restore),
+                icon = Icons.Rounded.CloudUpload,
+            ) {
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_backup_title)) },
+                    supportingContent = { Text(stringResource(R.string.settings_backup_subtitle)) },
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.Upload,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    trailingContent = {
+                        if (backupInProgress) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        }
+                    },
+                    modifier = Modifier.clickable(enabled = !backupInProgress) {
+                        val ts = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
+                            .format(java.util.Date())
+                        backupLauncher.launch("anshin_backup_$ts.db")
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                )
+                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                ListItem(
+                    headlineContent = { Text(stringResource(R.string.settings_restore_title)) },
+                    supportingContent = { Text(stringResource(R.string.settings_restore_subtitle)) },
+                    leadingContent = {
+                        Icon(
+                            Icons.Rounded.Download,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
+                    trailingContent = {
+                        if (backupInProgress) {
+                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                        }
+                    },
+                    modifier = Modifier.clickable(enabled = !backupInProgress) {
+                        restoreLauncher.launch(arrayOf("application/octet-stream", "*/*"))
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                )
+            }
+
             // ── 关于 ─────────────────────────────────────────────
             SettingsCard(title = stringResource(R.string.settings_about), icon = Icons.Rounded.Info) {
                 ListItem(
@@ -890,6 +979,37 @@ fun SettingsScreen(
                 )            }
         }
     }
+
+    // ── 恢复确认对话框 ───────────────────────────────────────────
+    if (showRestoreConfirmDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showRestoreConfirmDialog = false
+                pendingRestoreUri = null
+            },
+            icon = { Icon(Icons.Rounded.Warning, contentDescription = null) },
+            title = { Text(stringResource(R.string.settings_restore_confirm_title)) },
+            text = { Text(stringResource(R.string.settings_restore_confirm_message)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    showRestoreConfirmDialog = false
+                    pendingRestoreUri?.let { viewModel.restore(it) }
+                    pendingRestoreUri = null
+                }) {
+                    Text(
+                        stringResource(R.string.settings_restore_confirm),
+                        color = MaterialTheme.colorScheme.error,
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    showRestoreConfirmDialog = false
+                    pendingRestoreUri = null
+                }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        )
+    }
 }
-
-

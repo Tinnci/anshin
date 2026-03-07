@@ -240,6 +240,21 @@
     <string name="settings_version">Version %1$s (Build %2$d)</string>
     <string name="settings_replay_title">View Onboarding Again</string>
     <string name="settings_replay_subtitle">Re-browse feature introduction and routine setup guide</string>
+
+    <!-- Backup & Restore -->
+    <string name="settings_backup_restore">Backup &amp; Restore</string>
+    <string name="settings_backup_title">Backup Data</string>
+    <string name="settings_backup_subtitle">Export all data to a backup file</string>
+    <string name="settings_restore_title">Restore Data</string>
+    <string name="settings_restore_subtitle">Restore all data from a backup file</string>
+    <string name="settings_backup_success">Backup successful</string>
+    <string name="settings_backup_failed">Backup failed: %1$s</string>
+    <string name="settings_restore_failed">Restore failed: %1$s</string>
+    <string name="settings_restore_confirm_title">Confirm Restore</string>
+    <string name="settings_restore_confirm_message">Restoring will overwrite all current data. This action cannot be undone.\n\nThe app will restart automatically after restoring.</string>
+    <string name="settings_restore_confirm">Confirm Restore</string>
+    <string name="settings_restore_restarting">Restore successful, restarting…</string>
+    <string name="settings_backup_invalid_file">Invalid backup file</string>
     <string name="settings_archived_empty">No archived medications</string>
     <plurals name="settings_archived_count">
         <item quantity="one">1 medication archived</item>

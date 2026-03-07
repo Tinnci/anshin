@@ -51,6 +51,7 @@ object DatabaseModule {
                 MedLogDatabase.MIGRATION_8_9,
                 MedLogDatabase.MIGRATION_9_10,
                 MedLogDatabase.MIGRATION_10_11,
+                MedLogDatabase.MIGRATION_11_12,
             )
             .fallbackToDestructiveMigration(dropAllTables = true)
             .build()

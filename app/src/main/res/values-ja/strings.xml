@@ -235,6 +235,21 @@
     <string name="settings_version">バージョン %1$s（ビルド %2$d）</string>
     <string name="settings_replay_title">オンボーディングを再表示</string>
     <string name="settings_replay_subtitle">機能紹介と生活習慣設定ガイドを再閲覧</string>
+
+    <!-- バックアップと復元 -->
+    <string name="settings_backup_restore">バックアップと復元</string>
+    <string name="settings_backup_title">データをバックアップ</string>
+    <string name="settings_backup_subtitle">すべてのデータをバックアップファイルにエクスポート</string>
+    <string name="settings_restore_title">データを復元</string>
+    <string name="settings_restore_subtitle">バックアップファイルからすべてのデータを復元</string>
+    <string name="settings_backup_success">バックアップ成功</string>
+    <string name="settings_backup_failed">バックアップ失敗：%1$s</string>
+    <string name="settings_restore_failed">復元失敗：%1$s</string>
+    <string name="settings_restore_confirm_title">復元の確認</string>
+    <string name="settings_restore_confirm_message">復元すると現在のデータはすべて上書きされます。この操作は取り消せません。\n\n復元完了後、アプリは自動的に再起動します。</string>
+    <string name="settings_restore_confirm">復元する</string>
+    <string name="settings_restore_restarting">復元成功、再起動中…</string>
+    <string name="settings_backup_invalid_file">無効なバックアップファイル</string>
     <string name="settings_archived_empty">アーカイブ済みの薬品なし</string>
     <plurals name="settings_archived_count">
         <item quantity="other">%d 件の薬品がアーカイブ済み</item>

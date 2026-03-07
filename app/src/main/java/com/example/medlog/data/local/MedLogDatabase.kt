@@ -12,7 +12,7 @@ import com.example.medlog.data.model.SymptomLog
 
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
-    version = 11,
+    version = 12,
     exportSchema = false,
 )
 @TypeConverters(Converters::class)
@@ -78,6 +78,15 @@ abstract class MedLogDatabase : RoomDatabase() {
         val MIGRATION_10_11 = object : Migration(10, 11) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL("ALTER TABLE medication_logs ADD COLUMN actualDoseQuantity REAL")
+            }
+        }
+
+        /** v11 → v12: medication_logs 添加复合索引 (medicationId, scheduledTimeMs) 以加速多条件查询 */
+        val MIGRATION_11_12 = object : Migration(11, 12) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_medication_logs_medicationId_scheduledTimeMs ON medication_logs (medicationId, scheduledTimeMs)"
+                )
             }
         }
     }

@@ -1,6 +1,7 @@
 package com.example.medlog.ui.screen.settings
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
@@ -10,6 +11,7 @@ import com.example.medlog.data.model.Medication
 import com.example.medlog.data.repository.MedicationRepository
 import com.example.medlog.data.repository.ThemeMode
 import com.example.medlog.data.repository.UserPreferencesRepository
+import com.example.medlog.domain.BackupRestoreUseCase
 import com.example.medlog.domain.ResyncRemindersUseCase
 import com.example.medlog.widget.MedLogWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -57,6 +59,7 @@ class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val prefsRepository: UserPreferencesRepository,
     private val resyncReminders: ResyncRemindersUseCase,
+    private val backupRestore: BackupRestoreUseCase,
     @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
@@ -180,5 +183,54 @@ class SettingsViewModel @Inject constructor(
     /** 重置欢迎引导状态，下次启动或手动调用时回到引导页 */
     fun resetWelcome() {
         safeLaunch { prefsRepository.updateHasSeenWelcome(false) }
+    }
+
+    // ── 备份与恢复 ────────────────────────────────────────────────
+
+    sealed interface BackupEvent {
+        data class Success(val messageResId: Int) : BackupEvent
+        data class Error(val message: String) : BackupEvent
+        /** 恢复成功，UI 层应重启进程 */
+        data object RestoreSuccess : BackupEvent
+    }
+
+    private val _backupEvent = MutableSharedFlow<BackupEvent>()
+    val backupEvent: SharedFlow<BackupEvent> = _backupEvent.asSharedFlow()
+
+    private val _backupInProgress = MutableStateFlow(false)
+    val backupInProgress: StateFlow<Boolean> = _backupInProgress.asStateFlow()
+
+    fun backup(uri: Uri) {
+        safeLaunch {
+            _backupInProgress.value = true
+            try {
+                backupRestore.backup(uri)
+                _backupEvent.emit(BackupEvent.Success(com.example.medlog.R.string.settings_backup_success))
+            } catch (e: Exception) {
+                Log.e("SettingsVM", "Backup failed", e)
+                _backupEvent.emit(BackupEvent.Error(e.localizedMessage ?: "Unknown error"))
+            } finally {
+                _backupInProgress.value = false
+            }
+        }
+    }
+
+    fun restore(uri: Uri) {
+        safeLaunch {
+            _backupInProgress.value = true
+            try {
+                backupRestore.restore(uri)
+                _backupEvent.emit(BackupEvent.RestoreSuccess)
+                // backupInProgress 保持 true —— UI 层收到 RestoreSuccess 后会重启进程
+            } catch (e: Exception) {
+                Log.e("SettingsVM", "Restore failed", e)
+                val msg = when (e) {
+                    is IllegalArgumentException -> appContext.getString(com.example.medlog.R.string.settings_backup_invalid_file)
+                    else -> e.localizedMessage ?: "Unknown error"
+                }
+                _backupEvent.emit(BackupEvent.Error(msg))
+                _backupInProgress.value = false
+            }
+        }
     }
 }

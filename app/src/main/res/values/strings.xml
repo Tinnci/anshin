@@ -234,6 +234,21 @@
     <string name="settings_version">版本 %1$s（构建 %2$d）</string>
     <string name="settings_replay_title">重新查看新手引导</string>
     <string name="settings_replay_subtitle">重新浏览功能介绍、作息设置等引导流程</string>
+
+    <!-- 备份与恢复 -->
+    <string name="settings_backup_restore">备份与恢复</string>
+    <string name="settings_backup_title">备份数据</string>
+    <string name="settings_backup_subtitle">将所有数据导出为备份文件</string>
+    <string name="settings_restore_title">恢复数据</string>
+    <string name="settings_restore_subtitle">从备份文件还原所有数据</string>
+    <string name="settings_backup_success">备份成功</string>
+    <string name="settings_backup_failed">备份失败：%1$s</string>
+    <string name="settings_restore_failed">恢复失败：%1$s</string>
+    <string name="settings_restore_confirm_title">确认恢复</string>
+    <string name="settings_restore_confirm_message">恢复将覆盖当前所有数据，此操作不可撤销。\n\n恢复完成后应用将自动重启。</string>
+    <string name="settings_restore_confirm">确认恢复</string>
+    <string name="settings_restore_restarting">恢复成功，正在重启…</string>
+    <string name="settings_backup_invalid_file">无效的备份文件</string>
     <string name="settings_archived_empty">暂无归档药品</string>
     <plurals name="settings_archived_count">
         <item quantity="other">%d 种药品已归档</item>
