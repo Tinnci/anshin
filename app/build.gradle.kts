@@ -137,6 +137,10 @@ dependencies {
     implementation(libs.camerax.view)
     implementation(libs.mlkit.barcode)
 
+    // OCR (ML Kit Text Recognition)
+    implementation(libs.mlkit.text.recognition)
+    implementation(libs.mlkit.text.recognition.cjk)
+
     // Baseline Profile installer（让 ART 在首次安装时即时应用 baseline-prof.txt 中的预编译规则）
     implementation(libs.androidx.profileinstaller)
 

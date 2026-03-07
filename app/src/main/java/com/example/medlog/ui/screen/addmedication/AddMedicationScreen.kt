@@ -59,6 +59,7 @@ fun AddMedicationScreen(
     val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsStateWithLifecycle()
     var showCustomDoseDialog by remember { mutableStateOf(false) }
     var customDoseText     by remember { mutableStateOf("") }
+    var showOcrScanner by remember { mutableStateOf(false) }
 
     val formOptions = listOf(
         FormOption("tablet",  stringResource(R.string.add_form_tablet), Icons.Rounded.Medication),
@@ -156,9 +157,14 @@ fun AddMedicationScreen(
                         },
                         leadingIcon = { Icon(Icons.Rounded.Medication, null) },
                         trailingIcon = {
-                            if (uiState.name.isNotBlank()) {
-                                IconButton(onClick = { viewModel.onNameChange("") }) {
-                                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.add_clear_cd))
+                            Row {
+                                if (uiState.name.isNotBlank()) {
+                                    IconButton(onClick = { viewModel.onNameChange("") }) {
+                                        Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.add_clear_cd))
+                                    }
+                                }
+                                IconButton(onClick = { showOcrScanner = true }) {
+                                    Icon(Icons.Rounded.DocumentScanner, contentDescription = stringResource(R.string.ocr_scan_title))
                                 }
                             }
                         },
@@ -679,6 +685,25 @@ fun AddMedicationScreen(
                 TextButton(onClick = { showCustomDoseDialog = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
+    }
+
+    // ── OCR 扫描器全屏覆盖层 ─────────────────────────────────────────────────
+    if (showOcrScanner) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showOcrScanner = false },
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+            ),
+        ) {
+            com.example.medlog.ui.ocr.OcrScannerPage(
+                onResult = { text ->
+                    showOcrScanner = false
+                    viewModel.onNameChange(text)
+                },
+                onBack = { showOcrScanner = false },
+            )
+        }
     }
 }
 

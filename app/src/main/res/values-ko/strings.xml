@@ -639,7 +639,14 @@
     <string name="qr_import_mode_merge">병합(기존 유지)</string>
     <string name="qr_import_mode_replace">대체(전체 삭제 후 다시 가져오기)</string>
     <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔해 주세요</string>
-    <plurals name="qr_import_success">
+    <!-- OCR 문자 인식 -->
+    <string name="ocr_scan_title">약명 스쮨</string>
+    <string name="ocr_scan_hint">약 포장의 이름에 카메라를 맞추고 촬영하세요</string>
+    <string name="ocr_scan_permission_rationale">약명을 인식하려면 카메라 권한이 필요합니다</string>
+    <string name="ocr_scan_grant_permission">권한 부여</string>
+    <string name="ocr_capture">촬영</string>
+    <string name="ocr_result_hint">약명을 탭하여 선택</string>
+    <string name="ocr_retry">다시 촬영</string>    <plurals name="qr_import_success">
         <item quantity="other">%d가지 약품을 가져왔습니다</item>
     </plurals>
     <plurals name="qr_export_med_count">

@@ -638,6 +638,15 @@
     <string name="qr_import_mode_merge">合并（保留现有）</string>
     <string name="qr_import_mode_replace">替换（清空重导）</string>
     <string name="qr_invalid">无效的二维码，请扫描由 Anshin 生成的导出码</string>
+
+    <!-- OCR 文字识别 -->
+    <string name="ocr_scan_title">扫描药品名称</string>
+    <string name="ocr_scan_hint">将药品包装上的名称对准相机，点击拍照</string>
+    <string name="ocr_scan_permission_rationale">需要相机权限以识别药品名称</string>
+    <string name="ocr_scan_grant_permission">授予权限</string>
+    <string name="ocr_capture">拍照</string>
+    <string name="ocr_result_hint">点击选择药品名称</string>
+    <string name="ocr_retry">重新拍照</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>
     </plurals>
