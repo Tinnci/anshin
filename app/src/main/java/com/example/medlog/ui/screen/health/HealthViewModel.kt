@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.HealthType
 import com.example.medlog.data.repository.HealthRepository
+import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.SEVEN_DAYS_MS
 import com.example.medlog.ui.util.formatDose
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -41,6 +42,8 @@ data class HealthTypeStat(
     /** 趋势：+1 上升 / -1 下降 / 0 平稳 / null 数据不足 */
     val trend: Int?,
     val isAbnormal: Boolean,
+    /** 血压分类 StringRes（仅 BLOOD_PRESSURE 类型使用） */
+    val bpClassRes: Int? = null,
 )
 
 // ─── 主 UI 状态 ──────────────────────────────────────────────────────────────
@@ -53,6 +56,13 @@ data class HealthUiState(
     val draft: HealthDraftState = HealthDraftState(),
     val isLoading: Boolean = true,
     val deleteTarget: HealthRecord? = null,  // 待确认删除的记录
+    /** 图表数据点：按时间正序排列的 (timestamp, value, secondaryValue?) */
+    val chartPoints: List<HealthRecord> = emptyList(),
+    /** BMI（体重 + 身高可用时计算） */
+    val bmi: Double? = null,
+    val bmiClassRes: Int? = null,
+    /** 用户身高（cm），0 = 未设置 */
+    val userHeightCm: Float = 0f,
 )
 
 // ─── ViewModel ───────────────────────────────────────────────────────────────
@@ -60,14 +70,21 @@ data class HealthUiState(
 @HiltViewModel
 class HealthViewModel @Inject constructor(
     private val repository: HealthRepository,
+    private val prefsRepository: UserPreferencesRepository,
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HealthUiState())
     val uiState: StateFlow<HealthUiState> = _uiState.asStateFlow()
 
+    /** 用户身高（cm），从偏好设置读取 */
+    private val heightCmFlow = prefsRepository.settingsFlow
+        .map { it.userHeightCm }
+        .distinctUntilChanged()
+
     init {
         collectRecords()
         collectStats()
+        collectChartData()
     }
 
     /** 收集过滤后的记录列表 */
@@ -88,19 +105,55 @@ class HealthViewModel @Inject constructor(
         }
     }
 
-    /** 收集各类型最新记录用于统计卡片 */
+    /** 收集各类型最新记录用于统计卡片 + BMI */
     private fun collectStats() {
         viewModelScope.launch {
-            // 7 天 range
             val sevenDaysAgo = System.currentTimeMillis() - SEVEN_DAYS_MS
             combine(
                 repository.getLatestRecordPerType(),
                 repository.getRecordsInRange(sevenDaysAgo, System.currentTimeMillis()),
-            ) { latest, week ->
-                buildStats(latest, week)
+                heightCmFlow,
+            ) { latest, week, heightCm ->
+                val stats = buildStats(latest, week)
+                val weightStat = stats.firstOrNull { it.type == HealthType.WEIGHT }
+                val bmi = if (weightStat != null && heightCm > 0f) {
+                    HealthType.calculateBmi(weightStat.latestValue, heightCm.toDouble())
+                } else null
+                Triple(stats, bmi, bmi?.let { HealthType.classifyBmi(it) })
             }
                 .catch { e -> Log.e("HealthVM", "Failed to collect health stats", e) }
-                .collect { stats -> _uiState.update { it.copy(stats = stats) } }
+                .collect { (stats, bmi, bmiClassRes) ->
+                    _uiState.update { it.copy(stats = stats, bmi = bmi, bmiClassRes = bmiClassRes) }
+                }
+        }
+        // 单独收集身高到 UI 状态
+        viewModelScope.launch {
+            heightCmFlow.collect { h ->
+                _uiState.update { it.copy(userHeightCm = h) }
+            }
+        }
+    }
+
+    /** 收集选中类型的近 30 天图表数据 */
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private fun collectChartData() {
+        viewModelScope.launch {
+            _uiState
+                .map { it.selectedType }
+                .distinctUntilChanged()
+                .flatMapLatest { type ->
+                    if (type == null) flowOf(emptyList())
+                    else {
+                        val thirtyDaysAgo = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
+                        repository.getRecordsByTypeInRange(
+                            type.name, thirtyDaysAgo, System.currentTimeMillis()
+                        )
+                    }
+                }
+                .catch { e -> Log.e("HealthVM", "Failed to collect chart data", e) }
+                .collect { points ->
+                    _uiState.update { it.copy(chartPoints = points) }
+                }
         }
     }
 
@@ -120,14 +173,20 @@ class HealthViewModel @Inject constructor(
                     val half = weekValues.size / 2
                     val early = weekValues.take(half).average()
                     val late = weekValues.drop(half).average()
+                    val threshold = type.trendThreshold
                     when {
-                        late - early > 0.5 -> 1
-                        early - late > 0.5 -> -1
+                        late - early > threshold -> 1
+                        early - late > threshold -> -1
                         else -> 0
                     }
                 }
                 else -> null
             }
+            // 血压分类
+            val bpClass = if (type == HealthType.BLOOD_PRESSURE && rec.secondaryValue != null) {
+                HealthType.classifyBloodPressure(rec.value, rec.secondaryValue)
+            } else null
+
             HealthTypeStat(
                 type = type,
                 latestValue = rec.value,
@@ -136,6 +195,7 @@ class HealthViewModel @Inject constructor(
                 avg7d = avg,
                 trend = trend,
                 isAbnormal = !type.isNormal(rec.value),
+                bpClassRes = bpClass,
             )
         }
     }
@@ -143,6 +203,10 @@ class HealthViewModel @Inject constructor(
     // ── 用户操作 ─────────────────────────────────────────────────────────────
 
     fun selectType(type: HealthType?) = _uiState.update { it.copy(selectedType = type) }
+
+    fun updateHeight(heightCm: Float) = safeLaunch {
+        prefsRepository.updateUserHeight(heightCm)
+    }
 
     fun startAdd() {
         _uiState.update {

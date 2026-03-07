@@ -564,6 +564,41 @@
     <string name="health_bp_systolic">收缩压</string>
     <string name="health_bp_diastolic">舒张压</string>
     <string name="health_normal_range">正常范围：%1$s–%2$s %3$s</string>
+
+    <!-- 血压分类 -->
+    <string name="health_bp_class_low">低血压</string>
+    <string name="health_bp_class_normal">正常</string>
+    <string name="health_bp_class_elevated">偏高</string>
+    <string name="health_bp_class_stage1">高血压1期</string>
+    <string name="health_bp_class_stage2">高血压2期</string>
+    <string name="health_bp_class_crisis">高血压危象</string>
+
+    <!-- BMI -->
+    <string name="health_bmi_title">BMI 体质指数</string>
+    <string name="health_bmi_value">BMI %1$.1f · %2$s</string>
+    <string name="health_bmi_underweight">偏瘦</string>
+    <string name="health_bmi_normal">正常</string>
+    <string name="health_bmi_overweight">超重</string>
+    <string name="health_bmi_obese">肥胖</string>
+    <string name="health_bmi_no_height">请先在设置中填写身高</string>
+
+    <!-- 解读 -->
+    <string name="health_interp_normal">近 7 日数据在正常范围内</string>
+    <string name="health_interp_high">最新值偏高，请注意观察</string>
+    <string name="health_interp_low">最新值偏低，请注意观察</string>
+    <string name="health_interp_trend_rising">近 7 日呈上升趋势</string>
+    <string name="health_interp_trend_falling">近 7 日呈下降趋势</string>
+    <string name="health_interp_trend_stable">近 7 日趋势平稳</string>
+
+    <!-- 图表 -->
+    <string name="health_chart_title">近 30 天趋势</string>
+    <string name="health_chart_no_data">数据不足，暂无趋势图</string>
+
+    <!-- 身高 -->
+    <string name="health_height_label">身高 (cm)</string>
+    <string name="health_height_dialog_title">设置身高</string>
+    <string name="health_height_dialog_hint">请输入身高（厘米）</string>
+
     <string name="detail_category_label">分类</string>
     <string name="detail_batch_label">批量</string>
     <string name="nav_drawer_title">用药日志</string>

@@ -584,6 +584,36 @@
     <string name="health_bp_systolic">Systolic</string>
     <string name="health_bp_diastolic">Diastolic</string>
     <string name="health_normal_range">Normal range: %1$s–%2$s %3$s</string>
+
+    <string name="health_bp_class_low">Low</string>
+    <string name="health_bp_class_normal">Normal</string>
+    <string name="health_bp_class_elevated">Elevated</string>
+    <string name="health_bp_class_stage1">Stage 1 Hypertension</string>
+    <string name="health_bp_class_stage2">Stage 2 Hypertension</string>
+    <string name="health_bp_class_crisis">Hypertensive Crisis</string>
+
+    <string name="health_bmi_title">BMI</string>
+    <string name="health_bmi_value">BMI %1$.1f · %2$s</string>
+    <string name="health_bmi_underweight">Underweight</string>
+    <string name="health_bmi_normal">Normal</string>
+    <string name="health_bmi_overweight">Overweight</string>
+    <string name="health_bmi_obese">Obese</string>
+    <string name="health_bmi_no_height">Please set your height in Settings</string>
+
+    <string name="health_interp_normal">7-day data within normal range</string>
+    <string name="health_interp_high">Latest value is above normal</string>
+    <string name="health_interp_low">Latest value is below normal</string>
+    <string name="health_interp_trend_rising">Rising trend over 7 days</string>
+    <string name="health_interp_trend_falling">Falling trend over 7 days</string>
+    <string name="health_interp_trend_stable">Stable over 7 days</string>
+
+    <string name="health_chart_title">30-Day Trend</string>
+    <string name="health_chart_no_data">Not enough data for trend chart</string>
+
+    <string name="health_height_label">Height (cm)</string>
+    <string name="health_height_dialog_title">Set Height</string>
+    <string name="health_height_dialog_hint">Enter your height in centimeters</string>
+
     <string name="detail_category_label">Category</string>
     <string name="detail_batch_label">Batch</string>
     <string name="nav_drawer_title">Med Log</string>

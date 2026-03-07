@@ -6,6 +6,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.emptyPreferences
+import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.medlog.data.local.settingsDataStore
@@ -78,6 +79,10 @@ data class SettingsPreferences(
     val followUpReminderEnabled: Boolean = false,
     val followUpDelayMinutes: Int = 15,
     val followUpMaxCount: Int = 1,
+
+    // ── 健康模块 ──────────────────────────────────────────────────────────────
+    /** 用户身高（cm），用于 BMI 计算；0 表示未设置 */
+    val userHeightCm: Float = 0f,
 )
 
 @Singleton
@@ -121,6 +126,8 @@ class UserPreferencesRepository @Inject constructor(
         val FOLLOW_UP_ENABLED       = booleanPreferencesKey("follow_up_reminder_enabled")
         val FOLLOW_UP_DELAY_MINUTES = intPreferencesKey("follow_up_delay_minutes")
         val FOLLOW_UP_MAX_COUNT     = intPreferencesKey("follow_up_max_count")
+        // 健康模块
+        val USER_HEIGHT_CM = floatPreferencesKey("user_height_cm")
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -155,6 +162,7 @@ class UserPreferencesRepository @Inject constructor(
                 followUpReminderEnabled = prefs[FOLLOW_UP_ENABLED] ?: false,
                 followUpDelayMinutes    = prefs[FOLLOW_UP_DELAY_MINUTES] ?: 15,
                 followUpMaxCount        = prefs[FOLLOW_UP_MAX_COUNT] ?: 1,
+                userHeightCm            = prefs[USER_HEIGHT_CM] ?: 0f,
             )
         }
 
@@ -243,4 +251,10 @@ class UserPreferencesRepository @Inject constructor(
             if (delayMinutes != null) prefs[FOLLOW_UP_DELAY_MINUTES] = delayMinutes
             if (maxCount != null)     prefs[FOLLOW_UP_MAX_COUNT]     = maxCount
         }
-    }}
+    }
+
+    /** 更新用户身高（cm），用于 BMI 计算 */
+    suspend fun updateUserHeight(heightCm: Float) {
+        dataStore.edit { it[USER_HEIGHT_CM] = heightCm }
+    }
+}

@@ -565,6 +565,36 @@
     <string name="health_bp_systolic">수축기</string>
     <string name="health_bp_diastolic">이완기</string>
     <string name="health_normal_range">정상 범위: %1$s–%2$s %3$s</string>
+
+    <string name="health_bp_class_low">저혈압</string>
+    <string name="health_bp_class_normal">정상</string>
+    <string name="health_bp_class_elevated">상승</string>
+    <string name="health_bp_class_stage1">고혈압 1기</string>
+    <string name="health_bp_class_stage2">고혈압 2기</string>
+    <string name="health_bp_class_crisis">고혈압 위기</string>
+
+    <string name="health_bmi_title">BMI 체질량지수</string>
+    <string name="health_bmi_value">BMI %1$.1f · %2$s</string>
+    <string name="health_bmi_underweight">저체중</string>
+    <string name="health_bmi_normal">정상</string>
+    <string name="health_bmi_overweight">과체중</string>
+    <string name="health_bmi_obese">비만</string>
+    <string name="health_bmi_no_height">설정에서 키를 입력해 주세요</string>
+
+    <string name="health_interp_normal">최근 7일 데이터가 정상 범위입니다</string>
+    <string name="health_interp_high">최근 값이 높습니다. 주의하세요</string>
+    <string name="health_interp_low">최근 값이 낮습니다. 주의하세요</string>
+    <string name="health_interp_trend_rising">최근 7일간 상승 추세</string>
+    <string name="health_interp_trend_falling">최근 7일간 하락 추세</string>
+    <string name="health_interp_trend_stable">최근 7일간 안정</string>
+
+    <string name="health_chart_title">30일 추이</string>
+    <string name="health_chart_no_data">데이터가 부족하여 추이를 표시할 수 없습니다</string>
+
+    <string name="health_height_label">키 (cm)</string>
+    <string name="health_height_dialog_title">키 설정</string>
+    <string name="health_height_dialog_hint">키를 센티미터로 입력하세요</string>
+
     <string name="detail_category_label">카테고리</string>
     <string name="detail_batch_label">배치</string>
     <string name="nav_drawer_title">복약 로그</string>

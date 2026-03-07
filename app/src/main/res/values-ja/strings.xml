@@ -565,6 +565,36 @@
     <string name="health_bp_systolic">最高血圧</string>
     <string name="health_bp_diastolic">最低血圧</string>
     <string name="health_normal_range">正常範囲：%1$s–%2$s %3$s</string>
+
+    <string name="health_bp_class_low">低血圧</string>
+    <string name="health_bp_class_normal">正常</string>
+    <string name="health_bp_class_elevated">やや高め</string>
+    <string name="health_bp_class_stage1">高血圧ステージ1</string>
+    <string name="health_bp_class_stage2">高血圧ステージ2</string>
+    <string name="health_bp_class_crisis">高血圧緊急症</string>
+
+    <string name="health_bmi_title">BMI 体格指数</string>
+    <string name="health_bmi_value">BMI %1$.1f · %2$s</string>
+    <string name="health_bmi_underweight">低体重</string>
+    <string name="health_bmi_normal">正常</string>
+    <string name="health_bmi_overweight">過体重</string>
+    <string name="health_bmi_obese">肥満</string>
+    <string name="health_bmi_no_height">設定で身長を入力してください</string>
+
+    <string name="health_interp_normal">直近7日間のデータは正常範囲内</string>
+    <string name="health_interp_high">最新値が高めです。注意してください</string>
+    <string name="health_interp_low">最新値が低めです。注意してください</string>
+    <string name="health_interp_trend_rising">直近7日間で上昇傾向</string>
+    <string name="health_interp_trend_falling">直近7日間で下降傾向</string>
+    <string name="health_interp_trend_stable">直近7日間で安定</string>
+
+    <string name="health_chart_title">30日間のトレンド</string>
+    <string name="health_chart_no_data">データ不足でトレンドを表示できません</string>
+
+    <string name="health_height_label">身長 (cm)</string>
+    <string name="health_height_dialog_title">身長設定</string>
+    <string name="health_height_dialog_hint">身長をセンチメートルで入力</string>
+
     <string name="detail_category_label">カテゴリ</string>
     <string name="detail_batch_label">バッチ</string>
     <string name="nav_drawer_title">服薬ログ</string>
