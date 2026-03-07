@@ -676,7 +676,9 @@
     <string name="ocr_scan_grant_permission">권한 부여</string>
     <string name="ocr_capture">촬영</string>
     <string name="ocr_result_hint">약명을 탭하여 선택</string>
-    <string name="ocr_retry">다시 촬영</string>    <plurals name="qr_import_success">
+    <string name="ocr_retry">다시 촬영</string>
+    <string name="ocr_processing">인식 중…</string>
+    <string name="ocr_no_results">텍스트가 감지되지 않았습니다. 다시 시도하세요</string>    <plurals name="qr_import_success">
         <item quantity="other">%d가지 약품을 가져왔습니다</item>
     </plurals>
     <plurals name="qr_export_med_count">

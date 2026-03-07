@@ -676,6 +676,8 @@
     <string name="ocr_capture">撮影</string>
     <string name="ocr_result_hint">薬名をタップして選択</string>
     <string name="ocr_retry">再撮影</string>
+    <string name="ocr_processing">認識中…</string>
+    <string name="ocr_no_results">テキストが検出されませんでした。再試行してください</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d種類の薬をインポートしました</item>
     </plurals>

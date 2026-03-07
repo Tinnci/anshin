@@ -682,6 +682,8 @@
     <string name="ocr_capture">拍照</string>
     <string name="ocr_result_hint">点击选择药品名称</string>
     <string name="ocr_retry">重新拍照</string>
+    <string name="ocr_processing">正在识别…</string>
+    <string name="ocr_no_results">未识别到文字，请重试</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>
     </plurals>

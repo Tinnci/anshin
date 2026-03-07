@@ -702,6 +702,8 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_capture">Capture</string>
     <string name="ocr_result_hint">Tap to select the medication name</string>
     <string name="ocr_retry">Retake Photo</string>
+    <string name="ocr_processing">Recognizing…</string>
+    <string name="ocr_no_results">No text detected, please try again</string>
     <plurals name="qr_import_success">
         <item quantity="one">Successfully imported %d medication</item>
         <item quantity="other">Successfully imported %d medications</item>
