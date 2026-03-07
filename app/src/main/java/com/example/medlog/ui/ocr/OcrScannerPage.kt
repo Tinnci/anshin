@@ -193,7 +193,7 @@ fun OcrScannerPage(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.spacedBy(16.dp),
                                     ) {
-                                        CircularWavyProgressIndicator(
+                                        LoadingIndicator(
                                             modifier = Modifier.size(56.dp),
                                         )
                                         Text(
@@ -330,7 +330,7 @@ private fun OcrCameraPreview(
                 label = "capture_icon",
             ) { processing ->
                 if (processing) {
-                    CircularWavyProgressIndicator(
+                    LoadingIndicator(
                         modifier = Modifier.size(36.dp),
                     )
                 } else {
@@ -406,30 +406,29 @@ private fun OcrResultList(
                         defaultElevation = 1.dp,
                     ),
                 ) {
-                    Row(
-                        modifier = Modifier.padding(16.dp),
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        // 序号标识
-                        Surface(
-                            shape = CircleShape,
-                            color = MaterialTheme.colorScheme.primaryContainer,
-                            modifier = Modifier.size(28.dp),
-                        ) {
-                            Box(contentAlignment = Alignment.Center) {
-                                Text(
-                                    text = "${index + 1}",
-                                    style = MaterialTheme.typography.labelSmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
+                    ListItem(
+                        headlineContent = {
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodyLarge,
+                            )
+                        },
+                        leadingContent = {
+                            Surface(
+                                shape = CircleShape,
+                                color = MaterialTheme.colorScheme.primaryContainer,
+                                modifier = Modifier.size(28.dp),
+                            ) {
+                                Box(contentAlignment = Alignment.Center) {
+                                    Text(
+                                        text = "${index + 1}",
+                                        style = MaterialTheme.typography.labelSmall,
+                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                    )
+                                }
                             }
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodyLarge,
-                        )
-                    }
+                        },
+                    )
                 }
             }
         }
@@ -577,7 +576,7 @@ fun HealthOcrScannerPage(
                                         horizontalAlignment = Alignment.CenterHorizontally,
                                         verticalArrangement = Arrangement.spacedBy(16.dp),
                                     ) {
-                                        CircularWavyProgressIndicator(
+                                        LoadingIndicator(
                                             modifier = Modifier.size(56.dp),
                                         )
                                         Text(
@@ -681,7 +680,7 @@ private fun HealthMetricResultList(
                         )
                     }
 
-                    ElevatedCard(
+                    ListItem(
                         onClick = { onSelect(metric) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -689,16 +688,11 @@ private fun HealthMetricResultList(
                                 alpha = animatedAlpha.value
                                 translationY = animatedOffset.value
                             },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.elevatedCardColors(
+                        shapes = ListItemDefaults.shapes(),
+                        colors = ListItemDefaults.colors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
                         ),
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(16.dp),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            // 体征类型图标
+                        leadingContent = {
                             Surface(
                                 shape = CircleShape,
                                 color = MaterialTheme.colorScheme.primary,
@@ -713,31 +707,32 @@ private fun HealthMetricResultList(
                                     )
                                 }
                             }
-                            Spacer(Modifier.width(14.dp))
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(metric.type.labelRes),
-                                    style = MaterialTheme.typography.titleSmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                )
+                        },
+                        supportingContent = {
+                            Column {
                                 Text(
                                     text = formatMetricValue(metric),
                                     style = MaterialTheme.typography.headlineSmall,
                                     fontWeight = FontWeight.Bold,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer,
                                 )
                                 Text(
                                     text = metric.rawText,
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
                             }
+                        },
+                        trailingContent = {
                             Icon(
                                 Icons.Rounded.ChevronRight,
                                 contentDescription = null,
-                                tint = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.5f),
                             )
-                        }
+                        },
+                    ) {
+                        Text(
+                            text = stringResource(metric.type.labelRes),
+                            style = MaterialTheme.typography.titleSmall,
+                        )
                     }
                 }
             }
