@@ -38,6 +38,7 @@ import androidx.compose.ui.res.stringResource
 import com.example.medlog.R
 import com.example.medlog.data.model.HealthRecord
 import com.example.medlog.data.model.HealthType
+import com.example.medlog.ui.ocr.HealthOcrScannerPage
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -61,6 +62,7 @@ fun HealthScreen(
     viewModel: HealthViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    var showOcrScanner by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -69,8 +71,22 @@ fun HealthScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::startAdd) {
-                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+            Column(
+                horizontalAlignment = Alignment.End,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                // OCR 识别体征
+                SmallFloatingActionButton(
+                    onClick = { showOcrScanner = true },
+                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+                ) {
+                    Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.ocr_health_fab_cd))
+                }
+                // 手动新增
+                FloatingActionButton(onClick = viewModel::startAdd) {
+                    Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                }
             }
         },
     ) { innerPadding ->
@@ -225,6 +241,25 @@ fun HealthScreen(
                 TextButton(onClick = viewModel::cancelDelete) { Text(stringResource(R.string.common_action_cancel)) }
             },
         )
+    }
+
+    // ── OCR 体征扫描器全屏覆盖层 ─────────────────────────────────────────────
+    if (showOcrScanner) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showOcrScanner = false },
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+            ),
+        ) {
+            HealthOcrScannerPage(
+                onMetricSelected = { metric ->
+                    showOcrScanner = false
+                    viewModel.applyOcrMetric(metric)
+                },
+                onBack = { showOcrScanner = false },
+            )
+        }
     }
 }
 

@@ -9,6 +9,7 @@ import com.example.medlog.data.model.HealthType
 import com.example.medlog.data.repository.HealthRepository
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.SEVEN_DAYS_MS
+import com.example.medlog.ui.ocr.ParsedHealthMetric
 import com.example.medlog.ui.util.formatDose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -215,6 +216,30 @@ class HealthViewModel @Inject constructor(
                 draft = HealthDraftState(
                     type = it.selectedType ?: HealthType.BLOOD_PRESSURE,
                     timestamp = System.currentTimeMillis(),
+                ),
+            )
+        }
+    }
+
+    /** 从 OCR 解析结果自动填充草稿并打开表单 */
+    fun applyOcrMetric(metric: ParsedHealthMetric) {
+        val valueStr = if (metric.value == metric.value.toLong().toDouble()) {
+            metric.value.toLong().toString()
+        } else {
+            metric.value.toString()
+        }
+        val secondaryStr = metric.secondaryValue?.let {
+            if (it == it.toLong().toDouble()) it.toLong().toString() else it.toString()
+        } ?: ""
+        _uiState.update {
+            it.copy(
+                showAddSheet = true,
+                draft = HealthDraftState(
+                    type = metric.type,
+                    value = valueStr,
+                    secondaryValue = secondaryStr,
+                    timestamp = System.currentTimeMillis(),
+                    notes = metric.rawText,
                 ),
             )
         }
