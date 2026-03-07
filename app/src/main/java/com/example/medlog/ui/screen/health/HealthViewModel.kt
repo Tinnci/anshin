@@ -223,10 +223,13 @@ class HealthViewModel @Inject constructor(
 
     /** 从 OCR 解析结果自动填充草稿并打开表单 */
     fun applyOcrMetric(metric: ParsedHealthMetric) {
-        val valueStr = if (metric.value == metric.value.toLong().toDouble()) {
-            metric.value.toLong().toString()
-        } else {
-            metric.value.toString()
+        // value == 0.0 表示用户选择了原始文本行（无数字可自动填充）
+        val valueStr = if (metric.value == 0.0) "" else {
+            if (metric.value == metric.value.toLong().toDouble()) {
+                metric.value.toLong().toString()
+            } else {
+                metric.value.toString()
+            }
         }
         val secondaryStr = metric.secondaryValue?.let {
             if (it == it.toLong().toDouble()) it.toLong().toString() else it.toString()

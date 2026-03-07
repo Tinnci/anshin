@@ -258,6 +258,7 @@ fun HealthScreen(
                     viewModel.applyOcrMetric(metric)
                 },
                 onBack = { showOcrScanner = false },
+                suggestedType = uiState.selectedType,
             )
         }
     }

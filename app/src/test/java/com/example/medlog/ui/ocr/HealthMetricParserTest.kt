@@ -202,4 +202,66 @@ class HealthMetricParserTest {
         val result = HealthMetricParser.parse(listOf("阿莫西林胶囊", "每日三次"))
         assertTrue(result.isEmpty())
     }
+
+    // ── mg/dL 血糖 ──────────────────────────────────────────────
+
+    @Test
+    fun `parse blood glucose in mg per dL`() {
+        val result = HealthMetricParser.parse(listOf("126 mg/dL"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_GLUCOSE, result[0].type)
+        assertEquals(7.0, result[0].value, 0.1)  // 126/18 = 7.0
+    }
+
+    // ── 华氏度体温 ──────────────────────────────────────────────
+
+    @Test
+    fun `parse temperature in Fahrenheit`() {
+        val result = HealthMetricParser.parse(listOf("98.6°F"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.TEMPERATURE, result[0].type)
+        assertEquals(37.0, result[0].value, 0.1)  // (98.6-32)*5/9 ≈ 37.0
+    }
+
+    // ── lbs 体重 ────────────────────────────────────────────────
+
+    @Test
+    fun `parse weight in lbs`() {
+        val result = HealthMetricParser.parse(listOf("154 lbs"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.WEIGHT, result[0].type)
+        assertEquals(69.8, result[0].value, 0.5)  // 154*0.453592 ≈ 69.8
+    }
+
+    // ── parseAll 三层结果 ──────────────────────────────────────
+
+    @Test
+    fun `parseAll returns structured metrics and candidates`() {
+        val result = HealthMetricParser.parseAll(listOf("120/80mmHg", "心率72", "5.6", "36"))
+        assertTrue(result.metrics.isNotEmpty())
+        // 5.6 和 36 应出现在候选数字中（未被结构化匹配完全覆盖）
+        assertTrue(result.candidates.isNotEmpty())
+        assertEquals(4, result.rawTexts.size)
+    }
+
+    // ── extractNumbers ─────────────────────────────────────────
+
+    @Test
+    fun `extractNumbers finds standalone numbers`() {
+        val numbers = HealthMetricParser.extractNumbers(listOf("135/88", "72", "5.6"))
+        assertTrue(numbers.any { it.value == 135.0 && it.pairedValue == 88.0 })
+        assertTrue(numbers.any { it.value == 72.0 && it.pairedValue == null })
+        assertTrue(numbers.any { it.value == 5.6 })
+    }
+
+    // ── isValuePlausible ────────────────────────────────────────
+
+    @Test
+    fun `isValuePlausible validates ranges`() {
+        assertTrue(HealthMetricParser.isValuePlausible(120.0, HealthType.BLOOD_PRESSURE))
+        assertFalse(HealthMetricParser.isValuePlausible(5.0, HealthType.BLOOD_PRESSURE))
+        assertTrue(HealthMetricParser.isValuePlausible(5.6, HealthType.BLOOD_GLUCOSE))
+        assertTrue(HealthMetricParser.isValuePlausible(36.5, HealthType.TEMPERATURE))
+        assertFalse(HealthMetricParser.isValuePlausible(200.0, HealthType.TEMPERATURE))
+    }
 }

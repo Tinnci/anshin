@@ -507,6 +507,7 @@ private fun OcrResultList(
 fun HealthOcrScannerPage(
     onMetricSelected: (ParsedHealthMetric) -> Unit,
     onBack: () -> Unit,
+    suggestedType: HealthType? = null,
 ) {
     val context = LocalContext.current
     val motionScheme = MaterialTheme.motionScheme
@@ -526,8 +527,7 @@ fun HealthOcrScannerPage(
     }
 
     // OCR + 解析状态
-    var recognizedTexts by remember { mutableStateOf<List<String>>(emptyList()) }
-    var parsedMetrics by remember { mutableStateOf<List<ParsedHealthMetric>>(emptyList()) }
+    var parseResult by remember { mutableStateOf(OcrParseResult(emptyList(), emptyList(), emptyList())) }
     var isProcessing by remember { mutableStateOf(false) }
     var showResults by remember { mutableStateOf(false) }
 
@@ -576,8 +576,7 @@ fun HealthOcrScannerPage(
                                 onCaptureRequested = { isProcessing = true },
                                 onCapture = { imageProxy ->
                                     processImage(imageProxy) { texts ->
-                                        recognizedTexts = texts
-                                        parsedMetrics = HealthMetricParser.parse(texts)
+                                        parseResult = HealthMetricParser.parseAll(texts)
                                         isProcessing = false
                                         if (texts.isNotEmpty()) {
                                             showResults = true
@@ -633,13 +632,12 @@ fun HealthOcrScannerPage(
                         }
                     } else {
                         HealthMetricResultList(
-                            metrics = parsedMetrics,
-                            rawTexts = recognizedTexts,
+                            result = parseResult,
+                            suggestedType = suggestedType,
                             onSelect = onMetricSelected,
                             onRetry = {
                                 showResults = false
-                                recognizedTexts = emptyList()
-                                parsedMetrics = emptyList()
+                                parseResult = OcrParseResult(emptyList(), emptyList(), emptyList())
                             },
                         )
                     }
@@ -664,17 +662,19 @@ fun HealthOcrScannerPage(
     }
 }
 
-// ── 体征识别结果列表 ─────────────────────────────────────────────────────────
+// ── 体征识别结果列表（三层：结构化匹配 → 候选数字 → 原始文本） ──────────────
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun HealthMetricResultList(
-    metrics: List<ParsedHealthMetric>,
-    rawTexts: List<String>,
+    result: OcrParseResult,
+    suggestedType: HealthType?,
     onSelect: (ParsedHealthMetric) -> Unit,
     onRetry: () -> Unit,
 ) {
     val motionScheme = MaterialTheme.motionScheme
+    val hasStructured = result.metrics.isNotEmpty()
+    val hasCandidates = result.candidates.isNotEmpty()
 
     Column(modifier = Modifier.fillMaxSize()) {
         // 标题区域
@@ -683,8 +683,11 @@ private fun HealthMetricResultList(
             tonalElevation = 1.dp,
         ) {
             Text(
-                text = if (metrics.isNotEmpty()) stringResource(R.string.ocr_health_detected)
-                else stringResource(R.string.ocr_health_no_metrics),
+                text = when {
+                    hasStructured -> stringResource(R.string.ocr_health_detected)
+                    hasCandidates -> stringResource(R.string.ocr_health_numbers_found)
+                    else -> stringResource(R.string.ocr_health_no_metrics)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             )
@@ -695,8 +698,8 @@ private fun HealthMetricResultList(
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
             verticalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            // 解析出的体征指标卡片
-            if (metrics.isNotEmpty()) {
+            // ── 第一层：结构化匹配的体征指标 ──
+            if (hasStructured) {
                 item {
                     Text(
                         text = stringResource(R.string.ocr_health_tap_to_record),
@@ -705,83 +708,85 @@ private fun HealthMetricResultList(
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
-                itemsIndexed(metrics) { index, metric ->
-                    val animatedAlpha = remember { Animatable(0f) }
-                    val animatedOffset = remember { Animatable(24f) }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(index * 80L)
-                        animatedAlpha.animateTo(
-                            1f,
-                            animationSpec = motionScheme.defaultEffectsSpec(),
-                        )
-                    }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(index * 80L)
-                        animatedOffset.animateTo(
-                            0f,
-                            animationSpec = motionScheme.defaultEffectsSpec(),
-                        )
-                    }
-
-                    ListItem(
-                        onClick = { onSelect(metric) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                alpha = animatedAlpha.value
-                                translationY = animatedOffset.value
+                itemsIndexed(result.metrics) { index, metric ->
+                    AnimatedListItem(index, motionScheme) {
+                        ListItem(
+                            onClick = { onSelect(metric) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shapes = ListItemDefaults.shapes(),
+                            colors = ListItemDefaults.colors(
+                                containerColor = MaterialTheme.colorScheme.primaryContainer.copy(
+                                    alpha = 0.6f,
+                                ),
+                            ),
+                            leadingContent = {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    modifier = Modifier.size(40.dp),
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Icon(
+                                            imageVector = healthMetricIcon(metric.type),
+                                            contentDescription = null,
+                                            tint = MaterialTheme.colorScheme.onPrimary,
+                                            modifier = Modifier.size(22.dp),
+                                        )
+                                    }
+                                }
                             },
-                        shapes = ListItemDefaults.shapes(),
-                        colors = ListItemDefaults.colors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.6f),
-                        ),
-                        leadingContent = {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primary,
-                                modifier = Modifier.size(40.dp),
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Icon(
-                                        imageVector = healthMetricIcon(metric.type),
-                                        contentDescription = null,
-                                        tint = MaterialTheme.colorScheme.onPrimary,
-                                        modifier = Modifier.size(22.dp),
+                            supportingContent = {
+                                Column {
+                                    Text(
+                                        text = formatMetricValue(metric),
+                                        style = MaterialTheme.typography.headlineSmall,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = metric.rawText,
+                                        style = MaterialTheme.typography.bodySmall,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                 }
-                            }
-                        },
-                        supportingContent = {
-                            Column {
-                                Text(
-                                    text = formatMetricValue(metric),
-                                    style = MaterialTheme.typography.headlineSmall,
-                                    fontWeight = FontWeight.Bold,
-                                )
-                                Text(
-                                    text = metric.rawText,
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
-                            }
-                        },
-                        trailingContent = {
-                            Icon(
-                                Icons.Rounded.ChevronRight,
-                                contentDescription = null,
+                            },
+                            trailingContent = {
+                                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+                            },
+                        ) {
+                            Text(
+                                text = stringResource(metric.type.labelRes),
+                                style = MaterialTheme.typography.titleSmall,
                             )
-                        },
-                    ) {
-                        Text(
-                            text = stringResource(metric.type.labelRes),
-                            style = MaterialTheme.typography.titleSmall,
+                        }
+                    }
+                }
+            }
+
+            // ── 第二层：候选数字（用户可分配类型后使用） ──
+            if (hasCandidates) {
+                item {
+                    Spacer(Modifier.height(if (hasStructured) 8.dp else 0.dp))
+                    Text(
+                        text = stringResource(R.string.ocr_health_candidate_numbers),
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 4.dp),
+                    )
+                }
+                itemsIndexed(result.candidates) { index, number ->
+                    val baseDelay = if (hasStructured) result.metrics.size else 0
+                    AnimatedListItem(baseDelay + index, motionScheme) {
+                        CandidateNumberCard(
+                            number = number,
+                            suggestedType = suggestedType,
+                            onSelect = onSelect,
                         )
                     }
                 }
             }
 
-            // 原始文字区域（可折叠参考）
-            if (rawTexts.isNotEmpty()) {
+            // ── 第三层：原始 OCR 文本行（均可点击复制） ──
+            if (result.rawTexts.isNotEmpty()) {
                 item {
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -791,8 +796,13 @@ private fun HealthMetricResultList(
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
-                itemsIndexed(rawTexts) { index, text ->
+                itemsIndexed(result.rawTexts) { _, text ->
                     Surface(
+                        onClick = {
+                            // 点击原始文本 → 将文本作为备注、以 suggestedType 创建草稿
+                            val type = suggestedType ?: HealthType.BLOOD_PRESSURE
+                            onSelect(ParsedHealthMetric(type, 0.0, rawText = text))
+                        },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
                         color = MaterialTheme.colorScheme.surfaceContainerLow,
@@ -822,6 +832,108 @@ private fun HealthMetricResultList(
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.ocr_retry))
         }
+    }
+}
+
+// ── 候选数字卡片：显示数字 + 类型选择（suggestedType 自动选中） ────────────
+
+@Composable
+private fun CandidateNumberCard(
+    number: ExtractedNumber,
+    suggestedType: HealthType?,
+    onSelect: (ParsedHealthMetric) -> Unit,
+) {
+    val displayValue = if (number.pairedValue != null) {
+        "${number.value.toInt()}/${number.pairedValue.toInt()}"
+    } else {
+        if (number.value == number.value.toLong().toDouble()) {
+            number.value.toLong().toString()
+        } else {
+            number.value.toString()
+        }
+    }
+
+    // 自动推断最可能的类型
+    val inferredType = suggestedType
+        ?: if (number.pairedValue != null) HealthType.BLOOD_PRESSURE
+        else HealthType.entries.firstOrNull { HealthMetricParser.isValuePlausible(number.value, it) }
+
+    ElevatedCard(
+        onClick = {
+            val type = inferredType ?: HealthType.BLOOD_PRESSURE
+            onSelect(
+                ParsedHealthMetric(
+                    type = type,
+                    value = number.value,
+                    secondaryValue = number.pairedValue,
+                    rawText = number.rawText,
+                ),
+            )
+        },
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Text(
+                text = displayValue,
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.weight(1f),
+            )
+            if (inferredType != null) {
+                AssistChip(
+                    onClick = { /* 类型标签仅做展示 */ },
+                    label = { Text(stringResource(inferredType.labelRes)) },
+                    leadingIcon = {
+                        Icon(
+                            healthMetricIcon(inferredType),
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+            }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+// ── 列表项入场动画容器 ──────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun AnimatedListItem(
+    index: Int,
+    motionScheme: MotionScheme,
+    content: @Composable () -> Unit,
+) {
+    val animatedAlpha = remember { Animatable(0f) }
+    val animatedOffset = remember { Animatable(24f) }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(index * 60L)
+        animatedAlpha.animateTo(1f, animationSpec = motionScheme.defaultEffectsSpec())
+    }
+    LaunchedEffect(Unit) {
+        kotlinx.coroutines.delay(index * 60L)
+        animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultEffectsSpec())
+    }
+    Box(
+        modifier = Modifier.graphicsLayer {
+            alpha = animatedAlpha.value
+            translationY = animatedOffset.value
+        },
+    ) {
+        content()
     }
 }
 

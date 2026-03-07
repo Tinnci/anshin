@@ -710,6 +710,8 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_health_scan_hint">Point the camera at the device screen, then tap capture</string>
     <string name="ocr_health_detected">Detected health metrics</string>
     <string name="ocr_health_no_metrics">No health metrics detected, please try again</string>
+    <string name="ocr_health_numbers_found">Numbers found, tap to select</string>
+    <string name="ocr_health_candidate_numbers">Other numbers</string>
     <string name="ocr_health_tap_to_record">Tap to record</string>
     <string name="ocr_health_raw_text">Raw text</string>
     <string name="ocr_health_fab_cd">Scan health metrics</string>

@@ -690,6 +690,8 @@
     <string name="ocr_health_scan_hint">将测量设备屏幕对准相机，点击拍照识别</string>
     <string name="ocr_health_detected">识别到以下体征数据</string>
     <string name="ocr_health_no_metrics">未识别到体征数据，请重试</string>
+    <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>
+    <string name="ocr_health_candidate_numbers">其他数字</string>
     <string name="ocr_health_tap_to_record">点击即可快速记录</string>
     <string name="ocr_health_raw_text">原始文字</string>
     <string name="ocr_health_fab_cd">拍照识别体征</string>

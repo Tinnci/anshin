@@ -684,6 +684,8 @@
     <string name="ocr_health_scan_hint">測定機器の画面にカメラを向けて撮影</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行してください</string>
+    <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>
+    <string name="ocr_health_candidate_numbers">その他の数値</string>
     <string name="ocr_health_tap_to_record">タップして記録</string>
     <string name="ocr_health_raw_text">元のテキスト</string>
     <string name="ocr_health_fab_cd">バイタルデータを撮影</string>
