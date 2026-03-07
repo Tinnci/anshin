@@ -561,6 +561,7 @@
     <string name="health_more_ops_cd">その他の操作</string>
     <string name="health_sheet_add_title">バイタルを記録</string>
     <string name="health_sheet_edit_title">記録を編集</string>
+    <string name="health_record_time">記録日時</string>
     <string name="health_type_selector_label">バイタルの種類</string>
     <string name="health_bp_systolic">最高血圧</string>
     <string name="health_bp_diastolic">最低血圧</string>

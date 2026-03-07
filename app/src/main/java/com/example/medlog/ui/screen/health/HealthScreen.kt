@@ -221,6 +221,7 @@ fun HealthScreen(
             onValueChange   = viewModel::onDraftValueChange,
             onSecondaryChange = viewModel::onDraftSecondaryChange,
             onNotesChange   = viewModel::onDraftNotesChange,
+            onTimeChange    = viewModel::onDraftTimeChange,
             onSave          = viewModel::saveRecord,
         )
     }
@@ -709,6 +710,7 @@ private fun AddEditHealthSheet(
     onValueChange: (String) -> Unit,
     onSecondaryChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
+    onTimeChange: (Long) -> Unit,
     onSave: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -730,6 +732,12 @@ private fun AddEditHealthSheet(
                 if (draft.editingId == null) stringResource(R.string.health_sheet_add_title) else stringResource(R.string.health_sheet_edit_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
+            )
+
+            // ── 记录时间选择器 ─────────────────────────────────────────
+            HealthTimePicker(
+                timestampMs = draft.timestamp,
+                onTimeChange = onTimeChange,
             )
 
             // ── 类型选择器 ─────────────────────────────────────────────
@@ -822,5 +830,104 @@ private fun AddEditHealthSheet(
                 ) { Text(stringResource(R.string.common_action_save)) }
             }
         }
+    }
+}
+
+// ─── 时间选择器组件 ──────────────────────────────────────────────────────────
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun HealthTimePicker(
+    timestampMs: Long,
+    onTimeChange: (Long) -> Unit,
+) {
+    val cal = remember(timestampMs) { Calendar.getInstance().apply { timeInMillis = timestampMs } }
+    val dateFmt = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
+    val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+
+    var showDatePicker by remember { mutableStateOf(false) }
+    var showTimePicker by remember { mutableStateOf(false) }
+
+    Text(
+        stringResource(R.string.health_record_time),
+        style = MaterialTheme.typography.labelMedium,
+        color = MaterialTheme.colorScheme.onSurfaceVariant,
+    )
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        AssistChip(
+            onClick = { showDatePicker = true },
+            label = { Text(dateFmt.format(Date(timestampMs))) },
+            leadingIcon = { Icon(Icons.Rounded.CalendarMonth, null, Modifier.size(18.dp)) },
+            modifier = Modifier.weight(1f),
+        )
+        AssistChip(
+            onClick = { showTimePicker = true },
+            label = { Text(timeFmt.format(Date(timestampMs))) },
+            leadingIcon = { Icon(Icons.Rounded.Schedule, null, Modifier.size(18.dp)) },
+            modifier = Modifier.weight(1f),
+        )
+    }
+
+    if (showDatePicker) {
+        val datePickerState = rememberDatePickerState(initialSelectedDateMillis = timestampMs)
+        DatePickerDialog(
+            onDismissRequest = { showDatePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    datePickerState.selectedDateMillis?.let { selectedMs ->
+                        val selected = Calendar.getInstance().apply { timeInMillis = selectedMs }
+                        val merged = Calendar.getInstance().apply {
+                            timeInMillis = timestampMs
+                            set(Calendar.YEAR, selected.get(Calendar.YEAR))
+                            set(Calendar.MONTH, selected.get(Calendar.MONTH))
+                            set(Calendar.DAY_OF_MONTH, selected.get(Calendar.DAY_OF_MONTH))
+                        }
+                        onTimeChange(merged.timeInMillis)
+                    }
+                    showDatePicker = false
+                }) { Text(stringResource(R.string.confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDatePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+        ) {
+            DatePicker(state = datePickerState, showModeToggle = false)
+        }
+    }
+
+    if (showTimePicker) {
+        val tpState = rememberTimePickerState(
+            initialHour = cal.get(Calendar.HOUR_OF_DAY),
+            initialMinute = cal.get(Calendar.MINUTE),
+            is24Hour = true,
+        )
+        AlertDialog(
+            onDismissRequest = { showTimePicker = false },
+            confirmButton = {
+                TextButton(onClick = {
+                    val merged = Calendar.getInstance().apply {
+                        timeInMillis = timestampMs
+                        set(Calendar.HOUR_OF_DAY, tpState.hour)
+                        set(Calendar.MINUTE, tpState.minute)
+                        set(Calendar.SECOND, 0)
+                        set(Calendar.MILLISECOND, 0)
+                    }
+                    onTimeChange(merged.timeInMillis)
+                    showTimePicker = false
+                }) { Text(stringResource(R.string.confirm)) }
+            },
+            dismissButton = {
+                TextButton(onClick = { showTimePicker = false }) {
+                    Text(stringResource(R.string.cancel))
+                }
+            },
+            text = { TimePicker(state = tpState) },
+            title = null,
+        )
     }
 }

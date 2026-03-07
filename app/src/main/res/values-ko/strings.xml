@@ -561,6 +561,7 @@
     <string name="health_more_ops_cd">더 많은 옵션</string>
     <string name="health_sheet_add_title">바이탈 기록</string>
     <string name="health_sheet_edit_title">기록 편집</string>
+    <string name="health_record_time">기록 시간</string>
     <string name="health_type_selector_label">바이탈 유형</string>
     <string name="health_bp_systolic">수축기</string>
     <string name="health_bp_diastolic">이완기</string>

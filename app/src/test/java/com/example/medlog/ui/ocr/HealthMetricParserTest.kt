@@ -166,8 +166,9 @@ class HealthMetricParserTest {
             "mmHg",
         )
         val result = HealthMetricParser.parse(texts)
-        // 至少应检出心率（Pulse 72），血压可能通过 joined text 检出
+        // 心率（Pulse 72）和血压通过 joined text 检出
         assertTrue(result.any { it.type == HealthType.HEART_RATE })
+        assertTrue(result.any { it.type == HealthType.BLOOD_PRESSURE })
     }
 
     @Test

@@ -560,6 +560,7 @@
     <string name="health_more_ops_cd">更多操作</string>
     <string name="health_sheet_add_title">记录体征</string>
     <string name="health_sheet_edit_title">编辑记录</string>
+    <string name="health_record_time">记录时间</string>
     <string name="health_type_selector_label">体征类型</string>
     <string name="health_bp_systolic">收缩压</string>
     <string name="health_bp_diastolic">舒张压</string>

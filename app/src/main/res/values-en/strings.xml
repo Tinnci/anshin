@@ -580,6 +580,7 @@
     <string name="health_more_ops_cd">More options</string>
     <string name="health_sheet_add_title">Record vital</string>
     <string name="health_sheet_edit_title">Edit record</string>
+    <string name="health_record_time">Record time</string>
     <string name="health_type_selector_label">Vital type</string>
     <string name="health_bp_systolic">Systolic</string>
     <string name="health_bp_diastolic">Diastolic</string>

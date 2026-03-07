@@ -38,7 +38,12 @@ interface HealthRecordDao {
     fun getRecordsByTypeInRange(type: String, from: Long, to: Long): Flow<List<HealthRecord>>
 
     /** 每种类型的最新一条记录（用于主页快速展示） */
-    @Query("SELECT * FROM health_records WHERE id IN (SELECT MAX(id) FROM health_records GROUP BY type) ORDER BY type")
+    @Query(
+        "SELECT h.* FROM health_records h " +
+            "INNER JOIN (SELECT type, MAX(timestamp) AS maxTs FROM health_records GROUP BY type) g " +
+            "ON h.type = g.type AND h.timestamp = g.maxTs " +
+            "GROUP BY h.type ORDER BY h.type",
+    )
     fun getLatestRecordPerType(): Flow<List<HealthRecord>>
 
     @Query("SELECT * FROM health_records WHERE id = :id")
