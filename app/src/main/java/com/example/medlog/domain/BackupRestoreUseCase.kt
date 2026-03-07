@@ -1,6 +1,7 @@
 package com.example.medlog.domain
 
 import android.content.Context
+import android.database.sqlite.SQLiteDatabase
 import android.net.Uri
 import com.example.medlog.data.local.MedLogDatabase
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -24,6 +25,7 @@ class BackupRestoreUseCase @Inject constructor(
     private val database: MedLogDatabase,
 ) {
     private val dbName = "medlog.db"
+    private val currentVersion = 12
 
     /**
      * 将当前数据库备份到指定 URI。
@@ -72,6 +74,14 @@ class BackupRestoreUseCase @Inject constructor(
                 throw IllegalArgumentException("Not a valid SQLite database file")
             }
 
+            // 校验数据库版本兼容性
+            val backupVersion = readDbVersion(tempFile.absolutePath)
+            if (backupVersion > currentVersion) {
+                throw IllegalArgumentException(
+                    "Backup version ($backupVersion) is newer than app version ($currentVersion)",
+                )
+            }
+
             // 2. 关闭当前数据库连接
             database.close()
 
@@ -85,6 +95,16 @@ class BackupRestoreUseCase @Inject constructor(
             shmFile.delete()
         } finally {
             tempFile.delete()
+        }
+    }
+
+    /** 读取 SQLite 数据库的 user_version（Room 用此字段标识 schema 版本）。 */
+    private fun readDbVersion(path: String): Int {
+        val db = SQLiteDatabase.openDatabase(path, null, SQLiteDatabase.OPEN_READONLY)
+        return try {
+            db.version
+        } finally {
+            db.close()
         }
     }
 }

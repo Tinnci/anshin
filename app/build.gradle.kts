@@ -87,6 +87,11 @@ kotlin {
     }
 }
 
+// Room schema 导出目录（用于 migration 自动化测试）
+ksp {
+    arg("room.schemaLocation", "$projectDir/schemas")
+}
+
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

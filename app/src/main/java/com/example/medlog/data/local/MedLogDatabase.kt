@@ -13,7 +13,7 @@ import com.example.medlog.data.model.SymptomLog
 @Database(
     entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
     version = 12,
-    exportSchema = false,
+    exportSchema = true,
 )
 @TypeConverters(Converters::class)
 abstract class MedLogDatabase : RoomDatabase() {

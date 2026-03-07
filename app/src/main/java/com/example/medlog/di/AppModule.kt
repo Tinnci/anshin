@@ -44,7 +44,7 @@ object DatabaseModule {
             MedLogDatabase::class.java,
             "medlog.db",
         )
-                    .addMigrations(
+            .addMigrations(
                 MedLogDatabase.MIGRATION_5_6,
                 MedLogDatabase.MIGRATION_6_7,
                 MedLogDatabase.MIGRATION_7_8,
@@ -53,7 +53,6 @@ object DatabaseModule {
                 MedLogDatabase.MIGRATION_10_11,
                 MedLogDatabase.MIGRATION_11_12,
             )
-            .fallbackToDestructiveMigration(dropAllTables = true)
             .build()
 
     @Provides
