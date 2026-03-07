@@ -30,6 +30,8 @@ data class AdherenceDay(
     val total: Int,
     val logs: List<Pair<MedicationLog, String>>,  // log + 药名
 ) {
+    /** 待服药条目数（仅 PENDING） */
+    val pending: Int get() = logs.count { (log, _) -> log.status == LogStatus.PENDING }
     /** 已决定状态的条目数（排除 PENDING）— 用于日历颜色计算 */
     val resolved: Int get() = logs.count { (log, _) -> log.status != LogStatus.PENDING }
     /** 将 partial 按 0.5 权重计入合规率；仅对已决定（resolved）条目计算，PENDING 不影响颜色 */
@@ -41,8 +43,8 @@ data class HistoryUiState(
     val calendarDays: Map<LocalDate, AdherenceDay> = emptyMap(),
     /** 当前展示月份 */
     val displayedMonth: YearMonth = YearMonth.now(),
-    /** 选中日期 */
-    val selectedDate: LocalDate? = null,
+    /** 选中日期（默认选中今天，立即展示当日计划） */
+    val selectedDate: LocalDate? = LocalDate.now(),
     /** 总体坚持率（近30天） */
     val overallAdherence: Float = 0f,
     /** 当前连续服药天数（从今天/昨天起，每天 ≥1 次 TAKEN 计入） */
@@ -110,7 +112,9 @@ class HistoryViewModel @Inject constructor(
             }
 
             // 3. 加载近90天的日志，与计划合并
-            logRepo.getLogsForDateRange(startMs, now)
+            //    endMs 延伸到今天 23:59:59，确保当日所有时间槽的日志都被覆盖
+            val endOfToday = now - now % 86_400_000L + 86_400_000L - 1L
+            logRepo.getLogsForDateRange(startMs, endOfToday)
                 .catch { e -> Log.e("HistoryVM", "Failed to load medication logs", e) }
                 .collect { logs ->
                     val logsByDay = logs.groupBy { log ->
@@ -120,8 +124,8 @@ class HistoryViewModel @Inject constructor(
                     }
                     val today = LocalDate.now()
 
-                    // 合并计划条目与实际日志
-                    val allDates = (plannedByDay.keys + logsByDay.keys)
+                    // 合并计划条目与实际日志；始终包含今天（保证当日计划可见）
+                    val allDates = (plannedByDay.keys + logsByDay.keys + setOf(today))
                         .filter { it <= today }
                     val calendarDays = allDates.associateWith { date ->
                         val dayLogs = logsByDay[date] ?: emptyList()

@@ -311,10 +311,13 @@ private fun DayCell(
     modifier: Modifier = Modifier,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val hasPending = adherenceDay != null && adherenceDay.pending > 0
     val bgColor by animateColorAsState(
         targetValue = when {
             isSelected   -> colorScheme.primary
             isFuture || adherenceDay == null -> Color.Transparent
+            // 有待服药条目（PENDING）：显示轮廓色提示用户当日有计划
+            adherenceDay.resolved == 0 && hasPending -> colorScheme.outlineVariant.copy(alpha = 0.25f)
             adherenceDay.resolved == 0       -> Color.Transparent
             adherenceDay.rate >= 1f          -> colorScheme.tertiary.copy(alpha = 0.8f)
             adherenceDay.rate >= 0.5f        -> calendarWarning.copy(alpha = 0.7f)
@@ -329,6 +332,7 @@ private fun DayCell(
             isFuture                            -> colorScheme.onSurface.copy(alpha = 0.35f)
             adherenceDay != null && adherenceDay.resolved > 0 -> Color.White
             isToday                             -> colorScheme.primary
+            hasPending                          -> colorScheme.outline
             else                                -> colorScheme.onSurface
         },
         label = "dayCellText",

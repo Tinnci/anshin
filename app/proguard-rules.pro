@@ -55,6 +55,14 @@
     volatile <fields>;
 }
 
+# ── ML Kit (Text Recognition / Barcode) ──────────────────────────────────────
+# ML Kit AAR 附带 consumer-rules，但 R8 aggressive 优化仍会裁剪内部反射类，
+# 导致 NullPointerException: getClass() on null (obfuscated init)。
+# 保留所有 ML Kit 公共 API + 内部依赖的 GMS Vision 模块。
+-keep class com.google.mlkit.** { *; }
+-keep class com.google.android.gms.internal.mlkit_vision_** { *; }
+-dontwarn com.google.mlkit.**
+
 # ── Suppress warnings for optional dependencies ───────────────────────────────
 -dontwarn org.slf4j.**
 -dontwarn java.lang.instrument.**

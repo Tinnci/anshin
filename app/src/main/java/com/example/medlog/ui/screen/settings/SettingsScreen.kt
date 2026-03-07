@@ -142,11 +142,12 @@ fun SettingsScreen(
     }
 
     // 收集一次性事件
+    val resources = LocalContext.current.resources
     LaunchedEffect(Unit) {
         viewModel.backupEvent.collect { event ->
             when (event) {
                 is SettingsViewModel.BackupEvent.Success -> {
-                    snackbarHostState.showSnackbar(context.getString(event.messageResId))
+                    snackbarHostState.showSnackbar(resources.getString(event.messageResId))
                 }
                 is SettingsViewModel.BackupEvent.Error -> {
                     snackbarHostState.showSnackbar(event.message)

@@ -867,8 +867,14 @@ private fun processImage(
     }
 
     val inputImage = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-    // 根据设备语言选择最佳文字识别器
-    val recognizer = createLocalizedTextRecognizer()
+    val recognizer = try {
+        createLocalizedTextRecognizer()
+    } catch (e: Exception) {
+        Log.e(TAG, "Failed to create text recognizer", e)
+        imageProxy.close()
+        mainHandler.post { onResult(emptyList()) }
+        return
+    }
 
     recognizer.process(inputImage)
         .addOnSuccessListener { visionText ->
