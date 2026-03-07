@@ -92,10 +92,14 @@ class HistoryViewModel @Inject constructor(
                 }
 
             // 2. 用 FuturePlanCalculator 计算近90天的所有计划条目
+            //    归档药品仅在设有 endDate 时参与计算（无 archivedAt 字段无法推断归档时间）
             val now = System.currentTimeMillis()
             val startMs = now - NINETY_DAYS_MS
+            val medsForPlanning = allMedications.filter { med ->
+                !med.isArchived || med.endDate != null
+            }
             val plannedItems = futurePlanCalculator.calculate(
-                medications = allMedications,
+                medications = medsForPlanning,
                 days = 91, // 含今天
                 fromMs = startMs,
                 includeArchived = true,
