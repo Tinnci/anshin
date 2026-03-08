@@ -27,6 +27,9 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -340,31 +343,23 @@ fun SettingsScreen(
                         ThemeMode.LIGHT  to stringResource(R.string.settings_theme_light),
                         ThemeMode.DARK   to stringResource(R.string.settings_theme_dark),
                     )
-                    val leadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    val middleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
-                    val trailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
-                    ButtonGroup(
-                        overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                     ) {
                         themeModes.forEachIndexed { index, (mode, label) ->
-                            val shapes = when (index) {
-                                0 -> leadingShapes
-                                themeModes.lastIndex -> trailingShapes
-                                else -> middleShapes
-                            }
-                            toggleableItem(
-                                uiState.themeMode == mode,
-                                label,
-                                { if (it) viewModel.setThemeMode(mode) },
-                                {
-                                    ToggleButton(
-                                        checked = uiState.themeMode == mode,
-                                        onCheckedChange = { if (it) viewModel.setThemeMode(mode) },
-                                        shapes = shapes,
-                                    ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                            ToggleButton(
+                                checked = uiState.themeMode == mode,
+                                onCheckedChange = { viewModel.setThemeMode(mode) },
+                                modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                                shapes = when (index) {
+                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                    themeModes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                 },
-                            )
+                            ) {
+                                Text(label, style = MaterialTheme.typography.labelMedium)
+                            }
                         }
                     }
                 }

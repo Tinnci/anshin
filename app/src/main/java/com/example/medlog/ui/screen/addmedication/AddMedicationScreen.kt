@@ -26,6 +26,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -371,31 +374,23 @@ fun AddMedicationScreen(
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                         Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         val freqOptions = listOf("daily" to stringResource(R.string.add_freq_daily), "interval" to stringResource(R.string.add_freq_interval), "specific_days" to stringResource(R.string.add_freq_specific))
-                        val freqLeadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        val freqMiddleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
-                        val freqTrailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        ButtonGroup(
-                            overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                        Row(
                             modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                         ) {
                             freqOptions.forEachIndexed { index, (key, label) ->
-                                val shapes = when (index) {
-                                    0 -> freqLeadingShapes
-                                    freqOptions.lastIndex -> freqTrailingShapes
-                                    else -> freqMiddleShapes
-                                }
-                                toggleableItem(
-                                    uiState.frequencyType == key,
-                                    label,
-                                    { if (it) viewModel.onFrequencyTypeChange(key) },
-                                    {
-                                        ToggleButton(
-                                            checked = uiState.frequencyType == key,
-                                            onCheckedChange = { if (it) viewModel.onFrequencyTypeChange(key) },
-                                            shapes = shapes,
-                                        ) { Text(label) }
+                                ToggleButton(
+                                    checked = uiState.frequencyType == key,
+                                    onCheckedChange = { viewModel.onFrequencyTypeChange(key) },
+                                    modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                                    shapes = when (index) {
+                                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                        freqOptions.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                                     },
-                                )
+                                ) {
+                                    Text(label)
+                                }
                             }
                         }
                         AnimatedVisibility(uiState.frequencyType == "interval") {
@@ -461,46 +456,32 @@ fun AddMedicationScreen(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut(),
                 ) {
-                    val timeModeLeadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
-                    val timeModeTrailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
                     val periodLabel = stringResource(R.string.add_time_period_mode)
                     val exactLabel = stringResource(R.string.add_exact_time_mode)
-                    ButtonGroup(
-                        overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                     ) {
-                        toggleableItem(
-                            !isExactMode,
-                            periodLabel,
-                            { if (it) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
-                            {
-                                ToggleButton(
-                                    checked = !isExactMode,
-                                    onCheckedChange = { if (it) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
-                                    shapes = timeModeLeadingShapes,
-                                ) {
-                                    Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text(periodLabel)
-                                }
-                            },
-                        )
-                        toggleableItem(
-                            isExactMode,
-                            exactLabel,
-                            { if (it) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
-                            {
-                                ToggleButton(
-                                    checked = isExactMode,
-                                    onCheckedChange = { if (it) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
-                                    shapes = timeModeTrailingShapes,
-                                ) {
-                                    Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
-                                    Spacer(Modifier.width(4.dp))
-                                    Text(exactLabel)
-                                }
-                            },
-                        )
+                        ToggleButton(
+                            checked = !isExactMode,
+                            onCheckedChange = { viewModel.onTimePeriodChange(TimePeriod.MORNING) },
+                            modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                            shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
+                        ) {
+                            Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
+                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                            Text(periodLabel)
+                        }
+                        ToggleButton(
+                            checked = isExactMode,
+                            onCheckedChange = { viewModel.onTimePeriodChange(TimePeriod.EXACT) },
+                            modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                            shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
+                        ) {
+                            Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
+                            Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
+                            Text(exactLabel)
+                        }
                     }
                 }
                 // 作息时间模式：时段选择芯片 + 自动提醒时间提示

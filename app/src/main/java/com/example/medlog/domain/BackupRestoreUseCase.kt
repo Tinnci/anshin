@@ -35,7 +35,9 @@ class BackupRestoreUseCase @Inject constructor(
      */
     suspend fun backup(uri: Uri) = withContext(Dispatchers.IO) {
         // 强制 WAL checkpoint，将所有日志合并到主数据库文件
-        database.openHelper.writableDatabase.execSQL("PRAGMA wal_checkpoint(FULL)")
+        // 某些 Android 版本（14+）不允许 execSQL 执行返回结果的 PRAGMA，需用 rawQuery
+        val db = database.openHelper.writableDatabase
+        db.query("PRAGMA wal_checkpoint(FULL)").close()
 
         val dbFile = context.getDatabasePath(dbName)
         if (!dbFile.exists()) throw IOException("Database file not found")

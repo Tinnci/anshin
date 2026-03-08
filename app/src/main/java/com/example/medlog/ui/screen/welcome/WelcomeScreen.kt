@@ -36,6 +36,9 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -833,31 +836,23 @@ private fun WelcomePage4(
                     ThemeMode.LIGHT  to stringResource(R.string.welcome_p4_theme_light),
                     ThemeMode.DARK   to stringResource(R.string.welcome_p4_theme_dark),
                 )
-                val leadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
-                val middleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
-                val trailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
-                ButtonGroup(
-                    overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                Row(
                     modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
                 ) {
                     themeModes.forEachIndexed { index, (mode, label) ->
-                        val shapes = when (index) {
-                            0 -> leadingShapes
-                            themeModes.lastIndex -> trailingShapes
-                            else -> middleShapes
-                        }
-                        toggleableItem(
-                            uiState.themeMode == mode,
-                            label,
-                            { if (it) onThemeModeChange(mode) },
-                            {
-                                ToggleButton(
-                                    checked = uiState.themeMode == mode,
-                                    onCheckedChange = { if (it) onThemeModeChange(mode) },
-                                    shapes = shapes,
-                                ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                        ToggleButton(
+                            checked = uiState.themeMode == mode,
+                            onCheckedChange = { onThemeModeChange(mode) },
+                            modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                            shapes = when (index) {
+                                0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                themeModes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
                             },
-                        )
+                        ) {
+                            Text(label, style = MaterialTheme.typography.labelMedium)
+                        }
                     }
                 }
             }

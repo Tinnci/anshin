@@ -529,8 +529,7 @@ private fun StockCard(
                     color = colorScheme.onSurfaceVariant,
                     modifier = Modifier.weight(1f),
                 )
-                @Suppress("DEPRECATION")
-                ButtonGroup {
+                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     OutlinedIconButton(
                         onClick = { onAdjustStock(-doseQuantity) },
                         modifier = Modifier.size(36.dp),
