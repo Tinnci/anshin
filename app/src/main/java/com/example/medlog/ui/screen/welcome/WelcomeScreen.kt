@@ -714,6 +714,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
 
 // ── 第4页：功能选择 ────────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun WelcomePage4(
     uiState: WelcomeUiState,
@@ -827,17 +828,36 @@ private fun WelcomePage4(
                     Icon(Icons.Rounded.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     Text(stringResource(R.string.welcome_p4_theme_label), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                 }
-                SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                    listOf(
-                        ThemeMode.SYSTEM to stringResource(R.string.welcome_p4_theme_system),
-                        ThemeMode.LIGHT  to stringResource(R.string.welcome_p4_theme_light),
-                        ThemeMode.DARK   to stringResource(R.string.welcome_p4_theme_dark),
-                    ).forEachIndexed { index, (mode, label) ->
-                        SegmentedButton(
-                            selected = uiState.themeMode == mode,
-                            onClick = { onThemeModeChange(mode) },
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = 3),
-                        ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                val themeModes = listOf(
+                    ThemeMode.SYSTEM to stringResource(R.string.welcome_p4_theme_system),
+                    ThemeMode.LIGHT  to stringResource(R.string.welcome_p4_theme_light),
+                    ThemeMode.DARK   to stringResource(R.string.welcome_p4_theme_dark),
+                )
+                val leadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                val middleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                val trailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                ButtonGroup(
+                    overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                    modifier = Modifier.fillMaxWidth(),
+                ) {
+                    themeModes.forEachIndexed { index, (mode, label) ->
+                        val shapes = when (index) {
+                            0 -> leadingShapes
+                            themeModes.lastIndex -> trailingShapes
+                            else -> middleShapes
+                        }
+                        toggleableItem(
+                            uiState.themeMode == mode,
+                            label,
+                            { if (it) onThemeModeChange(mode) },
+                            {
+                                ToggleButton(
+                                    checked = uiState.themeMode == mode,
+                                    onCheckedChange = { if (it) onThemeModeChange(mode) },
+                                    shapes = shapes,
+                                ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                            },
+                        )
                     }
                 }
             }

@@ -62,7 +62,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SettingsScreen(
     onNavigateToWelcome: () -> Unit = {},
@@ -340,17 +340,31 @@ fun SettingsScreen(
                         ThemeMode.LIGHT  to stringResource(R.string.settings_theme_light),
                         ThemeMode.DARK   to stringResource(R.string.settings_theme_dark),
                     )
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                    val leadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    val middleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    val trailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    ButtonGroup(
+                        overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
                         themeModes.forEachIndexed { index, (mode, label) ->
-                            SegmentedButton(
-                                selected = uiState.themeMode == mode,
-                                onClick  = { viewModel.setThemeMode(mode) },
-                                shape    = SegmentedButtonDefaults.itemShape(
-                                    index = index, count = themeModes.size,
-                                ),
-                            ) {
-                                Text(label, style = MaterialTheme.typography.labelMedium)
+                            val shapes = when (index) {
+                                0 -> leadingShapes
+                                themeModes.lastIndex -> trailingShapes
+                                else -> middleShapes
                             }
+                            toggleableItem(
+                                uiState.themeMode == mode,
+                                label,
+                                { if (it) viewModel.setThemeMode(mode) },
+                                {
+                                    ToggleButton(
+                                        checked = uiState.themeMode == mode,
+                                        onCheckedChange = { if (it) viewModel.setThemeMode(mode) },
+                                        shapes = shapes,
+                                    ) { Text(label, style = MaterialTheme.typography.labelMedium) }
+                                },
+                            )
                         }
                     }
                 }

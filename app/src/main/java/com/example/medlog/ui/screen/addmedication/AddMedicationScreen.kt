@@ -45,7 +45,7 @@ private data class FormOption(val key: String, val label: String, val icon: Imag
 
 // FORM_OPTIONS and DOSE_UNITS moved inside AddMedicationScreen composable
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun AddMedicationScreen(
     medicationId: Long?,
@@ -372,13 +372,31 @@ fun AddMedicationScreen(
                         HorizontalDivider(Modifier.padding(vertical = 4.dp))
                         Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         val freqOptions = listOf("daily" to stringResource(R.string.add_freq_daily), "interval" to stringResource(R.string.add_freq_interval), "specific_days" to stringResource(R.string.add_freq_specific))
-                        SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+                        val freqLeadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        val freqMiddleShapes = ButtonGroupDefaults.connectedMiddleButtonShapes()
+                        val freqTrailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        ButtonGroup(
+                            overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                            modifier = Modifier.fillMaxWidth(),
+                        ) {
                             freqOptions.forEachIndexed { index, (key, label) ->
-                                SegmentedButton(
-                                    selected = uiState.frequencyType == key,
-                                    onClick = { viewModel.onFrequencyTypeChange(key) },
-                                    shape = SegmentedButtonDefaults.itemShape(index = index, count = freqOptions.size),
-                                ) { Text(label) }
+                                val shapes = when (index) {
+                                    0 -> freqLeadingShapes
+                                    freqOptions.lastIndex -> freqTrailingShapes
+                                    else -> freqMiddleShapes
+                                }
+                                toggleableItem(
+                                    uiState.frequencyType == key,
+                                    label,
+                                    { if (it) viewModel.onFrequencyTypeChange(key) },
+                                    {
+                                        ToggleButton(
+                                            checked = uiState.frequencyType == key,
+                                            onCheckedChange = { if (it) viewModel.onFrequencyTypeChange(key) },
+                                            shapes = shapes,
+                                        ) { Text(label) }
+                                    },
+                                )
                             }
                         }
                         AnimatedVisibility(uiState.frequencyType == "interval") {
@@ -444,27 +462,46 @@ fun AddMedicationScreen(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut(),
                 ) {
-                    SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
-                        SegmentedButton(
-                            selected = !isExactMode,
-                            onClick = { if (isExactMode) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
-                            shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-                            icon = {
-                                SegmentedButtonDefaults.Icon(active = !isExactMode) {
+                    val timeModeLeadingShapes = ButtonGroupDefaults.connectedLeadingButtonShapes()
+                    val timeModeTrailingShapes = ButtonGroupDefaults.connectedTrailingButtonShapes()
+                    val periodLabel = stringResource(R.string.add_time_period_mode)
+                    val exactLabel = stringResource(R.string.add_exact_time_mode)
+                    ButtonGroup(
+                        overflowIndicator = { ButtonGroupDefaults.OverflowIndicator(it) },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) {
+                        toggleableItem(
+                            !isExactMode,
+                            periodLabel,
+                            { if (it) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
+                            {
+                                ToggleButton(
+                                    checked = !isExactMode,
+                                    onCheckedChange = { if (it) viewModel.onTimePeriodChange(TimePeriod.MORNING) },
+                                    shapes = timeModeLeadingShapes,
+                                ) {
                                     Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(periodLabel)
                                 }
                             },
-                        ) { Text(stringResource(R.string.add_time_period_mode)) }
-                        SegmentedButton(
-                            selected = isExactMode,
-                            onClick = { if (!isExactMode) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
-                            shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-                            icon = {
-                                SegmentedButtonDefaults.Icon(active = isExactMode) {
+                        )
+                        toggleableItem(
+                            isExactMode,
+                            exactLabel,
+                            { if (it) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
+                            {
+                                ToggleButton(
+                                    checked = isExactMode,
+                                    onCheckedChange = { if (it) viewModel.onTimePeriodChange(TimePeriod.EXACT) },
+                                    shapes = timeModeTrailingShapes,
+                                ) {
                                     Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
+                                    Spacer(Modifier.width(4.dp))
+                                    Text(exactLabel)
                                 }
                             },
-                        ) { Text(stringResource(R.string.add_exact_time_mode)) }
+                        )
                     }
                 }
                 // 作息时间模式：时段选择芯片 + 自动提醒时间提示
