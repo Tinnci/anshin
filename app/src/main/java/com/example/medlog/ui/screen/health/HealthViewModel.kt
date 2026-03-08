@@ -234,14 +234,13 @@ class HealthViewModel @Inject constructor(
         val secondaryStr = metric.secondaryValue?.let {
             if (it == it.toLong().toDouble()) it.toLong().toString() else it.toString()
         } ?: ""
-        _uiState.update {
-            it.copy(
+        _uiState.update { s ->
+            s.copy(
                 showAddSheet = true,
-                draft = HealthDraftState(
+                draft = s.draft.copy(
                     type = metric.type,
                     value = valueStr,
                     secondaryValue = secondaryStr,
-                    timestamp = System.currentTimeMillis(),
                     notes = metric.rawText,
                 ),
             )

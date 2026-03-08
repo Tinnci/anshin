@@ -676,6 +676,7 @@
 
     <!-- OCR バイタルサイン認識 -->
     <string name="ocr_health_scan_title">バイタルデータをスキャン</string>
+    <string name="ocr_health_scan_chip">撮影して入力</string>
     <string name="ocr_health_scan_hint">測定機器の画面にカメラを向けて撮影</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行してください</string>
@@ -683,7 +684,6 @@
     <string name="ocr_health_candidate_numbers">その他の数値</string>
     <string name="ocr_health_tap_to_record">タップして記録</string>
     <string name="ocr_health_raw_text">元のテキスト</string>
-    <string name="ocr_health_fab_cd">バイタルデータを撮影</string>
     <string name="ocr_flash_toggle">フラッシュ切替</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d種類の薬をインポートしました</item>

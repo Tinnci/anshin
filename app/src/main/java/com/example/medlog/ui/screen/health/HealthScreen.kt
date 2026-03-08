@@ -71,22 +71,8 @@ fun HealthScreen(
             )
         },
         floatingActionButton = {
-            Column(
-                horizontalAlignment = Alignment.End,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                // OCR 识别体征
-                SmallFloatingActionButton(
-                    onClick = { showOcrScanner = true },
-                    containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                ) {
-                    Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.ocr_health_fab_cd))
-                }
-                // 手动新增
-                FloatingActionButton(onClick = viewModel::startAdd) {
-                    Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
-                }
+            FloatingActionButton(onClick = viewModel::startAdd) {
+                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
             }
         },
     ) { innerPadding ->
@@ -222,6 +208,7 @@ fun HealthScreen(
             onSecondaryChange = viewModel::onDraftSecondaryChange,
             onNotesChange   = viewModel::onDraftNotesChange,
             onTimeChange    = viewModel::onDraftTimeChange,
+            onOcrScan       = { showOcrScanner = true },
             onSave          = viewModel::saveRecord,
         )
     }
@@ -259,7 +246,7 @@ fun HealthScreen(
                     viewModel.applyOcrMetric(metric)
                 },
                 onBack = { showOcrScanner = false },
-                suggestedType = uiState.selectedType,
+                suggestedType = uiState.draft.type,
             )
         }
     }
@@ -711,6 +698,7 @@ private fun AddEditHealthSheet(
     onSecondaryChange: (String) -> Unit,
     onNotesChange: (String) -> Unit,
     onTimeChange: (Long) -> Unit,
+    onOcrScan: () -> Unit,
     onSave: () -> Unit,
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -801,6 +789,13 @@ private fun AddEditHealthSheet(
                     },
                 )
             }
+
+            // ── OCR 拍照填充 ──────────────────────────────────────────
+            AssistChip(
+                onClick = onOcrScan,
+                label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
+                leadingIcon = { Icon(Icons.Rounded.CameraAlt, null, Modifier.size(18.dp)) },
+            )
 
             // ── 备注 ──────────────────────────────────────────────────
             OutlinedTextField(

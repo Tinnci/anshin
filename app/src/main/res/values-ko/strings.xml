@@ -677,6 +677,7 @@
 
     <!-- OCR 건강 지표 인식 -->
     <string name="ocr_health_scan_title">건강 데이터 스캔</string>
+    <string name="ocr_health_scan_chip">촬영하여 입력</string>
     <string name="ocr_health_scan_hint">측정 기기 화면에 카메라를 맞추고 촬영하세요</string>
     <string name="ocr_health_detected">다음 건강 데이터가 감지되었습니다</string>
     <string name="ocr_health_no_metrics">건강 데이터가 감지되지 않았습니다. 다시 시도하세요</string>
@@ -684,7 +685,6 @@
     <string name="ocr_health_candidate_numbers">기타 숫자</string>
     <string name="ocr_health_tap_to_record">탭하여 기록</string>
     <string name="ocr_health_raw_text">원본 텍스트</string>
-    <string name="ocr_health_fab_cd">건강 데이터 촬영</string>
     <string name="ocr_flash_toggle">플래시 전환</string>    <plurals name="qr_import_success">
         <item quantity="other">%d가지 약품을 가져왔습니다</item>
     </plurals>

@@ -702,6 +702,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
 
     <!-- OCR Health Metric Recognition -->
     <string name="ocr_health_scan_title">Scan Health Metrics</string>
+    <string name="ocr_health_scan_chip">Scan to fill</string>
     <string name="ocr_health_scan_hint">Point the camera at the device screen, then tap capture</string>
     <string name="ocr_health_detected">Detected health metrics</string>
     <string name="ocr_health_no_metrics">No health metrics detected, please try again</string>
@@ -709,7 +710,6 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_health_candidate_numbers">Other numbers</string>
     <string name="ocr_health_tap_to_record">Tap to record</string>
     <string name="ocr_health_raw_text">Raw text</string>
-    <string name="ocr_health_fab_cd">Scan health metrics</string>
     <string name="ocr_flash_toggle">Toggle flash</string>
     <plurals name="qr_import_success">
         <item quantity="one">Successfully imported %d medication</item>
