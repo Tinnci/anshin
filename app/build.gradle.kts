@@ -148,6 +148,9 @@ dependencies {
     implementation(libs.mlkit.text.recognition.ja)
     implementation(libs.mlkit.text.recognition.ko)
 
+    // ONNX Runtime (七段数码管自定义 OCR 模型)
+    implementation(libs.onnxruntime.android)
+
     // Baseline Profile installer（让 ART 在首次安装时即时应用 baseline-prof.txt 中的预编译规则）
     implementation(libs.androidx.profileinstaller)
 

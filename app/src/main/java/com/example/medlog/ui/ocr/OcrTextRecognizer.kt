@@ -24,16 +24,18 @@ private val mainHandler = Handler(Looper.getMainLooper())
  * 使用 ML Kit 从 [ImageProxy] 中识别文字。
  *
  * 采用多路识别策略应对七段数码管 (7-segment display) 等难以识别的场景：
- * 1. 原始图像直接识别
- * 2. 高对比灰度增强版本
- * 3. 二值化 + 膨胀版本（填充段间间隙）
- * 4. 反色版本（暗底亮字 LCD）
+ * 1. 原始图像直接识别 (ML Kit)
+ * 2. 高对比灰度增强版本 (ML Kit)
+ * 3. 二值化 + 膨胀版本（填充段间间隙）(ML Kit)
+ * 4. 反色版本（暗底亮字 LCD）(ML Kit)
+ * 5. 七段管专用 CRNN 模型 (ONNX Runtime)
  *
  * 所有变体的识别结果合并去重后回调到主线程。
  */
 @SuppressLint("UnsafeOptInUsageError")
 internal fun processImage(
     imageProxy: ImageProxy,
+    sevenSegRecognizer: SevenSegmentRecognizer?,
     onResult: (List<String>) -> Unit,
 ) {
     val mediaImage = imageProxy.image
@@ -48,6 +50,13 @@ internal fun processImage(
 
     // 同时将 ImageProxy 转为 Bitmap 用于预处理变体
     val sourceBitmap = imageProxyToBitmap(imageProxy)
+
+    // 七段管专用模型识别（同步，非常快 ~316KB 模型）
+    val sevenSegResult = if (sourceBitmap != null && sevenSegRecognizer != null) {
+        sevenSegRecognizer.recognize(sourceBitmap)?.let { listOf(it) } ?: emptyList()
+    } else {
+        emptyList()
+    }
 
     // 生成预处理变体
     val variantBitmaps = if (sourceBitmap != null) {
@@ -87,8 +96,8 @@ internal fun processImage(
             }
             .addOnCompleteListener {
                 if (completedCount.incrementAndGet() == allInputs.size) {
-                    // 所有识别完成，合并去重 → 回调
-                    val merged = mergeOcrResults(allResults)
+                    // 所有识别完成，合并去重 → 回调（包括七段管模型结果）
+                    val merged = mergeOcrResults(allResults, sevenSegResult)
                     imageProxy.close()
                     variantBitmaps.forEach { bmp -> bmp.recycle() }
                     sourceBitmap?.recycle()
@@ -120,8 +129,9 @@ private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? = try {
 
 /**
  * 合并多路 OCR 结果：去重，优先保留原始识别结果的顺序。
+ * 七段管模型结果追加在末尾（可能含不同格式的数字）。
  */
-private fun mergeOcrResults(allResults: Array<List<String>>): List<String> {
+private fun mergeOcrResults(allResults: Array<List<String>>, extraResults: List<String> = emptyList()): List<String> {
     val seen = mutableSetOf<String>()
     val merged = mutableListOf<String>()
 
@@ -132,6 +142,13 @@ private fun mergeOcrResults(allResults: Array<List<String>>): List<String> {
             if (normalized.isNotEmpty() && seen.add(normalized)) {
                 merged.add(line)
             }
+        }
+    }
+    // 追加额外结果（七段管模型等）
+    for (line in extraResults) {
+        val normalized = line.replace("\\s+".toRegex(), " ").trim()
+        if (normalized.isNotEmpty() && seen.add(normalized)) {
+            merged.add(line)
         }
     }
     return merged

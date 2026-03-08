@@ -60,6 +60,11 @@ fun HealthOcrScannerPage(
 ) {
     val context = LocalContext.current
     val motionScheme = MaterialTheme.motionScheme
+
+    // 七段管专用识别器（生命周期绑定到 Composable）
+    val sevenSegRecognizer = remember { SevenSegmentRecognizer(context) }
+    DisposableEffect(Unit) { onDispose { sevenSegRecognizer.close() } }
+
     var hasPermission by remember {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
@@ -123,7 +128,7 @@ fun HealthOcrScannerPage(
                                 isProcessing = isProcessing,
                                 onCaptureRequested = { isProcessing = true },
                                 onCapture = { imageProxy ->
-                                    processImage(imageProxy) { texts ->
+                                    processImage(imageProxy, sevenSegRecognizer) { texts ->
                                         parseResult = HealthMetricParser.parseAll(texts)
                                         isProcessing = false
                                         if (texts.isNotEmpty()) {

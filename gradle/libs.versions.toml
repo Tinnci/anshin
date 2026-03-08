@@ -32,6 +32,7 @@ mlkitTextRecognitionCjk = "16.0.1"
 mlkitTextRecognitionJa = "16.0.1"
 mlkitTextRecognitionKo = "16.0.1"
 mockitoKotlin = "5.2.1"
+onnxruntime = "1.21.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -91,6 +92,7 @@ mlkit-text-recognition-cjk = { module = "com.google.mlkit:text-recognition-chine
 mlkit-text-recognition-ja  = { module = "com.google.mlkit:text-recognition-japanese", version.ref = "mlkitTextRecognitionJa" }
 mlkit-text-recognition-ko  = { module = "com.google.mlkit:text-recognition-korean",   version.ref = "mlkitTextRecognitionKo" }
 mockito-kotlin   = { module = "org.mockito.kotlin:mockito-kotlin",   version.ref = "mockitoKotlin" }
+onnxruntime-android = { module = "com.microsoft.onnxruntime:onnxruntime-android", version.ref = "onnxruntime" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }

@@ -27,3 +27,5 @@ crash-log.txt
 # Keystore files — never commit signing secrets
 *.jks
 *.b64
+seven_segment_ocr/
+train_log.txt

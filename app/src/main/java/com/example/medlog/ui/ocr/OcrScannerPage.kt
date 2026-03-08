@@ -113,7 +113,7 @@ fun OcrScannerPage(
                                 isProcessing = isProcessing,
                                 onCaptureRequested = { isProcessing = true },
                                 onCapture = { imageProxy ->
-                                    processImage(imageProxy) { texts ->
+                                    processImage(imageProxy, null) { texts ->
                                         recognizedTexts = texts
                                         isProcessing = false
                                         if (texts.isNotEmpty()) {
