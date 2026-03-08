@@ -310,6 +310,227 @@ class HealthMetricParserTest {
         assertEquals(135.0, result[0].value, 0.01)
     }
 
+    // ── 空格分隔血压（新增） ──────────────────────────────────
+
+    @Test
+    fun `parse space-separated blood pressure`() {
+        val result = HealthMetricParser.parse(listOf("120 71"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(71.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse space-separated blood pressure 120 80`() {
+        val result = HealthMetricParser.parse(listOf("120 80"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse blood pressure with keyword and space`() {
+        val result = HealthMetricParser.parse(listOf("血压 120 80"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse mmHg pair blood pressure`() {
+        val result = HealthMetricParser.parse(listOf("120mmHg 80mmHg"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse mmHg pair with spaces`() {
+        val result = HealthMetricParser.parse(listOf("120 mmHg 80 mmHg"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+    }
+
+    @Test
+    fun `parse chinese mmHg unit`() {
+        val result = HealthMetricParser.parse(listOf("120毫米汞柱 80毫米汞柱"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse separate mmHg lines joined`() {
+        val result = HealthMetricParser.parse(listOf("120 mmHg", "80 mmHg"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+    }
+
+    @Test
+    fun `reject bare space pair with invalid pulse pressure`() {
+        // 120 and 115 - pulse pressure too small (5 < 15)
+        val result = HealthMetricParser.parse(listOf("120 115"))
+        assertTrue(result.none { it.type == HealthType.BLOOD_PRESSURE })
+    }
+
+    @Test
+    fun `parse comma-separated blood pressure`() {
+        val result = HealthMetricParser.parse(listOf("120,80"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse chinese comma-separated blood pressure`() {
+        val result = HealthMetricParser.parse(listOf("血压 120，80"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+    }
+
+    @Test
+    fun `parse kPa blood pressure`() {
+        val result = HealthMetricParser.parse(listOf("16.0/10.7 kPa"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.5)  // 16.0 * 7.5 = 120
+        assertEquals(80.2, result[0].secondaryValue!!, 0.5)  // 10.7 * 7.5 ≈ 80.2
+    }
+
+    @Test
+    fun `parse chinese high low pressure`() {
+        val result = HealthMetricParser.parse(listOf("高压130 低压85"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(130.0, result[0].value, 0.01)
+        assertEquals(85.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse PR pulse rate`() {
+        val result = HealthMetricParser.parse(listOf("PR 68"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.HEART_RATE, result[0].type)
+        assertEquals(68.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse mailv heart rate`() {
+        val result = HealthMetricParser.parse(listOf("脉率 75"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.HEART_RATE, result[0].type)
+        assertEquals(75.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse pure percentage as spo2`() {
+        val result = HealthMetricParser.parse(listOf("98%"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.SPO2, result[0].type)
+        assertEquals(98.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `reject percentage outside spo2 range`() {
+        // 50% is too low for bare percentage SpO2 detection (needs keyword for <80)
+        val result = HealthMetricParser.parse(listOf("50%"))
+        assertTrue(result.none { it.type == HealthType.SPO2 })
+    }
+
+    // ── 中文单位（新增） ────────────────────────────────────────
+
+    @Test
+    fun `parse weight in chinese kg unit`() {
+        val result = HealthMetricParser.parse(listOf("65千克"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.WEIGHT, result[0].type)
+        assertEquals(65.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse weight in gongjin`() {
+        val result = HealthMetricParser.parse(listOf("70公斤"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.WEIGHT, result[0].type)
+        assertEquals(70.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse weight in jin converts to kg`() {
+        val result = HealthMetricParser.parse(listOf("130斤"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.WEIGHT, result[0].type)
+        assertEquals(65.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse heart rate chinese unit`() {
+        val result = HealthMetricParser.parse(listOf("72次/分钟"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.HEART_RATE, result[0].type)
+        assertEquals(72.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse heart rate chinese unit short`() {
+        val result = HealthMetricParser.parse(listOf("80次/分"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.HEART_RATE, result[0].type)
+        assertEquals(80.0, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse temperature in sheshidu`() {
+        val result = HealthMetricParser.parse(listOf("36.5摄氏度"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.TEMPERATURE, result[0].type)
+        assertEquals(36.5, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse blood glucose chinese unit`() {
+        val result = HealthMetricParser.parse(listOf("5.6毫摩尔/升"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_GLUCOSE, result[0].type)
+        assertEquals(5.6, result[0].value, 0.01)
+    }
+
+    @Test
+    fun `parse blood pressure with chinese mmHg in slash format`() {
+        val result = HealthMetricParser.parse(listOf("120/80毫米汞柱"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+    }
+
+    // ── 空格合并修复验证 ────────────────────────────────────────
+
+    @Test
+    fun `cleanOcrText preserves multi-digit space separation`() {
+        // "120 80" should NOT be merged (both are multi-digit)
+        assertEquals("120 80", HealthMetricParser.cleanOcrText("120 80"))
+    }
+
+    @Test
+    fun `cleanOcrText preserves three-digit space two-digit`() {
+        assertEquals("135 88", HealthMetricParser.cleanOcrText("135 88"))
+    }
+
+    @Test
+    fun `cleanOcrText still merges single digit prefix`() {
+        assertEquals("120", HealthMetricParser.cleanOcrText("1 20"))
+    }
+
+    @Test
+    fun `cleanOcrText still merges single digit suffix`() {
+        assertEquals("120", HealthMetricParser.cleanOcrText("12 0"))
+    }
+
     // ── 日期过滤 ────────────────────────────────────────────────
 
     @Test

@@ -44,22 +44,50 @@ object HealthMetricParser {
 
     // ── 血压 ─────────────────────────────────────────────────────────────────
     private val BP_SLASH = Regex(
-        """(?:(?:bp|血压|blood\s*pressure)\s*[:：]?\s*)?(\d{2,3})\s*[/／]\s*(\d{2,3})\s*(?:mmHg|mmhg)?""",
+        """(?:(?:bp|血压|blood\s*pressure)\s*[:：]?\s*)?(\d{2,3})\s*[/／]\s*(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)?""",
         RegexOption.IGNORE_CASE,
     )
     private val BP_SYS_DIA = Regex(
-        """(?:sys(?:tolic)?|收缩压)\s*[:：]?\s*(\d{2,3})\s+(?:dia(?:stolic)?|舒张压)\s*[:：]?\s*(\d{2,3})""",
+        """(?:sys(?:tolic)?|收缩压|高压)\s*[:：]?\s*(\d{2,3})\s+(?:dia(?:stolic)?|舒张压|低压)\s*[:：]?\s*(\d{2,3})""",
+        RegexOption.IGNORE_CASE,
+    )
+    /** 两个 mmHg 值："120mmHg 80mmHg" / "120 毫米汞柱 80 毫米汞柱" */
+    private val BP_MMHG_PAIR = Regex(
+        """(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)\s*[,，/／\s]\s*(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)?""",
+        RegexOption.IGNORE_CASE,
+    )
+    /** 带血压关键词 + 空格分隔："血压 120 80" */
+    private val BP_KEYWORD_SPACE = Regex(
+        """(?:bp|血压|blood\s*pressure)\s*[:：]?\s*(\d{2,3})\s+(\d{2,3})""",
+        RegexOption.IGNORE_CASE,
+    )
+    /** 裸空格分隔（无关键词，需严格验证）："120 80" */
+    private val BP_BARE_SPACE = Regex(
+        """(?<![/／\d])(\d{2,3})\s+(\d{2,3})(?![/／\d])""",
+    )
+    /** 逗号分隔："120,80" / "120，80" */
+    private val BP_COMMA = Regex(
+        """(?:(?:bp|血压|blood\s*pressure)\s*[:：]?\s*)?(\d{2,3})\s*[,，]\s*(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)?""",
+        RegexOption.IGNORE_CASE,
+    )
+    /** kPa 单位血压："16.0/10.7 kPa" (1 kPa = 7.5 mmHg) */
+    private val BP_KPA = Regex(
+        """(\d{1,2}(?:\.\d{1,2})?)\s*[/／]\s*(\d{1,2}(?:\.\d{1,2})?)\s*kPa""",
         RegexOption.IGNORE_CASE,
     )
 
     // ── 心率 ─────────────────────────────────────────────────────────────────
     private val HR = Regex(
-        """(?:(?:hr|heart\s*rate|pulse|心率|脉搏|脈搏)\s*[:：]?\s*)(\d{2,3})\s*(?:bpm|次/分|次／分)?""",
+        """(?:(?:hr|heart\s*rate|pulse|pr|pulse\s*rate|心率|脉搏|脈搏|脉率)\s*[:：]?\s*)(\d{2,3})\s*(?:bpm|次/分|次／分)?""",
         RegexOption.IGNORE_CASE,
     )
     private val HR_BPM = Regex(
         """(\d{2,3})\s*bpm""",
         RegexOption.IGNORE_CASE,
+    )
+    /** 中文单位："72次/分钟" */
+    private val HR_CN_UNIT = Regex(
+        """(\d{2,3})\s*次[/／每]分钟?""",
     )
 
     // ── 血糖 ─────────────────────────────────────────────────────────────────
@@ -75,6 +103,10 @@ object HealthMetricParser {
         """(\d{2,3}(?:\.\d)?)\s*mg[/／]dL""",
         RegexOption.IGNORE_CASE,
     )
+    /** 中文单位："5.6毫摩尔/升" */
+    private val GLU_CN = Regex(
+        """(\d{1,2}(?:\.\d{1,2})?)\s*毫摩尔[/／每]升""",
+    )
 
     // ── 体温 ─────────────────────────────────────────────────────────────────
     private val TEMP = Regex(
@@ -87,6 +119,10 @@ object HealthMetricParser {
     private val TEMP_F = Regex(
         """(\d{2,3}\.\d{1,2})\s*[°℉]?F""",
         RegexOption.IGNORE_CASE,
+    )
+    /** 中文单位："36.5摄氏度" */
+    private val TEMP_CN = Regex(
+        """(\d{2}\.\d{1,2})\s*摄氏度""",
     )
 
     // ── 体重 ─────────────────────────────────────────────────────────────────
@@ -102,11 +138,23 @@ object HealthMetricParser {
         """(\d{2,3}(?:\.\d{1,2})?)\s*lbs?""",
         RegexOption.IGNORE_CASE,
     )
+    /** 中文单位："65千克" / "65公斤" */
+    private val WEIGHT_CN = Regex(
+        """(\d{2,3}(?:\.\d{1,2})?)\s*(?:千克|公斤)""",
+    )
+    /** 中文斤→千克："130斤" (1斤=0.5kg) */
+    private val WEIGHT_JIN = Regex(
+        """(\d{2,3}(?:\.\d{1,2})?)\s*斤""",
+    )
 
     // ── 血氧 ─────────────────────────────────────────────────────────────────
     private val SPO2 = Regex(
         """(?:(?:sp\s*o\s*2|spo₂|血氧|oxygen\s*saturation)\s*[:：]?\s*)(\d{2,3})\s*%?""",
         RegexOption.IGNORE_CASE,
+    )
+    /** 纯百分比在血氧范围内："98%" */
+    private val SPO2_PERCENT = Regex(
+        """(\d{2,3})\s*%""",
     )
 
     // ── 通用数字提取 ─────────────────────────────────────────────────────────
@@ -118,8 +166,10 @@ object HealthMetricParser {
     /** OCR 常见误识别字符：字母→数字 */
     private val LETTER_TO_DIGIT = Regex("""(?<=\d)[OoQD](?=[\d/／.%])|(?<=\d)[OoQD](?=\s|$)|(?<=[/／])[OoQD](?=\d)""")
     private val LETTER_L_TO_1 = Regex("""(?<=\d)[lI|](?=[\d/／.%])|(?<=\d)[lI|](?=\s|$)|(?<=[/／])[lI|](?=\d)""")
-    /** 数字间的空格（"1 20" → "120"） */
-    private val SPACE_IN_NUMBER = Regex("""(\d)\s+(\d)""")
+    /** OCR 单字符数字前缀合并："1 20" → "120"（不合并 "120 80" 这类多位数对） */
+    private val SPACE_MERGE_PREFIX = Regex("""(?<!\d)(\d)\s+(\d)""")
+    /** OCR 单字符数字后缀合并："12 0" → "120" */
+    private val SPACE_MERGE_SUFFIX = Regex("""(\d)\s+(\d)(?!\d)""")
     /** 日期时间模式（排除提取） */
     private val DATE_TIME = Regex(
         """\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}:\d{2}(:\d{2})?""",
@@ -142,11 +192,12 @@ object HealthMetricParser {
         var result = text
         result = LETTER_TO_DIGIT.replace(result, "0")
         result = LETTER_L_TO_1.replace(result, "1")
-        // 循环合并数字间空格（处理 "1 2 0" → "120"）
+        // 循环合并数字间空格（仅合并单字符侧，保留 "120 80" 这类多位数对）
         var prev: String
         do {
             prev = result
-            result = SPACE_IN_NUMBER.replace(result) { "${it.groupValues[1]}${it.groupValues[2]}" }
+            result = SPACE_MERGE_PREFIX.replace(result) { "${it.groupValues[1]}${it.groupValues[2]}" }
+            result = SPACE_MERGE_SUFFIX.replace(result) { "${it.groupValues[1]}${it.groupValues[2]}" }
         } while (result != prev)
         return result
     }
@@ -256,6 +307,7 @@ object HealthMetricParser {
     }
 
     private fun findBloodPressure(text: String): ParsedHealthMetric? {
+        // 优先级 1：斜杠分隔 "120/80"
         BP_SLASH.find(text)?.let { m ->
             val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
@@ -263,10 +315,59 @@ object HealthMetricParser {
                 return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
             }
         }
+        // 优先级 2：mmHg 配对 "120mmHg 80mmHg"
+        BP_MMHG_PAIR.find(text)?.let { m ->
+            val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
+            val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
+            if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
+                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
+            }
+        }
+        // 优先级 3：SYS/DIA 标签
         BP_SYS_DIA.find(text)?.let { m ->
             val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
             if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
+                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
+            }
+        }
+        // 优先级 4：关键词 + 空格分隔 "血压 120 80"
+        BP_KEYWORD_SPACE.find(text)?.let { m ->
+            val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
+            val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
+            if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
+                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
+            }
+        }
+        // 优先级 5：逗号分隔 "120,80"
+        BP_COMMA.find(text)?.let { m ->
+            val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
+            val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
+            if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
+                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
+            }
+        }
+        // 优先级 6：kPa 单位 "16.0/10.7 kPa" (1 kPa = 7.5 mmHg)
+        BP_KPA.find(text)?.let { m ->
+            val sysKpa = m.groupValues[1].toDoubleOrNull() ?: return@let
+            val diaKpa = m.groupValues[2].toDoubleOrNull() ?: return@let
+            val sys = sysKpa * 7.5
+            val dia = diaKpa * 7.5
+            if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_PRESSURE,
+                    (sys * 10).toLong() / 10.0,
+                    (dia * 10).toLong() / 10.0,
+                    m.value,
+                )
+            }
+        }
+        // 优先级 7：裸空格分隔 "120 80"（需更严格的脉压差验证）
+        BP_BARE_SPACE.find(text)?.let { m ->
+            val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
+            val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
+            val pulsePressure = sys - dia
+            if (sys in 70.0..250.0 && dia in 30.0..150.0 && sys > dia && pulsePressure in 15.0..120.0) {
                 return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value)
             }
         }
@@ -282,6 +383,10 @@ object HealthMetricParser {
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 20.0..250.0) return ParsedHealthMetric(HealthType.HEART_RATE, v, rawText = m.value)
         }
+        HR_CN_UNIT.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 20.0..250.0) return ParsedHealthMetric(HealthType.HEART_RATE, v, rawText = m.value)
+        }
         return null
     }
 
@@ -291,6 +396,10 @@ object HealthMetricParser {
             if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value)
         }
         GLU_MMOL.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value)
+        }
+        GLU_CN.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value)
         }
@@ -312,6 +421,10 @@ object HealthMetricParser {
     private fun findTemperature(text: String): ParsedHealthMetric? {
         // 优先匹配摄氏度
         TEMP_C.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 30.0..45.0) return ParsedHealthMetric(HealthType.TEMPERATURE, v, rawText = m.value)
+        }
+        TEMP_CN.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 30.0..45.0) return ParsedHealthMetric(HealthType.TEMPERATURE, v, rawText = m.value)
         }
@@ -339,6 +452,22 @@ object HealthMetricParser {
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value)
         }
+        WEIGHT_CN.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value)
+        }
+        // 斤 → kg 转换（1斤 = 0.5kg）
+        WEIGHT_JIN.find(text)?.let { m ->
+            val jin = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (jin in 20.0..1000.0) {
+                val kg = jin * 0.5
+                return ParsedHealthMetric(
+                    HealthType.WEIGHT,
+                    (kg * 10).toLong() / 10.0,
+                    rawText = m.value,
+                )
+            }
+        }
         // lbs → kg 转换
         WEIGHT_LB.find(text)?.let { m ->
             val lb = m.groupValues[1].toDoubleOrNull() ?: return@let
@@ -362,6 +491,11 @@ object HealthMetricParser {
         SPO2.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 50.0..100.0) return ParsedHealthMetric(HealthType.SPO2, v, rawText = m.value)
+        }
+        // 纯百分比（无关键词）在 SpO2 合理范围内
+        SPO2_PERCENT.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 80.0..100.0) return ParsedHealthMetric(HealthType.SPO2, v, rawText = m.value)
         }
         return null
     }
