@@ -925,7 +925,7 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         if (backupInProgress) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            LoadingIndicator(modifier = Modifier.size(24.dp))
                         }
                     },
                     modifier = Modifier.clickable(enabled = !backupInProgress) {
@@ -948,7 +948,7 @@ fun SettingsScreen(
                     },
                     trailingContent = {
                         if (backupInProgress) {
-                            CircularProgressIndicator(modifier = Modifier.size(24.dp), strokeWidth = 2.dp)
+                            LoadingIndicator(modifier = Modifier.size(24.dp))
                         }
                     },
                     modifier = Modifier.clickable(enabled = !backupInProgress) {

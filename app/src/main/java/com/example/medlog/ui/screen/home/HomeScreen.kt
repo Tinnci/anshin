@@ -160,7 +160,7 @@ fun HomeScreen(
             Box(
                 Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            ) { LoadingIndicator() }
             return@Scaffold
         }
 

@@ -46,7 +46,7 @@ private fun ratingLabel(rating: Int): String = when (rating) {
 
 // ─── Screen ─────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SymptomDiaryScreen(
     viewModel: SymptomDiaryViewModel = hiltViewModel(),
@@ -72,7 +72,7 @@ fun SymptomDiaryScreen(
                     .fillMaxSize()
                     .padding(innerPadding),
                 contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator() }
+            ) { LoadingIndicator() }
         } else if (uiState.logs.isEmpty()) {
             Box(
                 Modifier

@@ -80,7 +80,7 @@ fun HealthScreen(
     ) { innerPadding ->
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
         } else {
             Box(Modifier.fillMaxSize().padding(innerPadding)) {

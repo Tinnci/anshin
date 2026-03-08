@@ -22,9 +22,10 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
+import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.foundation.layout.Spacer
@@ -65,7 +66,7 @@ import java.util.Locale
 
 // ── 今日用药 QR 码分享对话框 ─────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun MedicationQrDialog(
     items: List<MedicationWithStatus>,
@@ -180,7 +181,7 @@ internal fun MedicationQrDialog(
                                 textAlign = TextAlign.Center,
                             )
                         } else {
-                            CircularProgressIndicator(modifier = Modifier.size(40.dp))
+                            LoadingIndicator(modifier = Modifier.size(40.dp))
                         }
                     } else if (canShowQr) {
                         QrImageBox(bitmap = exportQrBitmap)
@@ -277,6 +278,7 @@ internal fun MedicationQrDialog(
 
 // ── QR 图像盒子（两个 tab 共用）──────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun QrImageBox(bitmap: android.graphics.Bitmap?) {
     Box(
@@ -293,13 +295,14 @@ internal fun QrImageBox(bitmap: android.graphics.Bitmap?) {
                 modifier = Modifier.size(200.dp),
             )
         } else {
-            CircularProgressIndicator(modifier = Modifier.size(40.dp))
+            LoadingIndicator(modifier = Modifier.size(40.dp))
         }
     }
 }
 
 // ── 导入预览对话框 ──────────────────────────────────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ImportPreviewDialog(
     plan: PlanExport,

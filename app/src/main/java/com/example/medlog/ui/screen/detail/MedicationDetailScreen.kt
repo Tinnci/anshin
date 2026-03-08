@@ -49,7 +49,7 @@ private fun formLabel(form: String): String = when (form) {
     else      -> stringResource(R.string.detail_form_tablet)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MedicationDetailScreen(
     medicationId: Long,
@@ -135,7 +135,7 @@ fun MedicationDetailScreen(
                 Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                CircularProgressIndicator()
+                LoadingIndicator()
             }
             return@Scaffold
         }

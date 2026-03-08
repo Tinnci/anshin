@@ -44,7 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.data.model.Drug
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DrugsScreen(
     onAddCustomDrug: () -> Unit,
@@ -249,7 +249,7 @@ fun DrugsScreen(
                             contentAlignment = Alignment.Center,
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                                CircularProgressIndicator()
+                                LoadingIndicator()
                                 Spacer(Modifier.height(8.dp))
                                 Text(stringResource(R.string.drugs_loading), style = MaterialTheme.typography.bodyMedium)
                             }
@@ -398,7 +398,7 @@ private fun SubcategoryGrid(
 
 // ─── 分类浏览器（西药/中成药 Tab + 卡片网格） ───────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DrugCategoryBrowser(
     westernCategories: List<Pair<String, Int>>,
@@ -434,7 +434,7 @@ private fun DrugCategoryBrowser(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) {
-                    CircularProgressIndicator()
+                    LoadingIndicator()
                 }
             } else {
                 LazyVerticalGrid(

@@ -39,7 +39,7 @@ import com.example.medlog.ui.screen.settings.SettingsScreen
 import com.example.medlog.ui.screen.symptom.SymptomDiaryScreen
 import com.example.medlog.ui.screen.welcome.WelcomeScreen
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MedLogApp(openAddMedication: Boolean = false) {
     val appViewModel: MedLogAppViewModel = hiltViewModel()
@@ -47,7 +47,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     // DataStore 加载期间显示居中加载指示器；捕获到本地 val 以消除后续 !! 需求
     val startDest = startDestState ?: run {
         Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+            LoadingIndicator()
         }
         return
     }

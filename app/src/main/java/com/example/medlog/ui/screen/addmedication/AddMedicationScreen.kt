@@ -110,9 +110,8 @@ fun AddMedicationScreen(
                         modifier = Modifier.padding(end = 12.dp),
                     ) {
                         if (uiState.isSaving) {
-                            CircularProgressIndicator(
+                            LoadingIndicator(
                                 modifier = Modifier.size(16.dp),
-                                strokeWidth = 2.dp,
                             )
                             Spacer(Modifier.width(8.dp))
                         }
