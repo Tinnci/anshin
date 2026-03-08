@@ -311,7 +311,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
             }
             Text(
                 stat.type.formatValue(stat.latestValue, stat.latestSecondary),
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.Bold,
             )
 
@@ -342,7 +342,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
                 if (stat.avg7d != null) {
                     Text(
                         stringResource(R.string.health_7day_avg, "%.1f".format(stat.avg7d)),
-                        style = MaterialTheme.typography.bodySmall,
+                        style = MaterialTheme.typography.labelMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     val trendArrow = when (stat.trend) {

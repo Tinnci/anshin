@@ -399,7 +399,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
                     )
                     Text(
                         "${(adherence * 100).toInt()}%",
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         fontWeight = FontWeight.Bold,
                         color = adherenceColor,
                     )

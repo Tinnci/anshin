@@ -204,7 +204,7 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
                 )
                 Text(
                     "${(adherence * 100).toInt()}%",
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold,
                     color = adherenceColor,
                 )
@@ -642,7 +642,7 @@ private fun StreakCard(
             Column {
                 Text(
                     text = pluralStringResource(R.plurals.history_streak_count, currentStreak, currentStreak),
-                    style = MaterialTheme.typography.headlineSmall,
+                    style = MaterialTheme.typography.headlineMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
                     fontWeight = FontWeight.Bold,
                 )
@@ -661,7 +661,7 @@ private fun StreakCard(
                     )
                     Text(
                         text = pluralStringResource(R.plurals.history_streak_max_days, longestStreak, longestStreak),
-                        style = MaterialTheme.typography.titleMedium,
+                        style = MaterialTheme.typography.titleLarge,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
                         fontWeight = FontWeight.SemiBold,
                     )

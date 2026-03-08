@@ -212,7 +212,7 @@ internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = M
                         ) { t ->
                             Text(
                                 text = "$t",
-                                style = MaterialTheme.typography.titleMedium,
+                                style = MaterialTheme.typography.titleLarge,
                                 color = if (allDone) MaterialTheme.colorScheme.tertiary
                                         else MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.Bold,
@@ -220,7 +220,7 @@ internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = M
                         }
                         Text(
                             text = " / $total",
-                            style = MaterialTheme.typography.titleMedium,
+                            style = MaterialTheme.typography.titleLarge,
                             color = if (allDone) MaterialTheme.colorScheme.tertiary
                                     else MaterialTheme.colorScheme.primary,
                             fontWeight = FontWeight.Bold,
