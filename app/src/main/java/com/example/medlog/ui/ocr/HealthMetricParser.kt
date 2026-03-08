@@ -113,6 +113,18 @@ object HealthMetricParser {
     private val NUMBER = Regex("""(\d{1,3}(?:\.\d{1,2})?)""")
     private val SLASH_PAIR = Regex("""(\d{2,3})\s*[/／]\s*(\d{2,3})""")
 
+    // ── OCR 文本预处理 ───────────────────────────────────────────────────────
+
+    /** OCR 常见误识别字符：字母→数字 */
+    private val LETTER_TO_DIGIT = Regex("""(?<=\d)[OoQD](?=[\d/／.%])|(?<=\d)[OoQD](?=\s|$)|(?<=[/／])[OoQD](?=\d)""")
+    private val LETTER_L_TO_1 = Regex("""(?<=\d)[lI|](?=[\d/／.%])|(?<=\d)[lI|](?=\s|$)|(?<=[/／])[lI|](?=\d)""")
+    /** 数字间的空格（"1 20" → "120"） */
+    private val SPACE_IN_NUMBER = Regex("""(\d)\s+(\d)""")
+    /** 日期时间模式（排除提取） */
+    private val DATE_TIME = Regex(
+        """\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}:\d{2}(:\d{2})?""",
+    )
+
     /**
      * 从 OCR 文本行列表中提取健康体征指标。
      * 返回去重后的结果（相同类型仅保留第一条匹配）。
@@ -121,14 +133,35 @@ object HealthMetricParser {
         parseAll(texts).metrics
 
     /**
+     * OCR 文本预清洗：修正常见 OCR 误识别字符。
+     * - O/o/Q/D 在数字上下文中 → 0
+     * - l/I/| 在数字上下文中 → 1
+     * - 数字间的空格合并（"1 20" → "120"）
+     */
+    fun cleanOcrText(text: String): String {
+        var result = text
+        result = LETTER_TO_DIGIT.replace(result, "0")
+        result = LETTER_L_TO_1.replace(result, "1")
+        // 循环合并数字间空格（处理 "1 2 0" → "120"）
+        var prev: String
+        do {
+            prev = result
+            result = SPACE_IN_NUMBER.replace(result) { "${it.groupValues[1]}${it.groupValues[2]}" }
+        } while (result != prev)
+        return result
+    }
+
+    /**
      * 全量解析：返回结构化匹配 + 候选数字 + 原始文本。
+     * 自动对输入文本进行 OCR 预清洗。
      */
     fun parseAll(texts: List<String>): OcrParseResult {
+        val cleaned = texts.map { cleanOcrText(it) }
         val metrics = mutableListOf<ParsedHealthMetric>()
         val foundTypes = mutableSetOf<HealthType>()
-        val joined = texts.joinToString(" ")
+        val joined = cleaned.joinToString(" ")
 
-        for (text in texts + listOf(joined)) {
+        for (text in cleaned + listOf(joined)) {
             if (HealthType.BLOOD_PRESSURE !in foundTypes) {
                 findBloodPressure(text)?.let {
                     metrics.add(it); foundTypes.add(HealthType.BLOOD_PRESSURE)
@@ -165,7 +198,7 @@ object HealthMetricParser {
         val consumedValues = metrics.flatMap { m ->
             listOfNotNull(m.value, m.secondaryValue)
         }.toSet()
-        val candidates = extractNumbers(texts).filter { n ->
+        val candidates = extractNumbers(cleaned).filter { n ->
             n.value !in consumedValues && (n.pairedValue == null || n.pairedValue !in consumedValues)
         }
 
@@ -175,14 +208,17 @@ object HealthMetricParser {
     /**
      * 从 OCR 文本中提取所有合理的数字（无需关键词/单位匹配）。
      * 用于在结构化解析失败时提供候选值供用户选择。
+     * 自动排除日期/时间中的数字。
      */
     fun extractNumbers(texts: List<String>): List<ExtractedNumber> {
         val results = mutableListOf<ExtractedNumber>()
         val seen = mutableSetOf<String>()
 
         for (text in texts) {
+            // 去除日期/时间部分，避免误提取
+            val cleaned = DATE_TIME.replace(text, " ")
             // 优先匹配 a/b 格式（可能是血压）
-            SLASH_PAIR.findAll(text).forEach { m ->
+            SLASH_PAIR.findAll(cleaned).forEach { m ->
                 val key = m.value
                 if (key !in seen) {
                     seen.add(key)
@@ -194,7 +230,7 @@ object HealthMetricParser {
                 }
             }
             // 提取独立数字
-            NUMBER.findAll(text).forEach { m ->
+            NUMBER.findAll(cleaned).forEach { m ->
                 val key = m.value
                 if (key !in seen) {
                     seen.add(key)

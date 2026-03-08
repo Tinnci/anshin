@@ -265,4 +265,67 @@ class HealthMetricParserTest {
         assertTrue(HealthMetricParser.isValuePlausible(36.5, HealthType.TEMPERATURE))
         assertFalse(HealthMetricParser.isValuePlausible(200.0, HealthType.TEMPERATURE))
     }
+
+    // ── cleanOcrText OCR 预清洗 ─────────────────────────────────
+
+    @Test
+    fun `cleanOcrText replaces O with 0 in numeric context`() {
+        assertEquals("120/80", HealthMetricParser.cleanOcrText("12O/8O"))
+    }
+
+    @Test
+    fun `cleanOcrText replaces l with 1 in numeric context`() {
+        assertEquals("110", HealthMetricParser.cleanOcrText("1l0"))
+    }
+
+    @Test
+    fun `cleanOcrText merges spaces in numbers`() {
+        assertEquals("120/80", HealthMetricParser.cleanOcrText("1 20/8 0"))
+    }
+
+    @Test
+    fun `cleanOcrText merges multiple spaces in numbers`() {
+        assertEquals("120", HealthMetricParser.cleanOcrText("1 2 0"))
+    }
+
+    @Test
+    fun `cleanOcrText preserves normal text`() {
+        assertEquals("血压 120/80", HealthMetricParser.cleanOcrText("血压 120/80"))
+    }
+
+    @Test
+    fun `parse handles OCR misrecognition O as 0`() {
+        val result = HealthMetricParser.parse(listOf("12O/8O"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(120.0, result[0].value, 0.01)
+        assertEquals(80.0, result[0].secondaryValue!!, 0.01)
+    }
+
+    @Test
+    fun `parse handles spaced numbers`() {
+        val result = HealthMetricParser.parse(listOf("1 35/8 5"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(135.0, result[0].value, 0.01)
+    }
+
+    // ── 日期过滤 ────────────────────────────────────────────────
+
+    @Test
+    fun `extractNumbers filters out date-like patterns`() {
+        val numbers = HealthMetricParser.extractNumbers(listOf("2024-01-15 120/80"))
+        // 120/80 should be extracted, but date components (2024, 01, 15) should not
+        assertTrue(numbers.any { it.value == 120.0 && it.pairedValue == 80.0 })
+        assertFalse(numbers.any { it.value == 2024.0 })
+        assertFalse(numbers.any { it.value == 15.0 })
+    }
+
+    @Test
+    fun `extractNumbers filters out time patterns`() {
+        val numbers = HealthMetricParser.extractNumbers(listOf("14:30 心率72"))
+        assertFalse(numbers.any { it.value == 14.0 })
+        assertFalse(numbers.any { it.value == 30.0 })
+        assertTrue(numbers.any { it.value == 72.0 })
+    }
 }
