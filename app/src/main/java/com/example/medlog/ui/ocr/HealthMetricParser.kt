@@ -166,6 +166,18 @@ object HealthMetricParser {
     /** OCR 常见误识别字符：字母→数字 */
     private val LETTER_TO_DIGIT = Regex("""(?<=\d)[OoQD](?=[\d/／.%])|(?<=\d)[OoQD](?=\s|$)|(?<=[/／])[OoQD](?=\d)""")
     private val LETTER_L_TO_1 = Regex("""(?<=\d)[lI|](?=[\d/／.%])|(?<=\d)[lI|](?=\s|$)|(?<=[/／])[lI|](?=\d)""")
+    /** 七段数码管常见误识别：段缺失导致的字符混淆 */
+    private val SEVEN_SEG_FIXES = listOf(
+        // 字母被识别为数字或反过来
+        Regex("""(?<=\d)[Bb](?=[\d/／\s]|$)""") to "8",     // B→8
+        Regex("""(?<=\d)[Gg](?=[\d/／\s]|$)""") to "9",     // G→9
+        Regex("""(?<=[\d/／])[Ss](?=[\d/／\s]|$)""") to "5", // S→5
+        Regex("""(?<=\d)[Zz](?=[\d/／\s]|$)""") to "2",   // Z→2
+        // 七段管特有的符号误识别
+        Regex("""(?<=\d)[_\-](?=\d)""") to "",             // 段间杂划去除
+        Regex("""\[""") to "1",                            // [ → 1（七段管 1 有时像 [）
+        Regex("""\]""") to "1",                            // ] → 1
+    )
     /** OCR 单字符数字前缀合并："1 20" → "120"（不合并 "120 80" 这类多位数对） */
     private val SPACE_MERGE_PREFIX = Regex("""(?<!\d)(\d)\s+(\d)""")
     /** OCR 单字符数字后缀合并："12 0" → "120" */
@@ -186,12 +198,17 @@ object HealthMetricParser {
      * OCR 文本预清洗：修正常见 OCR 误识别字符。
      * - O/o/Q/D 在数字上下文中 → 0
      * - l/I/| 在数字上下文中 → 1
+     * - 七段数码管常见误识别修正（B→8, S→5, Z→2 等）
      * - 数字间的空格合并（"1 20" → "120"）
      */
     fun cleanOcrText(text: String): String {
         var result = text
         result = LETTER_TO_DIGIT.replace(result, "0")
         result = LETTER_L_TO_1.replace(result, "1")
+        // 七段数码管特有的误识别修正
+        for ((pattern, replacement) in SEVEN_SEG_FIXES) {
+            result = pattern.replace(result, replacement)
+        }
         // 循环合并数字间空格（仅合并单字符侧，保留 "120 80" 这类多位数对）
         var prev: String
         do {

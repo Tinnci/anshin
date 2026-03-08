@@ -302,6 +302,38 @@ class HealthMetricParserTest {
         assertEquals(80.0, result[0].secondaryValue!!, 0.01)
     }
 
+    // ── 七段数码管误识别修正 ────────────────────────────────────
+
+    @Test
+    fun `cleanOcrText fixes B to 8 in 7-segment context`() {
+        assertEquals("128/80", HealthMetricParser.cleanOcrText("12B/80"))
+    }
+
+    @Test
+    fun `cleanOcrText fixes S to 5 in 7-segment context`() {
+        assertEquals("125/85", HealthMetricParser.cleanOcrText("12S/8S"))
+    }
+
+    @Test
+    fun `cleanOcrText fixes Z to 2 in 7-segment context`() {
+        assertEquals("122/82", HealthMetricParser.cleanOcrText("12Z/8Z"))
+    }
+
+    @Test
+    fun `cleanOcrText fixes bracket to 1`() {
+        assertEquals("1", HealthMetricParser.cleanOcrText("["))
+        assertEquals("1", HealthMetricParser.cleanOcrText("]"))
+    }
+
+    @Test
+    fun `parse 7-segment blood pressure with B misrecognition`() {
+        val result = HealthMetricParser.parse(listOf("13B/8B"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
+        assertEquals(138.0, result[0].value, 0.01)
+        assertEquals(88.0, result[0].secondaryValue!!, 0.01)
+    }
+
     @Test
     fun `parse handles spaced numbers`() {
         val result = HealthMetricParser.parse(listOf("1 35/8 5"))
