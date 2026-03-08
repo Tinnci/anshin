@@ -243,12 +243,9 @@
     <string name="settings_restore_title">데이터 복원</string>
     <string name="settings_restore_subtitle">백업 파일에서 모든 데이터 복원</string>
     <string name="settings_backup_success">백업 성공</string>
-    <string name="settings_backup_failed">백업 실패: %1$s</string>
-    <string name="settings_restore_failed">복원 실패: %1$s</string>
     <string name="settings_restore_confirm_title">복원 확인</string>
     <string name="settings_restore_confirm_message">복원하면 현재 모든 데이터가 덮어쓰기됩니다. 이 작업은 취소할 수 없습니다.\n\n복원 완료 후 앱이 자동으로 다시 시작됩니다.</string>
     <string name="settings_restore_confirm">복원 확인</string>
-    <string name="settings_restore_restarting">복원 성공, 재시작 중…</string>
     <string name="settings_backup_invalid_file">유효하지 않은 백업 파일</string>
     <string name="settings_archived_empty">보관된 약품 없음</string>
     <plurals name="settings_archived_count">
@@ -587,10 +584,8 @@
     <string name="health_interp_low">최근 값이 낮습니다. 주의하세요</string>
     <string name="health_interp_trend_rising">최근 7일간 상승 추세</string>
     <string name="health_interp_trend_falling">최근 7일간 하락 추세</string>
-    <string name="health_interp_trend_stable">최근 7일간 안정</string>
 
     <string name="health_chart_title">30일 추이</string>
-    <string name="health_chart_no_data">데이터가 부족하여 추이를 표시할 수 없습니다</string>
 
     <string name="health_height_label">키 (cm)</string>
     <string name="health_height_dialog_title">키 설정</string>
@@ -679,7 +674,6 @@
     <string name="ocr_result_hint">약명을 탭하여 선택</string>
     <string name="ocr_retry">다시 촬영</string>
     <string name="ocr_processing">인식 중…</string>
-    <string name="ocr_no_results">텍스트가 감지되지 않았습니다. 다시 시도하세요</string>
 
     <!-- OCR 건강 지표 인식 -->
     <string name="ocr_health_scan_title">건강 데이터 스캔</string>

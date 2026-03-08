@@ -188,7 +188,7 @@ class SettingsViewModel @Inject constructor(
     // ── 备份与恢复 ────────────────────────────────────────────────
 
     sealed interface BackupEvent {
-        data class Success(val messageResId: Int) : BackupEvent
+        data class Success(val message: String) : BackupEvent
         data class Error(val message: String) : BackupEvent
         /** 恢复成功，UI 层应重启进程 */
         data object RestoreSuccess : BackupEvent
@@ -205,7 +205,7 @@ class SettingsViewModel @Inject constructor(
             _backupInProgress.value = true
             try {
                 backupRestore.backup(uri)
-                _backupEvent.emit(BackupEvent.Success(com.example.medlog.R.string.settings_backup_success))
+                _backupEvent.emit(BackupEvent.Success(appContext.getString(com.example.medlog.R.string.settings_backup_success)))
             } catch (e: Exception) {
                 Log.e("SettingsVM", "Backup failed", e)
                 _backupEvent.emit(BackupEvent.Error(e.localizedMessage ?: "Unknown error"))
