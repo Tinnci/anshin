@@ -312,78 +312,64 @@ private fun OcrCameraPreview(
             modifier = Modifier.fillMaxSize(),
         )
 
-        // 拍照按钮 — LargeFloatingActionButton
-        LargeFloatingActionButton(
-            onClick = {
-                if (!isProcessing) {
-                    onCaptureRequested()
-                    imageCapture.takePicture(
-                        executor,
-                        object : ImageCapture.OnImageCapturedCallback() {
-                            override fun onCaptureSuccess(image: ImageProxy) {
-                                onCapture(image)
-                            }
+        // ── 底部浮动工具栏：拍照 + 闪光灯 ──────────────────────────
+        HorizontalFloatingToolbar(
+            expanded = true,
+            floatingActionButton = {
+                FloatingToolbarDefaults.VibrantFloatingActionButton(
+                    onClick = {
+                        if (!isProcessing) {
+                            onCaptureRequested()
+                            imageCapture.takePicture(
+                                executor,
+                                object : ImageCapture.OnImageCapturedCallback() {
+                                    override fun onCaptureSuccess(image: ImageProxy) {
+                                        onCapture(image)
+                                    }
 
-                            override fun onError(exception: ImageCaptureException) {
-                                Log.e(TAG, "Capture failed", exception)
-                            }
+                                    override fun onError(exception: ImageCaptureException) {
+                                        Log.e(TAG, "Capture failed", exception)
+                                    }
+                                },
+                            )
+                        }
+                    },
+                ) {
+                    // 处理中显示小波浪进度，否则显示相机图标
+                    AnimatedContent(
+                        targetState = isProcessing,
+                        transitionSpec = {
+                            (scaleIn(motionScheme.fastEffectsSpec()) + fadeIn(motionScheme.fastEffectsSpec()))
+                                .togetherWith(
+                                    scaleOut(motionScheme.fastEffectsSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                                )
                         },
-                    )
+                        label = "capture_icon",
+                    ) { processing ->
+                        if (processing) {
+                            LoadingIndicator(
+                                modifier = Modifier.size(36.dp),
+                            )
+                        } else {
+                            Icon(
+                                Icons.Rounded.CameraAlt,
+                                contentDescription = stringResource(R.string.ocr_capture),
+                                modifier = Modifier.size(36.dp),
+                            )
+                        }
+                    }
                 }
             },
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 40.dp),
-            shape = CircleShape,
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
         ) {
-            // 处理中显示小波浪进度，否则显示相机图标
-            AnimatedContent(
-                targetState = isProcessing,
-                transitionSpec = {
-                    (scaleIn(motionScheme.fastEffectsSpec()) + fadeIn(motionScheme.fastEffectsSpec()))
-                        .togetherWith(
-                            scaleOut(motionScheme.fastEffectsSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
-                        )
-                },
-                label = "capture_icon",
-            ) { processing ->
-                if (processing) {
-                    LoadingIndicator(
-                        modifier = Modifier.size(36.dp),
-                    )
-                } else {
-                    Icon(
-                        Icons.Rounded.CameraAlt,
-                        contentDescription = stringResource(R.string.ocr_capture),
-                        modifier = Modifier.size(36.dp),
-                    )
-                }
+            IconButton(onClick = { isFlashOn = !isFlashOn }) {
+                Icon(
+                    if (isFlashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
+                    contentDescription = stringResource(R.string.ocr_flash_toggle),
+                )
             }
-        }
-
-        // 闪光灯切换按钮
-        SmallFloatingActionButton(
-            onClick = { isFlashOn = !isFlashOn },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(end = 24.dp, bottom = 48.dp),
-            containerColor = if (isFlashOn) {
-                MaterialTheme.colorScheme.primary
-            } else {
-                MaterialTheme.colorScheme.surfaceContainerHigh
-            },
-            contentColor = if (isFlashOn) {
-                MaterialTheme.colorScheme.onPrimary
-            } else {
-                MaterialTheme.colorScheme.onSurface
-            },
-        ) {
-            Icon(
-                if (isFlashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
-                contentDescription = stringResource(R.string.ocr_flash_toggle),
-            )
         }
     }
 }

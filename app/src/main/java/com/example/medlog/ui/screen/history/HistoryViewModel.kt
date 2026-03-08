@@ -234,6 +234,16 @@ class HistoryViewModel @Inject constructor(
         }
     }
 
+    fun navigateToToday() {
+        val today = LocalDate.now()
+        _uiState.update {
+            it.copy(
+                displayedMonth = YearMonth.from(today),
+                selectedDate = today,
+            )
+        }
+    }
+
     /**
      * 修改某次服药记录的实际服药时间。
      *

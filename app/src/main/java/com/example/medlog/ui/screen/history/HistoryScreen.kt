@@ -18,6 +18,7 @@ import androidx.compose.material.icons.rounded.Cancel
 import androidx.compose.material.icons.rounded.CheckCircle
 import androidx.compose.material.icons.rounded.Schedule
 import androidx.compose.material.icons.rounded.SkipNext
+import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -43,16 +44,23 @@ import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val floatingToolbarState = rememberFloatingToolbarState()
+    val toolbarScrollBehavior = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+        state = floatingToolbarState,
+        exitDirection = FloatingToolbarExitDirection.Bottom,
+    )
 
     Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        modifier = Modifier
+            .nestedScroll(scrollBehavior.nestedScrollConnection)
+            .nestedScroll(toolbarScrollBehavior),
         topBar = {
             LargeTopAppBar(
                 title = {
@@ -78,11 +86,11 @@ fun HistoryScreen(
             return@Scaffold
         }
 
+        Box(Modifier.fillMaxSize().padding(innerPadding)) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            contentPadding = PaddingValues(bottom = 24.dp),
+                .fillMaxSize(),
+            contentPadding = PaddingValues(bottom = 80.dp),
         ) {
             // 近30天坚持率概览
             item {
@@ -132,6 +140,28 @@ fun HistoryScreen(
                         onEditTakenTime = viewModel::editTakenTime,
                         modifier = Modifier.animateItem().padding(horizontal = 16.dp, vertical = 4.dp),
                     )
+                }
+            }
+        }
+
+            // ── 底部浮动工具栏：回到今天 ─────────────────────────────────
+            HorizontalFloatingToolbar(
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        onClick = viewModel::navigateToToday,
+                    ) {
+                        Icon(Icons.Rounded.Today, contentDescription = stringResource(R.string.history_today_button))
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
+                scrollBehavior = toolbarScrollBehavior,
+            ) {
+                IconButton(onClick = { viewModel.navigateMonthBy(-1) }) {
+                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.history_prev_month_cd))
+                }
+                IconButton(onClick = { viewModel.navigateMonthBy(1) }) {
+                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = stringResource(R.string.history_next_month_cd))
                 }
             }
         }

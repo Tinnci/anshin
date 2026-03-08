@@ -387,6 +387,7 @@
         <item quantity="other">🔥 %d day streak</item>
     </plurals>
     <string name="history_streak_title_text">Consecutive days streak</string>
+    <string name="history_today_button">Today</string>
     <string name="history_streak_max_label">Best streak</string>
     <plurals name="history_streak_max_days">
         <item quantity="one">1 day</item>

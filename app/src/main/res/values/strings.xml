@@ -372,6 +372,7 @@
         <item quantity="other">🔥 连续 %d 天</item>
     </plurals>
     <string name="history_streak_title_text">坚持服药连续打卡</string>
+    <string name="history_today_button">今天</string>
     <string name="history_streak_max_label">最长记录</string>
     <plurals name="history_streak_max_days">
         <item quantity="other">%d 天</item>

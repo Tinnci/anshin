@@ -373,6 +373,7 @@
         <item quantity="other">🔥 %d일 연속</item>
     </plurals>
     <string name="history_streak_title_text">연속 복약 기록</string>
+    <string name="history_today_button">오늘</string>
     <string name="history_streak_max_label">최장 기록</string>
     <plurals name="history_streak_max_days">
         <item quantity="other">%d 일</item>

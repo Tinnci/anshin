@@ -373,6 +373,7 @@
         <item quantity="other">🔥 %d 日連続</item>
     </plurals>
     <string name="history_streak_title_text">連続服薬記録</string>
+    <string name="history_today_button">今日</string>
     <string name="history_streak_max_label">最長記録</string>
     <plurals name="history_streak_max_days">
         <item quantity="other">%d 日</item>

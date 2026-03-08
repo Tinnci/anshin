@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -56,7 +57,7 @@ private fun healthTypeIcon(type: HealthType) = when (type) {
 
 // ─── 主屏幕 ──────────────────────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HealthScreen(
     viewModel: HealthViewModel = hiltViewModel(),
@@ -64,16 +65,17 @@ fun HealthScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showOcrScanner by remember { mutableStateOf(false) }
 
+    val floatingToolbarState = rememberFloatingToolbarState()
+    val scrollBehavior = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
+        state = floatingToolbarState,
+        exitDirection = FloatingToolbarExitDirection.Bottom,
+    )
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.health_screen_title)) },
             )
-        },
-        floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::startAdd) {
-                Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
-            }
         },
     ) { innerPadding ->
         if (uiState.isLoading) {
@@ -81,14 +83,16 @@ fun HealthScreen(
                 CircularProgressIndicator()
             }
         } else {
+            Box(Modifier.fillMaxSize().padding(innerPadding)) {
             LazyColumn(
                 contentPadding = PaddingValues(
-                    top = innerPadding.calculateTopPadding() + 8.dp,
-                    bottom = innerPadding.calculateBottomPadding() + 80.dp,
+                    top = 8.dp,
+                    bottom = 80.dp,
                     start = 16.dp,
                     end = 16.dp,
                 ),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
+                modifier = Modifier.nestedScroll(scrollBehavior),
             ) {
                 // ── 类型过滤 Chips ─────────────────────────────────────────
                 item(key = "type_filter") {
@@ -194,6 +198,25 @@ fun HealthScreen(
                         )
                     }
                 }
+            }
+
+            // ── 底部浮动工具栏 + FAB ─────────────────────────────────────
+            HorizontalFloatingToolbar(
+                expanded = true,
+                floatingActionButton = {
+                    FloatingToolbarDefaults.VibrantFloatingActionButton(
+                        onClick = viewModel::startAdd,
+                    ) {
+                        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                    }
+                },
+                modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
+                scrollBehavior = scrollBehavior,
+            ) {
+                IconButton(onClick = { showOcrScanner = true }) {
+                    Icon(Icons.Rounded.CameraAlt, contentDescription = null)
+                }
+            }
             }
         }
     }
