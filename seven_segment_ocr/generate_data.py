@@ -381,6 +381,7 @@ def draw_seven_segment_digit(
     gap: int = 1,
     skew: float = 0.0,
     seg_style=None,
+    defect_rate: float = 0.0,
 ):
     """在指定位置绘制一个七段管数字。"""
     segments = DIGIT_SEGMENTS[digit]
@@ -398,9 +399,19 @@ def draw_seven_segment_digit(
                 poly[i] = (px + offset, py)
 
     for i, (on, poly) in enumerate(zip(segments, seg_polys)):
+        if on and defect_rate > 0 and random.random() < defect_rate:
+            if dim_color:
+                draw.polygon(poly, fill=dim_color)
+            continue
         color = fg_color if on else dim_color
         if color is not None:
             draw.polygon(poly, fill=color)
+
+
+def _jitter_color(color: tuple, amount: int = 20) -> tuple:
+    """对 RGB 颜色做微小亮度抖动。"""
+    shift = random.randint(-amount, amount)
+    return tuple(max(0, min(255, c + shift)) for c in color)
 
 
 def render_number(
@@ -418,13 +429,7 @@ def render_number(
 ) -> Image.Image:
     """将数字字符串渲染为七段管显示图片。
 
-    支持的字符: 0-9, /, 空格, -, .
-
-    Args:
-        use_textured_bg: 使用程序化纹理背景代替纯色
-
-    Returns:
-        PIL Image (RGB)
+    支持的字符: 0-9, /, 空格, -, ., :
     """
     if theme is None:
         theme = pick_lcd_theme()
@@ -433,8 +438,9 @@ def render_number(
     dim = theme["dim"] if show_dim else None
     bg = theme["bg"]
     seg_style = random.choice(SEGMENT_STYLES)
+    jitter = random.random() < 0.3
+    defect_rate = random.uniform(0.05, 0.15) if random.random() < 0.05 else 0.0
 
-    # 计算总宽度
     char_widths = []
     for ch in text:
         if ch in "0123456789":
@@ -446,6 +452,8 @@ def render_number(
         elif ch == "-":
             char_widths.append(digit_width // 2)
         elif ch == ".":
+            char_widths.append(thickness * 2)
+        elif ch == ":":
             char_widths.append(thickness * 2)
         else:
             char_widths.append(digit_width // 3)
@@ -461,42 +469,43 @@ def render_number(
 
     cx = padding
     for ch, cw in zip(text, char_widths):
+        cur_fg = _jitter_color(fg, 15) if jitter else fg
         if ch in "0123456789":
             draw_seven_segment_digit(
-                draw,
-                int(ch),
-                cx,
-                padding,
-                cw,
-                digit_height,
-                thickness,
-                fg,
-                dim,
-                gap,
-                skew,
-                seg_style=seg_style,
+                draw, int(ch), cx, padding, cw, digit_height,
+                thickness, cur_fg, dim, gap, skew,
+                seg_style=seg_style, defect_rate=defect_rate,
             )
         elif ch == "/":
-            # 绘制斜杠
-            slash_color = fg
             draw.line(
                 [(cx + cw, padding + 2), (cx, padding + digit_height - 2)],
-                fill=slash_color,
-                width=max(2, thickness // 2),
+                fill=cur_fg, width=max(2, thickness // 2),
             )
         elif ch == "-":
             mid_y = padding + digit_height // 2
             draw.rectangle(
                 [cx + 2, mid_y - thickness // 2, cx + cw - 2, mid_y + thickness // 2],
-                fill=fg,
+                fill=cur_fg,
             )
         elif ch == ".":
             dot_y = padding + digit_height - thickness
             draw.ellipse(
                 [cx, dot_y, cx + thickness * 2, dot_y + thickness * 2],
-                fill=fg,
+                fill=cur_fg,
             )
+        elif ch == ":":
+            dot_r = max(1, thickness)
+            dot1_y = padding + digit_height // 3 - dot_r
+            dot2_y = padding + digit_height * 2 // 3 - dot_r
+            draw.ellipse([cx, dot1_y, cx + dot_r * 2, dot1_y + dot_r * 2], fill=cur_fg)
+            draw.ellipse([cx, dot2_y, cx + dot_r * 2, dot2_y + dot_r * 2], fill=cur_fg)
         cx += cw + spacing
+
+    # 段发光效果 (15%)
+    if random.random() < 0.15:
+        from PIL import ImageFilter
+        glow = img.filter(ImageFilter.GaussianBlur(radius=max(1, thickness // 2)))
+        img = Image.blend(img, glow, alpha=0.3)
 
     return img
 
@@ -1073,12 +1082,18 @@ def generate_sequence_dataset(
         theme = pick_lcd_theme()
         dw = random.randint(18, 55)
         dh = random.randint(35, 95)
-        thickness = random.randint(3, max(4, dw // 5))
-        gap = random.randint(0, 3)
-        skew = random.uniform(-0.15, 0.15)
+        thickness = random.randint(2, max(3, dw // 4))
+        gap = random.randint(0, 4)
+        skew = random.uniform(-0.18, 0.18)
         show_dim = random.random() < 0.5
-        spacing = random.randint(3, 14)
-        padding = random.randint(4, 18)
+        spacing = random.choice([
+            random.randint(0, 2),
+            random.randint(3, 10),
+            random.randint(3, 10),
+            random.randint(11, 22),
+            random.randint(3, 14),
+        ])
+        padding = random.randint(3, 22)
 
         img = render_number(
             text,
@@ -1171,7 +1186,7 @@ def preview(output_dir: Path) -> None:
                 thickness=random.randint(4, 8),
                 theme=pick_lcd_theme(),
                 gap=random.randint(0, 3),
-                spacing=random.randint(4, 12),
+                spacing=random.choice([random.randint(0, 2), random.randint(3, 10), random.randint(11, 22), random.randint(4, 12)]),
                 padding=random.randint(5, 15),
                 skew=random.uniform(-0.15, 0.15),
                 show_dim=random.random() < 0.5,

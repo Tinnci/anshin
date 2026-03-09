@@ -235,7 +235,7 @@ def _seg_polys_thin(x, y, width, height, t, g):
 SEGMENT_STYLES = [_seg_polys_pointy, _seg_polys_rect, _seg_polys_rounded, _seg_polys_thin]
 
 
-def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_color, dim_color=None, gap=1, skew=0.0, seg_style=None):
+def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_color, dim_color=None, gap=1, skew=0.0, seg_style=None, defect_rate=0.0):
     segments = DIGIT_SEGMENTS[digit]
     t = thickness
     g = gap
@@ -248,9 +248,20 @@ def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_col
             for i, (px, py) in enumerate(poly):
                 poly[i] = (px + (py - center_y) * math.tan(skew), py)
     for i, (on, poly) in enumerate(zip(segments, seg_polys)):
+        if on and defect_rate > 0 and random.random() < defect_rate:
+            # 段缺陷：该亮的段不亮或变暗
+            if dim_color:
+                draw.polygon(poly, fill=dim_color)
+            continue
         color = fg_color if on else dim_color
         if color is not None:
             draw.polygon(poly, fill=color)
+
+
+def _jitter_color(color, amount=20):
+    """对 RGB 颜色做微小亮度抖动。"""
+    shift = random.randint(-amount, amount)
+    return tuple(max(0, min(255, c + shift)) for c in color)
 
 
 def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None, gap=1, spacing=8, padding=10, skew=0.0, show_dim=True, use_textured_bg=False):
@@ -258,6 +269,10 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
         theme = pick_lcd_theme()
     fg, dim, bg = theme["fg"], theme["dim"] if show_dim else None, theme["bg"]
     seg_style = random.choice(SEGMENT_STYLES)
+    # 每位数字亮度抖动概率
+    jitter = random.random() < 0.3
+    # 段缺陷概率 (5%的图片)
+    defect_rate = random.uniform(0.05, 0.15) if random.random() < 0.05 else 0.0
     char_widths = []
     for ch in text:
         if ch in "0123456789": char_widths.append(digit_width)
@@ -265,6 +280,7 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
         elif ch == " ": char_widths.append(digit_width // 2)
         elif ch == "-": char_widths.append(digit_width // 2)
         elif ch == ".": char_widths.append(thickness * 2)
+        elif ch == ":": char_widths.append(thickness * 2)
         else: char_widths.append(digit_width // 3)
     total_w = sum(char_widths) + spacing * (len(text) - 1) + padding * 2
     total_h = digit_height + padding * 2
@@ -275,17 +291,30 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
     draw = ImageDraw.Draw(img)
     cx = padding
     for ch, cw in zip(text, char_widths):
+        cur_fg = _jitter_color(fg, 15) if jitter else fg
         if ch in "0123456789":
-            draw_seven_segment_digit(draw, int(ch), cx, padding, cw, digit_height, thickness, fg, dim, gap, skew, seg_style=seg_style)
+            draw_seven_segment_digit(draw, int(ch), cx, padding, cw, digit_height, thickness, cur_fg, dim, gap, skew, seg_style=seg_style, defect_rate=defect_rate)
         elif ch == "/":
-            draw.line([(cx+cw, padding+2), (cx, padding+digit_height-2)], fill=fg, width=max(2, thickness//2))
+            draw.line([(cx+cw, padding+2), (cx, padding+digit_height-2)], fill=cur_fg, width=max(2, thickness//2))
         elif ch == "-":
             mid_y = padding + digit_height // 2
-            draw.rectangle([cx+2, mid_y-thickness//2, cx+cw-2, mid_y+thickness//2], fill=fg)
+            draw.rectangle([cx+2, mid_y-thickness//2, cx+cw-2, mid_y+thickness//2], fill=cur_fg)
         elif ch == ".":
             dot_y = padding + digit_height - thickness
-            draw.ellipse([cx, dot_y, cx+thickness*2, dot_y+thickness*2], fill=fg)
+            draw.ellipse([cx, dot_y, cx+thickness*2, dot_y+thickness*2], fill=cur_fg)
+        elif ch == ":":
+            # 冒号：上下两个圆点
+            dot_r = max(1, thickness)
+            dot1_y = padding + digit_height // 3 - dot_r
+            dot2_y = padding + digit_height * 2 // 3 - dot_r
+            draw.ellipse([cx, dot1_y, cx+dot_r*2, dot1_y+dot_r*2], fill=cur_fg)
+            draw.ellipse([cx, dot2_y, cx+dot_r*2, dot2_y+dot_r*2], fill=cur_fg)
         cx += cw + spacing
+    # 段发光效果 (15% 概率)
+    if random.random() < 0.15:
+        from PIL import ImageFilter
+        glow = img.filter(ImageFilter.GaussianBlur(radius=max(1, thickness // 2)))
+        img = Image.blend(img, glow, alpha=0.3)
     return img
 
 
@@ -700,13 +729,21 @@ class InMemorySeqDataset(Dataset):
             # 更大的尺寸范围：包含很小的数字 (模拟远距离拍摄)
             dw = random.randint(18, 55)
             dh = random.randint(35, 95)
+            # 更宽的间距范围：紧凑(0) ~ 松散(22)
+            sp = random.choice([
+                random.randint(0, 2),    # 紧凑型 (20%)
+                random.randint(3, 10),   # 标准型 (40%)
+                random.randint(3, 10),
+                random.randint(11, 22),  # 松散型 (20%)
+                random.randint(3, 14),   # 混合   (20%)
+            ])
 
             img = render_number(
                 text, digit_width=dw, digit_height=dh,
-                thickness=random.randint(3, max(4, dw // 5)),
-                theme=theme, gap=random.randint(0, 3),
-                spacing=random.randint(3, 14), padding=random.randint(4, 18),
-                skew=random.uniform(-0.15, 0.15),
+                thickness=random.randint(2, max(3, dw // 4)),
+                theme=theme, gap=random.randint(0, 4),
+                spacing=sp, padding=random.randint(3, 22),
+                skew=random.uniform(-0.18, 0.18),
                 show_dim=random.random() < 0.5,
                 use_textured_bg=random.random() < 0.4,
             )
