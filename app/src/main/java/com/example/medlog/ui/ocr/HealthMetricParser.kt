@@ -323,6 +323,82 @@ object HealthMetricParser {
         HealthType.SPO2           -> value in 50.0..100.0
     }
 
+    /**
+     * 返回候选数字最可能匹配的体征类型列表，按置信度降序排列。
+     *
+     * 排序依据：
+     * - 值域范围窄的类型优先（体温 > 血氧 > 血糖 > 心率 > 血压 > 体重）
+     * - 有小数点的值优先匹配体温/血糖
+     * - 配对值 (120/80) 直接匹配血压
+     */
+    fun rankPlausibleTypes(value: Double, hasDecimal: Boolean = false, isPaired: Boolean = false): List<HealthType> {
+        if (isPaired) return listOf(HealthType.BLOOD_PRESSURE)
+
+        return HealthType.entries
+            .filter { isValuePlausible(value, it) }
+            .sortedByDescending { type -> plausibilityScore(value, type, hasDecimal) }
+    }
+
+    private fun plausibilityScore(value: Double, type: HealthType, hasDecimal: Boolean): Double {
+        val baseScore = when (type) {
+            // 范围越窄，基础分越高
+            HealthType.TEMPERATURE    -> 100.0
+            HealthType.SPO2           -> 90.0
+            HealthType.BLOOD_GLUCOSE  -> 80.0
+            HealthType.HEART_RATE     -> 50.0
+            HealthType.BLOOD_PRESSURE -> 40.0
+            HealthType.WEIGHT         -> 30.0
+        }
+        var score = baseScore
+
+        // 小数点值更可能是体温或血糖
+        if (hasDecimal) {
+            when (type) {
+                HealthType.TEMPERATURE   -> score += 50.0
+                HealthType.BLOOD_GLUCOSE -> score += 40.0
+                HealthType.WEIGHT        -> score += 20.0
+                else -> {}
+            }
+        }
+
+        // 值在该类型"典型"范围内加分
+        score += when (type) {
+            HealthType.TEMPERATURE    -> if (value in 35.0..42.0) 30.0 else 0.0
+            HealthType.SPO2           -> if (value in 90.0..100.0) 30.0 else 0.0
+            HealthType.BLOOD_GLUCOSE  -> if (value in 3.0..20.0) 20.0 else 0.0
+            HealthType.HEART_RATE     -> if (value in 50.0..120.0) 15.0 else 0.0
+            HealthType.BLOOD_PRESSURE -> if (value in 80.0..180.0) 10.0 else 0.0
+            HealthType.WEIGHT         -> if (value in 30.0..150.0) 5.0 else 0.0
+        }
+
+        return score
+    }
+
+    /**
+     * 从候选数字列表中找出可能的血压配对（收缩压/舒张压）。
+     * 返回 (systolicIndex, diastolicIndex) 的列表，按合理性排序。
+     */
+    fun findPotentialBpPairs(candidates: List<ExtractedNumber>): List<Pair<Int, Int>> {
+        val pairs = mutableListOf<Triple<Int, Int, Double>>()
+        for (i in candidates.indices) {
+            if (candidates[i].pairedValue != null) continue  // 已配对的跳过
+            val sys = candidates[i].value
+            if (sys !in 70.0..250.0) continue
+            for (j in candidates.indices) {
+                if (j == i || candidates[j].pairedValue != null) continue
+                val dia = candidates[j].value
+                if (dia !in 30.0..150.0) continue
+                if (sys <= dia) continue
+                val pulsePressure = sys - dia
+                if (pulsePressure !in 15.0..120.0) continue
+                // 评分：脉压差越接近典型值(40)越好
+                val score = 100.0 - kotlin.math.abs(pulsePressure - 40.0)
+                pairs.add(Triple(i, j, score))
+            }
+        }
+        return pairs.sortedByDescending { it.third }.map { Pair(it.first, it.second) }
+    }
+
     private fun findBloodPressure(text: String): ParsedHealthMetric? {
         // 优先级 1：斜杠分隔 "120/80"
         BP_SLASH.find(text)?.let { m ->

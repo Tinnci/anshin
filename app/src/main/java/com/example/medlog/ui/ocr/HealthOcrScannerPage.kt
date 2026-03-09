@@ -278,6 +278,12 @@ private fun HealthMetricResultList(
             )
         }
 
+        // 预计算血压配对建议（在 LazyColumn 外的 @Composable 作用域中）
+        val bpPairs = remember(result.candidates) {
+            if (hasCandidates) HealthMetricParser.findPotentialBpPairs(result.candidates)
+            else emptyList()
+        }
+
         LazyColumn(
             modifier = Modifier.weight(1f),
             contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
@@ -358,8 +364,34 @@ private fun HealthMetricResultList(
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
+                // 智能血压配对建议
+                if (bpPairs.isNotEmpty()) {
+                    val bestPair = bpPairs.first()
+                    val sys = result.candidates[bestPair.first]
+                    val dia = result.candidates[bestPair.second]
+                    item {
+                        val baseDelay = if (hasStructured) result.metrics.size else 0
+                        AnimatedListItem(baseDelay, motionScheme) {
+                            BpMergeSuggestionCard(
+                                systolic = sys,
+                                diastolic = dia,
+                                onAccept = {
+                                    onSelect(
+                                        ParsedHealthMetric(
+                                            type = HealthType.BLOOD_PRESSURE,
+                                            value = sys.value,
+                                            secondaryValue = dia.value,
+                                            rawText = "${sys.rawText}/${dia.rawText}",
+                                        ),
+                                    )
+                                },
+                            )
+                        }
+                    }
+                }
                 itemsIndexed(result.candidates) { index, number ->
-                    val baseDelay = if (hasStructured) result.metrics.size else 0
+                    val baseDelay = (if (hasStructured) result.metrics.size else 0) +
+                        (if (bpPairs.isNotEmpty()) 1 else 0)
                     AnimatedListItem(baseDelay + index, motionScheme) {
                         CandidateNumberCard(
                             number = number,
@@ -419,6 +451,57 @@ private fun HealthMetricResultList(
     }
 }
 
+// ── 血压配对建议卡片 ─────────────────────────────────────────────────────────
+
+@Composable
+private fun BpMergeSuggestionCard(
+    systolic: ExtractedNumber,
+    diastolic: ExtractedNumber,
+    onAccept: () -> Unit,
+) {
+    ElevatedCard(
+        onClick = onAccept,
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            Icon(
+                Icons.Rounded.Bloodtype,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                modifier = Modifier.size(24.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(R.string.ocr_bp_merge_suggestion),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+                Text(
+                    text = "${systolic.value.toInt()}/${diastolic.value.toInt()} mmHg",
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+            Icon(
+                Icons.Rounded.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onPrimaryContainer,
+            )
+        }
+    }
+}
+
 // ── 候选数字卡片 ─────────────────────────────────────────────────────────────
 
 @Composable
@@ -437,13 +520,28 @@ private fun CandidateNumberCard(
         }
     }
 
-    val inferredType = suggestedType
-        ?: if (number.pairedValue != null) HealthType.BLOOD_PRESSURE
-        else HealthType.entries.firstOrNull { HealthMetricParser.isValuePlausible(number.value, it) }
+    val hasDecimal = number.value != number.value.toLong().toDouble()
+    val plausibleTypes = remember(number) {
+        HealthMetricParser.rankPlausibleTypes(
+            value = number.value,
+            hasDecimal = hasDecimal,
+            isPaired = number.pairedValue != null,
+        )
+    }
+
+    // suggestedType 仅作为初始提示：如果它在候选列表中，优先选中它
+    val initialIndex = if (suggestedType != null) {
+        val idx = plausibleTypes.indexOf(suggestedType)
+        if (idx >= 0) idx else 0
+    } else {
+        0
+    }
+    var selectedIndex by remember(number) { mutableIntStateOf(initialIndex) }
+    val selectedType = plausibleTypes.getOrNull(selectedIndex)
 
     ElevatedCard(
         onClick = {
-            val type = inferredType ?: HealthType.BLOOD_PRESSURE
+            val type = selectedType ?: HealthType.BLOOD_PRESSURE
             onSelect(
                 ParsedHealthMetric(
                     type = type,
@@ -469,13 +567,17 @@ private fun CandidateNumberCard(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.weight(1f),
             )
-            if (inferredType != null) {
+            if (selectedType != null) {
                 AssistChip(
-                    onClick = { /* 类型标签仅做展示 */ },
-                    label = { Text(stringResource(inferredType.labelRes)) },
+                    onClick = {
+                        if (plausibleTypes.size > 1) {
+                            selectedIndex = (selectedIndex + 1) % plausibleTypes.size
+                        }
+                    },
+                    label = { Text(stringResource(selectedType.labelRes)) },
                     leadingIcon = {
                         Icon(
-                            healthMetricIcon(inferredType),
+                            healthMetricIcon(selectedType),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )

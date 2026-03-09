@@ -689,6 +689,7 @@
     <string name="ocr_health_no_metrics">未识别到体征数据，请重试</string>
     <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>
     <string name="ocr_health_candidate_numbers">其他数字</string>
+    <string name="ocr_bp_merge_suggestion">可能是血压读数</string>
     <string name="ocr_health_tap_to_record">点击即可快速记录</string>
     <string name="ocr_health_raw_text">原始文字</string>
     <string name="ocr_flash_toggle">切换闪光灯</string>
