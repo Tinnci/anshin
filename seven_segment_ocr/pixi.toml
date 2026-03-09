@@ -1,0 +1,27 @@
+[workspace]
+name = "seven-segment-ocr"
+version = "0.1.0"
+description = "7-segment LCD display digit recognition: synthetic data generation + lightweight model training"
+channels = ["conda-forge", "pytorch"]
+platforms = ["osx-64"]
+
+[dependencies]
+python = ">=3.11"
+pillow = ">=10.0"
+numpy = ">=1.26"
+pytorch = ">=2.2"
+torchvision = ">=0.17"
+tqdm = ">=4.66"
+matplotlib = ">=3.8"
+onnxscript = ">=0.5.6,<0.6"
+onnx = ">=1.20.0,<2"
+onnxruntime = ">=1.22.2,<2"
+opencv = ">=4.13.0,<5"
+gdown = ">=5.2.1,<6"
+kaggle = ">=1.8.4,<2"
+
+[tasks]
+generate = "python generate_data.py"
+train = "python train.py"
+export = "python export_tflite.py"
+preview = "python generate_data.py --preview"

@@ -1,0 +1,13 @@
+{
+  "id": "tiiann/seven-segment-ocr-training",
+  "title": "Seven Segment OCR Training",
+  "code_file": "kaggle_train.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "keywords": ["seven-segment", "ocr", "crnn", "ctc"],
+  "dataset_sources": [],
+  "competition_sources": []
+}

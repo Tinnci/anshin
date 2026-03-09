@@ -27,5 +27,16 @@ crash-log.txt
 # Keystore files — never commit signing secrets
 *.jks
 *.b64
-seven_segment_ocr/
+
+# seven_segment_ocr — 忽略大文件和生成文件，保留源代码和模型
+seven_segment_ocr/.pixi/
+seven_segment_ocr/__pycache__/
+seven_segment_ocr/dataset/
+seven_segment_ocr/opencv_models/
+seven_segment_ocr/kaggle_output/
+seven_segment_ocr/kaggle_kernel/kaggle_train.py
+seven_segment_ocr/models/
+seven_segment_ocr/pixi.lock
+seven_segment_ocr/benchmark_result.txt
+seven_segment_ocr/train_log.txt
 train_log.txt
