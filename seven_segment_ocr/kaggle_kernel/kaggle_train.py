@@ -297,6 +297,7 @@ def invert_polarity(img):
     return Image.fromarray((255.0 - arr).astype(np.uint8))
 
 def perspective_transform(img, strength=0.08):
+    """透视变换：模拟从不同角度拍摄 LCD 屏幕。"""
     w, h = img.size
     s = strength
     coeffs = [random.uniform(-s, s) * d for d in [w, h, w, h, w, h, w, h]]
@@ -313,6 +314,25 @@ def perspective_transform(img, strength=0.08):
         return img.transform((w,h), Image.PERSPECTIVE, tuple(res.flatten()), resample=Image.BICUBIC, fillcolor=img.getpixel((0,0)))
     except Exception:
         return img
+
+
+def embed_with_margin(img, scale_factor):
+    """将渲染图嵌入更大画布，模拟数字在大屏幕中占比小的情况。
+    scale_factor: 1.0 = 无额外边距, 2.0 = 图片只占画布 50%"""
+    if scale_factor <= 1.05:
+        return img
+    w, h = img.size
+    new_w = int(w * scale_factor)
+    new_h = int(h * scale_factor)
+    bg = img.getpixel((0, 0))
+    canvas = Image.new("RGB", (new_w, new_h), bg)
+    # 随机偏移嵌入位置 (不总是居中)
+    max_x = new_w - w
+    max_y = new_h - h
+    ox = random.randint(int(max_x * 0.15), int(max_x * 0.85)) if max_x > 1 else 0
+    oy = random.randint(int(max_y * 0.15), int(max_y * 0.85)) if max_y > 1 else 0
+    canvas.paste(img, (ox, oy))
+    return canvas
 
 def add_jpeg_artifacts(img, quality=30):
     buf = io.BytesIO()
@@ -378,7 +398,7 @@ def augment_image(img, difficulty="normal"):
         if random.random() < 0.4: img = adjust_brightness_contrast(img, random.uniform(0.6, 0.9), random.uniform(0.4, 0.6))
         if random.random() < 0.5: img = add_reflection(img, random.uniform(0.15, 0.5))
         if random.random() < 0.4: img = add_color_cast(img)
-        if random.random() < 0.5: img = perspective_transform(img, random.uniform(0.05, 0.15))
+        if random.random() < 0.6: img = perspective_transform(img, random.uniform(0.06, 0.20))
         if random.random() < 0.5: img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.8, 2.5)))
         if random.random() < 0.5: img = add_noise(img, random.uniform(0.05, 0.15))
         if random.random() < 0.3: img = add_salt_pepper_noise(img, random.uniform(0.01, 0.05))
@@ -395,7 +415,7 @@ def augment_image(img, difficulty="normal"):
     if random.random() < 0.5: img = random_rotate(img, max_angle=5.0)
     if random.random() < 0.2: img = add_reflection(img, random.uniform(0.1, 0.25))
     if random.random() < 0.15: img = add_color_cast(img)
-    if random.random() < 0.15: img = perspective_transform(img, random.uniform(0.03, 0.08))
+    if random.random() < 0.25: img = perspective_transform(img, random.uniform(0.03, 0.10))
     if random.random() < 0.1: img = add_background_clutter(img)
     return img
 
@@ -486,18 +506,25 @@ class InMemorySeqDataset(Dataset):
 
             text = gen_func()
             theme = pick_lcd_theme()
-            dw = random.randint(28, 50)
-            dh = random.randint(50, 85)
+            # 更大的尺寸范围：包含很小的数字 (模拟远距离拍摄)
+            dw = random.randint(18, 55)
+            dh = random.randint(35, 95)
 
             img = render_number(
                 text, digit_width=dw, digit_height=dh,
-                thickness=random.randint(4, max(5, dw // 5)),
+                thickness=random.randint(3, max(4, dw // 5)),
                 theme=theme, gap=random.randint(0, 3),
-                spacing=random.randint(4, 12), padding=random.randint(5, 15),
-                skew=random.uniform(-0.12, 0.12),
+                spacing=random.randint(3, 14), padding=random.randint(4, 18),
+                skew=random.uniform(-0.15, 0.15),
                 show_dim=random.random() < 0.5,
                 use_textured_bg=random.random() < 0.4,
             )
+
+            # 随机在更大画布中嵌入 (30%概率, 模拟屏幕比数字大很多)
+            if random.random() < 0.30:
+                scale = random.uniform(1.3, 2.5)
+                img = embed_with_margin(img, scale)
+
             r2 = random.random()
             difficulty = "easy" if r2 < 0.25 else ("normal" if r2 < 0.6 else "hard")
             img = augment_image(img, difficulty)
@@ -570,8 +597,8 @@ def ctc_collate(batch):
 
 # %%
 # 配置
-NUM_TRAIN = 25000
-NUM_VAL = 3000
+NUM_TRAIN = 35000
+NUM_VAL = 4000
 EPOCHS = 80
 BATCH_SIZE = 64
 LR = 0.0005

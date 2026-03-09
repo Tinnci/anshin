@@ -675,6 +675,27 @@ def add_jpeg_artifacts(img: Image.Image, quality: int = 30) -> Image.Image:
     return Image.open(buffer).convert("RGB")
 
 
+def embed_with_margin(img: Image.Image, scale_factor: float) -> Image.Image:
+    """将渲染图嵌入更大画布，模拟数字在大屏幕中占比小的情况。
+
+    scale_factor: 1.0 = 无额外边距, 2.0 = 图片只占画布 50%
+    """
+    if scale_factor <= 1.05:
+        return img
+    w, h = img.size
+    new_w = int(w * scale_factor)
+    new_h = int(h * scale_factor)
+    bg = img.getpixel((0, 0))
+    canvas = Image.new("RGB", (new_w, new_h), bg)
+    # 随机偏移嵌入位置
+    max_x = new_w - w
+    max_y = new_h - h
+    ox = random.randint(int(max_x * 0.15), int(max_x * 0.85)) if max_x > 1 else 0
+    oy = random.randint(int(max_y * 0.15), int(max_y * 0.85)) if max_y > 1 else 0
+    canvas.paste(img, (ox, oy))
+    return canvas
+
+
 def partial_occlusion(img: Image.Image, max_rects: int = 3) -> Image.Image:
     """随机矩形遮挡（模拟部分被遮挡/手指遮挡）。"""
     img = img.copy()
@@ -731,8 +752,8 @@ def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
             img = add_color_cast(img)
 
         # ── 透视变换 ────────────────────────────────────
-        if random.random() < 0.5:
-            img = perspective_transform(img, random.uniform(0.05, 0.15))
+        if random.random() < 0.6:
+            img = perspective_transform(img, random.uniform(0.06, 0.20))
 
         # ── 重度模糊 ───────────────────────────────────
         if random.random() < 0.5:
@@ -793,9 +814,9 @@ def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
     if random.random() < 0.15:
         img = add_color_cast(img)
 
-    # 透视（低概率）
-    if random.random() < 0.15:
-        img = perspective_transform(img, random.uniform(0.03, 0.08))
+    # 透视
+    if random.random() < 0.25:
+        img = perspective_transform(img, random.uniform(0.03, 0.10))
 
     # 背景干扰（低概率）
     if random.random() < 0.1:
@@ -939,14 +960,14 @@ def generate_sequence_dataset(
 
         # 随机渲染参数
         theme = pick_lcd_theme()
-        dw = random.randint(28, 50)
-        dh = random.randint(50, 85)
-        thickness = random.randint(4, max(5, dw // 5))
+        dw = random.randint(18, 55)
+        dh = random.randint(35, 95)
+        thickness = random.randint(3, max(4, dw // 5))
         gap = random.randint(0, 3)
-        skew = random.uniform(-0.12, 0.12)
+        skew = random.uniform(-0.15, 0.15)
         show_dim = random.random() < 0.5
-        spacing = random.randint(4, 12)
-        padding = random.randint(5, 15)
+        spacing = random.randint(3, 14)
+        padding = random.randint(4, 18)
 
         img = render_number(
             text,
@@ -961,6 +982,12 @@ def generate_sequence_dataset(
             show_dim=show_dim,
             use_textured_bg=random.random() < 0.4,
         )
+
+        # 随机在更大画布中嵌入 (30%概率, 模拟屏幕比数字大很多)
+        if random.random() < 0.30:
+            scale = random.uniform(1.3, 2.5)
+            img = embed_with_margin(img, scale)
+
         # 难度分布: 25% easy, 35% normal, 40% hard
         r = random.random()
         difficulty = "easy" if r < 0.25 else ("normal" if r < 0.6 else "hard")
