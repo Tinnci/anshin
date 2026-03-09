@@ -22,6 +22,7 @@ from PIL import Image, ImageDraw, ImageFilter, ImageEnhance
 
 from generate_data import (
     LCD_THEMES,
+    pick_lcd_theme,
     render_number,
     augment_image,
     generate_textured_background,
@@ -267,7 +268,7 @@ def generate_detection_sample(
         text = _random_medical_text()
 
         # 随机主题和参数
-        theme = random.choice(LCD_THEMES)
+        theme = pick_lcd_theme()
         dw = random.randint(25, 45)
         dh = random.randint(45, 75)
         thickness = random.randint(3, max(4, dw // 6))

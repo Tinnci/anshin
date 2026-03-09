@@ -34,12 +34,19 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from PIL import Image, ImageDraw, ImageFilter
 
-# 检查 GPU
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-print(f"🚀 使用设备: {device}")
-if torch.cuda.is_available():
-    print(f"   GPU: {torch.cuda.get_device_name()}")
-    print(f"   显存: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
+# 检查 GPU/TPU
+try:
+    import torch_xla.core.xla_model as xm
+    device = xm.xla_device()
+    _IS_TPU = True
+    print(f"🚀 使用设备: TPU ({device})")
+except ImportError:
+    _IS_TPU = False
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    print(f"🚀 使用设备: {device}")
+    if torch.cuda.is_available():
+        print(f"   GPU: {torch.cuda.get_device_name()}")
+        print(f"   显存: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
 
 # ─────────────────────────────────────────────────────────
 # 数据生成（完整的七段管渲染 + 增强管道）
@@ -58,16 +65,40 @@ DIGIT_SEGMENTS = {
     9: [True, True, True, True, False, True, True],
 }
 
-LCD_THEMES = [
+LCD_THEMES_DARK_BG = [
     {"fg": (0, 255, 70), "dim": (0, 40, 10), "bg": (5, 20, 5)},
     {"fg": (255, 30, 30), "dim": (40, 5, 5), "bg": (10, 2, 2)},
     {"fg": (60, 160, 255), "dim": (8, 20, 40), "bg": (3, 8, 18)},
     {"fg": (255, 160, 30), "dim": (40, 25, 5), "bg": (12, 8, 2)},
     {"fg": (240, 240, 240), "dim": (30, 30, 30), "bg": (8, 8, 8)},
     {"fg": (180, 220, 40), "dim": (25, 30, 8), "bg": (60, 70, 50)},
+]
+
+LCD_THEMES_LIGHT_BG = [
     {"fg": (20, 20, 20), "dim": (200, 210, 200), "bg": (210, 220, 210)},
     {"fg": (30, 30, 80), "dim": (180, 185, 200), "bg": (190, 195, 210)},
+    # 纯白底 + 黑字 (欧姆龙/鱼跃等主流血压计)
+    {"fg": (15, 15, 15), "dim": (220, 225, 220), "bg": (235, 240, 235)},
+    {"fg": (10, 10, 10), "dim": (230, 230, 230), "bg": (245, 245, 245)},
+    # 绿色背光 + 黑字 (大量中端血压计)
+    {"fg": (20, 30, 20), "dim": (120, 170, 110), "bg": (140, 195, 130)},
+    {"fg": (15, 25, 15), "dim": (100, 160, 90), "bg": (160, 210, 150)},
+    # 蓝色背光 + 深色字
+    {"fg": (15, 15, 30), "dim": (100, 130, 180), "bg": (130, 160, 210)},
+    # 琥珀/黄色背光
+    {"fg": (40, 20, 5), "dim": (180, 150, 80), "bg": (200, 175, 100)},
+    # 灰白色 LCD
+    {"fg": (25, 25, 25), "dim": (195, 195, 200), "bg": (220, 220, 225)},
 ]
+
+LCD_THEMES = LCD_THEMES_DARK_BG + LCD_THEMES_LIGHT_BG
+
+
+def pick_lcd_theme() -> dict:
+    """按权重选择 LCD 主题，亮底暗字占 45%。"""
+    if random.random() < 0.45:
+        return random.choice(LCD_THEMES_LIGHT_BG)
+    return random.choice(LCD_THEMES_DARK_BG)
 
 
 def _perlin_noise_2d(shape, scale=32.0):
@@ -175,7 +206,7 @@ def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_col
 
 def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None, gap=1, spacing=8, padding=10, skew=0.0, show_dim=True, use_textured_bg=False):
     if theme is None:
-        theme = random.choice(LCD_THEMES)
+        theme = pick_lcd_theme()
     fg, dim, bg = theme["fg"], theme["dim"] if show_dim else None, theme["bg"]
     char_widths = []
     for ch in text:
@@ -256,8 +287,12 @@ def add_reflection(img, intensity=0.3):
 def add_color_cast(img):
     arr = np.array(img, dtype=np.float32)
     for c in range(3):
-        arr[:, :, c] = np.clip(arr[:, :, c] + random.uniform(-20, 20), 0, 255)
+        arr[:, :, c] = np.clip(arr[:, :, c] + random.uniform(-30, 30), 0, 255)
     return Image.fromarray(arr.astype(np.uint8))
+
+def invert_polarity(img):
+    arr = np.array(img, dtype=np.float32)
+    return Image.fromarray((255.0 - arr).astype(np.uint8))
 
 def perspective_transform(img, strength=0.08):
     w, h = img.size
@@ -338,7 +373,7 @@ def augment_image(img, difficulty="normal"):
     if difficulty == "hard":
         if random.random() < 0.35: img = add_background_clutter(img)
         if random.random() < 0.25: img = add_edge_frame(img)
-        if random.random() < 0.4: img = adjust_brightness_contrast(img, random.uniform(0.6, 0.9), random.uniform(0.3, 0.6))
+        if random.random() < 0.4: img = adjust_brightness_contrast(img, random.uniform(0.6, 0.9), random.uniform(0.4, 0.6))
         if random.random() < 0.5: img = add_reflection(img, random.uniform(0.15, 0.5))
         if random.random() < 0.4: img = add_color_cast(img)
         if random.random() < 0.5: img = perspective_transform(img, random.uniform(0.05, 0.15))
@@ -348,6 +383,7 @@ def augment_image(img, difficulty="normal"):
         if random.random() < 0.3: img = add_jpeg_artifacts(img, random.randint(15, 40))
         if random.random() < 0.2: img = partial_occlusion(img, max_rects=2)
         if random.random() < 0.6: img = random_rotate(img, max_angle=10.0)
+        if random.random() < 0.08: img = invert_polarity(img)
         return img
 
     # normal
@@ -427,7 +463,7 @@ class InMemorySeqDataset(Dataset):
                     break
 
             text = gen_func()
-            theme = random.choice(LCD_THEMES)
+            theme = pick_lcd_theme()
             dw = random.randint(28, 50)
             dh = random.randint(50, 85)
 
@@ -512,8 +548,8 @@ def ctc_collate(batch):
 
 # %%
 # 配置
-NUM_TRAIN = 15000
-NUM_VAL = 2000
+NUM_TRAIN = 25000
+NUM_VAL = 3000
 EPOCHS = 80
 BATCH_SIZE = 64
 LR = 0.0005
@@ -521,15 +557,16 @@ OUTPUT_DIR = Path("/kaggle/working") if os.path.exists("/kaggle") else Path("kag
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 print("=" * 60)
-print("七段数码管 CRNN 训练 (GPU)")
+print("七段数码管 CRNN 训练 (GPU/TPU)")
 print("=" * 60)
 
 # 生成数据
 train_dataset = InMemorySeqDataset(NUM_TRAIN, seed=42)
 val_dataset = InMemorySeqDataset(NUM_VAL, seed=999)
 
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=ctc_collate, num_workers=0, pin_memory=True)
-val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=True)
+_pin = not _IS_TPU
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
+val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
 model = LightCRNN().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
@@ -553,8 +590,8 @@ for epoch in range(EPOCHS):
     t0 = time.time()
 
     for images, labels, label_lengths, _ in train_loader:
-        images = images.to(device, non_blocking=True)
-        labels = labels.to(device, non_blocking=True)
+        images = images.to(device)
+        labels = labels.to(device)
         output = model(images)
         T, B = output.size(0), images.size(0)
         log_probs = F.log_softmax(output, dim=2)
@@ -562,7 +599,10 @@ for epoch in range(EPOCHS):
         optimizer.zero_grad()
         loss.backward()
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
-        optimizer.step()
+        if _IS_TPU:
+            xm.optimizer_step(optimizer)
+        else:
+            optimizer.step()
         total_loss += loss.item()
         num_batches += 1
 
@@ -578,8 +618,8 @@ for epoch in range(EPOCHS):
 
     with torch.no_grad():
         for images, labels, label_lengths, _ in val_loader:
-            images = images.to(device, non_blocking=True)
-            labels = labels.to(device, non_blocking=True)
+            images = images.to(device)
+            labels = labels.to(device)
             output = model(images)
             T, B = output.size(0), images.size(0)
             log_probs = F.log_softmax(output, dim=2)

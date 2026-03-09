@@ -4,8 +4,9 @@
 生成用于训练轻量 OCR 模型的七段管数字图片。
 
 支持的增强变换:
-- LCD 颜色 (绿/红/蓝/橙/白)
-- 背景色 (黑/深绿/深蓝/深灰)
+- LCD 颜色 (绿/红/蓝/橙/白/黄绿)
+- 暗底亮字: 黑/深绿/深蓝/深灰/深橄榄底
+- 亮底暗字: 白底/灰绿底/灰蓝底/绿色背光/蓝色背光/琥珀背光
 - 段粗细变化
 - 旋转/倾斜
 - 高斯噪声
@@ -55,7 +56,8 @@ DIGIT_SEGMENTS = {
 }
 
 # LCD 颜色主题: (段亮色, 段暗色, 背景色)
-LCD_THEMES = [
+# ── 暗底亮字主题 ──────────────────────────────────────────
+LCD_THEMES_DARK_BG = [
     # 经典绿色 LCD
     {"fg": (0, 255, 70), "dim": (0, 40, 10), "bg": (5, 20, 5)},
     # 红色 LED
@@ -68,10 +70,37 @@ LCD_THEMES = [
     {"fg": (240, 240, 240), "dim": (30, 30, 30), "bg": (8, 8, 8)},
     # 黄绿色 (老式计算器)
     {"fg": (180, 220, 40), "dim": (25, 30, 8), "bg": (60, 70, 50)},
-    # 浅色背景 + 深色数字 (部分血压计)
-    {"fg": (20, 20, 20), "dim": (200, 210, 200), "bg": (210, 220, 210)},
-    {"fg": (30, 30, 80), "dim": (180, 185, 200), "bg": (190, 195, 210)},
 ]
+
+# ── 亮底暗字主题 (血压计/体温计常见) ────────────────────────
+LCD_THEMES_LIGHT_BG = [
+    # 浅灰绿底 + 黑字 (经典血压计)
+    {"fg": (20, 20, 20), "dim": (200, 210, 200), "bg": (210, 220, 210)},
+    # 浅蓝灰底 + 深蓝字
+    {"fg": (30, 30, 80), "dim": (180, 185, 200), "bg": (190, 195, 210)},
+    # 纯白底 + 黑字 (欧姆龙/鱼跃等主流血压计)
+    {"fg": (15, 15, 15), "dim": (220, 225, 220), "bg": (235, 240, 235)},
+    {"fg": (10, 10, 10), "dim": (230, 230, 230), "bg": (245, 245, 245)},
+    # 绿色背光 + 黑字 (大量中端血压计)
+    {"fg": (20, 30, 20), "dim": (120, 170, 110), "bg": (140, 195, 130)},
+    {"fg": (15, 25, 15), "dim": (100, 160, 90), "bg": (160, 210, 150)},
+    # 蓝色背光 + 深色字 (部分高端设备)
+    {"fg": (15, 15, 30), "dim": (100, 130, 180), "bg": (130, 160, 210)},
+    # 琥珀/黄色背光 (部分医疗设备)
+    {"fg": (40, 20, 5), "dim": (180, 150, 80), "bg": (200, 175, 100)},
+    # 灰白色 LCD (中性色调)
+    {"fg": (25, 25, 25), "dim": (195, 195, 200), "bg": (220, 220, 225)},
+]
+
+# 合并所有主题（保持向后兼容）
+LCD_THEMES = LCD_THEMES_DARK_BG + LCD_THEMES_LIGHT_BG
+
+
+def pick_lcd_theme() -> dict:
+    """按权重选择 LCD 主题，亮底暗字占 45%。"""
+    if random.random() < 0.45:
+        return random.choice(LCD_THEMES_LIGHT_BG)
+    return random.choice(LCD_THEMES_DARK_BG)
 
 
 # ── 背景纹理生成 ──────────────────────────────────────────
@@ -416,7 +445,7 @@ def render_number(
         PIL Image (RGB)
     """
     if theme is None:
-        theme = random.choice(LCD_THEMES)
+        theme = pick_lcd_theme()
 
     fg = theme["fg"]
     dim = theme["dim"] if show_dim else None
@@ -571,12 +600,19 @@ def add_color_cast(img: Image.Image) -> Image.Image:
     """给图片添加随机色偏（模拟不同光源环境）。"""
     arr = np.array(img, dtype=np.float32)
     # 随机色偏量
-    r_shift = random.uniform(-20, 20)
-    g_shift = random.uniform(-20, 20)
-    b_shift = random.uniform(-20, 20)
+    r_shift = random.uniform(-30, 30)
+    g_shift = random.uniform(-30, 30)
+    b_shift = random.uniform(-30, 30)
     arr[:, :, 0] = np.clip(arr[:, :, 0] + r_shift, 0, 255)
     arr[:, :, 1] = np.clip(arr[:, :, 1] + g_shift, 0, 255)
     arr[:, :, 2] = np.clip(arr[:, :, 2] + b_shift, 0, 255)
+    return Image.fromarray(arr.astype(np.uint8))
+
+
+def invert_polarity(img: Image.Image) -> Image.Image:
+    """反转图片亮暗极性（帮助模型泛化不同底色/字色组合）。"""
+    arr = np.array(img, dtype=np.float32)
+    arr = 255.0 - arr
     return Image.fromarray(arr.astype(np.uint8))
 
 
@@ -682,7 +718,7 @@ def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
 
         # ── 低对比度场景 ─────────────────────────────────
         if random.random() < 0.4:
-            contrast = random.uniform(0.3, 0.6)
+            contrast = random.uniform(0.4, 0.6)
             brightness = random.uniform(0.6, 0.9)
             img = adjust_brightness_contrast(img, brightness, contrast)
 
@@ -722,6 +758,10 @@ def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
         # ── 旋转 ───────────────────────────────────────
         if random.random() < 0.6:
             img = random_rotate(img, max_angle=10.0)
+
+        # ── 极性反转 (小概率，帮助泛化) ─────────────────
+        if random.random() < 0.08:
+            img = invert_polarity(img)
 
         return img
 
@@ -784,7 +824,7 @@ def generate_single_digit_dataset(
     for digit in range(10):
         for i in range(samples_per_digit):
             # 随机参数
-            theme = random.choice(LCD_THEMES)
+            theme = pick_lcd_theme()
             dw = random.randint(30, 55)
             dh = random.randint(55, 90)
             thickness = random.randint(4, max(5, dw // 5))
@@ -898,7 +938,7 @@ def generate_sequence_dataset(
         text = gen_func()
 
         # 随机渲染参数
-        theme = random.choice(LCD_THEMES)
+        theme = pick_lcd_theme()
         dw = random.randint(28, 50)
         dh = random.randint(50, 85)
         thickness = random.randint(4, max(5, dw // 5))
@@ -987,7 +1027,7 @@ def preview(output_dir: Path) -> None:
                 digit_width=random.randint(30, 50),
                 digit_height=random.randint(55, 85),
                 thickness=random.randint(4, 8),
-                theme=random.choice(LCD_THEMES),
+                theme=pick_lcd_theme(),
                 gap=random.randint(0, 3),
                 spacing=random.randint(4, 12),
                 padding=random.randint(5, 15),
@@ -1020,14 +1060,14 @@ def main():
     parser.add_argument(
         "--digits-per-class",
         type=int,
-        default=500,
-        help="单数字分类: 每个数字的样本数 (默认: 500)",
+        default=800,
+        help="单数字分类: 每个数字的样本数 (默认: 800)",
     )
     parser.add_argument(
         "--sequences",
         type=int,
-        default=5000,
-        help="序列数据: 总样本数 (默认: 5000)",
+        default=8000,
+        help="序列数据: 总样本数 (默认: 8000)",
     )
     parser.add_argument("--seed", type=int, default=42, help="随机种子")
 
