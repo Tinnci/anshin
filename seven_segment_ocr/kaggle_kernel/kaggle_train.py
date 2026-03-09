@@ -153,12 +153,11 @@ def generate_textured_background(w, h, base_color):
         arr[:, :] = [r, g, b]
         grid_size = random.randint(3, 8)
         intensity = random.uniform(5, 18)
-        for y in range(h):
-            for x in range(w):
-                if (y % grid_size < grid_size // 2) ^ (x % grid_size < grid_size // 2):
-                    arr[y, x] += intensity
-                else:
-                    arr[y, x] -= intensity
+        # 向量化织物网格纹理（替代逐像素循环）
+        yy, xx = np.mgrid[0:h, 0:w]
+        mask = (yy % grid_size < grid_size // 2) ^ (xx % grid_size < grid_size // 2)
+        arr[mask] += intensity
+        arr[~mask] -= intensity
     elif style == "medical":
         arr = np.zeros((h, w, 3), dtype=np.float32)
         grad = np.linspace(0, 1, w).reshape(1, -1)
@@ -869,10 +868,15 @@ def postprocess_ctc(text):
 
 
 class OnTheFlySeqDataset(Dataset):
-    """实时生成训练数据，每次 __getitem__ 返回全新图片（无限多样性）。
+    """混合策略数据集：预生成基础池 + 实时轻量增强，兼顾多样性与速度。
 
-    支持课程学习：通过 set_epoch() 调整难度分布。
+    - 每个 epoch 开始时生成 pool_size 张「基础图」（渲染 + 嵌入 + 标签，但不做增强）
+    - __getitem__ 从池中随机取一张，实时施加增强（快速）
+    - 这样每个 epoch 看到 virtual_size 张不同增强的图，且池子 epoch 间刷新
+    - 支持课程学习：通过 set_epoch() 调整难度分布
     """
+
+    POOL_SIZE = 10000  # 基础图池大小（渲染 10K 张够用）
 
     def __init__(self, virtual_size=100000, target_h=64, max_w=256, seed=None):
         self.virtual_size = virtual_size
@@ -881,15 +885,17 @@ class OnTheFlySeqDataset(Dataset):
         self._epoch = 0
         self._total_epochs = 50
         self._seed = seed
-        # 如果指定 seed，预生成固定数据（用于验证集）
+        self._pool = []  # [(PIL.Image, text), ...]
         self._cache = None
         if seed is not None:
             self._pregenerate(seed)
 
     def set_epoch(self, epoch, total_epochs=50):
-        """设置当前 epoch，影响难度分布（课程学习）。"""
+        """设置当前 epoch，刷新基础图池 + 调整难度。"""
         self._epoch = epoch
         self._total_epochs = total_epochs
+        # 每个 epoch 重建基础图池（10K 张新渲染）
+        self._rebuild_pool()
 
     def _pregenerate(self, seed):
         """预生成固定验证数据（保证每次 epoch 评估一致）。"""
@@ -925,11 +931,26 @@ class OnTheFlySeqDataset(Dataset):
     def __getitem__(self, idx):
         if self._cache is not None:
             return self._cache[idx]
+        if not self._pool:
+            self._rebuild_pool()
+        # 从池中按 idx 取基础图（不同 idx 取不同基础图，同一 idx 不同 epoch 增强不同）
+        pool_idx = idx % len(self._pool)
+        img, text = self._pool[pool_idx]
         difficulty = self._get_difficulty()
-        return self._generate_one(difficulty)
+        img = augment_image(img.copy(), difficulty)
+        return self._to_tensor(img, text)
 
-    def _generate_one(self, difficulty="normal"):
-        """生成一张全新的渲染+增强图片。"""
+    def _rebuild_pool(self):
+        """重建基础图池：渲染 POOL_SIZE 张无增强的基础图。"""
+        t0 = time.time()
+        self._pool = []
+        for _ in range(self.POOL_SIZE):
+            img, text = self._render_base()
+            self._pool.append((img, text))
+        print(f"  [Pool] 生成 {self.POOL_SIZE} 张基础图, 耗时 {time.time()-t0:.1f}s")
+
+    def _render_base(self):
+        """渲染一张基础图（含标签/嵌入，不含增强）。"""
         generators = [
             (lambda: f"{random.randint(80,200)}{random.choice(['/',' '])}{random.randint(40,130)}", 0.35, "bp"),
             (lambda: str(random.randint(40, 200)), 0.15, "hr"),
@@ -972,9 +993,16 @@ class OnTheFlySeqDataset(Dataset):
         if random.random() < 0.30:
             img = embed_with_margin(img, random.uniform(1.3, 2.5))
 
-        img = augment_image(img, difficulty)
+        return img, text
 
-        # 预处理
+    def _generate_one(self, difficulty="normal"):
+        """完整生成一张图（渲染+增强），用于验证集预生成。"""
+        img, text = self._render_base()
+        img = augment_image(img, difficulty)
+        return self._to_tensor(img, text)
+
+    def _to_tensor(self, img, text):
+        """PIL Image → tensor + label encoding。"""
         gray = img.convert("L")
         ratio = self.target_h / gray.height
         new_w = min(int(gray.width * ratio), self.max_w)
@@ -982,7 +1010,6 @@ class OnTheFlySeqDataset(Dataset):
         padded = Image.new("L", (self.max_w, self.target_h), 0)
         padded.paste(gray, (0, 0))
         tensor = torch.from_numpy(np.array(padded, dtype=np.float32) / 255.0).unsqueeze(0)
-
         encoded = encode_label(text)
         return tensor, torch.tensor(encoded, dtype=torch.long), len(encoded), new_w
 
@@ -1049,7 +1076,12 @@ train_dataset = OnTheFlySeqDataset(virtual_size=NUM_TRAIN)
 val_dataset = OnTheFlySeqDataset(virtual_size=NUM_VAL, seed=999)  # 验证集固定种子
 
 _pin = not _IS_TPU
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=2, pin_memory=_pin)
+_nw = 4 if not _IS_TPU else 0  # Kaggle T4 有 4 vCPU，全部用于增强
+train_loader = DataLoader(
+    train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate,
+    num_workers=_nw, pin_memory=_pin, prefetch_factor=4 if _nw > 0 else None,
+    persistent_workers=False,  # 每 epoch 重建池后需要 worker 重新 fork 获取新数据
+)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
 model = LightCRNN().to(device)
@@ -1059,9 +1091,9 @@ ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
 param_count = sum(p.numel() for p in model.parameters())
 print(f"模型参数量: {param_count:,} ({param_count * 4 / 1024:.0f} KB FP32)")
-print(f"训练集: {len(train_dataset)}/epoch (实时生成), 验证集: {len(val_dataset)}")
+print(f"训练集: {len(train_dataset)}/epoch (池 {OnTheFlySeqDataset.POOL_SIZE} 基础图 × 随机增强), 验证集: {len(val_dataset)}")
 print(f"Epochs: {EPOCHS}, Batch: {BATCH_SIZE}, LR: {LR}")
-print(f"总计: 模型将看到 ~{NUM_TRAIN * EPOCHS / 1e6:.1f}M 张不重复图片")
+print(f"策略: 每 epoch 刷新 {OnTheFlySeqDataset.POOL_SIZE} 张基础图, 增强后 {NUM_TRAIN} 张/epoch")
 print(f"课程学习: epoch 0-15% easy为主 → 15-40% normal为主 → 40%+ hard为主")
 print()
 
