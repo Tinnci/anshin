@@ -177,17 +177,15 @@ def generate_textured_background(w: int, h: int, base_color: tuple) -> Image.Ima
         arr[:, :, 2] = b + pattern * intensity * 0.4
 
     elif style == "fabric":
-        # 织物: 交叉网格
+        # 织物: 交叉网格（向量化）
         arr = np.zeros((h, w, 3), dtype=np.float32)
         arr[:, :] = [r, g, b]
         grid_size = random.randint(3, 8)
         intensity = random.uniform(5, 18)
-        for y in range(h):
-            for x in range(w):
-                if (y % grid_size < grid_size // 2) ^ (x % grid_size < grid_size // 2):
-                    arr[y, x] += intensity
-                else:
-                    arr[y, x] -= intensity
+        yy, xx = np.mgrid[0:h, 0:w]
+        mask = (yy % grid_size < grid_size // 2) ^ (xx % grid_size < grid_size // 2)
+        arr[mask] += intensity
+        arr[~mask] -= intensity
 
     elif style == "medical":
         # 医疗设备面板: 渐变 + 细微凹凸
@@ -408,11 +406,10 @@ def add_cast_shadow(img: Image.Image) -> Image.Image:
         for y in range(border, h):
             mask[y, :] = 1.0 - shadow_strength * ((y - border) / (h - border))
     else:  # diagonal
-        for y in range(h):
-            for x in range(w):
-                d = (x / w + y / h) / 2
-                if d < shadow_width:
-                    mask[y, x] = 1.0 - shadow_strength * (1.0 - d / shadow_width)
+        yy, xx = np.mgrid[0:h, 0:w]
+        d = (xx / w + yy / h) / 2
+        inside = d < shadow_width
+        mask[inside] = 1.0 - shadow_strength * (1.0 - d[inside] / shadow_width)
     for c in range(3):
         arr[:, :, c] *= mask
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))

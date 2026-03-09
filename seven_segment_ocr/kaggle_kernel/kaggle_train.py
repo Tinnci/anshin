@@ -699,11 +699,10 @@ def add_cast_shadow(img):
         for y in range(border, h):
             mask[y, :] = 1.0 - shadow_strength * ((y - border) / (h - border))
     else:  # diagonal
-        for y in range(h):
-            for x in range(w):
-                d = (x / w + y / h) / 2
-                if d < shadow_width:
-                    mask[y, x] = 1.0 - shadow_strength * (1.0 - d / shadow_width)
+        yy, xx = np.mgrid[0:h, 0:w]
+        d = (xx / w + yy / h) / 2
+        inside = d < shadow_width
+        mask[inside] = 1.0 - shadow_strength * (1.0 - d[inside] / shadow_width)
     for c in range(3):
         arr[:, :, c] *= mask
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
