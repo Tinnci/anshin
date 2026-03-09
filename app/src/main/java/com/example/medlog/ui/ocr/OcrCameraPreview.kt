@@ -16,6 +16,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -37,9 +38,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -73,8 +77,14 @@ internal fun OcrCameraPreview(
             .build()
     }
 
-    var isFlashOn by remember { mutableStateOf(false) }
+    var isFlashOn by rememberSaveable { mutableStateOf(false) }
     var camera by remember { mutableStateOf<Camera?>(null) }
+    var frozenBitmap by remember { mutableStateOf<android.graphics.Bitmap?>(null) }
+
+    // 处理完毕后清除冻结帧（恢复实时预览）
+    LaunchedEffect(isProcessing) {
+        if (!isProcessing) frozenBitmap = null
+    }
 
     DisposableEffect(Unit) {
         onDispose { executor.shutdown() }
@@ -116,12 +126,24 @@ internal fun OcrCameraPreview(
             modifier = Modifier.fillMaxSize(),
         )
 
+        // 拍照后显示冻结帧，覆盖实时预览
+        frozenBitmap?.let { bmp ->
+            Image(
+                bitmap = bmp.asImageBitmap(),
+                contentDescription = null,
+                modifier = Modifier.fillMaxSize(),
+                contentScale = ContentScale.Crop,
+            )
+        }
+
         HorizontalFloatingToolbar(
             expanded = true,
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
                         if (!isProcessing) {
+                            // 冻结预览帧：捕获当前画面作为静态图
+                            frozenBitmap = previewView.bitmap
                             onCaptureRequested()
                             imageCapture.takePicture(
                                 executor,

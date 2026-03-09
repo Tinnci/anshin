@@ -19,6 +19,7 @@ import androidx.compose.material.icons.automirrored.rounded.TrendingUp
 import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -63,7 +64,7 @@ fun HealthScreen(
     viewModel: HealthViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showOcrScanner by remember { mutableStateOf(false) }
+    var showOcrScanner by rememberSaveable { mutableStateOf(false) }
 
     val floatingToolbarState = rememberFloatingToolbarState()
     val scrollBehavior = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
@@ -261,6 +262,7 @@ fun HealthScreen(
             properties = androidx.compose.ui.window.DialogProperties(
                 usePlatformDefaultWidth = false,
                 dismissOnBackPress = true,
+                dismissOnClickOutside = false,
             ),
         ) {
             HealthOcrScannerPage(

@@ -30,6 +30,8 @@ import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.Saver
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -43,6 +45,18 @@ import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.medlog.R
 import com.example.medlog.data.model.HealthType
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonPrimitive
+import kotlinx.serialization.json.add
+import kotlinx.serialization.json.buildJsonArray
+import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.double
+import kotlinx.serialization.json.doubleOrNull
+import kotlinx.serialization.json.jsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
+import kotlinx.serialization.json.putJsonArray
 
 /**
  * 体征数据 OCR 扫描页面：拍照后自动解析血压/心率/血糖等体征指标。
@@ -72,7 +86,7 @@ fun HealthOcrScannerPage(
         }
     }
 
-    var hasPermission by remember {
+    var hasPermission by rememberSaveable {
         mutableStateOf(
             ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
                 PackageManager.PERMISSION_GRANTED,
@@ -87,9 +101,11 @@ fun HealthOcrScannerPage(
         if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
     }
 
-    var parseResult by remember { mutableStateOf(OcrParseResult(emptyList(), emptyList(), emptyList())) }
+    var parseResult by rememberSaveable(stateSaver = OcrParseResultSaver) {
+        mutableStateOf(OcrParseResult(emptyList(), emptyList(), emptyList()))
+    }
     var isProcessing by remember { mutableStateOf(false) }
-    var showResults by remember { mutableStateOf(false) }
+    var showResults by rememberSaveable { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
@@ -174,18 +190,28 @@ fun HealthOcrScannerPage(
                                         .pointerInput(Unit) { /* 消费触摸 */ },
                                     contentAlignment = Alignment.Center,
                                 ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                                    Surface(
+                                        shape = RoundedCornerShape(28.dp),
+                                        color = MaterialTheme.colorScheme.surfaceContainer,
+                                        tonalElevation = 6.dp,
                                     ) {
-                                        LoadingIndicator(
-                                            modifier = Modifier.size(56.dp),
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.ocr_processing),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            color = MaterialTheme.colorScheme.inverseOnSurface,
-                                        )
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            verticalArrangement = Arrangement.spacedBy(16.dp),
+                                            modifier = Modifier.padding(
+                                                horizontal = 40.dp,
+                                                vertical = 32.dp,
+                                            ),
+                                        ) {
+                                            LoadingIndicator(
+                                                modifier = Modifier.size(56.dp),
+                                            )
+                                            Text(
+                                                text = stringResource(R.string.ocr_processing),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                color = MaterialTheme.colorScheme.onSurface,
+                                            )
+                                        }
                                     }
                                 }
                             }
@@ -519,3 +545,61 @@ private fun formatMetricValue(metric: ParsedHealthMetric): String {
         "$v ${metric.type.unit}"
     }
 }
+
+// ── OcrParseResult 的 Saver（用于 rememberSaveable 在旋转时持久化） ────────
+
+private val OcrParseResultSaver = Saver<OcrParseResult, String>(
+    save = { result ->
+        buildJsonObject {
+            putJsonArray("m") {
+                result.metrics.forEach { m ->
+                    add(
+                        buildJsonObject {
+                            put("t", m.type.name)
+                            put("v", m.value)
+                            m.secondaryValue?.let { put("s", it) }
+                            put("r", m.rawText)
+                        },
+                    )
+                }
+            }
+            putJsonArray("c") {
+                result.candidates.forEach { c ->
+                    add(
+                        buildJsonObject {
+                            put("v", c.value)
+                            c.pairedValue?.let { put("p", it) }
+                            put("r", c.rawText)
+                        },
+                    )
+                }
+            }
+            putJsonArray("t") { result.rawTexts.forEach { add(JsonPrimitive(it)) } }
+        }.toString()
+    },
+    restore = { json ->
+        runCatching {
+            val obj = Json.parseToJsonElement(json).jsonObject
+            OcrParseResult(
+                metrics = obj["m"]?.jsonArray?.map { el ->
+                    val m = el.jsonObject
+                    ParsedHealthMetric(
+                        type = HealthType.valueOf(m["t"]!!.jsonPrimitive.content),
+                        value = m["v"]!!.jsonPrimitive.double,
+                        secondaryValue = m["s"]?.jsonPrimitive?.doubleOrNull,
+                        rawText = m["r"]!!.jsonPrimitive.content,
+                    )
+                } ?: emptyList(),
+                candidates = obj["c"]?.jsonArray?.map { el ->
+                    val c = el.jsonObject
+                    ExtractedNumber(
+                        value = c["v"]!!.jsonPrimitive.double,
+                        pairedValue = c["p"]?.jsonPrimitive?.doubleOrNull,
+                        rawText = c["r"]!!.jsonPrimitive.content,
+                    )
+                } ?: emptyList(),
+                rawTexts = obj["t"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
+            )
+        }.getOrDefault(OcrParseResult(emptyList(), emptyList(), emptyList()))
+    },
+)
