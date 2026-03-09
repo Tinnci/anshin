@@ -315,6 +315,59 @@ def add_edge_frame(img: Image.Image) -> Image.Image:
     return img
 
 
+def _seg_polys_pointy(x, y, width, height, t, g):
+    """经典尖角菱形风格段（默认）。"""
+    half_h = height // 2
+    return [
+        [(x+g+t,y),(x+width-g-t,y),(x+width-g-t-t//2,y+t),(x+g+t+t//2,y+t)],
+        [(x+width-t,y+g+t),(x+width,y+g+t),(x+width,y+half_h-g),(x+width-t//2,y+half_h-g+t//2),(x+width-t,y+half_h-g)],
+        [(x+width-t,y+half_h+g),(x+width-t//2,y+half_h+g-t//2),(x+width,y+half_h+g),(x+width,y+height-g-t),(x+width-t,y+height-g-t)],
+        [(x+g+t+t//2,y+height-t),(x+width-g-t-t//2,y+height-t),(x+width-g-t,y+height),(x+g+t,y+height)],
+        [(x,y+half_h+g),(x+t//2,y+half_h+g-t//2),(x+t,y+half_h+g),(x+t,y+height-g-t),(x,y+height-g-t)],
+        [(x,y+g+t),(x+t,y+g+t),(x+t,y+half_h-g),(x+t//2,y+half_h-g+t//2),(x,y+half_h-g)],
+        [(x+g+t,y+half_h-t//2),(x+g+t+t//2,y+half_h-t),(x+width-g-t-t//2,y+half_h-t),(x+width-g-t,y+half_h-t//2),(x+width-g-t-t//2,y+half_h),(x+g+t+t//2,y+half_h)],
+    ]
+
+
+def _seg_polys_rect(x, y, width, height, t, g):
+    """简洁矩形段风格（无尖角）。"""
+    half_h = height // 2
+    return [
+        [(x+g+t,y),(x+width-g-t,y),(x+width-g-t,y+t),(x+g+t,y+t)],
+        [(x+width-t,y+g+t),(x+width,y+g+t),(x+width,y+half_h-g),(x+width-t,y+half_h-g)],
+        [(x+width-t,y+half_h+g),(x+width,y+half_h+g),(x+width,y+height-g-t),(x+width-t,y+height-g-t)],
+        [(x+g+t,y+height-t),(x+width-g-t,y+height-t),(x+width-g-t,y+height),(x+g+t,y+height)],
+        [(x,y+half_h+g),(x+t,y+half_h+g),(x+t,y+height-g-t),(x,y+height-g-t)],
+        [(x,y+g+t),(x+t,y+g+t),(x+t,y+half_h-g),(x,y+half_h-g)],
+        [(x+g+t,y+half_h-t//2),(x+width-g-t,y+half_h-t//2),(x+width-g-t,y+half_h+t//2),(x+g+t,y+half_h+t//2)],
+    ]
+
+
+def _seg_polys_rounded(x, y, width, height, t, g):
+    """圆角段风格。"""
+    half_h = height // 2
+    r = max(1, t // 3)
+    return [
+        [(x+g+t+r,y),(x+width-g-t-r,y),(x+width-g-t,y+r),(x+width-g-t-r,y+t),(x+g+t+r,y+t),(x+g+t,y+r)],
+        [(x+width-t,y+g+t+r),(x+width-r,y+g+t),(x+width,y+g+t+r),(x+width,y+half_h-g-r),(x+width-r,y+half_h-g),(x+width-t,y+half_h-g-r)],
+        [(x+width-t,y+half_h+g+r),(x+width-r,y+half_h+g),(x+width,y+half_h+g+r),(x+width,y+height-g-t-r),(x+width-r,y+height-g-t),(x+width-t,y+height-g-t-r)],
+        [(x+g+t+r,y+height-t),(x+width-g-t-r,y+height-t),(x+width-g-t,y+height-r),(x+width-g-t-r,y+height),(x+g+t+r,y+height),(x+g+t,y+height-r)],
+        [(x,y+half_h+g+r),(x+r,y+half_h+g),(x+t,y+half_h+g+r),(x+t,y+height-g-t-r),(x+r,y+height-g-t),(x,y+height-g-t-r)],
+        [(x,y+g+t+r),(x+r,y+g+t),(x+t,y+g+t+r),(x+t,y+half_h-g-r),(x+r,y+half_h-g),(x,y+half_h-g-r)],
+        [(x+g+t+r,y+half_h-t//2),(x+width-g-t-r,y+half_h-t//2),(x+width-g-t,y+half_h),(x+width-g-t-r,y+half_h+t//2),(x+g+t+r,y+half_h+t//2),(x+g+t,y+half_h)],
+    ]
+
+
+def _seg_polys_thin(x, y, width, height, t, g):
+    """细线段风格。"""
+    t2 = max(1, t * 2 // 3)
+    off = (t - t2) // 2
+    return _seg_polys_pointy(x + off, y + off, width - off * 2, height - off * 2, t2, g)
+
+
+SEGMENT_STYLES = [_seg_polys_pointy, _seg_polys_rect, _seg_polys_rounded, _seg_polys_thin]
+
+
 def draw_seven_segment_digit(
     draw: ImageDraw.ImageDraw,
     digit: int,
@@ -327,86 +380,16 @@ def draw_seven_segment_digit(
     dim_color: tuple | None = None,
     gap: int = 1,
     skew: float = 0.0,
+    seg_style=None,
 ):
-    """在指定位置绘制一个七段管数字。
-
-    Args:
-        draw: PIL ImageDraw 对象
-        digit: 0-9 的数字
-        x, y: 左上角坐标
-        width, height: 数字区域宽高
-        thickness: 段的粗细
-        fg_color: 亮段颜色 (RGB)
-        dim_color: 暗段颜色 (RGB)，None 则不画暗段
-        gap: 段与段之间的间隙
-        skew: 倾斜角度（弧度）
-    """
+    """在指定位置绘制一个七段管数字。"""
     segments = DIGIT_SEGMENTS[digit]
-    half_h = height // 2
     t = thickness
     g = gap
+    if seg_style is None:
+        seg_style = random.choice(SEGMENT_STYLES)
+    seg_polys = seg_style(x, y, width, height, t, g)
 
-    # 定义每个段的多边形坐标 (相对于 x, y)
-    # a: 顶部水平段
-    seg_polys = []
-
-    # a - top horizontal
-    seg_polys.append([
-        (x + g + t, y),
-        (x + width - g - t, y),
-        (x + width - g - t - t // 2, y + t),
-        (x + g + t + t // 2, y + t),
-    ])
-    # b - top right vertical
-    seg_polys.append([
-        (x + width - t, y + g + t),
-        (x + width, y + g + t),
-        (x + width, y + half_h - g),
-        (x + width - t // 2, y + half_h - g + t // 2),
-        (x + width - t, y + half_h - g),
-    ])
-    # c - bottom right vertical
-    seg_polys.append([
-        (x + width - t, y + half_h + g),
-        (x + width - t // 2, y + half_h + g - t // 2),
-        (x + width, y + half_h + g),
-        (x + width, y + height - g - t),
-        (x + width - t, y + height - g - t),
-    ])
-    # d - bottom horizontal
-    seg_polys.append([
-        (x + g + t + t // 2, y + height - t),
-        (x + width - g - t - t // 2, y + height - t),
-        (x + width - g - t, y + height),
-        (x + g + t, y + height),
-    ])
-    # e - bottom left vertical
-    seg_polys.append([
-        (x, y + half_h + g),
-        (x + t // 2, y + half_h + g - t // 2),
-        (x + t, y + half_h + g),
-        (x + t, y + height - g - t),
-        (x, y + height - g - t),
-    ])
-    # f - top left vertical
-    seg_polys.append([
-        (x, y + g + t),
-        (x + t, y + g + t),
-        (x + t, y + half_h - g),
-        (x + t // 2, y + half_h - g + t // 2),
-        (x, y + half_h - g),
-    ])
-    # g - middle horizontal
-    seg_polys.append([
-        (x + g + t, y + half_h - t // 2),
-        (x + g + t + t // 2, y + half_h - t),
-        (x + width - g - t - t // 2, y + half_h - t),
-        (x + width - g - t, y + half_h - t // 2),
-        (x + width - g - t - t // 2, y + half_h),
-        (x + g + t + t // 2, y + half_h),
-    ])
-
-    # 应用倾斜
     if abs(skew) > 0.001:
         center_y = y + height / 2
         for poly in seg_polys:
@@ -414,7 +397,6 @@ def draw_seven_segment_digit(
                 offset = (py - center_y) * math.tan(skew)
                 poly[i] = (px + offset, py)
 
-    # 绘制所有段
     for i, (on, poly) in enumerate(zip(segments, seg_polys)):
         color = fg_color if on else dim_color
         if color is not None:
@@ -450,6 +432,7 @@ def render_number(
     fg = theme["fg"]
     dim = theme["dim"] if show_dim else None
     bg = theme["bg"]
+    seg_style = random.choice(SEGMENT_STYLES)
 
     # 计算总宽度
     char_widths = []
@@ -491,6 +474,7 @@ def render_number(
                 dim,
                 gap,
                 skew,
+                seg_style=seg_style,
             )
         elif ch == "/":
             # 绘制斜杠
@@ -770,10 +754,8 @@ def _get_label_font(size: int):
 def add_medical_label(
     img: Image.Image, category: str | None = None
 ) -> Image.Image:
-    """在图像上叠加医疗标签文字作为干扰。"""
+    """在图像边缘扩展画布并添加医疗标签文字，确保不与数字区域重叠。"""
     w, h = img.size
-    img = img.copy()
-    draw = ImageDraw.Draw(img)
 
     if category is None:
         category = random.choice(list(MEDICAL_LABELS.keys()))
@@ -784,43 +766,43 @@ def add_medical_label(
     font = _get_label_font(font_size)
 
     bg_pixel = img.getpixel((0, 0))
-    if random.random() < 0.6:
-        shift = random.randint(-40, 40)
-        color = tuple(max(0, min(255, c + shift)) for c in bg_pixel)
+    avg = sum(bg_pixel) / 3
+    if avg > 128:
+        color = tuple(max(0, c - random.randint(40, 100)) for c in bg_pixel)
     else:
-        avg = sum(bg_pixel) / 3
-        if avg > 128:
-            color = tuple(max(0, c - random.randint(30, 80)) for c in bg_pixel)
-        else:
-            color = tuple(min(255, c + random.randint(30, 80)) for c in bg_pixel)
+        color = tuple(min(255, c + random.randint(40, 100)) for c in bg_pixel)
 
-    bbox = draw.textbbox((0, 0), text, font=font)
+    # 测量文字尺寸
+    temp_img = Image.new("RGB", (1, 1))
+    temp_draw = ImageDraw.Draw(temp_img)
+    bbox = temp_draw.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    pad = max(2, int(h * 0.03))
 
-    layout = random.choice(["bottom", "top", "right", "top-right", "bottom-left"])
-    margin = max(2, int(h * 0.05))
+    # 扩展画布方向
+    side = random.choice(["bottom", "top", "right"])
+    if side == "bottom":
+        new_h = h + th + pad * 2
+        canvas = Image.new("RGB", (w, new_h), bg_pixel)
+        canvas.paste(img, (0, 0))
+        tx = random.randint(pad, max(pad, w - tw - pad))
+        ty = h + pad
+    elif side == "top":
+        new_h = h + th + pad * 2
+        canvas = Image.new("RGB", (w, new_h), bg_pixel)
+        canvas.paste(img, (0, th + pad * 2))
+        tx = random.randint(pad, max(pad, w - tw - pad))
+        ty = pad
+    else:  # right
+        new_w = w + tw + pad * 2
+        canvas = Image.new("RGB", (new_w, h), bg_pixel)
+        canvas.paste(img, (0, 0))
+        tx = w + pad
+        ty = random.randint(pad, max(pad, h - th - pad))
 
-    if layout == "bottom":
-        x = random.randint(margin, max(margin, w - tw - margin))
-        y = h - th - margin
-    elif layout == "top":
-        x = random.randint(margin, max(margin, w - tw - margin))
-        y = margin
-    elif layout == "right":
-        x = w - tw - margin
-        y = random.randint(margin, max(margin, h - th - margin))
-    elif layout == "top-right":
-        x = w - tw - margin
-        y = margin
-    else:
-        x = margin
-        y = h - th - margin
-
-    x = max(0, min(x, w - tw))
-    y = max(0, min(y, h - th))
-
-    draw.text((x, y), text, fill=color, font=font)
-    return img
+    draw = ImageDraw.Draw(canvas)
+    draw.text((tx, ty), text, fill=color, font=font)
+    return canvas
 
 
 def partial_occlusion(img: Image.Image, max_rects: int = 3) -> Image.Image:

@@ -182,19 +182,66 @@ def generate_textured_background(w, h, base_color):
     return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
 
 
-def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_color, dim_color=None, gap=1, skew=0.0):
-    segments = DIGIT_SEGMENTS[digit]
+def _seg_polys_pointy(x, y, width, height, t, g):
+    """经典尖角菱形风格段（默认）。"""
     half_h = height // 2
+    return [
+        [(x+g+t,y),(x+width-g-t,y),(x+width-g-t-t//2,y+t),(x+g+t+t//2,y+t)],
+        [(x+width-t,y+g+t),(x+width,y+g+t),(x+width,y+half_h-g),(x+width-t//2,y+half_h-g+t//2),(x+width-t,y+half_h-g)],
+        [(x+width-t,y+half_h+g),(x+width-t//2,y+half_h+g-t//2),(x+width,y+half_h+g),(x+width,y+height-g-t),(x+width-t,y+height-g-t)],
+        [(x+g+t+t//2,y+height-t),(x+width-g-t-t//2,y+height-t),(x+width-g-t,y+height),(x+g+t,y+height)],
+        [(x,y+half_h+g),(x+t//2,y+half_h+g-t//2),(x+t,y+half_h+g),(x+t,y+height-g-t),(x,y+height-g-t)],
+        [(x,y+g+t),(x+t,y+g+t),(x+t,y+half_h-g),(x+t//2,y+half_h-g+t//2),(x,y+half_h-g)],
+        [(x+g+t,y+half_h-t//2),(x+g+t+t//2,y+half_h-t),(x+width-g-t-t//2,y+half_h-t),(x+width-g-t,y+half_h-t//2),(x+width-g-t-t//2,y+half_h),(x+g+t+t//2,y+half_h)],
+    ]
+
+
+def _seg_polys_rect(x, y, width, height, t, g):
+    """简洁矩形段风格（无尖角）。"""
+    half_h = height // 2
+    return [
+        [(x+g+t,y),(x+width-g-t,y),(x+width-g-t,y+t),(x+g+t,y+t)],
+        [(x+width-t,y+g+t),(x+width,y+g+t),(x+width,y+half_h-g),(x+width-t,y+half_h-g)],
+        [(x+width-t,y+half_h+g),(x+width,y+half_h+g),(x+width,y+height-g-t),(x+width-t,y+height-g-t)],
+        [(x+g+t,y+height-t),(x+width-g-t,y+height-t),(x+width-g-t,y+height),(x+g+t,y+height)],
+        [(x,y+half_h+g),(x+t,y+half_h+g),(x+t,y+height-g-t),(x,y+height-g-t)],
+        [(x,y+g+t),(x+t,y+g+t),(x+t,y+half_h-g),(x,y+half_h-g)],
+        [(x+g+t,y+half_h-t//2),(x+width-g-t,y+half_h-t//2),(x+width-g-t,y+half_h+t//2),(x+g+t,y+half_h+t//2)],
+    ]
+
+
+def _seg_polys_rounded(x, y, width, height, t, g):
+    """圆角段风格 — 通过在端点添加额外点来模拟圆角。"""
+    half_h = height // 2
+    r = max(1, t // 3)
+    return [
+        [(x+g+t+r,y),(x+width-g-t-r,y),(x+width-g-t,y+r),(x+width-g-t-r,y+t),(x+g+t+r,y+t),(x+g+t,y+r)],
+        [(x+width-t,y+g+t+r),(x+width-r,y+g+t),(x+width,y+g+t+r),(x+width,y+half_h-g-r),(x+width-r,y+half_h-g),(x+width-t,y+half_h-g-r)],
+        [(x+width-t,y+half_h+g+r),(x+width-r,y+half_h+g),(x+width,y+half_h+g+r),(x+width,y+height-g-t-r),(x+width-r,y+height-g-t),(x+width-t,y+height-g-t-r)],
+        [(x+g+t+r,y+height-t),(x+width-g-t-r,y+height-t),(x+width-g-t,y+height-r),(x+width-g-t-r,y+height),(x+g+t+r,y+height),(x+g+t,y+height-r)],
+        [(x,y+half_h+g+r),(x+r,y+half_h+g),(x+t,y+half_h+g+r),(x+t,y+height-g-t-r),(x+r,y+height-g-t),(x,y+height-g-t-r)],
+        [(x,y+g+t+r),(x+r,y+g+t),(x+t,y+g+t+r),(x+t,y+half_h-g-r),(x+r,y+half_h-g),(x,y+half_h-g-r)],
+        [(x+g+t+r,y+half_h-t//2),(x+width-g-t-r,y+half_h-t//2),(x+width-g-t,y+half_h),(x+width-g-t-r,y+half_h+t//2),(x+g+t+r,y+half_h+t//2),(x+g+t,y+half_h)],
+    ]
+
+
+def _seg_polys_thin(x, y, width, height, t, g):
+    """细线段风格 — 用更薄的段体。"""
+    t2 = max(1, t * 2 // 3)
+    off = (t - t2) // 2
+    return _seg_polys_pointy(x + off, y + off, width - off * 2, height - off * 2, t2, g)
+
+
+SEGMENT_STYLES = [_seg_polys_pointy, _seg_polys_rect, _seg_polys_rounded, _seg_polys_thin]
+
+
+def draw_seven_segment_digit(draw, digit, x, y, width, height, thickness, fg_color, dim_color=None, gap=1, skew=0.0, seg_style=None):
+    segments = DIGIT_SEGMENTS[digit]
     t = thickness
     g = gap
-    seg_polys = []
-    seg_polys.append([(x+g+t,y),(x+width-g-t,y),(x+width-g-t-t//2,y+t),(x+g+t+t//2,y+t)])
-    seg_polys.append([(x+width-t,y+g+t),(x+width,y+g+t),(x+width,y+half_h-g),(x+width-t//2,y+half_h-g+t//2),(x+width-t,y+half_h-g)])
-    seg_polys.append([(x+width-t,y+half_h+g),(x+width-t//2,y+half_h+g-t//2),(x+width,y+half_h+g),(x+width,y+height-g-t),(x+width-t,y+height-g-t)])
-    seg_polys.append([(x+g+t+t//2,y+height-t),(x+width-g-t-t//2,y+height-t),(x+width-g-t,y+height),(x+g+t,y+height)])
-    seg_polys.append([(x,y+half_h+g),(x+t//2,y+half_h+g-t//2),(x+t,y+half_h+g),(x+t,y+height-g-t),(x,y+height-g-t)])
-    seg_polys.append([(x,y+g+t),(x+t,y+g+t),(x+t,y+half_h-g),(x+t//2,y+half_h-g+t//2),(x,y+half_h-g)])
-    seg_polys.append([(x+g+t,y+half_h-t//2),(x+g+t+t//2,y+half_h-t),(x+width-g-t-t//2,y+half_h-t),(x+width-g-t,y+half_h-t//2),(x+width-g-t-t//2,y+half_h),(x+g+t+t//2,y+half_h)])
+    if seg_style is None:
+        seg_style = random.choice(SEGMENT_STYLES)
+    seg_polys = seg_style(x, y, width, height, t, g)
     if abs(skew) > 0.001:
         center_y = y + height / 2
         for poly in seg_polys:
@@ -210,6 +257,7 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
     if theme is None:
         theme = pick_lcd_theme()
     fg, dim, bg = theme["fg"], theme["dim"] if show_dim else None, theme["bg"]
+    seg_style = random.choice(SEGMENT_STYLES)
     char_widths = []
     for ch in text:
         if ch in "0123456789": char_widths.append(digit_width)
@@ -228,7 +276,7 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
     cx = padding
     for ch, cw in zip(text, char_widths):
         if ch in "0123456789":
-            draw_seven_segment_digit(draw, int(ch), cx, padding, cw, digit_height, thickness, fg, dim, gap, skew)
+            draw_seven_segment_digit(draw, int(ch), cx, padding, cw, digit_height, thickness, fg, dim, gap, skew, seg_style=seg_style)
         elif ch == "/":
             draw.line([(cx+cw, padding+2), (cx, padding+digit_height-2)], fill=fg, width=max(2, thickness//2))
         elif ch == "-":
@@ -294,8 +342,8 @@ def _try_load_font(size):
         "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
         "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
-        "/System/Library/Fonts/PingFang.ttc",  # macOS
-        "/System/Library/Fonts/Hiragino Sans GB.ttc",  # macOS
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
     ]
     for path in candidates:
         if os.path.exists(path):
@@ -311,69 +359,79 @@ def _get_label_font(size):
         _LABEL_FONT_CACHE[size] = _try_load_font(size)
     return _LABEL_FONT_CACHE[size]
 
+# 确保 Kaggle 上有 CJK 字体
+def _ensure_cjk_fonts():
+    """在 Kaggle 环境下安装 CJK 字体（只运行一次）。"""
+    if not os.path.exists("/kaggle"):
+        return
+    marker = "/tmp/.cjk_fonts_installed"
+    if os.path.exists(marker):
+        return
+    noto_paths = [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+    ]
+    if any(os.path.exists(p) for p in noto_paths):
+        open(marker, "w").close()
+        return
+    print("  📦 安装 CJK 字体...")
+    os.system("apt-get update -qq && apt-get install -y -qq fonts-noto-cjk >/dev/null 2>&1")
+    open(marker, "w").close()
+    _LABEL_FONT_CACHE.clear()  # 清除缓存以使用新字体
+
+_ensure_cjk_fonts()
+
+
 def add_medical_label(img, category=None):
-    """在图像上叠加医疗标签文字作为干扰。
-
-    标签渲染为较小字号，位于数字区域的上方/下方/侧面。
-    """
+    """在图像边缘扩展画布并添加医疗标签文字，确保不与数字区域重叠。"""
     w, h = img.size
-    img = img.copy()
-    draw = ImageDraw.Draw(img)
 
-    # 选择标签类别
     if category is None:
         category = random.choice(list(MEDICAL_LABELS.keys()))
     labels = MEDICAL_LABELS.get(category, MEDICAL_LABELS["generic"])
     text = random.choice(labels)
 
-    # 字号：图片高度的 15-30%
     font_size = max(8, int(h * random.uniform(0.15, 0.30)))
     font = _get_label_font(font_size)
 
-    # 颜色：接近前景色（用 fg 偏移）或接近背景色
     bg_pixel = img.getpixel((0, 0))
-    if random.random() < 0.6:
-        # 偏暗/亮的前景色
-        shift = random.randint(-40, 40)
-        color = tuple(max(0, min(255, c + shift)) for c in bg_pixel)
+    avg = sum(bg_pixel) / 3
+    if avg > 128:
+        color = tuple(max(0, c - random.randint(40, 100)) for c in bg_pixel)
     else:
-        # 从背景色往反方向偏移（更像真实标签）
-        avg = sum(bg_pixel) / 3
-        if avg > 128:
-            color = tuple(max(0, c - random.randint(30, 80)) for c in bg_pixel)
-        else:
-            color = tuple(min(255, c + random.randint(30, 80)) for c in bg_pixel)
+        color = tuple(min(255, c + random.randint(40, 100)) for c in bg_pixel)
 
-    # 获取文字尺寸
-    bbox = draw.textbbox((0, 0), text, font=font)
+    # 测量文字尺寸
+    temp_img = Image.new("RGB", (1, 1))
+    temp_draw = ImageDraw.Draw(temp_img)
+    bbox = temp_draw.textbbox((0, 0), text, font=font)
     tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+    pad = max(2, int(h * 0.03))
 
-    # 布局位置
-    layout = random.choice(["bottom", "top", "right", "top-right", "bottom-left"])
-    margin = max(2, int(h * 0.05))
+    # 扩展画布方向
+    side = random.choice(["bottom", "top", "right"])
+    if side == "bottom":
+        new_h = h + th + pad * 2
+        canvas = Image.new("RGB", (w, new_h), bg_pixel)
+        canvas.paste(img, (0, 0))
+        tx = random.randint(pad, max(pad, w - tw - pad))
+        ty = h + pad
+    elif side == "top":
+        new_h = h + th + pad * 2
+        canvas = Image.new("RGB", (w, new_h), bg_pixel)
+        canvas.paste(img, (0, th + pad * 2))
+        tx = random.randint(pad, max(pad, w - tw - pad))
+        ty = pad
+    else:  # right
+        new_w = w + tw + pad * 2
+        canvas = Image.new("RGB", (new_w, h), bg_pixel)
+        canvas.paste(img, (0, 0))
+        tx = w + pad
+        ty = random.randint(pad, max(pad, h - th - pad))
 
-    if layout == "bottom":
-        x = random.randint(margin, max(margin, w - tw - margin))
-        y = h - th - margin
-    elif layout == "top":
-        x = random.randint(margin, max(margin, w - tw - margin))
-        y = margin
-    elif layout == "right":
-        x = w - tw - margin
-        y = random.randint(margin, max(margin, h - th - margin))
-    elif layout == "top-right":
-        x = w - tw - margin
-        y = margin
-    else:  # bottom-left
-        x = margin
-        y = h - th - margin
-
-    # 确保不越界
-    x = max(0, min(x, w - tw))
-    y = max(0, min(y, h - th))
-
-    draw.text((x, y), text, fill=color, font=font)
-    return img
+    draw = ImageDraw.Draw(canvas)
+    draw.text((tx, ty), text, fill=color, font=font)
+    return canvas
 
 
 # ── 增强函数 ──
