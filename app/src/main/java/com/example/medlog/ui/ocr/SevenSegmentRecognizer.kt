@@ -54,7 +54,7 @@ internal class SevenSegmentRecognizer(context: Context) {
         return try {
             val input = preprocessBitmap(bitmap)
             val tensor = OnnxTensor.createTensor(ortEnvironment, input, longArrayOf(1, 1, INPUT_H, INPUT_W))
-            val output = sess.run(mapOf("image" to tensor))
+            val output = sess.run(mapOf("input" to tensor))
             val logits = output[0].value
             tensor.close()
             output.close()
