@@ -241,6 +241,141 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
     return img
 
 
+# ── 医疗标签干扰文字 ──
+
+# 多语言医疗术语（作为背景干扰叠加到合成图上）
+MEDICAL_LABELS = {
+    "bp": [
+        # 英文
+        "mmHg", "SYS", "DIA", "BP", "SYS/DIA", "Systolic", "Diastolic",
+        # 中文
+        "血压", "高压", "低压", "收缩压", "舒张压", "毫米汞柱",
+        # 日文
+        "血圧", "最高", "最低",
+        # 韩文
+        "혈압", "수축기", "이완기",
+    ],
+    "hr": [
+        "bpm", "HR", "PULSE", "Pulse", "beats/min",
+        "心率", "脉搏", "次/分",
+        "心拍", "脈拍",
+        "심박수", "맥박",
+    ],
+    "temp": [
+        "°C", "℃", "°F", "TEMP", "Temp",
+        "体温", "温度",
+        "体温", "たいおん",
+        "체온", "온도",
+    ],
+    "spo2": [
+        "%SpO2", "SpO2", "%", "SAT",
+        "血氧", "血氧饱和度",
+        "酸素",
+        "산소포화도",
+    ],
+    "weight": [
+        "kg", "KG", "lb",
+        "体重", "体脂", "体脂率", "BMI",
+        "体重", "たいじゅう",
+        "체중", "체지방",
+    ],
+    "generic": [
+        "mmHg", "bpm", "°C", "kg", "%",
+        "ON", "OFF", "MEM", "SET",
+    ],
+}
+
+def _try_load_font(size):
+    """尝试加载支持 CJK 的字体，失败则返回默认字体。"""
+    from PIL import ImageFont
+    candidates = [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/System/Library/Fonts/PingFang.ttc",  # macOS
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",  # macOS
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+    return ImageFont.load_default()
+
+_LABEL_FONT_CACHE = {}
+def _get_label_font(size):
+    if size not in _LABEL_FONT_CACHE:
+        _LABEL_FONT_CACHE[size] = _try_load_font(size)
+    return _LABEL_FONT_CACHE[size]
+
+def add_medical_label(img, category=None):
+    """在图像上叠加医疗标签文字作为干扰。
+
+    标签渲染为较小字号，位于数字区域的上方/下方/侧面。
+    """
+    w, h = img.size
+    img = img.copy()
+    draw = ImageDraw.Draw(img)
+
+    # 选择标签类别
+    if category is None:
+        category = random.choice(list(MEDICAL_LABELS.keys()))
+    labels = MEDICAL_LABELS.get(category, MEDICAL_LABELS["generic"])
+    text = random.choice(labels)
+
+    # 字号：图片高度的 15-30%
+    font_size = max(8, int(h * random.uniform(0.15, 0.30)))
+    font = _get_label_font(font_size)
+
+    # 颜色：接近前景色（用 fg 偏移）或接近背景色
+    bg_pixel = img.getpixel((0, 0))
+    if random.random() < 0.6:
+        # 偏暗/亮的前景色
+        shift = random.randint(-40, 40)
+        color = tuple(max(0, min(255, c + shift)) for c in bg_pixel)
+    else:
+        # 从背景色往反方向偏移（更像真实标签）
+        avg = sum(bg_pixel) / 3
+        if avg > 128:
+            color = tuple(max(0, c - random.randint(30, 80)) for c in bg_pixel)
+        else:
+            color = tuple(min(255, c + random.randint(30, 80)) for c in bg_pixel)
+
+    # 获取文字尺寸
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+    # 布局位置
+    layout = random.choice(["bottom", "top", "right", "top-right", "bottom-left"])
+    margin = max(2, int(h * 0.05))
+
+    if layout == "bottom":
+        x = random.randint(margin, max(margin, w - tw - margin))
+        y = h - th - margin
+    elif layout == "top":
+        x = random.randint(margin, max(margin, w - tw - margin))
+        y = margin
+    elif layout == "right":
+        x = w - tw - margin
+        y = random.randint(margin, max(margin, h - th - margin))
+    elif layout == "top-right":
+        x = w - tw - margin
+        y = margin
+    else:  # bottom-left
+        x = margin
+        y = h - th - margin
+
+    # 确保不越界
+    x = max(0, min(x, w - tw))
+    y = max(0, min(y, h - th))
+
+    draw.text((x, y), text, fill=color, font=font)
+    return img
+
+
 # ── 增强函数 ──
 def add_noise(img, intensity=0.05):
     arr = np.array(img, dtype=np.float32)
@@ -484,9 +619,9 @@ class InMemorySeqDataset(Dataset):
             return "".join([str(random.randint(0, 9)) for _ in range(random.randint(1, 6))])
 
         generators = [
-            (random_bp, 0.35), (random_hr, 0.15), (random_temp, 0.10),
-            (random_glucose, 0.10), (random_spo2, 0.10), (random_weight, 0.05),
-            (random_generic, 0.15),
+            (random_bp, 0.35, "bp"), (random_hr, 0.15, "hr"), (random_temp, 0.10, "temp"),
+            (random_glucose, 0.10, "spo2"), (random_spo2, 0.10, "spo2"), (random_weight, 0.05, "weight"),
+            (random_generic, 0.15, "generic"),
         ]
 
         print(f"  生成 {num_samples} 张序列图片...")
@@ -494,10 +629,12 @@ class InMemorySeqDataset(Dataset):
             r = random.random()
             cumul = 0.0
             gen_func = random_generic
-            for func, w in generators:
+            label_cat = "generic"
+            for func, w, cat in generators:
                 cumul += w
                 if r < cumul:
                     gen_func = func
+                    label_cat = cat
                     break
 
             text = gen_func()
@@ -520,6 +657,10 @@ class InMemorySeqDataset(Dataset):
             if random.random() < 0.30:
                 scale = random.uniform(1.3, 2.5)
                 img = embed_with_margin(img, scale)
+
+            # 35%概率叠加医疗标签干扰文字
+            if random.random() < 0.35:
+                img = add_medical_label(img, category=label_cat)
 
             r2 = random.random()
             difficulty = "easy" if r2 < 0.15 else ("normal" if r2 < 0.45 else "hard")

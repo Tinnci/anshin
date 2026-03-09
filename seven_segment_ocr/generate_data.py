@@ -696,6 +696,133 @@ def embed_with_margin(img: Image.Image, scale_factor: float) -> Image.Image:
     return canvas
 
 
+# ── 医疗标签干扰文字 ──────────────────────────────────
+
+MEDICAL_LABELS = {
+    "bp": [
+        "mmHg", "SYS", "DIA", "BP", "SYS/DIA", "Systolic", "Diastolic",
+        "血压", "高压", "低压", "收缩压", "舒张压", "毫米汞柱",
+        "血圧", "最高", "最低",
+        "혈압", "수축기", "이완기",
+    ],
+    "hr": [
+        "bpm", "HR", "PULSE", "Pulse", "beats/min",
+        "心率", "脉搏", "次/分",
+        "心拍", "脈拍",
+        "심박수", "맥박",
+    ],
+    "temp": [
+        "°C", "℃", "°F", "TEMP", "Temp",
+        "体温", "温度",
+        "体温", "たいおん",
+        "체온", "온도",
+    ],
+    "spo2": [
+        "%SpO2", "SpO2", "%", "SAT",
+        "血氧", "血氧饱和度",
+        "酸素",
+        "산소포화도",
+    ],
+    "weight": [
+        "kg", "KG", "lb",
+        "体重", "体脂", "体脂率", "BMI",
+        "体重", "たいじゅう",
+        "체중", "체지방",
+    ],
+    "generic": [
+        "mmHg", "bpm", "°C", "kg", "%",
+        "ON", "OFF", "MEM", "SET",
+    ],
+}
+
+
+def _try_load_font(size: int):
+    """尝试加载支持 CJK 的字体，失败则返回默认字体。"""
+    from PIL import ImageFont
+
+    candidates = [
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/noto/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/noto-cjk/NotoSansCJK-Regular.ttc",
+        "/usr/share/fonts/truetype/droid/DroidSansFallbackFull.ttf",
+        "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
+        "/System/Library/Fonts/PingFang.ttc",
+        "/System/Library/Fonts/Hiragino Sans GB.ttc",
+    ]
+    for path in candidates:
+        if os.path.exists(path):
+            try:
+                return ImageFont.truetype(path, size)
+            except Exception:
+                continue
+    return ImageFont.load_default()
+
+
+_LABEL_FONT_CACHE: dict = {}
+
+
+def _get_label_font(size: int):
+    if size not in _LABEL_FONT_CACHE:
+        _LABEL_FONT_CACHE[size] = _try_load_font(size)
+    return _LABEL_FONT_CACHE[size]
+
+
+def add_medical_label(
+    img: Image.Image, category: str | None = None
+) -> Image.Image:
+    """在图像上叠加医疗标签文字作为干扰。"""
+    w, h = img.size
+    img = img.copy()
+    draw = ImageDraw.Draw(img)
+
+    if category is None:
+        category = random.choice(list(MEDICAL_LABELS.keys()))
+    labels = MEDICAL_LABELS.get(category, MEDICAL_LABELS["generic"])
+    text = random.choice(labels)
+
+    font_size = max(8, int(h * random.uniform(0.15, 0.30)))
+    font = _get_label_font(font_size)
+
+    bg_pixel = img.getpixel((0, 0))
+    if random.random() < 0.6:
+        shift = random.randint(-40, 40)
+        color = tuple(max(0, min(255, c + shift)) for c in bg_pixel)
+    else:
+        avg = sum(bg_pixel) / 3
+        if avg > 128:
+            color = tuple(max(0, c - random.randint(30, 80)) for c in bg_pixel)
+        else:
+            color = tuple(min(255, c + random.randint(30, 80)) for c in bg_pixel)
+
+    bbox = draw.textbbox((0, 0), text, font=font)
+    tw, th = bbox[2] - bbox[0], bbox[3] - bbox[1]
+
+    layout = random.choice(["bottom", "top", "right", "top-right", "bottom-left"])
+    margin = max(2, int(h * 0.05))
+
+    if layout == "bottom":
+        x = random.randint(margin, max(margin, w - tw - margin))
+        y = h - th - margin
+    elif layout == "top":
+        x = random.randint(margin, max(margin, w - tw - margin))
+        y = margin
+    elif layout == "right":
+        x = w - tw - margin
+        y = random.randint(margin, max(margin, h - th - margin))
+    elif layout == "top-right":
+        x = w - tw - margin
+        y = margin
+    else:
+        x = margin
+        y = h - th - margin
+
+    x = max(0, min(x, w - tw))
+    y = max(0, min(y, h - th))
+
+    draw.text((x, y), text, fill=color, font=font)
+    return img
+
+
 def partial_occlusion(img: Image.Image, max_rects: int = 3) -> Image.Image:
     """随机矩形遮挡（模拟部分被遮挡/手指遮挡）。"""
     img = img.copy()
@@ -933,13 +1060,13 @@ def generate_sequence_dataset(
         return "".join([str(random.randint(0, 9)) for _ in range(n)])
 
     generators = [
-        (random_bp, 0.35),
-        (random_hr, 0.15),
-        (random_temp, 0.10),
-        (random_glucose, 0.10),
-        (random_spo2, 0.10),
-        (random_weight, 0.05),
-        (random_generic, 0.15),
+        (random_bp, 0.35, "bp"),
+        (random_hr, 0.15, "hr"),
+        (random_temp, 0.10, "temp"),
+        (random_glucose, 0.10, "spo2"),
+        (random_spo2, 0.10, "spo2"),
+        (random_weight, 0.05, "weight"),
+        (random_generic, 0.15, "generic"),
     ]
 
     rows = []
@@ -950,10 +1077,12 @@ def generate_sequence_dataset(
         r = random.random()
         cumulative = 0.0
         gen_func = random_generic
-        for func, weight in generators:
+        label_cat = "generic"
+        for func, weight, cat in generators:
             cumulative += weight
             if r < cumulative:
                 gen_func = func
+                label_cat = cat
                 break
 
         text = gen_func()
@@ -987,6 +1116,10 @@ def generate_sequence_dataset(
         if random.random() < 0.30:
             scale = random.uniform(1.3, 2.5)
             img = embed_with_margin(img, scale)
+
+        # 35%概率叠加医疗标签干扰文字
+        if random.random() < 0.35:
+            img = add_medical_label(img, category=label_cat)
 
         # 难度分布: 25% easy, 35% normal, 40% hard
         r = random.random()
