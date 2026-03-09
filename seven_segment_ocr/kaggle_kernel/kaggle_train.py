@@ -454,13 +454,9 @@ def postprocess_ctc(text):
     while "  " in text:
         text = text.replace("  ", " ")
     # 去除首尾多余的分隔符
-    text = text.strip("/.- ")
+    text = text.strip("/.-")
     # 去除连续重复的分隔符 (如 "//" -> "/", ".." -> ".")
     text = re.sub(r'([/.\-])\1+', r'\1', text)
-    # 修正 "数字 空格 数字" 中间不应有空格的情况 (如 "3 5 2" 在数字序列中)
-    # 只在没有 "/" 分隔符的情况下移除数字间空格
-    if "/" not in text:
-        text = re.sub(r'(\d)\s+(\d)', r'\1\2', text)
     return text
 
 

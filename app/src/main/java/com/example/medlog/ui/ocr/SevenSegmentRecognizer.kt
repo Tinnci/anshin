@@ -147,13 +147,9 @@ internal class SevenSegmentRecognizer(context: Context) {
         // 合并连续空格
         text = text.replace(Regex("\\s{2,}"), " ")
         // 去除首尾分隔符
-        text = text.trim('/', '.', '-', ' ')
+        text = text.trim('/', '.', '-')
         // 去除连续重复分隔符 (如 "//" → "/", ".." → ".")
         text = text.replace(Regex("([/.\\-])\\1+"), "$1")
-        // 无 "/" 时移除数字间多余空格 (如 "3 5 2" → "352")
-        if ('/' !in text) {
-            text = text.replace(Regex("(\\d)\\s+(\\d)"), "$1$2")
-        }
         return text
     }
 
