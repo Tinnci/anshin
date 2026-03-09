@@ -36,8 +36,9 @@ from PIL import Image, ImageDraw, ImageFilter
 
 # 检查 GPU/TPU
 try:
+    import torch_xla
     import torch_xla.core.xla_model as xm
-    device = xm.xla_device()
+    device = torch_xla.device()
     _IS_TPU = True
     print(f"🚀 使用设备: TPU ({device})")
 except ImportError:
@@ -601,6 +602,7 @@ for epoch in range(EPOCHS):
         torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
         if _IS_TPU:
             xm.optimizer_step(optimizer)
+            xm.mark_step()
         else:
             optimizer.step()
         total_loss += loss.item()
