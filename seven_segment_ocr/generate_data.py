@@ -105,6 +105,22 @@ def pick_lcd_theme() -> dict:
 
 # ── 背景纹理生成 ──────────────────────────────────────────
 
+def _bilinear_resize(arr: np.ndarray, out_h: int, out_w: int) -> np.ndarray:
+    """纯 numpy 双线性插值放大 2D 数组（替代 PIL.Image.resize 避免 F-mode 开销）。"""
+    in_h, in_w = arr.shape
+    y_ratio = (in_h - 1) / max(1, out_h - 1)
+    x_ratio = (in_w - 1) / max(1, out_w - 1)
+    y_idx = np.arange(out_h, dtype=np.float32) * y_ratio
+    x_idx = np.arange(out_w, dtype=np.float32) * x_ratio
+    y0 = np.floor(y_idx).astype(np.int32).clip(0, in_h - 2)
+    x0 = np.floor(x_idx).astype(np.int32).clip(0, in_w - 2)
+    yf = y_idx - y0
+    xf = x_idx - x0
+    top = arr[y0][:, x0] * (1 - xf) + arr[y0][:, x0 + 1] * xf
+    bot = arr[y0 + 1][:, x0] * (1 - xf) + arr[y0 + 1][:, x0 + 1] * xf
+    return top * (1 - yf[:, None]) + bot * yf[:, None]
+
+
 def _perlin_noise_2d(shape, scale=32.0):
     """简化的 Perlin-like 噪声（多层随机梯度插值）。"""
     h, w = shape
@@ -115,10 +131,7 @@ def _perlin_noise_2d(shape, scale=32.0):
         gh = max(2, int(h / s) + 2)
         gw = max(2, int(w / s) + 2)
         grid = np.random.randn(gh, gw).astype(np.float32)
-        # 双线性插值放大
-        from PIL import Image as _Img
-        grid_img = _Img.fromarray(grid)
-        grid_up = np.array(grid_img.resize((w, h), _Img.BILINEAR))
+        grid_up = _bilinear_resize(grid, h, w)
         noise += grid_up * (0.5 ** octave)
     # 归一化到 [0, 1]
     noise = (noise - noise.min()) / (noise.max() - noise.min() + 1e-8)

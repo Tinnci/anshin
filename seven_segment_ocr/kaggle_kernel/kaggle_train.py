@@ -103,6 +103,23 @@ def pick_lcd_theme() -> dict:
     return random.choice(LCD_THEMES_DARK_BG)
 
 
+def _bilinear_resize(arr, out_h, out_w):
+    """纯 numpy 双线性插值放大 2D 数组（替代 PIL.Image.resize 避免 F-mode 开销）。"""
+    in_h, in_w = arr.shape
+    y_ratio = (in_h - 1) / max(1, out_h - 1)
+    x_ratio = (in_w - 1) / max(1, out_w - 1)
+    y_idx = np.arange(out_h, dtype=np.float32) * y_ratio
+    x_idx = np.arange(out_w, dtype=np.float32) * x_ratio
+    y0 = np.floor(y_idx).astype(np.int32).clip(0, in_h - 2)
+    x0 = np.floor(x_idx).astype(np.int32).clip(0, in_w - 2)
+    yf = y_idx - y0
+    xf = x_idx - x0
+    # 向量化双线性插值
+    top = arr[y0][:, x0] * (1 - xf) + arr[y0][:, x0 + 1] * xf
+    bot = arr[y0 + 1][:, x0] * (1 - xf) + arr[y0 + 1][:, x0 + 1] * xf
+    return top * (1 - yf[:, None]) + bot * yf[:, None]
+
+
 def _perlin_noise_2d(shape, scale=32.0):
     h, w = shape
     noise = np.zeros((h, w), dtype=np.float32)
@@ -112,8 +129,7 @@ def _perlin_noise_2d(shape, scale=32.0):
         gh = max(2, int(h / s) + 2)
         gw = max(2, int(w / s) + 2)
         grid = np.random.randn(gh, gw).astype(np.float32)
-        grid_img = Image.fromarray(grid)
-        grid_up = np.array(grid_img.resize((w, h), Image.BILINEAR))
+        grid_up = _bilinear_resize(grid, h, w)
         noise += grid_up * (0.5 ** octave)
     noise = (noise - noise.min()) / (noise.max() - noise.min() + 1e-8)
     return noise
@@ -771,58 +787,103 @@ def add_smudge(img):
     return img
 
 
-def augment_image(img, difficulty="normal"):
+def augment_geometric(img, difficulty="normal"):
+    """几何增强：变换空间结构，计算较重。在 pool 生成阶段调用。"""
+    if difficulty == "easy":
+        if random.random() < 0.1:
+            img = add_ghosting(img, 0.08)
+        return img
+
+    if difficulty == "hard":
+        if random.random() < 0.35:
+            img = add_background_clutter(img)
+        if random.random() < 0.25:
+            img = add_edge_frame(img)
+        if random.random() < 0.6:
+            ps = random.uniform(0.06, 0.20)
+            img = perspective_transform(img, ps)
+        if random.random() < 0.20:
+            img = add_ghosting(img)
+        if random.random() < 0.20:
+            img = add_motion_blur(img)
+        if random.random() < 0.15:
+            img = add_barrel_distortion(img)
+        if random.random() < 0.20:
+            img = add_cast_shadow(img)
+        if random.random() < 0.10:
+            img = add_scratches(img)
+        if random.random() < 0.10:
+            img = add_smudge(img)
+        if random.random() < 0.2:
+            img = partial_occlusion(img, max_rects=2)
+        if random.random() < 0.6:
+            img = random_rotate(img, max_angle=10.0)
+        return img
+
+    # normal
+    if random.random() < 0.5:
+        img = random_rotate(img, max_angle=5.0)
+    if random.random() < 0.25:
+        img = perspective_transform(img, random.uniform(0.03, 0.10))
+    if random.random() < 0.1:
+        img = add_background_clutter(img)
+    if random.random() < 0.10:
+        img = add_ghosting(img, 0.10)
+    if random.random() < 0.08:
+        img = add_barrel_distortion(img, random.uniform(0.03, 0.10))
+    if random.random() < 0.08:
+        img = add_cast_shadow(img)
+    return img
+
+
+def augment_photometric(img, difficulty="normal"):
+    """光度增强：调整颜色/亮度/噪声，计算较轻。在 __getitem__ 中在线调用。"""
     if difficulty == "easy":
         img = adjust_brightness_contrast(img, random.uniform(0.85, 1.15), random.uniform(0.9, 1.1))
         if random.random() < 0.3:
             img = add_noise(img, random.uniform(0.01, 0.03))
-        if random.random() < 0.1: img = add_ghosting(img, 0.08)
         return img
 
     if difficulty == "hard":
-        if random.random() < 0.35: img = add_background_clutter(img)
-        if random.random() < 0.25: img = add_edge_frame(img)
-        # 视角对比度绑定：透视变换时同时降低对比度
-        if random.random() < 0.6:
-            ps = random.uniform(0.06, 0.20)
-            img = perspective_transform(img, ps)
-            if ps > 0.12:
-                img = adjust_brightness_contrast(img, random.uniform(0.6, 0.85), random.uniform(0.4, 0.65))
-        if random.random() < 0.4: img = adjust_brightness_contrast(img, random.uniform(0.6, 0.9), random.uniform(0.4, 0.6))
-        if random.random() < 0.5: img = add_reflection(img, random.uniform(0.15, 0.5))
-        if random.random() < 0.4: img = add_color_cast(img)
-        # 新增物理仿真
-        if random.random() < 0.20: img = add_ghosting(img)
-        if random.random() < 0.20: img = add_motion_blur(img)
-        if random.random() < 0.15: img = add_barrel_distortion(img)
-        if random.random() < 0.20: img = add_cast_shadow(img)
-        if random.random() < 0.12: img = add_chromatic_aberration(img)
-        if random.random() < 0.10: img = add_scratches(img)
-        if random.random() < 0.10: img = add_smudge(img)
-        # 原有增强
-        if random.random() < 0.5: img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.8, 2.5)))
-        if random.random() < 0.5: img = add_noise(img, random.uniform(0.05, 0.15))
-        if random.random() < 0.3: img = add_salt_pepper_noise(img, random.uniform(0.01, 0.05))
-        if random.random() < 0.3: img = add_jpeg_artifacts(img, random.randint(15, 40))
-        if random.random() < 0.2: img = partial_occlusion(img, max_rects=2)
-        if random.random() < 0.6: img = random_rotate(img, max_angle=10.0)
-        if random.random() < 0.08: img = invert_polarity(img)
+        if random.random() < 0.4:
+            img = adjust_brightness_contrast(img, random.uniform(0.6, 0.9), random.uniform(0.4, 0.6))
+        if random.random() < 0.5:
+            img = add_reflection(img, random.uniform(0.15, 0.5))
+        if random.random() < 0.4:
+            img = add_color_cast(img)
+        if random.random() < 0.12:
+            img = add_chromatic_aberration(img)
+        if random.random() < 0.5:
+            img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.8, 2.5)))
+        if random.random() < 0.5:
+            img = add_noise(img, random.uniform(0.05, 0.15))
+        if random.random() < 0.3:
+            img = add_salt_pepper_noise(img, random.uniform(0.01, 0.05))
+        if random.random() < 0.3:
+            img = add_jpeg_artifacts(img, random.randint(15, 40))
+        if random.random() < 0.08:
+            img = invert_polarity(img)
         return img
 
     # normal
     img = adjust_brightness_contrast(img, random.uniform(0.7, 1.3), random.uniform(0.8, 1.3))
-    if random.random() < 0.7: img = add_noise(img, random.uniform(0.02, 0.10))
-    if random.random() < 0.4: img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.3, 1.5)))
-    if random.random() < 0.5: img = random_rotate(img, max_angle=5.0)
-    if random.random() < 0.2: img = add_reflection(img, random.uniform(0.1, 0.25))
-    if random.random() < 0.15: img = add_color_cast(img)
-    if random.random() < 0.25: img = perspective_transform(img, random.uniform(0.03, 0.10))
-    if random.random() < 0.1: img = add_background_clutter(img)
-    # normal 也加入部分物理仿真（弱强度）
-    if random.random() < 0.10: img = add_ghosting(img, 0.10)
-    if random.random() < 0.08: img = add_barrel_distortion(img, random.uniform(0.03, 0.10))
-    if random.random() < 0.08: img = add_cast_shadow(img)
-    if random.random() < 0.05: img = add_chromatic_aberration(img, 1)
+    if random.random() < 0.7:
+        img = add_noise(img, random.uniform(0.02, 0.10))
+    if random.random() < 0.4:
+        img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.3, 1.5)))
+    if random.random() < 0.2:
+        img = add_reflection(img, random.uniform(0.1, 0.25))
+    if random.random() < 0.15:
+        img = add_color_cast(img)
+    if random.random() < 0.05:
+        img = add_chromatic_aberration(img, 1)
+    return img
+
+
+def augment_image(img, difficulty="normal"):
+    """完整增强（几何+光度），用于验证集预生成等一次性场景。"""
+    img = augment_geometric(img, difficulty)
+    img = augment_photometric(img, difficulty)
     return img
 
 
@@ -875,7 +936,7 @@ class OnTheFlySeqDataset(Dataset):
     - 支持课程学习：通过 set_epoch() 调整难度分布
     """
 
-    POOL_SIZE = 10000  # 基础图池大小（渲染 10K 张够用）
+    POOL_SIZE = 30000  # 基础图池大小（含几何增强，30K 提升多样性）
 
     def __init__(self, virtual_size=100000, target_h=64, max_w=256, seed=None):
         self.virtual_size = virtual_size
@@ -932,21 +993,24 @@ class OnTheFlySeqDataset(Dataset):
             return self._cache[idx]
         if not self._pool:
             self._rebuild_pool()
-        # 从池中按 idx 取基础图（不同 idx 取不同基础图，同一 idx 不同 epoch 增强不同）
+        # 从池中取基础图（已含几何增强），在线施加轻量光度增强
         pool_idx = idx % len(self._pool)
         img, text = self._pool[pool_idx]
         difficulty = self._get_difficulty()
-        img = augment_image(img.copy(), difficulty)
+        img = augment_photometric(img.copy(), difficulty)
         return self._to_tensor(img, text)
 
     def _rebuild_pool(self):
-        """重建基础图池：渲染 POOL_SIZE 张无增强的基础图。"""
+        """重建基础图池：渲染 + 几何增强。"""
         t0 = time.time()
         self._pool = []
         for _ in range(self.POOL_SIZE):
             img, text = self._render_base()
+            # 在 pool 阶段施加重量级几何增强
+            difficulty = self._get_difficulty()
+            img = augment_geometric(img, difficulty)
             self._pool.append((img, text))
-        print(f"  [Pool] 生成 {self.POOL_SIZE} 张基础图, 耗时 {time.time()-t0:.1f}s")
+        print(f"  [Pool] 生成 {self.POOL_SIZE} 张基础图+几何增强, 耗时 {time.time()-t0:.1f}s")
 
     def _render_base(self):
         """渲染一张基础图（含标签/嵌入，不含增强）。"""
@@ -1079,7 +1143,7 @@ _nw = 4 if not _IS_TPU else 0  # Kaggle T4 有 4 vCPU，全部用于增强
 train_loader = DataLoader(
     train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate,
     num_workers=_nw, pin_memory=_pin, prefetch_factor=4 if _nw > 0 else None,
-    persistent_workers=False,  # 每 epoch 重建池后需要 worker 重新 fork 获取新数据
+    persistent_workers=False,  # 每 epoch 重建池后 worker 需要 re-fork 获取新 pool
 )
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
@@ -1090,9 +1154,9 @@ ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
 param_count = sum(p.numel() for p in model.parameters())
 print(f"模型参数量: {param_count:,} ({param_count * 4 / 1024:.0f} KB FP32)")
-print(f"训练集: {len(train_dataset)}/epoch (池 {OnTheFlySeqDataset.POOL_SIZE} 基础图 × 随机增强), 验证集: {len(val_dataset)}")
+print(f"训练集: {len(train_dataset)}/epoch (池 {OnTheFlySeqDataset.POOL_SIZE} 基础图+几何增强 × 在线光度增强), 验证集: {len(val_dataset)}")
 print(f"Epochs: {EPOCHS}, Batch: {BATCH_SIZE}, LR: {LR}")
-print(f"策略: 每 epoch 刷新 {OnTheFlySeqDataset.POOL_SIZE} 张基础图, 增强后 {NUM_TRAIN} 张/epoch")
+print(f"策略: 池中 渲染+几何增强(重), __getitem__ 仅光度增强(轻) → GPU 利用率↑")
 print(f"课程学习: epoch 0-15% easy为主 → 15-40% normal为主 → 40%+ hard为主")
 print()
 
