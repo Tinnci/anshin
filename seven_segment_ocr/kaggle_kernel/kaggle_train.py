@@ -868,107 +868,123 @@ def postprocess_ctc(text):
     return text
 
 
-class InMemorySeqDataset(Dataset):
-    """在内存中生成并缓存图片（GPU 训练更快）。"""
+class OnTheFlySeqDataset(Dataset):
+    """实时生成训练数据，每次 __getitem__ 返回全新图片（无限多样性）。
 
-    def __init__(self, num_samples=10000, target_h=64, max_w=256, seed=42):
+    支持课程学习：通过 set_epoch() 调整难度分布。
+    """
+
+    def __init__(self, virtual_size=100000, target_h=64, max_w=256, seed=None):
+        self.virtual_size = virtual_size
         self.target_h = target_h
         self.max_w = max_w
-        self.data = []
+        self._epoch = 0
+        self._total_epochs = 50
+        self._seed = seed
+        # 如果指定 seed，预生成固定数据（用于验证集）
+        self._cache = None
+        if seed is not None:
+            self._pregenerate(seed)
 
+    def set_epoch(self, epoch, total_epochs=50):
+        """设置当前 epoch，影响难度分布（课程学习）。"""
+        self._epoch = epoch
+        self._total_epochs = total_epochs
+
+    def _pregenerate(self, seed):
+        """预生成固定验证数据（保证每次 epoch 评估一致）。"""
+        old_rng = random.getstate()
+        old_np_rng = np.random.get_state()
         random.seed(seed)
         np.random.seed(seed)
+        self._cache = []
+        for i in range(self.virtual_size):
+            self._cache.append(self._generate_one(difficulty="normal"))
+        random.setstate(old_rng)
+        np.random.set_state(old_np_rng)
 
-        def random_bp():
-            sys = random.randint(80, 200)
-            dia = random.randint(40, 130)
-            return f"{sys}{random.choice(['/', ' '])}{dia}"
-        def random_hr(): return str(random.randint(40, 200))
-        def random_temp(): return str(round(random.uniform(35.0, 42.0), 1))
-        def random_glucose(): return str(round(random.uniform(2.0, 30.0), 1))
-        def random_spo2(): return str(random.randint(85, 100))
-        def random_weight(): return str(round(random.uniform(30.0, 150.0), 1))
-        def random_generic():
-            return "".join([str(random.randint(0, 9)) for _ in range(random.randint(1, 6))])
-
-        generators = [
-            (random_bp, 0.35, "bp"), (random_hr, 0.15, "hr"), (random_temp, 0.10, "temp"),
-            (random_glucose, 0.10, "spo2"), (random_spo2, 0.10, "spo2"), (random_weight, 0.05, "weight"),
-            (random_generic, 0.15, "generic"),
-        ]
-
-        print(f"  生成 {num_samples} 张序列图片...")
-        for i in range(num_samples):
+    def _get_difficulty(self):
+        """课程学习难度调度：前期偏 easy，后期偏 hard。"""
+        progress = self._epoch / max(1, self._total_epochs - 1)
+        if progress < 0.15:
+            # 前 15%: 60% easy, 30% normal, 10% hard
             r = random.random()
-            cumul = 0.0
-            gen_func = random_generic
-            label_cat = "generic"
-            for func, w, cat in generators:
-                cumul += w
-                if r < cumul:
-                    gen_func = func
-                    label_cat = cat
-                    break
-
-            text = gen_func()
-            theme = pick_lcd_theme()
-            # 更大的尺寸范围：包含很小的数字 (模拟远距离拍摄)
-            dw = random.randint(18, 55)
-            dh = random.randint(35, 95)
-            # 更宽的间距范围：紧凑(0) ~ 松散(22)
-            sp = random.choice([
-                random.randint(0, 2),    # 紧凑型 (20%)
-                random.randint(3, 10),   # 标准型 (40%)
-                random.randint(3, 10),
-                random.randint(11, 22),  # 松散型 (20%)
-                random.randint(3, 14),   # 混合   (20%)
-            ])
-
-            img = render_number(
-                text, digit_width=dw, digit_height=dh,
-                thickness=random.randint(2, max(3, dw // 4)),
-                theme=theme, gap=random.randint(0, 4),
-                spacing=sp, padding=random.randint(3, 22),
-                skew=random.uniform(-0.18, 0.18),
-                show_dim=random.random() < 0.5,
-                use_textured_bg=random.random() < 0.4,
-            )
-
-            # 35%概率叠加医疗标签干扰文字（在 embed/augment 之前，使标签与数字一起经历变换）
-            if random.random() < 0.35:
-                img = add_medical_label(img, category=label_cat)
-
-            # 随机在更大画布中嵌入 (30%概率, 模拟屏幕比数字大很多)
-            if random.random() < 0.30:
-                scale = random.uniform(1.3, 2.5)
-                img = embed_with_margin(img, scale)
-
-            r2 = random.random()
-            difficulty = "easy" if r2 < 0.15 else ("normal" if r2 < 0.45 else "hard")
-            img = augment_image(img, difficulty)
-
-            # 预处理
-            gray = img.convert("L")
-            ratio = target_h / gray.height
-            new_w = min(int(gray.width * ratio), max_w)
-            gray = gray.resize((new_w, target_h), Image.LANCZOS)
-            padded = Image.new("L", (max_w, target_h), 0)
-            padded.paste(gray, (0, 0))
-            tensor = torch.from_numpy(np.array(padded, dtype=np.float32) / 255.0).unsqueeze(0)
-
-            encoded = encode_label(text)
-            self.data.append((tensor, torch.tensor(encoded, dtype=torch.long), len(encoded), new_w))
-
-            if (i + 1) % 2000 == 0:
-                print(f"    {i + 1}/{num_samples}")
-
-        print(f"  ✅ 数据集生成完成")
+            return "easy" if r < 0.6 else ("normal" if r < 0.9 else "hard")
+        elif progress < 0.4:
+            # 15-40%: 20% easy, 50% normal, 30% hard
+            r = random.random()
+            return "easy" if r < 0.2 else ("normal" if r < 0.7 else "hard")
+        else:
+            # 40-100%: 5% easy, 25% normal, 70% hard
+            r = random.random()
+            return "easy" if r < 0.05 else ("normal" if r < 0.30 else "hard")
 
     def __len__(self):
-        return len(self.data)
+        return self.virtual_size
 
     def __getitem__(self, idx):
-        return self.data[idx]
+        if self._cache is not None:
+            return self._cache[idx]
+        difficulty = self._get_difficulty()
+        return self._generate_one(difficulty)
+
+    def _generate_one(self, difficulty="normal"):
+        """生成一张全新的渲染+增强图片。"""
+        generators = [
+            (lambda: f"{random.randint(80,200)}{random.choice(['/',' '])}{random.randint(40,130)}", 0.35, "bp"),
+            (lambda: str(random.randint(40, 200)), 0.15, "hr"),
+            (lambda: str(round(random.uniform(35.0, 42.0), 1)), 0.10, "temp"),
+            (lambda: str(round(random.uniform(2.0, 30.0), 1)), 0.10, "spo2"),
+            (lambda: str(random.randint(85, 100)), 0.10, "spo2"),
+            (lambda: str(round(random.uniform(30.0, 150.0), 1)), 0.05, "weight"),
+            (lambda: "".join([str(random.randint(0,9)) for _ in range(random.randint(1,6))]), 0.15, "generic"),
+        ]
+        r = random.random()
+        cumul = 0.0
+        gen_func, label_cat = generators[-1][0], "generic"
+        for func, w, cat in generators:
+            cumul += w
+            if r < cumul:
+                gen_func, label_cat = func, cat
+                break
+
+        text = gen_func()
+        theme = pick_lcd_theme()
+        dw = random.randint(18, 55)
+        dh = random.randint(35, 95)
+        sp = random.choice([
+            random.randint(0, 2), random.randint(3, 10), random.randint(3, 10),
+            random.randint(11, 22), random.randint(3, 14),
+        ])
+
+        img = render_number(
+            text, digit_width=dw, digit_height=dh,
+            thickness=random.randint(2, max(3, dw // 4)),
+            theme=theme, gap=random.randint(0, 4),
+            spacing=sp, padding=random.randint(3, 22),
+            skew=random.uniform(-0.18, 0.18),
+            show_dim=random.random() < 0.5,
+            use_textured_bg=random.random() < 0.4,
+        )
+
+        if random.random() < 0.35:
+            img = add_medical_label(img, category=label_cat)
+        if random.random() < 0.30:
+            img = embed_with_margin(img, random.uniform(1.3, 2.5))
+
+        img = augment_image(img, difficulty)
+
+        # 预处理
+        gray = img.convert("L")
+        ratio = self.target_h / gray.height
+        new_w = min(int(gray.width * ratio), self.max_w)
+        gray = gray.resize((new_w, self.target_h), Image.LANCZOS)
+        padded = Image.new("L", (self.max_w, self.target_h), 0)
+        padded.paste(gray, (0, 0))
+        tensor = torch.from_numpy(np.array(padded, dtype=np.float32) / 255.0).unsqueeze(0)
+
+        encoded = encode_label(text)
+        return tensor, torch.tensor(encoded, dtype=torch.long), len(encoded), new_w
 
 
 # ─────────────────────────────────────────────────────────
@@ -1016,24 +1032,24 @@ def ctc_collate(batch):
 
 # %%
 # 配置
-NUM_TRAIN = 35000
-NUM_VAL = 4000
-EPOCHS = 80
+NUM_TRAIN = 100000   # 每 epoch 虚拟大小（实时生成，每次看到的都不同）
+NUM_VAL = 5000       # 验证集（固定种子，保证可比性）
+EPOCHS = 50
 BATCH_SIZE = 64
 LR = 0.0005
 OUTPUT_DIR = Path("/kaggle/working") if os.path.exists("/kaggle") else Path("kaggle_output")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 print("=" * 60)
-print("七段数码管 CRNN 训练 (GPU/TPU)")
+print("七段数码管 CRNN 训练 (GPU/TPU) — On-the-fly 生成")
 print("=" * 60)
 
-# 生成数据
-train_dataset = InMemorySeqDataset(NUM_TRAIN, seed=42)
-val_dataset = InMemorySeqDataset(NUM_VAL, seed=999)
+# 数据集
+train_dataset = OnTheFlySeqDataset(virtual_size=NUM_TRAIN)
+val_dataset = OnTheFlySeqDataset(virtual_size=NUM_VAL, seed=999)  # 验证集固定种子
 
 _pin = not _IS_TPU
-train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
+train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=2, pin_memory=_pin)
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
 model = LightCRNN().to(device)
@@ -1043,8 +1059,10 @@ ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
 param_count = sum(p.numel() for p in model.parameters())
 print(f"模型参数量: {param_count:,} ({param_count * 4 / 1024:.0f} KB FP32)")
-print(f"训练集: {len(train_dataset)}, 验证集: {len(val_dataset)}")
+print(f"训练集: {len(train_dataset)}/epoch (实时生成), 验证集: {len(val_dataset)}")
 print(f"Epochs: {EPOCHS}, Batch: {BATCH_SIZE}, LR: {LR}")
+print(f"总计: 模型将看到 ~{NUM_TRAIN * EPOCHS / 1e6:.1f}M 张不重复图片")
+print(f"课程学习: epoch 0-15% easy为主 → 15-40% normal为主 → 40%+ hard为主")
 print()
 
 best_val_loss = float("inf")
@@ -1052,6 +1070,8 @@ best_acc = 0.0
 epoch_history = []
 
 for epoch in range(EPOCHS):
+    # 课程学习：更新难度分布
+    train_dataset.set_epoch(epoch, EPOCHS)
     # 训练
     model.train()
     total_loss = 0.0
