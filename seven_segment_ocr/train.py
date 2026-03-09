@@ -145,40 +145,41 @@ class LightCRNN(nn.Module):
     输入: [B, 1, 64, W]  (灰度图)
     输出: [T, B, num_classes]  (CTC logits)
 
-    模型大小目标: ~500KB (FP32), ~150KB (INT8)
+    模型大小目标: ~800KB (FP32), ~250KB (INT8)
     """
 
-    def __init__(self, num_classes: int = NUM_CLASSES, rnn_hidden: int = 64):
+    def __init__(self, num_classes: int = NUM_CLASSES, rnn_hidden: int = 96):
         super().__init__()
 
         # CNN 特征提取: 64x256 -> 1x16 (高度降为1, 宽度/16)
         self.cnn = nn.Sequential(
             # Block 1: 64xW -> 32x(W/2)
-            nn.Conv2d(1, 16, 3, 1, 1, bias=False),
-            nn.BatchNorm2d(16),
+            nn.Conv2d(1, 24, 3, 1, 1, bias=False),
+            nn.BatchNorm2d(24),
             nn.ReLU(),
             nn.MaxPool2d(2, 2),
             # Block 2: 32x(W/2) -> 16x(W/4)
-            DepthwiseSeparableConv(16, 32),
+            DepthwiseSeparableConv(24, 48),
             nn.MaxPool2d(2, 2),
             # Block 3: 16x(W/4) -> 8x(W/8)
-            DepthwiseSeparableConv(32, 48),
-            nn.MaxPool2d(2, 2),
-            # Block 4: 8x(W/8) -> 4x(W/16)
             DepthwiseSeparableConv(48, 64),
             nn.MaxPool2d(2, 2),
+            # Block 4: 8x(W/8) -> 4x(W/16)
+            DepthwiseSeparableConv(64, 96),
+            nn.MaxPool2d(2, 2),
             # Block 5: 4x(W/16) -> 1x(W/16)
-            DepthwiseSeparableConv(64, 64),
+            DepthwiseSeparableConv(96, 96),
             nn.AvgPool2d((4, 1)),  # 高度从4压到1，宽度保持
         )
 
         # RNN 序列建模
         self.rnn = nn.LSTM(
-            input_size=64,
+            input_size=96,
             hidden_size=rnn_hidden,
-            num_layers=1,
+            num_layers=2,
             bidirectional=True,
             batch_first=False,
+            dropout=0.15,
         )
 
         # 分类头

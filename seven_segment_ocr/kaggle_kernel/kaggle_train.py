@@ -24,6 +24,7 @@ import io
 import math
 import os
 import random
+import re
 import time
 from pathlib import Path
 
@@ -423,6 +424,26 @@ def decode_prediction(indices):
     return "".join(result)
 
 
+def postprocess_ctc(text):
+    """CTC 解码后处理：修正常见错误模式。"""
+    if not text:
+        return text
+    # 去除首尾空格
+    text = text.strip()
+    # 合并连续空格
+    while "  " in text:
+        text = text.replace("  ", " ")
+    # 去除首尾多余的分隔符
+    text = text.strip("/.- ")
+    # 去除连续重复的分隔符 (如 "//" -> "/", ".." -> ".")
+    text = re.sub(r'([/.\-])\1+', r'\1', text)
+    # 修正 "数字 空格 数字" 中间不应有空格的情况 (如 "3 5 2" 在数字序列中)
+    # 只在没有 "/" 分隔符的情况下移除数字间空格
+    if "/" not in text:
+        text = re.sub(r'(\d)\s+(\d)', r'\1\2', text)
+    return text
+
+
 class InMemorySeqDataset(Dataset):
     """在内存中生成并缓存图片（GPU 训练更快）。"""
 
@@ -521,16 +542,16 @@ class DepthwiseSeparableConv(nn.Module):
 
 
 class LightCRNN(nn.Module):
-    def __init__(self, num_classes=NUM_CLASSES, rnn_hidden=64):
+    def __init__(self, num_classes=NUM_CLASSES, rnn_hidden=96):
         super().__init__()
         self.cnn = nn.Sequential(
-            nn.Conv2d(1, 16, 3, 1, 1, bias=False), nn.BatchNorm2d(16), nn.ReLU(), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(16, 32), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(32, 48), nn.MaxPool2d(2, 2),
+            nn.Conv2d(1, 24, 3, 1, 1, bias=False), nn.BatchNorm2d(24), nn.ReLU(), nn.MaxPool2d(2, 2),
+            DepthwiseSeparableConv(24, 48), nn.MaxPool2d(2, 2),
             DepthwiseSeparableConv(48, 64), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(64, 64), nn.AvgPool2d((4, 1)),
+            DepthwiseSeparableConv(64, 96), nn.MaxPool2d(2, 2),
+            DepthwiseSeparableConv(96, 96), nn.AvgPool2d((4, 1)),
         )
-        self.rnn = nn.LSTM(input_size=64, hidden_size=rnn_hidden, num_layers=1, bidirectional=True, batch_first=False)
+        self.rnn = nn.LSTM(input_size=96, hidden_size=rnn_hidden, num_layers=2, bidirectional=True, batch_first=False, dropout=0.15)
         self.fc = nn.Linear(rnn_hidden * 2, num_classes)
 
     def forward(self, x):
@@ -582,6 +603,7 @@ print()
 
 best_val_loss = float("inf")
 best_acc = 0.0
+epoch_history = []
 
 for epoch in range(EPOCHS):
     # 训练
@@ -609,6 +631,7 @@ for epoch in range(EPOCHS):
         num_batches += 1
 
     avg_train_loss = total_loss / max(num_batches, 1)
+    train_time = time.time() - t0
     scheduler.step()
 
     # 验证
@@ -616,7 +639,10 @@ for epoch in range(EPOCHS):
     val_loss_total = 0.0
     val_batches = 0
     correct = 0
+    correct_post = 0
     total = 0
+    sample_preds = []  # 收集样本用于日志
+    error_examples = []  # 收集错误样本
 
     with torch.no_grad():
         for images, labels, label_lengths, _ in val_loader:
@@ -632,35 +658,98 @@ for epoch in range(EPOCHS):
             preds = output.argmax(dim=2)
             offset = 0
             for b in range(B):
-                pred_text = decode_prediction(preds[:, b].cpu().tolist())
+                raw_text = decode_prediction(preds[:, b].cpu().tolist())
+                post_text = postprocess_ctc(raw_text)
                 llen = label_lengths[b].item()
                 true_text = "".join(IDX_TO_CHAR.get(i, "?") for i in labels[offset:offset+llen].cpu().tolist())
-                if pred_text == true_text:
+                if raw_text == true_text:
                     correct += 1
+                if post_text == true_text:
+                    correct_post += 1
+                elif len(error_examples) < 15:
+                    error_examples.append((true_text, raw_text, post_text))
+                if len(sample_preds) < 8:
+                    sample_preds.append((true_text, raw_text, post_text))
                 total += 1
                 offset += llen
 
     avg_val_loss = val_loss_total / max(val_batches, 1)
     accuracy = correct / max(total, 1)
-    epoch_time = time.time() - t0
+    accuracy_post = correct_post / max(total, 1)
+    val_time = time.time() - t0 - train_time
+    lr_now = optimizer.param_groups[0]["lr"]
 
-    if (epoch + 1) % 5 == 0 or epoch == 0:
-        lr_now = optimizer.param_groups[0]["lr"]
-        print(f"  Epoch {epoch+1:3d}/{EPOCHS} | "
-              f"Train: {avg_train_loss:.4f} | Val: {avg_val_loss:.4f} | "
-              f"Acc: {accuracy:.1%} | LR: {lr_now:.6f} | "
-              f"Time: {epoch_time:.1f}s")
+    epoch_history.append({
+        "epoch": epoch + 1,
+        "train_loss": avg_train_loss,
+        "val_loss": avg_val_loss,
+        "acc_raw": accuracy,
+        "acc_post": accuracy_post,
+        "lr": lr_now,
+    })
 
+    # ── 每 epoch 都输出基本信息 ──
+    improved_marker = ""
     if avg_val_loss < best_val_loss:
+        improved_marker = " ★ best_loss"
         best_val_loss = avg_val_loss
         torch.save(model.state_dict(), OUTPUT_DIR / "crnn_best.pth")
+    if accuracy_post > best_acc:
+        improved_marker += " ★ best_acc"
+        best_acc = accuracy_post
 
-    if accuracy > best_acc:
-        best_acc = accuracy
+    print(f"  [{epoch+1:3d}/{EPOCHS}] "
+          f"loss={avg_train_loss:.4f}/{avg_val_loss:.4f} "
+          f"acc={accuracy:.1%}→{accuracy_post:.1%} "
+          f"lr={lr_now:.2e} "
+          f"t={train_time:.1f}+{val_time:.1f}s"
+          f"{improved_marker}")
 
-print(f"\n✅ 训练完成!")
+    # ── 每 5 个 epoch 输出详细日志 ──
+    if (epoch + 1) % 5 == 0 or epoch == 0 or (epoch + 1) == EPOCHS:
+        print(f"\n  {'─' * 50}")
+        print(f"  📊 Epoch {epoch+1} 详细报告")
+        print(f"  {'─' * 50}")
+
+        # 样本预测
+        print(f"  🔍 样本预测 (最多8个):")
+        for gt, raw, post in sample_preds:
+            status = "✓" if post == gt else "✗"
+            if raw != post:
+                print(f"    {status} GT='{gt}' → Raw='{raw}' → Post='{post}'")
+            else:
+                print(f"    {status} GT='{gt}' → Pred='{raw}'")
+
+        # 错误样本
+        if error_examples:
+            print(f"  ❌ 错误样本 (最多15个):")
+            for gt, raw, post in error_examples[:10]:
+                if raw != post:
+                    print(f"    GT='{gt}' → Raw='{raw}' → Post='{post}'")
+                else:
+                    print(f"    GT='{gt}' → Pred='{raw}'")
+
+        # 后处理提升统计
+        delta = accuracy_post - accuracy
+        if delta > 0:
+            print(f"  📈 后处理提升: {accuracy:.1%} → {accuracy_post:.1%} (+{delta:.1%})")
+        else:
+            print(f"  📈 后处理: {accuracy:.1%} → {accuracy_post:.1%} (无提升)")
+
+        # 训练历史趋势
+        if len(epoch_history) >= 5:
+            recent = epoch_history[-5:]
+            loss_trend = recent[-1]["val_loss"] - recent[0]["val_loss"]
+            acc_trend = recent[-1]["acc_post"] - recent[0]["acc_post"]
+            print(f"  📉 最近5epoch趋势: val_loss {loss_trend:+.4f}, acc {acc_trend:+.1%}")
+
+        print(f"  {'─' * 50}\n")
+
+print(f"\n{'=' * 60}")
+print(f"✅ 训练完成!")
 print(f"  最佳验证 Loss: {best_val_loss:.4f}")
-print(f"  最佳准确率: {best_acc:.1%}")
+print(f"  最佳准确率 (含后处理): {best_acc:.1%}")
+print(f"{'=' * 60}")
 
 # %%
 # ONNX 导出

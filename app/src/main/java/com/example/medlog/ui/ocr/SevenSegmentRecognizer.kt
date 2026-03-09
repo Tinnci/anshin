@@ -135,7 +135,26 @@ internal class SevenSegmentRecognizer(context: Context) {
             }
             prevIdx = bestIdx
         }
-        return sb.toString()
+        return postprocessCtc(sb.toString())
+    }
+
+    /**
+     * CTC 解码后处理：修正常见错误模式。
+     */
+    private fun postprocessCtc(raw: String): String {
+        if (raw.isEmpty()) return raw
+        var text = raw.trim()
+        // 合并连续空格
+        text = text.replace(Regex("\\s{2,}"), " ")
+        // 去除首尾分隔符
+        text = text.trim('/', '.', '-', ' ')
+        // 去除连续重复分隔符 (如 "//" → "/", ".." → ".")
+        text = text.replace(Regex("([/.\\-])\\1+"), "$1")
+        // 无 "/" 时移除数字间多余空格 (如 "3 5 2" → "352")
+        if ('/' !in text) {
+            text = text.replace(Regex("(\\d)\\s+(\\d)"), "$1$2")
+        }
+        return text
     }
 
     companion object {
