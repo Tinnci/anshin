@@ -1,8 +1,10 @@
-# 七段数码管 OCR 模型
+# 七段数码管 OCR 模型 & LCD 检测器
 
-轻量级 CRNN (Convolutional Recurrent Neural Network) 模型,专门用于识别血压计、体温计等医疗设备的七段数码管（7-segment LCD）显示数字。
+轻量级 CRNN (Convolutional Recurrent Neural Network) 模型,专门用于识别血压计、体温计等医疗设备的七段数码管（7-segment LCD）显示数字。配合 YOLOv11-nano 检测器在复杂照片中定位 LCD 区域。
 
 ## 模型信息
+
+### CRNN 七段管识别模型
 
 | 项目 | 值 |
 |---|---|
@@ -13,6 +15,20 @@
 | 字符集 | `0-9 / . 空格 -` (14字符 + blank) |
 | 格式 | ONNX (opset 17) |
 | 推理速度 | ~1.2 ms/张 (CPU) |
+
+### YOLOv11-nano LCD 检测模型
+
+| 项目 | 值 |
+|---|---|
+| 架构 | YOLOv11-nano (Detect) |
+| 参数量 | ~2.6M |
+| 输入 | RGB `[1, 3, 640, 640]` |
+| 输出 | `[1, 5, 8400]` (cx, cy, w, h, conf) |
+| 类别 | lcd_display (1 class) |
+| 格式 | ONNX |
+| 大小 | 10.1 MB (FP32) / **2.87 MB (INT8 量化)** |
+| mAP50 | 0.9950 |
+| mAP50-95 | 0.9947 |
 
 ## 准确率
 
@@ -51,23 +67,33 @@ pixi run export
 
 ### Kaggle GPU 训练（推荐）
 
-`kaggle_train.py` 是自包含脚本,包含数据生成+模型定义+训练+ONNX导出:
+#### CRNN 七段管识别
+
+`kaggle_kernel/kaggle_train.py` 是自包含脚本,包含数据生成+模型定义+训练+ONNX导出:
 
 ```bash
-# 1. 配置 Kaggle API token
-export KAGGLE_API_TOKEN=your_token
-
-# 2. 推送并运行
 cd kaggle_kernel
 pixi run kaggle kernels push -p .
-
-# 3. 训练完成后下载模型
-pixi run kaggle kernels output username/seven-segment-ocr-training -p output/
+pixi run kaggle kernels output tiiann/seven-segment-ocr-training -p ../kaggle_output/
 ```
 
-v3 模型在 Tesla P100 上训练 80 epochs 约 6 分钟即可完成。
+v3 模型在 Tesla P100 上训练 80 epochs 约 6 分钟。
+
+#### YOLOv11-nano LCD 检测
+
+`kaggle_detection_kernel/kaggle_detection_train.py` 是自包含脚本,包含合成场景数据生成+YOLO训练+ONNX导出:
+
+```bash
+cd kaggle_detection_kernel
+pixi run kaggle kernels push -p .
+pixi run kaggle kernels output tiiann/lcd-display-detector-yolov11-nano -p ../kaggle_detection_output/
+```
+
+v3 模型（修复 gradient 背景 bug）在 P100 上训练 100 epochs 约 100 分钟。
 
 ## 数据增强
+
+### CRNN 识别数据
 
 合成数据包含以下增强以模拟真实场景:
 
@@ -77,20 +103,36 @@ v3 模型在 Tesla P100 上训练 80 epochs 约 6 分钟即可完成。
 - **光照**: 亮度/对比度变化、色偏、反射高光
 - **遮挡**: 部分遮挡、边框
 
+### YOLO 检测数据
+
+场景合成生成器 (`generate_detection_data.py` / `kaggle_detection_train.py` 内置):
+
+- **8 种场景背景**: 纯色、渐变、布纹、木纹、大理石、金属、磨砂、医疗
+- **4 种设备外壳**: 圆角矩形、圆形、梯形、带按钮面板
+- **LCD 区域**: 七段管数码管渲染、亮度/对比度变化
+- **几何变换**: 随机缩放、旋转、位置偏移
+- **YOLO 格式**: 自动生成 `labels/` 归一化标注
+
 ## 文件结构
 
 ```
 seven_segment_ocr/
-├── generate_data.py      # 合成数据生成器 (含纹理背景、增强)
-├── train.py              # 本地训练脚本 (LightCRNN + DigitClassifier)
-├── export_tflite.py      # ONNX 模型导出
-├── kaggle_train.py       # Kaggle GPU 训练 (自包含)
-├── benchmark.py          # 模型对比基准测试
-├── pixi.toml             # Python 环境配置
+├── generate_data.py              # CRNN 合成数据生成器 (含纹理背景、增强)
+├── generate_detection_data.py    # YOLO 检测数据生成器 (场景合成)
+├── train.py                      # 本地 CRNN 训练脚本
+├── export_tflite.py              # ONNX 模型导出
+├── benchmark.py                  # 模型对比基准测试
+├── pixi.toml                     # Python 环境配置
 ├── exported/
-│   └── crnn_seven_seg.onnx  # 导出的 ONNX 模型
-└── kaggle_kernel/
-    └── kernel-metadata.json # Kaggle kernel 配置
+│   ├── crnn_seven_seg.onnx       # CRNN ONNX 模型 (316 KB)
+│   ├── lcd_detector.onnx         # YOLOv11-nano FP32 (10.1 MB)
+│   └── lcd_detector_int8.onnx    # YOLOv11-nano INT8 量化 (2.87 MB)
+├── kaggle_kernel/
+│   ├── kaggle_train.py           # Kaggle CRNN 训练脚本 (自包含)
+│   └── kernel-metadata.json
+└── kaggle_detection_kernel/
+    ├── kaggle_detection_train.py # Kaggle 检测训练脚本 (自包含)
+    └── kernel-metadata.json
 ```
 
 ## 预处理要求
@@ -106,4 +148,8 @@ seven_segment_ocr/
 
 ## 在 Android 中使用
 
-模型文件放在 `app/src/main/assets/crnn_seven_seg.onnx`,通过 ONNX Runtime Android 加载推理。参见 `SevenSegmentRecognizer.kt`。
+模型文件放在 `app/src/main/assets/`:
+- `crnn_seven_seg.onnx` — 七段管识别 (参见 `SevenSegmentRecognizer.kt`)
+- `lcd_detector.onnx` — LCD 区域检测 INT8 量化版 (参见 `LcdDisplayDetector.kt`)
+
+通过 ONNX Runtime Android 1.24.3 加载推理,模型均异步加载以避免阻塞 UI 线程。
