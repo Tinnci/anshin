@@ -179,10 +179,11 @@ class LightCRNN(nn.Module):
             num_layers=2,
             bidirectional=True,
             batch_first=False,
-            dropout=0.15,
+            dropout=0.3,
         )
 
         # 分类头
+        self.drop = nn.Dropout(0.2)
         self.fc = nn.Linear(rnn_hidden * 2, num_classes)
 
     def forward(self, x):
@@ -195,7 +196,7 @@ class LightCRNN(nn.Module):
         # RNN: [W', B, 64] -> [W', B, 128]
         rnn_out, _ = self.rnn(conv)
         # 分类: [W', B, 128] -> [W', B, num_classes]
-        output = self.fc(rnn_out)
+        output = self.fc(self.drop(rnn_out))
         return output
 
 

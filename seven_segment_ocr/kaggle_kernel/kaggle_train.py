@@ -522,7 +522,7 @@ class InMemorySeqDataset(Dataset):
                 img = embed_with_margin(img, scale)
 
             r2 = random.random()
-            difficulty = "easy" if r2 < 0.25 else ("normal" if r2 < 0.6 else "hard")
+            difficulty = "easy" if r2 < 0.15 else ("normal" if r2 < 0.45 else "hard")
             img = augment_image(img, difficulty)
 
             # 预处理
@@ -574,13 +574,14 @@ class LightCRNN(nn.Module):
             DepthwiseSeparableConv(64, 96), nn.MaxPool2d(2, 2),
             DepthwiseSeparableConv(96, 96), nn.AvgPool2d((4, 1)),
         )
-        self.rnn = nn.LSTM(input_size=96, hidden_size=rnn_hidden, num_layers=2, bidirectional=True, batch_first=False, dropout=0.15)
+        self.rnn = nn.LSTM(input_size=96, hidden_size=rnn_hidden, num_layers=2, bidirectional=True, batch_first=False, dropout=0.3)
+        self.drop = nn.Dropout(0.2)
         self.fc = nn.Linear(rnn_hidden * 2, num_classes)
 
     def forward(self, x):
         conv = self.cnn(x).squeeze(2).permute(2, 0, 1)
         rnn_out, _ = self.rnn(conv)
-        return self.fc(rnn_out)
+        return self.fc(self.drop(rnn_out))
 
 
 # ─────────────────────────────────────────────────────────
@@ -614,7 +615,7 @@ train_loader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True, co
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
 model = LightCRNN().to(device)
-optimizer = torch.optim.Adam(model.parameters(), lr=LR)
+optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
 ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
