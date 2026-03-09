@@ -1,0 +1,13 @@
+{
+  "id": "tiiann/lcd-display-detector",
+  "title": "LCD Display Detector (YOLOv11-nano)",
+  "code_file": "kaggle_detection_train.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_internet": true,
+  "keywords": ["yolov11", "object-detection", "lcd", "seven-segment"],
+  "dataset_sources": [],
+  "competition_sources": []
+}
