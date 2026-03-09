@@ -27,16 +27,21 @@ import java.nio.FloatBuffer
 internal class SevenSegmentRecognizer(context: Context) {
 
     private val ortEnvironment = OrtEnvironment.getEnvironment()
-    private val session: OrtSession?
+    @Volatile private var session: OrtSession? = null
 
     init {
-        session = try {
-            val modelBytes = context.assets.open(MODEL_ASSET).use { it.readBytes() }
-            ortEnvironment.createSession(modelBytes)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to load 7-segment ONNX model", e)
-            null
-        }
+        val appContext = context.applicationContext
+        Thread({
+            session = try {
+                val modelBytes = appContext.assets.open(MODEL_ASSET).use { it.readBytes() }
+                ortEnvironment.createSession(modelBytes).also {
+                    Log.d(TAG, "7-segment model loaded")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load 7-segment ONNX model", e)
+                null
+            }
+        }, "seven-seg-init").start()
     }
 
     /**

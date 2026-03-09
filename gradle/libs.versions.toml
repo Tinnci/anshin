@@ -32,7 +32,7 @@ mlkitTextRecognitionCjk = "16.0.1"
 mlkitTextRecognitionJa = "16.0.1"
 mlkitTextRecognitionKo = "16.0.1"
 mockitoKotlin = "5.2.1"
-onnxruntime = "1.21.0"
+onnxruntime = "1.24.3"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }

@@ -20,21 +20,26 @@ import java.nio.FloatBuffer
  * - 输入: RGB [1, 3, 640, 640]
  * - 输出: [1, 5, 8400] (cx, cy, w, h, confidence per anchor)
  * - 类别: lcd_display (1 class)
- * - 大小: ~10 MB
+ * - 大小: ~2.9 MB (INT8 量化)
  */
 internal class LcdDisplayDetector(context: Context) {
 
     private val ortEnvironment = OrtEnvironment.getEnvironment()
-    private val session: OrtSession?
+    @Volatile private var session: OrtSession? = null
 
     init {
-        session = try {
-            val modelBytes = context.assets.open(MODEL_ASSET).use { it.readBytes() }
-            ortEnvironment.createSession(modelBytes)
-        } catch (e: Exception) {
-            Log.e(TAG, "Failed to load LCD detector ONNX model", e)
-            null
-        }
+        val appContext = context.applicationContext
+        Thread({
+            session = try {
+                val modelBytes = appContext.assets.open(MODEL_ASSET).use { it.readBytes() }
+                ortEnvironment.createSession(modelBytes).also {
+                    Log.d(TAG, "LCD detector model loaded")
+                }
+            } catch (e: Exception) {
+                Log.e(TAG, "Failed to load LCD detector ONNX model", e)
+                null
+            }
+        }, "lcd-detector-init").start()
     }
 
     /**
