@@ -112,7 +112,7 @@ def _perlin_noise_2d(shape, scale=32.0):
         gh = max(2, int(h / s) + 2)
         gw = max(2, int(w / s) + 2)
         grid = np.random.randn(gh, gw).astype(np.float32)
-        grid_img = Image.fromarray(grid, mode="F")
+        grid_img = Image.fromarray(grid)
         grid_up = np.array(grid_img.resize((w, h), Image.BILINEAR))
         noise += grid_up * (0.5 ** octave)
     noise = (noise - noise.min()) / (noise.max() - noise.min() + 1e-8)

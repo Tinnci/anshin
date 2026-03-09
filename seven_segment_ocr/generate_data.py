@@ -117,7 +117,7 @@ def _perlin_noise_2d(shape, scale=32.0):
         grid = np.random.randn(gh, gw).astype(np.float32)
         # 双线性插值放大
         from PIL import Image as _Img
-        grid_img = _Img.fromarray(grid, mode="F")
+        grid_img = _Img.fromarray(grid)
         grid_up = np.array(grid_img.resize((w, h), _Img.BILINEAR))
         noise += grid_up * (0.5 ** octave)
     # 归一化到 [0, 1]
