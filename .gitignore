@@ -34,9 +34,9 @@ seven_segment_ocr/__pycache__/
 seven_segment_ocr/dataset/
 seven_segment_ocr/opencv_models/
 seven_segment_ocr/kaggle_output/
-seven_segment_ocr/kaggle_kernel/kaggle_train.py
-seven_segment_ocr/kaggle_detection_kernel/kaggle_detection_train.py
 seven_segment_ocr/detection_dataset/
+seven_segment_ocr/detection_data/
+seven_segment_ocr/kaggle_detection_output/
 seven_segment_ocr/preview_det_*.jpg
 seven_segment_ocr/models/
 seven_segment_ocr/pixi.lock

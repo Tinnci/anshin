@@ -29,6 +29,7 @@ private val mainHandler = Handler(Looper.getMainLooper())
  * 3. 二值化 + 膨胀版本（填充段间间隙）(ML Kit)
  * 4. 反色版本（暗底亮字 LCD）(ML Kit)
  * 5. 七段管专用 CRNN 模型 (ONNX Runtime)
+ * 6. LCD 区域检测 → 裁剪 → 专门识别 (可选)
  *
  * 所有变体的识别结果合并去重后回调到主线程。
  */
@@ -36,6 +37,7 @@ private val mainHandler = Handler(Looper.getMainLooper())
 internal fun processImage(
     imageProxy: ImageProxy,
     sevenSegRecognizer: SevenSegmentRecognizer?,
+    lcdDetector: LcdDisplayDetector? = null,
     onResult: (List<String>) -> Unit,
 ) {
     val mediaImage = imageProxy.image
@@ -56,6 +58,26 @@ internal fun processImage(
         sevenSegRecognizer.recognize(sourceBitmap)?.let { listOf(it) } ?: emptyList()
     } else {
         emptyList()
+    }
+
+    // LCD 区域检测 → 裁剪后用 CRNN 专门识别
+    val lcdCropResults = mutableListOf<String>()
+    if (sourceBitmap != null && lcdDetector != null && sevenSegRecognizer != null) {
+        val detections = lcdDetector.detect(sourceBitmap)
+        for (det in detections) {
+            val r = det.rect
+            val x = (r.left * sourceBitmap.width).toInt().coerceIn(0, sourceBitmap.width - 1)
+            val y = (r.top * sourceBitmap.height).toInt().coerceIn(0, sourceBitmap.height - 1)
+            val w = ((r.right - r.left) * sourceBitmap.width).toInt().coerceAtLeast(1)
+                .coerceAtMost(sourceBitmap.width - x)
+            val h = ((r.bottom - r.top) * sourceBitmap.height).toInt().coerceAtLeast(1)
+                .coerceAtMost(sourceBitmap.height - y)
+            if (w > 10 && h > 10) {
+                val crop = Bitmap.createBitmap(sourceBitmap, x, y, w, h)
+                sevenSegRecognizer.recognize(crop)?.let { lcdCropResults.add(it) }
+                crop.recycle()
+            }
+        }
     }
 
     // 生成预处理变体
@@ -96,8 +118,8 @@ internal fun processImage(
             }
             .addOnCompleteListener {
                 if (completedCount.incrementAndGet() == allInputs.size) {
-                    // 所有识别完成，合并去重 → 回调（包括七段管模型结果）
-                    val merged = mergeOcrResults(allResults, sevenSegResult)
+                    // 所有识别完成，合并去重 → 回调（包括七段管模型结果 + LCD 检测裁剪结果）
+                    val merged = mergeOcrResults(allResults, sevenSegResult + lcdCropResults)
                     imageProxy.close()
                     variantBitmaps.forEach { bmp -> bmp.recycle() }
                     sourceBitmap?.recycle()

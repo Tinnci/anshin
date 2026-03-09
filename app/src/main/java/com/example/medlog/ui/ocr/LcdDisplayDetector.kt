@@ -20,7 +20,7 @@ import java.nio.FloatBuffer
  * - 输入: RGB [1, 3, 640, 640]
  * - 输出: [1, 5, 8400] (cx, cy, w, h, confidence per anchor)
  * - 类别: lcd_display (1 class)
- * - 大小: ~5.4 MB
+ * - 大小: ~10 MB
  */
 internal class LcdDisplayDetector(context: Context) {
 

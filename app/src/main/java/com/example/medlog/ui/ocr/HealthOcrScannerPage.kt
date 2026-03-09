@@ -63,7 +63,14 @@ fun HealthOcrScannerPage(
 
     // 七段管专用识别器（生命周期绑定到 Composable）
     val sevenSegRecognizer = remember { SevenSegmentRecognizer(context) }
-    DisposableEffect(Unit) { onDispose { sevenSegRecognizer.close() } }
+    // LCD 区域检测器（如果模型不存在则为 null，graceful fallback）
+    val lcdDetector = remember { LcdDisplayDetector(context) }
+    DisposableEffect(Unit) {
+        onDispose {
+            sevenSegRecognizer.close()
+            lcdDetector.close()
+        }
+    }
 
     var hasPermission by remember {
         mutableStateOf(
@@ -128,7 +135,7 @@ fun HealthOcrScannerPage(
                                 isProcessing = isProcessing,
                                 onCaptureRequested = { isProcessing = true },
                                 onCapture = { imageProxy ->
-                                    processImage(imageProxy, sevenSegRecognizer) { texts ->
+                                    processImage(imageProxy, sevenSegRecognizer, lcdDetector) { texts ->
                                         parseResult = HealthMetricParser.parseAll(texts)
                                         isProcessing = false
                                         if (texts.isNotEmpty()) {

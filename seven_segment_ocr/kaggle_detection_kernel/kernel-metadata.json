@@ -1,5 +1,5 @@
 {
-  "id": "tiiann/lcd-display-detector",
+  "id": "tiiann/lcd-display-detector-yolov11-nano",
   "title": "LCD Display Detector (YOLOv11-nano)",
   "code_file": "kaggle_detection_train.py",
   "language": "python",
