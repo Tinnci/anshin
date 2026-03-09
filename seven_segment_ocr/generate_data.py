@@ -315,6 +315,177 @@ def add_edge_frame(img: Image.Image) -> Image.Image:
     return img
 
 
+# ── 物理仿真增强 ──
+
+
+def add_ghosting(img: Image.Image, ghost_alpha: float = 0.15) -> Image.Image:
+    """残影/烧屏：将图片整体平移一个微小偏移并以低透明度叠加。"""
+    w, h = img.size
+    dx = random.randint(-3, 3)
+    dy = random.randint(-2, 2)
+    if dx == 0 and dy == 0:
+        dx = 1
+    ghost = Image.new("RGB", (w, h), img.getpixel((0, 0)))
+    ghost.paste(img, (dx, dy))
+    alpha = random.uniform(0.08, ghost_alpha)
+    return Image.blend(img, ghost, alpha)
+
+
+def add_motion_blur(img: Image.Image, kernel_size: int | None = None) -> Image.Image:
+    """方向性运动模糊。"""
+    w, h = img.size
+    if kernel_size is None:
+        kernel_size = random.randint(3, max(4, min(w, h) // 15))
+    if kernel_size < 3:
+        return img
+    angle = random.uniform(0, math.pi)
+    kernel = np.zeros((kernel_size, kernel_size), dtype=np.float32)
+    cx, cy = kernel_size // 2, kernel_size // 2
+    for i in range(kernel_size):
+        x = int(round(cx + (i - cx) * math.cos(angle)))
+        y = int(round(cy + (i - cy) * math.sin(angle)))
+        if 0 <= x < kernel_size and 0 <= y < kernel_size:
+            kernel[y, x] = 1.0
+    if kernel.sum() > 0:
+        kernel /= kernel.sum()
+    pil_kernel = ImageFilter.Kernel(
+        size=(kernel_size, kernel_size),
+        kernel=kernel.flatten().tolist(),
+        scale=1,
+        offset=0,
+    )
+    try:
+        return img.filter(pil_kernel)
+    except Exception:
+        return img
+
+
+def add_barrel_distortion(
+    img: Image.Image, strength: float | None = None
+) -> Image.Image:
+    """桶形畸变：模拟手机微距拍摄。"""
+    arr = np.array(img, dtype=np.float32)
+    h, w = arr.shape[:2]
+    if strength is None:
+        strength = random.uniform(0.05, 0.25)
+    cx, cy = w / 2, h / 2
+    max_r = math.sqrt(cx**2 + cy**2)
+    y_coords, x_coords = np.mgrid[0:h, 0:w].astype(np.float32)
+    dx = x_coords - cx
+    dy = y_coords - cy
+    r = np.sqrt(dx**2 + dy**2) / max_r
+    factor = 1.0 + strength * r**2
+    src_x = (cx + dx / factor).clip(0, w - 1)
+    src_y = (cy + dy / factor).clip(0, h - 1)
+    src_xi = src_x.astype(np.int32)
+    src_yi = src_y.astype(np.int32)
+    result = arr[src_yi, src_xi]
+    return Image.fromarray(result.astype(np.uint8))
+
+
+def add_cast_shadow(img: Image.Image) -> Image.Image:
+    """投射阴影：模拟手/手机阴影落在屏幕上。"""
+    w, h = img.size
+    arr = np.array(img, dtype=np.float32)
+    mask = np.ones((h, w), dtype=np.float32)
+    direction = random.choice(["left", "right", "top", "bottom", "diagonal"])
+    shadow_width = random.uniform(0.3, 0.6)
+    shadow_strength = random.uniform(0.3, 0.7)
+    if direction == "left":
+        border = int(w * shadow_width)
+        for x in range(border):
+            mask[:, x] = 1.0 - shadow_strength * (1.0 - x / border)
+    elif direction == "right":
+        border = int(w * (1 - shadow_width))
+        for x in range(border, w):
+            mask[:, x] = 1.0 - shadow_strength * ((x - border) / (w - border))
+    elif direction == "top":
+        border = int(h * shadow_width)
+        for y in range(border):
+            mask[y, :] = 1.0 - shadow_strength * (1.0 - y / border)
+    elif direction == "bottom":
+        border = int(h * (1 - shadow_width))
+        for y in range(border, h):
+            mask[y, :] = 1.0 - shadow_strength * ((y - border) / (h - border))
+    else:  # diagonal
+        for y in range(h):
+            for x in range(w):
+                d = (x / w + y / h) / 2
+                if d < shadow_width:
+                    mask[y, x] = 1.0 - shadow_strength * (1.0 - d / shadow_width)
+    for c in range(3):
+        arr[:, :, c] *= mask
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+
+
+def add_chromatic_aberration(
+    img: Image.Image, shift: int | None = None
+) -> Image.Image:
+    """色散/紫边：RGB 通道微小偏移。"""
+    if shift is None:
+        shift = random.randint(1, 3)
+    arr = np.array(img)
+    h, w = arr.shape[:2]
+    result = arr.copy()
+    dx_r = random.choice([-shift, shift])
+    dx_b = -dx_r
+    if dx_r > 0:
+        result[:, dx_r:, 0] = arr[:, : w - dx_r, 0]
+    elif dx_r < 0:
+        result[:, : w + dx_r, 0] = arr[:, -dx_r:, 0]
+    if dx_b > 0:
+        result[:, dx_b:, 2] = arr[:, : w - dx_b, 2]
+    elif dx_b < 0:
+        result[:, : w + dx_b, 2] = arr[:, -dx_b:, 2]
+    return Image.fromarray(result)
+
+
+def add_scratches(
+    img: Image.Image, num_scratches: int | None = None
+) -> Image.Image:
+    """屏幕划痕：随机折线。"""
+    img = img.copy()
+    draw = ImageDraw.Draw(img)
+    w, h = img.size
+    if num_scratches is None:
+        num_scratches = random.randint(1, 3)
+    for _ in range(num_scratches):
+        points = []
+        x, y = random.randint(0, w), random.randint(0, h)
+        segs = random.randint(2, 5)
+        for _ in range(segs):
+            x += random.randint(-w // 3, w // 3)
+            y += random.randint(-h // 4, h // 4)
+            points.append((max(0, min(w - 1, x)), max(0, min(h - 1, y))))
+        if len(points) >= 2:
+            avg = sum(img.getpixel((0, 0))) / 3
+            color = random.choice(
+                [(200, 200, 200), (255, 255, 255)]
+                if avg < 128
+                else [(40, 40, 40), (80, 80, 80)]
+            )
+            draw.line(points, fill=color, width=1)
+    return img
+
+
+def add_smudge(img: Image.Image) -> Image.Image:
+    """指纹/油污：局部高斯模糊区域。"""
+    w, h = img.size
+    rw = random.randint(w // 4, w // 2)
+    rh = random.randint(h // 4, h // 2)
+    rx = random.randint(0, max(0, w - rw))
+    ry = random.randint(0, max(0, h - rh))
+    crop = img.crop((rx, ry, rx + rw, ry + rh))
+    blur_r = random.uniform(1.5, 3.0)
+    crop = crop.filter(ImageFilter.GaussianBlur(radius=blur_r))
+    arr = np.array(crop, dtype=np.float32)
+    arr = arr * random.uniform(0.8, 0.95) + random.uniform(5, 15)
+    crop = Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+    img = img.copy()
+    img.paste(crop, (rx, ry))
+    return img
+
+
 def _seg_polys_pointy(x, y, width, height, t, g):
     """经典尖角菱形风格段（默认）。"""
     half_h = height // 2
@@ -831,115 +1002,97 @@ def partial_occlusion(img: Image.Image, max_rects: int = 3) -> Image.Image:
 
 
 def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
-    """对图片应用随机增强变换。
-
-    difficulty 等级:
-    - "easy": 轻微增强（清晰拍摄）
-    - "normal": 标准增强（一般拍摄条件）
-    - "hard": 困难增强（反光/低对比/模糊/角度偏差）
-    """
+    """对图片应用随机增强变换。"""
     if difficulty == "easy":
         brightness = random.uniform(0.85, 1.15)
         contrast = random.uniform(0.9, 1.1)
         img = adjust_brightness_contrast(img, brightness, contrast)
         if random.random() < 0.3:
             img = add_noise(img, random.uniform(0.01, 0.03))
+        if random.random() < 0.1:
+            img = add_ghosting(img, 0.08)
         return img
 
     if difficulty == "hard":
-        # ── 背景干扰（线条/形状） ──────────────────────
         if random.random() < 0.35:
             img = add_background_clutter(img)
-
-        # ── 设备边框 ───────────────────────────────────
         if random.random() < 0.25:
             img = add_edge_frame(img)
-
-        # ── 低对比度场景 ─────────────────────────────────
+        # 视角对比度绑定
+        if random.random() < 0.6:
+            ps = random.uniform(0.06, 0.20)
+            img = perspective_transform(img, ps)
+            if ps > 0.12:
+                img = adjust_brightness_contrast(
+                    img, random.uniform(0.6, 0.85), random.uniform(0.4, 0.65)
+                )
         if random.random() < 0.4:
-            contrast = random.uniform(0.4, 0.6)
-            brightness = random.uniform(0.6, 0.9)
-            img = adjust_brightness_contrast(img, brightness, contrast)
-
-        # ── 反光 ────────────────────────────────────────
+            img = adjust_brightness_contrast(
+                img, random.uniform(0.6, 0.9), random.uniform(0.4, 0.6)
+            )
         if random.random() < 0.5:
             img = add_reflection(img, random.uniform(0.15, 0.5))
-
-        # ── 色偏 ────────────────────────────────────────
         if random.random() < 0.4:
             img = add_color_cast(img)
-
-        # ── 透视变换 ────────────────────────────────────
-        if random.random() < 0.6:
-            img = perspective_transform(img, random.uniform(0.06, 0.20))
-
-        # ── 重度模糊 ───────────────────────────────────
+        # 物理仿真
+        if random.random() < 0.20:
+            img = add_ghosting(img)
+        if random.random() < 0.20:
+            img = add_motion_blur(img)
+        if random.random() < 0.15:
+            img = add_barrel_distortion(img)
+        if random.random() < 0.20:
+            img = add_cast_shadow(img)
+        if random.random() < 0.12:
+            img = add_chromatic_aberration(img)
+        if random.random() < 0.10:
+            img = add_scratches(img)
+        if random.random() < 0.10:
+            img = add_smudge(img)
+        # 原有增强
         if random.random() < 0.5:
-            radius = random.uniform(0.8, 2.5)
-            img = img.filter(ImageFilter.GaussianBlur(radius))
-
-        # ── 重度噪声 ───────────────────────────────────
+            img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.8, 2.5)))
         if random.random() < 0.5:
             img = add_noise(img, random.uniform(0.05, 0.15))
-
-        # ── 椒盐噪声 ───────────────────────────────────
         if random.random() < 0.3:
             img = add_salt_pepper_noise(img, random.uniform(0.01, 0.05))
-
-        # ── JPEG 压缩伪影 ──────────────────────────────
         if random.random() < 0.3:
             img = add_jpeg_artifacts(img, random.randint(15, 40))
-
-        # ── 部分遮挡 ───────────────────────────────────
         if random.random() < 0.2:
             img = partial_occlusion(img, max_rects=2)
-
-        # ── 旋转 ───────────────────────────────────────
         if random.random() < 0.6:
             img = random_rotate(img, max_angle=10.0)
-
-        # ── 极性反转 (小概率，帮助泛化) ─────────────────
         if random.random() < 0.08:
             img = invert_polarity(img)
-
         return img
 
-    # ── normal 难度 ─────────────────────────────────────
-    # 随机亮度/对比度
-    brightness = random.uniform(0.7, 1.3)
-    contrast = random.uniform(0.8, 1.3)
-    img = adjust_brightness_contrast(img, brightness, contrast)
-
-    # 随机噪声
+    # normal
+    img = adjust_brightness_contrast(
+        img, random.uniform(0.7, 1.3), random.uniform(0.8, 1.3)
+    )
     if random.random() < 0.7:
-        noise_intensity = random.uniform(0.02, 0.10)
-        img = add_noise(img, noise_intensity)
-
-    # 随机模糊
+        img = add_noise(img, random.uniform(0.02, 0.10))
     if random.random() < 0.4:
-        radius = random.uniform(0.3, 1.5)
-        img = img.filter(ImageFilter.GaussianBlur(radius))
-
-    # 随机旋转
+        img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.3, 1.5)))
     if random.random() < 0.5:
         img = random_rotate(img, max_angle=5.0)
-
-    # 反光（低概率）
     if random.random() < 0.2:
         img = add_reflection(img, random.uniform(0.1, 0.25))
-
-    # 色偏（低概率）
     if random.random() < 0.15:
         img = add_color_cast(img)
-
-    # 透视
     if random.random() < 0.25:
         img = perspective_transform(img, random.uniform(0.03, 0.10))
-
-    # 背景干扰（低概率）
     if random.random() < 0.1:
         img = add_background_clutter(img)
-
+    # normal 也加入部分物理仿真
+    if random.random() < 0.10:
+        img = add_ghosting(img, 0.10)
+    if random.random() < 0.08:
+        img = add_barrel_distortion(img, random.uniform(0.03, 0.10))
+    if random.random() < 0.08:
+        img = add_cast_shadow(img)
+    if random.random() < 0.05:
+        img = add_chromatic_aberration(img, 1)
     return img
 
 
@@ -1109,18 +1262,18 @@ def generate_sequence_dataset(
             use_textured_bg=random.random() < 0.4,
         )
 
+        # 35%概率叠加医疗标签干扰文字（在 embed/augment 之前）
+        if random.random() < 0.35:
+            img = add_medical_label(img, category=label_cat)
+
         # 随机在更大画布中嵌入 (30%概率, 模拟屏幕比数字大很多)
         if random.random() < 0.30:
             scale = random.uniform(1.3, 2.5)
             img = embed_with_margin(img, scale)
 
-        # 35%概率叠加医疗标签干扰文字
-        if random.random() < 0.35:
-            img = add_medical_label(img, category=label_cat)
-
-        # 难度分布: 25% easy, 35% normal, 40% hard
+        # 难度分布: 15% easy, 30% normal, 55% hard
         r = random.random()
-        difficulty = "easy" if r < 0.25 else ("normal" if r < 0.6 else "hard")
+        difficulty = "easy" if r < 0.15 else ("normal" if r < 0.45 else "hard")
         img = augment_image(img, difficulty)
 
         # 调整高度为 64，保持宽高比
