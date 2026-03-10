@@ -5,10 +5,10 @@
   "language": "python",
   "kernel_type": "script",
   "is_private": true,
-  "enable_gpu": false,
-  "enable_tpu": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
   "enable_internet": true,
-  "keywords": ["seven-segment", "ocr", "crnn", "ctc"],
+  "keywords": ["seven-segment", "ocr", "svtr", "transformer", "ctc"],
   "dataset_sources": [],
   "competition_sources": []
 }

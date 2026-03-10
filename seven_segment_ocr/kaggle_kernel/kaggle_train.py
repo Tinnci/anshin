@@ -30,7 +30,11 @@ import math
 import os
 import random
 import re
+import signal
+import sys
+import threading
 import time
+import traceback
 from pathlib import Path
 
 import numpy as np
@@ -40,20 +44,76 @@ import torch.nn.functional as F
 from torch.utils.data import DataLoader, Dataset
 from PIL import Image, ImageDraw, ImageFilter
 
-# 检查 GPU/TPU
+# ─────────────────────────────────────────────────────────
+# TPU/GPU 设备检测 + 诊断工具
+# ─────────────────────────────────────────────────────────
+
+def _flush_print(*args, **kwargs):
+    """强制刷新 print（Kaggle notebook 有时缓冲 stdout）。"""
+    print(*args, **kwargs)
+    sys.stdout.flush()
+
+class WatchdogTimer:
+    """看门狗计时器 — 如果操作超时则打印诊断信息并可选退出。
+
+    用于检测 TPU 冻结：XLA 编译卡死、设备通信超时等。
+    """
+    def __init__(self, timeout_sec, label="operation", exit_on_timeout=False):
+        self.timeout_sec = timeout_sec
+        self.label = label
+        self.exit_on_timeout = exit_on_timeout
+        self._timer = None
+        self._start_time = None
+
+    def _on_timeout(self):
+        elapsed = time.time() - self._start_time
+        msg = (f"\n⚠️  WATCHDOG TIMEOUT: '{self.label}' 超时 "
+               f"({elapsed:.0f}s > {self.timeout_sec}s 限制)")
+        _flush_print(msg)
+        _flush_print(f"    这通常意味着 TPU/XLA 编译卡死或设备通信失败。")
+        _flush_print(f"    当前线程堆栈:")
+        # 打印所有线程堆栈用于诊断
+        for tid, frame in sys._current_frames().items():
+            if tid == threading.main_thread().ident:
+                _flush_print(f"    --- 主线程 (tid={tid}) ---")
+                for line in traceback.format_stack(frame):
+                    _flush_print(f"    {line.rstrip()}")
+        if self.exit_on_timeout:
+            _flush_print(f"\n❌ exit_on_timeout=True, 强制退出进程 (exit code 1)")
+            os._exit(1)  # os._exit 以绕过 Python 清理（可能也卡住）
+
+    def __enter__(self):
+        self._start_time = time.time()
+        self._timer = threading.Timer(self.timeout_sec, self._on_timeout)
+        self._timer.daemon = True
+        self._timer.start()
+        return self
+
+    def __exit__(self, *exc):
+        if self._timer:
+            self._timer.cancel()
+        return False
+
+    @property
+    def elapsed(self):
+        return time.time() - self._start_time if self._start_time else 0
+
+
+# TPU 初始化超时: 如果 60s 内设备未就绪，打印诊断并退出
 try:
-    import torch_xla
-    import torch_xla.core.xla_model as xm
-    try:
-        device = torch_xla.device()         # torch_xla >= 2.x
-    except AttributeError:
-        device = xm.xla_device()             # torch_xla 1.x
+    with WatchdogTimer(60, "TPU 设备初始化", exit_on_timeout=True):
+        import torch_xla
+        import torch_xla.core.xla_model as xm
+        try:
+            device = torch_xla.device()         # torch_xla >= 2.x
+        except AttributeError:
+            device = xm.xla_device()             # torch_xla 1.x
     _IS_TPU = True
-    print(f"🚀 使用设备: TPU ({device})")
+    _flush_print(f"🚀 使用设备: TPU ({device})")
 except ImportError:
     _IS_TPU = False
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"🚀 使用设备: {device}")
+    _flush_print(f"🚀 使用设备: {device}")
     if torch.cuda.is_available():
         print(f"   GPU: {torch.cuda.get_device_name()}")
         print(f"   显存: {torch.cuda.get_device_properties(0).total_memory / 1e9:.1f} GB")
@@ -1256,6 +1316,57 @@ class LightCRNN(nn.Module):
         return self.fc(self.drop(rnn_out))
 
 
+class SinusoidalPositionalEncoding(nn.Module):
+    """正弦位置编码 — 支持任意序列长度，ONNX 友好。"""
+    def __init__(self, d_model, max_len=256):
+        super().__init__()
+        pe = torch.zeros(1, max_len, d_model)
+        position = torch.arange(0, max_len, dtype=torch.float).unsqueeze(1)
+        div_term = torch.exp(torch.arange(0, d_model, 2).float() * (-math.log(10000.0) / d_model))
+        pe[0, :, 0::2] = torch.sin(position * div_term)
+        pe[0, :, 1::2] = torch.cos(position * div_term)
+        self.register_buffer('pe', pe)
+
+    def forward(self, x):
+        return x + self.pe[:, :x.size(1)]
+
+
+class LightSVTR(nn.Module):
+    """Hybrid CNN backbone + SVTR attention for CTC (replaces BiLSTM with Transformer).
+
+    PP-OCRv4 SVTR_LCNet 思想: 轻量 CNN 提特征 + Transformer 序列建模。
+    CNN: H=128→1, W=256→64 (T=64 时间步)
+    SVTR: 3× TransformerEncoderLayer (d=128, 4 heads, FFN=512)
+    ~638K 参数 (vs LightCRNN ~79K)，但注意力可并行、全局感受野。
+    """
+    def __init__(self, num_classes=NUM_CLASSES, d_model=128, nhead=4,
+                 num_layers=3, dim_feedforward=512, dropout=0.1):
+        super().__init__()
+        # CNN Backbone: H=128→1, W→T=W/4
+        self.backbone = nn.Sequential(
+            nn.Conv2d(1, 32, 3, stride=2, padding=1, bias=False), nn.BatchNorm2d(32), nn.GELU(),
+            DepthwiseSeparableConv(32, 64), nn.MaxPool2d(2, 2),
+            DepthwiseSeparableConv(64, 96), nn.MaxPool2d((2, 1)),
+            DepthwiseSeparableConv(96, d_model), nn.MaxPool2d((2, 1)),
+            DepthwiseSeparableConv(d_model, d_model), nn.AvgPool2d((8, 1)),
+        )
+        self.pos_enc = SinusoidalPositionalEncoding(d_model, max_len=256)
+        encoder_layer = nn.TransformerEncoderLayer(
+            d_model=d_model, nhead=nhead, dim_feedforward=dim_feedforward,
+            dropout=dropout, activation='gelu', batch_first=True, norm_first=True,
+        )
+        self.transformer = nn.TransformerEncoder(encoder_layer, num_layers=num_layers)
+        self.norm = nn.LayerNorm(d_model)
+        self.fc = nn.Linear(d_model, num_classes)
+
+    def forward(self, x):
+        conv = self.backbone(x).squeeze(2).permute(0, 2, 1)  # [B, T, d_model]
+        conv = self.pos_enc(conv)
+        out = self.transformer(conv)
+        out = self.fc(self.norm(out))
+        return out.permute(1, 0, 2)  # [T, B, num_classes]
+
+
 # ─────────────────────────────────────────────────────────
 # 训练
 # ─────────────────────────────────────────────────────────
@@ -1266,6 +1377,7 @@ def ctc_collate(batch):
 
 # %%
 # 配置
+MODEL_TYPE = "svtr"  # "crnn" 或 "svtr" — 选择模型架构
 NUM_TRAIN = 100000   # 每 epoch 虚拟大小（实时生成，每次看到的都不同）
 NUM_VAL = 5000       # 验证集（固定种子，保证可比性）
 EPOCHS = 60          # v10: 多行+H=128 需要更多训练
@@ -1275,7 +1387,8 @@ OUTPUT_DIR = Path("/kaggle/working") if os.path.exists("/kaggle") else Path("kag
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 print("=" * 60)
-print("七段数码管 CRNN 训练 (GPU/TPU) — On-the-fly 生成")
+model_label = "LightSVTR" if MODEL_TYPE == "svtr" else "LightCRNN"
+print(f"七段数码管 {model_label} 训练 (GPU/TPU) — On-the-fly 生成")
 print("=" * 60)
 
 # 数据集
@@ -1291,13 +1404,16 @@ train_loader = DataLoader(
 )
 val_loader = DataLoader(val_dataset, batch_size=BATCH_SIZE, shuffle=False, collate_fn=ctc_collate, num_workers=0, pin_memory=_pin)
 
-model = LightCRNN().to(device)
+if MODEL_TYPE == "svtr":
+    model = LightSVTR().to(device)
+else:
+    model = LightCRNN().to(device)
 optimizer = torch.optim.Adam(model.parameters(), lr=LR, weight_decay=1e-4)
 scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=EPOCHS, eta_min=1e-6)
 ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
 param_count = sum(p.numel() for p in model.parameters())
-print(f"模型参数量: {param_count:,} ({param_count * 4 / 1024:.0f} KB FP32)")
+print(f"模型: {model_label} ({param_count:,} 参数, {param_count * 4 / 1024:.0f} KB FP32)")
 print(f"输入尺寸: H=128, W=256 (v10 multi-line)")
 print(f"字符集: {repr(CHARS)} ({NUM_CLASSES} 类含 blank)")
 print(f"训练集: {len(train_dataset)}/epoch (池 {OnTheFlySeqDataset.POOL_SIZE} 基础图+几何增强 × 在线光度增强), 验证集: {len(val_dataset)}")
@@ -1310,6 +1426,11 @@ best_val_loss = float("inf")
 best_acc = 0.0
 epoch_history = []
 
+# TPU 批次超时配置
+_BATCH_TIMEOUT = 600 if _IS_TPU else 0   # TPU 首批编译可能要 5-10 分钟
+_BATCH_TIMEOUT_AFTER_WARMUP = 120        # 预热后每批不应超过 2 分钟
+_batch_warmed_up = False                  # 首批编译完成后设为 True
+
 for epoch in range(EPOCHS):
     # 课程学习：更新难度分布
     train_dataset.set_epoch(epoch, EPOCHS)
@@ -1320,21 +1441,55 @@ for epoch in range(EPOCHS):
     t0 = time.time()
 
     for images, labels, label_lengths, _ in train_loader:
-        images = images.to(device)
-        labels = labels.to(device)
-        output = model(images)
-        T, B = output.size(0), images.size(0)
-        log_probs = F.log_softmax(output, dim=2)
-        loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
-        optimizer.zero_grad()
-        loss.backward()
-        torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
-        if _IS_TPU:
-            xm.optimizer_step(optimizer)
-            xm.mark_step()
-        else:
-            optimizer.step()
-        total_loss += loss.item()
+        # TPU 看门狗: 检测 XLA 编译卡死 / 设备通信超时
+        batch_timeout = _BATCH_TIMEOUT if not _batch_warmed_up else _BATCH_TIMEOUT_AFTER_WARMUP
+        try:
+            if _IS_TPU and batch_timeout > 0:
+                with WatchdogTimer(batch_timeout,
+                        f"epoch {epoch+1} batch {num_batches+1}"
+                        + (" (XLA首次编译)" if not _batch_warmed_up else ""),
+                        exit_on_timeout=True):
+                    images = images.to(device)
+                    labels = labels.to(device)
+                    output = model(images)
+                    T, B = output.size(0), images.size(0)
+                    log_probs = F.log_softmax(output, dim=2)
+                    loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
+                    optimizer.zero_grad()
+                    loss.backward()
+                    torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
+                    xm.optimizer_step(optimizer)
+                    xm.mark_step()
+                    total_loss += loss.item()
+                if not _batch_warmed_up:
+                    _batch_warmed_up = True
+                    _flush_print(f"  ✓ TPU XLA 首批编译完成 ({time.time() - t0:.1f}s)")
+            else:
+                images = images.to(device)
+                labels = labels.to(device)
+                output = model(images)
+                T, B = output.size(0), images.size(0)
+                log_probs = F.log_softmax(output, dim=2)
+                loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
+                optimizer.zero_grad()
+                loss.backward()
+                torch.nn.utils.clip_grad_norm_(model.parameters(), 5.0)
+                optimizer.step()
+                total_loss += loss.item()
+        except Exception as e:
+            _flush_print(f"\n❌ 训练批次异常 (epoch {epoch+1}, batch {num_batches+1}): {type(e).__name__}: {e}")
+            _flush_print(traceback.format_exc())
+            if _IS_TPU:
+                _flush_print("TPU 错误通常不可恢复，终止训练。")
+                # 保存当前模型（如果有改善过的话）
+                try:
+                    model.cpu()
+                    torch.save(model.state_dict(), OUTPUT_DIR / ("svtr_best.pth" if MODEL_TYPE == "svtr" else "crnn_best.pth"))
+                    _flush_print(f"  💾 已保存当前模型到 {OUTPUT_DIR}")
+                except Exception:
+                    pass
+                os._exit(1)
+            raise  # GPU/CPU 上重新抛出
         num_batches += 1
 
     avg_train_loss = total_loss / max(num_batches, 1)
@@ -1353,13 +1508,33 @@ for epoch in range(EPOCHS):
 
     with torch.no_grad():
         for images, labels, label_lengths, _ in val_loader:
-            images = images.to(device)
-            labels = labels.to(device)
-            output = model(images)
-            T, B = output.size(0), images.size(0)
-            log_probs = F.log_softmax(output, dim=2)
-            loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
-            val_loss_total += loss.item()
+            try:
+                if _IS_TPU:
+                    with WatchdogTimer(_BATCH_TIMEOUT_AFTER_WARMUP,
+                            f"val epoch {epoch+1} batch {val_batches+1}",
+                            exit_on_timeout=True):
+                        images = images.to(device)
+                        labels = labels.to(device)
+                        output = model(images)
+                        T, B = output.size(0), images.size(0)
+                        log_probs = F.log_softmax(output, dim=2)
+                        loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
+                        val_loss_total += loss.item()
+                else:
+                    images = images.to(device)
+                    labels = labels.to(device)
+                    output = model(images)
+                    T, B = output.size(0), images.size(0)
+                    log_probs = F.log_softmax(output, dim=2)
+                    loss = ctc_loss(log_probs, labels, torch.full((B,), T, dtype=torch.long).to(device), label_lengths.to(device))
+                    val_loss_total += loss.item()
+            except Exception as e:
+                _flush_print(f"\n❌ 验证异常 (epoch {epoch+1}, batch {val_batches+1}): {type(e).__name__}: {e}")
+                _flush_print(traceback.format_exc())
+                if _IS_TPU:
+                    _flush_print("TPU 验证异常，终止训练。")
+                    os._exit(1)
+                raise
             val_batches += 1
 
             preds = output.argmax(dim=2)
@@ -1400,12 +1575,13 @@ for epoch in range(EPOCHS):
     if avg_val_loss < best_val_loss:
         improved_marker = " ★ best_loss"
         best_val_loss = avg_val_loss
-        torch.save(model.state_dict(), OUTPUT_DIR / "crnn_best.pth")
+        best_pth_name = "svtr_best.pth" if MODEL_TYPE == "svtr" else "crnn_best.pth"
+        torch.save(model.state_dict(), OUTPUT_DIR / best_pth_name)
     if accuracy_post > best_acc:
         improved_marker += " ★ best_acc"
         best_acc = accuracy_post
 
-    print(f"  [{epoch+1:3d}/{EPOCHS}] "
+    _flush_print(f"  [{epoch+1:3d}/{EPOCHS}] "
           f"loss={avg_train_loss:.4f}/{avg_val_loss:.4f} "
           f"acc={accuracy:.1%}→{accuracy_post:.1%} "
           f"lr={lr_now:.2e} "
@@ -1461,11 +1637,13 @@ print(f"{'=' * 60}")
 # %%
 # ONNX 导出
 print("\n📦 导出 ONNX...")
-model.load_state_dict(torch.load(OUTPUT_DIR / "crnn_best.pth", map_location="cpu"))
+best_pth_name = "svtr_best.pth" if MODEL_TYPE == "svtr" else "crnn_best.pth"
+model.load_state_dict(torch.load(OUTPUT_DIR / best_pth_name, map_location="cpu"))
 model.eval().cpu()
 
 dummy = torch.randn(1, 1, 128, 256)  # H=128 for multi-line support
-onnx_path = OUTPUT_DIR / "crnn_seven_seg.onnx"
+onnx_filename = "svtr_seven_seg.onnx" if MODEL_TYPE == "svtr" else "crnn_seven_seg.onnx"
+onnx_path = OUTPUT_DIR / onnx_filename
 
 torch.onnx.export(
     model, dummy, str(onnx_path),
@@ -1488,4 +1666,7 @@ except ImportError:
     print("  (跳过 ONNX Runtime 验证, 未安装)")
 
 print(f"\n🎉 完成! 模型在: {onnx_path}")
-print(f"   下载此文件并复制到 app/src/main/assets/crnn_seven_seg.onnx")
+if MODEL_TYPE == "svtr":
+    print(f"   下载此文件并复制到 app/src/main/assets/svtr_seven_seg.onnx")
+else:
+    print(f"   下载此文件并复制到 app/src/main/assets/crnn_seven_seg.onnx")
