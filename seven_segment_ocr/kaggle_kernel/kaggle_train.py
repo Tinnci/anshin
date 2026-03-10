@@ -1,18 +1,23 @@
 """
-七段数码管 OCR 训练 - Kaggle GPU 版
-====================================
-这个脚本可以直接在 Kaggle Notebook (GPU) 中运行。
-它包含完整的：数据生成 → 模型定义 → 训练 → ONNX 导出
+七段数码管 OCR 训练 v10 - Kaggle TPU/GPU 版
+=============================================
+v10 新增:
+- 多行血压计 LCD 训练数据 (高压/低压/脉率分行)
+- 输入高度 64→128 以容纳多行
+- 字符集新增 '\\n' 用于行分隔 (16类)
+- CNN 后两层 MaxPool 只缩高度不缩宽度 (T=64 时间步)
+- 增大旋转/透视增强范围
+- 默认 TPU 训练 (Kaggle TPU v3-8)
 
 使用方法:
 1. 在 Kaggle 创建一个新 Notebook
-2. 开启 GPU 加速器 (Settings → Accelerator → GPU T4 x2)
+2. 开启 TPU 加速器 (Settings → Accelerator → TPU VM v3-8)
 3. 粘贴此脚本到一个 Code Cell 中运行
 4. 结果输出到 /kaggle/working/ 目录
 5. 下载 crnn_seven_seg.onnx 到本地
 
 或者通过 Kaggle API:
-    kaggle kernels push -p kaggle_notebook/
+    kaggle kernels push -p kaggle_kernel/
 """
 
 # %% [markdown]
@@ -39,7 +44,10 @@ from PIL import Image, ImageDraw, ImageFilter
 try:
     import torch_xla
     import torch_xla.core.xla_model as xm
-    device = torch_xla.device()
+    try:
+        device = torch_xla.device()         # torch_xla >= 2.x
+    except AttributeError:
+        device = xm.xla_device()             # torch_xla 1.x
     _IS_TPU = True
     print(f"🚀 使用设备: TPU ({device})")
 except ImportError:
@@ -331,6 +339,129 @@ def render_number(text, digit_width=40, digit_height=70, thickness=6, theme=None
         glow = img.filter(ImageFilter.GaussianBlur(radius=max(1, thickness // 2)))
         img = Image.blend(img, glow, alpha=0.3)
     return img
+
+
+def render_multiline_bp(theme=None):
+    """渲染多行血压计 LCD 图像（高压/低压/脉率分行显示）。
+
+    模拟真实血压计屏幕：
+    - 第 1 行（大号）: 高压 SYS  e.g. 129
+    - 第 2 行（中号）: 低压 DIA  e.g. 80
+    - 第 3 行（小号）: 脉率 PUL  e.g. 55  (有时省略)
+
+    返回: (img, label_text)
+    label_text 用 '\\n' 分隔行, 如 "129\\n80\\n55"
+    """
+    if theme is None:
+        theme = pick_lcd_theme()
+    fg, dim, bg = theme["fg"], theme["dim"], theme["bg"]
+    seg_style = random.choice(SEGMENT_STYLES)
+    show_dim = random.random() < 0.5
+    dim_c = dim if show_dim else None
+
+    sys_val = str(random.randint(80, 200))
+    dia_val = str(random.randint(40, 130))
+    has_pulse = random.random() < 0.7
+    pul_val = str(random.randint(40, 120)) if has_pulse else None
+
+    # 各行字体大小（模拟真实血压计大号高压/中号低压/小号脉率）
+    sys_h = random.randint(50, 95)   # 大号
+    dia_h = random.randint(35, 70)   # 中号
+    pul_h = random.randint(25, 50) if has_pulse else 0  # 小号
+
+    sys_w = random.randint(max(12, sys_h // 3), max(14, sys_h * 2 // 3))
+    dia_w = random.randint(max(10, dia_h // 3), max(12, dia_h * 2 // 3))
+    pul_w = random.randint(max(8, pul_h // 3), max(10, pul_h * 2 // 3)) if has_pulse else 0
+    sys_t = random.randint(2, max(3, sys_w // 4))
+    dia_t = random.randint(2, max(3, dia_w // 4))
+    pul_t = random.randint(2, max(3, pul_w // 4)) if has_pulse else 0
+
+    gap = random.randint(0, 3)
+    skew = random.uniform(-0.12, 0.12)
+
+    # 计算每行宽度
+    sp_sys = random.randint(2, 10)
+    sp_dia = random.randint(2, 8)
+    sp_pul = random.randint(1, 6) if has_pulse else 0
+
+    def _calc_row_w(text, dw, sp, pad):
+        cws = []
+        for ch in text:
+            if ch in "0123456789":
+                cws.append(dw)
+            else:
+                cws.append(max(4, dw // 3))
+        return sum(cws) + sp * max(0, len(text) - 1) + pad * 2
+
+    pad = random.randint(4, 16)
+    row_gap = random.randint(4, 20)
+
+    w_sys = _calc_row_w(sys_val, sys_w, sp_sys, pad)
+    w_dia = _calc_row_w(dia_val, dia_w, sp_dia, pad)
+    w_pul = _calc_row_w(pul_val, pul_w, sp_pul, pad) if has_pulse else 0
+
+    total_w = max(w_sys, w_dia, w_pul) + pad * 2
+    total_h = pad + sys_h + row_gap + dia_h
+    if has_pulse:
+        total_h += row_gap + pul_h
+    total_h += pad
+
+    use_tex = random.random() < 0.4
+    if use_tex:
+        img = generate_textured_background(total_w, total_h, bg)
+    else:
+        img = Image.new("RGB", (total_w, total_h), bg)
+    draw = ImageDraw.Draw(img)
+
+    jitter = random.random() < 0.3
+    defect_rate = random.uniform(0.05, 0.15) if random.random() < 0.05 else 0.0
+
+    def _draw_row(text, y_off, d_w, d_h, d_t, spacing):
+        """Draw a row of seven-segment digits."""
+        # 行内水平偏移（左对齐/居中/右对齐随机）
+        row_w_actual = _calc_row_w(text, d_w, spacing, 0)
+        align = random.choice(["left", "center", "right"])
+        if align == "left":
+            x_off = pad + random.randint(0, max(0, (total_w - 2 * pad - row_w_actual) // 3))
+        elif align == "center":
+            x_off = (total_w - row_w_actual) // 2 + random.randint(-5, 5)
+        else:
+            x_off = total_w - pad - row_w_actual - random.randint(0, max(0, (total_w - 2 * pad - row_w_actual) // 3))
+        x_off = max(pad, min(x_off, total_w - row_w_actual - pad))
+        cx = x_off
+        for ch in text:
+            if ch in "0123456789":
+                cur_fg = _jitter_color(fg, 15) if jitter else fg
+                draw_seven_segment_digit(draw, int(ch), cx, y_off, d_w, d_h, d_t, cur_fg, dim_c, gap, skew, seg_style=seg_style, defect_rate=defect_rate)
+                cx += d_w + spacing
+            else:
+                cx += max(4, d_w // 3) + spacing
+
+    y = pad
+    _draw_row(sys_val, y, sys_w, sys_h, sys_t, sp_sys)
+    y += sys_h + row_gap
+    _draw_row(dia_val, y, dia_w, dia_h, dia_t, sp_dia)
+    if has_pulse:
+        y += dia_h + row_gap
+        _draw_row(pul_val, y, pul_w, pul_h, pul_t, sp_pul)
+
+    # 随机添加分隔线（某些血压计在行间画横线）
+    if random.random() < 0.3:
+        line_y = pad + sys_h + row_gap // 2
+        line_color = tuple(max(0, min(255, c + random.randint(-20, 20))) for c in bg)
+        draw.line([(pad, line_y), (total_w - pad, line_y)], fill=line_color, width=1)
+
+    # 段发光
+    if random.random() < 0.15:
+        glow = img.filter(ImageFilter.GaussianBlur(radius=max(1, sys_t // 2)))
+        img = Image.blend(img, glow, alpha=0.3)
+
+    if has_pulse:
+        label = f"{sys_val}\n{dia_val}\n{pul_val}"
+    else:
+        label = f"{sys_val}\n{dia_val}"
+
+    return img, label
 
 
 # ── 医疗标签干扰文字 ──
@@ -808,30 +939,30 @@ def augment_geometric(img, difficulty="normal"):
             img = add_motion_blur(img)
         if random.random() < 0.15:
             img = add_barrel_distortion(img)
-        if random.random() < 0.20:
+        if random.random() < 0.25:
             img = add_cast_shadow(img)
-        if random.random() < 0.10:
+        if random.random() < 0.12:
             img = add_scratches(img)
-        if random.random() < 0.10:
+        if random.random() < 0.12:
             img = add_smudge(img)
         if random.random() < 0.2:
             img = partial_occlusion(img, max_rects=2)
-        if random.random() < 0.6:
-            img = random_rotate(img, max_angle=10.0)
+        if random.random() < 0.7:
+            img = random_rotate(img, max_angle=15.0)  # v10: 增大旋转到 15°
         return img
 
     # normal
-    if random.random() < 0.5:
-        img = random_rotate(img, max_angle=5.0)
-    if random.random() < 0.25:
-        img = perspective_transform(img, random.uniform(0.03, 0.10))
-    if random.random() < 0.1:
+    if random.random() < 0.55:
+        img = random_rotate(img, max_angle=8.0)  # v10: 从 5° 增到 8°
+    if random.random() < 0.30:
+        img = perspective_transform(img, random.uniform(0.03, 0.12))
+    if random.random() < 0.12:
         img = add_background_clutter(img)
     if random.random() < 0.10:
         img = add_ghosting(img, 0.10)
-    if random.random() < 0.08:
-        img = add_barrel_distortion(img, random.uniform(0.03, 0.10))
-    if random.random() < 0.08:
+    if random.random() < 0.12:
+        img = add_barrel_distortion(img, random.uniform(0.03, 0.12))
+    if random.random() < 0.12:
         img = add_cast_shadow(img)
     return img
 
@@ -891,11 +1022,11 @@ def augment_image(img, difficulty="normal"):
 # 数据集生成 (在内存中)
 # ─────────────────────────────────────────────────────────
 
-CHARS = "0123456789/. -"
+CHARS = "0123456789/. -\n"
 BLANK = 0
 CHAR_TO_IDX = {ch: i + 1 for i, ch in enumerate(CHARS)}
 IDX_TO_CHAR = {i + 1: ch for i, ch in enumerate(CHARS)}
-NUM_CLASSES = len(CHARS) + 1
+NUM_CLASSES = len(CHARS) + 1  # 16 = 15 chars + blank
 
 def encode_label(text):
     return [CHAR_TO_IDX[ch] for ch in text if ch in CHAR_TO_IDX]
@@ -938,19 +1069,19 @@ class OnTheFlySeqDataset(Dataset):
 
     POOL_SIZE = 30000  # 基础图池大小（含几何增强，30K 提升多样性）
 
-    def __init__(self, virtual_size=100000, target_h=64, max_w=256, seed=None):
+    def __init__(self, virtual_size=100000, target_h=128, max_w=256, seed=None):
         self.virtual_size = virtual_size
         self.target_h = target_h
         self.max_w = max_w
         self._epoch = 0
-        self._total_epochs = 50
+        self._total_epochs = 60
         self._seed = seed
         self._pool = []  # [(PIL.Image, text), ...]
         self._cache = None
         if seed is not None:
             self._pregenerate(seed)
 
-    def set_epoch(self, epoch, total_epochs=50):
+    def set_epoch(self, epoch, total_epochs=60):
         """设置当前 epoch，刷新基础图池 + 调整难度。"""
         self._epoch = epoch
         self._total_epochs = total_epochs
@@ -1014,14 +1145,24 @@ class OnTheFlySeqDataset(Dataset):
 
     def _render_base(self):
         """渲染一张基础图（含标签/嵌入，不含增强）。"""
+        # 25% 概率生成多行 BP 图像
+        if random.random() < 0.25:
+            theme = pick_lcd_theme()
+            img, text = render_multiline_bp(theme)
+            if random.random() < 0.35:
+                img = add_medical_label(img, category="bp")
+            if random.random() < 0.25:
+                img = embed_with_margin(img, random.uniform(1.3, 2.0))
+            return img, text
+
         generators = [
-            (lambda: f"{random.randint(80,200)}{random.choice(['/',' '])}{random.randint(40,130)}", 0.35, "bp"),
+            (lambda: f"{random.randint(80,200)}{random.choice(['/',' '])}{random.randint(40,130)}", 0.25, "bp"),
             (lambda: str(random.randint(40, 200)), 0.15, "hr"),
             (lambda: str(round(random.uniform(35.0, 42.0), 1)), 0.10, "temp"),
             (lambda: str(round(random.uniform(2.0, 30.0), 1)), 0.10, "spo2"),
             (lambda: str(random.randint(85, 100)), 0.10, "spo2"),
             (lambda: str(round(random.uniform(30.0, 150.0), 1)), 0.05, "weight"),
-            (lambda: "".join([str(random.randint(0,9)) for _ in range(random.randint(1,6))]), 0.15, "generic"),
+            (lambda: "".join([str(random.randint(0,9)) for _ in range(random.randint(1,6))]), 0.25, "generic"),
         ]
         r = random.random()
         cumul = 0.0
@@ -1095,12 +1236,15 @@ class DepthwiseSeparableConv(nn.Module):
 class LightCRNN(nn.Module):
     def __init__(self, num_classes=NUM_CLASSES, rnn_hidden=96):
         super().__init__()
+        # v10: H=128, 前两层 pool(2,2) 同时缩 H/W，后两层 pool(2,1) 只缩 H
+        # 使宽度方向保留更多时间步 (T=64)
+        # H: 128→64→32→16→8→1  W: 256→128→64→64→64→64 → T=64
         self.cnn = nn.Sequential(
             nn.Conv2d(1, 24, 3, 1, 1, bias=False), nn.BatchNorm2d(24), nn.ReLU(), nn.MaxPool2d(2, 2),
             DepthwiseSeparableConv(24, 48), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(48, 64), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(64, 96), nn.MaxPool2d(2, 2),
-            DepthwiseSeparableConv(96, 96), nn.AvgPool2d((4, 1)),
+            DepthwiseSeparableConv(48, 64), nn.MaxPool2d((2, 1)),  # 只缩高度
+            DepthwiseSeparableConv(64, 96), nn.MaxPool2d((2, 1)),  # 只缩高度
+            DepthwiseSeparableConv(96, 96), nn.AvgPool2d((8, 1)),  # H=8→1
         )
         self.rnn = nn.LSTM(input_size=96, hidden_size=rnn_hidden, num_layers=2, bidirectional=True, batch_first=False, dropout=0.3)
         self.drop = nn.Dropout(0.2)
@@ -1124,9 +1268,9 @@ def ctc_collate(batch):
 # 配置
 NUM_TRAIN = 100000   # 每 epoch 虚拟大小（实时生成，每次看到的都不同）
 NUM_VAL = 5000       # 验证集（固定种子，保证可比性）
-EPOCHS = 50
-BATCH_SIZE = 64
-LR = 0.0005
+EPOCHS = 60          # v10: 多行+H=128 需要更多训练
+BATCH_SIZE = 128 if _IS_TPU else 64  # TPU 内存充足，加大 batch
+LR = 0.0008 if _IS_TPU else 0.0005   # 大 batch 适当增大 LR
 OUTPUT_DIR = Path("/kaggle/working") if os.path.exists("/kaggle") else Path("kaggle_output")
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -1154,9 +1298,11 @@ ctc_loss = nn.CTCLoss(blank=BLANK, zero_infinity=True)
 
 param_count = sum(p.numel() for p in model.parameters())
 print(f"模型参数量: {param_count:,} ({param_count * 4 / 1024:.0f} KB FP32)")
+print(f"输入尺寸: H=128, W=256 (v10 multi-line)")
+print(f"字符集: {repr(CHARS)} ({NUM_CLASSES} 类含 blank)")
 print(f"训练集: {len(train_dataset)}/epoch (池 {OnTheFlySeqDataset.POOL_SIZE} 基础图+几何增强 × 在线光度增强), 验证集: {len(val_dataset)}")
 print(f"Epochs: {EPOCHS}, Batch: {BATCH_SIZE}, LR: {LR}")
-print(f"策略: 池中 渲染+几何增强(重), __getitem__ 仅光度增强(轻) → GPU 利用率↑")
+print(f"策略: 25% 多行BP + 75% 单行 | 池中 渲染+几何增强(重), __getitem__ 仅光度增强(轻)")
 print(f"课程学习: epoch 0-15% easy为主 → 15-40% normal为主 → 40%+ hard为主")
 print()
 
@@ -1318,7 +1464,7 @@ print("\n📦 导出 ONNX...")
 model.load_state_dict(torch.load(OUTPUT_DIR / "crnn_best.pth", map_location="cpu"))
 model.eval().cpu()
 
-dummy = torch.randn(1, 1, 64, 256)
+dummy = torch.randn(1, 1, 128, 256)  # H=128 for multi-line support
 onnx_path = OUTPUT_DIR / "crnn_seven_seg.onnx"
 
 torch.onnx.export(

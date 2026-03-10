@@ -31,6 +31,8 @@ crash-log.txt
 # seven_segment_ocr — 忽略大文件和生成文件，保留源代码和模型
 seven_segment_ocr/.pixi/
 seven_segment_ocr/__pycache__/
+seven_segment_ocr/kaggle_kernel/__pycache__/
+seven_segment_ocr/test_*.py
 seven_segment_ocr/dataset/
 seven_segment_ocr/opencv_models/
 seven_segment_ocr/kaggle_output/

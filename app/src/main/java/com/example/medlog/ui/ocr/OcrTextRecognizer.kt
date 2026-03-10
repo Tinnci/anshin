@@ -60,12 +60,16 @@ internal fun processImage(
         emptyList()
     }
 
-    // LCD 区域检测 → 裁剪后用 CRNN 专门识别
+    // LCD 区域检测 → 裁剪后用 CRNN 专门识别（支持多行分割）
     val lcdCropResults = mutableListOf<String>()
     if (sourceBitmap != null && lcdDetector != null && sevenSegRecognizer != null) {
         val detections = lcdDetector.detect(sourceBitmap)
         for (det in detections) {
             val r = det.rect
+            // 过滤面积过大的检测框 (> 30% 图片面积，可能误检)
+            val areaRatio = (r.right - r.left) * (r.bottom - r.top)
+            if (areaRatio > 0.3f) continue
+
             val x = (r.left * sourceBitmap.width).toInt().coerceIn(0, sourceBitmap.width - 1)
             val y = (r.top * sourceBitmap.height).toInt().coerceIn(0, sourceBitmap.height - 1)
             val w = ((r.right - r.left) * sourceBitmap.width).toInt().coerceAtLeast(1)
@@ -74,7 +78,8 @@ internal fun processImage(
                 .coerceAtMost(sourceBitmap.height - y)
             if (w > 10 && h > 10) {
                 val crop = Bitmap.createBitmap(sourceBitmap, x, y, w, h)
-                sevenSegRecognizer.recognize(crop)?.let { lcdCropResults.add(it) }
+                // 使用多行识别：水平投影分行 → 逐行 CRNN
+                lcdCropResults.addAll(sevenSegRecognizer.recognizeRows(crop))
                 crop.recycle()
             }
         }

@@ -18,10 +18,11 @@ import java.nio.FloatBuffer
  * 使用 ONNX Runtime 运行训练好的轻量 CRNN 模型，
  * 专门针对血压计、体温计等设备上的七段管数字显示。
  *
- * 模型信息:
- * - 输入: 灰度图 [1, 1, 64, 256]
- * - 输出: CTC logits [16, 1, 15]
- * - 大小: ~316 KB
+ * 模型信息 (v9 INT8):
+ * - 输入: 灰度图 [1, 1, 64, 256] (float32)
+ * - 输出: CTC logits [T, 1, 15] (T 为动态时间步)
+ * - 参数量: 397K (INT8 动态量化)
+ * - 大小: ~421 KB
  * - 字符集: 0-9, /, ., 空格, -
  */
 internal class SevenSegmentRecognizer(context: Context) {
@@ -68,8 +69,131 @@ internal class SevenSegmentRecognizer(context: Context) {
         }
     }
 
+    /**
+     * 对 LCD 区域进行多行识别：水平投影分行 → 逐行 CRNN。
+     *
+     * 血压计等设备的 LCD 通常显示多行 (收缩压/舒张压/脉率)，
+     * 各行字体大小不同。此方法先将裁剪区分割为单行再分别识别。
+     *
+     * @return 每行识别结果列表 (跳过空行)
+     */
+    fun recognizeRows(bitmap: Bitmap): List<String> {
+        if (session == null) return emptyList()
+        val rows = splitRows(bitmap)
+        if (rows.isEmpty()) {
+            // 无法分行时回退到整体识别
+            return recognize(bitmap)?.let { listOf(it) } ?: emptyList()
+        }
+        val results = mutableListOf<String>()
+        for (row in rows) {
+            recognize(row)?.let { results.add(it) }
+            row.recycle()
+        }
+        return results
+    }
+
     fun close() {
         session?.close()
+    }
+
+    /**
+     * 基于行标准差的行分割。
+     *
+     * 对 LCD 裁剪区，每行像素的标准差可区分有数字的行和空白背景行：
+     * - 数字行: 笔画+背景混合 → 标准差高
+     * - 空白行: 均匀背景色 → 标准差低
+     *
+     * 通过标准差的谷值查找行间间隙，切分为多行 Bitmap。
+     */
+    private fun splitRows(bitmap: Bitmap): List<Bitmap> {
+        val w = bitmap.width
+        val h = bitmap.height
+        if (h < 30 || w < 10) return emptyList()
+
+        // 计算每行像素标准差
+        val pixels = IntArray(w)
+        val rowStd = FloatArray(h)
+        for (y in 0 until h) {
+            bitmap.getPixels(pixels, 0, w, 0, y, w, 1)
+            var sum = 0L
+            var sumSq = 0L
+            for (x in 0 until w) {
+                val px = pixels[x]
+                val gray = (((px shr 16) and 0xFF) * 30 +
+                    ((px shr 8) and 0xFF) * 59 +
+                    (px and 0xFF) * 11) / 100
+                sum += gray
+                sumSq += gray.toLong() * gray
+            }
+            val mean = sum.toFloat() / w
+            val variance = sumSq.toFloat() / w - mean * mean
+            rowStd[y] = if (variance > 0) kotlin.math.sqrt(variance) else 0f
+        }
+
+        // 平滑标准差曲线 (窗口=3) 减少噪声
+        val smoothed = FloatArray(h)
+        for (y in 0 until h) {
+            var s = 0f
+            var c = 0
+            for (dy in -1..1) {
+                val yy = y + dy
+                if (yy in 0 until h) { s += rowStd[yy]; c++ }
+            }
+            smoothed[y] = s / c
+        }
+
+        // 自适应阈值: 取标准差的中位数作为分界
+        val sorted = smoothed.copyOf().also { it.sort() }
+        val medianStd = sorted[h / 2]
+        // 内容行的标准差应明显高于背景行
+        val threshold = medianStd + (sorted[h * 3 / 4] - medianStd) * 0.3f
+
+        // 标记内容行
+        val isContentRow = BooleanArray(h) { y -> smoothed[y] > threshold }
+
+        // 查找连续内容区段
+        val segments = mutableListOf<Pair<Int, Int>>()
+        var inSegment = false
+        var segStart = 0
+        for (y in 0 until h) {
+            if (isContentRow[y] && !inSegment) {
+                inSegment = true
+                segStart = y
+            } else if (!isContentRow[y] && inSegment) {
+                inSegment = false
+                segments.add(segStart to y - 1)
+            }
+        }
+        if (inSegment) segments.add(segStart to h - 1)
+
+        // 合并相距太近的段 (间隙 < 行高 * 20% 或 < 5px)
+        val merged = mutableListOf<Pair<Int, Int>>()
+        for (seg in segments) {
+            if (merged.isNotEmpty()) {
+                val prev = merged.last()
+                val gap = seg.first - prev.second
+                val prevHeight = prev.second - prev.first
+                if (gap < maxOf(prevHeight * 0.2f, 5f)) {
+                    merged[merged.lastIndex] = prev.first to seg.second
+                    continue
+                }
+            }
+            merged.add(seg)
+        }
+
+        // 过滤太窄的段 (< 总高度的 5%)
+        val minRowH = maxOf(h * 0.05f, 8f).toInt()
+        val finalSegs = merged.filter { (s, e) -> e - s + 1 >= minRowH }
+
+        // 只有一个段 → 不算多行
+        if (finalSegs.size <= 1) return emptyList()
+
+        // 裁剪每行（上下各扩展 2px 边距以防裁掉笔画）
+        return finalSegs.map { (startY, endY) ->
+            val s = (startY - 2).coerceAtLeast(0)
+            val e = (endY + 2).coerceAtMost(h - 1)
+            Bitmap.createBitmap(bitmap, 0, s, w, e - s + 1)
+        }
     }
 
     /**
