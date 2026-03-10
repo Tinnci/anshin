@@ -13,17 +13,18 @@ import ai.onnxruntime.OrtSession
 import java.nio.FloatBuffer
 
 /**
- * 七段数码管专用识别器 (CRNN + CTC)。
+ * 七段数码管专用识别器 (LightSVTR + CTC)。
  *
- * 使用 ONNX Runtime 运行训练好的轻量 CRNN 模型，
+ * 使用 ONNX Runtime 运行训练好的轻量 SVTR (CNN+Transformer) 模型，
  * 专门针对血压计、体温计等设备上的七段管数字显示。
+ * 支持单行和多行 LCD 识别（模型原生输出 \n 分隔行）。
  *
- * 模型信息 (v9 INT8):
- * - 输入: 灰度图 [1, 1, 64, 256] (float32)
- * - 输出: CTC logits [T, 1, 15] (T 为动态时间步)
- * - 参数量: 397K (INT8 动态量化)
- * - 大小: ~421 KB
- * - 字符集: 0-9, /, ., 空格, -
+ * 模型信息 (v11 INT8):
+ * - 输入: 灰度图 [1, 1, 128, 256] (float32)
+ * - 输出: CTC logits [T, 1, 16] (T=64)
+ * - 参数量: 638K (INT8 动态量化)
+ * - 大小: ~920 KB
+ * - 字符集: 0-9, /, ., 空格, -, \n
  */
 internal class SevenSegmentRecognizer(context: Context) {
 
@@ -79,10 +80,18 @@ internal class SevenSegmentRecognizer(context: Context) {
      */
     fun recognizeRows(bitmap: Bitmap): List<String> {
         if (session == null) return emptyList()
+
+        // 优先: 用模型原生多行识别（模型输出含 \n 分隔）
+        val fullResult = recognize(bitmap)
+        if (fullResult != null && '\n' in fullResult) {
+            val lines = fullResult.split('\n').map { it.trim() }.filter { it.isNotEmpty() }
+            if (lines.size >= 2) return lines
+        }
+
+        // 回退: 若模型未输出 \n，用图像行分割
         val rows = splitRows(bitmap)
         if (rows.isEmpty()) {
-            // 无法分行时回退到整体识别
-            return recognize(bitmap)?.let { listOf(it) } ?: emptyList()
+            return fullResult?.let { listOf(it) } ?: emptyList()
         }
         val results = mutableListOf<String>()
         for (row in rows) {
@@ -267,22 +276,25 @@ internal class SevenSegmentRecognizer(context: Context) {
      */
     private fun postprocessCtc(raw: String): String {
         if (raw.isEmpty()) return raw
-        var text = raw.trim()
-        // 合并连续空格
-        text = text.replace(Regex("\\s{2,}"), " ")
-        // 去除首尾分隔符
-        text = text.trim('/', '.', '-')
-        // 去除连续重复分隔符 (如 "//" → "/", ".." → ".")
-        text = text.replace(Regex("([/.\\-])\\1+"), "$1")
-        return text
+        // 按换行分割各行，逐行后处理再拼回
+        return raw.split('\n').joinToString("\n") { line ->
+            var text = line.trim()
+            // 合并连续空格
+            text = text.replace(Regex("\\s{2,}"), " ")
+            // 去除首尾分隔符
+            text = text.trim('/', '.', '-')
+            // 去除连续重复分隔符
+            text = text.replace(Regex("([/.\\-])\\1+"), "$1")
+            text
+        }.trim('\n')
     }
 
     companion object {
         private const val TAG = "SevenSegRecognizer"
-        private const val MODEL_ASSET = "crnn_seven_seg.onnx"
+        private const val MODEL_ASSET = "svtr_seven_seg.onnx"
         private const val BLANK_IDX = 0
-        private const val CHARSET = "0123456789/. -"
-        private const val INPUT_H = 64L
+        private const val CHARSET = "0123456789/. -\n"
+        private const val INPUT_H = 128L
         private const val INPUT_W = 256L
     }
 }
