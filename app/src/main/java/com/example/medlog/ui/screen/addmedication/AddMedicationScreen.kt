@@ -108,7 +108,7 @@ fun AddMedicationScreen(
                     }
                 },
                 actions = {
-                    FilledTonalButton(
+                    Button(
                         onClick = { viewModel.save(medicationId) },
                         enabled = !uiState.isSaving,
                         modifier = Modifier.padding(end = MedLogSpacing.Medium),

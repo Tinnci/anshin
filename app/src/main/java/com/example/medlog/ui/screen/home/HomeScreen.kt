@@ -178,7 +178,6 @@ fun HomeScreen(
                     total = uiState.totalCount,
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Spacer(Modifier.height(4.dp))
             }
 
             // ── 连续打卡 Streak badge ─────────────────────────
@@ -188,7 +187,6 @@ fun HomeScreen(
                         currentStreak = uiState.currentStreak,
                         longestStreak = uiState.longestStreak,
                     )
-                    Spacer(Modifier.height(4.dp))
                 }
             }
 
@@ -197,7 +195,6 @@ fun HomeScreen(
             if (nextUp != null && uiState.takenCount > 0 && uiState.takenCount < uiState.totalCount) {
                 item {
                     NextUpChip(period = nextUp.first, time = nextUp.second)
-                    Spacer(Modifier.height(4.dp))
                 }
             }
 
@@ -211,7 +208,6 @@ fun HomeScreen(
                 item {
                     LowStockBanner(
                         medications = lowStockItems.map { it.medication.name to ((it.medication.stock ?: 0.0) to it.medication.doseUnit) },
-                        modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
             }
@@ -220,14 +216,14 @@ fun HomeScreen(
                 item {
                     InteractionBannerCard(
                         interactions = uiState.interactions,
-                        modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
             }
-            // ── 一键全服（Flutter 参考：列表顶部大按钮，>1待服时出现）────
+            // ── 一键全服（Aura: 主操作 filled primary，最高对比）──────
             if (pendingItems.size > 1) {
                 item {
-                    FilledTonalButton(
+                    Spacer(Modifier.height(MedLogSpacing.Small))
+                    Button(
                         onClick = {
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
                             viewModel.takeAll()
@@ -241,10 +237,6 @@ fun HomeScreen(
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(52.dp),
-                        colors = ButtonDefaults.filledTonalButtonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                        ),
                         shape = MaterialTheme.shapes.large,
                     ) {
                         Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))

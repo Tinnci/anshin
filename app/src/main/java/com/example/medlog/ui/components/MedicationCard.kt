@@ -329,7 +329,7 @@ fun MedicationCard(
                                 item.isHandled -> stringResource(R.string.home_snackbar_undo)
                                 else           -> stringResource(R.string.med_card_btn_take)
                             },
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelLarge,
                         )
                     }
 
