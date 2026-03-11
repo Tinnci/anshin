@@ -313,7 +313,7 @@ fun MedicationCard(
                             },
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                        modifier = Modifier.height(36.dp),
+                        modifier = Modifier.heightIn(min = 36.dp),
                     ) {
                         Icon(
                             imageVector = if (item.isHandled)
@@ -338,7 +338,7 @@ fun MedicationCard(
                         OutlinedButton(
                             onClick = onSkip,
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                            modifier = Modifier.height(32.dp),
+                            modifier = Modifier.heightIn(min = 32.dp),
                         ) {
                             Icon(Icons.Rounded.SkipNext, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
@@ -354,7 +354,7 @@ fun MedicationCard(
                                 showPartialDialog = true
                             },
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                            modifier = Modifier.height(32.dp),
+                            modifier = Modifier.heightIn(min = 32.dp),
                         ) {
                             Icon(Icons.Rounded.Adjust, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))

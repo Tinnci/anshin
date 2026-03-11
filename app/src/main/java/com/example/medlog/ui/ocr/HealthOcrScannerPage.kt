@@ -91,7 +91,7 @@ fun HealthOcrScannerPage(
                 title = { Text(stringResource(R.string.ocr_health_scan_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, null)
+                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -535,7 +535,7 @@ private fun CandidateNumberCard(
                 )
                 LaunchedEffect(Unit) { focusRequester.requestFocus() }
                 IconButton(onClick = { submitValue() }) {
-                    Icon(Icons.Rounded.Check, contentDescription = null)
+                    Icon(Icons.Rounded.Check, contentDescription = stringResource(R.string.common_confirm_cd))
                 }
             } else {
                 Text(

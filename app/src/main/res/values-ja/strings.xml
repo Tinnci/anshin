@@ -494,6 +494,9 @@
     <string name="common_action_cancel">キャンセル</string>
     <string name="common_action_edit">編集</string>
     <string name="common_action_save">保存</string>
+    <string name="common_back_cd">戻る</string>
+    <string name="common_confirm_cd">確認</string>
+    <string name="health_camera_scan_cd">カメラでバイタルをスキャン</string>
     <string name="common_action_add">追加</string>
     <string name="common_notes_hint">メモ（任意）</string>
     <string name="common_no_plan_today">本日の服薬予定はありません</string>

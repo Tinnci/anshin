@@ -211,7 +211,7 @@ fun HealthScreen(
                 scrollBehavior = scrollBehavior,
             ) {
                 IconButton(onClick = { showOcrScanner = true }) {
-                    Icon(Icons.Rounded.CameraAlt, contentDescription = null)
+                    Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.health_camera_scan_cd))
                 }
             }
             }

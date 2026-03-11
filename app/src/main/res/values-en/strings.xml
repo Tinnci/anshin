@@ -512,6 +512,9 @@
     <string name="common_action_cancel">Cancel</string>
     <string name="common_action_edit">Edit</string>
     <string name="common_action_save">Save</string>
+    <string name="common_back_cd">Go back</string>
+    <string name="common_confirm_cd">Confirm</string>
+    <string name="health_camera_scan_cd">Scan health metrics with camera</string>
     <string name="common_action_add">Add</string>
     <string name="common_notes_hint">Notes (optional)</string>
     <string name="common_no_plan_today">No medications scheduled for today</string>
