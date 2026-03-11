@@ -63,6 +63,15 @@
 -keep class com.google.android.gms.internal.mlkit_vision_** { *; }
 -dontwarn com.google.mlkit.**
 
+# ── ONNX Runtime (JNI native bridge) ─────────────────────────────────────────
+# ONNX Runtime 的 AAR 不包含 consumer ProGuard 规则，R8 会裁剪 JNI 桥接类，
+# 导致 UnsatisfiedLinkError 或 NullPointerException 在 release 构建中。
+-keep class ai.onnxruntime.** { *; }
+-keepclassmembers class ai.onnxruntime.** {
+    native <methods>;
+}
+-dontwarn ai.onnxruntime.**
+
 # ── Suppress warnings for optional dependencies ───────────────────────────────
 -dontwarn org.slf4j.**
 -dontwarn java.lang.instrument.**

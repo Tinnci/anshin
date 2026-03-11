@@ -684,6 +684,12 @@
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>
     <string name="ocr_health_candidate_numbers">その他の数値</string>    <string name="ocr_bp_merge_suggestion">血圧の読み取り値の可能性</string>    <string name="ocr_health_tap_to_record">タップして記録</string>
     <string name="ocr_health_raw_text">元のテキスト</string>
+    <string name="ocr_health_no_metrics_hint">ヒント：画面が鮮明で反射がなく、近くから撮影してください</string>
+    <string name="ocr_confidence_high">高信頼</string>
+    <string name="ocr_confidence_medium">中信頼</string>
+    <string name="ocr_confidence_low">低信頼</string>
+    <string name="ocr_processing_recognizing">テキストを認識中…</string>
+    <string name="ocr_processing_parsing">指標を解析中…</string>
     <string name="ocr_flash_toggle">フラッシュ切替</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d種類の薬をインポートしました</item>

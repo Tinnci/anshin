@@ -692,6 +692,12 @@
     <string name="ocr_bp_merge_suggestion">可能是血压读数</string>
     <string name="ocr_health_tap_to_record">点击即可快速记录</string>
     <string name="ocr_health_raw_text">原始文字</string>
+    <string name="ocr_health_no_metrics_hint">建议：确保屏幕清晰无反光，靠近设备拍摄</string>
+    <string name="ocr_confidence_high">高置信</string>
+    <string name="ocr_confidence_medium">中置信</string>
+    <string name="ocr_confidence_low">低置信</string>
+    <string name="ocr_processing_recognizing">正在识别文字…</string>
+    <string name="ocr_processing_parsing">正在解析指标…</string>
     <string name="ocr_flash_toggle">切换闪光灯</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>

@@ -712,6 +712,12 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_bp_merge_suggestion">Possible blood pressure reading</string>
     <string name="ocr_health_tap_to_record">Tap to record</string>
     <string name="ocr_health_raw_text">Raw text</string>
+    <string name="ocr_health_no_metrics_hint">Tip: ensure the screen is clear, no glare, and shoot close-up</string>
+    <string name="ocr_confidence_high">High</string>
+    <string name="ocr_confidence_medium">Medium</string>
+    <string name="ocr_confidence_low">Low</string>
+    <string name="ocr_processing_recognizing">Recognizing text…</string>
+    <string name="ocr_processing_parsing">Parsing metrics…</string>
     <string name="ocr_flash_toggle">Toggle flash</string>
     <plurals name="qr_import_success">
         <item quantity="one">Successfully imported %d medication</item>

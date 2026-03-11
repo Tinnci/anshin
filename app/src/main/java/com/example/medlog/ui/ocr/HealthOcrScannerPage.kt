@@ -106,6 +106,14 @@ fun HealthOcrScannerPage(
     }
     var isProcessing by remember { mutableStateOf(false) }
     var showResults by rememberSaveable { mutableStateOf(false) }
+    var processingStage by remember { mutableIntStateOf(0) }
+
+    // 处理阶段文案
+    val processingText = when (processingStage) {
+        1 -> stringResource(R.string.ocr_processing_recognizing)
+        2 -> stringResource(R.string.ocr_processing_parsing)
+        else -> stringResource(R.string.ocr_processing)
+    }
 
     Scaffold(
         topBar = {
@@ -149,11 +157,17 @@ fun HealthOcrScannerPage(
                             OcrCameraPreview(
                                 modifier = Modifier.fillMaxSize(),
                                 isProcessing = isProcessing,
-                                onCaptureRequested = { isProcessing = true },
+                                onCaptureRequested = {
+                                    isProcessing = true
+                                    processingStage = 0
+                                },
                                 onCapture = { imageProxy ->
+                                    processingStage = 1 // 识别中
                                     processImage(imageProxy, sevenSegRecognizer, lcdDetector) { texts ->
+                                        processingStage = 2 // 解析中
                                         parseResult = HealthMetricParser.parseAll(texts)
                                         isProcessing = false
+                                        processingStage = 0
                                         if (texts.isNotEmpty()) {
                                             showResults = true
                                         }
@@ -207,7 +221,7 @@ fun HealthOcrScannerPage(
                                                 modifier = Modifier.size(56.dp),
                                             )
                                             Text(
-                                                text = stringResource(R.string.ocr_processing),
+                                                text = processingText,
                                                 style = MaterialTheme.typography.titleSmall,
                                                 color = MaterialTheme.colorScheme.onSurface,
                                             )
@@ -267,15 +281,24 @@ private fun HealthMetricResultList(
             modifier = Modifier.fillMaxWidth(),
             tonalElevation = 1.dp,
         ) {
-            Text(
-                text = when {
-                    hasStructured -> stringResource(R.string.ocr_health_detected)
-                    hasCandidates -> stringResource(R.string.ocr_health_numbers_found)
-                    else -> stringResource(R.string.ocr_health_no_metrics)
-                },
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
-            )
+            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+                Text(
+                    text = when {
+                        hasStructured -> stringResource(R.string.ocr_health_detected)
+                        hasCandidates -> stringResource(R.string.ocr_health_numbers_found)
+                        else -> stringResource(R.string.ocr_health_no_metrics)
+                    },
+                    style = MaterialTheme.typography.titleMedium,
+                )
+                if (!hasStructured && !hasCandidates) {
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        text = stringResource(R.string.ocr_health_no_metrics_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
         }
 
         // 预计算血压配对建议（在 LazyColumn 外的 @Composable 作用域中）
@@ -328,11 +351,17 @@ private fun HealthMetricResultList(
                             },
                             supportingContent = {
                                 Column {
-                                    Text(
-                                        text = formatMetricValue(metric),
-                                        style = MaterialTheme.typography.headlineSmall,
-                                        fontWeight = FontWeight.Bold,
-                                    )
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                    ) {
+                                        Text(
+                                            text = formatMetricValue(metric),
+                                            style = MaterialTheme.typography.headlineSmall,
+                                            fontWeight = FontWeight.Bold,
+                                        )
+                                        ConfidenceBadge(metric.confidence)
+                                    }
                                     Text(
                                         text = metric.rawText,
                                         style = MaterialTheme.typography.bodySmall,
@@ -593,6 +622,29 @@ private fun CandidateNumberCard(
     }
 }
 
+// ── 置信度标签 ───────────────────────────────────────────────────────────────
+
+@Composable
+private fun ConfidenceBadge(confidence: Float) {
+    if (confidence <= 0f) return
+    val (label, color) = when {
+        confidence >= 0.85f -> stringResource(R.string.ocr_confidence_high) to MaterialTheme.colorScheme.primary
+        confidence >= 0.65f -> stringResource(R.string.ocr_confidence_medium) to MaterialTheme.colorScheme.tertiary
+        else -> stringResource(R.string.ocr_confidence_low) to MaterialTheme.colorScheme.error
+    }
+    Surface(
+        shape = RoundedCornerShape(6.dp),
+        color = color.copy(alpha = 0.12f),
+    ) {
+        Text(
+            text = label,
+            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+            style = MaterialTheme.typography.labelSmall,
+            color = color,
+        )
+    }
+}
+
 // ── 列表项入场动画 ───────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -661,6 +713,7 @@ private val OcrParseResultSaver = Saver<OcrParseResult, String>(
                             put("v", m.value)
                             m.secondaryValue?.let { put("s", it) }
                             put("r", m.rawText)
+                            put("cf", m.confidence.toDouble())
                         },
                     )
                 }
@@ -672,6 +725,7 @@ private val OcrParseResultSaver = Saver<OcrParseResult, String>(
                             put("v", c.value)
                             c.pairedValue?.let { put("p", it) }
                             put("r", c.rawText)
+                            put("cf", c.confidence.toDouble())
                         },
                     )
                 }
@@ -690,6 +744,7 @@ private val OcrParseResultSaver = Saver<OcrParseResult, String>(
                         value = m["v"]!!.jsonPrimitive.double,
                         secondaryValue = m["s"]?.jsonPrimitive?.doubleOrNull,
                         rawText = m["r"]!!.jsonPrimitive.content,
+                        confidence = m["cf"]?.jsonPrimitive?.doubleOrNull?.toFloat() ?: 0f,
                     )
                 } ?: emptyList(),
                 candidates = obj["c"]?.jsonArray?.map { el ->
@@ -698,6 +753,7 @@ private val OcrParseResultSaver = Saver<OcrParseResult, String>(
                         value = c["v"]!!.jsonPrimitive.double,
                         pairedValue = c["p"]?.jsonPrimitive?.doubleOrNull,
                         rawText = c["r"]!!.jsonPrimitive.content,
+                        confidence = c["cf"]?.jsonPrimitive?.doubleOrNull?.toFloat() ?: 0f,
                     )
                 } ?: emptyList(),
                 rawTexts = obj["t"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
