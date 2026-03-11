@@ -1,11 +1,7 @@
 package com.example.medlog.ui.qr
 
-import android.Manifest
 import android.annotation.SuppressLint
-import android.content.pm.PackageManager
 import android.util.Log
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -22,7 +18,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
@@ -31,8 +26,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
-import androidx.core.content.ContextCompat
 import com.example.medlog.R
+import com.example.medlog.ui.components.CameraPermissionGate
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -53,22 +48,7 @@ fun QrScannerPage(
     onResult: (String) -> Unit,
     onBack: () -> Unit,
 ) {
-    val context       = LocalContext.current
-    val haptic        = LocalHapticFeedback.current
-    var hasPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED,
-        )
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted -> hasPermission = granted }
-
-    LaunchedEffect(Unit) {
-        if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
-    }
+    val haptic = LocalHapticFeedback.current
 
     Scaffold(
         topBar = {
@@ -88,7 +68,10 @@ fun QrScannerPage(
                 .padding(padding),
             contentAlignment = Alignment.Center,
         ) {
-            if (hasPermission) {
+            CameraPermissionGate(
+                rationaleRes = R.string.qr_scan_permission_rationale,
+                grantButtonRes = R.string.qr_scan_grant_permission,
+            ) {
                 CameraPreview(
                     modifier = Modifier.fillMaxSize(),
                     onQrScanned = { raw ->
@@ -120,22 +103,6 @@ fun QrScannerPage(
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
-            } else {
-                // 无相机权限提示
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(32.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.qr_scan_permission_rationale),
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                    )
-                    Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
-                        Text(stringResource(R.string.qr_scan_grant_permission))
-                    }
-                }
             }
         }
     }

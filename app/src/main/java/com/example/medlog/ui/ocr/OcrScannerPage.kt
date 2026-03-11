@@ -1,18 +1,12 @@
 package com.example.medlog.ui.ocr
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -26,13 +20,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
+import com.example.medlog.ui.components.CameraPermissionGate
+import com.example.medlog.ui.components.ProcessingOverlay
 
 /**
  * 通用 OCR 扫描页面：使用 CameraX 拍照 + ML Kit 文字识别。
@@ -47,27 +41,10 @@ import com.example.medlog.R
 fun OcrScannerPage(
     onResult: (String) -> Unit,
     onBack: () -> Unit,
+    viewModel: OcrScannerViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val motionScheme = MaterialTheme.motionScheme
-    var hasPermission by remember {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED,
-        )
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted -> hasPermission = granted }
-
-    LaunchedEffect(Unit) {
-        if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
-    }
-
-    var recognizedTexts by remember { mutableStateOf<List<String>>(emptyList()) }
-    var isProcessing by remember { mutableStateOf(false) }
-    var showResults by remember { mutableStateOf(false) }
+    val state by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
@@ -90,9 +67,9 @@ fun OcrScannerPage(
                 .padding(padding),
             contentAlignment = Alignment.Center,
         ) {
-            if (hasPermission) {
+            CameraPermissionGate {
                 AnimatedContent(
-                    targetState = showResults,
+                    targetState = state.showResults,
                     transitionSpec = {
                         (fadeIn(motionScheme.defaultEffectsSpec()) +
                             slideInVertically(motionScheme.defaultEffectsSpec()) { it / 8 })
@@ -110,17 +87,9 @@ fun OcrScannerPage(
                         ) {
                             OcrCameraPreview(
                                 modifier = Modifier.fillMaxSize(),
-                                isProcessing = isProcessing,
-                                onCaptureRequested = { isProcessing = true },
-                                onCapture = { imageProxy ->
-                                    processImage(imageProxy, null) { texts ->
-                                        recognizedTexts = texts
-                                        isProcessing = false
-                                        if (texts.isNotEmpty()) {
-                                            showResults = true
-                                        }
-                                    }
-                                },
+                                isProcessing = state.isProcessing,
+                                onCaptureRequested = { viewModel.onCaptureRequested() },
+                                onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
                             )
                             Surface(
                                 modifier = Modifier
@@ -138,60 +107,18 @@ fun OcrScannerPage(
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
-                            AnimatedVisibility(
-                                visible = isProcessing,
-                                enter = fadeIn(motionScheme.defaultEffectsSpec()),
-                                exit = fadeOut(motionScheme.fastEffectsSpec()),
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f),
-                                        )
-                                        .pointerInput(Unit) { /* 消费触摸，阻止穿透 */ },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Column(
-                                        horizontalAlignment = Alignment.CenterHorizontally,
-                                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                                    ) {
-                                        LoadingIndicator(
-                                            modifier = Modifier.size(56.dp),
-                                        )
-                                        Text(
-                                            text = stringResource(R.string.ocr_processing),
-                                            style = MaterialTheme.typography.titleSmall,
-                                            color = MaterialTheme.colorScheme.inverseOnSurface,
-                                        )
-                                    }
-                                }
-                            }
+                            ProcessingOverlay(
+                                visible = state.isProcessing,
+                                text = stringResource(R.string.ocr_processing),
+                                elevated = false,
+                            )
                         }
                     } else {
                         OcrResultList(
-                            texts = recognizedTexts,
+                            texts = state.recognizedTexts,
                             onSelect = { text -> onResult(text.trim()) },
-                            onRetry = {
-                                showResults = false
-                                recognizedTexts = emptyList()
-                            },
+                            onRetry = { viewModel.onRetry() },
                         )
-                    }
-                }
-            } else {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(32.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.ocr_scan_permission_rationale),
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                    )
-                    Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
-                        Text(stringResource(R.string.ocr_scan_grant_permission))
                     }
                 }
             }

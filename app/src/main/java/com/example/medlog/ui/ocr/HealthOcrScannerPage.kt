@@ -1,18 +1,11 @@
 package com.example.medlog.ui.ocr
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -30,33 +23,19 @@ import androidx.compose.material.icons.rounded.Thermostat
 import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.Saver
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
 import com.example.medlog.data.model.HealthType
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.add
-import kotlinx.serialization.json.buildJsonArray
-import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.double
-import kotlinx.serialization.json.doubleOrNull
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.putJsonArray
+import com.example.medlog.ui.components.AnimatedListItem
+import com.example.medlog.ui.components.CameraPermissionGate
+import com.example.medlog.ui.components.ProcessingOverlay
 
 /**
  * 体征数据 OCR 扫描页面：拍照后自动解析血压/心率/血糖等体征指标。
@@ -71,45 +50,13 @@ fun HealthOcrScannerPage(
     onMetricSelected: (ParsedHealthMetric) -> Unit,
     onBack: () -> Unit,
     suggestedType: HealthType? = null,
+    viewModel: HealthOcrViewModel = hiltViewModel(),
 ) {
-    val context = LocalContext.current
     val motionScheme = MaterialTheme.motionScheme
-
-    // 七段管专用识别器（生命周期绑定到 Composable）
-    val sevenSegRecognizer = remember { SevenSegmentRecognizer(context) }
-    // LCD 区域检测器（如果模型不存在则为 null，graceful fallback）
-    val lcdDetector = remember { LcdDisplayDetector(context) }
-    DisposableEffect(Unit) {
-        onDispose {
-            sevenSegRecognizer.close()
-            lcdDetector.close()
-        }
-    }
-
-    var hasPermission by rememberSaveable {
-        mutableStateOf(
-            ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) ==
-                PackageManager.PERMISSION_GRANTED,
-        )
-    }
-
-    val launcher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
-    ) { granted -> hasPermission = granted }
-
-    LaunchedEffect(Unit) {
-        if (!hasPermission) launcher.launch(Manifest.permission.CAMERA)
-    }
-
-    var parseResult by rememberSaveable(stateSaver = OcrParseResultSaver) {
-        mutableStateOf(OcrParseResult(emptyList(), emptyList(), emptyList()))
-    }
-    var isProcessing by remember { mutableStateOf(false) }
-    var showResults by rememberSaveable { mutableStateOf(false) }
-    var processingStage by remember { mutableIntStateOf(0) }
+    val state by viewModel.uiState.collectAsState()
 
     // 处理阶段文案
-    val processingText = when (processingStage) {
+    val processingText = when (state.processingStage) {
         1 -> stringResource(R.string.ocr_processing_recognizing)
         2 -> stringResource(R.string.ocr_processing_parsing)
         else -> stringResource(R.string.ocr_processing)
@@ -136,9 +83,9 @@ fun HealthOcrScannerPage(
                 .padding(padding),
             contentAlignment = Alignment.Center,
         ) {
-            if (hasPermission) {
+            CameraPermissionGate {
                 AnimatedContent(
-                    targetState = showResults,
+                    targetState = state.showResults,
                     transitionSpec = {
                         (fadeIn(motionScheme.defaultEffectsSpec()) +
                             slideInVertically(motionScheme.defaultEffectsSpec()) { it / 8 })
@@ -156,23 +103,9 @@ fun HealthOcrScannerPage(
                         ) {
                             OcrCameraPreview(
                                 modifier = Modifier.fillMaxSize(),
-                                isProcessing = isProcessing,
-                                onCaptureRequested = {
-                                    isProcessing = true
-                                    processingStage = 0
-                                },
-                                onCapture = { imageProxy ->
-                                    processingStage = 1 // 识别中
-                                    processImage(imageProxy, sevenSegRecognizer, lcdDetector) { texts ->
-                                        processingStage = 2 // 解析中
-                                        parseResult = HealthMetricParser.parseAll(texts)
-                                        isProcessing = false
-                                        processingStage = 0
-                                        if (texts.isNotEmpty()) {
-                                            showResults = true
-                                        }
-                                    }
-                                },
+                                isProcessing = state.isProcessing,
+                                onCaptureRequested = { viewModel.onCaptureRequested() },
+                                onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
                             )
                             Surface(
                                 modifier = Modifier
@@ -190,71 +123,18 @@ fun HealthOcrScannerPage(
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                             }
-                            AnimatedVisibility(
-                                visible = isProcessing,
-                                enter = fadeIn(motionScheme.defaultEffectsSpec()),
-                                exit = fadeOut(motionScheme.fastEffectsSpec()),
-                            ) {
-                                Box(
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .background(
-                                            MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f),
-                                        )
-                                        .pointerInput(Unit) { /* 消费触摸 */ },
-                                    contentAlignment = Alignment.Center,
-                                ) {
-                                    Surface(
-                                        shape = RoundedCornerShape(28.dp),
-                                        color = MaterialTheme.colorScheme.surfaceContainer,
-                                        tonalElevation = 6.dp,
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.spacedBy(16.dp),
-                                            modifier = Modifier.padding(
-                                                horizontal = 40.dp,
-                                                vertical = 32.dp,
-                                            ),
-                                        ) {
-                                            LoadingIndicator(
-                                                modifier = Modifier.size(56.dp),
-                                            )
-                                            Text(
-                                                text = processingText,
-                                                style = MaterialTheme.typography.titleSmall,
-                                                color = MaterialTheme.colorScheme.onSurface,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                            ProcessingOverlay(
+                                visible = state.isProcessing,
+                                text = processingText,
+                            )
                         }
                     } else {
                         HealthMetricResultList(
-                            result = parseResult,
+                            result = state.parseResult,
                             suggestedType = suggestedType,
                             onSelect = onMetricSelected,
-                            onRetry = {
-                                showResults = false
-                                parseResult = OcrParseResult(emptyList(), emptyList(), emptyList())
-                            },
+                            onRetry = { viewModel.onRetry() },
                         )
-                    }
-                }
-            } else {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.padding(32.dp),
-                ) {
-                    Text(
-                        stringResource(R.string.ocr_scan_permission_rationale),
-                        style = MaterialTheme.typography.bodyLarge,
-                        textAlign = TextAlign.Center,
-                    )
-                    Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
-                        Text(stringResource(R.string.ocr_scan_grant_permission))
                     }
                 }
             }
@@ -645,35 +525,6 @@ private fun ConfidenceBadge(confidence: Float) {
     }
 }
 
-// ── 列表项入场动画 ───────────────────────────────────────────────────────────
-
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-private fun AnimatedListItem(
-    index: Int,
-    motionScheme: MotionScheme,
-    content: @Composable () -> Unit,
-) {
-    val animatedAlpha = remember { Animatable(0f) }
-    val animatedOffset = remember { Animatable(24f) }
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 60L)
-        animatedAlpha.animateTo(1f, animationSpec = motionScheme.defaultEffectsSpec())
-    }
-    LaunchedEffect(Unit) {
-        kotlinx.coroutines.delay(index * 60L)
-        animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultEffectsSpec())
-    }
-    Box(
-        modifier = Modifier.graphicsLayer {
-            alpha = animatedAlpha.value
-            translationY = animatedOffset.value
-        },
-    ) {
-        content()
-    }
-}
-
 // ── 工具函数 ─────────────────────────────────────────────────────────────────
 
 /** 体征类型对应的图标 */
@@ -699,65 +550,3 @@ private fun formatMetricValue(metric: ParsedHealthMetric): String {
         "$v ${metric.type.unit}"
     }
 }
-
-// ── OcrParseResult 的 Saver（用于 rememberSaveable 在旋转时持久化） ────────
-
-private val OcrParseResultSaver = Saver<OcrParseResult, String>(
-    save = { result ->
-        buildJsonObject {
-            putJsonArray("m") {
-                result.metrics.forEach { m ->
-                    add(
-                        buildJsonObject {
-                            put("t", m.type.name)
-                            put("v", m.value)
-                            m.secondaryValue?.let { put("s", it) }
-                            put("r", m.rawText)
-                            put("cf", m.confidence.toDouble())
-                        },
-                    )
-                }
-            }
-            putJsonArray("c") {
-                result.candidates.forEach { c ->
-                    add(
-                        buildJsonObject {
-                            put("v", c.value)
-                            c.pairedValue?.let { put("p", it) }
-                            put("r", c.rawText)
-                            put("cf", c.confidence.toDouble())
-                        },
-                    )
-                }
-            }
-            putJsonArray("t") { result.rawTexts.forEach { add(JsonPrimitive(it)) } }
-        }.toString()
-    },
-    restore = { json ->
-        runCatching {
-            val obj = Json.parseToJsonElement(json).jsonObject
-            OcrParseResult(
-                metrics = obj["m"]?.jsonArray?.map { el ->
-                    val m = el.jsonObject
-                    ParsedHealthMetric(
-                        type = HealthType.valueOf(m["t"]!!.jsonPrimitive.content),
-                        value = m["v"]!!.jsonPrimitive.double,
-                        secondaryValue = m["s"]?.jsonPrimitive?.doubleOrNull,
-                        rawText = m["r"]!!.jsonPrimitive.content,
-                        confidence = m["cf"]?.jsonPrimitive?.doubleOrNull?.toFloat() ?: 0f,
-                    )
-                } ?: emptyList(),
-                candidates = obj["c"]?.jsonArray?.map { el ->
-                    val c = el.jsonObject
-                    ExtractedNumber(
-                        value = c["v"]!!.jsonPrimitive.double,
-                        pairedValue = c["p"]?.jsonPrimitive?.doubleOrNull,
-                        rawText = c["r"]!!.jsonPrimitive.content,
-                        confidence = c["cf"]?.jsonPrimitive?.doubleOrNull?.toFloat() ?: 0f,
-                    )
-                } ?: emptyList(),
-                rawTexts = obj["t"]?.jsonArray?.map { it.jsonPrimitive.content } ?: emptyList(),
-            )
-        }.getOrDefault(OcrParseResult(emptyList(), emptyList(), emptyList()))
-    },
-)
