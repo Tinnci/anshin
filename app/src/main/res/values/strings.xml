@@ -456,7 +456,7 @@
     <string name="notif_ch_early_desc">在正式服药时间前 N 分钟发送预告提醒，提前做好准备</string>
     <string name="notif_progress_done_title">🎉 今日用药全部完成！</string>
     <string name="notif_progress_title">今日用药进度：%1$d / %2$d</string>
-    <string name="notif_progress_done_body">恭喜，所有药品均已服用，保持健康！</string>
+    <string name="notif_progress_done_body">所有药品均已服用，继续保持！</string>
     <string name="notif_progress_pending_prefix">待服：%s</string>
     <string name="notif_progress_percent_summary">%d%% 完成</string>
     <string name="notif_progress_today">今日</string>
@@ -467,13 +467,13 @@
     <string name="notif_reminder_title">该服药了：%s</string>
     <string name="notif_reminder_dose_label">剂量：%s</string>
     <string name="notif_reminder_subtext">用药提醒</string>
-    <string name="notif_reminder_big_text">请服用 %1$s 的 %2$s</string>
+    <string name="notif_reminder_big_text">该服用 %1$s 的 %2$s</string>
     <string name="notif_reminder_ticker">该服药了：%s</string>
     <string name="notif_action_skip">跳过</string>
     <string name="notif_action_view_detail">查看详情</string>
     <string name="notif_stock_title">%s 库存不足</string>
-    <string name="notif_stock_body">当前库存：%1$s %2$s，请及时补充</string>
-    <string name="notif_stock_big_text">您的 %1$s 剩余库存为 %2$s %3$s，请尽快补充以不造成漏服。</string>
+    <string name="notif_stock_body">当前库存：%1$s %2$s，及时补充</string>
+    <string name="notif_stock_big_text">%1$s 剩余库存 %2$s %3$s，尽快补充以免漏服。</string>
     <string name="notif_stock_ticker">%s 库存不足</string>
     <string name="notif_refill_title">建议提前备货：%s</string>
     <plurals name="notif_refill_body">
@@ -486,7 +486,7 @@
     <string name="notif_early_body">准备好 %1$s（%2$s）</string>
     <string name="notif_early_subtext">即将服药提醒</string>
     <plurals name="notif_early_big_text">
-        <item quantity="other">请提前做好准备，%1$d 分钟后需要服用 %2$s 的 %3$s。</item>
+        <item quantity="other">%1$d 分钟后需要服用 %2$s 的 %3$s，提前准备好。</item>
     </plurals>
     <string name="notif_early_ticker">%d 分钟后记得服药</string>
     <string name="common_action_delete">删除</string>
@@ -716,7 +716,7 @@
     <string name="notif_follow_up_title">漏服提醒：%s</string>
     <string name="notif_follow_up_body">剂量：%s</string>
     <string name="notif_follow_up_subtext">第 %d 次再提醒</string>
-    <string name="notif_follow_up_big_text">您好像还没有服用 %1$s（剂量 %2$s），请及时服药</string>
+    <string name="notif_follow_up_big_text">%1$s（剂量 %2$s）尚未服用，尽快补服</string>
     <string name="notif_follow_up_ticker">%s 漏服提醒</string>
     <!-- 设置页：漏服再提醒 -->
     <string name="settings_follow_up_section">漏服自动再提醒</string>

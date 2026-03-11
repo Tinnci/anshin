@@ -472,7 +472,7 @@
     <string name="notif_ch_early_desc">Sends an advance notice N minutes before scheduled dose time</string>
     <string name="notif_progress_done_title">🎉 All meds taken today!</string>
     <string name="notif_progress_title">Today\'s progress: %1$d / %2$d</string>
-    <string name="notif_progress_done_body">Congratulations! All medications taken today.</string>
+    <string name="notif_progress_done_body">All medications taken — keep it up!</string>
     <string name="notif_progress_pending_prefix">Pending: %s</string>
     <string name="notif_progress_percent_summary">%d%% done</string>
     <string name="notif_progress_today">Today</string>
@@ -483,13 +483,13 @@
     <string name="notif_reminder_title">Time to take: %s</string>
     <string name="notif_reminder_dose_label">Dose: %s</string>
     <string name="notif_reminder_subtext">Medication reminder</string>
-    <string name="notif_reminder_big_text">Please take %1$s of %2$s</string>
+    <string name="notif_reminder_big_text">Take %1$s of %2$s</string>
     <string name="notif_reminder_ticker">Time to take: %s</string>
     <string name="notif_action_skip">Skip</string>
     <string name="notif_action_view_detail">View Details</string>
     <string name="notif_stock_title">Low stock: %s</string>
-    <string name="notif_stock_body">Current stock: %1$s %2$s — please refill soon</string>
-    <string name="notif_stock_big_text">Your %1$s stock is at %2$s %3$s. Please refill to avoid missed doses.</string>
+    <string name="notif_stock_body">Current stock: %1$s %2$s — refill soon</string>
+    <string name="notif_stock_big_text">%1$s stock: %2$s %3$s. Refill to avoid missed doses.</string>
     <string name="notif_stock_ticker">Low stock: %s</string>
     <string name="notif_refill_title">Time to reorder: %s</string>
     <plurals name="notif_refill_body">
@@ -500,14 +500,14 @@
         <item quantity="one">Your %1$s has approximately 1 day of supply left. Consider reordering soon.</item>
         <item quantity="other">Your %1$s has approximately %2$d days of supply left. Consider reordering soon.</item>
     </plurals>
-    <string name="notif_early_title">%d min until next dose</string>
+    <string name="notif_early_title">%d minutes until next dose</string>
     <string name="notif_early_body">Prepare %1$s (%2$s)</string>
     <string name="notif_early_subtext">Upcoming dose reminder</string>
     <plurals name="notif_early_big_text">
         <item quantity="one">Get ready — you need to take %2$s of %3$s in 1 minute.</item>
         <item quantity="other">Get ready — you need to take %2$s of %3$s in %1$d minutes.</item>
     </plurals>
-    <string name="notif_early_ticker">%d min until next dose</string>
+    <string name="notif_early_ticker">%d minutes until next dose</string>
     <string name="common_action_delete">Delete</string>
     <string name="common_action_cancel">Cancel</string>
     <string name="common_action_edit">Edit</string>
@@ -738,7 +738,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="notif_follow_up_title">Missed dose: %s</string>
     <string name="notif_follow_up_body">Dose: %s</string>
     <string name="notif_follow_up_subtext">Follow-up reminder #%d</string>
-    <string name="notif_follow_up_big_text">It looks like you haven\'t taken %1$s (dose: %2$s) yet. Please take it soon.</string>
+    <string name="notif_follow_up_big_text">%1$s (dose: %2$s) hasn\'t been taken yet. Take it soon.</string>
     <string name="notif_follow_up_ticker">Missed dose reminder: %s</string>
     <!-- Settings: follow-up reminder -->
     <string name="settings_follow_up_section">Missed-Dose Follow-up Reminder</string>
