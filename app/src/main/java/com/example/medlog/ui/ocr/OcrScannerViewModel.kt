@@ -1,6 +1,7 @@
 package com.example.medlog.ui.ocr
 
 import androidx.camera.core.ImageProxy
+import com.example.medlog.di.MlKitOcr
 import com.example.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -17,7 +18,9 @@ data class OcrScannerUiState(
 )
 
 @HiltViewModel
-class OcrScannerViewModel @Inject constructor() : BaseViewModel() {
+class OcrScannerViewModel @Inject constructor(
+    @param:MlKitOcr private val pipeline: OcrPipeline,
+) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(OcrScannerUiState())
     val uiState: StateFlow<OcrScannerUiState> = _uiState.asStateFlow()
@@ -27,7 +30,7 @@ class OcrScannerViewModel @Inject constructor() : BaseViewModel() {
     }
 
     fun onImageCaptured(imageProxy: ImageProxy) {
-        processImage(imageProxy, sevenSegRecognizer = null) { texts ->
+        pipeline.recognize(imageProxy) { texts ->
             _uiState.update {
                 it.copy(
                     recognizedTexts = texts,

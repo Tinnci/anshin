@@ -44,7 +44,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
+import com.example.medlog.data.model.ExtractedNumber
 import com.example.medlog.data.model.HealthType
+import com.example.medlog.data.model.OcrParseResult
+import com.example.medlog.data.model.ParsedHealthMetric
 import com.example.medlog.ui.components.AnimatedListItem
 import com.example.medlog.ui.components.CameraPermissionGate
 import com.example.medlog.ui.components.ProcessingOverlay

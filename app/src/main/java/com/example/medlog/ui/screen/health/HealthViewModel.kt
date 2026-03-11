@@ -9,7 +9,7 @@ import com.example.medlog.data.model.HealthType
 import com.example.medlog.data.repository.HealthRepository
 import com.example.medlog.data.repository.UserPreferencesRepository
 import com.example.medlog.domain.SEVEN_DAYS_MS
-import com.example.medlog.ui.ocr.ParsedHealthMetric
+import com.example.medlog.data.model.ParsedHealthMetric
 import com.example.medlog.ui.util.formatDose
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
