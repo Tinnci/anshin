@@ -43,7 +43,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
 done
 
 if [ "$PUSHING_BRANCH" = false ]; then
-    echo "[pre-push] Tag 推送，跳过 Lint 检查。"
+    echo "[pre-push] 无分支推送（Tag 或已同步），跳过 Lint 检查。"
     exit 0
 fi
 
