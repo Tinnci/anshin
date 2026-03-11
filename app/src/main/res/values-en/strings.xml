@@ -719,6 +719,9 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_processing_recognizing">Recognizing text…</string>
     <string name="ocr_processing_parsing">Parsing metrics…</string>
     <string name="ocr_flash_toggle">Toggle flash</string>
+    <string name="ocr_no_text_found">No text detected</string>
+    <string name="ocr_no_text_hint">Make sure the text is clearly visible, then try again</string>
+    <string name="ocr_edit_value">Edit value</string>
     <plurals name="qr_import_success">
         <item quantity="one">Successfully imported %d medication</item>
         <item quantity="other">Successfully imported %d medications</item>

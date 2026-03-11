@@ -2,6 +2,7 @@ package com.example.medlog.ui.ocr
 
 import android.annotation.SuppressLint
 import android.util.Log
+import android.view.HapticFeedbackConstants
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -45,11 +46,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.medlog.R
+import com.example.medlog.ui.components.ViewfinderOverlay
 import java.util.concurrent.Executors
 
 private const val TAG = "OcrCameraPreview"
@@ -70,6 +73,7 @@ internal fun OcrCameraPreview(
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
+    val view = LocalView.current
     val executor = remember { Executors.newSingleThreadExecutor() }
     val imageCapture = remember {
         ImageCapture.Builder()
@@ -136,12 +140,18 @@ internal fun OcrCameraPreview(
             )
         }
 
+        // 取景框引导（处理中或冻结时隐藏）
+        if (!isProcessing && frozenBitmap == null) {
+            ViewfinderOverlay()
+        }
+
         HorizontalFloatingToolbar(
             expanded = true,
             floatingActionButton = {
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
                         if (!isProcessing) {
+                            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
                             // 冻结预览帧：捕获当前画面作为静态图
                             frozenBitmap = previewView.bitmap
                             onCaptureRequested()

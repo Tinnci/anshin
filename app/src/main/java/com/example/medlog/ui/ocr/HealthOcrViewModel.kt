@@ -44,7 +44,7 @@ class HealthOcrViewModel @Inject constructor(
                     parseResult = result,
                     isProcessing = false,
                     processingStage = 0,
-                    showResults = texts.isNotEmpty(),
+                    showResults = true,
                 )
             }
         }

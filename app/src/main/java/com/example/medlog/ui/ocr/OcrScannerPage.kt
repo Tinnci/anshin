@@ -1,5 +1,6 @@
 package com.example.medlog.ui.ocr
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -20,6 +21,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -45,6 +47,7 @@ fun OcrScannerPage(
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val state by viewModel.uiState.collectAsState()
+    val view = LocalView.current
 
     Scaffold(
         topBar = {
@@ -116,7 +119,10 @@ fun OcrScannerPage(
                     } else {
                         OcrResultList(
                             texts = state.recognizedTexts,
-                            onSelect = { text -> onResult(text.trim()) },
+                            onSelect = { text ->
+                                view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                                onResult(text.trim())
+                            },
                             onRetry = { viewModel.onRetry() },
                         )
                     }
@@ -143,71 +149,99 @@ private fun OcrResultList(
             tonalElevation = 1.dp,
         ) {
             Text(
-                text = stringResource(R.string.ocr_result_hint),
+                text = if (texts.isNotEmpty()) {
+                    stringResource(R.string.ocr_result_hint)
+                } else {
+                    stringResource(R.string.ocr_no_text_found)
+                },
                 style = MaterialTheme.typography.titleMedium,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
             )
         }
 
-        LazyColumn(
-            modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
-        ) {
-            itemsIndexed(texts) { index, text ->
-                val animatedAlpha = remember { Animatable(0f) }
-                val animatedOffset = remember { Animatable(24f) }
-                LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(index * 50L)
-                    animatedAlpha.animateTo(
-                        1f,
-                        animationSpec = motionScheme.defaultEffectsSpec(),
+        if (texts.isEmpty()) {
+            Box(
+                modifier = Modifier.weight(1f).fillMaxWidth(),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                    Icon(
+                        Icons.Rounded.Refresh,
+                        contentDescription = null,
+                        modifier = Modifier.size(48.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
+                    )
+                    Spacer(Modifier.height(12.dp))
+                    Text(
+                        text = stringResource(R.string.ocr_no_text_hint),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(horizontal = 32.dp),
                     )
                 }
-                LaunchedEffect(Unit) {
-                    kotlinx.coroutines.delay(index * 50L)
-                    animatedOffset.animateTo(
-                        0f,
-                        animationSpec = motionScheme.defaultEffectsSpec(),
-                    )
-                }
+            }
+        } else {
+            LazyColumn(
+                modifier = Modifier.weight(1f),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp),
+            ) {
+                itemsIndexed(texts) { index, text ->
+                    val animatedAlpha = remember { Animatable(0f) }
+                    val animatedOffset = remember { Animatable(24f) }
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(index * 50L)
+                        animatedAlpha.animateTo(
+                            1f,
+                            animationSpec = motionScheme.defaultEffectsSpec(),
+                        )
+                    }
+                    LaunchedEffect(Unit) {
+                        kotlinx.coroutines.delay(index * 50L)
+                        animatedOffset.animateTo(
+                            0f,
+                            animationSpec = motionScheme.defaultEffectsSpec(),
+                        )
+                    }
 
-                ElevatedCard(
-                    onClick = { onSelect(text) },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .graphicsLayer {
-                            alpha = animatedAlpha.value
-                            translationY = animatedOffset.value
-                        },
-                    shape = RoundedCornerShape(16.dp),
-                    elevation = CardDefaults.elevatedCardElevation(
-                        defaultElevation = 1.dp,
-                    ),
-                ) {
-                    ListItem(
-                        headlineContent = {
-                            Text(
-                                text = text,
-                                style = MaterialTheme.typography.bodyLarge,
-                            )
-                        },
-                        leadingContent = {
-                            Surface(
-                                shape = CircleShape,
-                                color = MaterialTheme.colorScheme.primaryContainer,
-                                modifier = Modifier.size(28.dp),
-                            ) {
-                                Box(contentAlignment = Alignment.Center) {
-                                    Text(
-                                        text = "${index + 1}",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                    )
+                    ElevatedCard(
+                        onClick = { onSelect(text) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .graphicsLayer {
+                                alpha = animatedAlpha.value
+                                translationY = animatedOffset.value
+                            },
+                        shape = RoundedCornerShape(16.dp),
+                        elevation = CardDefaults.elevatedCardElevation(
+                            defaultElevation = 1.dp,
+                        ),
+                    ) {
+                        ListItem(
+                            headlineContent = {
+                                Text(
+                                    text = text,
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            },
+                            leadingContent = {
+                                Surface(
+                                    shape = CircleShape,
+                                    color = MaterialTheme.colorScheme.primaryContainer,
+                                    modifier = Modifier.size(28.dp),
+                                ) {
+                                    Box(contentAlignment = Alignment.Center) {
+                                        Text(
+                                            text = "${index + 1}",
+                                            style = MaterialTheme.typography.labelSmall,
+                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                        )
+                                    }
                                 }
-                            }
-                        },
-                    )
+                            },
+                        )
+                    }
                 }
             }
         }

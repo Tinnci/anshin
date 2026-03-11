@@ -699,6 +699,9 @@
     <string name="ocr_processing_recognizing">正在识别文字…</string>
     <string name="ocr_processing_parsing">正在解析指标…</string>
     <string name="ocr_flash_toggle">切换闪光灯</string>
+    <string name="ocr_no_text_found">未识别到文字</string>
+    <string name="ocr_no_text_hint">请确保文字清晰可见，然后重新拍照</string>
+    <string name="ocr_edit_value">编辑数值</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>
     </plurals>

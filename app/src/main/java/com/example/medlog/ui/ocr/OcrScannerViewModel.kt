@@ -13,6 +13,7 @@ data class OcrScannerUiState(
     val recognizedTexts: List<String> = emptyList(),
     val isProcessing: Boolean = false,
     val showResults: Boolean = false,
+    val hasEmptyResult: Boolean = false,
 )
 
 @HiltViewModel
@@ -31,7 +32,8 @@ class OcrScannerViewModel @Inject constructor() : BaseViewModel() {
                 it.copy(
                     recognizedTexts = texts,
                     isProcessing = false,
-                    showResults = texts.isNotEmpty(),
+                    showResults = true,
+                    hasEmptyResult = texts.isEmpty(),
                 )
             }
         }

@@ -1,5 +1,6 @@
 package com.example.medlog.ui.ocr
 
+import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -11,11 +12,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
 import androidx.compose.material.icons.rounded.AirlineStops
 import androidx.compose.material.icons.rounded.Bloodtype
+import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FitnessCenter
 import androidx.compose.material.icons.rounded.Refresh
@@ -25,9 +30,16 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -54,6 +66,13 @@ fun HealthOcrScannerPage(
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val state by viewModel.uiState.collectAsState()
+    val view = LocalView.current
+
+    // 包装回调以添加触觉反馈
+    val onMetricSelectedWithHaptic: (ParsedHealthMetric) -> Unit = { metric ->
+        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+        onMetricSelected(metric)
+    }
 
     // 处理阶段文案
     val processingText = when (state.processingStage) {
@@ -132,7 +151,7 @@ fun HealthOcrScannerPage(
                         HealthMetricResultList(
                             result = state.parseResult,
                             suggestedType = suggestedType,
-                            onSelect = onMetricSelected,
+                            onSelect = onMetricSelectedWithHaptic,
                             onRetry = { viewModel.onRetry() },
                         )
                     }
@@ -411,7 +430,7 @@ private fun BpMergeSuggestionCard(
     }
 }
 
-// ── 候选数字卡片 ─────────────────────────────────────────────────────────────
+// ── 候选数字卡片（支持编辑） ──────────────────────────────────────────────────
 
 @Composable
 private fun CandidateNumberCard(
@@ -438,7 +457,6 @@ private fun CandidateNumberCard(
         )
     }
 
-    // suggestedType 仅作为初始提示：如果它在候选列表中，优先选中它
     val initialIndex = if (suggestedType != null) {
         val idx = plausibleTypes.indexOf(suggestedType)
         if (idx >= 0) idx else 0
@@ -448,17 +466,45 @@ private fun CandidateNumberCard(
     var selectedIndex by remember(number) { mutableIntStateOf(initialIndex) }
     val selectedType = plausibleTypes.getOrNull(selectedIndex)
 
-    ElevatedCard(
-        onClick = {
-            val type = selectedType ?: HealthType.BLOOD_PRESSURE
+    var isEditing by remember { mutableStateOf(false) }
+    var editValue by remember(number) {
+        mutableStateOf(TextFieldValue(displayValue, TextRange(displayValue.length)))
+    }
+    val focusRequester = remember { FocusRequester() }
+
+    fun submitValue() {
+        val text = editValue.text.trim()
+        val type = selectedType ?: HealthType.BLOOD_PRESSURE
+        // 尝试解析 sys/dia 格式
+        val parts = text.split("/")
+        val primary = parts.firstOrNull()?.toDoubleOrNull()
+        val secondary = parts.getOrNull(1)?.toDoubleOrNull()
+        if (primary != null) {
             onSelect(
                 ParsedHealthMetric(
                     type = type,
-                    value = number.value,
-                    secondaryValue = number.pairedValue,
-                    rawText = number.rawText,
+                    value = primary,
+                    secondaryValue = secondary,
+                    rawText = text,
                 ),
             )
+        }
+        isEditing = false
+    }
+
+    ElevatedCard(
+        onClick = {
+            if (!isEditing) {
+                val type = selectedType ?: HealthType.BLOOD_PRESSURE
+                onSelect(
+                    ParsedHealthMetric(
+                        type = type,
+                        value = number.value,
+                        secondaryValue = number.pairedValue,
+                        rawText = number.rawText,
+                    ),
+                )
+            }
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -466,16 +512,50 @@ private fun CandidateNumberCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = 16.dp, vertical = if (isEditing) 8.dp else 12.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Text(
-                text = displayValue,
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.weight(1f),
-            )
+            if (isEditing) {
+                OutlinedTextField(
+                    value = editValue,
+                    onValueChange = { editValue = it },
+                    modifier = Modifier
+                        .weight(1f)
+                        .focusRequester(focusRequester),
+                    textStyle = MaterialTheme.typography.headlineSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                    ),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Decimal,
+                        imeAction = ImeAction.Done,
+                    ),
+                    keyboardActions = KeyboardActions(onDone = { submitValue() }),
+                    singleLine = true,
+                )
+                LaunchedEffect(Unit) { focusRequester.requestFocus() }
+                IconButton(onClick = { submitValue() }) {
+                    Icon(Icons.Rounded.Check, contentDescription = null)
+                }
+            } else {
+                Text(
+                    text = displayValue,
+                    style = MaterialTheme.typography.headlineSmall,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f),
+                )
+                IconButton(
+                    onClick = { isEditing = true },
+                    modifier = Modifier.size(32.dp),
+                ) {
+                    Icon(
+                        Icons.Rounded.Edit,
+                        contentDescription = stringResource(R.string.ocr_edit_value),
+                        modifier = Modifier.size(16.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
             if (selectedType != null) {
                 AssistChip(
                     onClick = {
@@ -493,11 +573,13 @@ private fun CandidateNumberCard(
                     },
                 )
             }
-            Icon(
-                Icons.Rounded.ChevronRight,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
+            if (!isEditing) {
+                Icon(
+                    Icons.Rounded.ChevronRight,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
