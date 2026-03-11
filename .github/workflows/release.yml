@@ -85,20 +85,36 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # ── 7. 重命名 APK（已签名/未签名 区分后缀）────────────────
-      - name: Rename APK
+      # ── 7. 重命名 APK（按 ABI split 分别命名）─────────────────
+      - name: Rename APKs
         id: apk
         run: |
           APK_DIR="app/build/outputs/apk/release"
           VER="${{ steps.version.outputs.version_name }}"
-          if [ "${{ steps.keystore.outputs.signed }}" = "true" ]; then
-            NEW_NAME="Anshin-v${VER}.apk"
-          else
-            NEW_NAME="Anshin-v${VER}-unsigned.apk"
-          fi
-          find "$APK_DIR" -name "*.apk" | head -1 | xargs -I{} mv {} "$APK_DIR/$NEW_NAME"
-          echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
-          echo "APK: $NEW_NAME"
+          SIGNED="${{ steps.keystore.outputs.signed }}"
+          SUFFIX=""
+          [ "$SIGNED" != "true" ] && SUFFIX="-unsigned"
+
+          FILES=""
+          for apk in "$APK_DIR"/*.apk; do
+            [ -f "$apk" ] || continue
+            BASENAME=$(basename "$apk" .apk)
+            # 识别 ABI：universal / arm64-v8a / armeabi-v7a
+            case "$BASENAME" in
+              *universal*) ABI="universal" ;;
+              *arm64*)     ABI="arm64-v8a" ;;
+              *armeabi*)   ABI="armeabi-v7a" ;;
+              *)           ABI="universal" ;;
+            esac
+            NEW_NAME="Anshin-v${VER}-${ABI}${SUFFIX}.apk"
+            mv "$apk" "$APK_DIR/$NEW_NAME"
+            FILES="${FILES:+$FILES\n}$APK_DIR/$NEW_NAME"
+            echo "  → $NEW_NAME ($(du -h "$APK_DIR/$NEW_NAME" | cut -f1))"
+          done
+
+          # 保存文件列表，用换行分隔
+          echo "apk_dir=$APK_DIR" >> "$GITHUB_OUTPUT"
+          echo "$FILES"
 
       # ── 8. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
       - name: Generate changelog
@@ -129,6 +145,14 @@ jobs:
             ${{ steps.changelog.outputs.changelog }}
 
             ---
+            **下载说明**
+            | APK 变体 | 适用设备 | 说明 |
+            |----------|---------|------|
+            | `arm64-v8a` | 绝大多数现代手机 (推荐) | 体积最小 |
+            | `armeabi-v7a` | 旧款 32 位 ARM 设备 | 兼容性回退 |
+            | `universal` | 所有 ARM 设备 | 包含全部架构，体积较大 |
+
+            ---
             **版本信息**
             | 项目 | 值 |
             |------|-----|
@@ -137,5 +161,5 @@ jobs:
             | 构建号 | `#${{ github.run_number }}` |
             | Commit | ${{ github.sha }} |
             | 签名状态 | ${{ steps.keystore.outputs.signed == 'true' && '✅ 已签名（Release Keystore）' || '⚠️ 未签名（KEYSTORE_BASE64 Secret 未配置）' }} |
-          files: app/build/outputs/apk/release/${{ steps.apk.outputs.apk_name }}
+          files: app/build/outputs/apk/release/Anshin-*.apk
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}

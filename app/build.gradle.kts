@@ -54,8 +54,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro",
             )
-            // 仅打包 ARM 架构（排除 x86/x86_64 模拟器架构，节省 ~60MB native 库）
-            ndk { abiFilters += listOf("arm64-v8a", "armeabi-v7a") }
             // 当 KEYSTORE_PASSWORD 可从任意来源读取时才应用签名
             if (signingProp("KEYSTORE_PASSWORD")?.isNotBlank() == true) {
                 signingConfig = signingConfigs.getByName("release")
@@ -64,6 +62,16 @@ android {
         debug {
             // Debug 构建可选启用部分混淆以便提前发现 ProGuard 问题
             isMinifyEnabled = false
+        }
+    }
+
+    // ── ABI Split：Release 构建按架构拆分 APK（ARM64 / ARMv7 / Universal）────
+    splits {
+        abi {
+            isEnable = true
+            reset()
+            include("arm64-v8a", "armeabi-v7a")
+            isUniversalApk = true
         }
     }
     compileOptions {
