@@ -30,7 +30,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.font.FontWeight
+import com.example.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -313,8 +313,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
             }
             Text(
                 stat.type.formatValue(stat.latestValue, stat.latestSecondary),
-                style = MaterialTheme.typography.headlineSmall,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.emphasizedTypography.headlineSmall,
             )
 
             // ── 血压分类标签 ──────────────────────────────────────
@@ -520,8 +519,7 @@ private fun BmiCard(
                 val classLabel = stringResource(bmiClassRes)
                 Text(
                     stringResource(R.string.health_bmi_value, bmi, classLabel),
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.emphasizedTypography.headlineSmall,
                     color = when (bmiClassRes) {
                         R.string.health_bmi_normal -> MaterialTheme.colorScheme.primary
                         R.string.health_bmi_underweight -> MaterialTheme.colorScheme.tertiary
@@ -743,8 +741,7 @@ private fun AddEditHealthSheet(
         ) {
             Text(
                 if (draft.editingId == null) stringResource(R.string.health_sheet_add_title) else stringResource(R.string.health_sheet_edit_title),
-                style = MaterialTheme.typography.titleLarge,
-                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.emphasizedTypography.titleLarge,
             )
 
             // ── 记录时间选择器 ─────────────────────────────────────────

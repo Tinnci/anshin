@@ -27,6 +27,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import com.example.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -204,8 +205,7 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
                 )
                 Text(
                     "${(adherence * 100).toInt()}%",
-                    style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.emphasizedTypography.titleLarge,
                     color = adherenceColor,
                 )
             }
@@ -256,8 +256,7 @@ private fun MonthCalendarCard(
                 }
                 Text(
                     stringResource(R.string.history_month_format, displayedMonth.year, displayedMonth.monthValue),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.emphasizedTypography.titleMedium,
                 )
                 IconButton(
                     onClick = { onNavigate(1) },
@@ -455,8 +454,7 @@ private fun DayDetailSection(
                     stringResource(R.string.history_date_format, date.monthValue, date.dayOfMonth,
                         date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.CHINESE)
                     ),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
+                    style = MaterialTheme.emphasizedTypography.titleSmall,
                 )
                 if (day != null && day.total > 0) {
                     SuggestionChip(
@@ -642,9 +640,8 @@ private fun StreakCard(
             Column {
                 Text(
                     text = pluralStringResource(R.plurals.history_streak_count, currentStreak, currentStreak),
-                    style = MaterialTheme.typography.headlineMedium,
+                    style = MaterialTheme.emphasizedTypography.headlineMedium,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,
-                    fontWeight = FontWeight.Bold,
                 )
                 Text(
                     text = stringResource(R.string.history_streak_title_text),
@@ -661,9 +658,8 @@ private fun StreakCard(
                     )
                     Text(
                         text = pluralStringResource(R.plurals.history_streak_max_days, longestStreak, longestStreak),
-                        style = MaterialTheme.typography.titleLarge,
+                        style = MaterialTheme.emphasizedTypography.titleLarge,
                         color = MaterialTheme.colorScheme.onTertiaryContainer,
-                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }

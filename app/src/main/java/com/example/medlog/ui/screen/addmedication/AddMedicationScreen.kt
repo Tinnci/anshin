@@ -29,7 +29,7 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.font.FontWeight
+import com.example.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.pluralStringResource
@@ -293,7 +293,7 @@ fun AddMedicationScreen(
                     ) {
                         Text(
                             uiState.doseQuantity.formatDosePrecise(),
-                            style = MaterialTheme.typography.displaySmall.copy(fontWeight = FontWeight.Bold),
+                            style = MaterialTheme.emphasizedTypography.displaySmall,
                             color = MaterialTheme.colorScheme.primary,
                         )
                         IconButton(
@@ -751,9 +751,8 @@ private fun FormSection(
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 Text(
                     title,
-                    style = MaterialTheme.typography.titleSmall,
+                    style = MaterialTheme.emphasizedTypography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
-                    fontWeight = FontWeight.SemiBold,
                 )
             }
             content()

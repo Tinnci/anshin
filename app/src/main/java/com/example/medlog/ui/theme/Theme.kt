@@ -10,6 +10,8 @@ import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
 
 private val lightColorScheme = lightColorScheme(
@@ -93,6 +95,15 @@ fun MedLogTheme(
         typography   = MedLogTypography,
         shapes       = MedLogShapes,
         motionScheme = MotionScheme.expressive(),
-        content      = content,
-    )
+    ) {
+        CompositionLocalProvider(
+            LocalEmphasizedTypography provides MedLogEmphasizedTypography,
+            content = content,
+        )
+    }
 }
+
+/** Convenient accessor: `MaterialTheme.emphasizedTypography.headlineMedium` */
+val MaterialTheme.emphasizedTypography: EmphasizedTypography
+    @Composable @ReadOnlyComposable
+    get() = LocalEmphasizedTypography.current

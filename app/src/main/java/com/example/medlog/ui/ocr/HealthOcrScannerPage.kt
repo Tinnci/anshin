@@ -36,7 +36,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
-import androidx.compose.ui.text.font.FontWeight
+import com.example.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -259,8 +259,7 @@ private fun HealthMetricResultList(
                                     ) {
                                         Text(
                                             text = formatMetricValue(metric),
-                                            style = MaterialTheme.typography.headlineSmall,
-                                            fontWeight = FontWeight.Bold,
+                                            style = MaterialTheme.emphasizedTypography.headlineSmall,
                                         )
                                         ConfidenceBadge(metric.confidence)
                                     }
@@ -419,8 +418,7 @@ private fun BpMergeSuggestionCard(
                 )
                 Text(
                     text = "${systolic.value.toInt()}/${diastolic.value.toInt()} mmHg",
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.emphasizedTypography.headlineSmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
@@ -526,9 +524,7 @@ private fun CandidateNumberCard(
                     modifier = Modifier
                         .weight(1f)
                         .focusRequester(focusRequester),
-                    textStyle = MaterialTheme.typography.headlineSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                    ),
+                    textStyle = MaterialTheme.emphasizedTypography.headlineSmall,
                     keyboardOptions = KeyboardOptions(
                         keyboardType = KeyboardType.Decimal,
                         imeAction = ImeAction.Done,
@@ -543,8 +539,7 @@ private fun CandidateNumberCard(
             } else {
                 Text(
                     text = displayValue,
-                    style = MaterialTheme.typography.headlineSmall,
-                    fontWeight = FontWeight.Bold,
+                    style = MaterialTheme.emphasizedTypography.headlineSmall,
                     modifier = Modifier.weight(1f),
                 )
                 IconButton(

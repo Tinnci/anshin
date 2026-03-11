@@ -58,7 +58,7 @@ import kotlinx.coroutines.withContext
 import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.IosShare
-import androidx.compose.ui.text.font.FontWeight
+import com.example.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -124,7 +124,7 @@ fun HomeScreen(
             LargeTopAppBar(
                 title = {
                     Column {
-                        Text(stringResource(R.string.home_title), fontWeight = FontWeight.Bold)
+                        Text(stringResource(R.string.home_title), style = MaterialTheme.emphasizedTypography.titleLarge)
                         Text(
                             todayDateString(),
                             style = MaterialTheme.typography.bodyMedium,
