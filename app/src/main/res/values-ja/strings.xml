@@ -341,7 +341,7 @@
     <string name="history_adherence_title">30日間の服薬率</string>
     <string name="history_adherence_excellent">素晴らしい！この調子で 🎉</string>
     <string name="history_adherence_good">良い調子です、継続しましょう</string>
-    <string name="history_adherence_fair">改善が必要です、時間通りに服用してください</string>
+    <string name="history_adherence_fair">改善が必要です。時間通りに服用しましょう</string>
     <string name="history_adherence_poor">服薬率が低いです、規則正しく服用しましょう</string>
     <string name="history_prev_month_cd">前月</string>
     <string name="history_next_month_cd">翌月</string>
@@ -523,7 +523,7 @@
     <string name="med_card_btn_take">服薬</string>
     <string name="med_card_btn_partial">一部服用</string>
     <string name="med_card_partial_taken">一部服用 %1$s %2$s（%3$s）</string>
-    <string name="med_card_partial_input_hint">実際に服用した量を入力してください（予定: %1$s %2$s）</string>
+    <string name="med_card_partial_input_hint">実際に服用した量を入力（予定: %1$s %2$s）</string>
     <string name="progress_header_title">本日の進捗</string>
     <string name="progress_header_all_done">すべて完了！🎉</string>
     <plurals name="progress_header_remaining">
@@ -578,11 +578,11 @@
     <string name="health_bmi_normal">正常</string>
     <string name="health_bmi_overweight">過体重</string>
     <string name="health_bmi_obese">肥満</string>
-    <string name="health_bmi_no_height">設定で身長を入力してください</string>
+    <string name="health_bmi_no_height">設定で身長を入力</string>
 
     <string name="health_interp_normal">直近7日間のデータは正常範囲内</string>
-    <string name="health_interp_high">最新値が高めです。注意してください</string>
-    <string name="health_interp_low">最新値が低めです。注意してください</string>
+    <string name="health_interp_high">最新値が高めです。注意が必要です</string>
+    <string name="health_interp_low">最新値が低めです。注意が必要です</string>
     <string name="health_interp_trend_rising">直近7日間で上昇傾向</string>
     <string name="health_interp_trend_falling">直近7日間で下降傾向</string>
 
@@ -646,24 +646,24 @@
 パス：設定 → プライバシー → 権限管理 → MedLog → デスクトップショートカット → 許可</string>
     <string name="oem_originos_pin_guide">OriginOS / Funtouch OS では「デスクトップショートカット」権限が必要です。
 パス：設定 → プライバシー → 権限 → デスクトップショートカット → MedLog → 許可</string>
-    <string name="oem_manual_add_guide">ホーム画面の空白領域を長押し → ウィジェット → MedLog を選んでドラッグ追加してください。</string>
+    <string name="oem_manual_add_guide">ホーム画面の空白領域を長押し → ウィジェット → MedLog を選んでドラッグ追加。</string>
 
     <!-- QR エクスポート / インポート -->
     <string name="qr_tab_today">今日の記録</string>
     <string name="qr_tab_export">プランを出力</string>
     <string name="qr_scan_import">QRをスキャン</string>
     <string name="qr_scan_title">QRコードをスキャン</string>
-    <string name="qr_scan_hint">QRコードをフレーム内に合わせてください</string>
+    <string name="qr_scan_hint">QRコードをフレーム内に合わせる</string>
     <string name="qr_scan_permission_rationale">QRコードをスキャンするにはカメラの許可が必要です</string>
     <string name="qr_scan_grant_permission">許可を付与</string>
-    <string name="qr_export_too_large">薬が多すぎてQRコードに収まりません。テキスト共有をご利用ください</string>
+    <string name="qr_export_too_large">薬が多すぎてQRコードに収まりません。テキスト共有を利用</string>
     <string name="qr_import_preview_title">インポートプレビュー</string>
     <plurals name="qr_import_medication_count">
         <item quantity="other">%d 種類の薬</item>
     </plurals>
     <string name="qr_import_mode_merge">マージ（既存を保持）</string>
     <string name="qr_import_mode_replace">置換（全削除して再インポート）</string>
-    <string name="qr_invalid">無効なQRコードです。Anshinのエクスポートコードをスキャンしてください</string>
+    <string name="qr_invalid">無効なQRコードです。Anshinのエクスポートコードをスキャン</string>
 
     <!-- OCR 文字認識 -->
     <string name="ocr_scan_title">薬名をスキャン</string>
@@ -680,11 +680,11 @@
     <string name="ocr_health_scan_chip">撮影して入力</string>
     <string name="ocr_health_scan_hint">測定機器の画面にカメラを向けて撮影</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
-    <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行してください</string>
+    <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行</string>
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>
     <string name="ocr_health_candidate_numbers">その他の数値</string>    <string name="ocr_bp_merge_suggestion">血圧の読み取り値の可能性</string>    <string name="ocr_health_tap_to_record">タップして記録</string>
     <string name="ocr_health_raw_text">元のテキスト</string>
-    <string name="ocr_health_no_metrics_hint">ヒント：画面が鮮明で反射がなく、近くから撮影してください</string>
+    <string name="ocr_health_no_metrics_hint">ヒント：画面が鮮明で反射がなく、近くから撮影</string>
     <string name="ocr_confidence_high">高信頼</string>
     <string name="ocr_confidence_medium">中信頼</string>
     <string name="ocr_confidence_low">低信頼</string>
@@ -716,7 +716,7 @@
     <string name="settings_follow_up_delay_min">%d 分</string>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
-    <string name="error_name_required">薬品名を入力してください</string>
+    <string name="error_name_required">薬品名を入力</string>
     <string name="category_other">その他</string>
     <string name="unknown_medication">不明な薬品</string>
     <string name="default_dose_unit">錠</string>

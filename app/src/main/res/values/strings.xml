@@ -89,7 +89,7 @@
     <string name="welcome_notif_request_title">开启服药提醒</string>
     <string name="welcome_notif_granted_body">Anshin 将在您设定的服药时间准时推送提醒，确保不会错过任何一次用药。</string>
     <string name="welcome_notif_request_body">Anshin 需要通知权限，才能在服药时间准时提醒您。\n建议开启以确保不会错过用药计划。</string>
-    <string name="welcome_notif_guide">请点击下方按钮，允许 Anshin 发送服药提醒</string>
+    <string name="welcome_notif_guide">点击下方按钮，允许 Anshin 发送服药提醒</string>
     <string name="welcome_notif_grant_btn">立即开启服药提醒</string>
     <string name="welcome_notif_later">也可稍后在「系统通知设置」或 Anshin「设置」中开启</string>
 
@@ -167,10 +167,10 @@
     <string name="welcome_p5_step2">设置服药频次和时间，开启准时提醒</string>
     <string name="welcome_p5_step3">每次收到提醒后，打开应用完成服药打卡</string>
     <string name="settings_alarm_perm_title">精确闹钟权限未授予</string>
-    <string name="settings_alarm_perm_body">提醒可能最多延迟数分钟，请前往系统设置开启『允许精确闹钟』</string>
+    <string name="settings_alarm_perm_body">提醒可能最多延迟数分钟。前往系统设置开启『允许精确闹钟』</string>
     <string name="settings_alarm_perm_btn">前往授权</string>
     <string name="settings_notif_perm_title">通知权限未开启</string>
-    <string name="settings_notif_perm_body">无法收到服药提醒，请在系统设置中开启通知权限</string>
+    <string name="settings_notif_perm_body">无法收到服药提醒。在系统设置中开启通知权限</string>
     <string name="settings_notif_perm_btn">前往设置</string>
     <string name="settings_card_appearance">外观</string>
     <string name="settings_theme_system">跟随系统</string>
@@ -220,8 +220,8 @@
     <string name="settings_widget_no_pin_hint">您的桌面不支持直接固定小组件。%s</string>
     <string name="settings_widget_hint">点击添加按钮，将小组件固定到桌面</string>
     <string name="settings_widget_oem_btn">前往授予「桌面快捷方式」权限</string>
-    <string name="settings_widget_pin_oem">若未弹出对话框，请先点击上方「前往授权」开启桌面快捷方式权限</string>
-    <string name="settings_widget_pin_ok">请在弹出的对话框中点击「添加」完成安装</string>
+    <string name="settings_widget_pin_oem">若未弹出对话框，先点击上方「前往授权」开启桌面快捷方式权限</string>
+    <string name="settings_widget_pin_ok">在弹出的对话框中点击「添加」完成安装</string>
     <string name="settings_widget_add_btn">添加到桌面</string>
     <string name="settings_widget_grant_btn">前往设置授权</string>
     <string name="settings_widget_preview_cd">%s 小组件预览</string>
@@ -341,7 +341,7 @@
     <string name="history_adherence_excellent">优秀！继续保持 🎉</string>
     <string name="history_adherence_good">表现良好，再接再厉</string>
     <string name="history_adherence_fair">还需努力，记得按时服药</string>
-    <string name="history_adherence_poor">坚持率偏低，请重视用药规律</string>
+    <string name="history_adherence_poor">坚持率偏低，重视用药规律</string>
     <string name="history_prev_month_cd">上月</string>
     <string name="history_next_month_cd">下月</string>
     <string name="history_month_format">%1$d年%2$d月</string>
@@ -522,7 +522,7 @@
     <string name="med_card_btn_take">服用</string>
     <string name="med_card_btn_partial">部分服用</string>
     <string name="med_card_partial_taken">部分服用 %1$s %2$s （%3$s）</string>
-    <string name="med_card_partial_input_hint">请输入本次实际服用剂量（计划: %1$s %2$s）</string>
+    <string name="med_card_partial_input_hint">输入本次实际服用剂量（计划: %1$s %2$s）</string>
     <string name="progress_header_title">今日进度</string>
     <string name="progress_header_all_done">全部完成！🎉</string>
     <plurals name="progress_header_remaining">
@@ -579,12 +579,12 @@
     <string name="health_bmi_normal">正常</string>
     <string name="health_bmi_overweight">超重</string>
     <string name="health_bmi_obese">肥胖</string>
-    <string name="health_bmi_no_height">请先在设置中填写身高</string>
+    <string name="health_bmi_no_height">先在设置中填写身高</string>
 
     <!-- 解读 -->
     <string name="health_interp_normal">近 7 日数据在正常范围内</string>
-    <string name="health_interp_high">最新值偏高，请注意观察</string>
-    <string name="health_interp_low">最新值偏低，请注意观察</string>
+    <string name="health_interp_high">最新值偏高，注意观察</string>
+    <string name="health_interp_low">最新值偏低，注意观察</string>
     <string name="health_interp_trend_rising">近 7 日呈上升趋势</string>
     <string name="health_interp_trend_falling">近 7 日呈下降趋势</string>
 
@@ -594,7 +594,7 @@
     <!-- 身高 -->
     <string name="health_height_label">身高 (cm)</string>
     <string name="health_height_dialog_title">设置身高</string>
-    <string name="health_height_dialog_hint">请输入身高（厘米）</string>
+    <string name="health_height_dialog_hint">输入身高（厘米）</string>
 
     <string name="detail_category_label">分类</string>
     <string name="detail_batch_label">批量</string>
@@ -652,7 +652,7 @@
 路径：设置 → 隐私 → 权限管理 → MedLog → 桌面快捷方式 → 允许</string>
     <string name="oem_originos_pin_guide">OriginOS / Funtouch OS 设备需手动开启「桌面快捷方式」权限。
 路径：设置 → 隐私权限 → 权限 → 桌面快捷方式 → MedLog → 允许</string>
-    <string name="oem_manual_add_guide">请长按桌面空白区域 → 小组件 → MedLog，手动拖拽添加到桌面。</string>
+    <string name="oem_manual_add_guide">长按桌面空白区域 → 小组件 → MedLog，手动拖拽添加到桌面。</string>
 
     <!-- QR 导出 / 导入 -->
     <string name="qr_tab_today">今日打卡</string>
@@ -662,14 +662,14 @@
     <string name="qr_scan_hint">将二维码对准取景框</string>
     <string name="qr_scan_permission_rationale">需要相机权限以扫描二维码</string>
     <string name="qr_scan_grant_permission">授予权限</string>
-    <string name="qr_export_too_large">药品较多，无法生成二维码，请使用文字分享</string>
+    <string name="qr_export_too_large">药品较多，无法生成二维码。使用文字分享</string>
     <string name="qr_import_preview_title">导入预览</string>
     <plurals name="qr_import_medication_count">
         <item quantity="other">%d 种药品</item>
     </plurals>
     <string name="qr_import_mode_merge">合并（保留现有）</string>
     <string name="qr_import_mode_replace">替换（清空重导）</string>
-    <string name="qr_invalid">无效的二维码，请扫描由 Anshin 生成的导出码</string>
+    <string name="qr_invalid">无效的二维码。扫描 Anshin 导出码</string>
 
     <!-- OCR 文字识别 -->
     <string name="ocr_scan_title">扫描药品名称</string>
@@ -686,7 +686,7 @@
     <string name="ocr_health_scan_chip">拍照识别填充</string>
     <string name="ocr_health_scan_hint">将测量设备屏幕对准相机，点击拍照识别</string>
     <string name="ocr_health_detected">识别到以下体征数据</string>
-    <string name="ocr_health_no_metrics">未识别到体征数据，请重试</string>
+    <string name="ocr_health_no_metrics">未识别到体征数据，重试</string>
     <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>
     <string name="ocr_health_candidate_numbers">其他数字</string>
     <string name="ocr_bp_merge_suggestion">可能是血压读数</string>
@@ -700,7 +700,7 @@
     <string name="ocr_processing_parsing">正在解析指标…</string>
     <string name="ocr_flash_toggle">切换闪光灯</string>
     <string name="ocr_no_text_found">未识别到文字</string>
-    <string name="ocr_no_text_hint">请确保文字清晰可见，然后重新拍照</string>
+    <string name="ocr_no_text_hint">确保文字清晰可见，然后重新拍照</string>
     <string name="ocr_edit_value">编辑数值</string>
     <plurals name="qr_import_success">
         <item quantity="other">已成功导入 %d 种药品</item>

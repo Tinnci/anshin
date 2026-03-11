@@ -191,9 +191,9 @@
     <string name="settings_persistent_title">Persistent Reminder</string>
     <string name="settings_persistent_subtitle">Repeats reminder until medication is confirmed</string>
     <string name="settings_interval_label">Reminder Interval</string>
-    <string name="settings_minutes">%d min(s)</string>
+    <string name="settings_minutes">%d minutes</string>
     <string name="settings_early_reminder_title">Advance Reminder</string>
-    <string name="settings_early_reminder_body_on">Sends a reminder %d min(s) before scheduled time</string>
+    <string name="settings_early_reminder_body_on">Sends a reminder %d minutes before scheduled time</string>
     <string name="settings_early_reminder_body_off">Off (remind only at exact scheduled time)</string>
     <string name="settings_off">Off</string>
     <string name="settings_1hour">1 hr</string>
@@ -354,7 +354,7 @@
     <string name="history_adherence_excellent">Excellent! Keep it up 🎉</string>
     <string name="history_adherence_good">Good progress, keep going</string>
     <string name="history_adherence_fair">Needs improvement, take meds on time</string>
-    <string name="history_adherence_poor">Low adherence, please pay attention</string>
+    <string name="history_adherence_poor">Low adherence — pay attention to schedule</string>
     <string name="history_prev_month_cd">Previous month</string>
     <string name="history_next_month_cd">Next month</string>
     <string name="history_month_format">%1$d-%2$02d</string>
@@ -597,7 +597,7 @@
     <string name="health_bmi_normal">Normal</string>
     <string name="health_bmi_overweight">Overweight</string>
     <string name="health_bmi_obese">Obese</string>
-    <string name="health_bmi_no_height">Please set your height in Settings</string>
+    <string name="health_bmi_no_height">Set your height in Settings first</string>
 
     <string name="health_interp_normal">7-day data within normal range</string>
     <string name="health_interp_high">Latest value is above normal</string>
@@ -647,7 +647,7 @@
     <string name="widget_next_dose_title">Next dose</string>
     <string name="widget_next_dose_now">Take now</string>
     <string name="widget_next_dose_min_fmt">In %d min</string>
-    <string name="widget_next_dose_1h_min_fmt">In 1h %d min</string>
+    <string name="widget_next_dose_1h_min_fmt">In 1 hour %d min</string>
     <string name="widget_next_dose_h_fmt">In ~%d h</string>
     <string name="widget_next_dose_no_pending">No pending meds</string>
     <plurals name="widget_next_dose_count_fmt">
@@ -681,7 +681,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="qr_scan_hint">Align QR code within the frame</string>
     <string name="qr_scan_permission_rationale">Camera permission is required to scan QR codes</string>
     <string name="qr_scan_grant_permission">Grant Permission</string>
-    <string name="qr_export_too_large">Too many medications to fit in a QR code. Please use the text share instead.</string>
+    <string name="qr_export_too_large">Too many medications to fit in a QR code — use text share instead.</string>
     <string name="qr_import_preview_title">Import Preview</string>
     <plurals name="qr_import_medication_count">
         <item quantity="one">%d medication</item>
@@ -689,7 +689,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     </plurals>
     <string name="qr_import_mode_merge">Merge (keep existing)</string>
     <string name="qr_import_mode_replace">Replace (clear &amp; import)</string>
-    <string name="qr_invalid">Invalid QR code. Please scan an Anshin export code.</string>
+    <string name="qr_invalid">Invalid QR code — scan an Anshin export code.</string>
 
     <!-- OCR Text Recognition -->
     <string name="ocr_scan_title">Scan Medication Name</string>
@@ -706,7 +706,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_health_scan_chip">Scan to fill</string>
     <string name="ocr_health_scan_hint">Point the camera at the device screen, then tap capture</string>
     <string name="ocr_health_detected">Detected health metrics</string>
-    <string name="ocr_health_no_metrics">No health metrics detected, please try again</string>
+    <string name="ocr_health_no_metrics">No health metrics detected — try again</string>
     <string name="ocr_health_numbers_found">Numbers found, tap to select</string>
     <string name="ocr_health_candidate_numbers">Other numbers</string>
     <string name="ocr_bp_merge_suggestion">Possible blood pressure reading</string>
@@ -746,7 +746,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_follow_up_enable_desc">Automatically resend a reminder if a dose isn\'t logged on time</string>
     <string name="settings_follow_up_delay">Reminder Interval</string>
     <string name="settings_follow_up_count">Max. Follow-up Count</string>
-    <string name="settings_follow_up_delay_min">%d min</string>
+    <string name="settings_follow_up_delay_min">%d minutes</string>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
     <string name="error_name_required">Medication name is required</string>

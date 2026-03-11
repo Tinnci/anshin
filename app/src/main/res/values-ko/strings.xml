@@ -90,7 +90,7 @@
     <string name="welcome_notif_request_title">복약 알림 활성화</string>
     <string name="welcome_notif_granted_body">Anshin이 설정한 복약 시간에 알림을 보내드립니다. 약을 빠뜨리지 마세요.</string>
     <string name="welcome_notif_request_body">Anshin이 복약 시간에 알림을 보내려면 알림 권한이 필요합니다.\n복약 일정을 놓치지 않으려면 활성화하는 것을 권장합니다.</string>
-    <string name="welcome_notif_guide">아래 버튼을 눌러 Anshin의 알림을 허용해 주세요</string>
+    <string name="welcome_notif_guide">아래 버튼을 눌러 Anshin의 알림을 허용합니다</string>
     <string name="welcome_notif_grant_btn">복약 알림 활성화</string>
     <string name="welcome_notif_later">나중에 시스템 알림 설정 또는 Anshin 설정에서도 활성화할 수 있습니다</string>
 
@@ -578,7 +578,7 @@
     <string name="health_bmi_normal">정상</string>
     <string name="health_bmi_overweight">과체중</string>
     <string name="health_bmi_obese">비만</string>
-    <string name="health_bmi_no_height">설정에서 키를 입력해 주세요</string>
+    <string name="health_bmi_no_height">설정에서 키를 입력하세요</string>
 
     <string name="health_interp_normal">최근 7일 데이터가 정상 범위입니다</string>
     <string name="health_interp_high">최근 값이 높습니다. 주의하세요</string>
@@ -655,7 +655,7 @@
     <string name="qr_tab_export">계획 내보내기</string>
     <string name="qr_scan_import">QR 스캔 가져오기</string>
     <string name="qr_scan_title">QR 코드 스캔</string>
-    <string name="qr_scan_hint">QR 코드를 프레임 안에 맞춰 주세요</string>
+    <string name="qr_scan_hint">QR 코드를 프레임 안에 맞추세요</string>
     <string name="qr_scan_permission_rationale">QR 코드를 스캔하려면 카메라 권한이 필요합니다</string>
     <string name="qr_scan_grant_permission">권한 부여</string>
     <string name="qr_export_too_large">약품이 너무 많아 QR 코드로 생성할 수 없습니다. 텍스트 공유를 사용하세요</string>
@@ -665,7 +665,7 @@
     </plurals>
     <string name="qr_import_mode_merge">병합(기존 유지)</string>
     <string name="qr_import_mode_replace">대체(전체 삭제 후 다시 가져오기)</string>
-    <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔해 주세요</string>
+    <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔하세요</string>
     <!-- OCR 문자 인식 -->
     <string name="ocr_scan_title">약명 스쮨</string>
     <string name="ocr_scan_hint">약 포장의 이름에 카메라를 맞추고 촬영하세요</string>
@@ -712,7 +712,7 @@
     <string name="settings_follow_up_delay_min">%d분</string>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
-    <string name="error_name_required">약품명을 입력해 주세요</string>
+    <string name="error_name_required">약품명을 입력하세요</string>
     <string name="category_other">기타</string>
     <string name="unknown_medication">알 수 없는 약품</string>
     <string name="default_dose_unit">정</string>
