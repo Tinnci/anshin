@@ -1,6 +1,7 @@
 #!/bin/sh
 # MedLog pre-push hook
-# 在推送前运行 Android Lint 检查（仅 debug 变体）
+# 在推送分支前运行 Android Lint 检查（仅 debug 变体）
+# 优化：跳过 tag 推送、跳过无源码变更的推送
 
 set -e
 
@@ -15,6 +16,40 @@ fi
 
 REPO_ROOT="$(git rev-parse --show-toplevel)"
 cd "$REPO_ROOT"
+
+# ── 读取 stdin（git 传入的 push 信息）──────────────────────────
+# 格式: <local ref> <local sha> <remote ref> <remote sha>
+PUSHING_BRANCH=false
+while read -r local_ref local_sha remote_ref remote_sha; do
+    # 跳过 tag 推送（refs/tags/...）
+    case "$remote_ref" in
+        refs/tags/*) continue ;;
+    esac
+    PUSHING_BRANCH=true
+
+    # 检查推送范围内是否有源码变更
+    if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+        # 新分支：检查与 HEAD 的差异中是否有源码文件
+        HAS_SOURCE_CHANGES=true
+    else
+        CHANGED=$(git diff --name-only "$remote_sha".."$local_sha" -- \
+            '*.kt' '*.kts' '*.java' '*.xml' 'build.gradle*' '*.pro' 2>/dev/null || true)
+        if [ -z "$CHANGED" ]; then
+            echo "[pre-push] 无源码变更，跳过 Lint 检查。"
+            continue
+        fi
+        HAS_SOURCE_CHANGES=true
+    fi
+done
+
+if [ "$PUSHING_BRANCH" = false ]; then
+    echo "[pre-push] Tag 推送，跳过 Lint 检查。"
+    exit 0
+fi
+
+if [ "${HAS_SOURCE_CHANGES:-false}" = false ]; then
+    exit 0
+fi
 
 echo "[pre-push] 运行 Android Lint 检查..."
 

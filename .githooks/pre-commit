@@ -1,6 +1,6 @@
 #!/bin/sh
 # MedLog pre-commit hook
-# 在提交前自动运行 ktlint 检查
+# 在提交前自动运行 ktlint 检查（仅检查暂存的 Kotlin 文件）
 #
 # 安装方式（首次 clone 后执行一次）：
 #   git config core.hooksPath .githooks
