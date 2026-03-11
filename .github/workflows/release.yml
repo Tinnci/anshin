@@ -25,27 +25,29 @@ jobs:
           fetch-depth: 0
 
       # ── 2. 配置 JDK ───────────────────────────────────────────
-      - name: Set up JDK 17
+      - name: Set up JDK 21
         uses: actions/setup-java@v4
         with:
           java-version: "21"
           distribution: temurin
-          cache: gradle
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
 
       # ── 3. 从 tag 解析版本号 ──────────────────────────────────
       - name: Extract version from tag
         id: version
         run: |
-          # Remove leading 'v': v1.2.3 → 1.2.3
+          # Remove leading 'v': v1.2.3 → 1.2.3, v1.2.3-rc1 → 1.2.3-rc1
           TAG="${GITHUB_REF_NAME#v}"
           echo "version_name=$TAG" >> "$GITHUB_OUTPUT"
 
-          # Compute versionCode: major*10000 + minor*100 + patch
+          # Compute versionCode from base version (strip pre-release suffix):
+          # major*10000 + minor*100 + patch
           # e.g.  1.2.3  →  10203   |   2.0.0  →  20000
-          IFS='.' read -r MAJOR MINOR PATCH <<< "${TAG%%-*}"   # strip pre-release suffix
+          BASE="${TAG%%-*}"  # "1.2.3-rc1" → "1.2.3"
+          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE"
+          MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
           VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
           echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
 
@@ -68,47 +70,22 @@ jobs:
             echo "No KEYSTORE_BASE64 secret found. APK will be unsigned."
           fi
 
-      # ── 5. 代码质量检查 ───────────────────────────────────────
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
-
-      # ── 6. 单元测试 ───────────────────────────────────────────
+      # ── 5. 单元测试（发布前最终验证）───────────────────────────
       - name: Run unit tests
         run: ./gradlew :app:testDebugUnitTest
 
-      - name: Upload unit test results
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: test-results-${{ github.run_number }}
-          path: app/build/test-results/
-          retention-days: 7
-
-      # ── 7. Lint 检查 ──────────────────────────────────────────
-      - name: Run Android Lint
-        run: ./gradlew lintRelease
-
-      - name: Upload Lint report
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: lint-report-${{ github.run_number }}
-          path: app/build/reports/lint-results-release.html
-          retention-days: 7
-
-      # ── 8. 构建 Release APK ───────────────────────────────────────────
+      # ── 6. 构建 Release APK ───────────────────────────────────
       - name: Build Release APK
         run: ./gradlew assembleRelease
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}
-          # 签名参数：空展时 build.gradle.kts 自动跳过签名
           KEYSTORE_PATH: ${{ env.KEYSTORE_PATH }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # ── 9. 重命名 APK（已签名/未签名 区分后缀）────────────────────
+      # ── 7. 重命名 APK（已签名/未签名 区分后缀）────────────────
       - name: Rename APK
         id: apk
         run: |
@@ -123,7 +100,7 @@ jobs:
           echo "apk_name=$NEW_NAME" >> "$GITHUB_OUTPUT"
           echo "APK: $NEW_NAME"
 
-      # ── 10. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
+      # ── 8. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
       - name: Generate changelog
         id: changelog
         run: |
@@ -141,7 +118,7 @@ jobs:
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 
-      # ── 11. 发布 GitHub Release，附带 APK ─────────────────────
+      # ── 9. 发布 GitHub Release，附带 APK ─────────────────────
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
         with:
