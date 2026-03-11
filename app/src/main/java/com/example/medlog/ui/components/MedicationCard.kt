@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.example.medlog.ui.util.icon
 import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.screen.home.MedicationWithStatus
@@ -120,7 +121,7 @@ fun MedicationCard(
 
             // ── 主内容区 ──────────────────────────────────────
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier.padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 AnimatedStatusCircle(
@@ -128,18 +129,18 @@ fun MedicationCard(
                     isSkipped = item.isSkipped,
                     isPartial = item.isPartial,
                 )
-                Spacer(Modifier.width(12.dp))
+                Spacer(Modifier.width(MedLogSpacing.Medium))
 
                 Column(modifier = Modifier.weight(1f)) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         // ── 剂型图标（与添加界面一致）─────────────────
                         Icon(
                             imageVector = formIcon(med.form),
                             contentDescription = med.form,
-                            modifier = Modifier.size(15.dp),
+                            modifier = Modifier.size(16.dp),
                             tint = if (item.isTaken || item.isSkipped)
                                 MaterialTheme.colorScheme.outlineVariant
                             else
@@ -194,7 +195,7 @@ fun MedicationCard(
                                             modifier = Modifier.size(12.dp),
                                         )
                                     },
-                                    modifier = Modifier.height(22.dp),
+                                    modifier = Modifier.height(24.dp),
                                     colors = SuggestionChipDefaults.suggestionChipColors(
                                         containerColor = MaterialTheme.colorScheme.tertiaryContainer,
                                         labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -212,14 +213,14 @@ fun MedicationCard(
                                             overflow = TextOverflow.Ellipsis,
                                         )
                                     },
-                                    modifier = Modifier.height(22.dp).widthIn(max = 120.dp),
+                                    modifier = Modifier.height(24.dp).widthIn(max = 120.dp),
                                 )
                             }
                         }
                     }
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         val period = TimePeriod.fromKey(med.timePeriod)
                         Icon(
@@ -289,7 +290,7 @@ fun MedicationCard(
                 }
 
                 // ── 胶囊形操作按钮组 ──────────────────────────────────
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(8.dp))
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
                     horizontalAlignment = Alignment.End,
@@ -311,7 +312,7 @@ fun MedicationCard(
                                 else           -> MaterialTheme.colorScheme.onPrimaryContainer
                             },
                         ),
-                        contentPadding = PaddingValues(horizontal = 14.dp, vertical = 0.dp),
+                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.height(36.dp),
                     ) {
                         Icon(
@@ -336,10 +337,10 @@ fun MedicationCard(
                     if (!item.isHandled) {
                         OutlinedButton(
                             onClick = onSkip,
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                            modifier = Modifier.height(30.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                            modifier = Modifier.height(32.dp),
                         ) {
-                            Icon(Icons.Rounded.SkipNext, null, Modifier.size(13.dp))
+                            Icon(Icons.Rounded.SkipNext, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
                                 Text(stringResource(R.string.notif_action_skip), style = MaterialTheme.typography.labelSmall)
                         }
@@ -352,10 +353,10 @@ fun MedicationCard(
                                 partialInput = ""
                                 showPartialDialog = true
                             },
-                            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 0.dp),
-                            modifier = Modifier.height(30.dp),
+                            contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
+                            modifier = Modifier.height(32.dp),
                         ) {
-                            Icon(Icons.Rounded.Adjust, null, Modifier.size(13.dp))
+                            Icon(Icons.Rounded.Adjust, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
                             Text(stringResource(R.string.med_card_btn_partial), style = MaterialTheme.typography.labelSmall)
                         }

@@ -31,6 +31,7 @@ import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.util.formatDose
 import com.example.medlog.ui.util.formatDosePrecise
 import com.example.medlog.ui.theme.calendarWarning
+import com.example.medlog.ui.theme.MedLogSpacing
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -152,8 +153,8 @@ fun MedicationDetailScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = PaddingValues(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = MedLogSpacing.ScreenContentDefault,
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             // ── 坚持率统计卡 ──────────────────────────────────
             item {
@@ -173,14 +174,14 @@ fun MedicationDetailScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     Column(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(MedLogSpacing.Large),
                         verticalArrangement = Arrangement.spacedBy(0.dp),
                     ) {
                         Text(
                             stringResource(R.string.detail_section_basic),
                             style = MaterialTheme.typography.labelLarge,
                             color = MaterialTheme.colorScheme.primary,
-                            modifier = Modifier.padding(bottom = 8.dp),
+                            modifier = Modifier.padding(bottom = MedLogSpacing.Small),
                         )
                         DetailRow(stringResource(R.string.detail_label_name), med.name)
                         DetailRow(stringResource(R.string.detail_label_form), formLabel(med.form))
@@ -377,12 +378,12 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(MedLogSpacing.Large)) {
             Text(
                 stringResource(R.string.detail_adherence_title),
                 style = MaterialTheme.typography.labelLarge,
                 color = colorScheme.primary,
-                modifier = Modifier.padding(bottom = 12.dp),
+                modifier = Modifier.padding(bottom = MedLogSpacing.Medium),
             )
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -475,8 +476,8 @@ private fun StockCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(MedLogSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             // ── 标题行 ──
             Row(

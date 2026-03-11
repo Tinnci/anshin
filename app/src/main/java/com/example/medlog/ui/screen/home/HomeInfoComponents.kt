@@ -41,6 +41,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.example.medlog.ui.util.icon
 import com.example.medlog.ui.util.labelRes
 import java.text.SimpleDateFormat
@@ -68,9 +69,9 @@ internal fun LowStockBanner(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Icon(
                 imageVector = Icons.Rounded.Medication,

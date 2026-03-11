@@ -37,6 +37,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.example.medlog.data.model.TimePeriod
 import com.example.medlog.ui.util.icon
 import com.example.medlog.ui.util.labelRes
@@ -110,13 +111,13 @@ fun AddMedicationScreen(
                     FilledTonalButton(
                         onClick = { viewModel.save(medicationId) },
                         enabled = !uiState.isSaving,
-                        modifier = Modifier.padding(end = 12.dp),
+                        modifier = Modifier.padding(end = MedLogSpacing.Medium),
                     ) {
                         if (uiState.isSaving) {
                             LoadingIndicator(
                                 modifier = Modifier.size(16.dp),
                             )
-                            Spacer(Modifier.width(8.dp))
+                            Spacer(Modifier.width(MedLogSpacing.Small))
                         }
                         Text(stringResource(R.string.add_save))
                     }
@@ -130,9 +131,9 @@ fun AddMedicationScreen(
                 .padding(paddingValues)
                 .verticalScroll(rememberScrollState())
                 .imePadding()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = MedLogSpacing.Large)
+                .padding(bottom = MedLogSpacing.XXLarge),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
 
             // ── 基本信息 ─────────────────────────────────────────
@@ -221,7 +222,7 @@ fun AddMedicationScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         Icon(Icons.Rounded.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
                         Column {
                             Text(stringResource(R.string.add_high_priority), style = MaterialTheme.typography.bodyMedium)
@@ -242,8 +243,8 @@ fun AddMedicationScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .heightIn(max = 200.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     userScrollEnabled = false,
                 ) {
                     items(formOptions, key = { it.key }) { option ->
@@ -261,10 +262,10 @@ fun AddMedicationScreen(
                         ) {
                             Column(
                                 modifier = Modifier
-                                    .padding(8.dp)
+                                    .padding(MedLogSpacing.Small)
                                     .fillMaxWidth(),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(4.dp),
+                                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                             ) {
                                 Icon(
                                     option.icon,
@@ -324,11 +325,11 @@ fun AddMedicationScreen(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                 }
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(MedLogSpacing.Tiny))
                 Text(stringResource(R.string.add_unit_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 Row(
                     modifier = Modifier.horizontalScroll(rememberScrollState()),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                 ) {
                     doseUnits.forEach { unit ->
                         FilterChip(
@@ -347,7 +348,7 @@ fun AddMedicationScreen(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         Icon(Icons.Rounded.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
                         Column {
                             Text(stringResource(R.string.add_prn_label), style = MaterialTheme.typography.bodyMedium)
@@ -361,7 +362,7 @@ fun AddMedicationScreen(
                         value = uiState.maxDailyDose,
                         onValueChange = viewModel::onMaxDailyDoseChange,
                         label = { Text(stringResource(R.string.add_max_daily_dose)) },
-                        modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                        modifier = Modifier.fillMaxWidth().padding(top = MedLogSpacing.Small),
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                         suffix = { Text(stringResource(R.string.add_times_per_day)) },
                         singleLine = true,
@@ -370,8 +371,8 @@ fun AddMedicationScreen(
 
                 // ── 服药频率（非PRN才显示）──────────────────────
                 AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                        HorizontalDivider(Modifier.padding(vertical = 4.dp))
+                    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
+                        HorizontalDivider(Modifier.padding(vertical = MedLogSpacing.Tiny))
                         Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
                         val freqOptions = listOf("daily" to stringResource(R.string.add_freq_daily), "interval" to stringResource(R.string.add_freq_interval), "specific_days" to stringResource(R.string.add_freq_specific))
                         Row(
@@ -394,7 +395,7 @@ fun AddMedicationScreen(
                             }
                         }
                         AnimatedVisibility(uiState.frequencyType == "interval") {
-                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                                 Text(stringResource(R.string.add_freq_every_n), style = MaterialTheme.typography.bodyMedium)
                                 OutlinedTextField(
                                     value = uiState.frequencyInterval.toString(),
@@ -410,7 +411,7 @@ fun AddMedicationScreen(
                             val days = uiState.frequencyDays.split(",").filter { it.isNotBlank() }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
                                 val weekLabels = listOf(
                                     stringResource(R.string.history_weekday_1) to 1,
@@ -490,12 +491,12 @@ fun AddMedicationScreen(
                     enter = expandVertically() + fadeIn(),
                     exit = shrinkVertically() + fadeOut(),
                 ) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         Row(
                             modifier = Modifier
                                 .horizontalScroll(rememberScrollState())
                                 .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                         ) {
                             TimePeriod.entries.filter { it != TimePeriod.EXACT }.forEach { tp ->
                                 FilterChip(
@@ -533,7 +534,7 @@ fun AddMedicationScreen(
                 }
                 // 精确时间模式：用户手动设置多个提醒时间 + 可选间隔给药
                 AnimatedVisibility(visible = isExactMode, enter = expandVertically(), exit = shrinkVertically()) {
-                    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         ReminderTimesRow(
                             times = uiState.reminderTimes,
                             onAdd = viewModel::addReminderTime,
@@ -547,7 +548,7 @@ fun AddMedicationScreen(
                         ) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
                                 Icon(
                                     Icons.Rounded.Timer,
@@ -592,7 +593,7 @@ fun AddMedicationScreen(
 
             // ── 起止日期 ─────────────────────────────────────────
             FormSection(title = stringResource(R.string.add_section_dates), icon = Icons.Rounded.DateRange) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                     DatePickerField(
                         label = stringResource(R.string.add_date_start),
                         timestamp = uiState.startDate,
@@ -611,7 +612,7 @@ fun AddMedicationScreen(
 
             // ── 库存管理 ─────────────────────────────────────────
             FormSection(title = stringResource(R.string.add_section_stock), icon = Icons.Rounded.Inventory) {
-                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                     OutlinedTextField(
                         value = uiState.stock,
                         onValueChange = viewModel::onStockChange,
@@ -643,7 +644,7 @@ fun AddMedicationScreen(
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Row(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                 ) {
                     val offLabel = stringResource(R.string.add_refill_off)
                     val refillDaysLabel7 = pluralStringResource(R.plurals.history_streak_max_days, 7, 7)
@@ -672,7 +673,7 @@ fun AddMedicationScreen(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(MedLogSpacing.Small))
         }
     }
 
@@ -741,12 +742,12 @@ private fun FormSection(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.padding(MedLogSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
                 Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 Text(
@@ -775,11 +776,11 @@ private fun ReminderTimesRow(
         is24Hour = true,
     )
 
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
         Text(stringResource(R.string.add_reminder_time_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
             times.forEach { hhmm ->
@@ -817,8 +818,8 @@ private fun ReminderTimesRow(
                 elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    modifier = Modifier.padding(MedLogSpacing.Large),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                 ) {
                     Text(
                         stringResource(R.string.add_reminder_add_title),
@@ -831,7 +832,7 @@ private fun ReminderTimesRow(
                         horizontalArrangement = Arrangement.End,
                     ) {
                         TextButton(onClick = { showPicker = false }) { Text(stringResource(R.string.cancel)) }
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(MedLogSpacing.Small))
                         FilledTonalButton(onClick = {
                             onAdd("%02d:%02d".format(timePickerState.hour, timePickerState.minute))
                             showPicker = false
@@ -862,10 +863,10 @@ private fun DatePickerField(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Medium),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
                     Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
@@ -876,7 +877,7 @@ private fun DatePickerField(
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 if (nullable && timestamp != null) {
-                    Spacer(Modifier.width(4.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Tiny))
                     IconButton(onClick = { onPick(null) }, modifier = Modifier.size(28.dp)) {
                         Icon(Icons.Filled.Close, null, Modifier.size(14.dp))
                     }
@@ -902,12 +903,12 @@ private fun DatePickerField(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 12.dp),
+                            .padding(horizontal = MedLogSpacing.Large)
+                            .padding(bottom = MedLogSpacing.Medium),
                         horizontalArrangement = Arrangement.End,
                     ) {
                         TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(MedLogSpacing.Small))
                         FilledTonalButton(onClick = {
                             onPick(state.selectedDateMillis)
                             expanded = false

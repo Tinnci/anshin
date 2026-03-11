@@ -31,6 +31,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import com.example.medlog.ui.theme.emphasizedTypography
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -86,13 +87,8 @@ fun HealthScreen(
         } else {
             Box(Modifier.fillMaxSize().padding(innerPadding)) {
             LazyColumn(
-                contentPadding = PaddingValues(
-                    top = 8.dp,
-                    bottom = 80.dp,
-                    start = 16.dp,
-                    end = 16.dp,
-                ),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = MedLogSpacing.ScreenContentWithToolbar,
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                 modifier = Modifier.nestedScroll(scrollBehavior),
             ) {
                 // ── 类型过滤 Chips ─────────────────────────────────────────

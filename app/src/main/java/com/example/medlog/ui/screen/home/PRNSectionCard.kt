@@ -45,6 +45,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
+import com.example.medlog.ui.theme.MedLogSpacing
 import kotlinx.coroutines.delay
 
 /**
@@ -72,9 +73,9 @@ internal fun PRNSectionCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
+                .padding(start = MedLogSpacing.Large, end = MedLogSpacing.Medium, top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             Icon(
                 Icons.Rounded.Healing,
@@ -98,7 +99,7 @@ internal fun PRNSectionCard(
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
         )
 
@@ -150,7 +151,7 @@ internal fun PRNSectionCard(
                             FilledTonalButton(
                                 onClick = { onToggleTaken(item) },
                                 modifier = Modifier.height(36.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp),
+                                contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium),
                                 colors = ButtonDefaults.filledTonalButtonColors(
                                     containerColor = if (item.isTaken)
                                         MaterialTheme.colorScheme.surfaceContainerHigh
@@ -167,7 +168,7 @@ internal fun PRNSectionCard(
                                     contentDescription = null,
                                     modifier = Modifier.size(14.dp),
                                 )
-                                Spacer(Modifier.width(4.dp))
+                                Spacer(Modifier.width(MedLogSpacing.Tiny))
                                 Text(
                                     if (item.isTaken) stringResource(R.string.home_prn_btn_taken) else stringResource(R.string.home_prn_btn_take),
                                     style = MaterialTheme.typography.labelMedium,
@@ -179,7 +180,7 @@ internal fun PRNSectionCard(
                     )
                     if (idx < items.lastIndex) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(horizontal = 16.dp),
+                            modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
                             color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                         )
                     }
@@ -187,6 +188,6 @@ internal fun PRNSectionCard(
             }
         }
 
-        Spacer(Modifier.height(4.dp))
+        Spacer(Modifier.height(MedLogSpacing.Tiny))
     }
 }

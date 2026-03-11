@@ -25,6 +25,7 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
 import com.example.medlog.ui.components.CameraPermissionGate
@@ -104,7 +105,7 @@ fun OcrScannerPage(
                             ) {
                                 Text(
                                     text = stringResource(R.string.ocr_scan_hint),
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -155,7 +156,7 @@ private fun OcrResultList(
                     stringResource(R.string.ocr_no_text_found)
                 },
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp),
+                modifier = Modifier.padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Large),
             )
         }
 
@@ -184,7 +185,7 @@ private fun OcrResultList(
         } else {
             LazyColumn(
                 modifier = Modifier.weight(1f),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
+                contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 itemsIndexed(texts) { index, text ->

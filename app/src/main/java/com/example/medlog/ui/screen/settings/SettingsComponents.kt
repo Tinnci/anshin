@@ -27,6 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.Medication
+import com.example.medlog.ui.theme.MedLogSpacing
 
 // ── 通用设置卡片组（24dp 扁平卡片，含组标题）────────────────────────────────
 
@@ -45,14 +46,14 @@ internal fun SettingsCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(vertical = 12.dp),
+            modifier = Modifier.padding(vertical = MedLogSpacing.Medium),
         ) {
             Row(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 4.dp),
+                    .padding(horizontal = MedLogSpacing.Large)
+                    .padding(bottom = MedLogSpacing.Tiny),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
                 Icon(
                     icon,
@@ -100,8 +101,8 @@ internal fun WidgetPickerCard(
         )
         // 信息区域
         Column(
-            modifier = Modifier.padding(horizontal = 14.dp, vertical = 10.dp),
-            verticalArrangement = Arrangement.spacedBy(4.dp),
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -110,7 +111,7 @@ internal fun WidgetPickerCard(
             ) {
                 Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
                 // 尺寸徽章
-                Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny)) {
                     sizes.forEach { size ->
                         SuggestionChip(
                             onClick = {},
@@ -130,10 +131,10 @@ internal fun WidgetPickerCard(
                 onClick = onAdd,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 4.dp),
+                    .padding(top = MedLogSpacing.Tiny),
             ) {
                 Icon(Icons.AutoMirrored.Rounded.AddToHomeScreen, null, Modifier.size(16.dp))
-                Spacer(Modifier.width(6.dp))
+                Spacer(Modifier.width(MedLogSpacing.Small))
                 Text(
                     if (canPin) stringResource(R.string.settings_widget_add_btn) else stringResource(R.string.settings_widget_grant_btn),
                     fontWeight = FontWeight.Medium,
@@ -212,9 +213,9 @@ internal fun RoutineTimeRow(
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(bottom = 12.dp),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    .padding(horizontal = MedLogSpacing.Large)
+                    .padding(bottom = MedLogSpacing.Medium),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 TimeInput(state = timeState)
@@ -223,7 +224,7 @@ internal fun RoutineTimeRow(
                     horizontalArrangement = Arrangement.End,
                 ) {
                     TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
-                    Spacer(Modifier.width(8.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
                     FilledTonalButton(onClick = {
                         onTimeSelected(timeState.hour, timeState.minute)
                         expanded = false
@@ -272,7 +273,7 @@ internal fun ArchivedMedicationsRow(
             exit = shrinkVertically(),
         ) {
             Column {
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 archived.forEach { med ->
                     ListItem(
                         headlineContent = { Text(med.name) },
@@ -301,7 +302,7 @@ internal fun ArchivedMedicationsRow(
                             FilledTonalButton(
                                 onClick = { onRestore(med.id) },
                                 modifier = Modifier.height(32.dp),
-                                contentPadding = PaddingValues(horizontal = 12.dp),
+                                contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium),
                             ) {
                                 Text(stringResource(R.string.restore), style = MaterialTheme.typography.labelMedium)
                             }

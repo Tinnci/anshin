@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.util.formatDose
 import com.example.medlog.domain.PlanExport
@@ -132,7 +133,7 @@ internal fun MedicationQrDialog(
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(12.dp),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
             ) {
                 // ── Tab 切换 ────────────────────────────────────────
                 PrimaryTabRow(selectedTabIndex = selectedTab) {
@@ -200,9 +201,9 @@ internal fun MedicationQrDialog(
                             ),
                         ) {
                             Column(
-                                modifier = Modifier.padding(12.dp),
+                                modifier = Modifier.padding(MedLogSpacing.Medium),
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(6.dp),
+                                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
                                 Icon(
                                     Icons.Rounded.Warning,
@@ -230,7 +231,7 @@ internal fun MedicationQrDialog(
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                     )
-                    Spacer(Modifier.width(6.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
                     Text(stringResource(R.string.qr_scan_import))
                 }
             }
@@ -246,7 +247,7 @@ internal fun MedicationQrDialog(
                 context.startActivity(Intent.createChooser(intent, shareChooserTitle))
             }) {
                 Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
-                Spacer(Modifier.width(4.dp))
+                Spacer(Modifier.width(MedLogSpacing.Tiny))
                 Text(stringResource(R.string.home_qr_share_btn))
             }
         },
@@ -314,14 +315,14 @@ internal fun ImportPreviewDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.qr_import_preview_title)) },
         text = {
-            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                 Text(
                     pluralStringResource(R.plurals.qr_import_medication_count, plan.meds.size, plan.meds.size),
                     style = MaterialTheme.typography.bodyMedium,
                 )
                 LazyColumn(
                     modifier = Modifier.heightIn(max = 240.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                 ) {
                     items(plan.meds, key = { it.name }) { med ->
                         Text(
@@ -336,7 +337,7 @@ internal fun ImportPreviewDialog(
         confirmButton = {
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
             ) {
                 Button(
                     onClick = { onMerge(); onDismiss() },

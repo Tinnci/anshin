@@ -35,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.DrugInteraction
 import com.example.medlog.data.model.InteractionSeverity
+import com.example.medlog.ui.theme.MedLogSpacing
 
 // ── 药品相互作用横幅 ──────────────────────────────────────────────────────────
 
@@ -67,9 +68,9 @@ internal fun InteractionBannerCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
+                .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Icon(
                 imageVector = Icons.Rounded.Warning,
@@ -119,9 +120,9 @@ internal fun InteractionDetailSheet(
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = MedLogSpacing.XMedium)
+                .padding(bottom = MedLogSpacing.XXLarge),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Row(
                 Modifier.fillMaxWidth(),
@@ -177,10 +178,10 @@ internal fun InteractionItem(interaction: DrugInteraction) {
         colors = CardDefaults.cardColors(containerColor = bgColor),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(14.dp), verticalArrangement = Arrangement.spacedBy(6.dp)) {
+        Column(Modifier.padding(MedLogSpacing.Large), verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
                 SuggestionChip(
                     onClick = {},

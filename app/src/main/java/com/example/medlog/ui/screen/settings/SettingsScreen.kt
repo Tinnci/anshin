@@ -32,6 +32,7 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -180,9 +181,9 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
                 .padding(innerPadding)
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 32.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = MedLogSpacing.Large)
+                .padding(bottom = MedLogSpacing.XXLarge),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
 
             // ── Android 12+ 精确闹钟权限警告卡片 ────────────────────
@@ -200,9 +201,9 @@ fun SettingsScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(MedLogSpacing.Large),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
                         Icon(
                             Icons.Rounded.Warning,
@@ -210,7 +211,7 @@ fun SettingsScreen(
                             tint = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.size(28.dp),
                         )
-                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
                             Text(
                                 stringResource(R.string.settings_alarm_perm_title),
                                 style = MaterialTheme.typography.titleSmall,
@@ -259,9 +260,9 @@ fun SettingsScreen(
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
                     Row(
-                        modifier = Modifier.padding(16.dp),
+                        modifier = Modifier.padding(MedLogSpacing.Large),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
                         Icon(
                             Icons.Rounded.NotificationsOff,
@@ -269,7 +270,7 @@ fun SettingsScreen(
                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                             modifier = Modifier.size(28.dp),
                         )
-                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(2.dp)) {
+                        Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
                             Text(
                                 stringResource(R.string.settings_notif_perm_title),
                                 style = MaterialTheme.typography.titleSmall,
@@ -318,13 +319,13 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 12.dp, bottom = 8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         Icon(
                             Icons.Rounded.DarkMode,
@@ -365,7 +366,7 @@ fun SettingsScreen(
                 }
                 // ―― Material You 动态颜色（Android 12+）――
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                     SettingsSwitchRow(
                         title = stringResource(R.string.settings_dynamic_color_title),
                         subtitle = stringResource(R.string.settings_dynamic_color_subtitle),
@@ -403,15 +404,15 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                            .padding(horizontal = MedLogSpacing.Large)
+                            .padding(bottom = MedLogSpacing.Medium),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                     ) {
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 4.dp))
+                        HorizontalDivider(modifier = Modifier.padding(vertical = MedLogSpacing.Tiny))
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                         ) {
                             Icon(
                                 Icons.Rounded.Timer,
@@ -433,7 +434,7 @@ fun SettingsScreen(
                         }
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                         ) {
                             listOf(3, 5, 10, 15, 30).forEach { minutes ->
                                 FilterChip(
@@ -446,18 +447,18 @@ fun SettingsScreen(
                     }
                 }
                 // ── 提前预告提醒 ──────────────────────────────────
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 12.dp, bottom = 4.dp),
-                    verticalArrangement = Arrangement.spacedBy(4.dp),
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Tiny),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                 ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
                         Icon(
                             Icons.Rounded.AccessAlarm,
@@ -482,7 +483,7 @@ fun SettingsScreen(
                     }
                     FlowRow(
                         modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         listOf(0 to stringResource(R.string.settings_off), 15 to stringResource(R.string.settings_minutes, 15), 30 to stringResource(R.string.settings_minutes, 30), 60 to stringResource(R.string.settings_1hour)).forEach { (mins, label) ->
                             FilterChip(
@@ -515,9 +516,9 @@ fun SettingsScreen(
                     Column(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp)
-                            .padding(bottom = 12.dp),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                            .padding(horizontal = MedLogSpacing.Large)
+                            .padding(bottom = MedLogSpacing.Medium),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         HorizontalDivider()
                         // ── 再提醒间隔 ────────────────────────────
@@ -529,7 +530,7 @@ fun SettingsScreen(
                         )
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                         ) {
                             listOf(10, 15, 30, 60).forEach { mins ->
                                 FilterChip(
@@ -548,7 +549,7 @@ fun SettingsScreen(
                         )
                         FlowRow(
                             modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                         ) {
                             listOf(1, 2, 3).forEach { count ->
                                 FilterChip(
@@ -582,23 +583,23 @@ fun SettingsScreen(
                     exit = shrinkVertically(),
                 ) {
                     Column {
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         Text(
                             stringResource(R.string.settings_routine_hint),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                             modifier = Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp, bottom = 4.dp),
+                                .padding(horizontal = MedLogSpacing.Large)
+                                .padding(top = MedLogSpacing.Small, bottom = MedLogSpacing.Tiny),
                         )
                         // ── 一览行：五个时间快速预览 ──────────────────────
                         FlowRow(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(horizontal = 16.dp)
-                                .padding(bottom = 8.dp),
-                            horizontalArrangement = Arrangement.spacedBy(6.dp),
-                            verticalArrangement = Arrangement.spacedBy(4.dp),
+                                .padding(horizontal = MedLogSpacing.Large)
+                                .padding(bottom = MedLogSpacing.Small),
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                         ) {
                             listOf(
                                 Triple(Icons.Rounded.WbSunny,      stringResource(R.string.settings_routine_wake), "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
@@ -628,16 +629,16 @@ fun SettingsScreen(
                         }
                         RoutineTimeRow(stringResource(R.string.settings_routine_wake), uiState.wakeHour, uiState.wakeMinute,
                             Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_breakfast), uiState.breakfastHour, uiState.breakfastMinute,
                             Icons.Rounded.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_lunch), uiState.lunchHour, uiState.lunchMinute,
                             Icons.Rounded.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_dinner), uiState.dinnerHour, uiState.dinnerMinute,
                             Icons.Rounded.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
-                        HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_bed), uiState.bedHour, uiState.bedMinute,
                             Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
                     }
@@ -651,8 +652,8 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 4.dp),
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(bottom = MedLogSpacing.Tiny),
                 )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_travel_title),
@@ -673,8 +674,8 @@ fun SettingsScreen(
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier
-                        .padding(horizontal = 16.dp)
-                        .padding(bottom = 4.dp),
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(bottom = MedLogSpacing.Tiny),
                 )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_symptom_title),
@@ -683,7 +684,7 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setEnableSymptomDiary,
                     icon = Icons.Rounded.EditNote,
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_drug_db_title),
                     subtitle = stringResource(R.string.settings_drug_db_subtitle),
@@ -691,7 +692,7 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setEnableDrugDatabase,
                     icon = Icons.Rounded.MedicalServices,
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_health_title),
                     subtitle = stringResource(R.string.settings_health_subtitle),
@@ -699,7 +700,7 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setEnableHealthModule,
                     icon = Icons.Rounded.MonitorHeart,
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_interaction_title),
                     subtitle = stringResource(R.string.settings_interaction_subtitle),
@@ -726,9 +727,9 @@ fun SettingsScreen(
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 16.dp)
-                        .padding(top = 4.dp, bottom = 12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(top = MedLogSpacing.Tiny, bottom = MedLogSpacing.Medium),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                 ) {
                     if (!canPin) {
                         // 桌面不支持直接固定时，显示手动添加引导
@@ -737,8 +738,8 @@ fun SettingsScreen(
                             color = MaterialTheme.colorScheme.secondaryContainer,
                         ) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                modifier = Modifier.padding(MedLogSpacing.Medium),
+                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Icon(
@@ -768,11 +769,11 @@ fun SettingsScreen(
                                 color = MaterialTheme.colorScheme.tertiaryContainer,
                             ) {
                                 Column(
-                                    modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                    modifier = Modifier.padding(MedLogSpacing.Medium),
+                                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                                 ) {
                                     Row(
-                                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                                         verticalAlignment = Alignment.Top,
                                     ) {
                                         Icon(
@@ -790,14 +791,14 @@ fun SettingsScreen(
                                     OutlinedButton(
                                         onClick = { OemWidgetHelper.openPermissionSettings(context) },
                                         modifier = Modifier.fillMaxWidth(),
-                                        contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp),
+                                        contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Small),
                                     ) {
                                         Icon(
                                             Icons.AutoMirrored.Rounded.OpenInNew,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp),
                                         )
-                                        Spacer(Modifier.width(6.dp))
+                                        Spacer(Modifier.width(MedLogSpacing.Small))
                                         Text(stringResource(R.string.settings_widget_oem_btn), style = MaterialTheme.typography.labelMedium)
                                     }
                                 }
@@ -930,7 +931,7 @@ fun SettingsScreen(
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.settings_restore_title)) },
                     supportingContent = { Text(stringResource(R.string.settings_restore_subtitle)) },
@@ -969,7 +970,7 @@ fun SettingsScreen(
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = 16.dp))
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.settings_replay_title)) },
                     supportingContent = { Text(stringResource(R.string.settings_replay_subtitle)) },

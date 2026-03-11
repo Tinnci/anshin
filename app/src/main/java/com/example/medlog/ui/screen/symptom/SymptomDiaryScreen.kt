@@ -22,6 +22,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.data.model.SymptomLog
+import com.example.medlog.ui.theme.MedLogSpacing
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -99,12 +100,12 @@ fun SymptomDiaryScreen(
         } else {
             LazyColumn(
                 contentPadding = PaddingValues(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = innerPadding.calculateTopPadding() + 8.dp,
+                    start = MedLogSpacing.Large,
+                    end = MedLogSpacing.Large,
+                    top = innerPadding.calculateTopPadding() + MedLogSpacing.Small,
                     bottom = innerPadding.calculateBottomPadding() + 88.dp,
                 ),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
             ) {
                 items(uiState.logs, key = { it.id }) { log ->
                     SymptomLogCard(
@@ -154,7 +155,7 @@ private fun SymptomLogCard(
         ),
         modifier = Modifier.fillMaxWidth(),
     ) {
-        Column(Modifier.padding(16.dp)) {
+        Column(Modifier.padding(MedLogSpacing.Large)) {
             // 头部：日期 + 评级 + 操作按钮
             Row(
                 Modifier.fillMaxWidth(),
@@ -172,7 +173,7 @@ private fun SymptomLogCard(
                     fontWeight = FontWeight.SemiBold,
                 )
                 Spacer(Modifier.width(8.dp))
-                IconButton(onClick = onEdit, modifier = Modifier.size(28.dp)) {
+                IconButton(onClick = onEdit) {
                     Icon(
                         Icons.Rounded.Edit,
                         contentDescription = stringResource(R.string.common_action_edit),
@@ -182,7 +183,6 @@ private fun SymptomLogCard(
                 }
                 IconButton(
                     onClick = { showDeleteConfirm = true },
-                    modifier = Modifier.size(28.dp),
                 ) {
                     Icon(
                         Icons.Rounded.Delete,
@@ -195,7 +195,7 @@ private fun SymptomLogCard(
 
             // 关联药品
             if (log.medicationName.isNotBlank()) {
-                Spacer(Modifier.height(6.dp))
+                Spacer(Modifier.height(8.dp))
                 Text(
                     "💊 ${log.medicationName}",
                     style = MaterialTheme.typography.bodySmall,
@@ -212,7 +212,7 @@ private fun SymptomLogCard(
                     color = MaterialTheme.colorScheme.outline,
                 )
                 Spacer(Modifier.height(4.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     log.symptomList.forEach { s ->
                         SuggestionChip(
                             onClick = {},
@@ -231,7 +231,7 @@ private fun SymptomLogCard(
                     color = MaterialTheme.colorScheme.error,
                 )
                 Spacer(Modifier.height(4.dp))
-                FlowRow(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     log.sideEffectList.forEach { se ->
                         SuggestionChip(
                             onClick = {},

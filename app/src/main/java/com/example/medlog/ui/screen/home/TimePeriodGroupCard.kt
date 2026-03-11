@@ -46,6 +46,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
 import com.example.medlog.data.model.TimePeriod
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.example.medlog.ui.util.icon
 import com.example.medlog.ui.util.labelRes
 import com.example.medlog.ui.components.MedicationCard
@@ -100,9 +101,9 @@ internal fun TimePeriodGroupCard(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { isExpanded = !isExpanded }
-                .padding(start = 16.dp, end = 12.dp, top = 12.dp, bottom = 8.dp),
+                .padding(start = MedLogSpacing.Large, end = MedLogSpacing.Medium, top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             Icon(
                 imageVector = timePeriod.icon,
@@ -170,7 +171,7 @@ internal fun TimePeriodGroupCard(
                 if (pendingCount >= 1) {
                     Button(
                         onClick = onTakeAll,
-                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 0.dp),
+                        contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = 0.dp),
                         modifier = Modifier.height(40.dp),
                     ) {
                         Icon(
@@ -178,7 +179,7 @@ internal fun TimePeriodGroupCard(
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )
-                        Spacer(Modifier.width(6.dp))
+                        Spacer(Modifier.width(MedLogSpacing.Small))
                         Text(
                             stringResource(R.string.home_period_take_all_btn),
                             style = MaterialTheme.typography.labelLarge,
@@ -197,7 +198,7 @@ internal fun TimePeriodGroupCard(
         ) {
             Column {
                 HorizontalDivider(
-                    modifier = Modifier.padding(horizontal = 12.dp),
+                    modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
                 )
 
@@ -228,7 +229,7 @@ internal fun TimePeriodGroupCard(
                             )
                             if (idx < items.lastIndex) {
                                 HorizontalDivider(
-                                    modifier = Modifier.padding(horizontal = 16.dp),
+                                    modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
                                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                                 )
                             }
@@ -236,7 +237,7 @@ internal fun TimePeriodGroupCard(
                     }
                 }
 
-                Spacer(Modifier.height(4.dp))
+                Spacer(Modifier.height(MedLogSpacing.Tiny))
             } // Column
         } // AnimatedVisibility
     } // ElevatedCard

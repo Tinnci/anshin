@@ -43,6 +43,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.data.model.Drug
+import com.example.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -102,12 +103,12 @@ fun DrugsScreen(
                 onExpandedChange = viewModel::onSearchActiveChange,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = if (uiState.isSearchActive) 0.dp else 16.dp),
+                    .padding(horizontal = if (uiState.isSearchActive) 0.dp else MedLogSpacing.Large),
             ) {
                 // ── 西药 / 中药 筛选 + 分类 Chip ───────────────
                 LazyRow(
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Tiny),
                 ) {
                     item {
                         FilterChip(
@@ -161,9 +162,9 @@ fun DrugsScreen(
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 16.dp, vertical = 2.dp),
+                            .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Hairline),
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         Text(
                             text = pluralStringResource(R.plurals.drugs_results_count, uiState.drugs.size, uiState.drugs.size),
@@ -173,7 +174,7 @@ fun DrugsScreen(
                         if (uiState.hasFuzzyResults) {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(2.dp),
+                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
                             ) {
                                 Icon(
                                     Icons.Rounded.AutoAwesome,
@@ -200,7 +201,7 @@ fun DrugsScreen(
                         ) {
                             Column(
                                 horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(12.dp),
+                                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                             ) {
                                 Icon(
                                     Icons.Rounded.SearchOff,
@@ -250,7 +251,7 @@ fun DrugsScreen(
                         ) {
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 LoadingIndicator()
-                                Spacer(Modifier.height(8.dp))
+                                Spacer(Modifier.height(MedLogSpacing.Small))
                                 Text(stringResource(R.string.drugs_loading), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
@@ -264,9 +265,9 @@ fun DrugsScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                    .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Small),
                                 verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
                                 val catIcon = if (uiState.showTcm == true)
                                     Icons.Rounded.LocalFlorist else Icons.Rounded.Medication
@@ -354,9 +355,9 @@ private fun SubcategoryGrid(
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
-        contentPadding = PaddingValues(12.dp),
-        horizontalArrangement = Arrangement.spacedBy(10.dp),
-        verticalArrangement = Arrangement.spacedBy(10.dp),
+        contentPadding = PaddingValues(MedLogSpacing.Medium),
+        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         modifier = Modifier.fillMaxSize(),
     ) {
         items(subcategories, key = { it.first }) { (sub, count) ->
@@ -374,7 +375,7 @@ private fun SubcategoryGrid(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Small),
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
@@ -439,9 +440,9 @@ private fun DrugCategoryBrowser(
             } else {
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 160.dp),
-                    contentPadding = PaddingValues(12.dp),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
-                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                    contentPadding = PaddingValues(MedLogSpacing.Medium),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     modifier = Modifier.fillMaxSize(),
                 ) {
                     items(categories, key = { it.first }) { (cat, count) ->
@@ -485,7 +486,7 @@ private fun CategoryGridCard(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(12.dp),
+                .padding(MedLogSpacing.Medium),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
             Icon(
@@ -494,7 +495,7 @@ private fun CategoryGridCard(
                 modifier = Modifier.size(20.dp),
                 tint = if (isTcm) colorScheme.tertiary else colorScheme.secondary,
             )
-            Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
                 Text(
                     text = category,
                     style = MaterialTheme.typography.labelLarge,
@@ -532,14 +533,14 @@ private fun DrugGroupedList(
                         style = MaterialTheme.typography.labelLarge,
                         color = MaterialTheme.colorScheme.primary,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 6.dp),
+                        modifier = Modifier.padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Small),
                     )
                 }
             }
             items(drugs, key = { it.name + it.fullPath }) { drug ->
                 Column(modifier = Modifier.animateItem()) {
                     DrugListItem(drug = drug, query = "", onClick = { onDrugSelect(drug) })
-                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
                 }
             }
         }
@@ -558,7 +559,7 @@ private fun DrugFlatList(
             items(drugs, key = { it.name + it.fullPath }) { drug ->
                 Column(modifier = Modifier.animateItem()) {
                     DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
-                    HorizontalDivider(modifier = Modifier.padding(start = 16.dp))
+                    HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
                 }
             }
     }
@@ -596,7 +597,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             )
         },
         supportingContent = {
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny)) {
                 Text(
                     text = buildString {
                         append(drug.category)
@@ -609,7 +610,7 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                 // 多系统归类 badge 行（如"神经系统 + 消化道及代谢"）
                 if (extraCategories.isNotEmpty()) {
                     Row(
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.horizontalScroll(rememberScrollState()),
                     ) {

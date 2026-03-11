@@ -21,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.unit.dp
+import com.example.medlog.ui.theme.MedLogSpacing
 
 /**
  * 可复用的处理中遮罩层。
@@ -58,8 +59,8 @@ fun ProcessingOverlay(
                 ) {
                     Column(
                         horizontalAlignment = Alignment.CenterHorizontally,
-                        verticalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.padding(horizontal = 40.dp, vertical = 32.dp),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+                        modifier = Modifier.padding(horizontal = 40.dp, vertical = MedLogSpacing.XXLarge),
                     ) {
                         LoadingIndicator(modifier = Modifier.size(56.dp))
                         Text(

@@ -10,6 +10,7 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.example.medlog.R
+import com.example.medlog.ui.theme.MedLogSpacing
 
 @Composable
 fun ProgressHeader(
@@ -28,8 +29,8 @@ fun ProgressHeader(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(MedLogSpacing.XMedium),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),

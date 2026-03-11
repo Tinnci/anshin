@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.example.medlog.R
 import com.example.medlog.ui.components.CameraPermissionGate
+import com.example.medlog.ui.theme.MedLogSpacing
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -93,12 +94,12 @@ fun QrScannerPage(
                     text = stringResource(R.string.qr_scan_hint),
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = 48.dp)
+                        .padding(bottom = MedLogSpacing.Huge)
                         .background(
                             color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
                             shape = RoundedCornerShape(12.dp),
                         )
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
+                        .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Small),
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
                     color = MaterialTheme.colorScheme.onSurface,

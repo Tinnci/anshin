@@ -42,6 +42,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import com.example.medlog.R
 import com.example.medlog.data.model.ExtractedNumber
@@ -139,7 +140,7 @@ fun HealthOcrScannerPage(
                             ) {
                                 Text(
                                     text = stringResource(R.string.ocr_health_scan_hint),
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 10.dp),
+                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
                                     style = MaterialTheme.typography.bodyMedium,
                                     textAlign = TextAlign.Center,
                                     color = MaterialTheme.colorScheme.onSurface,
@@ -183,7 +184,7 @@ private fun HealthMetricResultList(
             modifier = Modifier.fillMaxWidth(),
             tonalElevation = 1.dp,
         ) {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 14.dp)) {
+            Column(modifier = Modifier.padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Large)) {
                 Text(
                     text = when {
                         hasStructured -> stringResource(R.string.ocr_health_detected)
@@ -211,8 +212,8 @@ private fun HealthMetricResultList(
 
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 12.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp),
+            contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             // ── 第一层：结构化匹配的体征指标 ──
             if (hasStructured) {
@@ -246,7 +247,7 @@ private fun HealthMetricResultList(
                                             imageVector = healthMetricIcon(metric.type),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onPrimary,
-                                            modifier = Modifier.size(22.dp),
+                                            modifier = Modifier.size(24.dp),
                                         )
                                     }
                                 }

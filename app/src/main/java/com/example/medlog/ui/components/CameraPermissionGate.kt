@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.example.medlog.R
+import com.example.medlog.ui.theme.MedLogSpacing
 
 /**
  * 可复用的相机权限门控组件。
@@ -63,8 +64,8 @@ fun CameraPermissionGate(
         ) {
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.padding(32.dp),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+                modifier = Modifier.padding(MedLogSpacing.XXLarge),
             ) {
                 Text(
                     stringResource(rationaleRes),

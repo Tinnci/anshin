@@ -33,6 +33,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.example.medlog.R
 import com.example.medlog.ui.theme.emphasizedTypography
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -139,13 +140,13 @@ fun MedLogNavigationRail(
                 imageVector = Icons.Rounded.Medication,
                 contentDescription = "Anshin",
                 modifier = Modifier
-                    .padding(top = 8.dp)
+                    .padding(top = MedLogSpacing.Small)
                     .size(32.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
         },
     ) {
-        Spacer(Modifier.height(8.dp))
+        Spacer(Modifier.height(MedLogSpacing.Small))
         destinations.forEach { dest ->
             NavigationRailItem(
                 selected = currentDestination?.hasRoute(dest.route::class) == true,
@@ -168,7 +169,7 @@ fun MedLogNavDrawerContent(
         imageVector = Icons.Rounded.Medication,
         contentDescription = null,
         modifier = Modifier
-            .padding(horizontal = 28.dp, vertical = 20.dp)
+            .padding(horizontal = 28.dp, vertical = MedLogSpacing.XMedium)
             .size(40.dp),
         tint = MaterialTheme.colorScheme.primary,
     )
@@ -178,7 +179,7 @@ fun MedLogNavDrawerContent(
         color = MaterialTheme.colorScheme.primary,
         modifier = Modifier.padding(horizontal = 28.dp),
     )
-    Spacer(Modifier.height(12.dp))
+    Spacer(Modifier.height(MedLogSpacing.Medium))
 
     destinations.forEach { dest ->
         NavigationDrawerItem(
@@ -186,7 +187,7 @@ fun MedLogNavDrawerContent(
             label = { Text(stringResource(dest.labelRes)) },
             selected = currentDestination?.hasRoute(dest.route::class) == true,
             onClick = { navigateToTopLevel(dest) },
-            modifier = Modifier.padding(horizontal = 12.dp),
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
             colors = NavigationDrawerItemDefaults.colors(
                 selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer,
                 selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,

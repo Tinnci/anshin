@@ -59,6 +59,7 @@ import androidx.compose.material.icons.rounded.QrCode2
 import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.IosShare
 import com.example.medlog.ui.theme.emphasizedTypography
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -166,8 +167,8 @@ fun HomeScreen(
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = PaddingValues(start = 16.dp, top = 8.dp, end = 16.dp, bottom = 88.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            contentPadding = MedLogSpacing.ScreenContentWithFab,
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
 
             // ── 进度卡片 ──────────────────────────────────────

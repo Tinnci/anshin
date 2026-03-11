@@ -28,6 +28,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import com.example.medlog.ui.theme.emphasizedTypography
+import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -91,13 +92,14 @@ fun HistoryScreen(
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize(),
-            contentPadding = PaddingValues(bottom = 80.dp),
+            contentPadding = MedLogSpacing.ScreenContentWithToolbar,
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             // 近30天坚持率概览
             item {
                 AdherenceOverviewCard(
                     adherence = uiState.overallAdherence,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp),
+                    modifier = Modifier.padding(vertical = 4.dp),
                 )
             }
 
@@ -107,7 +109,6 @@ fun HistoryScreen(
                     StreakCard(
                         currentStreak = uiState.currentStreak,
                         longestStreak = uiState.longestStreak,
-                        modifier = Modifier.padding(horizontal = 16.dp).padding(bottom = 4.dp),
                     )
                 }
             }
@@ -121,13 +122,12 @@ fun HistoryScreen(
                     today = LocalDate.now(),
                     onNavigate = viewModel::navigateMonthBy,
                     onSelectDate = viewModel::selectDate,
-                    modifier = Modifier.padding(horizontal = 16.dp),
                 )
             }
 
             // 图例说明
             item {
-                LegendRow(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp))
+                LegendRow(modifier = Modifier.padding(vertical = 4.dp))
             }
 
             // 选中日期的详细日志
@@ -139,7 +139,7 @@ fun HistoryScreen(
                         date = selected,
                         day = selectedDay,
                         onEditTakenTime = viewModel::editTakenTime,
-                        modifier = Modifier.animateItem().padding(horizontal = 16.dp, vertical = 4.dp),
+                        modifier = Modifier.animateItem(),
                     )
                 }
             }
@@ -190,9 +190,9 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Row(
-            modifier = Modifier.padding(20.dp),
+            modifier = Modifier.padding(MedLogSpacing.XMedium),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
         ) {
             // 圆形进度
             Box(contentAlignment = Alignment.Center) {
@@ -633,7 +633,7 @@ private fun StreakCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 20.dp, vertical = 16.dp),
+                .padding(horizontal = MedLogSpacing.XMedium, vertical = MedLogSpacing.Large),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
