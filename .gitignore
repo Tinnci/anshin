@@ -38,6 +38,9 @@ seven_segment_ocr/test_*.py
 seven_segment_ocr/dataset/
 seven_segment_ocr/opencv_models/
 seven_segment_ocr/kaggle_output/
+seven_segment_ocr/kaggle_domain_output/
+seven_segment_ocr/exported_candidates/
+seven_segment_ocr/export_candidates_plan.json
 seven_segment_ocr/detection_dataset/
 seven_segment_ocr/detection_data/
 seven_segment_ocr/kaggle_detection_output/

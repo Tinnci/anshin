@@ -329,8 +329,17 @@ def _build_error_result(model_id: str, backend: str, error: Exception) -> dict[s
         },
         "capacity": {},
         "latency_ms": summarize_latencies([]),
-        "metrics": summarize_text_metrics([]),
+        "metrics": _empty_metrics(),
         "samples": [],
+    }
+
+
+def _empty_metrics() -> dict[str, None]:
+    return {
+        "exact": None,
+        "normalized_exact": None,
+        "cer": None,
+        "digit_accuracy": None,
     }
 
 
@@ -355,6 +364,8 @@ def format_results_table(results: list[dict[str, object]]) -> str:
         status = str(result.get("status", "ok"))
         if status == "error":
             status = "ERROR"
+        elif status == "pending":
+            status = "PENDING"
         rows.append(
             [
                 str(result.get("model_id", "")),

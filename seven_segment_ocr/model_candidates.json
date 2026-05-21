@@ -25,7 +25,7 @@
       "family": "LightSVTR",
       "license_surface": "project_model",
       "preferred_adapter": "onnx",
-      "local_path": "/tmp/kaggle_domain_v5_key/domain_adaptation/svtr_seven_seg_domain.onnx"
+      "local_path": "kaggle_domain_output/latest/domain_adaptation/svtr_seven_seg_domain.onnx"
     },
     {
       "id": "ppocrv5_mobile_rec",

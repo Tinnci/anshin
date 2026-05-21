@@ -36,3 +36,4 @@ kaggle-status-domain = "kaggle kernels status tiiann/seven-segment-ocr-domain-ad
 eval-ocr = "python ocr_model_eval.py"
 dequantize-onnx = "python dequantize_onnx.py"
 export-candidates-plan = "python download_and_export_candidates.py --dry-run"
+eval-candidates = "python run_candidate_evaluation.py"

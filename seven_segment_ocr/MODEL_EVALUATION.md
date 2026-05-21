@@ -131,6 +131,30 @@ The plan covers:
 - TrOCR small/base via Hugging Face Optimum ONNX export.
 - Google ML Kit via official Android runtime prediction import.
 
+## Integrated Candidate Evaluation
+
+Run the full candidate-level evaluation report. The runner evaluates local
+artifacts that are already available, prepares `app_dequant_svtr` from the
+Android-packaged quantized model, and marks missing external exports as
+`pending` instead of dropping them from the report.
+
+```bash
+pixi run python run_candidate_evaluation.py \
+  --dataset /tmp/medlog_bare_benchmark \
+  --output /tmp/medlog_bare_benchmark/candidate_results.json \
+  --table-output /tmp/medlog_bare_benchmark/candidate_results.txt \
+  --print-table
+```
+
+If an official-runtime baseline exists, pass it explicitly:
+
+```bash
+pixi run python run_candidate_evaluation.py \
+  --dataset /tmp/medlog_bare_benchmark \
+  --output /tmp/medlog_bare_benchmark/candidate_results.json \
+  --import-predictions mlkit:mlkit_predictions.json
+```
+
 ## Sources
 
 - Google ML Kit Android Text Recognition: https://developers.google.com/ml-kit/vision/text-recognition/v2/android
