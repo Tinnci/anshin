@@ -19,6 +19,20 @@ pixi run python ocr_model_eval.py \
   --onnx-model kaggle_v5_domain:/tmp/kaggle_domain_v5_key/domain_adaptation/svtr_seven_seg_domain.onnx
 ```
 
+## Paddle2ONNX On Intel macOS
+
+The official PyPI macOS wheels for `paddle2onnx` may be tagged as
+`universal2` while containing an arm64-only native extension. On Intel/x86_64
+macOS, build a local wheel instead:
+
+```bash
+./build_paddle2onnx_macos_x86_64.sh
+pixi run python -m pip install --force-reinstall --no-deps .local_wheels/paddle2onnx-*.whl
+```
+
+The helper builds Protobuf 21.12 and Paddle2ONNX under `/tmp`, then writes only
+the final wheel under `.local_wheels/`.
+
 Closed SDK models, including Google ML Kit Text Recognition, must be evaluated
 through their official runtime and imported as prediction JSON. Do not treat
 extracted AAR fragments as the complete OCR model: the SDK pipeline includes
