@@ -19,6 +19,8 @@ onnxruntime = ">=1.22.2,<2"
 opencv = ">=4.13.0,<5"
 gdown = ">=5.2.1,<6"
 kaggle = ">=2.1.2,<3"
+huggingface_hub = ">=1.15.0,<2"
+modelscope = ">=1.37.0,<2"
 
 [tasks]
 generate = "python generate_data.py"

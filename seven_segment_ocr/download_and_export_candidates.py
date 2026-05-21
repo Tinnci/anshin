@@ -1,21 +1,23 @@
-"""Prepare export plans for OCR model candidates.
+"""Prepare and execute export and download plans for OCR model candidates.
 
-This tool intentionally starts with a dry-run plan because PaddleOCR, PARSeq,
-and TrOCR export paths pull heavy framework dependencies. The generated JSON is
-used to audit what will be downloaded/exported before mutating the environment.
+This tool supports both a dry-run plan generation and real programmatic model downloading
+using huggingface_hub, modelscope, and standard urllib downloaders.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import tarfile
+import urllib.request
+import shutil
 from pathlib import Path
 
 
 def build_export_plan(output_dir: Path) -> dict[str, object]:
     output_dir = Path(output_dir)
     return {
-        "mode": "dry_run",
+        "mode": "plan",
         "output_dir": str(output_dir),
         "sources": [
             "https://www.paddleocr.ai/main/en/version2.x/legacy/paddle2onnx.html",
@@ -30,6 +32,13 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
                 "status": "ready",
                 "onnx_path": "exported/svtr_seven_seg.onnx",
                 "command": None,
+            },
+            {
+                "id": "app_dequant_svtr",
+                "family": "LightSVTR",
+                "status": "ready",
+                "onnx_path": "exported_candidates/app_svtr_dequant.onnx",
+                "command": "python dequantize_onnx.py --input ../app/src/main/assets/svtr_seven_seg.onnx --output exported_candidates/app_svtr_dequant.onnx",
             },
             {
                 "id": "light_svtr_kaggle_domain",
@@ -105,20 +114,104 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
     }
 
 
+def _download_hf_or_ms_repo(repo_id: str, target_dir: Path, use_modelscope: bool):
+    target_dir.mkdir(parents=True, exist_ok=True)
+    if use_modelscope:
+        from modelscope import snapshot_download
+        print(f"Using ModelScope to download {repo_id}...")
+        model_dir = snapshot_download(repo_id)
+        shutil.copytree(model_dir, target_dir, dirs_exist_ok=True)
+    else:
+        from huggingface_hub import snapshot_download
+        print(f"Using Hugging Face to download {repo_id}...")
+        snapshot_download(repo_id=repo_id, local_dir=target_dir)
+    print(f"Download complete: {target_dir}")
+
+
+def _download_tar_and_extract(url: str, target_dir: Path):
+    target_dir.mkdir(parents=True, exist_ok=True)
+    tar_path = target_dir / "model.tar"
+    print(f"Downloading {url} to {tar_path}...")
+    urllib.request.urlretrieve(url, tar_path)
+    print(f"Extracting {tar_path} into {target_dir}...")
+    with tarfile.open(tar_path) as tar:
+        tar.extractall(path=target_dir)
+    tar_path.unlink()
+    print(f"Extraction complete: {target_dir}")
+
+
+def download_candidate(candidate_id: str, output_dir: Path, use_modelscope: bool = False):
+    output_dir = Path(output_dir)
+    
+    if candidate_id == "trocr_small_printed":
+        repo_id = "LLM-Research/trocr-small-printed" if use_modelscope else "microsoft/trocr-small-printed"
+        _download_hf_or_ms_repo(repo_id, output_dir / "trocr_small_printed", use_modelscope)
+    elif candidate_id == "trocr_base_printed":
+        repo_id = "LLM-Research/trocr-base-printed" if use_modelscope else "microsoft/trocr-base-printed"
+        _download_hf_or_ms_repo(repo_id, output_dir / "trocr_base_printed", use_modelscope)
+    elif candidate_id == "parseq":
+        repo_id = "tiiann/parseq-tiny" if use_modelscope else "baudm/parseq-tiny"
+        _download_hf_or_ms_repo(repo_id, output_dir / "parseq", use_modelscope)
+    elif candidate_id == "en_ppocrv5_mobile_rec":
+        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/english/en_PP-OCRv4_rec_infer.tar"
+        _download_tar_and_extract(url, output_dir / "en_ppocrv5_mobile_rec")
+    elif candidate_id == "ppocrv5_mobile_rec":
+        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar"
+        _download_tar_and_extract(url, output_dir / "ppocrv5_mobile_rec")
+    elif candidate_id == "ppocrv5_server_rec":
+        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar"
+        _download_tar_and_extract(url, output_dir / "ppocrv5_server_rec")
+    elif candidate_id == "repsvtr":
+        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar"
+        _download_tar_and_extract(url, output_dir / "repsvtr")
+    elif candidate_id == "svtrv2_server":
+        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar"
+        _download_tar_and_extract(url, output_dir / "svtrv2_server")
+    else:
+        print(f"Manual download required for '{candidate_id}' or not supported for direct download.")
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir", default="exported_candidates")
     parser.add_argument("--output", default="export_candidates_plan.json")
     parser.add_argument("--dry-run", action="store_true", help="Write an export plan without downloading")
+    parser.add_argument("--download", default=None, help="Specific candidate ID to download, or 'all'")
+    parser.add_argument("--use-modelscope", action="store_true", help="Use ModelScope instead of Hugging Face")
     args = parser.parse_args(argv)
-    if not args.dry_run:
-        raise SystemExit("Only --dry-run is implemented; review the generated plan before enabling downloads.")
+
     plan = build_export_plan(Path(args.output_dir))
-    output_path = Path(args.output)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(json.dumps({"output": str(output_path), "candidates": len(plan["candidates"])}))
-    return 0
+    
+    if args.dry_run:
+        plan["mode"] = "dry_run"
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(json.dumps(plan, indent=2, ensure_ascii=False), encoding="utf-8")
+        print(json.dumps({"output": str(output_path), "candidates": len(plan["candidates"])}))
+        return 0
+
+    if args.download:
+        downloadable = [
+            "trocr_small_printed",
+            "trocr_base_printed",
+            "parseq",
+            "ppocrv5_mobile_rec",
+            "en_ppocrv5_mobile_rec",
+            "ppocrv5_server_rec",
+            "repsvtr",
+            "svtrv2_server",
+        ]
+        to_download = downloadable if args.download == "all" else [args.download]
+        for cid in to_download:
+            try:
+                download_candidate(cid, Path(args.output_dir), args.use_modelscope)
+            except Exception as e:
+                print(f"Error downloading candidate '{cid}': {e}")
+        return 0
+
+    # If neither dry-run nor download is specified, print help or default to dry-run
+    parser.print_help()
+    return 1
 
 
 if __name__ == "__main__":
