@@ -36,8 +36,10 @@ import csv
 import hashlib
 import json
 import os
+import platform
 import random
 import re
+import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -97,6 +99,61 @@ class Sample:
     label: str
     split: str
     source: str
+
+
+def collect_runtime_info() -> dict:
+    """Collect Kaggle hardware/runtime details for reproducible Eval reports."""
+    info: dict = {
+        "python": sys.version.replace("\n", " "),
+        "platform": platform.platform(),
+        "torch": torch.__version__,
+        "cuda_available": torch.cuda.is_available(),
+        "cuda_device_count": torch.cuda.device_count(),
+        "cuda_visible_devices": os.getenv("CUDA_VISIBLE_DEVICES"),
+        "kaggle_kernel_run_type": os.getenv("KAGGLE_KERNEL_RUN_TYPE"),
+        "kaggle_url_base": os.getenv("KAGGLE_URL_BASE"),
+        "tpu_env": {
+            key: os.getenv(key)
+            for key in ["TPU_NAME", "TPU_WORKER_ID", "XRT_TPU_CONFIG", "PJRT_DEVICE"]
+            if os.getenv(key)
+        },
+    }
+    if torch.cuda.is_available():
+        info["cuda"] = torch.version.cuda
+        info["cudnn"] = torch.backends.cudnn.version()
+        info["gpu_devices"] = [
+            {
+                "index": i,
+                "name": torch.cuda.get_device_name(i),
+                "capability": torch.cuda.get_device_capability(i),
+                "memory_gb": round(
+                    torch.cuda.get_device_properties(i).total_memory / (1024**3),
+                    2,
+                ),
+            }
+            for i in range(torch.cuda.device_count())
+        ]
+    try:
+        result = subprocess.run(
+            [
+                "nvidia-smi",
+                "--query-gpu=name,memory.total,driver_version",
+                "--format=csv,noheader",
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+            timeout=10,
+        )
+        info["nvidia_smi"] = result.stdout.strip() or result.stderr.strip()
+    except Exception as exc:
+        info["nvidia_smi"] = f"unavailable: {type(exc).__name__}: {exc}"
+    return info
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 def clean_label(label: str) -> str:
@@ -268,16 +325,23 @@ class SevenSegmentManifestDataset(Dataset):
         arr = np.array(padded, dtype=np.float32) / 255.0
         tensor = torch.from_numpy(arr).unsqueeze(0)
         encoded = encode_label(sample.label)
-        return tensor, torch.tensor(encoded, dtype=torch.long), len(encoded), sample.label
+        return (
+            tensor,
+            torch.tensor(encoded, dtype=torch.long),
+            len(encoded),
+            sample.label,
+            sample.source,
+        )
 
 
 def ctc_collate(batch):
-    images, labels, label_lengths, texts = zip(*batch)
+    images, labels, label_lengths, texts, sources = zip(*batch)
     return (
         torch.stack(images, 0),
         torch.cat(labels, 0),
         torch.tensor(label_lengths, dtype=torch.long),
         list(texts),
+        list(sources),
     )
 
 
@@ -291,7 +355,8 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> dict
     examples = []
 
     with torch.no_grad():
-        for images, labels, label_lengths, texts in loader:
+        by_source: dict[str, dict[str, int]] = {}
+        for images, labels, label_lengths, texts, sources in loader:
             images = images.to(device)
             labels = labels.to(device)
             label_lengths = label_lengths.to(device)
@@ -308,15 +373,27 @@ def evaluate(model: nn.Module, loader: DataLoader, device: torch.device) -> dict
             preds = output.argmax(dim=2)
             for b, truth in enumerate(texts):
                 pred = decode_prediction(preds[:, b].cpu().tolist())
+                source = sources[b]
+                by_source.setdefault(source, {"correct": 0, "total": 0})
+                by_source[source]["total"] += 1
                 if pred == truth:
                     exact += 1
+                    by_source[source]["correct"] += 1
                 elif len(examples) < 8:
-                    examples.append({"truth": truth, "pred": pred})
+                    examples.append({"source": source, "truth": truth, "pred": pred})
                 total += 1
 
     return {
         "loss": total_loss / max(1, batches),
         "exact": exact / max(1, total),
+        "by_source": {
+            source: {
+                "exact": values["correct"] / max(1, values["total"]),
+                "correct": values["correct"],
+                "total": values["total"],
+            }
+            for source, values in sorted(by_source.items())
+        },
         "errors": examples,
     }
 
@@ -387,7 +464,7 @@ def train_student(
         model.train()
         total_loss = 0.0
         batches = 0
-        for images, labels, label_lengths, _ in train_loader:
+        for images, labels, label_lengths, _, _ in train_loader:
             images = images.to(device)
             labels = labels.to(device)
             label_lengths = label_lengths.to(device)
@@ -423,15 +500,67 @@ def train_student(
             print(f"saved best: {best_path}")
 
     model.load_state_dict(torch.load(best_path, map_location=device, weights_only=True))
+    val = evaluate(model, val_loader, device)
     test = evaluate(model, test_loader, device)
+    print("val:", json.dumps(val, ensure_ascii=False, indent=2))
     print("test:", json.dumps(test, ensure_ascii=False, indent=2))
-    (output_dir / "training_history.json").write_text(
-        json.dumps({"history": history, "test": test}, ensure_ascii=False, indent=2)
+    write_json(
+        output_dir / "training_history.json",
+        {"history": history, "val": val, "test": test},
+    )
+    write_json(
+        output_dir / "evaluation_report.json",
+        {
+            "runtime": collect_runtime_info(),
+            "sample_counts": count_samples(samples),
+            "validation": val,
+            "test": test,
+        },
     )
 
     model.cpu()
     export_onnx(model, str(output_dir / "svtr_seven_seg_domain.onnx"), img_h=128, img_w=256)
     return output_dir / "svtr_seven_seg_domain.onnx"
+
+
+def count_samples(samples: list[Sample]) -> dict:
+    counts = {}
+    for sample in samples:
+        key = f"{sample.source}/{sample.split}"
+        counts[key] = counts.get(key, 0) + 1
+    return dict(sorted(counts.items()))
+
+
+def evaluate_checkpoint(
+    samples: list[Sample],
+    output_dir: Path,
+    model_path: Path,
+    batch_size: int,
+) -> None:
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = LightSVTR(num_classes=NUM_CLASSES).to(device)
+    model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
+
+    report: dict = {
+        "runtime": collect_runtime_info(),
+        "model_path": str(model_path),
+        "sample_counts": count_samples(samples),
+    }
+    for split in ["val", "test"]:
+        split_samples = [s for s in samples if s.split == split]
+        if not split_samples:
+            continue
+        loader = DataLoader(
+            SevenSegmentManifestDataset(split_samples),
+            batch_size=batch_size,
+            shuffle=False,
+            collate_fn=ctc_collate,
+            num_workers=1,
+            pin_memory=torch.cuda.is_available(),
+        )
+        report[split] = evaluate(model, loader, device)
+    write_json(output_dir / "evaluation_report.json", report)
+    print("evaluation:", json.dumps(report, ensure_ascii=False, indent=2))
 
 
 def main() -> None:
@@ -444,6 +573,8 @@ def main() -> None:
     parser.add_argument("--lr", type=float, default=5e-4)
     parser.add_argument("--real-weight", type=int, default=4)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--eval-only", action="store_true")
+    parser.add_argument("--model-path", type=str, default="")
     parser.add_argument("--prepare-ppocr-only", action="store_true")
     args = parser.parse_args()
 
@@ -453,6 +584,9 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+    runtime_info = collect_runtime_info()
+    write_json(output_dir / "runtime_report.json", runtime_info)
+    print("runtime:", json.dumps(runtime_info, ensure_ascii=False, indent=2))
 
     samples: list[Sample] = []
     real_root = find_real_dataset()
@@ -472,14 +606,21 @@ def main() -> None:
     samples.extend(synthetic)
     print(f"synthetic samples: {len(synthetic)}")
 
-    counts = {}
-    for sample in samples:
-        key = f"{sample.source}/{sample.split}"
-        counts[key] = counts.get(key, 0) + 1
+    counts = count_samples(samples)
     print("sample counts:", json.dumps(counts, ensure_ascii=False, indent=2))
 
     write_ppocr_rec_files(samples, output_dir)
     if args.prepare_ppocr_only:
+        return
+    if args.eval_only:
+        if not args.model_path:
+            raise RuntimeError("--eval-only requires --model-path")
+        evaluate_checkpoint(
+            samples=samples,
+            output_dir=output_dir,
+            model_path=Path(args.model_path),
+            batch_size=args.batch_size,
+        )
         return
 
     onnx_path = train_student(

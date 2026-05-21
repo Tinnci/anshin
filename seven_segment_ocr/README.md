@@ -85,8 +85,15 @@ GPU 训练适合快速迭代合成数据分布；TPU 对本流程收益不明显
 
 ```bash
 cd kaggle_domain_adaptation_kernel
-pixi run kaggle kernels push -p .
+pixi run kaggle kernels push -p . --accelerator NvidiaTeslaT4
 pixi run kaggle kernels output tiiann/seven-segment-ocr-domain-adaptation -p ../kaggle_domain_output/
+```
+
+也可以在 `seven_segment_ocr/` 目录直接使用:
+
+```bash
+pixi run kaggle-push-domain
+pixi run kaggle-status-domain
 ```
 
 推荐在 Kaggle 绑定一个真实 LCD 数据集:
@@ -110,7 +117,11 @@ sample_002.jpg,97.2,val
 1. 读取真实标注数据,没有 `split` 时用稳定 hash 分 train/val/test。
 2. 生成带 `real_world` 增强的合成样本,覆盖扫描纹、背光不均、玻璃眩光、局部段缺失、压缩和运动模糊。
 3. 输出 PaddleOCR SimpleDataSet 文件,用于可选的 `PP-OCRv5_mobile_rec` teacher fine-tune。
-4. 训练 Android 端可部署的 LightSVTR student,导出 `svtr_seven_seg_domain.onnx`。
+4. 输出 `runtime_report.json`,记录 Kaggle 实际 Python/PyTorch/CUDA、GPU 名称/显存、`nvidia-smi` 和 TPU 环境变量。
+5. 训练 Android 端可部署的 LightSVTR student,导出 `svtr_seven_seg_domain.onnx`。
+6. 输出 `evaluation_report.json`,包含 validation/test exact match、按 `real`/`synthetic` source 拆分的准确率和错误样例。
+
+当前推荐显式使用 `NvidiaTeslaT4`。Kaggle CLI 还支持传入其它 accelerator ID,但部分硬件可能只对特定比赛或管理员开放。
 
 #### YOLOv11-nano LCD 检测
 
@@ -136,6 +147,22 @@ v3 模型（修复 gradient 背景 bug）在 P100 上训练 100 epochs 约 100 �
 - **光照**: 亮度/对比度变化、色偏、反射高光
 - **遮挡**: 部分遮挡、边框
 - **真实 LCD 失真**: 扫描纹、背光不均、玻璃眩光、段缺失/污渍、压缩与运动模糊
+
+### 外部数据集候选
+
+Kaggle 上存在一些七段数码管相关数据集,可作为真实域补充:
+
+- `thearshiya/7-segment-industrial-digits-dataset`: 工业现场采集,含 train/val/test,标签在文件名中。
+- `loclaurote/seven-segment-display-dataset-yolov5`: 偏 YOLO 检测格式,适合 LCD/数字区域检测预训练。
+- `testtor/sevensegment-numbers`: 七段数字数据,可作为识别预训练补充。
+- `edventy/nto-lcd-2`: LCD 相关小数据集,需要先检查标注结构。
+
+这些数据集不能完全替代医疗设备域数据。仍然欠缺:
+
+- 血压计/血糖仪/体温计/体重秤的真实整机照片和真实 LCD crop。
+- 多行读数 (SYS/DIA/PUL)、单位标签、图标、低电量/记忆符号对数字行的干扰。
+- 弯曲玻璃、强反光、手持倾斜、低光、低分辨率压缩和局部段老化。
+- 设备型号级切分的 test set,用于验证跨设备泛化,避免同一设备照片同时进入 train/test。
 
 ### YOLO 检测数据
 
