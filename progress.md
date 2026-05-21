@@ -21,3 +21,6 @@
   `/tmp/fastvit_ctc_smoke/fastvit_t8_ctc.onnx`.
 - Ran FastViT smoke candidate evaluation:
   `/tmp/fastvit_ctc_smoke/results.json` and `/tmp/fastvit_ctc_smoke/results.txt`.
+- Added `kaggle_candidate_finetune_kernel` for Kaggle-side all-candidate reporting and fine-tuning of trainable architectures.
+- Verified plan-only run:
+  `pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py --output-dir /tmp/kaggle_candidate_plan --plan-only --candidates all`.

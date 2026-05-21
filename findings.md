@@ -21,3 +21,4 @@
 - FastViT `features_only=True` returns four stages on 128x256 input: `[48,32,64]`, `[96,16,32]`, `[192,8,16]`, `[384,4,8]` in `[B,C,H,W]` shape.
 - A single early FastViT stage preserves OCR time resolution but prunes most backbone params during ONNX export. Multi-scale fusion across all stages keeps 64 time steps and includes the full T8 backbone.
 - No official Google `SigLIP-Nano 15M` checkpoint was found in HF/timm discovery; keep SigLIP out of executable candidates until a concrete repo id is selected.
+- The all-candidate Kaggle fine-tune kernel can train LightSVTR tiny/base/large and FastViT-T8. PARSeq, PaddleOCR/RepSVTR/SVTRv2, TrOCR, ML Kit, and SigLIP-Nano are reported as eval-only/blocked rows unless dedicated fine-tuning adapters are added.

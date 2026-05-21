@@ -221,6 +221,51 @@ pixi run python train_fastvit_ctc.py \
   --no-pretrained
 ```
 
+## Kaggle Candidate Fine-tuning
+
+Use the candidate fine-tuning kernel to run all supported trainable OCR
+architectures on Kaggle and emit one comparison report:
+
+```bash
+pixi run kaggle-push-candidates
+pixi run kaggle-status-candidates
+```
+
+The kernel writes:
+
+- `/kaggle/working/candidate_finetune/candidate_plan.json`
+- `/kaggle/working/candidate_finetune/candidate_finetune_results.json`
+- `/kaggle/working/candidate_finetune/candidate_finetune_results.txt`
+- per-candidate checkpoints, ONNX exports, and evaluation reports under
+  `/kaggle/working/candidate_finetune/<candidate_id>/`
+
+Currently trainable in this kernel:
+
+- `light_svtr_tiny`
+- `light_svtr_base`
+- `light_svtr_large`
+- `fastvit_t8_ctc`
+
+The report also includes non-trainable or blocked candidates so the table
+remains complete: PARSeq, PaddleOCR/RepSVTR/SVTRv2, TrOCR, ML Kit, and
+`siglip_nano`. `siglip_nano` is intentionally marked
+`blocked_missing_checkpoint` until a concrete official checkpoint/repo id is
+selected.
+
+For a short Kaggle smoke run, edit the kernel arguments in the Kaggle UI or run
+the script locally with:
+
+```bash
+pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py \
+  --output-dir /tmp/candidate_finetune_smoke \
+  --candidates light_svtr_tiny,fastvit_t8_ctc \
+  --synthetic-samples 200 \
+  --light-svtr-epochs 1 \
+  --fastvit-stage1-epochs 1 \
+  --fastvit-stage2-epochs 0 \
+  --fastvit-no-pretrained
+```
+
 Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 
 | Model | Backend | Size | Params | Mean latency | Exact | CER | Digit accuracy |

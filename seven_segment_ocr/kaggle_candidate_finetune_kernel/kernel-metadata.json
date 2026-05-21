@@ -1,0 +1,14 @@
+{
+  "id": "tiiann/seven-segment-ocr-candidate-finetune",
+  "title": "Seven Segment OCR Candidate Fine-tune",
+  "code_file": "kaggle_candidate_finetune.py",
+  "language": "python",
+  "kernel_type": "script",
+  "is_private": true,
+  "enable_gpu": true,
+  "enable_tpu": false,
+  "enable_internet": true,
+  "keywords": ["seven-segment", "ocr", "fastvit", "svtr", "fine-tuning"],
+  "dataset_sources": [],
+  "competition_sources": []
+}

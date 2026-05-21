@@ -17,6 +17,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 9. Run PARSeq and integrated report | completed | Exported PARSeq ONNX external-data graph, evaluated 120 samples, and generated integrated CPU report. |
 | 10. Implement FastViT-T8 CTC candidate | completed | Added FastViT CTC model, two-stage fine-tuning script, RGB ImageNet eval preprocessing, and candidate runner support. |
 | 11. Smoke test FastViT path | completed | Ran no-pretrained CPU smoke fine-tune/export and unified runner evaluation from `/tmp/fastvit_ctc_smoke`. |
+| 12. Implement Kaggle all-candidate fine-tune kernel | completed | Added Kaggle runner for LightSVTR tiny/base/large and FastViT-T8, plus complete pending/eval-only rows for other architectures. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
