@@ -18,7 +18,7 @@ onnx = ">=1.20.0,<2"
 onnxruntime = ">=1.22.2,<2"
 opencv = ">=4.13.0,<5"
 gdown = ">=5.2.1,<6"
-kaggle = ">=1.8.4,<2"
+kaggle = ">=2.1.2,<3"
 
 [tasks]
 generate = "python generate_data.py"
