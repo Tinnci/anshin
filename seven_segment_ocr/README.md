@@ -32,6 +32,8 @@
 
 ## 准确率
 
+新的跨模型评测管线见 [MODEL_EVALUATION.md](MODEL_EVALUATION.md)。它把 ONNX 模型和闭源 SDK 黑盒结果统一到同一 JSON schema 中,用于比较容量、参数量、延迟和合成数据指标。
+
 在含纹理背景的困难测试集（25% easy / 35% normal / 40% hard）上:
 
 | 模型 | 检测率 | 识别准确率 | 推理速度 | 大小 |

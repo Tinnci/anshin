@@ -31,3 +31,4 @@ domain-adapt-base = "python kaggle_domain_adaptation_kernel/kaggle_domain_adapta
 domain-adapt-large = "python kaggle_domain_adaptation_kernel/kaggle_domain_adaptation.py --output-dir domain_adaptation_large --synthetic-samples 2000 --epochs 1 --model-variant large"
 kaggle-push-domain = "kaggle kernels push -p kaggle_domain_adaptation_kernel --accelerator NvidiaTeslaT4"
 kaggle-status-domain = "kaggle kernels status tiiann/seven-segment-ocr-domain-adaptation"
+eval-ocr = "python ocr_model_eval.py"
