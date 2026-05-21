@@ -166,6 +166,19 @@ Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 | `trocr_small_printed` | Optimum ONNX Runtime | 234.82 MB | 61,447,552 | 356.94 ms | 2.50% | 106.19% | 13.62% |
 | `trocr_base_printed` | Optimum ONNX Runtime | 1468.56 MB | 384,802,560 | 1665.23 ms | 10.83% | 78.51% | 31.20% |
 
+The current local environment used PyPI packages for conversion/runtime:
+
+```bash
+python -m pip install paddle2onnx paddlex paddlepaddle
+python -m pip install optimum-onnx transformers sentencepiece
+```
+
+These PyPI dependencies could not be cleanly recorded in `pixi.toml` because
+the conda solve pins `huggingface_hub==1.15.0` and `numpy==2.4.2`, while
+Optimum ONNX currently resolves `huggingface-hub<1.0` and an older ONNX stack.
+For reproducible CI, use a separate conversion environment for Paddle/Optimum
+exports, then copy the exported ONNX artifacts into `exported_candidates/`.
+
 ## Integrated Candidate Evaluation
 
 Run the full candidate-level evaluation report. The runner evaluates local
