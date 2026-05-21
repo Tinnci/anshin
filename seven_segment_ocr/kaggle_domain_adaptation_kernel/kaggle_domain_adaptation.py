@@ -39,6 +39,7 @@ import os
 import platform
 import random
 import re
+import shutil
 import subprocess
 import sys
 from dataclasses import dataclass
@@ -57,6 +58,29 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SCRIPT_DIR.parent
 DEFAULT_OUTPUT_DIR = Path("/kaggle/working/domain_adaptation")
 MIN_CUDA_CAPABILITY = (7, 0)
+MODEL_VARIANTS = {
+    "tiny": {
+        "d_model": 96,
+        "nhead": 4,
+        "num_layers": 2,
+        "dim_feedforward": 384,
+        "dropout": 0.1,
+    },
+    "base": {
+        "d_model": 128,
+        "nhead": 4,
+        "num_layers": 3,
+        "dim_feedforward": 512,
+        "dropout": 0.1,
+    },
+    "large": {
+        "d_model": 192,
+        "nhead": 6,
+        "num_layers": 4,
+        "dim_feedforward": 768,
+        "dropout": 0.1,
+    },
+}
 _RUN_LOG_FILE: TextIO | None = None
 _STARTUP_OUTPUT_DIR: Path | None = None
 _STARTUP_RUNTIME_INFO: dict | None = None
@@ -219,6 +243,26 @@ def assert_runtime_supported(runtime_info: dict) -> None:
         f"{devices}. Use a T4/L4/A100/H100 runtime, for example "
         "`kaggle kernels push -p kaggle_domain_adaptation_kernel --accelerator NvidiaTeslaT4`."
     )
+
+
+def get_model_variant_config(model_variant: str) -> dict:
+    try:
+        return dict(MODEL_VARIANTS[model_variant])
+    except KeyError as exc:
+        valid = ", ".join(sorted(MODEL_VARIANTS))
+        raise ValueError(f"Unknown model variant: {model_variant}. Valid variants: {valid}") from exc
+
+
+def cleanup_synthetic_images(output_dir: Path, keep_synthetic_images: bool) -> int:
+    if keep_synthetic_images:
+        return 0
+    image_dir = output_dir / "synthetic" / "sequence" / "images"
+    if not image_dir.exists():
+        return 0
+    removed = sum(1 for path in image_dir.rglob("*") if path.is_file())
+    shutil.rmtree(image_dir)
+    print(f"removed synthetic image output bloat: {removed} files from {image_dir}", flush=True)
+    return removed
 
 
 if __name__ == "__main__":
@@ -530,6 +574,7 @@ def train_student(
     batch_size: int,
     lr: float,
     real_weight: int,
+    model_variant: str,
 ) -> Path:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"device: {device}")
@@ -573,7 +618,9 @@ def train_student(
         pin_memory=torch.cuda.is_available(),
     )
 
-    model = LightSVTR(num_classes=NUM_CLASSES).to(device)
+    model_config = get_model_variant_config(model_variant)
+    print("model variant:", json.dumps({"name": model_variant, **model_config}, ensure_ascii=False))
+    model = LightSVTR(num_classes=NUM_CLASSES, **model_config).to(device)
     optimizer = torch.optim.AdamW(model.parameters(), lr=lr, weight_decay=1e-4)
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(
         optimizer, T_max=max(1, epochs), eta_min=lr * 0.05
@@ -637,6 +684,7 @@ def train_student(
         output_dir / "evaluation_report.json",
         {
             "runtime": collect_runtime_info(),
+            "model_variant": {"name": model_variant, **model_config},
             "sample_counts": count_samples(samples),
             "validation": val,
             "test": test,
@@ -661,13 +709,16 @@ def evaluate_checkpoint(
     output_dir: Path,
     model_path: Path,
     batch_size: int,
+    model_variant: str,
 ) -> None:
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    model = LightSVTR(num_classes=NUM_CLASSES).to(device)
+    model_config = get_model_variant_config(model_variant)
+    model = LightSVTR(num_classes=NUM_CLASSES, **model_config).to(device)
     model.load_state_dict(torch.load(model_path, map_location=device, weights_only=True))
 
     report: dict = {
         "runtime": collect_runtime_info(),
+        "model_variant": {"name": model_variant, **model_config},
         "model_path": str(model_path),
         "sample_counts": count_samples(samples),
     }
@@ -697,6 +748,8 @@ def main() -> None:
     parser.add_argument("--batch-size", type=int, default=64)
     parser.add_argument("--lr", type=float, default=5e-4)
     parser.add_argument("--real-weight", type=int, default=4)
+    parser.add_argument("--model-variant", choices=sorted(MODEL_VARIANTS), default="base")
+    parser.add_argument("--keep-synthetic-images", action="store_true")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--eval-only", action="store_true")
     parser.add_argument("--model-path", type=str, default="")
@@ -749,7 +802,9 @@ def main() -> None:
             output_dir=output_dir,
             model_path=Path(args.model_path),
             batch_size=args.batch_size,
+            model_variant=args.model_variant,
         )
+        cleanup_synthetic_images(output_dir, keep_synthetic_images=args.keep_synthetic_images)
         return
 
     onnx_path = train_student(
@@ -759,7 +814,9 @@ def main() -> None:
         batch_size=args.batch_size,
         lr=args.lr,
         real_weight=args.real_weight,
+        model_variant=args.model_variant,
     )
+    cleanup_synthetic_images(output_dir, keep_synthetic_images=args.keep_synthetic_images)
     print(f"done: {onnx_path}")
 
 

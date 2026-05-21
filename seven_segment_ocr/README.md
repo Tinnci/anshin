@@ -96,6 +96,14 @@ pixi run kaggle-push-domain
 pixi run kaggle-status-domain
 ```
 
+本地快速 smoke test 可以比较不同 LightSVTR 宽度/层数:
+
+```bash
+pixi run domain-adapt-tiny
+pixi run domain-adapt-base
+pixi run domain-adapt-large
+```
+
 推荐在 Kaggle 绑定一个真实 LCD 数据集:
 
 ```
@@ -120,6 +128,15 @@ sample_002.jpg,97.2,val
 4. 输出 `runtime_report.json`,记录 Kaggle 实际 Python/PyTorch/CUDA、GPU 名称/显存、`nvidia-smi` 和 TPU 环境变量。
 5. 训练 Android 端可部署的 LightSVTR student,导出 `svtr_seven_seg_domain.onnx`。
 6. 输出 `evaluation_report.json`,包含 validation/test exact match、按 `real`/`synthetic` source 拆分的准确率和错误样例。
+7. 默认删除 `synthetic/sequence/images/` 下的合成 PNG,避免 Kaggle output 被 30000 张中间图片膨胀到数百 MB。如需调试图片,传 `--keep-synthetic-images`。
+
+可调模型变体:
+
+| 变体 | 配置 | 用途 |
+|---|---|---|
+| `tiny` | d=96, 2 layers, FFN=384 | 快速 smoke test / 低端设备候选 |
+| `base` | d=128, 3 layers, FFN=512 | 当前默认配置 |
+| `large` | d=192, 4 layers, FFN=768 | 验证容量是否是瓶颈 |
 
 当前推荐显式使用 `NvidiaTeslaT4`。Kaggle CLI 还支持传入其它 accelerator ID,但部分硬件可能只对特定比赛或管理员开放。
 

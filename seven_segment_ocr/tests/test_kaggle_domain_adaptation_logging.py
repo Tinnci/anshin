@@ -73,6 +73,42 @@ class KaggleLoggingTest(unittest.TestCase):
         self.assertEqual(len(unsupported), 1)
         self.assertEqual(unsupported[0]["name"], "Tesla P100-PCIE-16GB")
 
+    def test_model_variant_config_exposes_comparable_light_svtr_sizes(self):
+        tiny = kernel.get_model_variant_config("tiny")
+        base = kernel.get_model_variant_config("base")
+        large = kernel.get_model_variant_config("large")
+
+        self.assertLess(tiny["d_model"], base["d_model"])
+        self.assertLess(base["d_model"], large["d_model"])
+        self.assertLess(tiny["num_layers"], large["num_layers"])
+
+    def test_cleanup_synthetic_images_removes_image_bloat_but_keeps_manifest(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            image_dir = output_dir / "synthetic" / "sequence" / "images"
+            image_dir.mkdir(parents=True)
+            (image_dir / "seq_000001.png").write_bytes(b"fake png")
+            manifest = output_dir / "synthetic" / "sequence" / "sequences.csv"
+            manifest.write_text("filename,label\nseq_000001.png,123\n")
+
+            removed = kernel.cleanup_synthetic_images(output_dir, keep_synthetic_images=False)
+
+            self.assertEqual(removed, 1)
+            self.assertFalse(image_dir.exists())
+            self.assertTrue(manifest.exists())
+
+    def test_cleanup_synthetic_images_can_keep_images_for_debugging(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            output_dir = Path(tmp)
+            image_dir = output_dir / "synthetic" / "sequence" / "images"
+            image_dir.mkdir(parents=True)
+            (image_dir / "seq_000001.png").write_bytes(b"fake png")
+
+            removed = kernel.cleanup_synthetic_images(output_dir, keep_synthetic_images=True)
+
+            self.assertEqual(removed, 0)
+            self.assertTrue(image_dir.exists())
+
 
 if __name__ == "__main__":
     unittest.main()
