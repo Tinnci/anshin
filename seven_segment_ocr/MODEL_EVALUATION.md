@@ -164,11 +164,11 @@ Local artifact status:
 
 | Candidate | Downloaded | Converted | Local artifact |
 | --- | --- | --- | --- |
-| `ppocrv5_mobile_rec` | Yes | Blocked locally | `exported_candidates/ppocrv5_mobile_rec/PP-OCRv5_mobile_rec_infer` |
-| `en_ppocrv5_mobile_rec` | Yes | Blocked locally | `exported_candidates/en_ppocrv5_mobile_rec/en_PP-OCRv4_mobile_rec_infer` |
-| `ppocrv5_server_rec` | Yes | Blocked locally | `exported_candidates/ppocrv5_server_rec/PP-OCRv5_server_rec_infer` |
-| `repsvtr` | Yes | Blocked locally | `exported_candidates/repsvtr/ch_RepSVTR_rec_infer` |
-| `svtrv2_server` | Yes | Blocked locally | `exported_candidates/svtrv2_server/ch_SVTRv2_rec_infer` |
+| `ppocrv5_mobile_rec` | Yes | Yes | `exported_candidates/ppocrv5_mobile_rec.onnx` |
+| `en_ppocrv5_mobile_rec` | Yes | Yes | `exported_candidates/en_ppocrv5_mobile_rec.onnx` |
+| `ppocrv5_server_rec` | Yes | Yes | `exported_candidates/ppocrv5_server_rec.onnx` |
+| `repsvtr` | Yes | Yes | `exported_candidates/repsvtr.onnx` |
+| `svtrv2_server` | Yes | Yes | `exported_candidates/svtrv2_server.onnx` |
 | `parseq` | Yes | Pending adapter | `exported_candidates/parseq/parseq-bb5792a6.pt` |
 | `trocr_small_printed` | Yes | Yes | `exported_candidates/trocr_small_printed_onnx` |
 | `trocr_base_printed` | Yes | Yes | `exported_candidates/trocr_base_printed_onnx` |
