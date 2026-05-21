@@ -10,6 +10,7 @@ from PIL import Image
 
 from ocr_model_eval import (
     evaluate_imported_predictions,
+    format_results_table,
     load_labeled_dataset,
     main,
     measure_model_file,
@@ -140,6 +141,34 @@ class OcrModelEvalTest(unittest.TestCase):
         self.assertEqual(payload["results"][0]["model_id"], "missing")
         self.assertEqual(payload["results"][0]["status"], "error")
         self.assertIn("error", payload["results"][0])
+
+    def test_format_results_table_includes_capacity_latency_and_metrics(self):
+        table = format_results_table(
+            [
+                {
+                    "model_id": "tiny",
+                    "backend": "onnxruntime",
+                    "capacity": {"model_bytes": 1024 * 1024, "parameter_count": 12345},
+                    "latency_ms": {"mean": 1.25, "p50": 1.1, "p95": 2.0},
+                    "metrics": {"exact": 0.5, "cer": 0.1, "digit_accuracy": 0.75},
+                },
+                {
+                    "model_id": "broken",
+                    "backend": "onnxruntime",
+                    "status": "error",
+                    "error": {"message": "unsupported op"},
+                    "capacity": {},
+                    "latency_ms": {"mean": None, "p50": None, "p95": None},
+                    "metrics": {"exact": 0.0, "cer": 0.0, "digit_accuracy": 0.0},
+                },
+            ]
+        )
+
+        self.assertIn("tiny", table)
+        self.assertIn("1.00 MB", table)
+        self.assertIn("12,345", table)
+        self.assertIn("50.00%", table)
+        self.assertIn("ERROR", table)
 
 
 if __name__ == "__main__":

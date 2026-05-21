@@ -13,6 +13,14 @@
       "local_path": "exported/svtr_seven_seg.onnx"
     },
     {
+      "id": "app_dequant_svtr",
+      "family": "LightSVTR",
+      "license_surface": "project_model",
+      "preferred_adapter": "dequantize_onnx_then_onnx",
+      "source_path": "../app/src/main/assets/svtr_seven_seg.onnx",
+      "local_path": "exported_candidates/app_svtr_dequant.onnx"
+    },
+    {
       "id": "light_svtr_kaggle_domain",
       "family": "LightSVTR",
       "license_surface": "project_model",

@@ -32,3 +32,5 @@ domain-adapt-large = "python kaggle_domain_adaptation_kernel/kaggle_domain_adapt
 kaggle-push-domain = "kaggle kernels push -p kaggle_domain_adaptation_kernel --accelerator NvidiaTeslaT4"
 kaggle-status-domain = "kaggle kernels status tiiann/seven-segment-ocr-domain-adaptation"
 eval-ocr = "python ocr_model_eval.py"
+dequantize-onnx = "python dequantize_onnx.py"
+export-candidates-plan = "python download_and_export_candidates.py --dry-run"

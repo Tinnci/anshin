@@ -24,6 +24,32 @@ through their official runtime and imported as prediction JSON. Do not treat
 extracted AAR fragments as the complete OCR model: the SDK pipeline includes
 native code, model metadata, preprocessing, layout logic, and postprocessing.
 
+## ConvInteger Compatibility
+
+The Android-packaged quantized SVTR model uses ONNX Runtime dynamic quantization
+patterns with `ConvInteger` and `MatMulInteger`. Some desktop CPU ORT builds do
+not implement `ConvInteger`, so desktop evaluation can fail even when Android
+execution is valid.
+
+Convert that graph into a desktop-executable floating-point compatibility graph:
+
+```bash
+pixi run python dequantize_onnx.py \
+  --input ../app/src/main/assets/svtr_seven_seg.onnx \
+  --output /tmp/medlog_app_svtr_dequant.onnx
+```
+
+The converter targets this pattern:
+
+```text
+DynamicQuantizeLinear -> ConvInteger/MatMulInteger -> Cast -> Mul(scale_product)
+```
+
+It inserts `DequantizeLinear` for the quantized activation, dequantizes constant
+weights into FP32 initializers, and replaces the integer op plus scale
+multiplication with standard `Conv` or `MatMul`. This is a compatibility graph
+for desktop benchmarking; keep the original INT8 model for Android deployment.
+
 Imported prediction schema:
 
 ```json
@@ -77,6 +103,33 @@ Dataset: `/tmp/medlog_bare_benchmark`, 120 synthetic samples, `real_world_ratio=
 `app_quant_svtr` failed on desktop CPU ONNX Runtime because its graph contains
 `ConvInteger`, which this ORT build does not implement. It may still be valid
 for Android ONNX Runtime, but it is not a portable desktop benchmark artifact.
+
+After conversion with `dequantize_onnx.py`, the app-packaged quantized model can
+be included in the desktop ONNX Runtime smoke run:
+
+| Model | Backend | Size | Params | Mean latency | Exact | CER | Digit accuracy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `app_dequant_svtr` | ONNX Runtime CPU | 2.70 MB | 670,404 | 5.21 ms | 78.33% | 7.47% | 92.31% |
+| `exported_svtr` | ONNX Runtime CPU | 2.64 MB | 670,384 | 3.69 ms | 79.17% | 7.29% | 92.31% |
+| `kaggle_v5_domain` | ONNX Runtime CPU | 2.64 MB | 670,384 | 4.27 ms | 64.17% | 14.21% | 86.14% |
+
+## Candidate Export Plan
+
+Generate an auditable dry-run plan for all candidate families:
+
+```bash
+pixi run python download_and_export_candidates.py \
+  --dry-run \
+  --output export_candidates_plan.json
+```
+
+The plan covers:
+
+- LightSVTR exported and Kaggle domain artifacts.
+- PaddleOCR PP-OCRv5 mobile/server, RepSVTR, and SVTRv2 via Paddle2ONNX/PaddleX.
+- PARSeq via a PyTorch checkpoint export path.
+- TrOCR small/base via Hugging Face Optimum ONNX export.
+- Google ML Kit via official Android runtime prediction import.
 
 ## Sources
 

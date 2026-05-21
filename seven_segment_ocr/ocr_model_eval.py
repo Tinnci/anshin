@@ -334,6 +334,77 @@ def _build_error_result(model_id: str, backend: str, error: Exception) -> dict[s
     }
 
 
+def format_results_table(results: list[dict[str, object]]) -> str:
+    headers = [
+        "model",
+        "backend",
+        "status",
+        "size",
+        "params",
+        "mean",
+        "p95",
+        "exact",
+        "cer",
+        "digit",
+    ]
+    rows = [headers]
+    for result in results:
+        capacity = result.get("capacity", {})
+        latency = result.get("latency_ms", {})
+        metrics = result.get("metrics", {})
+        status = str(result.get("status", "ok"))
+        if status == "error":
+            status = "ERROR"
+        rows.append(
+            [
+                str(result.get("model_id", "")),
+                str(result.get("backend", "")),
+                status,
+                _format_bytes(_mapping_get(capacity, "model_bytes")),
+                _format_int(_mapping_get(capacity, "parameter_count")),
+                _format_ms(_mapping_get(latency, "mean")),
+                _format_ms(_mapping_get(latency, "p95")),
+                _format_percent(_mapping_get(metrics, "exact")),
+                _format_percent(_mapping_get(metrics, "cer")),
+                _format_percent(_mapping_get(metrics, "digit_accuracy")),
+            ]
+        )
+    widths = [max(len(row[i]) for row in rows) for i in range(len(headers))]
+    lines = []
+    for index, row in enumerate(rows):
+        lines.append(" | ".join(cell.ljust(widths[i]) for i, cell in enumerate(row)))
+        if index == 0:
+            lines.append(" | ".join("-" * width for width in widths))
+    return "\n".join(lines)
+
+
+def _mapping_get(value: object, key: str) -> object:
+    return value.get(key) if isinstance(value, dict) else None
+
+
+def _format_bytes(value: object) -> str:
+    if value is None:
+        return "n/a"
+    number = float(value)
+    if number >= 1024 * 1024:
+        return f"{number / (1024 * 1024):.2f} MB"
+    if number >= 1024:
+        return f"{number / 1024:.2f} KB"
+    return f"{int(number)} B"
+
+
+def _format_int(value: object) -> str:
+    return "n/a" if value is None else f"{int(value):,}"
+
+
+def _format_ms(value: object) -> str:
+    return "n/a" if value is None else f"{float(value):.2f} ms"
+
+
+def _format_percent(value: object) -> str:
+    return "n/a" if value is None else f"{float(value) * 100:.2f}%"
+
+
 def _parse_model_spec(spec: str) -> tuple[str, Path]:
     if ":" not in spec:
         path = Path(spec)
@@ -362,6 +433,8 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--warmup", type=int, default=2)
+    parser.add_argument("--table-output", default=None, help="Optional plain text summary table path")
+    parser.add_argument("--print-table", action="store_true", help="Print the summary table to stdout")
     return parser
 
 
@@ -401,6 +474,11 @@ def main(argv: list[str] | None = None) -> int:
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     output_path.write_text(json.dumps(payload, indent=2, ensure_ascii=False), encoding="utf-8")
+    table = format_results_table(results)
+    if args.table_output:
+        Path(args.table_output).write_text(table + "\n", encoding="utf-8")
+    if args.print_table:
+        print(table)
     print(json.dumps({"output": str(output_path), "models": len(results)}, ensure_ascii=False))
     return 0
 
