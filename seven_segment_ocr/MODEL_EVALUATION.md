@@ -23,7 +23,13 @@ pixi run python ocr_model_eval.py \
 
 The official PyPI macOS wheels for `paddle2onnx` may be tagged as
 `universal2` while containing an arm64-only native extension. On Intel/x86_64
-macOS, build a local wheel instead:
+macOS, you can directly install the precompiled x86_64 wheel published in our GitHub fork:
+
+```bash
+pixi run python -m pip install --force-reinstall --no-deps https://github.com/Tinnci/Paddle2ONNX/releases/download/v2.1.0-macos-x86_64/paddle2onnx-2.1.0-cp312-cp312-macosx_15_0_x86_64.whl
+```
+
+Alternatively, you can compile and build a local wheel from source:
 
 ```bash
 ./build_paddle2onnx_macos_x86_64.sh
