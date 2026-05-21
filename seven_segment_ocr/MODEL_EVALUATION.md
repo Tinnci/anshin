@@ -169,7 +169,7 @@ Local artifact status:
 | `ppocrv5_server_rec` | Yes | Yes | `exported_candidates/ppocrv5_server_rec.onnx` |
 | `repsvtr` | Yes | Yes | `exported_candidates/repsvtr.onnx` |
 | `svtrv2_server` | Yes | Yes | `exported_candidates/svtrv2_server.onnx` |
-| `parseq` | Yes | Pending adapter | `exported_candidates/parseq/parseq-bb5792a6.pt` |
+| `parseq` | Yes | Yes | `exported_candidates/parseq.onnx` + `exported_candidates/parseq.onnx.data` |
 | `trocr_small_printed` | Yes | Yes | `exported_candidates/trocr_small_printed_onnx` |
 | `trocr_base_printed` | Yes | Yes | `exported_candidates/trocr_base_printed_onnx` |
 
@@ -178,6 +178,20 @@ PyPI `paddle2onnx` macOS wheel was tagged `universal2` but contained an
 arm64-only native extension. The local x86_64 wheel build described above fixes
 that blocker, and the Paddle candidates have been converted to ONNX under
 `exported_candidates/`.
+
+PARSeq export uses the official Torch Hub architecture with
+`decode_ar=False` and `refine_iters=0`, then loads the local raw state dict into
+the inner PARSeq model:
+
+```bash
+pixi run python export_parseq_onnx.py \
+  --checkpoint exported_candidates/parseq/parseq-bb5792a6.pt \
+  --output exported_candidates/parseq.onnx \
+  --metadata-output exported_candidates/parseq_metadata.json
+```
+
+The exported PARSeq model uses ONNX external data, so keep
+`parseq.onnx.data` beside `parseq.onnx`.
 
 Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 
@@ -215,14 +229,16 @@ pixi run python run_candidate_evaluation.py \
 ```
 
 For desktop CPU throughput evaluation, use a batch size for dynamic-batch
-PaddleOCR models and import existing TrOCR prediction files:
+PaddleOCR models. PARSeq is evaluated directly from its exported ONNX graph;
+existing TrOCR predictions are imported because they use the Optimum
+vision-to-sequence runtime:
 
 ```bash
 pixi run python run_candidate_evaluation.py \
   --dataset /tmp/medlog_bare_benchmark \
   --candidate-config model_candidates.json \
-  --output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.json \
-  --table-output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.txt \
+  --output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.json \
+  --table-output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.txt \
   --batch-size 8 \
   --warmup 2 \
   --import-predictions trocr_small_printed:/tmp/medlog_bare_benchmark/trocr_small_predictions.json \
@@ -243,12 +259,12 @@ samples:
 | `ppocrv5_server_rec` | PaddleOCR CTC ONNX | 80.59 MB | 21,094,619 | 1423.65 ms | 0.70/s | 17.50% | 56.83% | 49.47% |
 | `repsvtr` | PaddleOCR CTC ONNX | 24.20 MB | 6,314,309 | 32.16 ms | 31.10/s | 19.17% | 52.64% | 54.32% |
 | `svtrv2_server` | PaddleOCR CTC ONNX | 80.30 MB | 20,986,236 | 152.65 ms | 6.55/s | 28.33% | 42.44% | 64.41% |
+| `parseq` | PARSeq ONNX | 92.35 MB | 23,832,702 | 78.83 ms | 12.69/s | 19.17% | 50.82% | 57.97% |
 | `trocr_small_printed` | Imported Optimum ONNX prediction | 234.82 MB | 61,447,552 | 356.94 ms | 2.80/s | 2.50% | 106.19% | 13.62% |
 | `trocr_base_printed` | Imported Optimum ONNX prediction | 1468.56 MB | 384,802,560 | 1665.23 ms | 0.60/s | 10.83% | 78.51% | 31.20% |
 
-`parseq` still needs a dedicated adapter. `mlkit_text_recognition_bundled`
-still needs an official Android runtime prediction JSON; it is a closed SDK and
-is intentionally not converted to ONNX.
+`mlkit_text_recognition_bundled` still needs an official Android runtime
+prediction JSON; it is a closed SDK and is intentionally not converted to ONNX.
 
 If an official-runtime baseline exists, pass it explicitly:
 

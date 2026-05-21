@@ -54,6 +54,12 @@ class RunCandidateEvaluationTest(unittest.TestCase):
                                 "metadata_path": str(root / "inference.yml"),
                             },
                             {
+                                "id": "ready_parseq",
+                                "preferred_adapter": "torch_export_then_onnx",
+                                "local_path": str(ready_model),
+                                "metadata_path": str(root / "parseq_metadata.json"),
+                            },
+                            {
                                 "id": "mlkit",
                                 "preferred_adapter": "official_runtime_prediction_import",
                                 "onnx_supported": False,
@@ -67,6 +73,10 @@ class RunCandidateEvaluationTest(unittest.TestCase):
             table = root / "results.txt"
             (root / "inference.yml").write_text(
                 "PostProcess:\n  character_dict:\n    - '1'\n",
+                encoding="utf-8",
+            )
+            (root / "parseq_metadata.json").write_text(
+                json.dumps({"tokens": ["[E]", "1"]}),
                 encoding="utf-8",
             )
 
@@ -88,12 +98,32 @@ class RunCandidateEvaluationTest(unittest.TestCase):
                     "samples": [],
                 }
 
+            def fake_parseq_eval(model_id, output, *_args, **_kwargs):
+                Path(output).write_text(
+                    json.dumps(
+                        {
+                            "model_id": model_id,
+                            "backend": "onnxruntime_parseq",
+                            "model_bytes": 4,
+                            "parameter_count": 1,
+                            "predictions": [
+                                {"filename": "a.png", "text": "123", "latency_ms": 1.0}
+                            ],
+                        }
+                    ),
+                    encoding="utf-8",
+                )
+                return {"output": str(output), "samples": 1}
+
             with unittest.mock.patch(
                 "run_candidate_evaluation.convert_integer_ops_to_float",
                 side_effect=fake_convert,
             ), unittest.mock.patch(
                 "run_candidate_evaluation.evaluate_onnx_model",
                 side_effect=fake_eval,
+            ), unittest.mock.patch(
+                "run_candidate_evaluation.evaluate_parseq_onnx",
+                side_effect=fake_parseq_eval,
             ):
                 exit_code = main(
                     [
@@ -119,6 +149,7 @@ class RunCandidateEvaluationTest(unittest.TestCase):
         self.assertEqual(statuses["ready"], "ok")
         self.assertEqual(statuses["derived"], "ok")
         self.assertEqual(statuses["ready_paddle"], "ok")
+        self.assertEqual(statuses["ready_parseq"], "ok")
         self.assertEqual(statuses["missing_open"], "pending")
         self.assertEqual(statuses["mlkit"], "pending")
         self.assertIn("PENDING", table_text)

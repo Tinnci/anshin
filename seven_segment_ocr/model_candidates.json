@@ -77,7 +77,9 @@
       "family": "PARSeq",
       "license_surface": "open_model",
       "preferred_adapter": "torch_export_then_onnx",
-      "local_path": "exported_candidates/parseq/parseq-bb5792a6.pt"
+      "source_path": "exported_candidates/parseq/parseq-bb5792a6.pt",
+      "local_path": "exported_candidates/parseq.onnx",
+      "metadata_path": "exported_candidates/parseq_metadata.json"
     },
     {
       "id": "trocr_small_printed",

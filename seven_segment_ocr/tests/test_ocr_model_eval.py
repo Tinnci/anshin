@@ -149,6 +149,24 @@ PostProcess:
         self.assertEqual(info["parameter_count"], 6)
         self.assertEqual(info["format"], "onnx")
 
+    def test_measure_model_file_includes_onnx_external_data_sibling(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            model_path = Path(tmp) / "tiny.onnx"
+            node = helper.make_node("Identity", inputs=["input"], outputs=["output"])
+            graph = helper.make_graph(
+                [node],
+                "tiny",
+                [helper.make_tensor_value_info("input", TensorProto.FLOAT, [1, 2])],
+                [helper.make_tensor_value_info("output", TensorProto.FLOAT, [1, 2])],
+            )
+            onnx.save(helper.make_model(graph), model_path)
+            onnx_size = model_path.stat().st_size
+            (Path(str(model_path) + ".data")).write_bytes(b"external")
+
+            info = measure_model_file(model_path)
+
+        self.assertEqual(info["model_bytes"], onnx_size + len(b"external"))
+
     def test_imported_predictions_use_same_metrics_schema(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
@@ -166,6 +184,7 @@ PostProcess:
                         "model_id": "mlkit_text_recognition_bundled",
                         "backend": "android_mlkit",
                         "model_bytes": 1234,
+                        "throughput": {"samples_per_second": 99.0},
                         "predictions": [
                             {"filename": "a.png", "text": "123", "latency_ms": 9.0},
                             {"filename": "b.png", "text": "45G", "latency_ms": 11.0},
@@ -184,6 +203,7 @@ PostProcess:
         self.assertEqual(result["backend"], "android_mlkit")
         self.assertEqual(result["capacity"]["model_bytes"], 1234)
         self.assertAlmostEqual(result["latency_ms"]["mean"], 10.0)
+        self.assertEqual(result["throughput"]["samples_per_second"], 99.0)
         self.assertEqual(result["metrics"]["exact"], 0.5)
 
     def test_cli_records_model_error_without_stopping_run(self):

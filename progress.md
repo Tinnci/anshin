@@ -9,3 +9,10 @@
 - Ran full CPU batch report with TrOCR imported predictions:
   `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.json`
   and `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.txt`.
+- Started PARSeq integration work. Read planning-with-files and TDD guidance, then began verifying the real checkpoint/API before coding.
+- Added failing PARSeq integration tests first, then implemented `export_parseq_onnx.py` and `evaluate_parseq_onnx.py`.
+- Verified PARSeq unit tests: `pixi run python -m unittest tests.test_parseq_integration -v` passed 4 tests.
+- Exported PARSeq to `exported_candidates/parseq.onnx` plus external data file `exported_candidates/parseq.onnx.data`.
+- Added direct PARSeq support to `run_candidate_evaluation.py`, then verified integrated report:
+  `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.json`
+  and `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.txt`.

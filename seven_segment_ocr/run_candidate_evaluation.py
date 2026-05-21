@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any
 
 from dequantize_onnx import convert_integer_ops_to_float
+from evaluate_parseq_onnx import evaluate_parseq_onnx
 from ocr_model_eval import (
     SCHEMA_VERSION,
     evaluate_imported_predictions,
@@ -182,6 +183,36 @@ def run_candidate_evaluation(
                         batch_size=batch_size,
                     )
                 )
+            elif adapter == "torch_export_then_onnx":
+                if local_path is None or not local_path.exists():
+                    results.append(
+                        _pending_result(
+                            candidate_id,
+                            adapter,
+                            f"Torch-exported ONNX model missing: {candidate.get('local_path')}",
+                        )
+                    )
+                    continue
+                metadata_path = _resolve_path(candidate.get("metadata_path"))
+                if metadata_path is None or not metadata_path.exists():
+                    results.append(
+                        _pending_result(
+                            candidate_id,
+                            adapter,
+                            f"Torch-exported metadata missing: {candidate.get('metadata_path')}",
+                        )
+                    )
+                    continue
+                predictions_output = output.parent / f"{candidate_id}_predictions.json"
+                evaluate_parseq_onnx(
+                    model_id=candidate_id,
+                    onnx_path=local_path,
+                    dataset=dataset,
+                    output=predictions_output,
+                    metadata_path=metadata_path,
+                    limit=limit,
+                )
+                results.append(evaluate_imported_predictions(selected_samples, predictions_output))
             elif adapter == "official_runtime_prediction_import":
                 prediction_path = _prediction_import_for_candidate(candidate, prediction_imports)
                 if prediction_path is None or not prediction_path.exists():

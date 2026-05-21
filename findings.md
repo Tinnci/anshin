@@ -12,3 +12,8 @@
 - Desktop CPU batch evaluation completed with 10 runnable/imported candidates, 2 pending candidates, and 0 errors.
 - The best current CPU/accuracy tradeoff is still `light_svtr_exported`: 2.64 MB, 670k params, 3.55 ms mean, 281.36 samples/sec, 79.17% exact.
 - General OCR pretrained models without seven-segment adaptation are poor baselines on this benchmark: PP-OCR/SVTR family tops out at 28.33% exact, TrOCR base at 10.83% exact.
+- Official PARSeq usage uses `torch.hub.load("baudm/parseq", "parseq", pretrained=True).eval()` and `model.tokenizer.decode(pred)` for decoding. Non-autoregressive evaluation is exposed through `decode_ar=false` and `refine_iters` controls in the official project examples.
+- Local PARSeq checkpoint `exported_candidates/parseq/parseq-bb5792a6.pt` is a raw `OrderedDict` state_dict. It should be loaded into the inner `model.model`, not into the Lightning wrapper.
+- PARSeq Torch Hub exposes `parseq(pretrained=False, decode_ar=False, refine_iters=0)`. The inner `model.model` stores `decode_ar` and `refine_iters`.
+- PARSeq ONNX export uses external data: `parseq.onnx` plus `parseq.onnx.data`. Capacity accounting must include the sibling `.data` file.
+- PARSeq direct CPU result on the 120-sample benchmark: 92.35 MB, 23,832,702 params, 78.83 ms mean, 12.69 samples/sec, 19.17% exact, 50.82% CER, 57.97% digit accuracy.

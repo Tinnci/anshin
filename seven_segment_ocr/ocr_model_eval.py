@@ -158,9 +158,13 @@ def load_labeled_dataset(dataset_dir: str | Path) -> list[LabeledSample]:
 
 def measure_model_file(model_path: str | Path) -> dict[str, int | str | None]:
     path = Path(model_path)
+    model_bytes = path.stat().st_size
+    external_data_path = Path(str(path) + ".data")
+    if external_data_path.exists():
+        model_bytes += external_data_path.stat().st_size
     info: dict[str, int | str | None] = {
         "format": path.suffix.lstrip(".").lower() or "unknown",
-        "model_bytes": path.stat().st_size,
+        "model_bytes": model_bytes,
         "parameter_count": None,
     }
     if path.suffix.lower() == ".onnx":
@@ -471,6 +475,7 @@ def evaluate_imported_predictions(
         backend=str(payload.get("backend", "imported")),
         capacity=capacity,
         rows=rows,
+        throughput=payload.get("throughput") if isinstance(payload.get("throughput"), dict) else None,
     )
 
 
