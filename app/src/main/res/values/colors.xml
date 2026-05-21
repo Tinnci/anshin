@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- Launcher / icon colors — single source of truth for all icon assets -->
-    <color name="ic_launcher_background">#FF1B6391</color>   <!-- 品牌蓝 -->
+    <color name="ic_launcher_background">#FFF7EBD8</color>
 
-    <!-- Splash screen background matches brand blue for seamless launch experience -->
-    <color name="splash_background">#FF1B6391</color>
+    <color name="splash_background">#FFF7EBD8</color>
 </resources>
