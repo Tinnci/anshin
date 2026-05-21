@@ -61,21 +61,25 @@ try:
 except ModuleNotFoundError:
     # `kaggle kernels push -p kaggle_domain_adaptation_kernel` uploads this
     # folder only. Fetch the shared training modules from the repository unless
-    # the user attached the full repo as a Kaggle dataset.
+    # the user attached the full repo as a Kaggle dataset. Kaggle mounts the
+    # uploaded source directory read-only, so downloaded modules must go under
+    # `/kaggle/working`.
     import urllib.request
 
+    module_dir = Path(os.getenv("MEDLOG_MODULE_DIR", "/kaggle/working/medlog_ocr_modules"))
+    module_dir.mkdir(parents=True, exist_ok=True)
     raw_base = os.getenv(
         "MEDLOG_RAW_BASE",
         "https://raw.githubusercontent.com/Tinnci/anshin/master/seven_segment_ocr",
     )
     for module_name in ["generate_data.py", "light_svtr.py"]:
-        target = SCRIPT_DIR / module_name
+        target = module_dir / module_name
         if not target.exists():
             url = f"{raw_base}/{module_name}"
             print(f"downloading {url}")
             urllib.request.urlretrieve(url, target)
-    if str(SCRIPT_DIR) not in sys.path:
-        sys.path.insert(0, str(SCRIPT_DIR))
+    if str(module_dir) not in sys.path:
+        sys.path.insert(0, str(module_dir))
     from generate_data import generate_sequence_dataset  # type: ignore  # noqa: E402
     from light_svtr import LightSVTR, export_onnx  # type: ignore  # noqa: E402
 
