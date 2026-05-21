@@ -252,6 +252,7 @@ def export_onnx(
         },
         opset_version=opset_version,
         do_constant_folding=True,
+        dynamo=False,
     )
     print(f"✓ ONNX exported to {output_path}")
 

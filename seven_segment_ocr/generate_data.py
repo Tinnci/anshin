@@ -1011,6 +1011,86 @@ def partial_occlusion(img: Image.Image, max_rects: int = 3) -> Image.Image:
     return img
 
 
+def add_lcd_scanlines(img: Image.Image) -> Image.Image:
+    """加入 LCD/相机采样产生的横向扫描纹和轻微摩尔纹。"""
+    arr = np.array(img.convert("RGB"), dtype=np.float32)
+    h, w = arr.shape[:2]
+    period = random.uniform(3.0, 9.0)
+    phase = random.uniform(0, math.pi * 2)
+    yy = np.arange(h, dtype=np.float32).reshape(-1, 1)
+    xx = np.arange(w, dtype=np.float32).reshape(1, -1)
+    horizontal = np.sin(yy / period + phase) * random.uniform(3.0, 14.0)
+    diagonal = np.sin((xx + yy * random.uniform(0.15, 0.45)) / random.uniform(8.0, 18.0)) * random.uniform(1.0, 6.0)
+    arr += (horizontal + diagonal)[:, :, None]
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+
+
+def add_uneven_backlight(img: Image.Image) -> Image.Image:
+    """模拟 LCD 背光/反射不均：局部变暗、变亮、偏色。"""
+    arr = np.array(img.convert("RGB"), dtype=np.float32)
+    h, w = arr.shape[:2]
+    noise = _perlin_noise_2d((h, w), scale=max(12, min(w, h) // 2))
+    gain = 0.70 + noise * random.uniform(0.35, 0.75)
+    tint = np.array(
+        [
+            random.uniform(0.92, 1.08),
+            random.uniform(0.92, 1.10),
+            random.uniform(0.90, 1.12),
+        ],
+        dtype=np.float32,
+    )
+    arr = arr * gain[:, :, None] * tint
+    return Image.fromarray(np.clip(arr, 0, 255).astype(np.uint8))
+
+
+def add_glass_glare_band(img: Image.Image) -> Image.Image:
+    """模拟玻璃面板上斜向高光带。"""
+    base = img.convert("RGB")
+    w, h = base.size
+    overlay = Image.new("RGB", (w, h), (0, 0, 0))
+    mask = Image.new("L", (w, h), 0)
+    draw = ImageDraw.Draw(mask)
+    band_w = random.randint(max(4, w // 12), max(6, w // 4))
+    x = random.randint(-band_w, w)
+    slope = random.uniform(-0.8, 0.8)
+    points = [
+        (x, 0),
+        (x + band_w, 0),
+        (int(x + band_w + slope * h), h),
+        (int(x + slope * h), h),
+    ]
+    draw.polygon(points, fill=random.randint(45, 130))
+    mask = mask.filter(ImageFilter.GaussianBlur(radius=random.uniform(2.0, 8.0)))
+    glare_color = (
+        random.randint(210, 255),
+        random.randint(210, 255),
+        random.randint(210, 255),
+    )
+    overlay.paste(glare_color, (0, 0, w, h))
+    return Image.composite(overlay, base, mask)
+
+
+def add_segment_wear(img: Image.Image) -> Image.Image:
+    """模拟七段管局部断笔、污渍、弱段显示。"""
+    img = img.copy()
+    draw = ImageDraw.Draw(img)
+    w, h = img.size
+    bg = img.getpixel((0, 0))
+    for _ in range(random.randint(1, 5)):
+        rect_w = random.randint(max(1, w // 60), max(2, w // 18))
+        rect_h = random.randint(max(1, h // 45), max(2, h // 14))
+        x = random.randint(0, max(0, w - rect_w))
+        y = random.randint(0, max(0, h - rect_h))
+        if random.random() < 0.55:
+            fill = tuple(int(c * random.uniform(0.75, 1.05)) for c in bg)
+        else:
+            fill = tuple(random.randint(60, 190) for _ in range(3))
+        draw.rounded_rectangle([x, y, x + rect_w, y + rect_h], radius=1, fill=fill)
+    if random.random() < 0.5:
+        img = img.filter(ImageFilter.GaussianBlur(random.uniform(0.2, 0.8)))
+    return img
+
+
 def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
     """对图片应用随机增强变换。"""
     if difficulty == "easy":
@@ -1021,6 +1101,39 @@ def augment_image(img: Image.Image, difficulty: str = "normal") -> Image.Image:
             img = add_noise(img, random.uniform(0.01, 0.03))
         if random.random() < 0.1:
             img = add_ghosting(img, 0.08)
+        return img
+
+    if difficulty in ("real", "real_world"):
+        if random.random() < 0.65:
+            img = add_uneven_backlight(img)
+        if random.random() < 0.70:
+            img = add_lcd_scanlines(img)
+        if random.random() < 0.55:
+            img = add_glass_glare_band(img)
+        if random.random() < 0.45:
+            img = add_segment_wear(img)
+        if random.random() < 0.45:
+            img = perspective_transform(img, random.uniform(0.08, 0.24))
+        if random.random() < 0.55:
+            img = adjust_brightness_contrast(
+                img, random.uniform(0.55, 1.15), random.uniform(0.35, 0.85)
+            )
+        if random.random() < 0.35:
+            img = add_reflection(img, random.uniform(0.25, 0.55))
+        if random.random() < 0.35:
+            img = add_motion_blur(img)
+        if random.random() < 0.30:
+            img = add_cast_shadow(img)
+        if random.random() < 0.25:
+            img = add_jpeg_artifacts(img, random.randint(10, 35))
+        if random.random() < 0.25:
+            img = add_noise(img, random.uniform(0.04, 0.14))
+        if random.random() < 0.18:
+            img = add_smudge(img)
+        if random.random() < 0.14:
+            img = partial_occlusion(img, max_rects=2)
+        if random.random() < 0.60:
+            img = random_rotate(img, max_angle=12.0)
         return img
 
     if difficulty == "hard":
@@ -1172,6 +1285,7 @@ def generate_sequence_dataset(
     output_dir: Path,
     num_samples: int = 5000,
     max_digits: int = 6,
+    real_world_ratio: float = 0.25,
 ) -> None:
     """生成多数字序列数据集 (用于 CRNN + CTC 训练)。
 
@@ -1281,9 +1395,13 @@ def generate_sequence_dataset(
             scale = random.uniform(1.3, 2.5)
             img = embed_with_margin(img, scale)
 
-        # 难度分布: 15% easy, 30% normal, 55% hard
+        # 难度分布: 默认额外加入 25% real_world 域随机化，覆盖真实 LCD 摄影失真。
         r = random.random()
-        difficulty = "easy" if r < 0.15 else ("normal" if r < 0.45 else "hard")
+        if r < real_world_ratio:
+            difficulty = "real_world"
+        else:
+            rr = random.random()
+            difficulty = "easy" if rr < 0.15 else ("normal" if rr < 0.45 else "hard")
         img = augment_image(img, difficulty)
 
         # 调整高度为 64，保持宽高比
@@ -1390,6 +1508,12 @@ def main():
         help="序列数据: 总样本数 (默认: 8000)",
     )
     parser.add_argument("--seed", type=int, default=42, help="随机种子")
+    parser.add_argument(
+        "--real-world-ratio",
+        type=float,
+        default=0.25,
+        help="序列数据中使用 real_world 增强的比例 (默认: 0.25)",
+    )
 
     args = parser.parse_args()
     random.seed(args.seed)
@@ -1410,6 +1534,7 @@ def main():
     generate_sequence_dataset(
         output_dir / "sequence",
         num_samples=args.sequences,
+        real_world_ratio=args.real_world_ratio,
     )
 
     print("\n✅ 数据生成完成!")

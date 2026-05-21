@@ -32,6 +32,7 @@ python_vector_converter/.venv/
 python_vector_converter/__pycache__/
 seven_segment_ocr/.pixi/
 seven_segment_ocr/__pycache__/
+seven_segment_ocr/**/__pycache__/
 seven_segment_ocr/kaggle_kernel/__pycache__/
 seven_segment_ocr/test_*.py
 seven_segment_ocr/dataset/

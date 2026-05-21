@@ -1,20 +1,20 @@
 # 七段数码管 OCR 模型 & LCD 检测器
 
-轻量级 CRNN (Convolutional Recurrent Neural Network) 模型,专门用于识别血压计、体温计等医疗设备的七段数码管（7-segment LCD）显示数字。配合 YOLOv11-nano 检测器在复杂照片中定位 LCD 区域。
+轻量级 LightSVTR (CNN + SVTR Attention + CTC) 模型,专门用于识别血压计、体温计等医疗设备的七段数码管（7-segment LCD）显示数字。配合 YOLOv11-nano 检测器在复杂照片中定位 LCD 区域。
 
 ## 模型信息
 
-### CRNN 七段管识别模型
+### LightSVTR 七段管识别模型
 
 | 项目 | 值 |
 |---|---|
-| 架构 | LightCRNN: 5×DSConv + BiLSTM(64) + FC |
-| 参数量 | 79,743 (311 KB FP32) |
-| 输入 | 灰度图 `[1, 1, 64, 256]` |
-| 输出 | CTC logits `[16, 1, 15]` |
-| 字符集 | `0-9 / . 空格 -` (14字符 + blank) |
+| 架构 | LightSVTR: CNN backbone + 3× TransformerEncoder + CTC |
+| 参数量 | ~638K |
+| 输入 | 灰度图 `[1, 1, 128, 256]` |
+| 输出 | CTC logits `[T, 1, 16]` |
+| 字符集 | `0-9 / . 空格 - \n` (15字符 + blank) |
 | 格式 | ONNX (opset 17) |
-| 推理速度 | ~1.2 ms/张 (CPU) |
+| Android 部署 | ONNX Runtime Android |
 
 ### YOLOv11-nano LCD 检测模型
 
@@ -67,7 +67,7 @@ pixi run export
 
 ### Kaggle GPU 训练（推荐）
 
-#### CRNN 七段管识别
+#### LightSVTR 七段管识别
 
 `kaggle_kernel/kaggle_train.py` 是自包含脚本,包含数据生成+模型定义+训练+ONNX导出:
 
@@ -77,7 +77,40 @@ pixi run kaggle kernels push -p .
 pixi run kaggle kernels output tiiann/seven-segment-ocr-training -p ../kaggle_output/
 ```
 
-v3 模型在 Tesla P100 上训练 80 epochs 约 6 分钟。
+GPU 训练适合快速迭代合成数据分布；TPU 对本流程收益不明显，且 XLA 调试成本更高。
+
+#### 真实域后训练 / Domain Adaptation
+
+`kaggle_domain_adaptation_kernel/kaggle_domain_adaptation.py` 用于真实世界后训练:
+
+```bash
+cd kaggle_domain_adaptation_kernel
+pixi run kaggle kernels push -p .
+pixi run kaggle kernels output tiiann/seven-segment-ocr-domain-adaptation -p ../kaggle_domain_output/
+```
+
+推荐在 Kaggle 绑定一个真实 LCD 数据集:
+
+```
+labels.csv
+images/
+  sample_001.jpg
+```
+
+`labels.csv`:
+
+```csv
+filename,label,split
+sample_001.jpg,138/88,train
+sample_002.jpg,97.2,val
+```
+
+该脚本会:
+
+1. 读取真实标注数据,没有 `split` 时用稳定 hash 分 train/val/test。
+2. 生成带 `real_world` 增强的合成样本,覆盖扫描纹、背光不均、玻璃眩光、局部段缺失、压缩和运动模糊。
+3. 输出 PaddleOCR SimpleDataSet 文件,用于可选的 `PP-OCRv5_mobile_rec` teacher fine-tune。
+4. 训练 Android 端可部署的 LightSVTR student,导出 `svtr_seven_seg_domain.onnx`。
 
 #### YOLOv11-nano LCD 检测
 
@@ -102,6 +135,7 @@ v3 模型（修复 gradient 背景 bug）在 P100 上训练 100 epochs 约 100 �
 - **噪声**: 高斯噪声、椒盐噪声、JPEG 压缩伪影
 - **光照**: 亮度/对比度变化、色偏、反射高光
 - **遮挡**: 部分遮挡、边框
+- **真实 LCD 失真**: 扫描纹、背光不均、玻璃眩光、段缺失/污渍、压缩与运动模糊
 
 ### YOLO 检测数据
 
@@ -117,18 +151,22 @@ v3 模型（修复 gradient 背景 bug）在 P100 上训练 100 epochs 约 100 �
 
 ```
 seven_segment_ocr/
-├── generate_data.py              # CRNN 合成数据生成器 (含纹理背景、增强)
+├── generate_data.py              # LightSVTR/CTC 合成数据生成器 (含纹理背景、增强)
 ├── generate_detection_data.py    # YOLO 检测数据生成器 (场景合成)
 ├── train.py                      # 本地 CRNN 训练脚本
 ├── export_tflite.py              # ONNX 模型导出
 ├── benchmark.py                  # 模型对比基准测试
 ├── pixi.toml                     # Python 环境配置
 ├── exported/
-│   ├── crnn_seven_seg.onnx       # CRNN ONNX 模型 (316 KB)
+│   ├── svtr_seven_seg.onnx       # LightSVTR ONNX 模型
+│   ├── crnn_seven_seg.onnx       # 旧版 CRNN ONNX 模型
 │   ├── lcd_detector.onnx         # YOLOv11-nano FP32 (10.1 MB)
 │   └── lcd_detector_int8.onnx    # YOLOv11-nano INT8 量化 (2.87 MB)
 ├── kaggle_kernel/
-│   ├── kaggle_train.py           # Kaggle CRNN 训练脚本 (自包含)
+│   ├── kaggle_train.py           # Kaggle LightSVTR/CRNN 训练脚本 (自包含)
+│   └── kernel-metadata.json
+├── kaggle_domain_adaptation_kernel/
+│   ├── kaggle_domain_adaptation.py # Kaggle 真实域后训练 + PP-OCR 数据导出
 │   └── kernel-metadata.json
 └── kaggle_detection_kernel/
     ├── kaggle_detection_train.py # Kaggle 检测训练脚本 (自包含)
