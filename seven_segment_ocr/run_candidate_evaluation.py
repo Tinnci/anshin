@@ -183,6 +183,27 @@ def run_candidate_evaluation(
                         batch_size=batch_size,
                     )
                 )
+            elif adapter == "torch_ctc_onnx":
+                if local_path is None or not local_path.exists():
+                    results.append(
+                        _pending_result(
+                            candidate_id,
+                            adapter,
+                            f"Torch CTC ONNX model missing: {candidate.get('local_path')}",
+                        )
+                    )
+                    continue
+                results.append(
+                    evaluate_onnx_model(
+                        candidate_id,
+                        local_path,
+                        selected_samples,
+                        limit=None,
+                        warmup=warmup,
+                        adapter="torch_ctc_onnx",
+                        batch_size=batch_size,
+                    )
+                )
             elif adapter == "torch_export_then_onnx":
                 if local_path is None or not local_path.exists():
                     results.append(

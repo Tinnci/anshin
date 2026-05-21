@@ -16,6 +16,7 @@ class DownloadAndExportCandidatesTest(unittest.TestCase):
         self.assertIn("repsvtr", ids)
         self.assertIn("svtrv2_server", ids)
         self.assertIn("parseq", ids)
+        self.assertIn("fastvit_t8_ctc", ids)
         self.assertIn("trocr_small_printed", ids)
         self.assertIn("mlkit_text_recognition_bundled", ids)
 

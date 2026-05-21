@@ -16,3 +16,8 @@
 - Added direct PARSeq support to `run_candidate_evaluation.py`, then verified integrated report:
   `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.json`
   and `/tmp/medlog_bare_benchmark/candidate_results_cpu_batch_parseq_direct.txt`.
+- Implemented FastViT-T8 CTC candidate with multi-scale feature fusion, two-stage training, ONNX export metadata, and `torch_ctc_onnx` runner support.
+- Ran FastViT no-pretrained CPU smoke train/export:
+  `/tmp/fastvit_ctc_smoke/fastvit_t8_ctc.onnx`.
+- Ran FastViT smoke candidate evaluation:
+  `/tmp/fastvit_ctc_smoke/results.json` and `/tmp/fastvit_ctc_smoke/results.txt`.

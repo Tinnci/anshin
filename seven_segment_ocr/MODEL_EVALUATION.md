@@ -148,6 +148,7 @@ The plan covers:
 - LightSVTR exported and Kaggle domain artifacts.
 - PaddleOCR PP-OCRv5 mobile/server, RepSVTR, and SVTRv2 via Paddle2ONNX/PaddleX.
 - PARSeq via a PyTorch checkpoint export path.
+- Apple FastViT-T8 via timm ImageNet-1K weights and a CTC fine-tuning head.
 - TrOCR small/base via Hugging Face Optimum ONNX export.
 - Google ML Kit via official Android runtime prediction import.
 
@@ -158,6 +159,7 @@ The authoritative download routes currently used are:
 - PaddleOCR/PaddleX: official inference model archives from `paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/`.
 - TrOCR: Hugging Face Hub repositories `microsoft/trocr-small-printed` and `microsoft/trocr-base-printed`.
 - PARSeq: official Torch Hub entrypoint `torch.hub.load("baudm/parseq", "parseq", pretrained=True)`.
+- FastViT-T8: timm model `fastvit_t8.apple_in1k`, mirrored on Hugging Face as `timm/fastvit_t8.apple_in1k`.
 - ML Kit: Android Gradle/Maven SDK artifacts only; evaluate via official runtime prediction import.
 
 Local artifact status:
@@ -170,6 +172,7 @@ Local artifact status:
 | `repsvtr` | Yes | Yes | `exported_candidates/repsvtr.onnx` |
 | `svtrv2_server` | Yes | Yes | `exported_candidates/svtrv2_server.onnx` |
 | `parseq` | Yes | Yes | `exported_candidates/parseq.onnx` + `exported_candidates/parseq.onnx.data` |
+| `fastvit_t8_ctc` | Via timm | Pending full fine-tune | `exported_candidates/fastvit_t8_ctc/fastvit_t8_ctc.onnx` |
 | `trocr_small_printed` | Yes | Yes | `exported_candidates/trocr_small_printed_onnx` |
 | `trocr_base_printed` | Yes | Yes | `exported_candidates/trocr_base_printed_onnx` |
 
@@ -192,6 +195,31 @@ pixi run python export_parseq_onnx.py \
 
 The exported PARSeq model uses ONNX external data, so keep
 `parseq.onnx.data` beside `parseq.onnx`.
+
+FastViT-T8 uses a two-stage CTC fine-tuning flow. The implementation fuses all
+FastViT feature stages into a 64-step horizontal sequence, then applies a
+lightweight CTC head:
+
+```bash
+pixi run python train_fastvit_ctc.py \
+  --dataset /tmp/medlog_bare_benchmark \
+  --output-dir exported_candidates/fastvit_t8_ctc \
+  --stage1-epochs 3 \
+  --stage2-epochs 12 \
+  --batch-size 16
+```
+
+For a CPU smoke run that avoids downloading pretrained weights:
+
+```bash
+pixi run python train_fastvit_ctc.py \
+  --dataset /tmp/medlog_bare_benchmark \
+  --output-dir /tmp/fastvit_ctc_smoke \
+  --stage1-epochs 1 \
+  --stage2-epochs 0 \
+  --batch-size 4 \
+  --no-pretrained
+```
 
 Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 

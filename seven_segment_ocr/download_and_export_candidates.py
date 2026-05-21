@@ -104,6 +104,14 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
                 "command": "python <parseq-export-script> --checkpoint <parseq-checkpoint> --output exported_candidates/parseq.onnx",
             },
             {
+                "id": "fastvit_t8_ctc",
+                "family": "Apple FastViT",
+                "status": "needs_two_stage_finetune",
+                "onnx_path": str(output_dir / "fastvit_t8_ctc" / "fastvit_t8_ctc.onnx"),
+                "source": "timm/fastvit_t8.apple_in1k",
+                "command": "python train_fastvit_ctc.py --dataset /tmp/medlog_bare_benchmark --output-dir exported_candidates/fastvit_t8_ctc",
+            },
+            {
                 "id": "trocr_small_printed",
                 "family": "TrOCR",
                 "status": "needs_huggingface_optimum_export",

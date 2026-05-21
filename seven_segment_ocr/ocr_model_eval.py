@@ -195,6 +195,8 @@ def _preprocess_for_onnx(
             height = int(paddle_image_shape[1])
             width = int(paddle_image_shape[2])
         return _preprocess_for_paddleocr(image_path, height=height, width=width, channels=channels)
+    if adapter == "torch_ctc_onnx" and channels == 3:
+        return _preprocess_for_rgb_ctc(image_path, height=height, width=width)
 
     gray = ImageOps.exif_transpose(Image.open(image_path)).convert("L")
     ratio = height / max(1, gray.height)
@@ -204,6 +206,20 @@ def _preprocess_for_onnx(
     padded.paste(gray, (0, 0))
     arr = np.asarray(padded, dtype=np.float32) / 255.0
     return arr.reshape(1, 1, height, width)
+
+
+def _preprocess_for_rgb_ctc(image_path: Path, *, height: int, width: int) -> np.ndarray:
+    image = ImageOps.exif_transpose(Image.open(image_path)).convert("RGB")
+    ratio = height / max(1, image.height)
+    new_width = max(1, min(width, int(round(image.width * ratio))))
+    image = image.resize((new_width, height), Image.Resampling.BILINEAR)
+    padded = Image.new("RGB", (width, height), (0, 0, 0))
+    padded.paste(image, (0, 0))
+    arr = np.asarray(padded, dtype=np.float32) / 255.0
+    chw = arr.transpose(2, 0, 1)
+    mean = np.asarray([0.485, 0.456, 0.406], dtype=np.float32).reshape(3, 1, 1)
+    std = np.asarray([0.229, 0.224, 0.225], dtype=np.float32).reshape(3, 1, 1)
+    return ((chw - mean) / std).reshape(1, 3, height, width).astype(np.float32)
 
 
 def _preprocess_for_paddleocr(
@@ -645,7 +661,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--onnx-adapter",
         default="seven_segment_ctc",
-        choices=["seven_segment_ctc", "paddleocr_ctc"],
+        choices=["seven_segment_ctc", "paddleocr_ctc", "torch_ctc_onnx"],
         help="Decoder/preprocess adapter for --onnx-model entries.",
     )
     parser.add_argument("--metadata-path", default=None, help="PaddleOCR inference.yml path")

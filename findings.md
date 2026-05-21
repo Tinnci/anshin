@@ -17,3 +17,7 @@
 - PARSeq Torch Hub exposes `parseq(pretrained=False, decode_ar=False, refine_iters=0)`. The inner `model.model` stores `decode_ar` and `refine_iters`.
 - PARSeq ONNX export uses external data: `parseq.onnx` plus `parseq.onnx.data`. Capacity accounting must include the sibling `.data` file.
 - PARSeq direct CPU result on the 120-sample benchmark: 92.35 MB, 23,832,702 params, 78.83 ms mean, 12.69 samples/sec, 19.17% exact, 50.82% CER, 57.97% digit accuracy.
+- timm exposes `fastvit_t8.apple_in1k` and `fastvit_t8.apple_dist_in1k`; HF also lists `timm/fastvit_t8.apple_in1k`.
+- FastViT `features_only=True` returns four stages on 128x256 input: `[48,32,64]`, `[96,16,32]`, `[192,8,16]`, `[384,4,8]` in `[B,C,H,W]` shape.
+- A single early FastViT stage preserves OCR time resolution but prunes most backbone params during ONNX export. Multi-scale fusion across all stages keeps 64 time steps and includes the full T8 backbone.
+- No official Google `SigLIP-Nano 15M` checkpoint was found in HF/timm discovery; keep SigLIP out of executable candidates until a concrete repo id is selected.

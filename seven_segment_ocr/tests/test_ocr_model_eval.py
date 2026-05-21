@@ -10,6 +10,7 @@ from PIL import Image
 
 from ocr_model_eval import (
     _load_paddleocr_metadata,
+    _preprocess_for_onnx,
     _select_ctc_sample_logits,
     ctc_decode,
     evaluate_imported_predictions,
@@ -123,6 +124,20 @@ PostProcess:
 
         self.assertEqual(metadata["character_dict"], ["0", "1"])
         self.assertEqual(metadata["image_shape"], [3, 48, 320])
+
+    def test_preprocess_torch_ctc_onnx_uses_rgb_imagenet_normalization(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            image_path = Path(tmp) / "rgb.png"
+            Image.new("RGB", (8, 4), (255, 128, 0)).save(image_path)
+
+            tensor = _preprocess_for_onnx(
+                image_path,
+                ["batch", 3, 128, 256],
+                adapter="torch_ctc_onnx",
+            )
+
+        self.assertEqual(tensor.shape, (1, 3, 128, 256))
+        self.assertAlmostEqual(float(tensor[0, 0, 0, 0]), (1.0 - 0.485) / 0.229, places=5)
 
     def test_measure_model_file_counts_onnx_initializers(self):
         with tempfile.TemporaryDirectory() as tmp:

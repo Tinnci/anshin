@@ -82,6 +82,15 @@
       "metadata_path": "exported_candidates/parseq_metadata.json"
     },
     {
+      "id": "fastvit_t8_ctc",
+      "family": "Apple FastViT",
+      "license_surface": "open_model",
+      "preferred_adapter": "torch_ctc_onnx",
+      "source_path": "timm/fastvit_t8.apple_in1k",
+      "local_path": "exported_candidates/fastvit_t8_ctc/fastvit_t8_ctc.onnx",
+      "metadata_path": "exported_candidates/fastvit_t8_ctc/fastvit_t8_ctc_metadata.json"
+    },
+    {
       "id": "trocr_small_printed",
       "family": "TrOCR",
       "license_surface": "open_model",

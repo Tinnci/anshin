@@ -60,6 +60,12 @@ class RunCandidateEvaluationTest(unittest.TestCase):
                                 "metadata_path": str(root / "parseq_metadata.json"),
                             },
                             {
+                                "id": "ready_torch_ctc",
+                                "preferred_adapter": "torch_ctc_onnx",
+                                "local_path": str(ready_model),
+                                "metadata_path": str(root / "torch_ctc_metadata.json"),
+                            },
+                            {
                                 "id": "mlkit",
                                 "preferred_adapter": "official_runtime_prediction_import",
                                 "onnx_supported": False,
@@ -77,6 +83,10 @@ class RunCandidateEvaluationTest(unittest.TestCase):
             )
             (root / "parseq_metadata.json").write_text(
                 json.dumps({"tokens": ["[E]", "1"]}),
+                encoding="utf-8",
+            )
+            (root / "torch_ctc_metadata.json").write_text(
+                json.dumps({"adapter": "torch_ctc_onnx"}),
                 encoding="utf-8",
             )
 
@@ -150,6 +160,7 @@ class RunCandidateEvaluationTest(unittest.TestCase):
         self.assertEqual(statuses["derived"], "ok")
         self.assertEqual(statuses["ready_paddle"], "ok")
         self.assertEqual(statuses["ready_parseq"], "ok")
+        self.assertEqual(statuses["ready_torch_ctc"], "ok")
         self.assertEqual(statuses["missing_open"], "pending")
         self.assertEqual(statuses["mlkit"], "pending")
         self.assertIn("PENDING", table_text)
