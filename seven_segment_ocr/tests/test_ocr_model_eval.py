@@ -9,13 +9,18 @@ from onnx import TensorProto, helper
 from PIL import Image
 
 from ocr_model_eval import (
+    _load_paddleocr_metadata,
+    _select_ctc_sample_logits,
+    ctc_decode,
     evaluate_imported_predictions,
     format_results_table,
     load_labeled_dataset,
     main,
     measure_model_file,
     normalize_text,
+    paddleocr_ctc_decode,
     summarize_text_metrics,
+    summarize_throughput,
 )
 
 
@@ -50,6 +55,74 @@ class OcrModelEvalTest(unittest.TestCase):
         self.assertGreater(metrics["cer"], 0)
         self.assertLess(metrics["digit_accuracy"], 1)
         self.assertEqual(normalize_text("  120  80\n"), "120 80")
+
+    def test_paddleocr_ctc_decode_uses_character_dict_with_blank_prefix(self):
+        logits = np.zeros((1, 6, 5), dtype=np.float32)
+        for step, index in enumerate([1, 1, 2, 0, 3, 4]):
+            logits[0, step, index] = 10.0
+
+        text = paddleocr_ctc_decode(logits, ["1", "2", "/", "8"])
+
+        self.assertEqual(text, "12/8")
+
+    def test_summarize_throughput_reports_samples_per_second(self):
+        summary = summarize_throughput(sample_count=8, inference_time_ms=200.0, batch_size=4)
+
+        self.assertEqual(summary["sample_count"], 8)
+        self.assertEqual(summary["batch_size"], 4)
+        self.assertAlmostEqual(summary["samples_per_second"], 40.0)
+
+    def test_select_ctc_sample_logits_preserves_time_first_layout(self):
+        logits = np.zeros((5, 2, 4), dtype=np.float32)
+        logits[:, 1, 3] = np.arange(5, dtype=np.float32)
+
+        selected = _select_ctc_sample_logits(
+            logits,
+            sample_index=1,
+            batch_count=2,
+            adapter="seven_segment_ctc",
+        )
+
+        self.assertEqual(selected.shape, (5, 1, 4))
+        np.testing.assert_array_equal(selected[:, 0, 3], np.arange(5, dtype=np.float32))
+
+    def test_select_ctc_sample_logits_uses_batch_first_for_paddleocr(self):
+        logits = np.zeros((2, 5, 4), dtype=np.float32)
+        logits[1, :, 2] = np.arange(5, dtype=np.float32)
+
+        selected = _select_ctc_sample_logits(
+            logits,
+            sample_index=1,
+            batch_count=2,
+            adapter="paddleocr_ctc",
+        )
+
+        self.assertEqual(selected.shape, (1, 5, 4))
+        np.testing.assert_array_equal(selected[0, :, 2], np.arange(5, dtype=np.float32))
+
+    def test_load_paddleocr_metadata_reads_character_dict_and_image_shape(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            metadata_path = Path(tmp) / "inference.yml"
+            metadata_path.write_text(
+                """
+PreProcess:
+  transform_ops:
+    - DecodeImage:
+        channel_first: false
+    - RecResizeImg:
+        image_shape: [3, 48, 320]
+PostProcess:
+  character_dict:
+    - "0"
+    - "1"
+""",
+                encoding="utf-8",
+            )
+
+            metadata = _load_paddleocr_metadata(metadata_path)
+
+        self.assertEqual(metadata["character_dict"], ["0", "1"])
+        self.assertEqual(metadata["image_shape"], [3, 48, 320])
 
     def test_measure_model_file_counts_onnx_initializers(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -150,6 +223,7 @@ class OcrModelEvalTest(unittest.TestCase):
                     "backend": "onnxruntime",
                     "capacity": {"model_bytes": 1024 * 1024, "parameter_count": 12345},
                     "latency_ms": {"mean": 1.25, "p50": 1.1, "p95": 2.0},
+                    "throughput": {"samples_per_second": 800.0},
                     "metrics": {"exact": 0.5, "cer": 0.1, "digit_accuracy": 0.75},
                 },
                 {
@@ -167,6 +241,7 @@ class OcrModelEvalTest(unittest.TestCase):
         self.assertIn("tiny", table)
         self.assertIn("1.00 MB", table)
         self.assertIn("12,345", table)
+        self.assertIn("800.00/s", table)
         self.assertIn("50.00%", table)
         self.assertIn("ERROR", table)
 

@@ -33,7 +33,8 @@
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
       "expected_size_mb": 16,
-      "local_path": "exported_candidates/ppocrv5_mobile_rec/PP-OCRv5_mobile_rec_infer"
+      "local_path": "exported_candidates/ppocrv5_mobile_rec.onnx",
+      "metadata_path": "exported_candidates/ppocrv5_mobile_rec/PP-OCRv5_mobile_rec_infer/inference.yml"
     },
     {
       "id": "en_ppocrv5_mobile_rec",
@@ -41,7 +42,8 @@
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
       "expected_size_mb": 7.5,
-      "local_path": "exported_candidates/en_ppocrv5_mobile_rec/en_PP-OCRv4_mobile_rec_infer"
+      "local_path": "exported_candidates/en_ppocrv5_mobile_rec.onnx",
+      "metadata_path": "exported_candidates/en_ppocrv5_mobile_rec/en_PP-OCRv4_mobile_rec_infer/inference.yml"
     },
     {
       "id": "ppocrv5_server_rec",
@@ -49,7 +51,8 @@
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
       "expected_size_mb": 81,
-      "local_path": "exported_candidates/ppocrv5_server_rec/PP-OCRv5_server_rec_infer"
+      "local_path": "exported_candidates/ppocrv5_server_rec.onnx",
+      "metadata_path": "exported_candidates/ppocrv5_server_rec/PP-OCRv5_server_rec_infer/inference.yml"
     },
     {
       "id": "repsvtr",
@@ -57,7 +60,8 @@
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
       "expected_size_mb": 48.8,
-      "local_path": "exported_candidates/repsvtr/ch_RepSVTR_rec_infer"
+      "local_path": "exported_candidates/repsvtr.onnx",
+      "metadata_path": "exported_candidates/repsvtr/ch_RepSVTR_rec_infer/inference.yml"
     },
     {
       "id": "svtrv2_server",
@@ -65,7 +69,8 @@
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
       "expected_size_mb": 80.5,
-      "local_path": "exported_candidates/svtrv2_server/ch_SVTRv2_rec_infer"
+      "local_path": "exported_candidates/svtrv2_server.onnx",
+      "metadata_path": "exported_candidates/svtrv2_server/ch_SVTRv2_rec_infer/inference.yml"
     },
     {
       "id": "parseq",

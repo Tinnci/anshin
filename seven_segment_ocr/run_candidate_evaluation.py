@@ -84,6 +84,7 @@ def run_candidate_evaluation(
     table_output: Path | None = None,
     limit: int | None = None,
     warmup: int = 2,
+    batch_size: int = 1,
     prediction_imports: dict[str, Path] | None = None,
     force_prepare: bool = True,
 ) -> dict[str, object]:
@@ -147,6 +148,38 @@ def run_candidate_evaluation(
                         selected_samples,
                         limit=None,
                         warmup=warmup,
+                    )
+                )
+            elif adapter == "paddle_export_then_onnx":
+                if local_path is None or not local_path.exists():
+                    results.append(
+                        _pending_result(
+                            candidate_id,
+                            adapter,
+                            f"Paddle ONNX model missing: {candidate.get('local_path')}",
+                        )
+                    )
+                    continue
+                metadata_path = _resolve_path(candidate.get("metadata_path"))
+                if metadata_path is None or not metadata_path.exists():
+                    results.append(
+                        _pending_result(
+                            candidate_id,
+                            adapter,
+                            f"Paddle metadata missing: {candidate.get('metadata_path')}",
+                        )
+                    )
+                    continue
+                results.append(
+                    evaluate_onnx_model(
+                        candidate_id,
+                        local_path,
+                        selected_samples,
+                        limit=None,
+                        warmup=warmup,
+                        adapter="paddleocr_ctc",
+                        metadata_path=metadata_path,
+                        batch_size=batch_size,
                     )
                 )
             elif adapter == "official_runtime_prediction_import":
@@ -217,6 +250,7 @@ def build_arg_parser() -> argparse.ArgumentParser:
     parser.add_argument("--table-output", default=None)
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--warmup", type=int, default=2)
+    parser.add_argument("--batch-size", type=int, default=1)
     parser.add_argument(
         "--import-predictions",
         action="append",
@@ -238,6 +272,7 @@ def main(argv: list[str] | None = None) -> int:
         table_output=table_output,
         limit=args.limit,
         warmup=args.warmup,
+        batch_size=args.batch_size,
         prediction_imports=_parse_prediction_imports(args.import_predictions),
     )
     if args.print_table:

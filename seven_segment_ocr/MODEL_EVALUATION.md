@@ -173,11 +173,11 @@ Local artifact status:
 | `trocr_small_printed` | Yes | Yes | `exported_candidates/trocr_small_printed_onnx` |
 | `trocr_base_printed` | Yes | Yes | `exported_candidates/trocr_base_printed_onnx` |
 
-Paddle conversion is blocked on this machine because the PyPI `paddle2onnx`
-native extension installed for Python 3.12 is `arm64`, while this pixi
-environment is `osx-64`; loading the extension fails before conversion starts.
-The downloaded Paddle static inference artifacts should be converted in a
-Linux x86_64/Kaggle job or an arm64 Python environment.
+Paddle conversion originally failed on this Intel macOS machine because the
+PyPI `paddle2onnx` macOS wheel was tagged `universal2` but contained an
+arm64-only native extension. The local x86_64 wheel build described above fixes
+that blocker, and the Paddle candidates have been converted to ONNX under
+`exported_candidates/`.
 
 Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 
@@ -213,6 +213,42 @@ pixi run python run_candidate_evaluation.py \
   --table-output /tmp/medlog_bare_benchmark/candidate_results.txt \
   --print-table
 ```
+
+For desktop CPU throughput evaluation, use a batch size for dynamic-batch
+PaddleOCR models and import existing TrOCR prediction files:
+
+```bash
+pixi run python run_candidate_evaluation.py \
+  --dataset /tmp/medlog_bare_benchmark \
+  --candidate-config model_candidates.json \
+  --output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.json \
+  --table-output /tmp/medlog_bare_benchmark/candidate_results_cpu_batch_with_trocr.txt \
+  --batch-size 8 \
+  --warmup 2 \
+  --import-predictions trocr_small_printed:/tmp/medlog_bare_benchmark/trocr_small_predictions.json \
+  --import-predictions trocr_base_printed:/tmp/medlog_bare_benchmark/trocr_base_predictions.json \
+  --print-table
+```
+
+Current desktop CPU batch result on `/tmp/medlog_bare_benchmark`, 120 synthetic
+samples:
+
+| Model | Backend | Size | Params | Mean latency | Throughput | Exact | CER | Digit accuracy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `light_svtr_exported` | ONNX Runtime CTC | 2.64 MB | 670,384 | 3.55 ms | 281.36/s | 79.17% | 7.29% | 92.31% |
+| `app_dequant_svtr` | ONNX Runtime CTC | 2.70 MB | 670,404 | 5.43 ms | 184.30/s | 78.33% | 7.47% | 92.31% |
+| `light_svtr_kaggle_domain` | ONNX Runtime CTC | 2.64 MB | 670,384 | 3.74 ms | 267.61/s | 65.00% | 14.75% | 84.89% |
+| `ppocrv5_mobile_rec` | PaddleOCR CTC ONNX | 15.80 MB | 4,113,247 | 51.15 ms | 19.55/s | 10.00% | 74.13% | 29.79% |
+| `en_ppocrv5_mobile_rec` | PaddleOCR CTC ONNX | 7.35 MB | 1,900,399 | 69.96 ms | 14.29/s | 21.67% | 51.91% | 54.27% |
+| `ppocrv5_server_rec` | PaddleOCR CTC ONNX | 80.59 MB | 21,094,619 | 1423.65 ms | 0.70/s | 17.50% | 56.83% | 49.47% |
+| `repsvtr` | PaddleOCR CTC ONNX | 24.20 MB | 6,314,309 | 32.16 ms | 31.10/s | 19.17% | 52.64% | 54.32% |
+| `svtrv2_server` | PaddleOCR CTC ONNX | 80.30 MB | 20,986,236 | 152.65 ms | 6.55/s | 28.33% | 42.44% | 64.41% |
+| `trocr_small_printed` | Imported Optimum ONNX prediction | 234.82 MB | 61,447,552 | 356.94 ms | 2.80/s | 2.50% | 106.19% | 13.62% |
+| `trocr_base_printed` | Imported Optimum ONNX prediction | 1468.56 MB | 384,802,560 | 1665.23 ms | 0.60/s | 10.83% | 78.51% | 31.20% |
+
+`parseq` still needs a dedicated adapter. `mlkit_text_recognition_bundled`
+still needs an official Android runtime prediction JSON; it is a closed SDK and
+is intentionally not converted to ONNX.
 
 If an official-runtime baseline exists, pass it explicitly:
 

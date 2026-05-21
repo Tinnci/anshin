@@ -15,10 +15,11 @@ import time
 from dataclasses import dataclass
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Iterable
+from typing import Iterable, Sequence
 
 import numpy as np
 from PIL import Image, ImageOps
+import yaml
 
 
 CHARSET = "0123456789/. -\n"
@@ -110,6 +111,24 @@ def summarize_latencies(latencies_ms: Iterable[float | None]) -> dict[str, float
     }
 
 
+def summarize_throughput(
+    *,
+    sample_count: int,
+    inference_time_ms: float | None,
+    batch_size: int,
+) -> dict[str, float | int | None]:
+    if not inference_time_ms or inference_time_ms <= 0 or sample_count <= 0:
+        samples_per_second = None
+    else:
+        samples_per_second = sample_count / (inference_time_ms / 1000.0)
+    return {
+        "sample_count": sample_count,
+        "batch_size": batch_size,
+        "inference_time_ms": inference_time_ms,
+        "samples_per_second": samples_per_second,
+    }
+
+
 def load_labeled_dataset(dataset_dir: str | Path) -> list[LabeledSample]:
     root = Path(dataset_dir)
     csv_path = root / "sequences.csv"
@@ -156,9 +175,23 @@ def measure_model_file(model_path: str | Path) -> dict[str, int | str | None]:
     return info
 
 
-def _preprocess_for_onnx(image_path: Path, input_shape: list[object]) -> np.ndarray:
+def _preprocess_for_onnx(
+    image_path: Path,
+    input_shape: list[object],
+    *,
+    adapter: str = "seven_segment_ctc",
+    paddle_image_shape: Sequence[int] | None = None,
+) -> np.ndarray:
     height = _shape_dim(input_shape, 2, 128)
     width = _shape_dim(input_shape, 3, 256)
+    channels = _shape_dim(input_shape, 1, 1)
+    if adapter.startswith("paddleocr"):
+        if paddle_image_shape:
+            channels = int(paddle_image_shape[0])
+            height = int(paddle_image_shape[1])
+            width = int(paddle_image_shape[2])
+        return _preprocess_for_paddleocr(image_path, height=height, width=width, channels=channels)
+
     gray = ImageOps.exif_transpose(Image.open(image_path)).convert("L")
     ratio = height / max(1, gray.height)
     new_width = max(1, min(width, int(round(gray.width * ratio))))
@@ -167,6 +200,28 @@ def _preprocess_for_onnx(image_path: Path, input_shape: list[object]) -> np.ndar
     padded.paste(gray, (0, 0))
     arr = np.asarray(padded, dtype=np.float32) / 255.0
     return arr.reshape(1, 1, height, width)
+
+
+def _preprocess_for_paddleocr(
+    image_path: Path,
+    *,
+    height: int,
+    width: int,
+    channels: int,
+) -> np.ndarray:
+    image = ImageOps.exif_transpose(Image.open(image_path)).convert("RGB")
+    ratio = image.width / max(1, image.height)
+    resized_width = min(width, max(1, int(np.ceil(height * ratio))))
+    image = image.resize((resized_width, height), Image.Resampling.BICUBIC)
+    arr = np.asarray(image, dtype=np.float32)
+    if channels == 3:
+        arr = arr.transpose(2, 0, 1)
+    else:
+        arr = np.asarray(image.convert("L"), dtype=np.float32).reshape(1, height, resized_width)
+    arr = (arr / 255.0 - 0.5) / 0.5
+    padded = np.zeros((channels, height, width), dtype=np.float32)
+    padded[:, :, :resized_width] = arr
+    return padded.reshape(1, channels, height, width)
 
 
 def _shape_dim(shape: list[object], index: int, default: int) -> int:
@@ -200,6 +255,24 @@ def ctc_decode(logits: np.ndarray, charset: str = CHARSET) -> str:
     return postprocess_ctc("".join(chars))
 
 
+def paddleocr_ctc_decode(logits: np.ndarray, character_dict: Sequence[str]) -> str:
+    if logits.ndim == 3:
+        logits = logits[0]
+    if logits.ndim != 2:
+        raise ValueError(f"expected 2D or 3D CTC logits, got shape {logits.shape}")
+    indices = np.argmax(logits, axis=1)
+    chars: list[str] = []
+    prev = -1
+    for raw_idx in indices:
+        idx = int(raw_idx)
+        if idx != 0 and idx != prev:
+            char_idx = idx - 1
+            if 0 <= char_idx < len(character_dict):
+                chars.append(str(character_dict[char_idx]))
+        prev = idx
+    return postprocess_ctc("".join(chars))
+
+
 def postprocess_ctc(text: str) -> str:
     text = normalize_text(text)
     while "//" in text or ".." in text or "--" in text:
@@ -215,6 +288,9 @@ def evaluate_onnx_model(
     limit: int | None = None,
     warmup: int = 2,
     providers: list[str] | None = None,
+    adapter: str = "seven_segment_ctc",
+    metadata_path: str | Path | None = None,
+    batch_size: int = 1,
 ) -> dict[str, object]:
     import onnxruntime as ort
 
@@ -226,33 +302,131 @@ def evaluate_onnx_model(
     input_meta = session.get_inputs()[0]
     input_name = input_meta.name
     input_shape = list(input_meta.shape)
+    paddle_metadata = _load_paddleocr_metadata(metadata_path) if adapter.startswith("paddleocr") else None
+    character_dict = paddle_metadata["character_dict"] if paddle_metadata else None
+    paddle_image_shape = paddle_metadata["image_shape"] if paddle_metadata else None
+    effective_batch_size = _effective_batch_size(input_shape, batch_size)
 
     for sample in selected[:warmup]:
-        tensor = _preprocess_for_onnx(sample.image_path, input_shape)
+        tensor = _preprocess_for_onnx(
+            sample.image_path,
+            input_shape,
+            adapter=adapter,
+            paddle_image_shape=paddle_image_shape,
+        )
         session.run(None, {input_name: tensor})
 
     rows = []
-    for sample in selected:
-        tensor = _preprocess_for_onnx(sample.image_path, input_shape)
+    total_inference_ms = 0.0
+    for batch_start in range(0, len(selected), effective_batch_size):
+        batch_samples = selected[batch_start : batch_start + effective_batch_size]
+        tensors = [
+            _preprocess_for_onnx(
+                sample.image_path,
+                input_shape,
+                adapter=adapter,
+                paddle_image_shape=paddle_image_shape,
+            )
+            for sample in batch_samples
+        ]
+        tensor = np.concatenate(tensors, axis=0)
         start = time.perf_counter()
         outputs = session.run(None, {input_name: tensor})
         latency_ms = (time.perf_counter() - start) * 1000.0
-        prediction = ctc_decode(np.asarray(outputs[0]))
-        rows.append(
-            {
-                "filename": sample.filename,
-                "truth": sample.label,
-                "prediction": prediction,
-                "latency_ms": latency_ms,
-            }
-        )
+        total_inference_ms += latency_ms
+        output = np.asarray(outputs[0])
+        per_sample_latency = latency_ms / max(1, len(batch_samples))
+        for index, sample in enumerate(batch_samples):
+            sample_logits = _select_ctc_sample_logits(
+                output,
+                sample_index=index,
+                batch_count=len(batch_samples),
+                adapter=adapter,
+            )
+            if character_dict is not None:
+                prediction = paddleocr_ctc_decode(sample_logits, character_dict)
+            else:
+                prediction = ctc_decode(sample_logits)
+            rows.append(
+                {
+                    "filename": sample.filename,
+                    "truth": sample.label,
+                    "prediction": prediction,
+                    "latency_ms": per_sample_latency,
+                }
+            )
 
     return _build_model_result(
         model_id=model_id,
-        backend="onnxruntime",
+        backend=f"onnxruntime:{adapter}",
         capacity=measure_model_file(model_path),
         rows=rows,
+        throughput=summarize_throughput(
+            sample_count=len(rows),
+            inference_time_ms=total_inference_ms,
+            batch_size=effective_batch_size,
+        ),
     )
+
+
+def _load_paddleocr_metadata(metadata_path: str | Path | None) -> dict[str, list[str] | list[int]]:
+    if metadata_path is None:
+        raise ValueError("metadata_path is required for PaddleOCR ONNX evaluation")
+    path = Path(metadata_path)
+    payload = yaml.safe_load(path.read_text(encoding="utf-8"))
+    postprocess = payload.get("PostProcess", {}) if isinstance(payload, dict) else {}
+    character_dict = postprocess.get("character_dict")
+    if not isinstance(character_dict, list):
+        raise ValueError(f"{path} does not contain PostProcess.character_dict")
+    image_shape = _paddleocr_image_shape(payload)
+    return {
+        "character_dict": [str(value) for value in character_dict],
+        "image_shape": image_shape,
+    }
+
+
+def _paddleocr_image_shape(payload: object) -> list[int]:
+    preprocess = payload.get("PreProcess", {}) if isinstance(payload, dict) else {}
+    transform_ops = preprocess.get("transform_ops", [])
+    if isinstance(transform_ops, list):
+        for transform in transform_ops:
+            if not isinstance(transform, dict):
+                continue
+            resize = transform.get("RecResizeImg")
+            if not isinstance(resize, dict):
+                continue
+            image_shape = resize.get("image_shape")
+            if (
+                isinstance(image_shape, list)
+                and len(image_shape) == 3
+                and all(isinstance(value, int) and value > 0 for value in image_shape)
+            ):
+                return [int(value) for value in image_shape]
+    return [3, 48, 320]
+
+
+def _select_ctc_sample_logits(
+    output: np.ndarray,
+    *,
+    sample_index: int,
+    batch_count: int,
+    adapter: str,
+) -> np.ndarray:
+    if output.ndim != 3:
+        return output
+    if adapter.startswith("paddleocr"):
+        return output[sample_index : sample_index + 1]
+    if output.shape[1] >= batch_count:
+        return output[:, sample_index : sample_index + 1, :]
+    return output[sample_index : sample_index + 1]
+
+
+def _effective_batch_size(input_shape: list[object], requested_batch_size: int) -> int:
+    requested = max(1, int(requested_batch_size))
+    batch_dim = input_shape[0] if input_shape else 1
+    if isinstance(batch_dim, int) and batch_dim > 0:
+        return min(requested, batch_dim)
+    return requested
 
 
 def evaluate_imported_predictions(
@@ -306,6 +480,7 @@ def _build_model_result(
     backend: str,
     capacity: dict[str, object],
     rows: list[dict[str, object]],
+    throughput: dict[str, object] | None = None,
 ) -> dict[str, object]:
     pairs = [(str(row["truth"]), str(row["prediction"])) for row in rows]
     return {
@@ -313,6 +488,16 @@ def _build_model_result(
         "backend": backend,
         "capacity": capacity,
         "latency_ms": summarize_latencies(row.get("latency_ms") for row in rows),
+        "throughput": throughput
+        or summarize_throughput(
+            sample_count=len(rows),
+            inference_time_ms=sum(
+                float(row["latency_ms"]) for row in rows if row.get("latency_ms") is not None
+            )
+            if rows
+            else None,
+            batch_size=1,
+        ),
         "metrics": summarize_text_metrics(pairs),
         "samples": rows,
     }
@@ -352,6 +537,7 @@ def format_results_table(results: list[dict[str, object]]) -> str:
         "params",
         "mean",
         "p95",
+        "throughput",
         "exact",
         "cer",
         "digit",
@@ -361,6 +547,7 @@ def format_results_table(results: list[dict[str, object]]) -> str:
         capacity = result.get("capacity", {})
         latency = result.get("latency_ms", {})
         metrics = result.get("metrics", {})
+        throughput = result.get("throughput", {})
         status = str(result.get("status", "ok"))
         if status == "error":
             status = "ERROR"
@@ -375,6 +562,7 @@ def format_results_table(results: list[dict[str, object]]) -> str:
                 _format_int(_mapping_get(capacity, "parameter_count")),
                 _format_ms(_mapping_get(latency, "mean")),
                 _format_ms(_mapping_get(latency, "p95")),
+                _format_throughput(_mapping_get(throughput, "samples_per_second")),
                 _format_percent(_mapping_get(metrics, "exact")),
                 _format_percent(_mapping_get(metrics, "cer")),
                 _format_percent(_mapping_get(metrics, "digit_accuracy")),
@@ -412,6 +600,10 @@ def _format_ms(value: object) -> str:
     return "n/a" if value is None else f"{float(value):.2f} ms"
 
 
+def _format_throughput(value: object) -> str:
+    return "n/a" if value is None else f"{float(value):.2f}/s"
+
+
 def _format_percent(value: object) -> str:
     return "n/a" if value is None else f"{float(value) * 100:.2f}%"
 
@@ -444,6 +636,14 @@ def build_arg_parser() -> argparse.ArgumentParser:
     )
     parser.add_argument("--limit", type=int, default=None)
     parser.add_argument("--warmup", type=int, default=2)
+    parser.add_argument("--batch-size", type=int, default=1)
+    parser.add_argument(
+        "--onnx-adapter",
+        default="seven_segment_ctc",
+        choices=["seven_segment_ctc", "paddleocr_ctc"],
+        help="Decoder/preprocess adapter for --onnx-model entries.",
+    )
+    parser.add_argument("--metadata-path", default=None, help="PaddleOCR inference.yml path")
     parser.add_argument("--table-output", default=None, help="Optional plain text summary table path")
     parser.add_argument("--print-table", action="store_true", help="Print the summary table to stdout")
     return parser
@@ -464,6 +664,9 @@ def main(argv: list[str] | None = None) -> int:
                     samples,
                     limit=args.limit,
                     warmup=args.warmup,
+                    adapter=args.onnx_adapter,
+                    metadata_path=args.metadata_path,
+                    batch_size=args.batch_size,
                 )
             )
         except Exception as exc:

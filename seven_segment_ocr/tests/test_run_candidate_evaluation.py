@@ -48,6 +48,12 @@ class RunCandidateEvaluationTest(unittest.TestCase):
                                 "preferred_adapter": "paddle_export_then_onnx",
                             },
                             {
+                                "id": "ready_paddle",
+                                "preferred_adapter": "paddle_export_then_onnx",
+                                "local_path": str(ready_model),
+                                "metadata_path": str(root / "inference.yml"),
+                            },
+                            {
                                 "id": "mlkit",
                                 "preferred_adapter": "official_runtime_prediction_import",
                                 "onnx_supported": False,
@@ -59,6 +65,10 @@ class RunCandidateEvaluationTest(unittest.TestCase):
             )
             output = root / "results.json"
             table = root / "results.txt"
+            (root / "inference.yml").write_text(
+                "PostProcess:\n  character_dict:\n    - '1'\n",
+                encoding="utf-8",
+            )
 
             def fake_convert(_src, dst):
                 Path(dst).write_bytes(b"converted")
@@ -108,6 +118,7 @@ class RunCandidateEvaluationTest(unittest.TestCase):
         self.assertEqual(exit_code, 0)
         self.assertEqual(statuses["ready"], "ok")
         self.assertEqual(statuses["derived"], "ok")
+        self.assertEqual(statuses["ready_paddle"], "ok")
         self.assertEqual(statuses["missing_open"], "pending")
         self.assertEqual(statuses["mlkit"], "pending")
         self.assertIn("PENDING", table_text)
