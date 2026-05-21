@@ -43,6 +43,7 @@ import subprocess
 import sys
 from dataclasses import dataclass
 from pathlib import Path
+from typing import TextIO
 
 import numpy as np
 import torch
@@ -54,51 +55,57 @@ from torch.utils.data import DataLoader, Dataset
 
 SCRIPT_DIR = Path(__file__).resolve().parent
 PROJECT_DIR = SCRIPT_DIR.parent
-if str(PROJECT_DIR) not in sys.path:
-    sys.path.insert(0, str(PROJECT_DIR))
-
-try:
-    from generate_data import generate_sequence_dataset  # type: ignore  # noqa: E402
-    from light_svtr import LightSVTR, export_onnx  # type: ignore  # noqa: E402
-except ModuleNotFoundError:
-    # `kaggle kernels push -p kaggle_domain_adaptation_kernel` uploads this
-    # folder only. Fetch the shared training modules from the repository unless
-    # the user attached the full repo as a Kaggle dataset. Kaggle mounts the
-    # uploaded source directory read-only, so downloaded modules must go under
-    # `/kaggle/working`.
-    import urllib.request
-
-    module_dir = Path(os.getenv("MEDLOG_MODULE_DIR", "/kaggle/working/medlog_ocr_modules"))
-    module_dir.mkdir(parents=True, exist_ok=True)
-    raw_base = os.getenv(
-        "MEDLOG_RAW_BASE",
-        "https://raw.githubusercontent.com/Tinnci/anshin/master/seven_segment_ocr",
-    )
-    for module_name in ["generate_data.py", "light_svtr.py"]:
-        target = module_dir / module_name
-        if not target.exists():
-            url = f"{raw_base}/{module_name}"
-            print(f"downloading {url}")
-            urllib.request.urlretrieve(url, target)
-    if str(module_dir) not in sys.path:
-        sys.path.insert(0, str(module_dir))
-    from generate_data import generate_sequence_dataset  # type: ignore  # noqa: E402
-    from light_svtr import LightSVTR, export_onnx  # type: ignore  # noqa: E402
+DEFAULT_OUTPUT_DIR = Path("/kaggle/working/domain_adaptation")
+MIN_CUDA_CAPABILITY = (7, 0)
+_RUN_LOG_FILE: TextIO | None = None
+_STARTUP_OUTPUT_DIR: Path | None = None
+_STARTUP_RUNTIME_INFO: dict | None = None
 
 
-CHARS = "0123456789/. -\n"
-BLANK = 0
-CHAR_TO_IDX = {ch: i + 1 for i, ch in enumerate(CHARS)}
-IDX_TO_CHAR = {i + 1: ch for i, ch in enumerate(CHARS)}
-NUM_CLASSES = len(CHARS) + 1
+class TeeStream:
+    def __init__(self, primary: TextIO, log_file: TextIO):
+        self.primary = primary
+        self.log_file = log_file
+
+    def write(self, text: str) -> int:
+        written = self.primary.write(text)
+        self.log_file.write(text)
+        return written
+
+    def flush(self) -> None:
+        self.primary.flush()
+        self.log_file.flush()
+
+    def isatty(self) -> bool:
+        return self.primary.isatty()
+
+    def fileno(self) -> int:
+        return self.primary.fileno()
+
+    def __getattr__(self, name: str):
+        return getattr(self.primary, name)
 
 
-@dataclass(frozen=True)
-class Sample:
-    image_path: Path
-    label: str
-    split: str
-    source: str
+def make_tee_streams(
+    stdout: TextIO,
+    stderr: TextIO,
+    log_file: TextIO,
+) -> tuple[TeeStream, TeeStream]:
+    return TeeStream(stdout, log_file), TeeStream(stderr, log_file)
+
+
+def parse_early_output_dir(argv: list[str]) -> Path:
+    for i, arg in enumerate(argv):
+        if arg == "--output-dir" and i + 1 < len(argv):
+            return Path(argv[i + 1])
+        if arg.startswith("--output-dir="):
+            return Path(arg.split("=", 1)[1])
+    return DEFAULT_OUTPUT_DIR
+
+
+def write_json(path: Path, payload: dict) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
 
 
 def collect_runtime_info() -> dict:
@@ -151,9 +158,127 @@ def collect_runtime_info() -> dict:
     return info
 
 
-def write_json(path: Path, payload: dict) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(payload, ensure_ascii=False, indent=2))
+def write_startup_artifacts(
+    output_dir: Path,
+    runtime_info: dict | None = None,
+    install_tee: bool = True,
+) -> Path:
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_log = output_dir / "run.log"
+    if install_tee:
+        install_run_log_tee(output_dir)
+    else:
+        run_log.touch(exist_ok=True)
+
+    runtime = runtime_info if runtime_info is not None else collect_runtime_info()
+    write_json(output_dir / "runtime_report.json", runtime)
+    if install_tee:
+        print("runtime:", json.dumps(runtime, ensure_ascii=False, indent=2), flush=True)
+    return run_log
+
+
+def install_run_log_tee(output_dir: Path) -> Path:
+    global _RUN_LOG_FILE
+    output_dir.mkdir(parents=True, exist_ok=True)
+    run_log = output_dir / "run.log"
+    if getattr(sys.stdout, "_medlog_run_log_path", None) == run_log:
+        return run_log
+
+    _RUN_LOG_FILE = run_log.open("a", encoding="utf-8", buffering=1)
+    tee_stdout, tee_stderr = make_tee_streams(sys.stdout, sys.stderr, _RUN_LOG_FILE)
+    tee_stdout._medlog_run_log_path = run_log
+    tee_stderr._medlog_run_log_path = run_log
+    sys.stdout = tee_stdout
+    sys.stderr = tee_stderr
+    print(f"run log: {run_log}", flush=True)
+    return run_log
+
+
+def find_unsupported_cuda_devices(runtime_info: dict) -> list[dict]:
+    if not runtime_info.get("cuda_available"):
+        return []
+    unsupported = []
+    for device in runtime_info.get("gpu_devices", []):
+        capability = tuple(device.get("capability") or ())
+        if capability and capability < MIN_CUDA_CAPABILITY:
+            unsupported.append(device)
+    return unsupported
+
+
+def assert_runtime_supported(runtime_info: dict) -> None:
+    unsupported = find_unsupported_cuda_devices(runtime_info)
+    if not unsupported:
+        return
+    devices = ", ".join(
+        f"{device.get('name', 'unknown')} sm_{device.get('capability', ['?', '?'])[0]}"
+        f"{device.get('capability', ['?', '?'])[1]}"
+        for device in unsupported
+    )
+    raise RuntimeError(
+        "Current Kaggle PyTorch/CUDA runtime does not support these GPU architectures: "
+        f"{devices}. Use a T4/L4/A100/H100 runtime, for example "
+        "`kaggle kernels push -p kaggle_domain_adaptation_kernel --accelerator NvidiaTeslaT4`."
+    )
+
+
+if __name__ == "__main__":
+    try:
+        _STARTUP_OUTPUT_DIR = parse_early_output_dir(sys.argv[1:])
+        _STARTUP_RUNTIME_INFO = collect_runtime_info()
+        write_startup_artifacts(
+            _STARTUP_OUTPUT_DIR,
+            runtime_info=_STARTUP_RUNTIME_INFO,
+            install_tee=True,
+        )
+    except Exception as exc:
+        print(f"failed to initialize startup artifacts: {type(exc).__name__}: {exc}", file=sys.stderr)
+
+
+if str(PROJECT_DIR) not in sys.path:
+    sys.path.insert(0, str(PROJECT_DIR))
+
+try:
+    from generate_data import generate_sequence_dataset  # type: ignore  # noqa: E402
+    from light_svtr import LightSVTR, export_onnx  # type: ignore  # noqa: E402
+except ModuleNotFoundError:
+    # `kaggle kernels push -p kaggle_domain_adaptation_kernel` uploads this
+    # folder only. Fetch the shared training modules from the repository unless
+    # the user attached the full repo as a Kaggle dataset. Kaggle mounts the
+    # uploaded source directory read-only, so downloaded modules must go under
+    # `/kaggle/working`.
+    import urllib.request
+
+    module_dir = Path(os.getenv("MEDLOG_MODULE_DIR", "/kaggle/working/medlog_ocr_modules"))
+    module_dir.mkdir(parents=True, exist_ok=True)
+    raw_base = os.getenv(
+        "MEDLOG_RAW_BASE",
+        "https://raw.githubusercontent.com/Tinnci/anshin/master/seven_segment_ocr",
+    )
+    for module_name in ["generate_data.py", "light_svtr.py"]:
+        target = module_dir / module_name
+        if not target.exists():
+            url = f"{raw_base}/{module_name}"
+            print(f"downloading {url}")
+            urllib.request.urlretrieve(url, target)
+    if str(module_dir) not in sys.path:
+        sys.path.insert(0, str(module_dir))
+    from generate_data import generate_sequence_dataset  # type: ignore  # noqa: E402
+    from light_svtr import LightSVTR, export_onnx  # type: ignore  # noqa: E402
+
+
+CHARS = "0123456789/. -\n"
+BLANK = 0
+CHAR_TO_IDX = {ch: i + 1 for i, ch in enumerate(CHARS)}
+IDX_TO_CHAR = {i + 1: ch for i, ch in enumerate(CHARS)}
+NUM_CLASSES = len(CHARS) + 1
+
+
+@dataclass(frozen=True)
+class Sample:
+    image_path: Path
+    label: str
+    split: str
+    source: str
 
 
 def clean_label(label: str) -> str:
@@ -584,9 +709,13 @@ def main() -> None:
 
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
-    runtime_info = collect_runtime_info()
-    write_json(output_dir / "runtime_report.json", runtime_info)
-    print("runtime:", json.dumps(runtime_info, ensure_ascii=False, indent=2))
+    if _STARTUP_OUTPUT_DIR == output_dir and _STARTUP_RUNTIME_INFO is not None:
+        runtime_info = _STARTUP_RUNTIME_INFO
+    else:
+        runtime_info = collect_runtime_info()
+        write_json(output_dir / "runtime_report.json", runtime_info)
+        print("runtime:", json.dumps(runtime_info, ensure_ascii=False, indent=2))
+    assert_runtime_supported(runtime_info)
 
     samples: list[Sample] = []
     real_root = find_real_dataset()
