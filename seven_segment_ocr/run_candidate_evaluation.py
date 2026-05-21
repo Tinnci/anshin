@@ -98,6 +98,10 @@ def run_candidate_evaluation(
         candidate_id = str(candidate.get("id", "unnamed_candidate"))
         adapter = str(candidate.get("preferred_adapter", "unknown"))
         local_path = _resolve_path(candidate.get("local_path"))
+        prediction_path = prediction_imports.get(candidate_id)
+        if prediction_path and prediction_path.exists():
+            results.append(evaluate_imported_predictions(selected_samples, prediction_path))
+            continue
 
         try:
             if adapter == "dequantize_onnx_then_onnx":

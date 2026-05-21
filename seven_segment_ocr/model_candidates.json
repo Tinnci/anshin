@@ -32,53 +32,63 @@
       "family": "PaddleOCR PP-OCRv5",
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
-      "expected_size_mb": 16
+      "expected_size_mb": 16,
+      "local_path": "exported_candidates/ppocrv5_mobile_rec/PP-OCRv5_mobile_rec_infer"
     },
     {
       "id": "en_ppocrv5_mobile_rec",
       "family": "PaddleOCR PP-OCRv5",
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
-      "expected_size_mb": 7.5
+      "expected_size_mb": 7.5,
+      "local_path": "exported_candidates/en_ppocrv5_mobile_rec/en_PP-OCRv4_mobile_rec_infer"
     },
     {
       "id": "ppocrv5_server_rec",
       "family": "PaddleOCR PP-OCRv5",
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
-      "expected_size_mb": 81
+      "expected_size_mb": 81,
+      "local_path": "exported_candidates/ppocrv5_server_rec/PP-OCRv5_server_rec_infer"
     },
     {
       "id": "repsvtr",
       "family": "RepSVTR",
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
-      "expected_size_mb": 22.1
+      "expected_size_mb": 48.8,
+      "local_path": "exported_candidates/repsvtr/ch_RepSVTR_rec_infer"
     },
     {
       "id": "svtrv2_server",
       "family": "SVTRv2",
       "license_surface": "open_model",
       "preferred_adapter": "paddle_export_then_onnx",
-      "expected_size_mb": 80.5
+      "expected_size_mb": 80.5,
+      "local_path": "exported_candidates/svtrv2_server/ch_SVTRv2_rec_infer"
     },
     {
       "id": "parseq",
       "family": "PARSeq",
       "license_surface": "open_model",
-      "preferred_adapter": "torch_export_then_onnx"
+      "preferred_adapter": "torch_export_then_onnx",
+      "local_path": "exported_candidates/parseq/parseq-bb5792a6.pt"
     },
     {
       "id": "trocr_small_printed",
       "family": "TrOCR",
       "license_surface": "open_model",
-      "preferred_adapter": "hf_export_then_onnx"
+      "preferred_adapter": "hf_export_then_onnx",
+      "local_path": "exported_candidates/trocr_small_printed_onnx",
+      "source_path": "exported_candidates/trocr_small_printed"
     },
     {
       "id": "trocr_base_printed",
       "family": "TrOCR",
       "license_surface": "open_model",
-      "preferred_adapter": "hf_export_then_onnx"
+      "preferred_adapter": "hf_export_then_onnx",
+      "local_path": "exported_candidates/trocr_base_printed_onnx",
+      "source_path": "exported_candidates/trocr_base_printed"
     },
     {
       "id": "mlkit_text_recognition_bundled",

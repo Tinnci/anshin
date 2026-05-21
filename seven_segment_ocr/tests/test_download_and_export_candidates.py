@@ -4,7 +4,7 @@ import unittest
 import unittest.mock
 from pathlib import Path
 
-from download_and_export_candidates import build_export_plan, main
+from download_and_export_candidates import PADDLE_INFERENCE_URLS, build_export_plan, main
 
 
 class DownloadAndExportCandidatesTest(unittest.TestCase):
@@ -57,7 +57,7 @@ class DownloadAndExportCandidatesTest(unittest.TestCase):
         # Test ppocrv5_mobile_rec (Paddle URL)
         download_candidate("ppocrv5_mobile_rec", Path("out"))
         mock_tar_download.assert_called_with(
-            "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar",
+            PADDLE_INFERENCE_URLS["ppocrv5_mobile_rec"],
             Path("out/ppocrv5_mobile_rec")
         )
 
@@ -65,7 +65,7 @@ class DownloadAndExportCandidatesTest(unittest.TestCase):
         mock_tar_download.reset_mock()
         download_candidate("en_ppocrv5_mobile_rec", Path("out"))
         mock_tar_download.assert_called_with(
-            "https://paddleocr.bj.bcebos.com/PP-OCRv4/english/en_PP-OCRv4_rec_infer.tar",
+            PADDLE_INFERENCE_URLS["en_ppocrv5_mobile_rec"],
             Path("out/en_ppocrv5_mobile_rec")
         )
 
@@ -73,8 +73,16 @@ class DownloadAndExportCandidatesTest(unittest.TestCase):
         mock_tar_download.reset_mock()
         download_candidate("svtrv2_server", Path("out"))
         mock_tar_download.assert_called_with(
-            "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar",
+            PADDLE_INFERENCE_URLS["svtrv2_server"],
             Path("out/svtrv2_server")
+        )
+
+        # Test repsvtr (Paddle URL)
+        mock_tar_download.reset_mock()
+        download_candidate("repsvtr", Path("out"))
+        mock_tar_download.assert_called_with(
+            PADDLE_INFERENCE_URLS["repsvtr"],
+            Path("out/repsvtr")
         )
 
 

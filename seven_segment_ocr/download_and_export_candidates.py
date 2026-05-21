@@ -14,6 +14,15 @@ import shutil
 from pathlib import Path
 
 
+PADDLE_INFERENCE_URLS = {
+    "ppocrv5_mobile_rec": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_mobile_rec_infer.tar",
+    "ppocrv5_server_rec": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/PP-OCRv5_server_rec_infer.tar",
+    "en_ppocrv5_mobile_rec": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/en_PP-OCRv4_mobile_rec_infer.tar",
+    "repsvtr": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_RepSVTR_rec_infer.tar",
+    "svtrv2_server": "https://paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/ch_SVTRv2_rec_infer.tar",
+}
+
+
 def build_export_plan(output_dir: Path) -> dict[str, object]:
     output_dir = Path(output_dir)
     return {
@@ -52,6 +61,7 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
                 "family": "PaddleOCR PP-OCRv5",
                 "status": "needs_paddle_static_model_export",
                 "onnx_path": str(output_dir / "ppocrv5_mobile_rec.onnx"),
+                "download_url": PADDLE_INFERENCE_URLS["ppocrv5_mobile_rec"],
                 "command": "paddle2onnx --model_dir <PP-OCRv5_mobile_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/ppocrv5_mobile_rec.onnx --opset_version 11 --enable_onnx_checker True",
             },
             {
@@ -59,13 +69,15 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
                 "family": "PaddleOCR PP-OCRv5",
                 "status": "needs_paddle_static_model_export",
                 "onnx_path": str(output_dir / "en_ppocrv5_mobile_rec.onnx"),
-                "command": "paddle2onnx --model_dir <en_PP-OCRv5_mobile_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/en_ppocrv5_mobile_rec.onnx --opset_version 11 --enable_onnx_checker True",
+                "download_url": PADDLE_INFERENCE_URLS["en_ppocrv5_mobile_rec"],
+                "command": "paddle2onnx --model_dir <en_PP-OCRv4_mobile_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/en_ppocrv5_mobile_rec.onnx --opset_version 11 --enable_onnx_checker True",
             },
             {
                 "id": "ppocrv5_server_rec",
                 "family": "PaddleOCR PP-OCRv5",
                 "status": "needs_paddle_static_model_export",
                 "onnx_path": str(output_dir / "ppocrv5_server_rec.onnx"),
+                "download_url": PADDLE_INFERENCE_URLS["ppocrv5_server_rec"],
                 "command": "paddle2onnx --model_dir <PP-OCRv5_server_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/ppocrv5_server_rec.onnx --opset_version 11 --enable_onnx_checker True",
             },
             {
@@ -73,14 +85,16 @@ def build_export_plan(output_dir: Path) -> dict[str, object]:
                 "family": "RepSVTR",
                 "status": "needs_paddle_static_model_export",
                 "onnx_path": str(output_dir / "repsvtr.onnx"),
-                "command": "paddle2onnx --model_dir <RepSVTR_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/repsvtr.onnx --opset_version 11 --enable_onnx_checker True",
+                "download_url": PADDLE_INFERENCE_URLS["repsvtr"],
+                "command": "paddle2onnx --model_dir <ch_RepSVTR_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/repsvtr.onnx --opset_version 11 --enable_onnx_checker True",
             },
             {
                 "id": "svtrv2_server",
                 "family": "SVTRv2",
                 "status": "needs_paddle_static_model_export",
                 "onnx_path": str(output_dir / "svtrv2_server.onnx"),
-                "command": "paddle2onnx --model_dir <SVTRv2_server_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/svtrv2_server.onnx --opset_version 11 --enable_onnx_checker True",
+                "download_url": PADDLE_INFERENCE_URLS["svtrv2_server"],
+                "command": "paddle2onnx --model_dir <ch_SVTRv2_rec_infer> --model_filename inference.pdmodel --params_filename inference.pdiparams --save_file exported_candidates/svtrv2_server.onnx --opset_version 11 --enable_onnx_checker True",
             },
             {
                 "id": "parseq",
@@ -135,9 +149,18 @@ def _download_tar_and_extract(url: str, target_dir: Path):
     urllib.request.urlretrieve(url, tar_path)
     print(f"Extracting {tar_path} into {target_dir}...")
     with tarfile.open(tar_path) as tar:
-        tar.extractall(path=target_dir)
+        _safe_extract_tar(tar, target_dir)
     tar_path.unlink()
     print(f"Extraction complete: {target_dir}")
+
+
+def _safe_extract_tar(tar: tarfile.TarFile, target_dir: Path) -> None:
+    target_root = target_dir.resolve()
+    for member in tar.getmembers():
+        destination = (target_dir / member.name).resolve()
+        if target_root not in [destination, *destination.parents]:
+            raise ValueError(f"Refusing unsafe tar member: {member.name}")
+    tar.extractall(path=target_dir)
 
 
 def download_candidate(candidate_id: str, output_dir: Path, use_modelscope: bool = False):
@@ -152,21 +175,8 @@ def download_candidate(candidate_id: str, output_dir: Path, use_modelscope: bool
     elif candidate_id == "parseq":
         repo_id = "tiiann/parseq-tiny" if use_modelscope else "baudm/parseq-tiny"
         _download_hf_or_ms_repo(repo_id, output_dir / "parseq", use_modelscope)
-    elif candidate_id == "en_ppocrv5_mobile_rec":
-        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/english/en_PP-OCRv4_rec_infer.tar"
-        _download_tar_and_extract(url, output_dir / "en_ppocrv5_mobile_rec")
-    elif candidate_id == "ppocrv5_mobile_rec":
-        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar"
-        _download_tar_and_extract(url, output_dir / "ppocrv5_mobile_rec")
-    elif candidate_id == "ppocrv5_server_rec":
-        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar"
-        _download_tar_and_extract(url, output_dir / "ppocrv5_server_rec")
-    elif candidate_id == "repsvtr":
-        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_infer.tar"
-        _download_tar_and_extract(url, output_dir / "repsvtr")
-    elif candidate_id == "svtrv2_server":
-        url = "https://paddleocr.bj.bcebos.com/PP-OCRv4/chinese/ch_PP-OCRv4_rec_server_infer.tar"
-        _download_tar_and_extract(url, output_dir / "svtrv2_server")
+    elif candidate_id in PADDLE_INFERENCE_URLS:
+        _download_tar_and_extract(PADDLE_INFERENCE_URLS[candidate_id], output_dir / candidate_id)
     else:
         print(f"Manual download required for '{candidate_id}' or not supported for direct download.")
 

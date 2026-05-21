@@ -131,6 +131,41 @@ The plan covers:
 - TrOCR small/base via Hugging Face Optimum ONNX export.
 - Google ML Kit via official Android runtime prediction import.
 
+## External Download And Conversion Status
+
+The authoritative download routes currently used are:
+
+- PaddleOCR/PaddleX: official inference model archives from `paddle-model-ecology.bj.bcebos.com/paddlex/official_inference_model/paddle3.0.0/`.
+- TrOCR: Hugging Face Hub repositories `microsoft/trocr-small-printed` and `microsoft/trocr-base-printed`.
+- PARSeq: official Torch Hub entrypoint `torch.hub.load("baudm/parseq", "parseq", pretrained=True)`.
+- ML Kit: Android Gradle/Maven SDK artifacts only; evaluate via official runtime prediction import.
+
+Local artifact status:
+
+| Candidate | Downloaded | Converted | Local artifact |
+| --- | --- | --- | --- |
+| `ppocrv5_mobile_rec` | Yes | Blocked locally | `exported_candidates/ppocrv5_mobile_rec/PP-OCRv5_mobile_rec_infer` |
+| `en_ppocrv5_mobile_rec` | Yes | Blocked locally | `exported_candidates/en_ppocrv5_mobile_rec/en_PP-OCRv4_mobile_rec_infer` |
+| `ppocrv5_server_rec` | Yes | Blocked locally | `exported_candidates/ppocrv5_server_rec/PP-OCRv5_server_rec_infer` |
+| `repsvtr` | Yes | Blocked locally | `exported_candidates/repsvtr/ch_RepSVTR_rec_infer` |
+| `svtrv2_server` | Yes | Blocked locally | `exported_candidates/svtrv2_server/ch_SVTRv2_rec_infer` |
+| `parseq` | Yes | Pending adapter | `exported_candidates/parseq/parseq-bb5792a6.pt` |
+| `trocr_small_printed` | Yes | Yes | `exported_candidates/trocr_small_printed_onnx` |
+| `trocr_base_printed` | Yes | Yes | `exported_candidates/trocr_base_printed_onnx` |
+
+Paddle conversion is blocked on this machine because the PyPI `paddle2onnx`
+native extension installed for Python 3.12 is `arm64`, while this pixi
+environment is `osx-64`; loading the extension fails before conversion starts.
+The downloaded Paddle static inference artifacts should be converted in a
+Linux x86_64/Kaggle job or an arm64 Python environment.
+
+Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
+
+| Model | Backend | Size | Params | Mean latency | Exact | CER | Digit accuracy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| `trocr_small_printed` | Optimum ONNX Runtime | 234.82 MB | 61,447,552 | 356.94 ms | 2.50% | 106.19% | 13.62% |
+| `trocr_base_printed` | Optimum ONNX Runtime | 1468.56 MB | 384,802,560 | 1665.23 ms | 10.83% | 78.51% | 31.20% |
+
 ## Integrated Candidate Evaluation
 
 Run the full candidate-level evaluation report. The runner evaluates local
