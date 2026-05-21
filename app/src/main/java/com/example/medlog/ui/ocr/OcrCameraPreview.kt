@@ -2,7 +2,6 @@ package com.example.medlog.ui.ocr
 
 import android.annotation.SuppressLint
 import android.util.Log
-import android.view.HapticFeedbackConstants
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -53,6 +52,7 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.example.medlog.R
 import com.example.medlog.ui.components.ViewfinderOverlay
+import com.example.medlog.ui.utils.performConfirmHapticFeedback
 import java.util.concurrent.Executors
 
 private const val TAG = "OcrCameraPreview"
@@ -151,7 +151,7 @@ internal fun OcrCameraPreview(
                 FloatingToolbarDefaults.VibrantFloatingActionButton(
                     onClick = {
                         if (!isProcessing) {
-                            view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                            view.performConfirmHapticFeedback()
                             // 冻结预览帧：捕获当前画面作为静态图
                             frozenBitmap = previewView.bitmap
                             onCaptureRequested()

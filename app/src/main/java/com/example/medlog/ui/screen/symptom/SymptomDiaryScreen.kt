@@ -297,7 +297,7 @@ private fun AddEditDiarySheet(
     onNoteChange: (String) -> Unit,
     onSave: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState()
+    val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,

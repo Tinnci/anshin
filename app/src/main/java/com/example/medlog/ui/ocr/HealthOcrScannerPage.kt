@@ -1,6 +1,5 @@
 package com.example.medlog.ui.ocr
 
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -44,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.data.model.ExtractedNumber
 import com.example.medlog.data.model.HealthType
@@ -52,6 +52,7 @@ import com.example.medlog.data.model.ParsedHealthMetric
 import com.example.medlog.ui.components.AnimatedListItem
 import com.example.medlog.ui.components.CameraPermissionGate
 import com.example.medlog.ui.components.ProcessingOverlay
+import com.example.medlog.ui.utils.performConfirmHapticFeedback
 
 /**
  * 体征数据 OCR 扫描页面：拍照后自动解析血压/心率/血糖等体征指标。
@@ -69,12 +70,12 @@ fun HealthOcrScannerPage(
     viewModel: HealthOcrViewModel = hiltViewModel(),
 ) {
     val motionScheme = MaterialTheme.motionScheme
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val view = LocalView.current
 
     // 包装回调以添加触觉反馈
     val onMetricSelectedWithHaptic: (ParsedHealthMetric) -> Unit = { metric ->
-        view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+        view.performConfirmHapticFeedback()
         onMetricSelected(metric)
     }
 

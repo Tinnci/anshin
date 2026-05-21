@@ -77,7 +77,7 @@ data class AddMedicationUiState(
     val isSaved: Boolean = false,
     val error: String? = null,
     /** 验证错误资源 ID（优先于 error 文本显示） */
-    @StringRes val errorRes: Int? = null,
+    @param:StringRes val errorRes: Int? = null,
     val drugSuggestions: List<Drug> = emptyList(),
     val showDrugSuggestions: Boolean = false,
 )

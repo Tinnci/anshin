@@ -12,7 +12,7 @@
   <a href="https://github.com/Tinnci/anshin/releases/latest">
     <img src="https://img.shields.io/github/v/release/Tinnci/anshin?label=Latest%20Release&color=4CAF50" alt="Latest Release">
   </a>
-  <img src="https://img.shields.io/badge/Kotlin-2.2.10-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
+  <img src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white" alt="Material 3">
   <img src="https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white" alt="Min SDK">
   <img src="https://img.shields.io/badge/License-Apache%202.0-blue" alt="License">
@@ -74,22 +74,22 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 
 | Layer | Technology |
 |-------|-----------|
-| Language | Kotlin 2.2.10 |
-| Build | Gradle 9.3.1 · AGP 9.1.0 · KSP 2.3.6 |
-| UI | Jetpack Compose (BOM 2026.02.00) · Material 3 Expressive 1.5.0-alpha14 |
+| Language | Kotlin 2.3.21 |
+| Build | Gradle 9.3.1 · AGP 9.1.1 · KSP 2.3.8 |
+| UI | Jetpack Compose (BOM 2026.05.01) · Material 3 Expressive 1.5.0-alpha20 |
 | Adaptive Nav | `material3-adaptive-navigation-suite` 1.2.0 |
-| State | Kotlin Coroutines 1.10.2 · StateFlow · `collectAsStateWithLifecycle` |
+| State | Kotlin Coroutines 1.11.0 · StateFlow · `collectAsStateWithLifecycle` |
 | Database | Room 2.8.4 (KSP, 10 migrations) |
-| Preferences | Jetpack DataStore 1.2.0 |
-| DI | Hilt 2.59.1 + HiltViewModel |
-| Background | WorkManager 2.11.1 + AlarmManager (exact) |
-| Navigation | Navigation Compose 2.9.7 (type-safe serialized routes) |
+| Preferences | Jetpack DataStore 1.2.1 |
+| DI | Hilt 2.59.2 + HiltViewModel |
+| Background | WorkManager 2.11.2 + AlarmManager (exact) |
+| Navigation | Navigation Compose 2.9.8 (type-safe serialized routes) |
 | Widgets | Glance 1.1.1 (Compose-based homescreen widgets) |
-| Camera / QR | CameraX 1.4.2 · ML Kit Barcode 17.3.0 · ZXing 3.5.3 |
+| Camera / QR | CameraX 1.6.1 · ML Kit Barcode 17.3.0 · ZXing 3.5.4 |
 | Animation | `Animatable` · Spring/tween physics · `AnimatedVisibility` · `MotionScheme` |
-| Code Quality | ktlint 12.3.0 · Android Lint (zero warnings) · EditorConfig |
-| Testing | JUnit 4 · Mockito-Kotlin 5.2.1 · Turbine 1.2.0 |
-| Min / Target SDK | 26 / 36 |
+| Code Quality | ktlint 12.3.0 · Android Lint · EditorConfig |
+| Testing | JUnit 4 · Mockito-Kotlin 6.3.0 · Turbine 1.2.1 |
+| Min / Target SDK | 26 / 37 |
 
 ---
 
@@ -162,8 +162,8 @@ app/src/main/java/com/example/medlog/
 
 ### Prerequisites
 
-- **JDK 21** (required by Gradle 9.3.1)
-- **Android SDK 36** (build-tools 36.0.0)
+- **JDK 17+** (CI uses JDK 21)
+- **Android SDK 37** (build-tools 37.0.0)
 - **Android Studio** Meerkat 2024.3.2+ (or command-line only)
 
 ### Build
@@ -210,7 +210,7 @@ See [.github/SIGNING.md](.github/SIGNING.md) for full setup.
 ./gradlew lintDebug      # Android Lint (report: app/build/reports/lint-results-debug.html)
 ```
 
-**Current status:** 0 compile warnings · 0 lint errors · 0 lint warnings · all unit tests passing.
+**Current status:** 0 compile errors · 0 lint errors · all unit tests passing. Android Lint currently reports warning-only follow-ups.
 
 ### Pre-commit / Pre-push Hooks
 

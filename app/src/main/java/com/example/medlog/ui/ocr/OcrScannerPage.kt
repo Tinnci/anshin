@@ -1,6 +1,5 @@
 package com.example.medlog.ui.ocr
 
-import android.view.HapticFeedbackConstants
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -27,9 +26,11 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.medlog.R
 import com.example.medlog.ui.components.CameraPermissionGate
 import com.example.medlog.ui.components.ProcessingOverlay
+import com.example.medlog.ui.utils.performConfirmHapticFeedback
 
 /**
  * 通用 OCR 扫描页面：使用 CameraX 拍照 + ML Kit 文字识别。
@@ -47,7 +48,7 @@ fun OcrScannerPage(
     viewModel: OcrScannerViewModel = hiltViewModel(),
 ) {
     val motionScheme = MaterialTheme.motionScheme
-    val state by viewModel.uiState.collectAsState()
+    val state by viewModel.uiState.collectAsStateWithLifecycle()
     val view = LocalView.current
 
     Scaffold(
@@ -121,7 +122,7 @@ fun OcrScannerPage(
                         OcrResultList(
                             texts = state.recognizedTexts,
                             onSelect = { text ->
-                                view.performHapticFeedback(HapticFeedbackConstants.CONFIRM)
+                                view.performConfirmHapticFeedback()
                                 onResult(text.trim())
                             },
                             onRetry = { viewModel.onRetry() },

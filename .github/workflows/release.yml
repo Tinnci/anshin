@@ -71,8 +71,14 @@ jobs:
           fi
 
       # ── 5. 单元测试（发布前最终验证）───────────────────────────
+      - name: Run ktlint
+        run: ./gradlew ktlintCheck
+
       - name: Run unit tests
         run: ./gradlew :app:testDebugUnitTest
+
+      - name: Run Android Lint
+        run: ./gradlew lintDebug
 
       # ── 6. 构建 Release APK ───────────────────────────────────
       - name: Build Release APK

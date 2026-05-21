@@ -152,4 +152,4 @@ seven_segment_ocr/
 - `crnn_seven_seg.onnx` — 七段管识别 (参见 `SevenSegmentRecognizer.kt`)
 - `lcd_detector.onnx` — LCD 区域检测 INT8 量化版 (参见 `LcdDisplayDetector.kt`)
 
-通过 ONNX Runtime Android 1.24.3 加载推理,模型均异步加载以避免阻塞 UI 线程。
+通过 ONNX Runtime Android 1.26.0 加载推理,模型均异步加载以避免阻塞 UI 线程。

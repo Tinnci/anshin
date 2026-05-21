@@ -20,7 +20,6 @@ gradle-app.setting
 !gradle-wrapper.jar
 !gradle-wrapper.properties
 .gradletasknamecache
-```/proguard/
 proguard/
 crash-log.txt
 
@@ -29,6 +28,8 @@ crash-log.txt
 *.b64
 
 # seven_segment_ocr — 忽略大文件和生成文件，保留源代码和模型
+python_vector_converter/.venv/
+python_vector_converter/__pycache__/
 seven_segment_ocr/.pixi/
 seven_segment_ocr/__pycache__/
 seven_segment_ocr/kaggle_kernel/__pycache__/

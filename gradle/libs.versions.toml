@@ -1,38 +1,37 @@
 [versions]
-agp = "9.1.0"
-kotlin = "2.2.10"
-ksp = "2.3.6"
-coreKtx = "1.17.0"
+agp = "9.1.1"
+kotlin = "2.3.21"
+ksp = "2.3.8"
+coreKtx = "1.18.0"
 lifecycle = "2.10.0"
-activityCompose = "1.12.4"
-composeBom = "2026.02.00"
-navigationCompose = "2.9.7"
+activityCompose = "1.13.0"
+composeBom = "2026.05.01"
+navigationCompose = "2.9.8"
 room = "2.8.4"
-hilt = "2.59.1"
+hilt = "2.59.2"
 hiltNavigationCompose = "1.3.0"
 windowSizeClass = "1.5.1"
 adaptiveNavigation = "1.2.0"
 adaptiveLayout = "1.2.0"
-datastore = "1.2.0"
-workManager = "2.11.1"
+datastore = "1.2.1"
+workManager = "2.11.2"
 hiltWork = "1.3.0"
-kotlinxSerializationJson = "1.10.0"
-coroutines = "1.10.2"
-turbine = "1.2.0"
+kotlinxSerializationJson = "1.11.0"
+coroutines = "1.11.0"
+turbine = "1.2.1"
 splashscreen = "1.2.0"
 glance = "1.1.1"
-profileinstaller = "1.4.1"
-material3 = "1.5.0-alpha15"    # Expressive APIs (MotionScheme 等) 在 1.5.0-alpha 中正式公开
+material3 = "1.5.0-alpha20"    # Expressive APIs (MotionScheme 等) 仍需使用 Material3 alpha 线
 ktlint = "12.3.0"
-zxing = "3.5.3"
-camerax = "1.4.2"
+zxing = "3.5.4"
+camerax = "1.6.1"
 mlkitBarcode = "17.3.0"
 mlkitTextRecognition = "16.0.1"
 mlkitTextRecognitionCjk = "16.0.1"
 mlkitTextRecognitionJa = "16.0.1"
 mlkitTextRecognitionKo = "16.0.1"
-mockitoKotlin = "5.2.1"
-onnxruntime = "1.24.3"
+mockitoKotlin = "6.3.0"
+onnxruntime = "1.26.0"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -71,15 +70,12 @@ androidx-splashscreen = { group = "androidx.core", name = "core-splashscreen", v
 junit = { group = "junit", name = "junit", version = "4.13.2" }
 kotlinx-coroutines-test = { group = "org.jetbrains.kotlinx", name = "kotlinx-coroutines-test", version.ref = "coroutines" }
 turbine = { group = "app.cash.turbine", name = "turbine", version.ref = "turbine" }
-androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.2.1" }
-androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.6.1" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version = "1.3.0" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version = "3.7.0" }
 
 # Glance
 androidx-glance-appwidget = { group = "androidx.glance", name = "glance-appwidget", version.ref = "glance" }
 androidx-glance-material3 = { group = "androidx.glance", name = "glance-material3", version.ref = "glance" }
-
-# Baseline Profile
-androidx-profileinstaller = { group = "androidx.profileinstaller", name = "profileinstaller", version.ref = "profileinstaller" }
 
 zxing-core = { module = "com.google.zxing:core", version.ref = "zxing" }
 camerax-core     = { module = "androidx.camera:camera-core",      version.ref = "camerax" }

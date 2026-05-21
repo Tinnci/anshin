@@ -34,7 +34,7 @@ const val FOLLOW_UP_CODE_OFFSET = 100_000
 class AlarmScheduler @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val prefsRepository: UserPreferencesRepository,
-    @ApplicationScope private val scope: CoroutineScope,
+    @param:ApplicationScope private val scope: CoroutineScope,
 ) {
     private val alarmManager =
         context.getSystemService(Context.ALARM_SERVICE) as AlarmManager

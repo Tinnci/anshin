@@ -720,7 +720,7 @@ private fun AddEditHealthSheet(
     onOcrScan: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+    val sheetState = rememberBottomSheetState(SheetValue.Hidden, setOf(SheetValue.PartiallyExpanded))
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
