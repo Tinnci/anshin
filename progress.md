@@ -53,3 +53,11 @@
 - Launched `com.driezy.medlog/.ui.MainActivity` on M2012K11C; process `21676` ran in foreground with no recent fatal logcat entries for the new package.
 - Optimized OCR settings UI before commit by extracting the repeated model option card, moving visible badge/spec labels into string resources, and cancelling `SevenSegmentRecognizer`'s settings collection scope on close.
 - Verified optimization with `./gradlew :app:ktlintCheck` and `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin`.
+- Started Material Expressive home layout implementation slice focused on layout hierarchy, emphasized typography, surface elevation, and primary action placement.
+- Completed the home layout slice: Today overview now owns progress, streak, next-dose, and take-all action; empty state no longer duplicates the add action with a FAB.
+- Started HealthScreen Material Expressive slice focused on OCR hero action, health metric sections, supporting recent-record hierarchy, and emphasized metric typography.
+- Completed the HealthScreen slice: added a primary OCR scan hero with manual-entry secondary action, wrapped stats in a health metrics section, lowered recent records into supporting content, and separated emphasized metric values from smaller unit labels.
+- Confirmed OCR processing overlay and HealthScreen loading state already use Material3 Expressive `LoadingIndicator`.
+- Verified HealthScreen changes with `./gradlew :app:compileDebugKotlin`, `./gradlew :app:ktlintCheck`, `./gradlew :app:assembleDebug`, `./gradlew :app:installDebug`, and a no-fatal `adb logcat` check after launching `com.driezy.medlog/.ui.MainActivity`.
+- Completed the broader Material Expressive pass: Home now defaults to "Now" and "Later today" task groups with PRN separated, time-period group containers use flat surface hierarchy, and Settings is consolidated into the requested Appearance / Reminders / OCR & Health / Widgets / Data & About containers.
+- Re-verified with `./gradlew :app:compileDebugKotlin`, `./gradlew :app:ktlintCheck`, `./gradlew :app:assembleDebug`, `./gradlew :app:installDebug`, and launched `com.driezy.medlog/.ui.MainActivity` on M2012K11C with no recent fatal logcat entries.

@@ -73,6 +73,38 @@ internal fun SettingsCard(
     }
 }
 
+@Composable
+internal fun SettingsSectionDivider(
+    title: String,
+    icon: ImageVector,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MedLogSpacing.Large)
+                .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Tiny),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.size(16.dp),
+            )
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleSmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                fontWeight = FontWeight.SemiBold,
+            )
+        }
+    }
+}
+
 // ── 小组件选择卡片（预览图 + 说明 + 添加按钮）────────────────────────────────
 
 @Composable

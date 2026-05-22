@@ -21,6 +21,9 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 13. Add PaddleOCR Kaggle fine-tune configs | in_progress | Added tests and implementation for PP-OCRv5 mobile/server, RepSVTR, and SVTRv2 config materialization and Kaggle train/export/eval dispatch. |
 | 14. Run FastViT Android NNAPI benchmark | in_progress | Added instrumentation benchmark and collected initial M2012K11C CPU/NNAPI measurements for `fastvit_t8_ctc_reparam.onnx`. |
 | 15. Rename Android application ID for formal debug build | completed | Replaced app/source package with `com.driezy.medlog`, verified debug/test compilation, installed and launched on connected M2012K11C. |
+| 16. Apply Material Expressive home layout slice | completed | Consolidated Today progress, streak, next-dose, and primary action into an expressive overview card; removed duplicate empty-state FAB; verified with compile, install, ktlint, and logcat only. |
+| 17. Apply Material Expressive health layout slice | completed | Added OCR hero action, grouped health metrics into a titled section, weakened recent records with supporting header, separated metric value/unit typography, and verified LoadingIndicator coverage. |
+| 18. Complete Material Expressive layout/elevation/settings pass | completed | Converted Home default medication list into Now/Later task groups with PRN separated, flattened time-group elevation, consolidated Settings into Appearance, Reminders, OCR & Health, Widgets, and Data & About containers, then installed and launched on M2012K11C. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
@@ -28,3 +31,5 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | LightSVTR exact dropped to 0% after batching | First CPU batch run | Fixed output slicing: LightSVTR exports `[time,batch,class]`; PaddleOCR exports `[batch,time,class]`. |
 | Initial FastViT ONNX smoke was only 47k params | First FastViT wrapper used only feature stage 0 | Switched to multi-scale feature fusion across all FastViT stages, producing a 3.25M-param smoke ONNX while keeping 64 time steps. |
 | FastViT Android 100-run CPU benchmark exceeded the practical wait window | First instrumentation run used `RUNS=100` | Killed the stuck run and used `RUNS=10` for comparable CPU/NNAPI smoke measurements. |
+| `FlowRow` compile error: unsupported `verticalAlignment` parameter | First home overview implementation compile | Switched to supported `verticalArrangement` spacing for wrapped chips. |
+| Health app launch used old shorthand activity | First post-install launch attempted `com.driezy.medlog/.MainActivity` | Relaunched with resolved activity `com.driezy.medlog/.ui.MainActivity`; foreground launch succeeded with no recent fatal logs. |

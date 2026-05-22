@@ -24,7 +24,7 @@ import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
@@ -43,6 +43,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
@@ -51,6 +52,119 @@ import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.components.MedicationCard
 import kotlinx.coroutines.delay
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+internal fun MedicationTaskGroupCard(
+    title: String,
+    subtitle: String,
+    icon: ImageVector,
+    items: List<MedicationWithStatus>,
+    onToggleTaken: (MedicationWithStatus) -> Unit,
+    onSkip: (MedicationWithStatus) -> Unit,
+    onTakeAll: () -> Unit,
+    onClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+    onPartialTake: ((MedicationWithStatus, Double) -> Unit)? = null,
+) {
+    val pendingCount = items.count { !it.isHandled }
+    val motionScheme = MaterialTheme.motionScheme
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (pendingCount > 0)
+                MaterialTheme.colorScheme.surfaceContainerHigh
+            else
+                MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (pendingCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
+                modifier = Modifier.size(18.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            if (pendingCount > 1) {
+                Button(
+                    onClick = onTakeAll,
+                    contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = 0.dp),
+                    modifier = Modifier.height(40.dp),
+                ) {
+                    Icon(Icons.Rounded.DoneAll, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
+                    Text(
+                        stringResource(R.string.home_period_take_all_btn),
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+        )
+        Column {
+            items.forEachIndexed { idx, item ->
+                var visible by remember(item.medication.id to item.timeSlotIndex) { mutableStateOf(false) }
+                LaunchedEffect(item.medication.id, item.timeSlotIndex) {
+                    delay(idx * STAGGER_DELAY_MS)
+                    visible = true
+                }
+                AnimatedVisibility(
+                    visible = visible,
+                    enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+                ) {
+                    Column {
+                        MedicationCard(
+                            item = item,
+                            onToggleTaken = { onToggleTaken(item) },
+                            onSkip = { onSkip(item) },
+                            onClick = { onClick(item.medication.id) },
+                            modifier = Modifier,
+                            flatStyle = true,
+                            onPartialTake = if (onPartialTake != null) {
+                                { qty -> onPartialTake(item, qty) }
+                            } else null,
+                        )
+                        if (idx < items.lastIndex) {
+                            HorizontalDivider(
+                                modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
+                            )
+                        }
+                    }
+                }
+            }
+            Spacer(Modifier.height(MedLogSpacing.Tiny))
+        }
+    }
+}
 
 /**
  * 将同一服药时段的所有药品包裹在一张圆角卡片内。
@@ -77,18 +191,16 @@ internal fun TimePeriodGroupCard(
     // allDone 变化时重算展开状态：已全服且开启自动折叠时默认折叠
     var isExpanded by remember(allDone) { mutableStateOf(!allDone || !autoCollapse) }
 
-    ElevatedCard(
+    Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.elevatedCardColors(
+        shape = RoundedCornerShape(20.dp),
+        colors = CardDefaults.cardColors(
             containerColor = if (allDone)
-                MaterialTheme.colorScheme.surfaceContainerLowest
+                MaterialTheme.colorScheme.surfaceContainerLow
             else
-                MaterialTheme.colorScheme.surfaceContainerLow,
+                MaterialTheme.colorScheme.surfaceContainerHigh,
         ),
-        elevation = CardDefaults.elevatedCardElevation(
-            defaultElevation = if (allDone) 0.dp else 1.dp,
-        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         // ── 卡片头部 ──────────────────────────────────────────
         // 对非精确时段，取首项的提醒时间作为代表性展示时间
@@ -240,5 +352,5 @@ internal fun TimePeriodGroupCard(
                 Spacer(Modifier.height(MedLogSpacing.Tiny))
             } // Column
         } // AnimatedVisibility
-    } // ElevatedCard
+    } // Card
 }

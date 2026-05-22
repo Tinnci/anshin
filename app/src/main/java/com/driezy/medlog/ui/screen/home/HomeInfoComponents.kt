@@ -10,16 +10,22 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material.icons.rounded.Medication
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -42,6 +48,7 @@ import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
 import java.text.SimpleDateFormat
@@ -164,9 +171,18 @@ internal fun NextUpChip(period: TimePeriod, time: String) {
 
 // ── 进度卡片（弹性动画进度条）────────────────────────────────────────────────
 
-@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
 @Composable
-internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = Modifier) {
+internal fun AnimatedProgressCard(
+    taken: Int,
+    total: Int,
+    currentStreak: Int,
+    longestStreak: Int,
+    nextUp: Pair<TimePeriod, String>?,
+    pendingCount: Int,
+    onTakeAll: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val motionScheme = MaterialTheme.motionScheme
     val progress by animateFloatAsState(
         targetValue = if (total == 0) 0f else taken.toFloat() / total,
@@ -185,21 +201,40 @@ internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = M
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(28.dp),
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
-        Column(modifier = Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        Column(
+            modifier = Modifier.padding(MedLogSpacing.XLarge),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+        ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                verticalAlignment = Alignment.Top,
             ) {
-                Text(
-                    if (total == 0) stringResource(R.string.home_progress_no_plan) else stringResource(R.string.home_progress_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                ) {
+                    Text(
+                        if (total == 0) stringResource(R.string.home_progress_no_plan) else stringResource(R.string.home_progress_title),
+                        style = MaterialTheme.emphasizedTypography.titleLarge,
+                        color = if (allDone) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    if (total > 0) {
+                        Text(
+                            if (allDone) stringResource(R.string.home_progress_all_done)
+                            else pluralStringResource(R.plurals.home_progress_remaining, total - taken, total - taken),
+                            style = MaterialTheme.typography.bodyMedium,
+                            color = if (allDone)
+                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.82f)
+                            else
+                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+                        )
+                    }
+                }
                 if (total > 0) {
                     // 数字滚动动画：taken 变化时上滑出、下滑入
                     Row(verticalAlignment = Alignment.CenterVertically) {
@@ -213,18 +248,16 @@ internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = M
                         ) { t ->
                             Text(
                                 text = "$t",
-                                style = MaterialTheme.typography.titleLarge,
+                                style = MaterialTheme.emphasizedTypography.displaySmall,
                                 color = if (allDone) MaterialTheme.colorScheme.tertiary
-                                        else MaterialTheme.colorScheme.primary,
-                                fontWeight = FontWeight.Bold,
+                                else MaterialTheme.colorScheme.primary,
                             )
                         }
                         Text(
                             text = " / $total",
-                            style = MaterialTheme.typography.titleLarge,
+                            style = MaterialTheme.emphasizedTypography.titleLarge,
                             color = if (allDone) MaterialTheme.colorScheme.tertiary
-                                    else MaterialTheme.colorScheme.primary,
-                            fontWeight = FontWeight.Bold,
+                            else MaterialTheme.colorScheme.primary,
                         )
                     }
                 }
@@ -234,11 +267,88 @@ internal fun AnimatedProgressCard(taken: Int, total: Int, modifier: Modifier = M
                     progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
                 )
-                Text(
-                    if (allDone) stringResource(R.string.home_progress_all_done)
-                    else pluralStringResource(R.plurals.home_progress_remaining, total - taken, total - taken),
-                    style = MaterialTheme.typography.bodySmall,
-                )
+            }
+
+            if (currentStreak > 0 || nextUp != null) {
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                ) {
+                    if (currentStreak > 0) {
+                        SuggestionChip(
+                            onClick = {},
+                            label = {
+                                Text(
+                                    pluralStringResource(R.plurals.home_streak_current, currentStreak, currentStreak),
+                                    style = MaterialTheme.emphasizedTypography.labelMedium,
+                                )
+                            },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
+                    if (longestStreak > currentStreak) {
+                        SuggestionChip(
+                            onClick = {},
+                            label = {
+                                Text(
+                                    pluralStringResource(R.plurals.home_streak_longest, longestStreak, longestStreak),
+                                    style = MaterialTheme.typography.labelSmall,
+                                )
+                            },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
+                    nextUp?.let { (period, time) ->
+                        SuggestionChip(
+                            onClick = {},
+                            icon = {
+                                Icon(
+                                    period.icon,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(16.dp),
+                                )
+                            },
+                            label = {
+                                Text(
+                                    stringResource(R.string.home_next_up, stringResource(period.labelRes), time),
+                                    style = MaterialTheme.emphasizedTypography.labelMedium,
+                                )
+                            },
+                            colors = SuggestionChipDefaults.suggestionChipColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                                iconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                            ),
+                        )
+                    }
+                }
+            }
+
+            if (pendingCount > 1) {
+                Button(
+                    onClick = onTakeAll,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(52.dp),
+                    shape = MaterialTheme.shapes.large,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = if (allDone) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
+                    ),
+                ) {
+                    Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
+                    Text(
+                        stringResource(R.string.home_take_all_btn, pendingCount),
+                        style = MaterialTheme.emphasizedTypography.labelLarge,
+                    )
+                }
             }
         }
     }

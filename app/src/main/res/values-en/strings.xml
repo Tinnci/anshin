@@ -103,6 +103,10 @@
     <string name="home_group_toggle_by_category">Switch to category grouping</string>
     <string name="home_group_toggle_by_time">Switch to time grouping</string>
     <string name="home_take_all_btn">Take all (%d)</string>
+    <string name="home_now_group_title">Now</string>
+    <string name="home_now_group_body">Due or nearly due medication tasks</string>
+    <string name="home_later_group_title">Later today</string>
+    <string name="home_later_group_body">Upcoming doses and completed records</string>
     <string name="home_snackbar_all_taken">All marked as taken</string>
     <string name="home_snackbar_undo_skip">%s — skip undone, restored to pending</string>
     <string name="home_snackbar_reset">%s reset to pending</string>
@@ -179,6 +183,8 @@
     <string name="settings_notif_perm_body">Unable to receive medication reminders. Enable notification permission in system settings</string>
     <string name="settings_notif_perm_btn">Go to Settings</string>
     <string name="settings_card_appearance">Appearance</string>
+    <string name="settings_group_ocr_health">OCR &amp; Health</string>
+    <string name="settings_group_data_about">Data &amp; About</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>
@@ -575,6 +581,14 @@
     <string name="health_screen_title">Health Vitals</string>
     <string name="health_screen_fab_cd">Record vital</string>
     <string name="health_empty_hint">No records yet. Tap + to start</string>
+    <string name="health_ocr_hero_title">Scan a device reading</string>
+    <string name="health_ocr_hero_body">Point at a blood pressure monitor, glucose meter, or thermometer screen, then confirm the extracted values.</string>
+    <string name="health_ocr_hero_scan">Scan vitals</string>
+    <string name="health_ocr_hero_manual">Manual entry</string>
+    <string name="health_metrics_section_title">Health metrics</string>
+    <string name="health_metrics_section_subtitle">Recent values and 7-day trends grouped by vital type</string>
+    <string name="health_recent_records_title">Recent records</string>
+    <string name="health_recent_records_subtitle">Time-ordered history with edit and delete actions</string>
     <string name="health_delete_title">Delete Record</string>
     <string name="health_delete_body">Are you sure you want to delete this vital record? This action cannot be undone.</string>
     <string name="health_7day_avg">7d avg %s</string>

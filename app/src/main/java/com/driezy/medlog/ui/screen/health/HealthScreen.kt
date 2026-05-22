@@ -57,6 +57,19 @@ private fun healthTypeIcon(type: HealthType) = when (type) {
     HealthType.SPO2           -> Icons.Rounded.AirlineStops
 }
 
+private fun HealthType.formatMetricValue(value: Double, secondaryValue: Double?): String = when (this) {
+    HealthType.BLOOD_PRESSURE -> if (secondaryValue != null) {
+        "${value.toInt()}/${secondaryValue.toInt()}"
+    } else {
+        "${value.toInt()}"
+    }
+    HealthType.TEMPERATURE,
+    HealthType.BLOOD_GLUCOSE,
+    HealthType.WEIGHT,
+    -> "%.1f".format(value)
+    else -> "${value.toInt()}"
+}
+
 // ─── 主屏幕 ──────────────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -86,134 +99,139 @@ fun HealthScreen(
             }
         } else {
             Box(Modifier.fillMaxSize().padding(innerPadding)) {
-            LazyColumn(
-                contentPadding = MedLogSpacing.ScreenContentWithToolbar,
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-                modifier = Modifier.nestedScroll(scrollBehavior),
-            ) {
-                // ── 类型过滤 Chips ─────────────────────────────────────────
-                item(key = "type_filter") {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .horizontalScroll(rememberScrollState()),
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    ) {
-                        FilterChip(
-                            selected   = uiState.selectedType == null,
-                            onClick    = { viewModel.selectType(null) },
-                            label      = { Text(stringResource(R.string.common_filter_all)) },
-                            leadingIcon = if (uiState.selectedType == null) ({
-                                Icon(Icons.Rounded.Check, null, Modifier.size(16.dp))
-                            }) else null,
+                LazyColumn(
+                    contentPadding = MedLogSpacing.ScreenContentWithToolbar,
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                    modifier = Modifier.nestedScroll(scrollBehavior),
+                ) {
+                    // ── OCR 主入口 Hero ─────────────────────────────────────
+                    item(key = "ocr_hero") {
+                        HealthOcrHeroCard(
+                            onScan = { showOcrScanner = true },
+                            onManualRecord = viewModel::startAdd,
                         )
-                        HealthType.entries.forEach { type ->
-                            FilterChip(
-                                selected = uiState.selectedType == type,
-                                onClick  = { viewModel.selectType(if (uiState.selectedType == type) null else type) },
-                                label    = { Text(stringResource(type.labelRes)) },
-                                leadingIcon = {
-                                    Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
-                                },
-                            )
-                        }
                     }
-                }
 
-                // ── 体征摘要卡片（横向滚动） ───────────────────────────────
-                if (uiState.stats.isNotEmpty()) {
-                    item(key = "stats_row") {
-                        val visibleStats = if (uiState.selectedType == null) uiState.stats
-                            else uiState.stats.filter { it.type == uiState.selectedType }
+                    // ── 类型过滤 Chips ─────────────────────────────────────────
+                    item(key = "type_filter") {
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .horizontalScroll(rememberScrollState()),
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            visibleStats.forEach { stat ->
-                                HealthStatCard(stat = stat)
+                            FilterChip(
+                                selected   = uiState.selectedType == null,
+                                onClick    = { viewModel.selectType(null) },
+                                label      = { Text(stringResource(R.string.common_filter_all)) },
+                                leadingIcon = if (uiState.selectedType == null) ({
+                                    Icon(Icons.Rounded.Check, null, Modifier.size(16.dp))
+                                }) else null,
+                            )
+                            HealthType.entries.forEach { type ->
+                                FilterChip(
+                                    selected = uiState.selectedType == type,
+                                    onClick  = { viewModel.selectType(if (uiState.selectedType == type) null else type) },
+                                    label    = { Text(stringResource(type.labelRes)) },
+                                    leadingIcon = {
+                                        Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
+                                    },
+                                )
                             }
                         }
                     }
-                }
 
-                // ── BMI 卡片（体重数据 + 有身高时显示） ──────────────────
-                val hasWeightStat = uiState.stats.any { it.type == HealthType.WEIGHT }
-                if (hasWeightStat && (uiState.selectedType == null || uiState.selectedType == HealthType.WEIGHT)) {
-                    item(key = "bmi_card") {
-                        BmiCard(
-                            bmi = uiState.bmi,
-                            bmiClassRes = uiState.bmiClassRes,
-                            userHeightCm = uiState.userHeightCm,
-                            onUpdateHeight = viewModel::updateHeight,
-                        )
+                    // ── 体征摘要卡片（横向滚动） ───────────────────────────────
+                    if (uiState.stats.isNotEmpty()) {
+                        item(key = "stats_row") {
+                            val visibleStats = if (uiState.selectedType == null) uiState.stats
+                                else uiState.stats.filter { it.type == uiState.selectedType }
+                            HealthMetricsSection(stats = visibleStats)
+                        }
                     }
-                }
 
-                // ── 趋势图（选中某类型且有 ≥2 个数据点时显示） ───────────
-                if (uiState.selectedType != null && uiState.chartPoints.size >= 2) {
-                    item(key = "trend_chart") {
-                        HealthTrendChart(
-                            type = uiState.selectedType!!,
-                            points = uiState.chartPoints,
-                        )
+                    // ── BMI 卡片（体重数据 + 有身高时显示） ──────────────────
+                    val hasWeightStat = uiState.stats.any { it.type == HealthType.WEIGHT }
+                    if (hasWeightStat && (uiState.selectedType == null || uiState.selectedType == HealthType.WEIGHT)) {
+                        item(key = "bmi_card") {
+                            BmiCard(
+                                bmi = uiState.bmi,
+                                bmiClassRes = uiState.bmiClassRes,
+                                userHeightCm = uiState.userHeightCm,
+                                onUpdateHeight = viewModel::updateHeight,
+                            )
+                        }
                     }
-                }
 
-                // ── 记录列表 ───────────────────────────────────────────────
-                if (uiState.records.isEmpty()) {
-                    item(key = "empty") {
-                        Box(
-                            modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Column(
-                                horizontalAlignment = Alignment.CenterHorizontally,
-                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                    // ── 趋势图（选中某类型且有 ≥2 个数据点时显示） ───────────
+                    if (uiState.selectedType != null && uiState.chartPoints.size >= 2) {
+                        item(key = "trend_chart") {
+                            HealthTrendChart(
+                                type = uiState.selectedType!!,
+                                points = uiState.chartPoints,
+                            )
+                        }
+                    }
+
+                    // ── 记录列表 ───────────────────────────────────────────────
+                    if (uiState.records.isEmpty()) {
+                        item(key = "empty") {
+                            Box(
+                                modifier = Modifier.fillMaxWidth().padding(vertical = 48.dp),
+                                contentAlignment = Alignment.Center,
                             ) {
-                                Icon(
-                                    Icons.Rounded.MonitorHeart,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(48.dp),
-                                    tint = MaterialTheme.colorScheme.outlineVariant,
-                                )
-                                Text(
-                                    stringResource(R.string.health_empty_hint),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                )
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Icon(
+                                        Icons.Rounded.MonitorHeart,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(48.dp),
+                                        tint = MaterialTheme.colorScheme.outlineVariant,
+                                    )
+                                    Text(
+                                        stringResource(R.string.health_empty_hint),
+                                        style = MaterialTheme.typography.bodyMedium,
+                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
                             }
                         }
-                    }
-                } else {
-                    items(uiState.records, key = { it.id }) { record ->
-                        HealthRecordItem(
-                            record    = record,
-                            onEdit    = { viewModel.startEdit(record) },
-                            onDelete  = { viewModel.requestDelete(record) },
-                        )
+                    } else {
+                        item(key = "recent_records_header") {
+                            SectionHeader(
+                                title = stringResource(R.string.health_recent_records_title),
+                                subtitle = stringResource(R.string.health_recent_records_subtitle),
+                            )
+                        }
+                        items(uiState.records, key = { it.id }) { record ->
+                            HealthRecordItem(
+                                record    = record,
+                                onEdit    = { viewModel.startEdit(record) },
+                                onDelete  = { viewModel.requestDelete(record) },
+                            )
+                        }
                     }
                 }
-            }
 
-            // ── 底部浮动工具栏 + FAB ─────────────────────────────────────
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = viewModel::startAdd,
-                    ) {
-                        Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                // ── 底部浮动工具栏 + FAB ─────────────────────────────────────
+                HorizontalFloatingToolbar(
+                    expanded = true,
+                    floatingActionButton = {
+                        FloatingToolbarDefaults.VibrantFloatingActionButton(
+                            onClick = viewModel::startAdd,
+                        ) {
+                            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                        }
+                    },
+                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
+                    scrollBehavior = scrollBehavior,
+                ) {
+                    IconButton(onClick = { showOcrScanner = true }) {
+                        Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.health_camera_scan_cd))
                     }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
-                scrollBehavior = scrollBehavior,
-            ) {
-                IconButton(onClick = { showOcrScanner = true }) {
-                    Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.health_camera_scan_cd))
                 }
-            }
             }
         }
     }
@@ -276,6 +294,118 @@ fun HealthScreen(
 // ─── 体征摘要卡片 ────────────────────────────────────────────────────────────
 
 @Composable
+private fun HealthOcrHeroCard(
+    onScan: () -> Unit,
+    onManualRecord: () -> Unit,
+) {
+    ElevatedCard(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.extraLarge,
+        colors = CardDefaults.elevatedCardColors(
+            containerColor = MaterialTheme.colorScheme.primaryContainer,
+        ),
+        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
+    ) {
+        Column(
+            modifier = Modifier.padding(MedLogSpacing.XLarge),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Surface(
+                    shape = MaterialTheme.shapes.large,
+                    color = MaterialTheme.colorScheme.primary,
+                ) {
+                    Icon(
+                        Icons.Rounded.CameraAlt,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.onPrimary,
+                        modifier = Modifier.padding(MedLogSpacing.Medium).size(28.dp),
+                    )
+                }
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        stringResource(R.string.health_ocr_hero_title),
+                        style = MaterialTheme.emphasizedTypography.titleLarge,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                    Text(
+                        stringResource(R.string.health_ocr_hero_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+                    )
+                }
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            ) {
+                Button(
+                    onClick = onScan,
+                    modifier = Modifier.weight(1.5f),
+                ) {
+                    Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
+                    Text(
+                        stringResource(R.string.health_ocr_hero_scan),
+                        style = MaterialTheme.emphasizedTypography.labelLarge,
+                    )
+                }
+                FilledTonalButton(
+                    onClick = onManualRecord,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.health_ocr_hero_manual))
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun HealthMetricsSection(stats: List<HealthTypeStat>) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+    ) {
+        SectionHeader(
+            title = stringResource(R.string.health_metrics_section_title),
+            subtitle = stringResource(R.string.health_metrics_section_subtitle),
+        )
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            stats.forEach { stat ->
+                HealthStatCard(stat = stat)
+            }
+        }
+    }
+}
+
+@Composable
+private fun SectionHeader(title: String, subtitle: String? = null) {
+    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
+        Text(
+            title,
+            style = MaterialTheme.emphasizedTypography.titleMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        if (subtitle != null) {
+            Text(
+                subtitle,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+@Composable
 private fun HealthStatCard(stat: HealthTypeStat) {
     val dateFormat = remember { SimpleDateFormat("MM-dd", Locale.getDefault()) }
     val containerColor = if (stat.isAbnormal)
@@ -283,9 +413,11 @@ private fun HealthStatCard(stat: HealthTypeStat) {
     else
         MaterialTheme.colorScheme.secondaryContainer
 
-    ElevatedCard(
+    Card(
         modifier = Modifier.width(168.dp),
-        colors = CardDefaults.elevatedCardColors(containerColor = containerColor),
+        shape = MaterialTheme.shapes.large,
+        colors = CardDefaults.cardColors(containerColor = containerColor),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(12.dp),
@@ -308,8 +440,18 @@ private fun HealthStatCard(stat: HealthTypeStat) {
                 )
             }
             Text(
-                stat.type.formatValue(stat.latestValue, stat.latestSecondary),
+                stat.type.formatMetricValue(stat.latestValue, stat.latestSecondary),
                 style = MaterialTheme.emphasizedTypography.headlineSmall,
+                color = if (stat.isAbnormal) MaterialTheme.colorScheme.onErrorContainer
+                else MaterialTheme.colorScheme.onSecondaryContainer,
+            )
+            Text(
+                stat.type.unit,
+                style = MaterialTheme.typography.labelMedium,
+                color = if (stat.isAbnormal)
+                    MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.75f)
+                else
+                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.75f),
             )
 
             // ── 血压分类标签 ──────────────────────────────────────
@@ -418,17 +560,28 @@ private fun HealthRecordItem(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
-            containerColor = if (isAbnormal) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.4f)
-                             else MaterialTheme.colorScheme.surfaceContainer,
+            containerColor = if (isAbnormal) MaterialTheme.colorScheme.errorContainer.copy(alpha = 0.45f)
+                             else MaterialTheme.colorScheme.surfaceContainerLow,
         ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         ListItem(
             headlineContent = {
-                Text(
-                    type.formatValue(record.value, record.secondaryValue),
-                    style = MaterialTheme.typography.titleMedium,
-                )
+                Row(verticalAlignment = Alignment.Bottom) {
+                    Text(
+                        type.formatMetricValue(record.value, record.secondaryValue),
+                        style = MaterialTheme.emphasizedTypography.titleLarge,
+                    )
+                    Spacer(Modifier.width(MedLogSpacing.Tiny))
+                    Text(
+                        type.unit,
+                        style = MaterialTheme.typography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 3.dp),
+                    )
+                }
             },
             overlineContent = {
                 Text(stringResource(type.labelRes))

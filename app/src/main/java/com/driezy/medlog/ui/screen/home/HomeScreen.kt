@@ -149,12 +149,13 @@ fun HomeScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = onAddMedication,
-                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
-                text = { Text(stringResource(R.string.home_fab_add)) },
-                expanded = uiState.items.isEmpty(),
-            )
+            if (uiState.items.isNotEmpty()) {
+                ExtendedFloatingActionButton(
+                    onClick = onAddMedication,
+                    icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                    text = { Text(stringResource(R.string.home_fab_add)) },
+                )
+            }
         },
     ) { innerPadding ->
         if (uiState.isLoading) {
@@ -176,26 +177,24 @@ fun HomeScreen(
                 AnimatedProgressCard(
                     taken = uiState.takenCount,
                     total = uiState.totalCount,
+                    currentStreak = uiState.currentStreak,
+                    longestStreak = uiState.longestStreak,
+                    nextUp = uiState.nextUpPeriod?.takeIf {
+                        uiState.takenCount > 0 && uiState.takenCount < uiState.totalCount
+                    },
+                    pendingCount = pendingItems.size,
+                    onTakeAll = {
+                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                        viewModel.takeAll()
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = msgAllTaken,
+                                duration = SnackbarDuration.Short,
+                            )
+                        }
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 )
-            }
-
-            // ── 连续打卡 Streak badge ─────────────────────────
-            if (uiState.currentStreak > 0) {
-                item {
-                    StreakBadgeRow(
-                        currentStreak = uiState.currentStreak,
-                        longestStreak = uiState.longestStreak,
-                    )
-                }
-            }
-
-            // ── "下一服" 智能提示（部分完成时显示）────────────────
-            val nextUp = uiState.nextUpPeriod
-            if (nextUp != null && uiState.takenCount > 0 && uiState.takenCount < uiState.totalCount) {
-                item {
-                    NextUpChip(period = nextUp.first, time = nextUp.second)
-                }
             }
 
             // ── 低库存警告 banner ──────────────────────────────
@@ -219,36 +218,6 @@ fun HomeScreen(
                     )
                 }
             }
-            // ── 一键全服（Aura: 主操作 filled primary，最高对比）──────
-            if (pendingItems.size > 1) {
-                item {
-                    Spacer(Modifier.height(MedLogSpacing.Small))
-                    Button(
-                        onClick = {
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            viewModel.takeAll()
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = msgAllTaken,
-                                    duration = SnackbarDuration.Short,
-                                )
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = MaterialTheme.shapes.large,
-                    ) {
-                        Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))
-                        Spacer(Modifier.width(8.dp))
-                        Text(
-                            stringResource(R.string.home_take_all_btn, pendingItems.size),
-                            style = MaterialTheme.typography.labelLarge,
-                        )
-                    }
-                }
-            }
-
             // ── 空状态 ────────────────────────────────────────
             if (uiState.items.isEmpty()) {
                 item {
@@ -258,12 +227,23 @@ fun HomeScreen(
 
             // ── 药品卡片列表（可按时段或分类分组）────────────────
             if (uiState.groupByTime) {
-                // M3 Expressive 风格：每个时段一张卡片，头部含一键服用
-                uiState.groupedByTimePeriod.forEach { (timePeriod, groupItems) ->
-                    item(key = "tgroup_${timePeriod.key}", contentType = "timeGroup") {
-                        val periodLabel = stringResource(timePeriod.labelRes)
-                        TimePeriodGroupCard(
-                            timePeriod = timePeriod,
+                val taskGroups = listOf(
+                    "now" to uiState.nowTaskItems,
+                    "later" to uiState.laterTaskItems,
+                ).filter { (_, groupItems) -> groupItems.isNotEmpty() }
+                taskGroups.forEach { (key, groupItems) ->
+                    item(key = "task_group_$key", contentType = "taskGroup") {
+                        val groupTitle = if (key == "now")
+                            stringResource(R.string.home_now_group_title)
+                        else
+                            stringResource(R.string.home_later_group_title)
+                        MedicationTaskGroupCard(
+                            title = groupTitle,
+                            subtitle = if (key == "now")
+                                stringResource(R.string.home_now_group_body)
+                            else
+                                stringResource(R.string.home_later_group_body),
+                            icon = if (key == "now") Icons.Rounded.CheckCircle else Icons.Rounded.AccessTime,
                             items = groupItems,
                             onToggleTaken = { item ->
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
@@ -309,16 +289,17 @@ fun HomeScreen(
                             },
                             onTakeAll = {
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.takeAllForPeriod(timePeriod.key)
+                                groupItems
+                                    .filter { !it.isHandled }
+                                    .forEach { viewModel.toggleMedicationStatus(it) }
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        fmtPeriodAllTaken.format(periodLabel),
+                                        fmtPeriodAllTaken.format(groupTitle),
                                         duration = SnackbarDuration.Short,
                                     )
                                 }
                             },
                             onClick = onMedicationClick,
-                            autoCollapse = uiState.autoCollapseCompletedGroups,
                             modifier = Modifier.animateItem(),
                         )
                     }
@@ -472,4 +453,3 @@ fun HomeScreen(
         )
     }
 }
-

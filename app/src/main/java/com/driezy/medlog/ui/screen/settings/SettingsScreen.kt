@@ -377,9 +377,10 @@ fun SettingsScreen(
                         icon = Icons.Rounded.ColorLens,
                     )
                 }
-            }
-            // ── 今日页面 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_today), icon = Icons.Rounded.ViewAgenda) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_card_today),
+                    icon = Icons.Rounded.ViewAgenda,
+                )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_auto_collapse_title),
                     subtitle = stringResource(R.string.settings_auto_collapse_subtitle),
@@ -496,13 +497,10 @@ fun SettingsScreen(
                         }
                     }
                 }
-            }
-
-            // ── 漏服自动再提醒 ────────────────────────────────────
-            SettingsCard(
-                title = stringResource(R.string.settings_follow_up_section),
-                icon = Icons.Rounded.NotificationAdd,
-            ) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_follow_up_section),
+                    icon = Icons.Rounded.NotificationAdd,
+                )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_follow_up_enable),
                     subtitle = stringResource(R.string.settings_follow_up_enable_desc),
@@ -563,10 +561,10 @@ fun SettingsScreen(
                         }
                     }
                 }
-            }
-
-            // ── 作息时间 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_routine), icon = Icons.Rounded.Schedule) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_routine),
+                    icon = Icons.Rounded.Schedule,
+                )
                 // ── 模式开关 ──────────────────────────────────────
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_routine_mode_title),
@@ -645,10 +643,10 @@ fun SettingsScreen(
                             Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
                     }
                 }
-            }
-
-            // ── 旅行模式 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_travel), icon = Icons.Rounded.FlightTakeoff) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_card_travel),
+                    icon = Icons.Rounded.FlightTakeoff,
+                )
                 Text(
                     stringResource(R.string.settings_travel_hint),
                     style = MaterialTheme.typography.bodySmall,
@@ -671,9 +669,14 @@ fun SettingsScreen(
 
             // ── OCR 模型配置 ──────────────────────────────────────
             SettingsCard(
-                title = stringResource(R.string.settings_ocr_model_card_title),
+                title = stringResource(R.string.settings_group_ocr_health),
                 icon = Icons.Rounded.Memory
             ) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_ocr_model_card_title),
+                    icon = Icons.Rounded.DocumentScanner,
+                    modifier = Modifier.padding(top = 0.dp),
+                )
                 Text(
                     text = stringResource(R.string.settings_ocr_model_desc),
                     style = MaterialTheme.typography.bodySmall,
@@ -719,10 +722,10 @@ fun SettingsScreen(
                         onSelect = { viewModel.setOcrModelType(OcrModelType.FASTVIT_T8) },
                     )
                 }
-            }
-
-            // ── 功能配置 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_features), icon = Icons.Rounded.Tune) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_card_features),
+                    icon = Icons.Rounded.Tune,
+                )
                 Text(
                     stringResource(R.string.settings_features_hint),
                     style = MaterialTheme.typography.bodySmall,
@@ -762,10 +765,10 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setEnableDrugInteractionCheck,
                     icon = Icons.Rounded.Warning,
                 )
-            }
-
-            // ── 药品管理 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_meds), icon = Icons.Rounded.MedicalServices) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_card_meds),
+                    icon = Icons.Rounded.MedicalServices,
+                )
                 ArchivedMedicationsRow(
                     archived = uiState.archivedMedications,
                     onRestore = viewModel::unarchiveMedication,
@@ -960,9 +963,14 @@ fun SettingsScreen(
 
             // ── 备份与恢复 ──────────────────────────────────────────
             SettingsCard(
-                title = stringResource(R.string.settings_backup_restore),
+                title = stringResource(R.string.settings_group_data_about),
                 icon = Icons.Rounded.CloudUpload,
             ) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_backup_restore),
+                    icon = Icons.Rounded.CloudUpload,
+                    modifier = Modifier.padding(top = 0.dp),
+                )
                 ListItem(
                     headlineContent = { Text(stringResource(R.string.settings_backup_title)) },
                     supportingContent = { Text(stringResource(R.string.settings_backup_subtitle)) },
@@ -1006,10 +1014,10 @@ fun SettingsScreen(
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
-            }
-
-            // ── 关于 ─────────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_about), icon = Icons.Rounded.Info) {
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_about),
+                    icon = Icons.Rounded.Info,
+                )
                 ListItem(
                     headlineContent = { Text("Anshin") },
                     supportingContent = {

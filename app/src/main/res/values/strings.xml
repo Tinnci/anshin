@@ -102,6 +102,10 @@
     <string name="home_group_toggle_by_category">切换为分类分组</string>
     <string name="home_group_toggle_by_time">切换为时间分组</string>
     <string name="home_take_all_btn">一键服用全部 (%d)</string>
+    <string name="home_now_group_title">现在要做</string>
+    <string name="home_now_group_body">已到时间或即将到点的服药任务</string>
+    <string name="home_later_group_title">今日稍后</string>
+    <string name="home_later_group_body">后续时段和已处理的今日记录</string>
     <string name="home_snackbar_all_taken">已全部标记为已服</string>
     <string name="home_snackbar_undo_skip">%s 已撤销跳过，恢复待服</string>
     <string name="home_snackbar_reset">%s 已重置为待服</string>
@@ -173,6 +177,8 @@
     <string name="settings_notif_perm_body">无法收到服药提醒。在系统设置中开启通知权限</string>
     <string name="settings_notif_perm_btn">前往设置</string>
     <string name="settings_card_appearance">外观</string>
+    <string name="settings_group_ocr_health">OCR 与健康</string>
+    <string name="settings_group_data_about">数据与关于</string>
     <string name="settings_theme_system">跟随系统</string>
     <string name="settings_theme_light">浅色</string>
     <string name="settings_theme_dark">深色</string>
@@ -555,6 +561,14 @@
     <string name="health_screen_title">健康体征</string>
     <string name="health_screen_fab_cd">记录体征</string>
     <string name="health_empty_hint">暂无记录，点击 + 开始记录</string>
+    <string name="health_ocr_hero_title">拍照识别测量结果</string>
+    <string name="health_ocr_hero_body">对准血压计、血糖仪或体温计屏幕，自动提取数值后再确认保存。</string>
+    <string name="health_ocr_hero_scan">扫描体征</string>
+    <string name="health_ocr_hero_manual">手动记录</string>
+    <string name="health_metrics_section_title">健康指标</string>
+    <string name="health_metrics_section_subtitle">按体征类型查看最近一次结果和 7 日趋势</string>
+    <string name="health_recent_records_title">最近记录</string>
+    <string name="health_recent_records_subtitle">按时间排序的历史数据，可编辑或删除</string>
     <string name="health_delete_title">删除记录</string>
     <string name="health_delete_body">确定要删除这条体征记录吗？此操作无法撤销。</string>
     <string name="health_7day_avg">7日均 %s</string>

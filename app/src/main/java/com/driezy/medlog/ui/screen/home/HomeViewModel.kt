@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import java.time.Instant
 import java.time.LocalDate
+import java.time.LocalTime
 import java.time.ZoneId
 import java.util.Calendar
 import javax.inject.Inject
@@ -129,6 +130,22 @@ data class HomeUiState(
         items.filter { it.medication.isPRN }
     }
 
+    /** 当前最需要处理的剂量：未完成，且计划时间已经到达或在未来 30 分钟内。 */
+    val nowTaskItems: List<MedicationWithStatus> by lazy {
+        val cutoff = LocalTime.now().plusMinutes(30)
+        items.filter { item ->
+            !item.medication.isPRN && !item.isHandled && item.scheduledLocalTime() <= cutoff
+        }
+    }
+
+    /** 今日稍后：非 PRN 且不属于当前行动组的全部剂量，包含已完成项作为弱化历史。 */
+    val laterTaskItems: List<MedicationWithStatus> by lazy {
+        val nowIds = nowTaskItems.map { it.medication.id to it.timeSlotIndex }.toSet()
+        items.filter { item ->
+            !item.medication.isPRN && (item.medication.id to item.timeSlotIndex) !in nowIds
+        }
+    }
+
     /**
      * 下一个仍有待服药品的时段（用于"下一服"提示 Chip）。
      * 仅在 [takenCount] 大于 0 且未全部完成时有意义。
@@ -149,6 +166,17 @@ data class HomeUiState(
             "理气", "补益", "清热", "祛湿", "活血", "止咳", "安神", "妇科", "骨伤", "外科",
         )
     }
+}
+
+private fun MedicationWithStatus.scheduledLocalTime(): LocalTime {
+    val time = scheduledTime.ifBlank {
+        "%02d:%02d".format(medication.reminderHour, medication.reminderMinute)
+    }
+    val parts = time.split(":").mapNotNull { it.toIntOrNull() }
+    return LocalTime.of(
+        parts.getOrElse(0) { medication.reminderHour }.coerceIn(0, 23),
+        parts.getOrElse(1) { medication.reminderMinute }.coerceIn(0, 59),
+    )
 }
 
 @HiltViewModel
@@ -456,4 +484,3 @@ class HomeViewModel @Inject constructor(
         PlanExportCodec.encode(uiState.value.items.map { it.medication })
 
 }
-
