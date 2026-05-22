@@ -29,6 +29,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 21. Add debug seed data and non-visual verification | completed | Added deterministic Clock/Calendar helpers, `SeedDemoDataUseCase`, debug-only receiver, and seed format tests; installed/seeding on M2012K11C and verified counts, progress, low stock, latest health values, and FK integrity via adb/Room database queries. |
 | 22. Audit and modernize remaining Material Expressive surfaces | completed | Unified cross-page scan entries, scanner surfaces, top-level Extended FAB usage, and low-elevation surface container rules for ordinary content blocks; continued code-level audit against Material/Expressive guidance without visual screenshots. |
 | 23. Separate OCR model outputs and strengthen home hierarchy | completed | Split OCR candidate text by source/model, improved low-stock hierarchy, prevented important medication names from truncating too early, and documented the Flex-font adoption path. |
+| 24. Add Flex font at theme layer | completed | Bundled Google Sans Flex weights 400/500/600/700, connected them through shared `MedLogFontFamily`, kept typography roles intact, and verified theme typography uses the shared font family. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

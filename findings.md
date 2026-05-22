@@ -43,3 +43,4 @@
 - Material 3 emphasis guidance in Compose docs names color-role combinations and font weight as the primary emphasis tools; elevation is mainly represented through tonal color overlays, not heavy shadows.
 - Current FAB guidance lists regular, small, large, and extended FAB types; extended FAB is appropriate when text plus icon is needed to identify a primary action.
 - Google Design now describes Google Sans Flex as an open-source variable font with weight, width, optical size, slant, grade, and roundedness axes; Roboto Flex remains the safer Android-family fallback if packaging/licensing/tooling around Google Sans Flex is undesirable.
+- Google Fonts serves Google Sans Flex as TrueType files per weight. MedLog now bundles 400/500/600/700 weights locally so theme typography is deterministic and does not depend on runtime font provider availability.

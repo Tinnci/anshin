@@ -85,3 +85,6 @@
 - Parallel Gradle verification triggered KSP cache/file-generation corruption in `app/build/kspCaches/debug`; stop running KSP-backed Gradle tasks in parallel and clear generated KSP cache before retrying serial verification.
 - Completed OCR result grouping by recognition source/model, strengthened low-stock warning surfaces, allowed important medication names to wrap instead of single-line ellipsizing, and removed negative tracking from display typography.
 - Verified serially with `:app:compileDebugKotlin`, targeted `OcrRecognitionOutputTest`, `:app:ktlintCheck`, `:app:assembleDebug`, `:app:installDebug` on `6b9f2b84`, app launch, no recent `AndroidRuntime`/`FATAL EXCEPTION`, and full `:app:testDebugUnitTest`.
+- Started theme-layer Flex font integration. Current approach: use Compose `ui-text-google-fonts` and one shared `MedLogFontFamily` applied to baseline and emphasized typography roles.
+- Adjusted implementation to bundle Google Sans Flex TTF weights locally instead of using runtime downloadable fonts, then wired `MedLogFontFamily` into every baseline and emphasized `TextStyle`.
+- Verified Flex font integration with `:app:compileDebugKotlin`, targeted `MedLogTypographyTest`, `:app:ktlintCheck`, full `:app:testDebugUnitTest`, `:app:assembleDebug`, `:app:installDebug` on `6b9f2b84`, app launch, and no recent `AndroidRuntime`/`FATAL EXCEPTION`.
