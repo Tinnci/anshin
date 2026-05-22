@@ -26,10 +26,10 @@ import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material.icons.rounded.FlashOff
 import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -69,8 +69,10 @@ private const val TAG = "OcrCameraPreview"
 internal fun OcrCameraPreview(
     modifier: Modifier = Modifier,
     isProcessing: Boolean,
+    frameWidthFraction: Float = 0.82f,
+    frameAspectRatio: Float = 1.5f,
     onCaptureRequested: () -> Unit,
-    onCapture: (ImageProxy) -> Unit,
+    onCapture: (ImageProxy, OcrRecognitionRegion) -> Unit,
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -124,6 +126,13 @@ internal fun OcrCameraPreview(
     }
 
     val motionScheme = MaterialTheme.motionScheme
+    val recognitionRegion = remember(frameWidthFraction, frameAspectRatio) {
+        OcrRecognitionRegion(
+            enabled = true,
+            widthFraction = frameWidthFraction,
+            aspectRatio = frameAspectRatio,
+        )
+    }
 
     Box(modifier = modifier) {
         AndroidView(
@@ -143,7 +152,10 @@ internal fun OcrCameraPreview(
 
         // 取景框引导（处理中或冻结时隐藏）
         if (!isProcessing && frozenBitmap == null) {
-            ViewfinderOverlay()
+            ViewfinderOverlay(
+                widthFraction = frameWidthFraction,
+                aspectRatio = frameAspectRatio,
+            )
         }
 
         HorizontalFloatingToolbar(
@@ -160,7 +172,7 @@ internal fun OcrCameraPreview(
                                 executor,
                                 object : ImageCapture.OnImageCapturedCallback() {
                                     override fun onCaptureSuccess(image: ImageProxy) {
-                                        onCapture(image)
+                                        onCapture(image, recognitionRegion)
                                     }
 
                                     override fun onError(exception: ImageCaptureException) {

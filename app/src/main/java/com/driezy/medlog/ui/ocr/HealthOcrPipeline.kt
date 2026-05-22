@@ -19,8 +19,18 @@ class HealthOcrPipeline @Inject constructor(
     private val sevenSegRecognizer = SevenSegmentRecognizer(context, prefsRepository)
     private val lcdDetector = LcdDisplayDetector(context)
 
-    override fun recognize(imageProxy: ImageProxy, onResult: (List<String>) -> Unit) {
-        processImage(imageProxy, sevenSegRecognizer, lcdDetector, onResult)
+    override fun recognize(
+        imageProxy: ImageProxy,
+        recognitionRegion: OcrRecognitionRegion,
+        onResult: (List<String>) -> Unit,
+    ) {
+        processImage(
+            imageProxy = imageProxy,
+            recognitionRegion = recognitionRegion,
+            sevenSegRecognizer = sevenSegRecognizer,
+            lcdDetector = lcdDetector,
+            onResult = onResult,
+        )
     }
 
     override fun close() {

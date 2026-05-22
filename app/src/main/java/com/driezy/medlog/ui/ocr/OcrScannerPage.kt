@@ -34,6 +34,9 @@ import com.driezy.medlog.ui.components.CameraGuidancePill
 import com.driezy.medlog.ui.components.ProcessingOverlay
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
+private const val MEDICATION_OCR_FRAME_WIDTH = 0.88f
+private const val MEDICATION_OCR_FRAME_ASPECT = 2.8f
+
 /**
  * 通用 OCR 扫描页面：使用 CameraX 拍照 + ML Kit 文字识别。
  *
@@ -95,8 +98,10 @@ fun OcrScannerPage(
                             OcrCameraPreview(
                                 modifier = Modifier.fillMaxSize(),
                                 isProcessing = state.isProcessing,
+                                frameWidthFraction = MEDICATION_OCR_FRAME_WIDTH,
+                                frameAspectRatio = MEDICATION_OCR_FRAME_ASPECT,
                                 onCaptureRequested = { viewModel.onCaptureRequested() },
-                                onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
+                                onCapture = { imageProxy, region -> viewModel.onImageCaptured(imageProxy, region) },
                             )
                             CameraGuidancePill(
                                 text = stringResource(R.string.ocr_scan_hint),

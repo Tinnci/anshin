@@ -29,8 +29,8 @@ class OcrScannerViewModel @Inject constructor(
         _uiState.update { it.copy(isProcessing = true) }
     }
 
-    fun onImageCaptured(imageProxy: ImageProxy) {
-        pipeline.recognize(imageProxy) { texts ->
+    fun onImageCaptured(imageProxy: ImageProxy, recognitionRegion: OcrRecognitionRegion) {
+        pipeline.recognize(imageProxy, recognitionRegion) { texts ->
             _uiState.update {
                 it.copy(
                     recognizedTexts = texts,

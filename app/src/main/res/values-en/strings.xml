@@ -722,7 +722,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
 
     <!-- OCR Text Recognition -->
     <string name="ocr_scan_title">Scan Medication Name</string>
-    <string name="ocr_scan_hint">Point the camera at the medication name, then tap capture</string>
+    <string name="ocr_scan_hint">Place the medication name inside the frame, then capture</string>
     <string name="ocr_scan_permission_rationale">Camera permission is required to recognize medication names</string>
     <string name="ocr_scan_grant_permission">Grant Permission</string>
     <string name="ocr_capture">Capture</string>
@@ -733,7 +733,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <!-- OCR Health Metric Recognition -->
     <string name="ocr_health_scan_title">Scan Health Metrics</string>
     <string name="ocr_health_scan_chip">Scan to fill</string>
-    <string name="ocr_health_scan_hint">Point the camera at the device screen, then tap capture</string>
+    <string name="ocr_health_scan_hint">Place the device screen inside the frame, then capture</string>
     <string name="ocr_health_detected">Detected health metrics</string>
     <string name="ocr_health_no_metrics">No health metrics detected — try again</string>
     <string name="ocr_health_numbers_found">Numbers found, tap to select</string>

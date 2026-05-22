@@ -678,7 +678,7 @@
 
     <!-- OCR 文字認識 -->
     <string name="ocr_scan_title">薬名をスキャン</string>
-    <string name="ocr_scan_hint">薬のパッケージの名前にカメラを向けて撮影</string>
+    <string name="ocr_scan_hint">薬名を枠内に入れて撮影</string>
     <string name="ocr_scan_permission_rationale">薬名を認識するにはカメラ権限が必要です</string>
     <string name="ocr_scan_grant_permission">権限を付与</string>
     <string name="ocr_capture">撮影</string>
@@ -689,7 +689,7 @@
     <!-- OCR バイタルサイン認識 -->
     <string name="ocr_health_scan_title">バイタルデータをスキャン</string>
     <string name="ocr_health_scan_chip">撮影して入力</string>
-    <string name="ocr_health_scan_hint">測定機器の画面にカメラを向けて撮影</string>
+    <string name="ocr_health_scan_hint">測定機器の画面を枠内に入れて撮影</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行</string>
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>

@@ -36,6 +36,7 @@ private val mainHandler = Handler(Looper.getMainLooper())
 @SuppressLint("UnsafeOptInUsageError")
 internal fun processImage(
     imageProxy: ImageProxy,
+    recognitionRegion: OcrRecognitionRegion = OcrRecognitionRegion.FullImage,
     sevenSegRecognizer: SevenSegmentRecognizer?,
     lcdDetector: LcdDisplayDetector? = null,
     onResult: (List<String>) -> Unit,
@@ -47,37 +48,44 @@ internal fun processImage(
         return
     }
 
-    // 先创建原始 InputImage 让 ML Kit 处理
-    val originalInput = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
-
-    // 同时将 ImageProxy 转为 Bitmap 用于预处理变体
+    // 将 ImageProxy 转为正确旋转的 Bitmap；如果提供识别区域，则只裁剪框内区域参与 OCR。
     val sourceBitmap = imageProxyToBitmap(imageProxy)
+    val recognitionBitmap = sourceBitmap?.let { bitmap ->
+        cropToRecognitionRegion(bitmap, recognitionRegion)
+    }
+
+    // 使用框内 bitmap 作为 ML Kit 原始输入；转换失败时才退回整张 media image。
+    val originalInput = if (recognitionBitmap != null) {
+        InputImage.fromBitmap(recognitionBitmap, 0)
+    } else {
+        InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
+    }
 
     // 七段管专用模型识别（同步，非常快 ~316KB 模型）
-    val sevenSegResult = if (sourceBitmap != null && sevenSegRecognizer != null) {
-        sevenSegRecognizer.recognize(sourceBitmap)?.let { listOf(it) } ?: emptyList()
+    val sevenSegResult = if (recognitionBitmap != null && sevenSegRecognizer != null) {
+        sevenSegRecognizer.recognize(recognitionBitmap)?.let { listOf(it) } ?: emptyList()
     } else {
         emptyList()
     }
 
     // LCD 区域检测 → 裁剪后用 CRNN 专门识别（支持多行分割）
     val lcdCropResults = mutableListOf<String>()
-    if (sourceBitmap != null && lcdDetector != null && sevenSegRecognizer != null) {
-        val detections = lcdDetector.detect(sourceBitmap)
+    if (recognitionBitmap != null && lcdDetector != null && sevenSegRecognizer != null) {
+        val detections = lcdDetector.detect(recognitionBitmap)
         for (det in detections) {
             val r = det.rect
             // 过滤面积过大的检测框 (> 30% 图片面积，可能误检)
             val areaRatio = (r.right - r.left) * (r.bottom - r.top)
             if (areaRatio > 0.3f) continue
 
-            val x = (r.left * sourceBitmap.width).toInt().coerceIn(0, sourceBitmap.width - 1)
-            val y = (r.top * sourceBitmap.height).toInt().coerceIn(0, sourceBitmap.height - 1)
-            val w = ((r.right - r.left) * sourceBitmap.width).toInt().coerceAtLeast(1)
-                .coerceAtMost(sourceBitmap.width - x)
-            val h = ((r.bottom - r.top) * sourceBitmap.height).toInt().coerceAtLeast(1)
-                .coerceAtMost(sourceBitmap.height - y)
+            val x = (r.left * recognitionBitmap.width).toInt().coerceIn(0, recognitionBitmap.width - 1)
+            val y = (r.top * recognitionBitmap.height).toInt().coerceIn(0, recognitionBitmap.height - 1)
+            val w = ((r.right - r.left) * recognitionBitmap.width).toInt().coerceAtLeast(1)
+                .coerceAtMost(recognitionBitmap.width - x)
+            val h = ((r.bottom - r.top) * recognitionBitmap.height).toInt().coerceAtLeast(1)
+                .coerceAtMost(recognitionBitmap.height - y)
             if (w > 10 && h > 10) {
-                val crop = Bitmap.createBitmap(sourceBitmap, x, y, w, h)
+                val crop = Bitmap.createBitmap(recognitionBitmap, x, y, w, h)
                 // 使用多行识别：水平投影分行 → 逐行 CRNN
                 lcdCropResults.addAll(sevenSegRecognizer.recognizeRows(crop))
                 crop.recycle()
@@ -86,8 +94,8 @@ internal fun processImage(
     }
 
     // 生成预处理变体
-    val variantBitmaps = if (sourceBitmap != null) {
-        OcrImagePreprocessor.generateVariants(sourceBitmap)
+    val variantBitmaps = if (recognitionBitmap != null) {
+        OcrImagePreprocessor.generateVariants(recognitionBitmap)
     } else {
         emptyList()
     }
@@ -105,7 +113,7 @@ internal fun processImage(
         Log.e(TAG, "Failed to create text recognizer", e)
         imageProxy.close()
         variantBitmaps.forEach { it.recycle() }
-        sourceBitmap?.recycle()
+        recycleRecognitionBitmaps(sourceBitmap, recognitionBitmap)
         mainHandler.post { onResult(emptyList()) }
         return
     }
@@ -127,7 +135,7 @@ internal fun processImage(
                     val merged = mergeOcrResults(allResults, sevenSegResult + lcdCropResults)
                     imageProxy.close()
                     variantBitmaps.forEach { bmp -> bmp.recycle() }
-                    sourceBitmap?.recycle()
+                    recycleRecognitionBitmaps(sourceBitmap, recognitionBitmap)
                     recognizer.close()
                     mainHandler.post { onResult(merged) }
                 }
@@ -152,6 +160,24 @@ private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? = try {
 } catch (e: Exception) {
     Log.w(TAG, "Failed to convert ImageProxy to Bitmap", e)
     null
+}
+
+private fun cropToRecognitionRegion(
+    bitmap: Bitmap,
+    recognitionRegion: OcrRecognitionRegion,
+): Bitmap {
+    val bounds = recognitionRegion.cropBounds(bitmap.width, bitmap.height) ?: return bitmap
+    if (bounds.x == 0 && bounds.y == 0 && bounds.width == bitmap.width && bounds.height == bitmap.height) {
+        return bitmap
+    }
+    return Bitmap.createBitmap(bitmap, bounds.x, bounds.y, bounds.width, bounds.height)
+}
+
+private fun recycleRecognitionBitmaps(sourceBitmap: Bitmap?, recognitionBitmap: Bitmap?) {
+    if (recognitionBitmap != null && recognitionBitmap !== sourceBitmap) {
+        recognitionBitmap.recycle()
+    }
+    sourceBitmap?.recycle()
 }
 
 /**

@@ -698,7 +698,7 @@
 
     <!-- OCR 文字识别 -->
     <string name="ocr_scan_title">扫描药品名称</string>
-    <string name="ocr_scan_hint">将药品包装上的名称对准相机，点击拍照</string>
+    <string name="ocr_scan_hint">将药品名称放进框内，点击拍照识别</string>
     <string name="ocr_scan_permission_rationale">需要相机权限以识别药品名称</string>
     <string name="ocr_scan_grant_permission">授予权限</string>
     <string name="ocr_capture">拍照</string>
@@ -709,7 +709,7 @@
     <!-- OCR 体征识别 -->
     <string name="ocr_health_scan_title">扫描体征数据</string>
     <string name="ocr_health_scan_chip">拍照识别填充</string>
-    <string name="ocr_health_scan_hint">将测量设备屏幕对准相机，点击拍照识别</string>
+    <string name="ocr_health_scan_hint">将测量设备屏幕放进框内，点击拍照识别</string>
     <string name="ocr_health_detected">识别到以下体征数据</string>
     <string name="ocr_health_no_metrics">未识别到体征数据，重试</string>
     <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>

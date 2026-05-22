@@ -56,6 +56,9 @@ import com.driezy.medlog.ui.components.CameraGuidancePill
 import com.driezy.medlog.ui.components.ProcessingOverlay
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
+private const val HEALTH_OCR_FRAME_WIDTH = 0.86f
+private const val HEALTH_OCR_FRAME_ASPECT = 2.15f
+
 /**
  * 体征数据 OCR 扫描页面：拍照后自动解析血压/心率/血糖等体征指标。
  *
@@ -130,8 +133,10 @@ fun HealthOcrScannerPage(
                             OcrCameraPreview(
                                 modifier = Modifier.fillMaxSize(),
                                 isProcessing = state.isProcessing,
+                                frameWidthFraction = HEALTH_OCR_FRAME_WIDTH,
+                                frameAspectRatio = HEALTH_OCR_FRAME_ASPECT,
                                 onCaptureRequested = { viewModel.onCaptureRequested() },
-                                onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
+                                onCapture = { imageProxy, region -> viewModel.onImageCaptured(imageProxy, region) },
                             )
                             CameraGuidancePill(
                                 text = stringResource(R.string.ocr_health_scan_hint),

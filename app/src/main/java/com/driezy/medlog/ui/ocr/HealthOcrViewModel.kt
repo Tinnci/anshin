@@ -30,9 +30,9 @@ class HealthOcrViewModel @Inject constructor(
         _uiState.update { it.copy(isProcessing = true, processingStage = 0) }
     }
 
-    fun onImageCaptured(imageProxy: ImageProxy) {
+    fun onImageCaptured(imageProxy: ImageProxy, recognitionRegion: OcrRecognitionRegion) {
         _uiState.update { it.copy(processingStage = 1) }
-        pipeline.recognize(imageProxy) { texts ->
+        pipeline.recognize(imageProxy, recognitionRegion) { texts ->
             _uiState.update { it.copy(processingStage = 2) }
             val result = HealthMetricParser.parseAll(texts)
             _uiState.update {
