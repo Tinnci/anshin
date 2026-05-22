@@ -678,7 +678,7 @@
     <string name="qr_import_mode_replace">대체(전체 삭제 후 다시 가져오기)</string>
     <string name="qr_invalid">잘못된 QR 코드입니다. Anshin에서 생성한 내보내기 QR을 스캔하세요</string>
     <!-- OCR 문자 인식 -->
-    <string name="ocr_scan_title">약명 스쮨</string>
+    <string name="ocr_scan_title">약명 스캔</string>
     <string name="ocr_scan_hint">약 포장의 이름에 카메라를 맞추고 촬영하세요</string>
     <string name="ocr_scan_permission_rationale">약명을 인식하려면 카메라 권한이 필요합니다</string>
     <string name="ocr_scan_grant_permission">권한 부여</string>
@@ -698,7 +698,45 @@
     <string name="ocr_bp_merge_suggestion">혈압 판독값일 수 있음</string>
     <string name="ocr_health_tap_to_record">탭하여 기록</string>
     <string name="ocr_health_raw_text">원본 텍스트</string>
-    <string name="ocr_flash_toggle">플래시 전환</string>    <plurals name="qr_import_success">
+    <string name="ocr_health_no_metrics_hint">팁: 화면이 선명하고 반사가 없도록 가까이에서 촬영하세요</string>
+    <string name="ocr_confidence_high">높음</string>
+    <string name="ocr_confidence_medium">보통</string>
+    <string name="ocr_confidence_low">낮음</string>
+    <string name="ocr_processing_recognizing">텍스트 인식 중…</string>
+    <string name="ocr_processing_parsing">지표 분석 중…</string>
+    <string name="ocr_no_text_found">텍스트가 감지되지 않았습니다</string>
+    <string name="ocr_no_text_hint">문자가 선명하게 보이도록 한 뒤 다시 촬영하세요</string>
+    <string name="ocr_edit_value">값 편집</string>
+    <string name="ocr_flash_toggle">플래시 전환</string>
+    <string name="home_now_group_title">지금 할 일</string>
+    <string name="home_now_group_body">복용 시간이 되었거나 곧 예정된 약</string>
+    <string name="home_later_group_title">오늘 나중에</string>
+    <string name="home_later_group_body">이후 복용 일정과 오늘 처리된 기록</string>
+    <string name="health_ocr_hero_title">측정값 촬영 인식</string>
+    <string name="health_ocr_hero_body">혈압계, 혈당계, 체온계 화면을 비춘 뒤 추출된 값을 확인하고 저장하세요.</string>
+    <string name="health_ocr_hero_scan">건강 지표 스캔</string>
+    <string name="health_ocr_hero_manual">수동 입력</string>
+    <string name="health_metrics_section_title">건강 지표</string>
+    <string name="health_metrics_section_subtitle">건강 유형별 최근 값과 7일 추세</string>
+    <string name="health_recent_records_title">최근 기록</string>
+    <string name="health_recent_records_subtitle">시간순 기록. 편집하거나 삭제할 수 있습니다</string>
+    <string name="settings_group_ocr_health">OCR 및 건강</string>
+    <string name="settings_group_data_about">데이터 및 정보</string>
+    <string name="settings_ocr_model_card_title">7세그먼트 OCR 모델 설정</string>
+    <string name="settings_ocr_model_desc">혈압계, 혈당계 등 7세그먼트 표시 장치의 건강 지표를 인식할 딥러닝 모델을 선택합니다.</string>
+    <string name="settings_ocr_model_light_title">속도 모드 (LightSVTR)</string>
+    <string name="settings_ocr_model_light_desc">매우 빠름. 1.0 MB, 약 4ms 지연 시간. 표준 조명 환경에 적합합니다.</string>
+    <string name="settings_ocr_model_light_tag">빠름</string>
+    <string name="settings_ocr_model_light_size">1.0 MB</string>
+    <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
+    <string name="settings_ocr_model_light_accuracy">94.2% 정확도</string>
+    <string name="settings_ocr_model_fastvit_title">정확도 모드 (FastViT)</string>
+    <string name="settings_ocr_model_fastvit_desc">높은 정확도. 13.0 MB, 약 50ms. 어두운 환경, 반사, 각도, 낮은 대비에 대응합니다.</string>
+    <string name="settings_ocr_model_fastvit_tag">추천</string>
+    <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
+    <string name="settings_ocr_model_fastvit_latency">약 50ms</string>
+    <string name="settings_ocr_model_fastvit_accuracy">98.6% 정확도</string>
+    <plurals name="qr_import_success">
         <item quantity="other">%d가지 약품을 가져왔습니다</item>
     </plurals>
     <plurals name="qr_export_med_count">

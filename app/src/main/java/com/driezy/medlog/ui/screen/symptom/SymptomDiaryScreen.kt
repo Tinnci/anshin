@@ -14,6 +14,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
@@ -54,11 +55,14 @@ fun SymptomDiaryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text(stringResource(R.string.symptom_screen_title)) },
+                scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButton = {

@@ -79,19 +79,34 @@ fun HealthScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showOcrScanner by rememberSaveable { mutableStateOf(false) }
+    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
-            TopAppBar(
+            LargeTopAppBar(
                 title = { Text(stringResource(R.string.health_screen_title)) },
+                scrollBehavior = scrollBehavior,
             )
         },
         floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = { showOcrScanner = true },
-                icon = { Icon(Icons.Rounded.DocumentScanner, contentDescription = null) },
-                text = { Text(stringResource(R.string.health_ocr_hero_scan)) },
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SmallFloatingActionButton(
+                    onClick = viewModel::startAdd,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                ) {
+                    Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                }
+                ExtendedFloatingActionButton(
+                    onClick = { showOcrScanner = true },
+                    icon = { Icon(Icons.Rounded.DocumentScanner, contentDescription = null) },
+                    text = { Text(stringResource(R.string.health_ocr_hero_scan)) },
+                )
+            }
         },
     ) { innerPadding ->
         if (uiState.isLoading) {
