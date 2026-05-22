@@ -3,6 +3,8 @@ package com.driezy.medlog.ui.screen.settings
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -76,6 +78,7 @@ fun SettingsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val motionScheme = MaterialTheme.motionScheme
 
     // 精确闹钟权限检测（Android 12+）
     val context = LocalContext.current
@@ -191,8 +194,8 @@ fun SettingsScreen(
             // ── Android 12+ 精确闹钟权限警告卡片 ────────────────────
             AnimatedVisibility(
                 visible = !canScheduleExactAlarms,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -250,8 +253,8 @@ fun SettingsScreen(
             // ── Android 13+ 通知权限警告卡片 ─────────────────────
             AnimatedVisibility(
                 visible = !canPostNotifications,
-                enter = expandVertically(),
-                exit = shrinkVertically(),
+                enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
             ) {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -401,8 +404,8 @@ fun SettingsScreen(
                 )
                 AnimatedVisibility(
                     visible = uiState.persistentReminder,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     Column(
                         modifier = Modifier
@@ -510,8 +513,8 @@ fun SettingsScreen(
                 )
                 AnimatedVisibility(
                     visible = uiState.followUpReminderEnabled,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     Column(
                         modifier = Modifier
@@ -579,8 +582,8 @@ fun SettingsScreen(
                 // ── 仅在作息模式开启时显示详细时间设置 ────────────
                 AnimatedVisibility(
                     visible = uiState.enableTimePeriodMode,
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     Column {
                         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))

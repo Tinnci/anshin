@@ -24,6 +24,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 16. Apply Material Expressive home layout slice | completed | Consolidated Today progress, streak, next-dose, and primary action into an expressive overview card; removed duplicate empty-state FAB; verified with compile, install, ktlint, and logcat only. |
 | 17. Apply Material Expressive health layout slice | completed | Added OCR hero action, grouped health metrics into a titled section, weakened recent records with supporting header, separated metric value/unit typography, and verified LoadingIndicator coverage. |
 | 18. Complete Material Expressive layout/elevation/settings pass | completed | Converted Home default medication list into Now/Later task groups with PRN separated, flattened time-group elevation, consolidated Settings into Appearance, Reminders, OCR & Health, Widgets, and Data & About containers, then installed and launched on M2012K11C. |
+| 19. Apply Material Expressive micro-motion pass | completed | Aligned recurrent micro-interactions with `MotionScheme.expressive()` by using spatial specs for bounds/position changes and effects specs for alpha/color in Home, medication rows, OCR, Add Medication, and Settings. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

@@ -112,10 +112,10 @@ fun HealthOcrScannerPage(
                     targetState = state.showResults,
                     transitionSpec = {
                         (fadeIn(motionScheme.defaultEffectsSpec()) +
-                            slideInVertically(motionScheme.defaultEffectsSpec()) { it / 8 })
+                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 8 })
                             .togetherWith(
                                 fadeOut(motionScheme.fastEffectsSpec()) +
-                                    slideOutVertically(motionScheme.fastEffectsSpec()) { -it / 8 },
+                                    slideOutVertically(motionScheme.fastSpatialSpec()) { -it / 8 },
                             )
                     },
                     label = "health_ocr_content",

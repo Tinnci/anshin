@@ -36,7 +36,7 @@ fun AnimatedListItem(
     }
     LaunchedEffect(Unit) {
         delay(index * staggerDelay)
-        animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultEffectsSpec())
+        animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultSpatialSpec())
     }
 
     Box(

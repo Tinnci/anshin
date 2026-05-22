@@ -2,6 +2,8 @@ package com.driezy.medlog.ui.screen.settings
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
@@ -201,7 +203,7 @@ internal fun SettingsSwitchRow(
 
 // ── 作息时间行（点击展开内联 TimeInput，无模态对话框）────────────────────────
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun RoutineTimeRow(
     label: String,
@@ -210,6 +212,7 @@ internal fun RoutineTimeRow(
     icon: ImageVector,
     onTimeSelected: (Int, Int) -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
     var expanded by remember { mutableStateOf(false) }
     // 状态始终保持，不随 expanded 重置
     val timeState = rememberTimePickerState(
@@ -241,7 +244,11 @@ internal fun RoutineTimeRow(
             modifier = Modifier.clickable { expanded = !expanded },
             colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         )
-        AnimatedVisibility(expanded, enter = expandVertically(), exit = shrinkVertically()) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+        ) {
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -269,11 +276,13 @@ internal fun RoutineTimeRow(
 
 // ── 已归档药品可展开列表（替代 ModalBottomSheet）────────────────────────────
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun ArchivedMedicationsRow(
     archived: List<Medication>,
     onRestore: (Long) -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
     var expanded by remember { mutableStateOf(false) }
     Column {
         ListItem(
@@ -301,8 +310,8 @@ internal fun ArchivedMedicationsRow(
         )
         AnimatedVisibility(
             visible = expanded && archived.isNotEmpty(),
-            enter = expandVertically(),
-            exit = shrinkVertically(),
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             Column {
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))

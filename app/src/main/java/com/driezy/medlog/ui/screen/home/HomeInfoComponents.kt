@@ -1,8 +1,6 @@
 package com.driezy.medlog.ui.screen.home
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -241,8 +239,13 @@ internal fun AnimatedProgressCard(
                         AnimatedContent(
                             targetState = taken,
                             transitionSpec = {
-                                (slideInVertically(spring(stiffness = 500f)) { -it / 2 } + fadeIn(tween(160))) togetherWith
-                                    (slideOutVertically(tween(120)) { it / 2 } + fadeOut(tween(100)))
+                                (
+                                    slideInVertically(motionScheme.defaultSpatialSpec()) { -it / 2 } +
+                                        fadeIn(motionScheme.defaultEffectsSpec())
+                                ) togetherWith (
+                                    slideOutVertically(motionScheme.fastSpatialSpec()) { it / 2 } +
+                                        fadeOut(motionScheme.fastEffectsSpec())
+                                )
                             },
                             label = "takenNum",
                         ) { t ->

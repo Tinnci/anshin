@@ -3,7 +3,6 @@ package com.driezy.medlog.ui.components
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -413,14 +412,14 @@ fun MedicationCard(
 @Composable
 private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial: Boolean = false) {
     val motionScheme = MaterialTheme.motionScheme
-    // 用 Animatable 实现自定义弹性序列：未服 → 0.9，服用 → 超调 1.25 → 稳定 1.0
+    // Keep the confirmation pulse short and contained; the color/status carries the meaning.
     val scale = remember { Animatable(if (isTaken) 1f else 0.9f) }
     LaunchedEffect(isTaken, isPartial) {
         if (isTaken || isPartial) {
-            scale.animateTo(1.25f, animationSpec = spring(dampingRatio = 0.30f, stiffness = 700f))
-            scale.animateTo(1.00f, animationSpec = spring(dampingRatio = 0.55f, stiffness = 400f))
+            scale.animateTo(1.10f, animationSpec = motionScheme.fastSpatialSpec())
+            scale.animateTo(1.00f, animationSpec = motionScheme.defaultSpatialSpec())
         } else {
-            scale.animateTo(0.9f, animationSpec = motionScheme.defaultEffectsSpec())
+            scale.animateTo(0.9f, animationSpec = motionScheme.defaultSpatialSpec())
         }
     }
     val bgColor by animateColorAsState(
@@ -460,4 +459,3 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial
         }
     }
 }
-

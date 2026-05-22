@@ -84,6 +84,7 @@ fun AddMedicationScreen(
         stringResource(R.string.add_unit_patch_unit),
     )
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val motionScheme = MaterialTheme.motionScheme
 
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.loadExisting(medicationId)
@@ -357,7 +358,11 @@ fun AddMedicationScreen(
                     }
                     Switch(checked = uiState.isPRN, onCheckedChange = viewModel::onIsPRNChange)
                 }
-                AnimatedVisibility(visible = uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = uiState.isPRN,
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                ) {
                     OutlinedTextField(
                         value = uiState.maxDailyDose,
                         onValueChange = viewModel::onMaxDailyDoseChange,
@@ -370,7 +375,11 @@ fun AddMedicationScreen(
                 }
 
                 // ── 服药频率（非PRN才显示）──────────────────────
-                AnimatedVisibility(visible = !uiState.isPRN, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = !uiState.isPRN,
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                ) {
                     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
                         HorizontalDivider(Modifier.padding(vertical = MedLogSpacing.Tiny))
                         Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -394,7 +403,11 @@ fun AddMedicationScreen(
                                 }
                             }
                         }
-                        AnimatedVisibility(uiState.frequencyType == "interval") {
+                        AnimatedVisibility(
+                            visible = uiState.frequencyType == "interval",
+                            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                        ) {
                             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                                 Text(stringResource(R.string.add_freq_every_n), style = MaterialTheme.typography.bodyMedium)
                                 OutlinedTextField(
@@ -407,7 +420,11 @@ fun AddMedicationScreen(
                                 Text(stringResource(R.string.add_freq_interval_suffix), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
-                        AnimatedVisibility(uiState.frequencyType == "specific_days") {
+                        AnimatedVisibility(
+                            visible = uiState.frequencyType == "specific_days",
+                            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                        ) {
                             val days = uiState.frequencyDays.split(",").filter { it.isNotBlank() }
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -454,8 +471,8 @@ fun AddMedicationScreen(
                 val isExactMode = !enableTimePeriodMode || uiState.timePeriod == TimePeriod.EXACT
                 AnimatedVisibility(
                     visible = enableTimePeriodMode,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     val periodLabel = stringResource(R.string.add_time_period_mode)
                     val exactLabel = stringResource(R.string.add_exact_time_mode)
@@ -488,8 +505,8 @@ fun AddMedicationScreen(
                 // 作息时间模式：时段选择芯片 + 自动提醒时间提示
                 AnimatedVisibility(
                     visible = !isExactMode,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         Row(
@@ -533,7 +550,11 @@ fun AddMedicationScreen(
                     }
                 }
                 // 精确时间模式：用户手动设置多个提醒时间 + 可选间隔给药
-                AnimatedVisibility(visible = isExactMode, enter = expandVertically(), exit = shrinkVertically()) {
+                AnimatedVisibility(
+                    visible = isExactMode,
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                ) {
                     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                         ReminderTimesRow(
                             times = uiState.reminderTimes,
@@ -573,8 +594,8 @@ fun AddMedicationScreen(
                         }
                         AnimatedVisibility(
                             visible = uiState.intervalHours > 0,
-                            enter = expandVertically() + fadeIn(),
-                            exit = shrinkVertically() + fadeOut(),
+                            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                         ) {
                             OutlinedTextField(
                                 value = if (uiState.intervalHours > 0) uiState.intervalHours.toString() else "",
@@ -761,13 +782,14 @@ private fun FormSection(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun ReminderTimesRow(
     times: List<String>,
     onAdd: (String) -> Unit,
     onRemove: (String) -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
     var showPicker by remember { mutableStateOf(false) }
     val cal = remember { Calendar.getInstance() }
     val timePickerState = rememberTimePickerState(
@@ -808,7 +830,11 @@ private fun ReminderTimesRow(
             )
         }
         // 内联内嵌时间输入（无对话框）
-        AnimatedVisibility(showPicker, enter = expandVertically(), exit = shrinkVertically()) {
+        AnimatedVisibility(
+            visible = showPicker,
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+        ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
@@ -844,7 +870,7 @@ private fun ReminderTimesRow(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun DatePickerField(
     label: String,
@@ -853,6 +879,7 @@ private fun DatePickerField(
     modifier: Modifier = Modifier,
     nullable: Boolean = false,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
     val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
     val displayText = timestamp?.let { fmt.format(Date(it)) } ?: stringResource(R.string.add_date_unset)
     var expanded by remember { mutableStateOf(false) }
@@ -885,7 +912,11 @@ private fun DatePickerField(
             }
         }
         // 内联内嵌日期选择器（无对话框）
-        AnimatedVisibility(expanded, enter = expandVertically(), exit = shrinkVertically()) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+        ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(bottomStart = 16.dp, bottomEnd = 16.dp),
@@ -919,4 +950,3 @@ private fun DatePickerField(
         }
     }
 }
-
