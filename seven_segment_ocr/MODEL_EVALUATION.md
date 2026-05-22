@@ -244,13 +244,23 @@ Currently trainable in this kernel:
 - `light_svtr_tiny`
 - `light_svtr_base`
 - `light_svtr_large`
+- `ppocrv5_mobile_rec`
+- `ppocrv5_server_rec`
+- `repsvtr`
+- `svtrv2_server`
 - `fastvit_t8_ctc`
 
 The report also includes non-trainable or blocked candidates so the table
-remains complete: PARSeq, PaddleOCR/RepSVTR/SVTRv2, TrOCR, ML Kit, and
+remains complete: PARSeq, TrOCR, ML Kit, and
 `siglip_nano`. `siglip_nano` is intentionally marked
 `blocked_missing_checkpoint` until a concrete official checkpoint/repo id is
 selected.
+
+The PaddleOCR candidates clone the official PaddleOCR repository on Kaggle,
+download the official pretrained `.pdparams` files, materialize per-candidate
+training YAMLs with the generated `ppocr_rec` manifests, run `tools/train.py`,
+export the best checkpoint, convert it with `paddle2onnx`, and evaluate the
+resulting ONNX model through the same CTC benchmark path.
 
 For a short Kaggle smoke run, edit the kernel arguments in the Kaggle UI or run
 the script locally with:
@@ -265,6 +275,41 @@ pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py \
   --fastvit-stage2-epochs 0 \
   --fastvit-no-pretrained
 ```
+
+For a short PaddleOCR-only Kaggle smoke run:
+
+```bash
+pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py \
+  --output-dir /tmp/candidate_paddle_smoke \
+  --candidates ppocrv5_mobile_rec \
+  --synthetic-samples 200 \
+  --paddle-epochs 1 \
+  --paddle-batch-size 8 \
+  --paddle-eval-batch-size 8 \
+  --paddle-eval-step 20
+```
+
+## FastViT Android NNAPI Benchmark
+
+Use a connected Android phone with USB debugging enabled:
+
+```bash
+PROVIDER=cpu RUNS=10 scripts/run_fastvit_nnapi_benchmark.sh \
+  seven_segment_ocr/exported_candidates/fastvit_t8_ctc_reparam.onnx
+
+PROVIDER=nnapi RUNS=10 scripts/run_fastvit_nnapi_benchmark.sh \
+  seven_segment_ocr/exported_candidates/fastvit_t8_ctc_reparam.onnx
+```
+
+Initial M2012K11C result with `fastvit_t8_ctc_reparam.onnx`:
+
+| Provider | Runs | Mean | p50 | p95 | Throughput |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| CPU | 10 | 49.70 ms | 50 ms | 51 ms | 20.12/s |
+| NNAPI | 10 | 49.20 ms | 49 ms | 50 ms | 20.33/s |
+
+`nnapi_cpu_disabled` one-run smoke completed at 52 ms. On this device, the
+current FastViT ONNX graph does not show meaningful NNAPI/NPU speedup.
 
 Current TrOCR ONNX baseline on `/tmp/medlog_bare_benchmark`, 120 samples:
 

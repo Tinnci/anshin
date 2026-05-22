@@ -18,9 +18,12 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 10. Implement FastViT-T8 CTC candidate | completed | Added FastViT CTC model, two-stage fine-tuning script, RGB ImageNet eval preprocessing, and candidate runner support. |
 | 11. Smoke test FastViT path | completed | Ran no-pretrained CPU smoke fine-tune/export and unified runner evaluation from `/tmp/fastvit_ctc_smoke`. |
 | 12. Implement Kaggle all-candidate fine-tune kernel | completed | Added Kaggle runner for LightSVTR tiny/base/large and FastViT-T8, plus complete pending/eval-only rows for other architectures. |
+| 13. Add PaddleOCR Kaggle fine-tune configs | in_progress | Added tests and implementation for PP-OCRv5 mobile/server, RepSVTR, and SVTRv2 config materialization and Kaggle train/export/eval dispatch. |
+| 14. Run FastViT Android NNAPI benchmark | in_progress | Added instrumentation benchmark and collected initial M2012K11C CPU/NNAPI measurements for `fastvit_t8_ctc_reparam.onnx`. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
 | --- | --- | --- |
 | LightSVTR exact dropped to 0% after batching | First CPU batch run | Fixed output slicing: LightSVTR exports `[time,batch,class]`; PaddleOCR exports `[batch,time,class]`. |
 | Initial FastViT ONNX smoke was only 47k params | First FastViT wrapper used only feature stage 0 | Switched to multi-scale feature fusion across all FastViT stages, producing a 3.25M-param smoke ONNX while keeping 64 time steps. |
+| FastViT Android 100-run CPU benchmark exceeded the practical wait window | First instrumentation run used `RUNS=100` | Killed the stuck run and used `RUNS=10` for comparable CPU/NNAPI smoke measurements. |

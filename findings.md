@@ -22,3 +22,7 @@
 - A single early FastViT stage preserves OCR time resolution but prunes most backbone params during ONNX export. Multi-scale fusion across all stages keeps 64 time steps and includes the full T8 backbone.
 - No official Google `SigLIP-Nano 15M` checkpoint was found in HF/timm discovery; keep SigLIP out of executable candidates until a concrete repo id is selected.
 - The all-candidate Kaggle fine-tune kernel can train LightSVTR tiny/base/large and FastViT-T8. PARSeq, PaddleOCR/RepSVTR/SVTRv2, TrOCR, ML Kit, and SigLIP-Nano are reported as eval-only/blocked rows unless dedicated fine-tuning adapters are added.
+- PaddleOCR official PP-OCRv5 recognition configs are available on the PaddleOCR `main` branch under `configs/rec/PP-OCRv5/PP-OCRv5_mobile_rec.yml` and `PP-OCRv5_server_rec.yml`.
+- PaddleOCR official RepSVTR/SVTRv2 GTC configs are available on the PaddleOCR `main` branch under `configs/rec/SVTRv2/ch_RepSVTR_rec_gtc.yml` and `ch_SVTRv2_rec_gtc.yml`.
+- PaddleX official pretrained URLs for `PP-OCRv5_mobile_rec_pretrained.pdparams`, `PP-OCRv5_server_rec_pretrained.pdparams`, `ch_RepSVTR_rec_pretrained.pdparams`, and `ch_SVTRv2_rec_pretrained.pdparams` return HTTP 200 and can be used by Kaggle fine-tune.
+- On M2012K11C, `fastvit_t8_ctc_reparam.onnx` Android ORT benchmark with `RUNS=10` measured CPU mean 49.70 ms and NNAPI mean 49.20 ms. `nnapi_cpu_disabled` single-run also completed at 52 ms, so this evidence does not show meaningful NPU speedup for the current FastViT graph.

@@ -25,3 +25,18 @@
 - Verified plan-only run:
   `pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py --output-dir /tmp/kaggle_candidate_plan --plan-only --candidates all`.
 - Pushed Kaggle candidate fine-tune kernel version 2; remote status reported `KernelWorkerStatus.RUNNING`.
+
+## 2026-05-22
+- Pulled Kaggle candidate fine-tune results from `/tmp/medlog_kaggle_candidate_results/candidate_finetune` and analyzed FastViT/LightSVTR accuracy, capacity, and local CPU latency.
+- Added failing tests first for PaddleOCR Kaggle trainable candidates and PaddleOCR config materialization.
+- Implemented PaddleOCR Kaggle dispatch support for `ppocrv5_mobile_rec`, `ppocrv5_server_rec`, `repsvtr`, and `svtrv2_server`.
+- Verified PaddleOCR candidate plan:
+  `pixi run python kaggle_candidate_finetune_kernel/kaggle_candidate_finetune.py --output-dir /tmp/kaggle_candidate_plan_paddle --plan-only --candidates all`.
+- Verified PaddleOCR config materialization smoke under `/tmp/kaggle_paddle_config_smoke`.
+- Added Android instrumentation benchmark for FastViT ONNX Runtime CPU/NNAPI and helper script `scripts/run_fastvit_nnapi_benchmark.sh`.
+- Compiled Android benchmark:
+  `./gradlew :app:compileDebugAndroidTestKotlin`.
+- Ran FastViT reparameterized ONNX on connected M2012K11C:
+  CPU `mean_ms=49.70 p50_ms=50 p95_ms=51 throughput_sps=20.12`;
+  NNAPI `mean_ms=49.20 p50_ms=49 p95_ms=50 throughput_sps=20.33`;
+  `nnapi_cpu_disabled` one-run smoke `mean_ms=52.00`.
