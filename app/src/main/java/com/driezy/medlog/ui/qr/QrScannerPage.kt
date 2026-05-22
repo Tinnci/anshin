@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.qr
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.camera.core.CameraSelector
@@ -8,9 +11,6 @@ import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -55,7 +55,7 @@ fun QrScannerPage(
                 title = { Text(stringResource(R.string.qr_scan_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
+                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
                     }
                 },
             )
@@ -86,7 +86,7 @@ fun QrScannerPage(
                 )
                 CameraGuidancePill(
                     text = stringResource(R.string.qr_scan_hint),
-                    icon = Icons.Rounded.QrCodeScanner,
+                    icon = MedLogIcons.QrCodeScanner,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
                         .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Huge),

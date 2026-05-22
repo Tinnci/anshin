@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.drugs
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -18,17 +21,6 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.AutoAwesome
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.LocalDrink
-import androidx.compose.material.icons.rounded.LocalFlorist
-import androidx.compose.material.icons.rounded.Medication
-import androidx.compose.material.icons.rounded.Science
-import androidx.compose.material.icons.rounded.Search
-import androidx.compose.material.icons.rounded.SearchOff
-import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -66,7 +58,7 @@ fun DrugsScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 text = { Text(stringResource(R.string.drugs_fab_add)) },
-                icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
                 onClick = onAddCustomDrug,
             )
         },
@@ -86,14 +78,14 @@ fun DrugsScreen(
                         expanded = uiState.isSearchActive,
                         onExpandedChange = viewModel::onSearchActiveChange,
                         placeholder = { Text(stringResource(R.string.drugs_search_placeholder)) },
-                        leadingIcon = { Icon(Icons.Rounded.Search, null) },
+                        leadingIcon = { MedLogIcon(MedLogIcons.Search, null) },
                         trailingIcon = {
                             if (uiState.isSearchActive) {
                                 IconButton(onClick = {
                                     if (uiState.query.isNotEmpty()) viewModel.onQueryChange("")
                                     else viewModel.onSearchActiveChange(false)
                                 }) {
-                                    Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.drugs_close_search_cd))
+                                    MedLogIcon(MedLogIcons.Close, contentDescription = stringResource(R.string.drugs_close_search_cd))
                                 }
                             }
                         },
@@ -176,8 +168,8 @@ fun DrugsScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
                             ) {
-                                Icon(
-                                    Icons.Rounded.AutoAwesome,
+                                MedLogIcon(
+                                    MedLogIcons.AutoAwesome,
                                     contentDescription = null,
                                     modifier = Modifier.size(12.dp),
                                     tint = MaterialTheme.colorScheme.tertiary,
@@ -203,8 +195,8 @@ fun DrugsScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                             ) {
-                                Icon(
-                                    Icons.Rounded.SearchOff,
+                                MedLogIcon(
+                                    MedLogIcons.SearchOff,
                                     contentDescription = null,
                                     modifier = Modifier.size(48.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -270,8 +262,8 @@ fun DrugsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
                                 val catIcon = if (uiState.showTcm == true)
-                                    Icons.Rounded.LocalFlorist else Icons.Rounded.Medication
-                                Icon(
+                                    MedLogIcons.LocalFlorist else MedLogIcons.Medication
+                                MedLogIcon(
                                     catIcon, null,
                                     Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary,
@@ -408,7 +400,7 @@ private fun DrugCategoryBrowser(
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf(stringResource(R.string.drugs_tab_western_br) to Icons.Rounded.Medication, stringResource(R.string.drugs_tab_tcm) to Icons.Rounded.LocalFlorist)
+    val tabs = listOf(stringResource(R.string.drugs_tab_western_br) to MedLogIcons.Medication, stringResource(R.string.drugs_tab_tcm) to MedLogIcons.LocalFlorist)
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
         PrimaryTabRow(selectedTabIndex = selectedTab) {
@@ -417,7 +409,7 @@ private fun DrugCategoryBrowser(
                     selected = selectedTab == index,
                     onClick = { selectedTab = index },
                     text = { Text(label) },
-                    icon = { Icon(icon, null, Modifier.size(16.dp)) },
+                    icon = { MedLogIcon(icon, null, Modifier.size(16.dp)) },
                 )
             }
         }
@@ -489,8 +481,8 @@ private fun CategoryGridCard(
                 .padding(MedLogSpacing.Medium),
             verticalArrangement = Arrangement.SpaceBetween,
         ) {
-            Icon(
-                imageVector = if (isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+            MedLogIcon(
+                icon = if (isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
                 contentDescription = null,
                 modifier = Modifier.size(20.dp),
                 tint = if (isTcm) colorScheme.tertiary else colorScheme.secondary,
@@ -586,8 +578,8 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(drug.name) },
         leadingContent = {
-            Icon(
-                imageVector = if (drug.isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+            MedLogIcon(
+                icon = if (drug.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
                 contentDescription = null,
                 modifier = androidx.compose.ui.Modifier.size(20.dp),
                 tint = if (drug.isTcm)

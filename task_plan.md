@@ -30,6 +30,9 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 22. Audit and modernize remaining Material Expressive surfaces | completed | Unified cross-page scan entries, scanner surfaces, top-level Extended FAB usage, and low-elevation surface container rules for ordinary content blocks; continued code-level audit against Material/Expressive guidance without visual screenshots. |
 | 23. Separate OCR model outputs and strengthen home hierarchy | completed | Split OCR candidate text by source/model, improved low-stock hierarchy, prevented important medication names from truncating too early, and documented the Flex-font adoption path. |
 | 24. Add Flex font at theme layer | completed | Bundled Google Sans Flex weights 400/500/600/700, connected them through shared `MedLogFontFamily`, kept typography roles intact, and verified theme typography uses the shared font family. |
+| 25. Optimize widgets notifications and data settings UX | completed | Redesigned widget previews, notification/live-progress overview, and backup/restore action hierarchy; added tests for live notification dismissal and deterministic widget preview specs. |
+| 26. Optimize GitHub Actions Gradle caching | completed | CI/release now run full ktlint/unit/lint/APK verification through `setup-gradle` cache, without duplicate Gradle caches or `clean assemble*` steps. |
+| 27. Migrate Compose Material Icons to Material Symbols XML | completed | Added 101 local Material Symbols vector drawables, centralized rendering through `MedLogIcons`/`MedLogIcon`, removed `material-icons-extended`, and added a regression guard test. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

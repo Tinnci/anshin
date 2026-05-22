@@ -2,6 +2,7 @@ package com.driezy.medlog.ui.ocr
 
 import android.graphics.Bitmap
 import android.util.Log
+import androidx.core.graphics.get
 import androidx.core.graphics.scale
 import kotlin.math.roundToInt
 
@@ -63,7 +64,7 @@ internal object OcrFrameInputPreprocessor {
         while (y < bitmap.height) {
             var x = 0
             while (x < bitmap.width) {
-                val pixel = bitmap.getPixel(x, y)
+                val pixel = bitmap[x, y]
                 val r = (pixel shr 16) and 0xFF
                 val g = (pixel shr 8) and 0xFF
                 val b = pixel and 0xFF

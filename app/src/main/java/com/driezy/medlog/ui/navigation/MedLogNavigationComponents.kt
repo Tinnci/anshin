@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.navigation
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,9 +14,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.consumeWindowInsets
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Medication
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -119,7 +119,7 @@ fun MedLogBottomNavigationBar(
             NavigationBarItem(
                 selected = currentDestination?.hasRoute(dest.route::class) == true,
                 onClick = { navigateToTopLevel(dest) },
-                icon = { Icon(dest.icon, contentDescription = null) },
+                icon = { MedLogIcon(dest.icon, contentDescription = null) },
                 label = { Text(stringResource(dest.labelRes)) },
             )
         }
@@ -136,8 +136,8 @@ fun MedLogNavigationRail(
         modifier = Modifier.fillMaxHeight(),
         containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         header = {
-            Icon(
-                imageVector = Icons.Rounded.Medication,
+            MedLogIcon(
+                icon = MedLogIcons.Medication,
                 contentDescription = "Anshin",
                 modifier = Modifier
                     .padding(top = MedLogSpacing.Small)
@@ -151,7 +151,7 @@ fun MedLogNavigationRail(
             NavigationRailItem(
                 selected = currentDestination?.hasRoute(dest.route::class) == true,
                 onClick = { navigateToTopLevel(dest) },
-                icon = { Icon(dest.icon, contentDescription = null) },
+                icon = { MedLogIcon(dest.icon, contentDescription = null) },
                 label = { Text(stringResource(dest.labelRes)) },
             )
         }
@@ -165,8 +165,8 @@ fun MedLogNavDrawerContent(
     destinations: List<TopLevelDestination> = TOP_LEVEL_DESTINATIONS,
 ) {
     // 抽屉品牌区——图标 + 应用名称
-    Icon(
-        imageVector = Icons.Rounded.Medication,
+    MedLogIcon(
+        icon = MedLogIcons.Medication,
         contentDescription = null,
         modifier = Modifier
             .padding(horizontal = 28.dp, vertical = MedLogSpacing.XMedium)
@@ -183,7 +183,7 @@ fun MedLogNavDrawerContent(
 
     destinations.forEach { dest ->
         NavigationDrawerItem(
-            icon = { Icon(dest.icon, contentDescription = null) },
+            icon = { MedLogIcon(dest.icon, contentDescription = null) },
             label = { Text(stringResource(dest.labelRes)) },
             selected = currentDestination?.hasRoute(dest.route::class) == true,
             onClick = { navigateToTopLevel(dest) },

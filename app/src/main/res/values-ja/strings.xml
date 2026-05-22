@@ -183,8 +183,16 @@
     <string name="settings_auto_collapse_title">完了済みグループをデフォルトで折りたたむ</string>
     <string name="settings_auto_collapse_subtitle">服薬完了の時間帯は自動で折りたたまれます</string>
     <string name="settings_card_reminder">リマインダー設定</string>
-    <string name="settings_persistent_title">継続リマインダー</string>
-    <string name="settings_persistent_subtitle">服薬確認まで定期的にリマインダーを繰り返します</string>
+    <string name="settings_persistent_title">ライブ進捗通知</string>
+    <string name="settings_persistent_subtitle">今日の完了状況を通知に表示し、服薬記録に合わせて更新します</string>
+    <string name="settings_notifications_overview_title">通知状態</string>
+    <string name="settings_notifications_live_on">ライブ進捗オン</string>
+    <string name="settings_notifications_live_off">ライブ進捗オフ</string>
+    <string name="settings_notifications_pre_alert_on">事前通知オン</string>
+    <string name="settings_notifications_pre_alert_off">事前通知オフ</string>
+    <string name="settings_notifications_follow_up_on">再通知オン</string>
+    <string name="settings_notifications_follow_up_off">再通知オフ</string>
+    <string name="settings_notifications_system_note">Android の通知権限と通知チャンネル設定が最終的に優先されます。</string>
     <string name="settings_interval_label">リマインダー間隔</string>
     <plurals name="settings_minutes">
         <item quantity="other">%d 分</item>
@@ -229,7 +237,6 @@
     <string name="settings_widget_pin_ok">表示されたダイアログで「追加」をタップして完了</string>
     <string name="settings_widget_add_btn">ホーム画面に追加</string>
     <string name="settings_widget_grant_btn">設定で権限付与</string>
-    <string name="settings_widget_preview_cd">%s ウィジェットプレビュー</string>
     <string name="settings_widget_today_name">今日の進捗</string>
     <string name="settings_widget_today_desc">今日の服薬進捗を表示、タップで確認</string>
     <string name="settings_widget_next_name">次の服薬</string>
@@ -245,7 +252,11 @@
     <string name="settings_backup_title">データをバックアップ</string>
     <string name="settings_backup_subtitle">すべてのデータをバックアップファイルにエクスポート</string>
     <string name="settings_restore_title">データを復元</string>
-    <string name="settings_restore_subtitle">バックアップファイルからすべてのデータを復元</string>
+    <string name="settings_data_safety_title">データ保護</string>
+    <string name="settings_data_safety_body">バックアップはデータベースログを統合してからエクスポートします。復元は現在のデータベースを上書きし、アプリを再起動します。</string>
+    <string name="settings_data_backup_action">バックアップをエクスポート</string>
+    <string name="settings_data_restore_action">復元するバックアップを選択</string>
+    <string name="settings_data_restore_warning_body">MedLog/Anshin のバックアップファイルのみ選択してください。復元前に現在のデータをエクスポートすることを推奨します。</string>
     <string name="settings_backup_success">バックアップ成功</string>
     <string name="settings_restore_confirm_title">復元の確認</string>
     <string name="settings_restore_confirm_message">復元すると現在のデータはすべて上書きされます。この操作は取り消せません。\n\n復元完了後、アプリは自動的に再起動します。</string>
@@ -504,7 +515,6 @@
     <string name="common_action_save">保存</string>
     <string name="common_back_cd">戻る</string>
     <string name="common_confirm_cd">確認</string>
-    <string name="health_camera_scan_cd">カメラでバイタルをスキャン</string>
     <string name="common_action_add">追加</string>
     <string name="common_notes_hint">メモ（任意）</string>
     <string name="common_no_plan_today">本日の服薬予定はありません</string>
@@ -697,7 +707,9 @@
     <string name="ocr_source_preprocessed">強調前処理</string>
     <string name="ocr_source_seven_segment">7セグメントモデル</string>
     <string name="ocr_source_lcd_crop">LCD 切り出しモデル</string>
-    <string name="ocr_result_source_count">%d 件</string>
+    <plurals name="ocr_result_source_count">
+        <item quantity="other">%d 件</item>
+    </plurals>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行</string>
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>

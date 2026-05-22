@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.components
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -13,10 +16,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CameraAlt
 import androidx.compose.material3.Button
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -88,8 +88,8 @@ fun CameraPermissionGate(
                         color = MaterialTheme.colorScheme.primaryContainer,
                         tonalElevation = 0.dp,
                     ) {
-                        Icon(
-                            Icons.Rounded.CameraAlt,
+                        MedLogIcon(
+                            MedLogIcons.CameraAlt,
                             contentDescription = null,
                             modifier = Modifier.padding(MedLogSpacing.Medium).size(32.dp),
                             tint = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -102,8 +102,8 @@ fun CameraPermissionGate(
                         textAlign = TextAlign.Center,
                     )
                     Button(onClick = { launcher.launch(Manifest.permission.CAMERA) }) {
-                        Icon(
-                            Icons.Rounded.CameraAlt,
+                        MedLogIcon(
+                            MedLogIcons.CameraAlt,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )

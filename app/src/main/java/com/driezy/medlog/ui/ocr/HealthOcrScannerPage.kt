@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.ocr
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -13,27 +16,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.AirlineStops
-import androidx.compose.material.icons.rounded.Bloodtype
-import androidx.compose.material.icons.rounded.Check
-import androidx.compose.material.icons.rounded.ChevronRight
-import androidx.compose.material.icons.rounded.DocumentScanner
-import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material.icons.rounded.Favorite
-import androidx.compose.material.icons.rounded.FitnessCenter
-import androidx.compose.material.icons.rounded.Refresh
-import androidx.compose.material.icons.rounded.Thermostat
-import androidx.compose.material.icons.rounded.WaterDrop
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
 import com.driezy.medlog.ui.theme.emphasizedTypography
@@ -98,7 +88,7 @@ fun HealthOcrScannerPage(
                 title = { Text(stringResource(R.string.ocr_health_scan_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
+                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -141,7 +131,7 @@ fun HealthOcrScannerPage(
                             )
                             CameraGuidancePill(
                                 text = stringResource(R.string.ocr_health_scan_hint),
-                                icon = Icons.Rounded.DocumentScanner,
+                                icon = MedLogIcons.DocumentScanner,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(top = 16.dp, start = 24.dp, end = 24.dp),
@@ -257,8 +247,8 @@ private fun HealthMetricResultList(
                                     modifier = Modifier.size(40.dp),
                                 ) {
                                     Box(contentAlignment = Alignment.Center) {
-                                        Icon(
-                                            imageVector = healthMetricIcon(metric.type),
+                                        MedLogIcon(
+                                            icon = healthMetricIcon(metric.type),
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onPrimary,
                                             modifier = Modifier.size(24.dp),
@@ -286,7 +276,7 @@ private fun HealthMetricResultList(
                                 }
                             },
                             trailingContent = {
-                                Icon(Icons.Rounded.ChevronRight, contentDescription = null)
+                                MedLogIcon(MedLogIcons.ChevronRight, contentDescription = null)
                             },
                         ) {
                             Text(
@@ -373,7 +363,11 @@ private fun HealthMetricResultList(
                                 color = MaterialTheme.colorScheme.onSurface,
                             )
                             Text(
-                                text = stringResource(R.string.ocr_result_source_count, group.texts.size),
+                                text = pluralStringResource(
+                                    R.plurals.ocr_result_source_count,
+                                    group.texts.size,
+                                    group.texts.size,
+                                ),
                                 style = MaterialTheme.typography.labelMedium,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
@@ -407,8 +401,8 @@ private fun HealthMetricResultList(
                 .fillMaxWidth()
                 .padding(16.dp),
         ) {
-            Icon(
-                Icons.Rounded.Refresh,
+            MedLogIcon(
+                MedLogIcons.Refresh,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
@@ -448,8 +442,8 @@ private fun BpMergeSuggestionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(
-                Icons.Rounded.Bloodtype,
+            MedLogIcon(
+                MedLogIcons.Bloodtype,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
                 modifier = Modifier.size(24.dp),
@@ -466,8 +460,8 @@ private fun BpMergeSuggestionCard(
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
             }
-            Icon(
-                Icons.Rounded.ChevronRight,
+            MedLogIcon(
+                MedLogIcons.ChevronRight,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onPrimaryContainer,
             )
@@ -581,7 +575,7 @@ private fun CandidateNumberCard(
                 )
                 LaunchedEffect(Unit) { focusRequester.requestFocus() }
                 IconButton(onClick = { submitValue() }) {
-                    Icon(Icons.Rounded.Check, contentDescription = stringResource(R.string.common_confirm_cd))
+                    MedLogIcon(MedLogIcons.Check, contentDescription = stringResource(R.string.common_confirm_cd))
                 }
             } else {
                 Text(
@@ -593,8 +587,8 @@ private fun CandidateNumberCard(
                     onClick = { isEditing = true },
                     modifier = Modifier.size(32.dp),
                 ) {
-                    Icon(
-                        Icons.Rounded.Edit,
+                    MedLogIcon(
+                        MedLogIcons.Edit,
                         contentDescription = stringResource(R.string.ocr_edit_value),
                         modifier = Modifier.size(16.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -610,7 +604,7 @@ private fun CandidateNumberCard(
                     },
                     label = { Text(stringResource(selectedType.labelRes)) },
                     leadingIcon = {
-                        Icon(
+                        MedLogIcon(
                             healthMetricIcon(selectedType),
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
@@ -619,8 +613,8 @@ private fun CandidateNumberCard(
                 )
             }
             if (!isEditing) {
-                Icon(
-                    Icons.Rounded.ChevronRight,
+                MedLogIcon(
+                    MedLogIcons.ChevronRight,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -655,13 +649,13 @@ private fun ConfidenceBadge(confidence: Float) {
 // ── 工具函数 ─────────────────────────────────────────────────────────────────
 
 /** 体征类型对应的图标 */
-private fun healthMetricIcon(type: HealthType): ImageVector = when (type) {
-    HealthType.BLOOD_PRESSURE -> Icons.Rounded.Bloodtype
-    HealthType.BLOOD_GLUCOSE  -> Icons.Rounded.WaterDrop
-    HealthType.WEIGHT         -> Icons.Rounded.FitnessCenter
-    HealthType.HEART_RATE     -> Icons.Rounded.Favorite
-    HealthType.TEMPERATURE    -> Icons.Rounded.Thermostat
-    HealthType.SPO2           -> Icons.Rounded.AirlineStops
+private fun healthMetricIcon(type: HealthType): Int = when (type) {
+    HealthType.BLOOD_PRESSURE -> MedLogIcons.Bloodtype
+    HealthType.BLOOD_GLUCOSE  -> MedLogIcons.WaterDrop
+    HealthType.WEIGHT         -> MedLogIcons.FitnessCenter
+    HealthType.HEART_RATE     -> MedLogIcons.Favorite
+    HealthType.TEMPERATURE    -> MedLogIcons.Thermostat
+    HealthType.SPO2           -> MedLogIcons.AirlineStops
 }
 
 /** 格式化体征值（血压 sys/dia，其他值+单位） */

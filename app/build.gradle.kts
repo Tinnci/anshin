@@ -85,6 +85,7 @@ android {
     lint {
         lintConfig = file("lint.xml")
         baseline = file("lint-baseline.xml")
+        disable += "VectorPath"
         abortOnError = false // CI 中可改为 true
         htmlReport = true
         xmlReport = true
@@ -117,7 +118,6 @@ dependencies {
     implementation(libs.androidx.ui.graphics)
     implementation(libs.androidx.ui.tooling.preview)
     implementation(libs.androidx.material3)
-    implementation(libs.androidx.material.icons.extended)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.window)
     implementation(libs.androidx.adaptive)

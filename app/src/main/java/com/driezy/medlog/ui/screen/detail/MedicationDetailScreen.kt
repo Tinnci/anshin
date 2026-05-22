@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.detail
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -8,9 +11,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
@@ -19,7 +19,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -77,8 +76,8 @@ fun MedicationDetailScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(8.dp),
                         ) {
-                            Icon(
-                                imageVector = formIcon(med.form),
+                            MedLogIcon(
+                                icon = formIcon(med.form),
                                 contentDescription = formLabel(med.form),
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.primary,
@@ -91,18 +90,18 @@ fun MedicationDetailScreen(
                 },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.detail_back))
+                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.detail_back))
                     }
                 },
                 actions = {
                     if (med != null) {
                         IconButton(onClick = { onEdit(med.id) }) {
-                            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.detail_edit_cd))
+                            MedLogIcon(MedLogIcons.Edit, contentDescription = stringResource(R.string.detail_edit_cd))
                         }
                         var menuExpanded by remember { mutableStateOf(false) }
                         Box {
                             IconButton(onClick = { menuExpanded = true }) {
-                                Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.detail_more_cd))
+                                MedLogIcon(MedLogIcons.MoreVert, contentDescription = stringResource(R.string.detail_more_cd))
                             }
                             DropdownMenu(
                                 expanded = menuExpanded,
@@ -111,14 +110,14 @@ fun MedicationDetailScreen(
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.archive)) },
                                     onClick = { menuExpanded = false; showArchiveDialog = true },
-                                    leadingIcon = { Icon(Icons.Rounded.Archive, null) },
+                                    leadingIcon = { MedLogIcon(MedLogIcons.Archive, null) },
                                 )
                                 DropdownMenuItem(
                                     text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
                                     onClick = { menuExpanded = false; showDeleteDialog = true },
                                     leadingIcon = {
-                                        Icon(
-                                            Icons.Rounded.Delete, null,
+                                        MedLogIcon(
+                                            MedLogIcons.Delete, null,
                                             tint = MaterialTheme.colorScheme.error,
                                         )
                                     },
@@ -407,19 +406,19 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
                 }
                 Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
                     StatRow(
-                        icon = Icons.Rounded.CheckCircle,
+                        icon = MedLogIcons.CheckCircle,
                         tint = colorScheme.tertiary,
                         label = stringResource(R.string.medication_taken),
                         value = pluralStringResource(R.plurals.detail_count_times, taken, taken),
                     )
                     StatRow(
-                        icon = Icons.Rounded.Cancel,
+                        icon = MedLogIcons.Cancel,
                         tint = colorScheme.error,
                         label = stringResource(R.string.detail_missed_skipped),
                         value = pluralStringResource(R.plurals.detail_count_times, (total - taken).coerceAtLeast(0), (total - taken).coerceAtLeast(0)),
                     )
                     StatRow(
-                        icon = Icons.Rounded.DateRange,
+                        icon = MedLogIcons.DateRange,
                         tint = colorScheme.secondary,
                         label = stringResource(R.string.detail_total_count),
                         value = pluralStringResource(R.plurals.detail_count_times, total, total),
@@ -432,7 +431,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
 
 @Composable
 private fun StatRow(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     tint: Color,
     label: String,
     value: String,
@@ -441,7 +440,7 @@ private fun StatRow(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
+        MedLogIcon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
         Text(label, style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant)
         Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
@@ -489,7 +488,7 @@ private fun StockCard(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Icon(Icons.Rounded.Inventory, null, tint = stockColor, modifier = Modifier.size(18.dp))
+                    MedLogIcon(MedLogIcons.Inventory, null, tint = stockColor, modifier = Modifier.size(18.dp))
                     Text(stringResource(R.string.detail_stock_title), style = MaterialTheme.typography.labelLarge, color = colorScheme.primary)
                 }
                 Text(
@@ -535,7 +534,7 @@ private fun StockCard(
                         onClick = { onAdjustStock(-doseQuantity) },
                         modifier = Modifier.size(36.dp),
                     ) {
-                        Icon(Icons.Rounded.Remove, stringResource(R.string.detail_stock_decrease_cd), Modifier.size(18.dp))
+                        MedLogIcon(MedLogIcons.Remove, stringResource(R.string.detail_stock_decrease_cd), Modifier.size(18.dp))
                     }
                     FilledIconButton(
                         onClick = { onAdjustStock(+doseQuantity) },
@@ -545,7 +544,7 @@ private fun StockCard(
                             contentColor = colorScheme.onPrimaryContainer,
                         ),
                     ) {
-                        Icon(Icons.Rounded.Add, stringResource(R.string.detail_stock_increase_cd), Modifier.size(18.dp))
+                        MedLogIcon(MedLogIcons.Add, stringResource(R.string.detail_stock_increase_cd), Modifier.size(18.dp))
                     }
                 }
             }

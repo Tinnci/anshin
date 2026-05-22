@@ -183,8 +183,16 @@
     <string name="settings_auto_collapse_title">완료된 그룹 기본 접기</string>
     <string name="settings_auto_collapse_subtitle">모든 복약 완료된 시간대는 자동으로 접힙니다</string>
     <string name="settings_card_reminder">알림 설정</string>
-    <string name="settings_persistent_title">지속 알림</string>
-    <string name="settings_persistent_subtitle">복약 확인 전까지 알림 반복</string>
+    <string name="settings_persistent_title">실시간 진행상황 알림</string>
+    <string name="settings_persistent_subtitle">오늘 완료도를 알림에 표시하고 복약 기록에 따라 업데이트합니다</string>
+    <string name="settings_notifications_overview_title">알림 상태</string>
+    <string name="settings_notifications_live_on">실시간 진행상황 켜짐</string>
+    <string name="settings_notifications_live_off">실시간 진행상황 꺼짐</string>
+    <string name="settings_notifications_pre_alert_on">사전 알림 켜짐</string>
+    <string name="settings_notifications_pre_alert_off">사전 알림 꺼짐</string>
+    <string name="settings_notifications_follow_up_on">재알림 켜짐</string>
+    <string name="settings_notifications_follow_up_off">재알림 꺼짐</string>
+    <string name="settings_notifications_system_note">Android 알림 권한과 알림 채널 설정이 최종적으로 적용됩니다.</string>
     <string name="settings_interval_label">알림 간격</string>
     <plurals name="settings_minutes">
         <item quantity="other">%d분</item>
@@ -229,7 +237,6 @@
     <string name="settings_widget_pin_ok">대화상자에서 \'추가\'를 눌러 완료</string>
     <string name="settings_widget_add_btn">홈 화면에 추가</string>
     <string name="settings_widget_grant_btn">설정에서 권한 부여</string>
-    <string name="settings_widget_preview_cd">%s 위젯 미리보기</string>
     <string name="settings_widget_today_name">오늘 진행상황</string>
     <string name="settings_widget_today_desc">오늘 복약 진행상황 표시, 탭으로 확인</string>
     <string name="settings_widget_next_name">다음 복약</string>
@@ -245,7 +252,11 @@
     <string name="settings_backup_title">데이터 백업</string>
     <string name="settings_backup_subtitle">모든 데이터를 백업 파일로 내보내기</string>
     <string name="settings_restore_title">데이터 복원</string>
-    <string name="settings_restore_subtitle">백업 파일에서 모든 데이터 복원</string>
+    <string name="settings_data_safety_title">데이터 안전</string>
+    <string name="settings_data_safety_body">백업은 데이터베이스 로그를 병합한 뒤 내보냅니다. 복원은 현재 데이터베이스를 덮어쓰고 앱을 다시 시작합니다.</string>
+    <string name="settings_data_backup_action">백업 내보내기</string>
+    <string name="settings_data_restore_action">복원할 백업 선택</string>
+    <string name="settings_data_restore_warning_body">MedLog/Anshin 백업 파일만 선택하세요. 복원 전 현재 데이터를 먼저 내보내는 것이 좋습니다.</string>
     <string name="settings_backup_success">백업 성공</string>
     <string name="settings_restore_confirm_title">복원 확인</string>
     <string name="settings_restore_confirm_message">복원하면 현재 모든 데이터가 덮어쓰기됩니다. 이 작업은 취소할 수 없습니다.\n\n복원 완료 후 앱이 자동으로 다시 시작됩니다.</string>
@@ -504,7 +515,6 @@
     <string name="common_action_save">저장</string>
     <string name="common_back_cd">뒤로</string>
     <string name="common_confirm_cd">확인</string>
-    <string name="health_camera_scan_cd">카메라로 건강 데이터 스캔</string>
     <string name="common_action_add">추가</string>
     <string name="common_notes_hint">메모 (선택 사항)</string>
     <string name="common_no_plan_today">오늘 예정된 복약이 없습니다</string>
@@ -698,7 +708,9 @@
     <string name="ocr_source_preprocessed">강화 전처리</string>
     <string name="ocr_source_seven_segment">7세그먼트 모델</string>
     <string name="ocr_source_lcd_crop">LCD 영역 모델</string>
-    <string name="ocr_result_source_count">%d개</string>
+    <plurals name="ocr_result_source_count">
+        <item quantity="other">%d개</item>
+    </plurals>
     <string name="ocr_health_detected">다음 건강 데이터가 감지되었습니다</string>
     <string name="ocr_health_no_metrics">건강 데이터가 감지되지 않았습니다. 다시 시도하세요</string>
     <string name="ocr_health_numbers_found">숫자가 감지되었습니다. 탭하여 선택</string>

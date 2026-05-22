@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.addmedication
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -15,16 +18,10 @@ import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.Notes
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -45,7 +42,7 @@ import com.driezy.medlog.ui.util.formatDosePrecise
 import java.text.SimpleDateFormat
 import java.util.*
 
-private data class FormOption(val key: String, val label: String, val icon: ImageVector)
+private data class FormOption(val key: String, val label: String, val icon: Int)
 
 // FORM_OPTIONS and DOSE_UNITS moved inside AddMedicationScreen composable
 
@@ -66,12 +63,12 @@ fun AddMedicationScreen(
     var showOcrScanner by remember { mutableStateOf(false) }
 
     val formOptions = listOf(
-        FormOption("tablet",  stringResource(R.string.add_form_tablet), Icons.Rounded.Medication),
-        FormOption("capsule", stringResource(R.string.add_form_capsule), Icons.Rounded.Science),
-        FormOption("liquid",  stringResource(R.string.add_form_liquid), Icons.Rounded.LocalDrink),
-        FormOption("powder",  stringResource(R.string.add_form_powder), Icons.Rounded.WaterDrop),
-        FormOption("patch",   stringResource(R.string.add_form_patch), Icons.Rounded.Healing),
-        FormOption("other",   stringResource(R.string.add_form_other), Icons.Rounded.MoreHoriz),
+        FormOption("tablet",  stringResource(R.string.add_form_tablet), MedLogIcons.Medication),
+        FormOption("capsule", stringResource(R.string.add_form_capsule), MedLogIcons.Science),
+        FormOption("liquid",  stringResource(R.string.add_form_liquid), MedLogIcons.LocalDrink),
+        FormOption("powder",  stringResource(R.string.add_form_powder), MedLogIcons.WaterDrop),
+        FormOption("patch",   stringResource(R.string.add_form_patch), MedLogIcons.Healing),
+        FormOption("other",   stringResource(R.string.add_form_other), MedLogIcons.MoreHoriz),
     )
     val doseUnits = listOf(
         stringResource(R.string.add_unit_tablet),
@@ -105,7 +102,7 @@ fun AddMedicationScreen(
                 title = { Text(if (medicationId == null) stringResource(R.string.add_title_new) else stringResource(R.string.add_title_edit)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = stringResource(R.string.add_back_cd))
+                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.add_back_cd))
                     }
                 },
                 actions = {
@@ -138,7 +135,7 @@ fun AddMedicationScreen(
         ) {
 
             // ── 基本信息 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_basic), icon = Icons.Rounded.Info) {
+            FormSection(title = stringResource(R.string.add_section_basic), icon = MedLogIcons.Info) {
                 // 药品名称：带数据库搜索建议的下拉输入框
                 ExposedDropdownMenuBox(
                     expanded = uiState.showDrugSuggestions,
@@ -159,19 +156,19 @@ fun AddMedicationScreen(
                                 if (msg != null) Text(msg, color = MaterialTheme.colorScheme.error)
                             }
                         },
-                        leadingIcon = { Icon(Icons.Rounded.Medication, null) },
+                        leadingIcon = { MedLogIcon(MedLogIcons.Medication, null) },
                         trailingIcon = {
                             Row {
                                 if (uiState.name.isNotBlank()) {
                                     IconButton(onClick = { viewModel.onNameChange("") }) {
-                                        Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.add_clear_cd))
+                                        MedLogIcon(MedLogIcons.Close, contentDescription = stringResource(R.string.add_clear_cd))
                                     }
                                 }
                                 FilledTonalIconButton(
                                     onClick = { showOcrScanner = true },
                                     modifier = Modifier.size(40.dp),
                                 ) {
-                                    Icon(Icons.Rounded.DocumentScanner, contentDescription = stringResource(R.string.ocr_scan_title))
+                                    MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = stringResource(R.string.ocr_scan_title))
                                 }
                             }
                         },
@@ -198,8 +195,8 @@ fun AddMedicationScreen(
                                         }
                                     },
                                     leadingIcon = {
-                                        Icon(
-                                            if (drug.isTcm) Icons.Rounded.LocalFlorist else Icons.Rounded.Medication,
+                                        MedLogIcon(
+                                            if (drug.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.primary,
                                         )
@@ -218,7 +215,7 @@ fun AddMedicationScreen(
                     label = { Text(stringResource(R.string.add_category_label)) },
                     modifier = Modifier.fillMaxWidth(),
                     placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
-                    leadingIcon = { Icon(Icons.Rounded.Category, null) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.Category, null) },
                     singleLine = true,
                 )
                 Row(
@@ -227,7 +224,7 @@ fun AddMedicationScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
-                        Icon(Icons.Rounded.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
+                        MedLogIcon(MedLogIcons.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
                         Column {
                             Text(stringResource(R.string.add_high_priority), style = MaterialTheme.typography.bodyMedium)
                             Text(stringResource(R.string.add_high_priority_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -241,7 +238,7 @@ fun AddMedicationScreen(
             }
 
             // ── 药品剂型 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_form), icon = Icons.Rounded.Healing) {
+            FormSection(title = stringResource(R.string.add_section_form), icon = MedLogIcons.Healing) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier
@@ -271,7 +268,7 @@ fun AddMedicationScreen(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                             ) {
-                                Icon(
+                                MedLogIcon(
                                     option.icon,
                                     contentDescription = null,
                                     tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
@@ -290,7 +287,7 @@ fun AddMedicationScreen(
             }
 
             // ── 每次剂量 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_dose), icon = Icons.Rounded.MonitorWeight) {
+            FormSection(title = stringResource(R.string.add_section_dose), icon = MedLogIcons.MonitorWeight) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -308,8 +305,8 @@ fun AddMedicationScreen(
                             },
                             modifier = Modifier.size(32.dp),
                         ) {
-                            Icon(
-                                Icons.Rounded.Edit,
+                            MedLogIcon(
+                                MedLogIcons.Edit,
                                 contentDescription = stringResource(R.string.add_dose_custom_input),
                                 modifier = Modifier.size(16.dp),
                                 tint = MaterialTheme.colorScheme.outline,
@@ -346,14 +343,14 @@ fun AddMedicationScreen(
             }
 
             // ── 按需用药 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_usage), icon = Icons.Rounded.EventRepeat) {
+            FormSection(title = stringResource(R.string.add_section_usage), icon = MedLogIcons.EventRepeat) {
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
-                        Icon(Icons.Rounded.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
+                        MedLogIcon(MedLogIcons.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
                         Column {
                             Text(stringResource(R.string.add_prn_label), style = MaterialTheme.typography.bodyMedium)
                             Text(stringResource(R.string.add_prn_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
@@ -459,7 +456,7 @@ fun AddMedicationScreen(
             // ── 服药时段 & 提醒（PRN 时作为可选提醒时间）─────────────────
             FormSection(
                 title = if (uiState.isPRN) stringResource(R.string.add_section_reminder_optional) else stringResource(R.string.add_section_time_period),
-                icon = Icons.Rounded.Schedule,
+                icon = MedLogIcons.Schedule,
             ) {
                 Text(
                     text = if (uiState.isPRN)
@@ -489,7 +486,7 @@ fun AddMedicationScreen(
                             modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
                             shapes = ButtonGroupDefaults.connectedLeadingButtonShapes(),
                         ) {
-                            Icon(Icons.Rounded.WbSunny, null, Modifier.size(16.dp))
+                            MedLogIcon(MedLogIcons.WbSunny, null, Modifier.size(16.dp))
                             Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                             Text(periodLabel)
                         }
@@ -499,7 +496,7 @@ fun AddMedicationScreen(
                             modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
                             shapes = ButtonGroupDefaults.connectedTrailingButtonShapes(),
                         ) {
-                            Icon(Icons.Rounded.Schedule, null, Modifier.size(16.dp))
+                            MedLogIcon(MedLogIcons.Schedule, null, Modifier.size(16.dp))
                             Spacer(Modifier.size(ToggleButtonDefaults.IconSpacing))
                             Text(exactLabel)
                         }
@@ -524,7 +521,7 @@ fun AddMedicationScreen(
                                     onClick = { viewModel.onTimePeriodChange(tp) },
                                     label = { Text(stringResource(tp.labelRes), style = MaterialTheme.typography.labelSmall) },
                                     leadingIcon = {
-                                        Icon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
+                                        MedLogIcon(tp.icon, null, Modifier.size(FilterChipDefaults.IconSize))
                                     },
                                 )
                             }
@@ -538,8 +535,8 @@ fun AddMedicationScreen(
                                 )
                             },
                             icon = {
-                                Icon(
-                                    Icons.Rounded.AutoAwesome,
+                                MedLogIcon(
+                                    MedLogIcons.AutoAwesome,
                                     contentDescription = null,
                                     modifier = Modifier.size(SuggestionChipDefaults.IconSize),
                                 )
@@ -574,8 +571,8 @@ fun AddMedicationScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
-                                Icon(
-                                    Icons.Rounded.Timer,
+                                MedLogIcon(
+                                    MedLogIcons.Timer,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
@@ -616,7 +613,7 @@ fun AddMedicationScreen(
             }
 
             // ── 起止日期 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_dates), icon = Icons.Rounded.DateRange) {
+            FormSection(title = stringResource(R.string.add_section_dates), icon = MedLogIcons.DateRange) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                     DatePickerField(
                         label = stringResource(R.string.add_date_start),
@@ -635,7 +632,7 @@ fun AddMedicationScreen(
             }
 
             // ── 库存管理 ─────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_stock), icon = Icons.Rounded.Inventory) {
+            FormSection(title = stringResource(R.string.add_section_stock), icon = MedLogIcons.Inventory) {
                 Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
                     OutlinedTextField(
                         value = uiState.stock,
@@ -685,7 +682,7 @@ fun AddMedicationScreen(
             }
 
             // ── 备注 ─────────────────────────────────────────────
-            FormSection(title = stringResource(R.string.add_section_notes), icon = Icons.AutoMirrored.Rounded.Notes) {
+            FormSection(title = stringResource(R.string.add_section_notes), icon = MedLogIcons.Notes) {
                 OutlinedTextField(
                     value = uiState.notes,
                     onValueChange = viewModel::onNotesChange,
@@ -754,7 +751,7 @@ fun AddMedicationScreen(
 @Composable
 private fun FormSection(
     title: String,
-    icon: ImageVector,
+    icon: Int,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -773,7 +770,7 @@ private fun FormSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
-                Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                MedLogIcon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
                 Text(
                     title,
                     style = MaterialTheme.emphasizedTypography.titleSmall,
@@ -815,7 +812,7 @@ private fun ReminderTimesRow(
                     label = { Text(hhmm) },
                     trailingIcon = {
                         IconButton(onClick = { onRemove(hhmm) }, modifier = Modifier.size(18.dp)) {
-                            Icon(Icons.Filled.Close, null, Modifier.size(14.dp))
+                            MedLogIcon(MedLogIcons.Close, null, Modifier.size(14.dp))
                         }
                     },
                 )
@@ -824,8 +821,8 @@ private fun ReminderTimesRow(
                 onClick = { showPicker = !showPicker },
                 label = { Text(if (showPicker) stringResource(R.string.add_reminder_collapse) else stringResource(R.string.add_reminder_add_btn)) },
                 leadingIcon = {
-                    Icon(
-                        if (showPicker) Icons.Filled.ExpandLess else Icons.Filled.Add,
+                    MedLogIcon(
+                        if (showPicker) MedLogIcons.ExpandLess else MedLogIcons.Add,
                         null,
                         Modifier.size(18.dp),
                     )
@@ -900,8 +897,8 @@ private fun DatePickerField(
                     Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
                     Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
                 }
-                Icon(
-                    imageVector = if (expanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                MedLogIcon(
+                    icon = if (expanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -909,7 +906,7 @@ private fun DatePickerField(
                 if (nullable && timestamp != null) {
                     Spacer(Modifier.width(MedLogSpacing.Tiny))
                     IconButton(onClick = { onPick(null) }, modifier = Modifier.size(28.dp)) {
-                        Icon(Icons.Filled.Close, null, Modifier.size(14.dp))
+                        MedLogIcon(MedLogIcons.Close, null, Modifier.size(14.dp))
                     }
                 }
             }

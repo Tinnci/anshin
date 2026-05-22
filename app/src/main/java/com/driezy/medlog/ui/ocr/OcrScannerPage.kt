@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.ocr
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -12,16 +15,13 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.DocumentScanner
-import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -63,7 +63,7 @@ fun OcrScannerPage(
                 title = { Text(stringResource(R.string.ocr_scan_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
+                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.common_back_cd))
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -106,7 +106,7 @@ fun OcrScannerPage(
                             )
                             CameraGuidancePill(
                                 text = stringResource(R.string.ocr_scan_hint),
-                                icon = Icons.Rounded.DocumentScanner,
+                                icon = MedLogIcons.DocumentScanner,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(top = 16.dp, start = 24.dp, end = 24.dp),
@@ -179,8 +179,8 @@ private fun OcrResultList(
                 contentAlignment = Alignment.Center,
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Icon(
-                        Icons.Rounded.Refresh,
+                    MedLogIcon(
+                        MedLogIcons.Refresh,
                         contentDescription = null,
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
@@ -275,8 +275,8 @@ private fun OcrResultList(
                 .fillMaxWidth()
                 .padding(16.dp),
         ) {
-            Icon(
-                Icons.Rounded.Refresh,
+            MedLogIcon(
+                MedLogIcons.Refresh,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
             )
@@ -303,7 +303,7 @@ private fun OcrSourceHeader(
             color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
-            text = stringResource(R.string.ocr_result_source_count, count),
+            text = pluralStringResource(R.plurals.ocr_result_source_count, count, count),
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )

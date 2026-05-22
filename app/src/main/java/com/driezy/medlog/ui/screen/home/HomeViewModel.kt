@@ -168,6 +168,11 @@ data class HomeUiState(
     }
 }
 
+private data class HomeObservation(
+    val state: HomeUiState,
+    val showProgressNotification: Boolean,
+)
+
 private fun MedicationWithStatus.scheduledLocalTime(): LocalTime {
     val time = scheduledTime.ifBlank {
         "%02d:%02d".format(medication.reminderHour, medication.reminderMinute)
@@ -272,26 +277,35 @@ class HomeViewModel @Inject constructor(
                     }
                 }
                 val scheduledItems = items.filter { !it.medication.isPRN }
-                HomeUiState(
-                    items = items,
-                    takenCount = scheduledItems.count { it.isTaken },
-                    totalCount = scheduledItems.size,
-                    isLoading = false,
-                    interactions = interactions,
-                    autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
+                HomeObservation(
+                    state = HomeUiState(
+                        items = items,
+                        takenCount = scheduledItems.count { it.isTaken },
+                        totalCount = scheduledItems.size,
+                        isLoading = false,
+                        interactions = interactions,
+                        autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
+                    ),
+                    showProgressNotification = prefs.persistentReminder,
                 )
             }.catch { e ->
                 _uiState.value = _uiState.value.copy(
                     isLoading = false,
                     errorMessage = e.message,
                 )
-            }.collect { state ->
+            }.collect { observation ->
+                val state = observation.state
                 // 保留用户的分组偏好，不被新状态覆盖
                 _uiState.value = state.copy(groupByTime = _uiState.value.groupByTime)
                 // 实时更新今日进度通知（去重：仅在 taken/total 真正变化时更新）
                 val taken = state.takenCount
                 val total = state.totalCount
-                if (taken != lastProgressNotifState.first || total != lastProgressNotifState.second) {
+                if (!observation.showProgressNotification) {
+                    if (lastProgressNotifState != (-1 to -1)) {
+                        progressNotif.dismiss()
+                        lastProgressNotifState = -1 to -1
+                    }
+                } else if (taken != lastProgressNotifState.first || total != lastProgressNotifState.second) {
                     lastProgressNotifState = taken to total
                     val pending = state.items
                         .filter { !it.isTaken && !it.isSkipped }

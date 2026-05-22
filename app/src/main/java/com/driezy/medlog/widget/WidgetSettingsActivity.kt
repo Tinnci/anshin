@@ -1,5 +1,8 @@
 package com.driezy.medlog.widget
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.os.Bundle
@@ -8,9 +11,6 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.rounded.TouchApp
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -100,8 +100,8 @@ private fun WidgetSettingsScreen(
                 title = { Text(stringResource(R.string.widget_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onClose) {
-                        Icon(
-                            Icons.AutoMirrored.Rounded.ArrowBack,
+                        MedLogIcon(
+                            MedLogIcons.ArrowBack,
                             contentDescription = stringResource(R.string.detail_back),
                         )
                     }
@@ -126,8 +126,8 @@ private fun WidgetSettingsScreen(
                     )
                 },
                 leadingContent = {
-                    Icon(
-                        Icons.Rounded.TouchApp,
+                    MedLogIcon(
+                        MedLogIcons.TouchApp,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

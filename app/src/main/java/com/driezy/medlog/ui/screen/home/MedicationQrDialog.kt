@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.home
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -15,10 +18,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.IosShare
-import androidx.compose.material.icons.rounded.QrCodeScanner
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -27,7 +26,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -208,8 +206,8 @@ internal fun MedicationQrDialog(
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
-                                Icon(
-                                    Icons.Rounded.Warning,
+                                MedLogIcon(
+                                    MedLogIcons.Warning,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onErrorContainer,
                                 )
@@ -229,8 +227,8 @@ internal fun MedicationQrDialog(
                     onClick = { showScanner = true },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
-                    Icon(
-                        Icons.Rounded.QrCodeScanner,
+                    MedLogIcon(
+                        MedLogIcons.QrCodeScanner,
                         contentDescription = null,
                         modifier = Modifier.size(16.dp),
                     )
@@ -249,7 +247,7 @@ internal fun MedicationQrDialog(
                 }
                 context.startActivity(Intent.createChooser(intent, shareChooserTitle))
             }) {
-                Icon(Icons.Rounded.IosShare, null, Modifier.size(16.dp))
+                MedLogIcon(MedLogIcons.IosShare, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(MedLogSpacing.Tiny))
                 Text(stringResource(R.string.home_qr_share_btn))
             }

@@ -194,8 +194,16 @@
     <string name="settings_auto_collapse_title">Collapse completed groups by default</string>
     <string name="settings_auto_collapse_subtitle">Time periods with all doses taken will auto-collapse to save screen space</string>
     <string name="settings_card_reminder">Reminder Settings</string>
-    <string name="settings_persistent_title">Persistent Reminder</string>
-    <string name="settings_persistent_subtitle">Repeats reminder until medication is confirmed</string>
+    <string name="settings_persistent_title">Live Progress Notification</string>
+    <string name="settings_persistent_subtitle">Shows today\'s completion in notifications and updates as doses are logged</string>
+    <string name="settings_notifications_overview_title">Notification status</string>
+    <string name="settings_notifications_live_on">Live progress on</string>
+    <string name="settings_notifications_live_off">Live progress off</string>
+    <string name="settings_notifications_pre_alert_on">Pre-alert on</string>
+    <string name="settings_notifications_pre_alert_off">Pre-alert off</string>
+    <string name="settings_notifications_follow_up_on">Follow-up on</string>
+    <string name="settings_notifications_follow_up_off">Follow-up off</string>
+    <string name="settings_notifications_system_note">Android notification permissions and channels still have final control.</string>
     <string name="settings_interval_label">Reminder Interval</string>
     <plurals name="settings_minutes">
         <item quantity="one">1 minute</item>
@@ -242,7 +250,6 @@
     <string name="settings_widget_pin_ok">In the dialog, tap Add to complete installation</string>
     <string name="settings_widget_add_btn">Add to Home Screen</string>
     <string name="settings_widget_grant_btn">Go to Settings to Grant</string>
-    <string name="settings_widget_preview_cd">%s widget preview</string>
     <string name="settings_widget_today_name">Today Progress</string>
     <string name="settings_widget_today_desc">Shows today medication progress, tap to confirm</string>
     <string name="settings_widget_next_name">Next Dose</string>
@@ -258,7 +265,11 @@
     <string name="settings_backup_title">Backup Data</string>
     <string name="settings_backup_subtitle">Export all data to a backup file</string>
     <string name="settings_restore_title">Restore Data</string>
-    <string name="settings_restore_subtitle">Restore all data from a backup file</string>
+    <string name="settings_data_safety_title">Data safety</string>
+    <string name="settings_data_safety_body">Backup checkpoints the database log before export. Restore overwrites the current database and restarts the app.</string>
+    <string name="settings_data_backup_action">Export Backup</string>
+    <string name="settings_data_restore_action">Choose Backup to Restore</string>
+    <string name="settings_data_restore_warning_body">Only choose backup files from MedLog/Anshin. Export your current data before restoring.</string>
     <string name="settings_backup_success">Backup successful</string>
     <string name="settings_restore_confirm_title">Confirm Restore</string>
     <string name="settings_restore_confirm_message">Restoring will overwrite all current data. This action cannot be undone.\n\nThe app will restart automatically after restoring.</string>
@@ -532,7 +543,6 @@
     <string name="common_action_save">Save</string>
     <string name="common_back_cd">Go back</string>
     <string name="common_confirm_cd">Confirm</string>
-    <string name="health_camera_scan_cd">Scan health metrics with camera</string>
     <string name="common_action_add">Add</string>
     <string name="common_notes_hint">Notes (optional)</string>
     <string name="common_no_plan_today">No medications scheduled for today</string>
@@ -741,7 +751,10 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_source_preprocessed">Enhanced preprocessing</string>
     <string name="ocr_source_seven_segment">7-segment model</string>
     <string name="ocr_source_lcd_crop">LCD crop model</string>
-    <string name="ocr_result_source_count">%d items</string>
+    <plurals name="ocr_result_source_count">
+        <item quantity="one">%d item</item>
+        <item quantity="other">%d items</item>
+    </plurals>
     <string name="ocr_health_detected">Detected health metrics</string>
     <string name="ocr_health_no_metrics">No health metrics detected — try again</string>
     <string name="ocr_health_numbers_found">Numbers found, tap to select</string>

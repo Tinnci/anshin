@@ -1,15 +1,14 @@
 package com.driezy.medlog.ui.screen.symptom
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.rounded.Delete
-import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +67,7 @@ fun SymptomDiaryScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = viewModel::startAdd,
-                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
                 text = { Text(stringResource(R.string.symptom_screen_fab_cd)) },
             )
         },
@@ -180,8 +179,8 @@ private fun SymptomLogCard(
                 )
                 Spacer(Modifier.width(8.dp))
                 IconButton(onClick = onEdit) {
-                    Icon(
-                        Icons.Rounded.Edit,
+                    MedLogIcon(
+                        MedLogIcons.Edit,
                         contentDescription = stringResource(R.string.common_action_edit),
                         tint = MaterialTheme.colorScheme.primary,
                         modifier = Modifier.size(16.dp),
@@ -190,8 +189,8 @@ private fun SymptomLogCard(
                 IconButton(
                     onClick = { showDeleteConfirm = true },
                 ) {
-                    Icon(
-                        Icons.Rounded.Delete,
+                    MedLogIcon(
+                        MedLogIcons.Delete,
                         contentDescription = stringResource(R.string.common_action_delete),
                         tint = MaterialTheme.colorScheme.error,
                         modifier = Modifier.size(16.dp),

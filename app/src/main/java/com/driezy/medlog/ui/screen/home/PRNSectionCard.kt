@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.home
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -15,19 +18,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Healing
-import androidx.compose.material.icons.rounded.LocalFlorist
-import androidx.compose.material.icons.rounded.Medication
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -76,8 +72,8 @@ internal fun PRNSectionCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            Icon(
-                Icons.Rounded.Healing,
+            MedLogIcon(
+                MedLogIcons.Healing,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.secondary,
                 modifier = Modifier.size(18.dp),
@@ -138,9 +134,9 @@ internal fun PRNSectionCard(
                             }
                         },
                         leadingContent = {
-                            Icon(
-                                if (item.medication.isTcm) Icons.Rounded.LocalFlorist
-                                else Icons.Rounded.Medication,
+                            MedLogIcon(
+                                if (item.medication.isTcm) MedLogIcons.LocalFlorist
+                                else MedLogIcons.Medication,
                                 contentDescription = null,
                                 tint = if (item.isTaken) MaterialTheme.colorScheme.outline
                                        else MaterialTheme.colorScheme.secondary,
@@ -162,8 +158,8 @@ internal fun PRNSectionCard(
                                         MaterialTheme.colorScheme.onSecondaryContainer,
                                 ),
                             ) {
-                                Icon(
-                                    if (item.isTaken) Icons.Rounded.CheckCircle else Icons.Rounded.Add,
+                                MedLogIcon(
+                                    if (item.isTaken) MedLogIcons.CheckCircle else MedLogIcons.Add,
                                     contentDescription = null,
                                     modifier = Modifier.size(14.dp),
                                 )

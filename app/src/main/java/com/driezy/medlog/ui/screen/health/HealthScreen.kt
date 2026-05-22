@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.health
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -13,10 +16,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Notes
-import androidx.compose.material.icons.automirrored.rounded.TrendingUp
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -49,12 +48,12 @@ import java.util.*
 
 @Composable
 private fun healthTypeIcon(type: HealthType) = when (type) {
-    HealthType.BLOOD_PRESSURE -> Icons.Rounded.Bloodtype
-    HealthType.BLOOD_GLUCOSE  -> Icons.Rounded.WaterDrop
-    HealthType.WEIGHT         -> Icons.Rounded.FitnessCenter
-    HealthType.HEART_RATE     -> Icons.Rounded.Favorite
-    HealthType.TEMPERATURE    -> Icons.Rounded.Thermostat
-    HealthType.SPO2           -> Icons.Rounded.AirlineStops
+    HealthType.BLOOD_PRESSURE -> MedLogIcons.Bloodtype
+    HealthType.BLOOD_GLUCOSE  -> MedLogIcons.WaterDrop
+    HealthType.WEIGHT         -> MedLogIcons.FitnessCenter
+    HealthType.HEART_RATE     -> MedLogIcons.Favorite
+    HealthType.TEMPERATURE    -> MedLogIcons.Thermostat
+    HealthType.SPO2           -> MedLogIcons.AirlineStops
 }
 
 private fun HealthType.formatMetricValue(value: Double, secondaryValue: Double?): String = when (this) {
@@ -99,11 +98,11 @@ fun HealthScreen(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
                     contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                 ) {
-                    Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
+                    MedLogIcon(MedLogIcons.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
                 }
                 ExtendedFloatingActionButton(
                     onClick = { showOcrScanner = true },
-                    icon = { Icon(Icons.Rounded.DocumentScanner, contentDescription = null) },
+                    icon = { MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null) },
                     text = { Text(stringResource(R.string.health_ocr_hero_scan)) },
                 )
             }
@@ -140,7 +139,7 @@ fun HealthScreen(
                                 onClick    = { viewModel.selectType(null) },
                                 label      = { Text(stringResource(R.string.common_filter_all)) },
                                 leadingIcon = if (uiState.selectedType == null) ({
-                                    Icon(Icons.Rounded.Check, null, Modifier.size(16.dp))
+                                    MedLogIcon(MedLogIcons.Check, null, Modifier.size(16.dp))
                                 }) else null,
                             )
                             HealthType.entries.forEach { type ->
@@ -149,7 +148,7 @@ fun HealthScreen(
                                     onClick  = { viewModel.selectType(if (uiState.selectedType == type) null else type) },
                                     label    = { Text(stringResource(type.labelRes)) },
                                     leadingIcon = {
-                                        Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
+                                        MedLogIcon(healthTypeIcon(type), null, Modifier.size(16.dp))
                                     },
                                 )
                             }
@@ -199,8 +198,8 @@ fun HealthScreen(
                                     horizontalAlignment = Alignment.CenterHorizontally,
                                     verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
-                                    Icon(
-                                        Icons.Rounded.MonitorHeart,
+                                    MedLogIcon(
+                                        MedLogIcons.MonitorHeart,
                                         contentDescription = null,
                                         modifier = Modifier.size(48.dp),
                                         tint = MaterialTheme.colorScheme.outlineVariant,
@@ -313,8 +312,8 @@ private fun HealthOcrHeroCard(
                     shape = MaterialTheme.shapes.large,
                     color = MaterialTheme.colorScheme.primary,
                 ) {
-                    Icon(
-                        Icons.Rounded.CameraAlt,
+                    MedLogIcon(
+                        MedLogIcons.CameraAlt,
                         contentDescription = null,
                         tint = MaterialTheme.colorScheme.onPrimary,
                         modifier = Modifier.padding(MedLogSpacing.Medium).size(28.dp),
@@ -341,7 +340,7 @@ private fun HealthOcrHeroCard(
                     onClick = onScan,
                     modifier = Modifier.weight(1.5f),
                 ) {
-                    Icon(Icons.Rounded.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                    MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(MedLogSpacing.Small))
                     Text(
                         stringResource(R.string.health_ocr_hero_scan),
@@ -419,7 +418,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
             verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(
+                MedLogIcon(
                     healthTypeIcon(stat.type),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
@@ -597,7 +596,7 @@ private fun HealthRecordItem(
                 }
             },
             leadingContent = {
-                Icon(
+                MedLogIcon(
                     healthTypeIcon(type),
                     contentDescription = null,
                     tint = if (isAbnormal) MaterialTheme.colorScheme.error
@@ -607,18 +606,18 @@ private fun HealthRecordItem(
             trailingContent = {
                 Box {
                     IconButton(onClick = { showMenu = true }) {
-                        Icon(Icons.Rounded.MoreVert, contentDescription = stringResource(R.string.health_more_ops_cd))
+                        MedLogIcon(MedLogIcons.MoreVert, contentDescription = stringResource(R.string.health_more_ops_cd))
                     }
                     DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.common_action_edit)) },
                             onClick = { showMenu = false; onEdit() },
-                            leadingIcon = { Icon(Icons.Rounded.Edit, null) },
+                            leadingIcon = { MedLogIcon(MedLogIcons.Edit, null) },
                         )
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.common_action_delete)) },
                             onClick = { showMenu = false; onDelete() },
-                            leadingIcon = { Icon(Icons.Rounded.Delete, null) },
+                            leadingIcon = { MedLogIcon(MedLogIcons.Delete, null) },
                         )
                     }
                 }
@@ -650,7 +649,7 @@ private fun BmiCard(
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.Rounded.Monitor, contentDescription = null, modifier = Modifier.size(20.dp))
+                MedLogIcon(MedLogIcons.Monitor, contentDescription = null, modifier = Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
                     stringResource(R.string.health_bmi_title),
@@ -742,7 +741,7 @@ private fun HealthTrendChart(
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Icon(Icons.AutoMirrored.Rounded.TrendingUp, null, Modifier.size(20.dp))
+                MedLogIcon(MedLogIcons.TrendingUp, null, Modifier.size(20.dp))
                 Spacer(Modifier.width(8.dp))
                 Text(
                     stringResource(R.string.health_chart_title),
@@ -917,7 +916,7 @@ private fun AddEditHealthSheet(
                         onClick     = { onTypeChange(type) },
                         label       = { Text(stringResource(type.labelRes)) },
                         leadingIcon = {
-                            Icon(healthTypeIcon(type), null, Modifier.size(16.dp))
+                            MedLogIcon(healthTypeIcon(type), null, Modifier.size(16.dp))
                         },
                     )
                 }
@@ -970,7 +969,7 @@ private fun AddEditHealthSheet(
             AssistChip(
                 onClick = onOcrScan,
                 label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
-                leadingIcon = { Icon(Icons.Rounded.CameraAlt, null, Modifier.size(18.dp)) },
+                leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
             )
 
             // ── 备注 ──────────────────────────────────────────────────
@@ -980,7 +979,7 @@ private fun AddEditHealthSheet(
                 label = { Text(stringResource(R.string.common_notes_hint)) },
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
-                leadingIcon = { Icon(Icons.AutoMirrored.Rounded.Notes, null) },
+                leadingIcon = { MedLogIcon(MedLogIcons.Notes, null) },
             )
 
             // ── 操作按钮 ──────────────────────────────────────────────
@@ -1031,13 +1030,13 @@ private fun HealthTimePicker(
         AssistChip(
             onClick = { showDatePicker = true },
             label = { Text(dateFmt.format(Date(timestampMs))) },
-            leadingIcon = { Icon(Icons.Rounded.CalendarMonth, null, Modifier.size(18.dp)) },
+            leadingIcon = { MedLogIcon(MedLogIcons.CalendarMonth, null, Modifier.size(18.dp)) },
             modifier = Modifier.weight(1f),
         )
         AssistChip(
             onClick = { showTimePicker = true },
             label = { Text(timeFmt.format(Date(timestampMs))) },
-            leadingIcon = { Icon(Icons.Rounded.Schedule, null, Modifier.size(18.dp)) },
+            leadingIcon = { MedLogIcon(MedLogIcons.Schedule, null, Modifier.size(18.dp)) },
             modifier = Modifier.weight(1f),
         )
     }

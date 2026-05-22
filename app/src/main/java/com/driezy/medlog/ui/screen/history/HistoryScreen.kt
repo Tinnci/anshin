@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.history
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
@@ -10,15 +13,6 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.Adjust
-import androidx.compose.material.icons.rounded.Cancel
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.SkipNext
-import androidx.compose.material.icons.rounded.Today
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -76,7 +70,7 @@ fun HistoryScreen(
         floatingActionButton = {
             ExtendedFloatingActionButton(
                 onClick = viewModel::navigateToToday,
-                icon = { Icon(Icons.Rounded.Today, contentDescription = null) },
+                icon = { MedLogIcon(MedLogIcons.Today, contentDescription = null) },
                 text = { Text(stringResource(R.string.history_today_button)) },
             )
         },
@@ -230,7 +224,7 @@ private fun MonthCalendarCard(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = { onNavigate(-1) }) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, stringResource(R.string.history_prev_month_cd))
+                    MedLogIcon(MedLogIcons.ArrowBack, stringResource(R.string.history_prev_month_cd))
                 }
                 Text(
                     stringResource(R.string.history_month_format, displayedMonth.year, displayedMonth.monthValue),
@@ -240,7 +234,7 @@ private fun MonthCalendarCard(
                     onClick = { onNavigate(1) },
                     enabled = displayedMonth < YearMonth.now(),
                 ) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, stringResource(R.string.history_next_month_cd))
+                    MedLogIcon(MedLogIcons.ArrowForward, stringResource(R.string.history_next_month_cd))
                 }
             }
 
@@ -503,13 +497,13 @@ private fun DayLogRow(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(10.dp),
     ) {
-        Icon(
-            imageVector = when (log.status) {
-                LogStatus.TAKEN   -> Icons.Rounded.CheckCircle
-                LogStatus.SKIPPED -> Icons.Rounded.SkipNext
-                LogStatus.MISSED  -> Icons.Rounded.Cancel
-                LogStatus.PARTIAL -> Icons.Rounded.Adjust
-                LogStatus.PENDING -> Icons.Rounded.Schedule
+        MedLogIcon(
+            icon = when (log.status) {
+                LogStatus.TAKEN   -> MedLogIcons.CheckCircle
+                LogStatus.SKIPPED -> MedLogIcons.SkipNext
+                LogStatus.MISSED  -> MedLogIcons.Cancel
+                LogStatus.PARTIAL -> MedLogIcons.Adjust
+                LogStatus.PENDING -> MedLogIcons.Schedule
             },
             contentDescription = null,
             tint = when (log.status) {

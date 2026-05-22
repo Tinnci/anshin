@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.home
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
@@ -20,18 +23,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.DoneAll
-import androidx.compose.material.icons.rounded.Medication
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
@@ -84,8 +81,8 @@ internal fun LowStockBanner(
                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.14f),
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
             ) {
-                Icon(
-                    imageVector = Icons.Rounded.Warning,
+                MedLogIcon(
+                    icon = MedLogIcons.Warning,
                     contentDescription = null,
                     modifier = Modifier
                         .padding(10.dp)
@@ -155,7 +152,7 @@ internal fun NextUpChip(period: TimePeriod, time: String) {
     SuggestionChip(
         onClick = {},
         icon = {
-            Icon(
+            MedLogIcon(
                 period.icon,
                 contentDescription = null,
                 modifier = Modifier.size(16.dp),
@@ -320,7 +317,7 @@ internal fun AnimatedProgressCard(
                         SuggestionChip(
                             onClick = {},
                             icon = {
-                                Icon(
+                                MedLogIcon(
                                     period.icon,
                                     contentDescription = null,
                                     modifier = Modifier.size(16.dp),
@@ -353,7 +350,7 @@ internal fun AnimatedProgressCard(
                         containerColor = if (allDone) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary,
                     ),
                 ) {
-                    Icon(Icons.Rounded.DoneAll, null, Modifier.size(18.dp))
+                    MedLogIcon(MedLogIcons.DoneAll, null, Modifier.size(18.dp))
                     Spacer(Modifier.width(MedLogSpacing.Small))
                     Text(
                         stringResource(R.string.home_take_all_btn, pendingCount),
@@ -376,8 +373,8 @@ internal fun EmptyMedicationState(onAddMedication: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(16.dp),
     ) {
-        Icon(
-            Icons.Rounded.Medication,
+        MedLogIcon(
+            MedLogIcons.Medication,
             contentDescription = null,
             modifier = Modifier.size(72.dp),
             tint = MaterialTheme.colorScheme.outlineVariant,
@@ -393,7 +390,7 @@ internal fun EmptyMedicationState(onAddMedication: () -> Unit) {
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
         FilledTonalButton(onClick = onAddMedication) {
-            Icon(Icons.Rounded.Add, null, Modifier.size(18.dp))
+            MedLogIcon(MedLogIcons.Add, null, Modifier.size(18.dp))
             Spacer(Modifier.width(8.dp))
             Text(stringResource(R.string.home_empty_add_btn))
         }

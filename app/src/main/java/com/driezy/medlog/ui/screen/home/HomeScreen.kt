@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.home
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
@@ -23,19 +26,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.AccessTime
-import androidx.compose.material.icons.rounded.Add
-import androidx.compose.material.icons.rounded.Category
-import androidx.compose.material.icons.rounded.CheckCircle
-import androidx.compose.material.icons.rounded.Close
-import androidx.compose.material.icons.rounded.DoneAll
-import androidx.compose.material.icons.rounded.Healing
-import androidx.compose.material.icons.rounded.LocalFlorist
-import androidx.compose.material.icons.rounded.Medication
-import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.ui.graphics.Color
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.util.labelRes
@@ -55,9 +45,6 @@ import androidx.compose.ui.text.style.TextAlign
 import com.driezy.medlog.ui.utils.generateQrBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import androidx.compose.material.icons.rounded.QrCode2
-import androidx.compose.material.icons.rounded.QrCodeScanner
-import androidx.compose.material.icons.rounded.IosShare
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.unit.dp
@@ -135,11 +122,11 @@ fun HomeScreen(
                 },
                 actions = {
                     FilledTonalIconButton(onClick = { showQrDialog = true }) {
-                        Icon(Icons.Rounded.QrCode2, contentDescription = stringResource(R.string.home_share_qr_cd))
+                        MedLogIcon(MedLogIcons.QrCode2, contentDescription = stringResource(R.string.home_share_qr_cd))
                     }
                     IconButton(onClick = viewModel::toggleGroupBy) {
-                        Icon(
-                            imageVector = if (uiState.groupByTime) Icons.Rounded.Category else Icons.Rounded.AccessTime,
+                        MedLogIcon(
+                            icon = if (uiState.groupByTime) MedLogIcons.Category else MedLogIcons.AccessTime,
                             contentDescription = if (uiState.groupByTime) stringResource(R.string.home_group_toggle_by_category) else stringResource(R.string.home_group_toggle_by_time),
                         )
                     }
@@ -152,7 +139,7 @@ fun HomeScreen(
             if (uiState.items.isNotEmpty()) {
                 ExtendedFloatingActionButton(
                     onClick = onAddMedication,
-                    icon = { Icon(Icons.Rounded.Add, contentDescription = null) },
+                    icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
                     text = { Text(stringResource(R.string.home_fab_add)) },
                 )
             }
@@ -243,7 +230,7 @@ fun HomeScreen(
                                 stringResource(R.string.home_now_group_body)
                             else
                                 stringResource(R.string.home_later_group_body),
-                            icon = if (key == "now") Icons.Rounded.CheckCircle else Icons.Rounded.AccessTime,
+                            icon = if (key == "now") MedLogIcons.CheckCircle else MedLogIcons.AccessTime,
                             items = groupItems,
                             onToggleTaken = { item ->
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)

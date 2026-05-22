@@ -6,14 +6,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.material3.Icon
+import com.driezy.medlog.ui.icons.MedLogIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -22,7 +21,7 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
 @Composable
 fun CameraGuidancePill(
     text: String,
-    icon: ImageVector,
+    icon: Int,
     modifier: Modifier = Modifier,
 ) {
     Surface(
@@ -37,8 +36,8 @@ fun CameraGuidancePill(
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Icon(
-                imageVector = icon,
+            MedLogIcon(
+                icon = icon,
                 contentDescription = null,
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.primary,

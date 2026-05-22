@@ -33,12 +33,12 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-cleanup: on-success
+          cache-read-only: ${{ github.event_name == 'pull_request' || (github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main') }}
 
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
-
-      - name: Run unit tests
-        run: ./gradlew testDebugUnitTest
+      - name: Verify and build Debug APK
+        run: ./gradlew ktlintCheck testDebugUnitTest lintDebug assembleDebug --build-cache --configuration-cache --stacktrace
 
       - name: Upload unit test results
         if: always()
@@ -48,9 +48,6 @@ jobs:
           path: app/build/test-results/
           retention-days: 7
 
-      - name: Run Android Lint
-        run: ./gradlew lintDebug
-
       - name: Upload Lint report
         if: always()
         uses: actions/upload-artifact@v7
@@ -59,5 +56,9 @@ jobs:
           path: app/build/reports/lint-results-debug.html
           retention-days: 7
 
-      - name: Build Debug APK
-        run: ./gradlew clean assembleDebug --stacktrace
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v7
+        with:
+          name: debug-apk-${{ github.run_number }}
+          path: app/build/outputs/apk/debug/*.apk
+          retention-days: 7

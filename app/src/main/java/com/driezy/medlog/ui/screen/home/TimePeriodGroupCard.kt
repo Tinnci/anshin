@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.home
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -17,10 +20,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.rounded.DoneAll
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
@@ -28,7 +27,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.SuggestionChipDefaults
@@ -43,7 +41,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
@@ -58,7 +55,7 @@ import kotlinx.coroutines.delay
 internal fun MedicationTaskGroupCard(
     title: String,
     subtitle: String,
-    icon: ImageVector,
+    icon: Int,
     items: List<MedicationWithStatus>,
     onToggleTaken: (MedicationWithStatus) -> Unit,
     onSkip: (MedicationWithStatus) -> Unit,
@@ -88,8 +85,8 @@ internal fun MedicationTaskGroupCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            Icon(
-                imageVector = icon,
+            MedLogIcon(
+                icon = icon,
                 contentDescription = null,
                 tint = if (pendingCount > 0) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(18.dp),
@@ -113,7 +110,7 @@ internal fun MedicationTaskGroupCard(
                     contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = 0.dp),
                     modifier = Modifier.height(40.dp),
                 ) {
-                    Icon(Icons.Rounded.DoneAll, contentDescription = null, modifier = Modifier.size(18.dp))
+                    MedLogIcon(MedLogIcons.DoneAll, contentDescription = null, modifier = Modifier.size(18.dp))
                     Spacer(Modifier.width(MedLogSpacing.Small))
                     Text(
                         stringResource(R.string.home_period_take_all_btn),
@@ -217,8 +214,8 @@ internal fun TimePeriodGroupCard(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            Icon(
-                imageVector = timePeriod.icon,
+            MedLogIcon(
+                icon = timePeriod.icon,
                 contentDescription = null,
                 tint = if (allDone) MaterialTheme.colorScheme.outline
                        else MaterialTheme.colorScheme.primary,
@@ -246,8 +243,8 @@ internal fun TimePeriodGroupCard(
                 SuggestionChip(
                     onClick = { isExpanded = !isExpanded },
                     icon = {
-                        Icon(
-                            Icons.Rounded.DoneAll,
+                        MedLogIcon(
+                            MedLogIcons.DoneAll,
                             contentDescription = null,
                             modifier = Modifier.size(14.dp),
                         )
@@ -268,8 +265,8 @@ internal fun TimePeriodGroupCard(
                     modifier = Modifier.height(28.dp),
                 )
                 // 展开/折叠指示箭头
-                Icon(
-                    imageVector = if (isExpanded) Icons.Filled.ExpandLess else Icons.Filled.ExpandMore,
+                MedLogIcon(
+                    icon = if (isExpanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,
                     contentDescription = if (isExpanded) stringResource(R.string.home_period_collapse) else stringResource(R.string.home_period_expand),
                     tint = MaterialTheme.colorScheme.outline,
                     modifier = Modifier.size(16.dp),
@@ -286,8 +283,8 @@ internal fun TimePeriodGroupCard(
                         contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = 0.dp),
                         modifier = Modifier.height(40.dp),
                     ) {
-                        Icon(
-                            Icons.Rounded.DoneAll,
+                        MedLogIcon(
+                            MedLogIcons.DoneAll,
                             contentDescription = null,
                             modifier = Modifier.size(18.dp),
                         )

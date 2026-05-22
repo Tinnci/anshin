@@ -1,13 +1,8 @@
 package com.driezy.medlog.ui.navigation
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.EditNote
-import androidx.compose.material.icons.rounded.History
-import androidx.compose.material.icons.rounded.Home
-import androidx.compose.material.icons.rounded.MedicalServices
-import androidx.compose.material.icons.rounded.MonitorHeart
-import androidx.compose.material.icons.rounded.Settings
-import androidx.compose.ui.graphics.vector.ImageVector
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import kotlinx.serialization.Serializable
 
 // ── Sealed screen routes (type-safe Navigation) ──────────────────────────────
@@ -37,16 +32,16 @@ import kotlinx.serialization.Serializable
 
 data class TopLevelDestination(
     val route: Route,
-    val icon: ImageVector,
+    val icon: Int,
     val labelRes: Int,
 )
 
 val TOP_LEVEL_DESTINATIONS = listOf(
-    TopLevelDestination(Route.Home, Icons.Rounded.Home, com.driezy.medlog.R.string.tab_today),
-    TopLevelDestination(Route.History, Icons.Rounded.History, com.driezy.medlog.R.string.tab_history),
-    TopLevelDestination(Route.Drugs, Icons.Rounded.MedicalServices, com.driezy.medlog.R.string.tab_drugs),
-    TopLevelDestination(Route.Diary, Icons.Rounded.EditNote, com.driezy.medlog.R.string.tab_diary),
-    TopLevelDestination(Route.Health, Icons.Rounded.MonitorHeart, com.driezy.medlog.R.string.tab_health),
-    TopLevelDestination(Route.Settings, Icons.Rounded.Settings, com.driezy.medlog.R.string.tab_settings),
+    TopLevelDestination(Route.Home, MedLogIcons.Home, com.driezy.medlog.R.string.tab_today),
+    TopLevelDestination(Route.History, MedLogIcons.History, com.driezy.medlog.R.string.tab_history),
+    TopLevelDestination(Route.Drugs, MedLogIcons.MedicalServices, com.driezy.medlog.R.string.tab_drugs),
+    TopLevelDestination(Route.Diary, MedLogIcons.EditNote, com.driezy.medlog.R.string.tab_diary),
+    TopLevelDestination(Route.Health, MedLogIcons.MonitorHeart, com.driezy.medlog.R.string.tab_health),
+    TopLevelDestination(Route.Settings, MedLogIcons.Settings, com.driezy.medlog.R.string.tab_settings),
 )
 

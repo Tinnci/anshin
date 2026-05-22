@@ -20,4 +20,8 @@ class ProgressNotificationUseCase @Inject constructor(
             pendingNames = pendingNames,
         )
     }
+
+    fun dismiss() {
+        notificationHelper.dismissProgressNotification()
+    }
 }

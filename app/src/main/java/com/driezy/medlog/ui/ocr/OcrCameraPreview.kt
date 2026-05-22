@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.ocr
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.camera.core.Camera
@@ -21,15 +24,10 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.CameraAlt
-import androidx.compose.material.icons.rounded.FlashOff
-import androidx.compose.material.icons.rounded.FlashOn
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
-import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -196,8 +194,8 @@ internal fun OcrCameraPreview(
                         if (processing) {
                             LoadingIndicator(modifier = Modifier.size(36.dp))
                         } else {
-                            Icon(
-                                Icons.Rounded.CameraAlt,
+                            MedLogIcon(
+                                MedLogIcons.CameraAlt,
                                 contentDescription = stringResource(R.string.ocr_capture),
                                 modifier = Modifier.size(36.dp),
                             )
@@ -224,8 +222,8 @@ internal fun OcrCameraPreview(
                     },
                 ),
             ) {
-                Icon(
-                    if (isFlashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
+                MedLogIcon(
+                    if (isFlashOn) MedLogIcons.FlashOn else MedLogIcons.FlashOff,
                     contentDescription = stringResource(R.string.ocr_flash_toggle),
                 )
             }

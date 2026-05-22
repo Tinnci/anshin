@@ -24,7 +24,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 /** 剂型选项 */
-data class DrugForm(val key: String, val label: String, val icon: androidx.compose.ui.graphics.vector.ImageVector)
+data class DrugForm(val key: String, val label: String, val icon: Int)
 
 data class AddMedicationUiState(
     // ── 基础信息 ──────────────────────────────────────────────────

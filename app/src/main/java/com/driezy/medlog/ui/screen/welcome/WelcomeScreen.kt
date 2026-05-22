@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.welcome
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
@@ -24,9 +27,6 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.ArrowForward
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -34,7 +34,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
@@ -207,7 +206,7 @@ fun WelcomeScreen(
                     )
                     if (isLastPage) {
                         Spacer(Modifier.width(8.dp))
-                        Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = null, Modifier.size(18.dp))
+                        MedLogIcon(MedLogIcons.ArrowForward, contentDescription = null, Modifier.size(18.dp))
                     }
                 }
 
@@ -296,8 +295,8 @@ private fun WelcomePage0(isCurrentPage: Boolean) {
                 .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Rounded.Medication,
+                MedLogIcon(
+                    MedLogIcons.Medication,
                     contentDescription = null,
                     modifier = Modifier.size(52.dp),
                     tint = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -325,14 +324,14 @@ private fun WelcomePage0(isCurrentPage: Boolean) {
 
 // ── 第1页：核心功能（错落进场） ────────────────────────────────────────────
 
-private data class Feature(val icon: ImageVector, val title: String, val desc: String)
+private data class Feature(val icon: Int, val title: String, val desc: String)
 
 @Composable
 private fun WelcomePage1(isCurrentPage: Boolean) {
     val features = listOf(
-        Feature(Icons.Rounded.NotificationsActive, stringResource(R.string.welcome_p1_feat1_title), stringResource(R.string.welcome_p1_feat1_desc)),
-        Feature(Icons.Rounded.Inventory2,          stringResource(R.string.welcome_p1_feat2_title), stringResource(R.string.welcome_p1_feat2_desc)),
-        Feature(Icons.Rounded.History,             stringResource(R.string.welcome_p1_feat3_title), stringResource(R.string.welcome_p1_feat3_desc)),
+        Feature(MedLogIcons.NotificationsActive, stringResource(R.string.welcome_p1_feat1_title), stringResource(R.string.welcome_p1_feat1_desc)),
+        Feature(MedLogIcons.Inventory2,          stringResource(R.string.welcome_p1_feat2_title), stringResource(R.string.welcome_p1_feat2_desc)),
+        Feature(MedLogIcons.History,             stringResource(R.string.welcome_p1_feat3_title), stringResource(R.string.welcome_p1_feat3_desc)),
     )
     val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
 
@@ -374,7 +373,7 @@ private fun AnimatedFeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs
                 .graphicsLayer { scaleX = iconScale; scaleY = iconScale; this.alpha = iconAlpha },
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
+                MedLogIcon(
                     feature.icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
@@ -424,11 +423,11 @@ private fun WelcomePage2(
         Spacer(Modifier.height(24.dp))
 
         listOf(
-            Triple("wake",      stringResource(R.string.wake_time),      Icons.Rounded.WbSunny),
-            Triple("breakfast", stringResource(R.string.breakfast_time), Icons.Rounded.BreakfastDining),
-            Triple("lunch",     stringResource(R.string.lunch_time),     Icons.Rounded.LunchDining),
-            Triple("dinner",    stringResource(R.string.dinner_time),    Icons.Rounded.DinnerDining),
-            Triple("bed",       stringResource(R.string.bed_time),       Icons.Rounded.Bedtime),
+            Triple("wake",      stringResource(R.string.wake_time),      MedLogIcons.WbSunny),
+            Triple("breakfast", stringResource(R.string.breakfast_time), MedLogIcons.BreakfastDining),
+            Triple("lunch",     stringResource(R.string.lunch_time),     MedLogIcons.LunchDining),
+            Triple("dinner",    stringResource(R.string.dinner_time),    MedLogIcons.DinnerDining),
+            Triple("bed",       stringResource(R.string.bed_time),       MedLogIcons.Bedtime),
         ).forEachIndexed { index, (field, label, icon) ->
             val delay = 120L + index * 60L
             val (cardY, cardAlpha) = rememberSlideEntry(isCurrentPage, 24f, delay)
@@ -450,7 +449,7 @@ private fun WelcomePage2(
 @Composable
 private fun RoutineTimeField(
     label: String,
-    icon: ImageVector,
+    icon: Int,
     hour: Int,
     minute: Int,
     onChanged: (Int, Int) -> Unit,
@@ -470,7 +469,7 @@ private fun RoutineTimeField(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
+            MedLogIcon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(22.dp))
             Text(label, style = MaterialTheme.typography.bodyLarge, modifier = Modifier.weight(1f))
             Text(
                 "%02d:%02d".format(hour, minute),
@@ -478,7 +477,7 @@ private fun RoutineTimeField(
                 fontWeight = FontWeight.Medium,
                 color = MaterialTheme.colorScheme.primary,
             )
-            Icon(Icons.Rounded.Edit, contentDescription = stringResource(R.string.welcome_time_edit_cd), modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            MedLogIcon(MedLogIcons.Edit, contentDescription = stringResource(R.string.welcome_time_edit_cd), modifier = Modifier.size(16.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 
@@ -543,8 +542,8 @@ private fun WelcomeNotificationPage(
                 .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    if (notifGranted) Icons.Rounded.NotificationsActive else Icons.Rounded.Notifications,
+                MedLogIcon(
+                    if (notifGranted) MedLogIcons.NotificationsActive else MedLogIcons.Notifications,
                     contentDescription = null,
                     modifier = Modifier.size(52.dp),
                     tint = if (notifGranted) MaterialTheme.colorScheme.onTertiaryContainer
@@ -595,7 +594,7 @@ private fun WelcomeNotificationPage(
                     },
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
-                Icon(Icons.Rounded.NotificationsActive, contentDescription = null, modifier = Modifier.size(22.dp))
+                MedLogIcon(MedLogIcons.NotificationsActive, contentDescription = null, modifier = Modifier.size(22.dp))
                 Spacer(Modifier.width(10.dp))
                 Text(stringResource(R.string.welcome_notif_grant_btn), style = MaterialTheme.typography.titleSmall)
             }
@@ -613,7 +612,7 @@ private fun WelcomeNotificationPage(
 
 // ── 第5页：准备完毕 + 快速开始 ──────────────────────────────────────────────
 
-private data class QuickStartStep(val icon: ImageVector, val text: String)
+private data class QuickStartStep(val icon: Int, val text: String)
 
 @Composable
 private fun WelcomePage3(isCurrentPage: Boolean) {
@@ -622,9 +621,9 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
     val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage, 24f, 260L)
 
     val steps = listOf(
-        QuickStartStep(Icons.Rounded.Add,         stringResource(R.string.welcome_p5_step1)),
-        QuickStartStep(Icons.Rounded.AccessTime,  stringResource(R.string.welcome_p5_step2)),
-        QuickStartStep(Icons.Rounded.CheckCircle, stringResource(R.string.welcome_p5_step3)),
+        QuickStartStep(MedLogIcons.Add,         stringResource(R.string.welcome_p5_step1)),
+        QuickStartStep(MedLogIcons.AccessTime,  stringResource(R.string.welcome_p5_step2)),
+        QuickStartStep(MedLogIcons.CheckCircle, stringResource(R.string.welcome_p5_step3)),
     )
 
     Column(
@@ -643,8 +642,8 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
                 .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
         ) {
             Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    Icons.Rounded.CheckCircle,
+                MedLogIcon(
+                    MedLogIcons.CheckCircle,
                     contentDescription = null,
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer,
@@ -692,7 +691,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
                                 modifier = Modifier.size(36.dp),
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Icon(
+                                    MedLogIcon(
                                         step.icon,
                                         contentDescription = null,
                                         tint = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -768,7 +767,7 @@ private fun WelcomePage4(
                 FeatureToggleRow(
                     title = stringResource(R.string.welcome_p4_symptom_title),
                     description = stringResource(R.string.welcome_p4_symptom_desc),
-                    icon = Icons.Rounded.EditNote,
+                    icon = MedLogIcons.EditNote,
                     checked = uiState.enableSymptomDiary,
                     onCheckedChange = onToggleSymptomDiary,
                 )
@@ -776,7 +775,7 @@ private fun WelcomePage4(
                 FeatureToggleRow(
                     title = stringResource(R.string.welcome_p4_drugs_title),
                     description = stringResource(R.string.welcome_p4_drugs_desc),
-                    icon = Icons.Rounded.MedicalServices,
+                    icon = MedLogIcons.MedicalServices,
                     checked = uiState.enableDrugDatabase,
                     onCheckedChange = onToggleDrugDatabase,
                 )
@@ -784,7 +783,7 @@ private fun WelcomePage4(
                 FeatureToggleRow(
                     title = stringResource(R.string.welcome_p4_interaction_title),
                     description = stringResource(R.string.welcome_p4_interaction_desc),
-                    icon = Icons.Rounded.Warning,
+                    icon = MedLogIcons.Warning,
                     checked = uiState.enableDrugInteractionCheck,
                     onCheckedChange = onToggleDrugInteractionCheck,
                 )
@@ -792,7 +791,7 @@ private fun WelcomePage4(
                 FeatureToggleRow(
                     title = stringResource(R.string.welcome_p4_health_title),
                     description = stringResource(R.string.welcome_p4_health_desc),
-                    icon = Icons.Rounded.MonitorHeart,
+                    icon = MedLogIcons.MonitorHeart,
                     checked = uiState.enableHealthModule,
                     onCheckedChange = onToggleHealthModule,
                 )
@@ -800,7 +799,7 @@ private fun WelcomePage4(
                 FeatureToggleRow(
                     title = stringResource(R.string.welcome_p4_timeperiod_title),
                     description = stringResource(R.string.welcome_p4_timeperiod_desc),
-                    icon = Icons.Rounded.Schedule,
+                    icon = MedLogIcons.Schedule,
                     checked = uiState.enableTimePeriodMode,
                     onCheckedChange = onToggleTimePeriodMode,
                 )
@@ -828,7 +827,7 @@ private fun WelcomePage4(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
-                    Icon(Icons.Rounded.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
+                    MedLogIcon(MedLogIcons.DarkMode, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.size(18.dp))
                     Text(stringResource(R.string.welcome_p4_theme_label), style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.Medium)
                 }
                 val themeModes = listOf(
@@ -864,7 +863,7 @@ private fun WelcomePage4(
 private fun FeatureToggleRow(
     title: String,
     description: String,
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: Int,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
@@ -874,7 +873,7 @@ private fun FeatureToggleRow(
             Text(description, style = MaterialTheme.typography.bodySmall)
         },
         leadingContent = {
-            Icon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            MedLogIcon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         },
         trailingContent = {
             Switch(checked = checked, onCheckedChange = onCheckedChange)

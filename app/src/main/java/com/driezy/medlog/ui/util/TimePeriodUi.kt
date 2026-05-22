@@ -1,33 +1,26 @@
 package com.driezy.medlog.ui.util
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.annotation.StringRes
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.Bedtime
-import androidx.compose.material.icons.rounded.Brightness5
-import androidx.compose.material.icons.rounded.Coffee
-import androidx.compose.material.icons.rounded.DinnerDining
-import androidx.compose.material.icons.rounded.LunchDining
-import androidx.compose.material.icons.rounded.NightsStay
-import androidx.compose.material.icons.rounded.Schedule
-import androidx.compose.material.icons.rounded.WbSunny
-import androidx.compose.ui.graphics.vector.ImageVector
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
 
 /** TimePeriod 的展示用图标（Compose Material Icon） */
-val TimePeriod.icon: ImageVector
+val TimePeriod.icon: Int
     get() = when (this) {
-        TimePeriod.EXACT -> Icons.Rounded.Schedule
-        TimePeriod.MORNING -> Icons.Rounded.WbSunny
-        TimePeriod.AFTER_BREAKFAST -> Icons.Rounded.Coffee
-        TimePeriod.BEFORE_LUNCH -> Icons.Rounded.LunchDining
-        TimePeriod.AFTER_LUNCH -> Icons.Rounded.LunchDining
-        TimePeriod.BEFORE_DINNER -> Icons.Rounded.DinnerDining
-        TimePeriod.AFTER_DINNER -> Icons.Rounded.DinnerDining
-        TimePeriod.EVENING -> Icons.Rounded.NightsStay
-        TimePeriod.BEDTIME -> Icons.Rounded.Bedtime
-        TimePeriod.BEFORE_BREAKFAST -> Icons.Rounded.Brightness5
-        TimePeriod.AFTERNOON -> Icons.Rounded.WbSunny
+        TimePeriod.EXACT -> MedLogIcons.Schedule
+        TimePeriod.MORNING -> MedLogIcons.WbSunny
+        TimePeriod.AFTER_BREAKFAST -> MedLogIcons.Coffee
+        TimePeriod.BEFORE_LUNCH -> MedLogIcons.LunchDining
+        TimePeriod.AFTER_LUNCH -> MedLogIcons.LunchDining
+        TimePeriod.BEFORE_DINNER -> MedLogIcons.DinnerDining
+        TimePeriod.AFTER_DINNER -> MedLogIcons.DinnerDining
+        TimePeriod.EVENING -> MedLogIcons.NightsStay
+        TimePeriod.BEDTIME -> MedLogIcons.Bedtime
+        TimePeriod.BEFORE_BREAKFAST -> MedLogIcons.Brightness5
+        TimePeriod.AFTERNOON -> MedLogIcons.WbSunny
     }
 
 /** TimePeriod 的本地化标签字符串资源 ID */

@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.screen.settings
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -12,12 +15,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.AddToHomeScreen
-import androidx.compose.material.icons.automirrored.rounded.OpenInNew
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material.icons.rounded.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -25,7 +22,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -210,8 +206,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
-                        Icon(
-                            Icons.Rounded.Warning,
+                        MedLogIcon(
+                            MedLogIcons.Warning,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onErrorContainer,
                             modifier = Modifier.size(28.dp),
@@ -269,8 +265,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
-                        Icon(
-                            Icons.Rounded.NotificationsOff,
+                        MedLogIcon(
+                            MedLogIcons.NotificationsOff,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                             modifier = Modifier.size(28.dp),
@@ -319,7 +315,7 @@ fun SettingsScreen(
                 }
             }
             // ── 外观 ───────────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_appearance), icon = Icons.Rounded.Palette) {
+            SettingsCard(title = stringResource(R.string.settings_card_appearance), icon = MedLogIcons.Palette) {
                 // ―― 主题模式 ――
                 Column(
                     modifier = Modifier
@@ -332,8 +328,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
-                        Icon(
-                            Icons.Rounded.DarkMode,
+                        MedLogIcon(
+                            MedLogIcons.DarkMode,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp),
@@ -377,30 +373,31 @@ fun SettingsScreen(
                         subtitle = stringResource(R.string.settings_dynamic_color_subtitle),
                         checked = uiState.useDynamicColor,
                         onCheckedChange = viewModel::setUseDynamicColor,
-                        icon = Icons.Rounded.ColorLens,
+                        icon = MedLogIcons.ColorLens,
                     )
                 }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_today),
-                    icon = Icons.Rounded.ViewAgenda,
+                    icon = MedLogIcons.ViewAgenda,
                 )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_auto_collapse_title),
                     subtitle = stringResource(R.string.settings_auto_collapse_subtitle),
                     checked = uiState.autoCollapseCompletedGroups,
                     onCheckedChange = viewModel::setAutoCollapseCompletedGroups,
-                    icon = Icons.Rounded.UnfoldLess,
+                    icon = MedLogIcons.UnfoldLess,
                 )
             }
 
             // ── 提醒设置 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_reminder), icon = Icons.Rounded.Notifications) {
+            SettingsCard(title = stringResource(R.string.settings_card_reminder), icon = MedLogIcons.Notifications) {
+                NotificationSettingsOverview(uiState)
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_persistent_title),
                     subtitle = stringResource(R.string.settings_persistent_subtitle),
                     checked = uiState.persistentReminder,
                     onCheckedChange = viewModel::setPersistentReminder,
-                    icon = Icons.Rounded.NotificationsActive,
+                    icon = MedLogIcons.NotificationsActive,
                 )
                 AnimatedVisibility(
                     visible = uiState.persistentReminder,
@@ -420,8 +417,8 @@ fun SettingsScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                         ) {
-                            Icon(
-                                Icons.Rounded.Timer,
+                            MedLogIcon(
+                                MedLogIcons.Timer,
                                 contentDescription = null,
                                 tint = MaterialTheme.colorScheme.primary,
                                 modifier = Modifier.size(18.dp),
@@ -470,8 +467,8 @@ fun SettingsScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                     ) {
-                        Icon(
-                            Icons.Rounded.AccessAlarm,
+                        MedLogIcon(
+                            MedLogIcons.AccessAlarm,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.size(18.dp),
@@ -515,12 +512,12 @@ fun SettingsScreen(
                 }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_follow_up_section),
-                    icon = Icons.Rounded.NotificationAdd,
+                    icon = MedLogIcons.NotificationAdd,
                 )
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_follow_up_enable),
                     subtitle = stringResource(R.string.settings_follow_up_enable_desc),
-                    icon = Icons.Rounded.AlarmAdd,
+                    icon = MedLogIcons.AlarmAdd,
                     checked = uiState.followUpReminderEnabled,
                     onCheckedChange = { viewModel.setFollowUpSettings(enabled = it) },
                 )
@@ -587,7 +584,7 @@ fun SettingsScreen(
                 }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_routine),
-                    icon = Icons.Rounded.Schedule,
+                    icon = MedLogIcons.Schedule,
                 )
                 // ── 模式开关 ──────────────────────────────────────
                 SettingsSwitchRow(
@@ -596,7 +593,7 @@ fun SettingsScreen(
                         stringResource(R.string.settings_routine_mode_subtitle_on)
                     else
                         stringResource(R.string.settings_routine_mode_subtitle_off),
-                    icon = Icons.Rounded.Schedule,
+                    icon = MedLogIcons.Schedule,
                     checked = uiState.enableTimePeriodMode,
                     onCheckedChange = { viewModel.setEnableTimePeriodMode(it) },
                 )
@@ -626,17 +623,17 @@ fun SettingsScreen(
                             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                         ) {
                             listOf(
-                                Triple(Icons.Rounded.WbSunny,      stringResource(R.string.settings_routine_wake), "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
-                                Triple(Icons.Rounded.Coffee,       stringResource(R.string.settings_routine_breakfast), "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
-                                Triple(Icons.Rounded.LunchDining,  stringResource(R.string.settings_routine_lunch), "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
-                                Triple(Icons.Rounded.DinnerDining, stringResource(R.string.settings_routine_dinner), "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
-                                Triple(Icons.Rounded.Bedtime,      stringResource(R.string.settings_routine_bed), "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
+                                Triple(MedLogIcons.WbSunny,      stringResource(R.string.settings_routine_wake), "%02d:%02d".format(uiState.wakeHour,      uiState.wakeMinute)),
+                                Triple(MedLogIcons.Coffee,       stringResource(R.string.settings_routine_breakfast), "%02d:%02d".format(uiState.breakfastHour, uiState.breakfastMinute)),
+                                Triple(MedLogIcons.LunchDining,  stringResource(R.string.settings_routine_lunch), "%02d:%02d".format(uiState.lunchHour,     uiState.lunchMinute)),
+                                Triple(MedLogIcons.DinnerDining, stringResource(R.string.settings_routine_dinner), "%02d:%02d".format(uiState.dinnerHour,    uiState.dinnerMinute)),
+                                Triple(MedLogIcons.Bedtime,      stringResource(R.string.settings_routine_bed), "%02d:%02d".format(uiState.bedHour,       uiState.bedMinute)),
                             ).forEach { (icon, label, time) ->
                                 SuggestionChip(
                                     onClick = {},
                                     enabled = false,
                                     icon = {
-                                        Icon(
+                                        MedLogIcon(
                                             icon,
                                             contentDescription = null,
                                             modifier = Modifier.size(14.dp),
@@ -652,24 +649,24 @@ fun SettingsScreen(
                             }
                         }
                         RoutineTimeRow(stringResource(R.string.settings_routine_wake), uiState.wakeHour, uiState.wakeMinute,
-                            Icons.Rounded.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
+                            MedLogIcons.WbSunny) { h, m -> viewModel.updateRoutineTime("wake", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_breakfast), uiState.breakfastHour, uiState.breakfastMinute,
-                            Icons.Rounded.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
+                            MedLogIcons.Coffee) { h, m -> viewModel.updateRoutineTime("breakfast", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_lunch), uiState.lunchHour, uiState.lunchMinute,
-                            Icons.Rounded.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
+                            MedLogIcons.LunchDining) { h, m -> viewModel.updateRoutineTime("lunch", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_dinner), uiState.dinnerHour, uiState.dinnerMinute,
-                            Icons.Rounded.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
+                            MedLogIcons.DinnerDining) { h, m -> viewModel.updateRoutineTime("dinner", h, m) }
                         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                         RoutineTimeRow(stringResource(R.string.settings_routine_bed), uiState.bedHour, uiState.bedMinute,
-                            Icons.Rounded.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
+                            MedLogIcons.Bedtime) { h, m -> viewModel.updateRoutineTime("bed", h, m) }
                     }
                 }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_travel),
-                    icon = Icons.Rounded.FlightTakeoff,
+                    icon = MedLogIcons.FlightTakeoff,
                 )
                 Text(
                     stringResource(R.string.settings_travel_hint),
@@ -687,18 +684,18 @@ fun SettingsScreen(
                         stringResource(R.string.settings_travel_subtitle_off),
                     checked = uiState.travelMode,
                     onCheckedChange = viewModel::setTravelMode,
-                    icon = Icons.Rounded.Schedule,
+                    icon = MedLogIcons.Schedule,
                 )
             }
 
             // ── OCR 模型配置 ──────────────────────────────────────
             SettingsCard(
                 title = stringResource(R.string.settings_group_ocr_health),
-                icon = Icons.Rounded.Memory
+                icon = MedLogIcons.Memory
             ) {
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_ocr_model_card_title),
-                    icon = Icons.Rounded.DocumentScanner,
+                    icon = MedLogIcons.DocumentScanner,
                     modifier = Modifier.padding(top = 0.dp),
                 )
                 Text(
@@ -721,9 +718,9 @@ fun SettingsScreen(
                         tag = stringResource(R.string.settings_ocr_model_light_tag),
                         description = stringResource(R.string.settings_ocr_model_light_desc),
                         specs = listOf(
-                            Icons.Rounded.Storage to stringResource(R.string.settings_ocr_model_light_size),
-                            Icons.Rounded.Speed to stringResource(R.string.settings_ocr_model_light_latency),
-                            Icons.Rounded.CheckCircle to stringResource(R.string.settings_ocr_model_light_accuracy),
+                            MedLogIcons.Storage to stringResource(R.string.settings_ocr_model_light_size),
+                            MedLogIcons.Speed to stringResource(R.string.settings_ocr_model_light_latency),
+                            MedLogIcons.CheckCircle to stringResource(R.string.settings_ocr_model_light_accuracy),
                         ),
                         selected = uiState.ocrModelType == OcrModelType.LIGHT_SVTR,
                         tagContainerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -736,9 +733,9 @@ fun SettingsScreen(
                         tag = stringResource(R.string.settings_ocr_model_fastvit_tag),
                         description = stringResource(R.string.settings_ocr_model_fastvit_desc),
                         specs = listOf(
-                            Icons.Rounded.Storage to stringResource(R.string.settings_ocr_model_fastvit_size),
-                            Icons.Rounded.Speed to stringResource(R.string.settings_ocr_model_fastvit_latency),
-                            Icons.Rounded.CheckCircle to stringResource(R.string.settings_ocr_model_fastvit_accuracy),
+                            MedLogIcons.Storage to stringResource(R.string.settings_ocr_model_fastvit_size),
+                            MedLogIcons.Speed to stringResource(R.string.settings_ocr_model_fastvit_latency),
+                            MedLogIcons.CheckCircle to stringResource(R.string.settings_ocr_model_fastvit_accuracy),
                         ),
                         selected = uiState.ocrModelType == OcrModelType.FASTVIT_T8,
                         tagContainerColor = MaterialTheme.colorScheme.tertiaryContainer,
@@ -748,7 +745,7 @@ fun SettingsScreen(
                 }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_features),
-                    icon = Icons.Rounded.Tune,
+                    icon = MedLogIcons.Tune,
                 )
                 Text(
                     stringResource(R.string.settings_features_hint),
@@ -763,7 +760,7 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_symptom_subtitle),
                     checked = uiState.enableSymptomDiary,
                     onCheckedChange = viewModel::setEnableSymptomDiary,
-                    icon = Icons.Rounded.EditNote,
+                    icon = MedLogIcons.EditNote,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
@@ -771,7 +768,7 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_drug_db_subtitle),
                     checked = uiState.enableDrugDatabase,
                     onCheckedChange = viewModel::setEnableDrugDatabase,
-                    icon = Icons.Rounded.MedicalServices,
+                    icon = MedLogIcons.MedicalServices,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
@@ -779,7 +776,7 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_health_subtitle),
                     checked = uiState.enableHealthModule,
                     onCheckedChange = viewModel::setEnableHealthModule,
-                    icon = Icons.Rounded.MonitorHeart,
+                    icon = MedLogIcons.MonitorHeart,
                 )
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 SettingsSwitchRow(
@@ -787,11 +784,11 @@ fun SettingsScreen(
                     subtitle = stringResource(R.string.settings_interaction_subtitle),
                     checked = uiState.enableDrugInteractionCheck,
                     onCheckedChange = viewModel::setEnableDrugInteractionCheck,
-                    icon = Icons.Rounded.Warning,
+                    icon = MedLogIcons.Warning,
                 )
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_meds),
-                    icon = Icons.Rounded.MedicalServices,
+                    icon = MedLogIcons.MedicalServices,
                 )
                 ArchivedMedicationsRow(
                     archived = uiState.archivedMedications,
@@ -800,7 +797,7 @@ fun SettingsScreen(
             }
 
             // ── 桌面小组件 ────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_widgets), icon = Icons.Rounded.Widgets) {
+            SettingsCard(title = stringResource(R.string.settings_card_widgets), icon = MedLogIcons.Widgets) {
                 val widgetManager = AppWidgetManager.getInstance(context)
                 val canPin = widgetManager.isRequestPinAppWidgetSupported
                 val oemNeedsPermission = OemWidgetHelper.requiresExtraPermission
@@ -823,8 +820,8 @@ fun SettingsScreen(
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(
-                                    Icons.Rounded.Info,
+                                MedLogIcon(
+                                    MedLogIcons.Info,
                                     contentDescription = null,
                                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
                                     modifier = Modifier.size(16.dp),
@@ -857,8 +854,8 @@ fun SettingsScreen(
                                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                                         verticalAlignment = Alignment.Top,
                                     ) {
-                                        Icon(
-                                            Icons.Rounded.Warning,
+                                        MedLogIcon(
+                                            MedLogIcons.Warning,
                                             contentDescription = null,
                                             tint = MaterialTheme.colorScheme.onTertiaryContainer,
                                             modifier = Modifier.size(16.dp),
@@ -874,8 +871,8 @@ fun SettingsScreen(
                                         modifier = Modifier.fillMaxWidth(),
                                         contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Small),
                                     ) {
-                                        Icon(
-                                            Icons.AutoMirrored.Rounded.OpenInNew,
+                                        MedLogIcon(
+                                            MedLogIcons.OpenInNew,
                                             contentDescription = null,
                                             modifier = Modifier.size(16.dp),
                                         )
@@ -896,16 +893,17 @@ fun SettingsScreen(
                             stringResource(R.string.widget_settings_status_body),
                         checked         = uiState.widgetShowActions,
                         onCheckedChange = { viewModel.setWidgetShowActions(it) },
-                        icon            = Icons.Rounded.TouchApp,
+                        icon            = MedLogIcons.TouchApp,
                     )
 
                     // 今日进度小组件
                     WidgetPickerCard(
-                        previewRes = R.drawable.widget_preview_today,
+                        previewType = WidgetPreviewType.TODAY,
                         name = stringResource(R.string.settings_widget_today_name),
                         description = stringResource(R.string.settings_widget_today_desc),
                         sizes = listOf("2×2", "4×2", "4×4"),
                         canPin = canPin,
+                        showActions = uiState.widgetShowActions,
                     ) {
                         if (canPin) {
                             widgetManager.requestPinAppWidget(
@@ -929,11 +927,12 @@ fun SettingsScreen(
 
                     // 下次服药小组件
                     WidgetPickerCard(
-                        previewRes = R.drawable.widget_preview_next_dose,
+                        previewType = WidgetPreviewType.NEXT_DOSE,
                         name = stringResource(R.string.settings_widget_next_name),
                         description = stringResource(R.string.settings_widget_next_desc),
                         sizes = listOf("2×2", "4×2"),
                         canPin = canPin,
+                        showActions = uiState.widgetShowActions,
                     ) {
                         if (canPin) {
                             widgetManager.requestPinAppWidget(
@@ -957,7 +956,7 @@ fun SettingsScreen(
 
                     // 连续打卡小组件
                     WidgetPickerCard(
-                        previewRes = R.drawable.widget_preview_streak,
+                        previewType = WidgetPreviewType.STREAK,
                         name = stringResource(R.string.settings_widget_streak_name),
                         description = stringResource(R.string.settings_widget_streak_desc),
                         sizes = listOf("2×2", "4×2"),
@@ -988,59 +987,43 @@ fun SettingsScreen(
             // ── 备份与恢复 ──────────────────────────────────────────
             SettingsCard(
                 title = stringResource(R.string.settings_group_data_about),
-                icon = Icons.Rounded.CloudUpload,
+                icon = MedLogIcons.CloudUpload,
             ) {
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_backup_restore),
-                    icon = Icons.Rounded.CloudUpload,
+                    icon = MedLogIcons.CloudUpload,
                     modifier = Modifier.padding(top = 0.dp),
                 )
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_backup_title)) },
-                    supportingContent = { Text(stringResource(R.string.settings_backup_subtitle)) },
-                    leadingContent = {
-                        Icon(
-                            Icons.Rounded.Upload,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                    trailingContent = {
-                        if (backupInProgress) {
-                            LoadingIndicator(modifier = Modifier.size(24.dp))
-                        }
-                    },
-                    modifier = Modifier.clickable(enabled = !backupInProgress) {
+                DataSafetyPanel()
+                DataActionRow(
+                    title = stringResource(R.string.settings_backup_title),
+                    subtitle = stringResource(R.string.settings_backup_subtitle),
+                    icon = MedLogIcons.Upload,
+                    actionLabel = stringResource(R.string.settings_data_backup_action),
+                    enabled = !backupInProgress,
+                    loading = backupInProgress,
+                    onClick = {
                         val ts = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
                             .format(java.util.Date())
                         backupLauncher.launch("anshin_backup_$ts.db")
                     },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
-                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
-                ListItem(
-                    headlineContent = { Text(stringResource(R.string.settings_restore_title)) },
-                    supportingContent = { Text(stringResource(R.string.settings_restore_subtitle)) },
-                    leadingContent = {
-                        Icon(
-                            Icons.Rounded.Download,
-                            contentDescription = null,
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    },
-                    trailingContent = {
-                        if (backupInProgress) {
-                            LoadingIndicator(modifier = Modifier.size(24.dp))
-                        }
-                    },
-                    modifier = Modifier.clickable(enabled = !backupInProgress) {
+                Spacer(Modifier.height(MedLogSpacing.Small))
+                DataActionRow(
+                    title = stringResource(R.string.settings_restore_title),
+                    subtitle = stringResource(R.string.settings_data_restore_warning_body),
+                    icon = MedLogIcons.Warning,
+                    actionLabel = stringResource(R.string.settings_data_restore_action),
+                    enabled = !backupInProgress,
+                    destructive = true,
+                    loading = backupInProgress,
+                    onClick = {
                         restoreLauncher.launch(arrayOf("application/octet-stream", "*/*"))
                     },
-                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 )
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_about),
-                    icon = Icons.Rounded.Info,
+                    icon = MedLogIcons.Info,
                 )
                 ListItem(
                     headlineContent = { Text("Anshin") },
@@ -1048,8 +1031,8 @@ fun SettingsScreen(
                         Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE))
                     },
                     leadingContent = {
-                        Icon(
-                            Icons.Rounded.Medication,
+                        MedLogIcon(
+                            MedLogIcons.Medication,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -1061,8 +1044,8 @@ fun SettingsScreen(
                     headlineContent = { Text(stringResource(R.string.settings_replay_title)) },
                     supportingContent = { Text(stringResource(R.string.settings_replay_subtitle)) },
                     leadingContent = {
-                        Icon(
-                            Icons.Rounded.Replay,
+                        MedLogIcon(
+                            MedLogIcons.Replay,
                             contentDescription = null,
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -1083,7 +1066,7 @@ fun SettingsScreen(
                 showRestoreConfirmDialog = false
                 pendingRestoreUri = null
             },
-            icon = { Icon(Icons.Rounded.Warning, contentDescription = null) },
+            icon = { MedLogIcon(MedLogIcons.Warning, contentDescription = null) },
             title = { Text(stringResource(R.string.settings_restore_confirm_title)) },
             text = { Text(stringResource(R.string.settings_restore_confirm_message)) },
             confirmButton = {
@@ -1115,7 +1098,7 @@ private fun OcrModelOptionCard(
     title: String,
     tag: String,
     description: String,
-    specs: List<Pair<ImageVector, String>>,
+    specs: List<Pair<Int, String>>,
     selected: Boolean,
     tagContainerColor: Color,
     tagContentColor: Color,
@@ -1196,7 +1179,7 @@ private fun OcrModelOptionCard(
 }
 
 @Composable
-private fun SpecBadge(icon: ImageVector, text: String) {
+private fun SpecBadge(icon: Int, text: String) {
     Surface(
         shape = RoundedCornerShape(8.dp),
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
@@ -1206,8 +1189,8 @@ private fun SpecBadge(icon: ImageVector, text: String) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(4.dp)
         ) {
-            Icon(
-                imageVector = icon,
+            MedLogIcon(
+                icon = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(12.dp)

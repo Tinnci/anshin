@@ -33,6 +33,9 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v6
+        with:
+          cache-cleanup: on-success
+          cache-read-only: true
 
       # ── 3. 从 tag 解析版本号 ──────────────────────────────────
       - name: Extract version from tag
@@ -70,19 +73,9 @@ jobs:
             echo "No KEYSTORE_BASE64 secret found. APK will be unsigned."
           fi
 
-      # ── 5. 单元测试（发布前最终验证）───────────────────────────
-      - name: Run ktlint
-        run: ./gradlew ktlintCheck
-
-      - name: Run unit tests
-        run: ./gradlew :app:testDebugUnitTest
-
-      - name: Run Android Lint
-        run: ./gradlew lintDebug
-
-      # ── 6. 构建 Release APK ───────────────────────────────────
-      - name: Build Release APK
-        run: ./gradlew clean assembleRelease --stacktrace
+      # ── 5. 最终验证并构建 Release APK ─────────────────────────
+      - name: Verify and build Release APK
+        run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease --build-cache --configuration-cache --stacktrace
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}

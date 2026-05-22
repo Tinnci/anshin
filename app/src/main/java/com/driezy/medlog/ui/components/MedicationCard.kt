@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.components
 
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
@@ -10,10 +13,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.rounded.Undo
-import androidx.compose.material.icons.rounded.*
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -136,8 +135,8 @@ fun MedicationCard(
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         // ── 剂型图标（与添加界面一致）─────────────────
-                        Icon(
-                            imageVector = formIcon(med.form),
+                        MedLogIcon(
+                            icon = formIcon(med.form),
                             contentDescription = med.form,
                             modifier = Modifier.size(16.dp),
                             tint = if (item.isTaken || item.isSkipped)
@@ -156,8 +155,8 @@ fun MedicationCard(
                             overflow = TextOverflow.Clip,
                         )
                         if (med.isHighPriority) {
-                            Icon(
-                                Icons.Rounded.PriorityHigh,
+                            MedLogIcon(
+                                MedLogIcons.PriorityHigh,
                                 contentDescription = stringResource(R.string.med_card_high_priority_cd),
                                 tint = MaterialTheme.colorScheme.error,
                                 modifier = Modifier.size(16.dp),
@@ -189,8 +188,8 @@ fun MedicationCard(
                                         )
                                     },
                                     icon = {
-                                        Icon(
-                                            Icons.Rounded.LocalFlorist,
+                                        MedLogIcon(
+                                            MedLogIcons.LocalFlorist,
                                             contentDescription = null,
                                             modifier = Modifier.size(12.dp),
                                         )
@@ -223,7 +222,7 @@ fun MedicationCard(
                         horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         val period = TimePeriod.fromKey(med.timePeriod)
-                        Icon(
+                        MedLogIcon(
                             period.icon, null,
                             Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -282,8 +281,8 @@ fun MedicationCard(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(4.dp),
                             ) {
-                                Icon(
-                                    Icons.Rounded.Warning,
+                                MedLogIcon(
+                                    MedLogIcons.Warning,
                                     contentDescription = null,
                                     modifier = Modifier.size(14.dp),
                                 )
@@ -322,11 +321,11 @@ fun MedicationCard(
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.heightIn(min = 36.dp),
                     ) {
-                        Icon(
-                            imageVector = if (item.isHandled)
-                                Icons.AutoMirrored.Rounded.Undo
+                        MedLogIcon(
+                            icon = if (item.isHandled)
+                                MedLogIcons.Undo
                             else
-                                Icons.Rounded.Check,
+                                MedLogIcons.Check,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )
@@ -347,7 +346,7 @@ fun MedicationCard(
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                             modifier = Modifier.heightIn(min = 32.dp),
                         ) {
-                            Icon(Icons.Rounded.SkipNext, null, Modifier.size(12.dp))
+                            MedLogIcon(MedLogIcons.SkipNext, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
                                 Text(stringResource(R.string.notif_action_skip), style = MaterialTheme.typography.labelSmall)
                         }
@@ -363,7 +362,7 @@ fun MedicationCard(
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                             modifier = Modifier.heightIn(min = 32.dp),
                         ) {
-                            Icon(Icons.Rounded.Adjust, null, Modifier.size(12.dp))
+                            MedLogIcon(MedLogIcons.Adjust, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
                             Text(stringResource(R.string.med_card_btn_partial), style = MaterialTheme.typography.labelSmall)
                         }
@@ -449,18 +448,18 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial
         contentAlignment = Alignment.Center,
     ) {
         when {
-            isTaken   -> Icon(
-                Icons.Rounded.Check, null,
+            isTaken   -> MedLogIcon(
+                MedLogIcons.Check, null,
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(20.dp),
             )
-            isPartial -> Icon(
-                Icons.Rounded.Adjust, null,
+            isPartial -> MedLogIcon(
+                MedLogIcons.Adjust, null,
                 tint = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.size(20.dp),
             )
-            isSkipped -> Icon(
-                Icons.Rounded.Remove, null,
+            isSkipped -> MedLogIcon(
+                MedLogIcons.Remove, null,
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(20.dp),
             )
