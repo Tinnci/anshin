@@ -690,6 +690,9 @@
     <string name="ocr_health_scan_title">バイタルデータをスキャン</string>
     <string name="ocr_health_scan_chip">撮影して入力</string>
     <string name="ocr_health_scan_hint">測定機器の画面を枠内に入れて撮影</string>
+    <string name="ocr_guidance_fill_frame">枠いっぱい</string>
+    <string name="ocr_guidance_hold_steady">手ブレ防止</string>
+    <string name="ocr_guidance_avoid_glare">反射を避ける</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行</string>
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>

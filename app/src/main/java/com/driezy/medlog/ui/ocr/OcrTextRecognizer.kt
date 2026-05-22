@@ -50,9 +50,10 @@ internal fun processImage(
 
     // 将 ImageProxy 转为正确旋转的 Bitmap；如果提供识别区域，则只裁剪框内区域参与 OCR。
     val sourceBitmap = imageProxyToBitmap(imageProxy)
-    val recognitionBitmap = sourceBitmap?.let { bitmap ->
-        cropToRecognitionRegion(bitmap, recognitionRegion)
+    val preparedFrame = sourceBitmap?.let { bitmap ->
+        OcrFrameInputPreprocessor.prepare(bitmap, recognitionRegion)
     }
+    val recognitionBitmap = preparedFrame?.bitmap
 
     // 使用框内 bitmap 作为 ML Kit 原始输入；转换失败时才退回整张 media image。
     val originalInput = if (recognitionBitmap != null) {
@@ -160,17 +161,6 @@ private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? = try {
 } catch (e: Exception) {
     Log.w(TAG, "Failed to convert ImageProxy to Bitmap", e)
     null
-}
-
-private fun cropToRecognitionRegion(
-    bitmap: Bitmap,
-    recognitionRegion: OcrRecognitionRegion,
-): Bitmap {
-    val bounds = recognitionRegion.cropBounds(bitmap.width, bitmap.height) ?: return bitmap
-    if (bounds.x == 0 && bounds.y == 0 && bounds.width == bitmap.width && bounds.height == bitmap.height) {
-        return bitmap
-    }
-    return Bitmap.createBitmap(bitmap, bounds.x, bounds.y, bounds.width, bounds.height)
 }
 
 private fun recycleRecognitionBitmaps(sourceBitmap: Bitmap?, recognitionBitmap: Bitmap?) {

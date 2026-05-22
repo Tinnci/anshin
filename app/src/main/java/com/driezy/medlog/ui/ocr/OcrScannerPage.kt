@@ -31,6 +31,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraGuidancePill
+import com.driezy.medlog.ui.components.CameraReadinessPanel
 import com.driezy.medlog.ui.components.ProcessingOverlay
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
@@ -109,6 +110,18 @@ fun OcrScannerPage(
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(top = 16.dp, start = 24.dp, end = 24.dp),
+                            )
+                            CameraReadinessPanel(
+                                fillFrameText = stringResource(R.string.ocr_guidance_fill_frame),
+                                holdSteadyText = stringResource(R.string.ocr_guidance_hold_steady),
+                                avoidGlareText = stringResource(R.string.ocr_guidance_avoid_glare),
+                                modifier = Modifier
+                                    .align(Alignment.BottomCenter)
+                                    .padding(
+                                        start = MedLogSpacing.Large,
+                                        end = MedLogSpacing.Large,
+                                        bottom = 132.dp,
+                                    ),
                             )
                             ProcessingOverlay(
                                 visible = state.isProcessing,

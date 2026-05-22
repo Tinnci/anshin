@@ -734,6 +734,9 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="ocr_health_scan_title">Scan Health Metrics</string>
     <string name="ocr_health_scan_chip">Scan to fill</string>
     <string name="ocr_health_scan_hint">Place the device screen inside the frame, then capture</string>
+    <string name="ocr_guidance_fill_frame">Fill frame</string>
+    <string name="ocr_guidance_hold_steady">Hold steady</string>
+    <string name="ocr_guidance_avoid_glare">Avoid glare</string>
     <string name="ocr_health_detected">Detected health metrics</string>
     <string name="ocr_health_no_metrics">No health metrics detected — try again</string>
     <string name="ocr_health_numbers_found">Numbers found, tap to select</string>

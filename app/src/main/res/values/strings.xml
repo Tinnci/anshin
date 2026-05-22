@@ -710,6 +710,9 @@
     <string name="ocr_health_scan_title">扫描体征数据</string>
     <string name="ocr_health_scan_chip">拍照识别填充</string>
     <string name="ocr_health_scan_hint">将测量设备屏幕放进框内，点击拍照识别</string>
+    <string name="ocr_guidance_fill_frame">填满框</string>
+    <string name="ocr_guidance_hold_steady">拿稳</string>
+    <string name="ocr_guidance_avoid_glare">避开反光</string>
     <string name="ocr_health_detected">识别到以下体征数据</string>
     <string name="ocr_health_no_metrics">未识别到体征数据，重试</string>
     <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>
