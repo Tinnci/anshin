@@ -13,6 +13,7 @@ class KaggleCandidateFinetuneTest(unittest.TestCase):
     def test_candidate_plan_marks_trainable_and_blocked_models(self):
         plan = kernel.build_candidate_plan(["all"])
         by_id = {row["id"]: row for row in plan}
+        ids = [row["id"] for row in plan]
 
         self.assertEqual(by_id["light_svtr_tiny"]["status"], "trainable")
         self.assertEqual(by_id["light_svtr_base"]["status"], "trainable")
@@ -25,6 +26,7 @@ class KaggleCandidateFinetuneTest(unittest.TestCase):
         self.assertEqual(by_id["ppocrv5_mobile_rec"]["candidate_type"], "paddleocr_trainable")
         self.assertEqual(by_id["siglip_nano"]["status"], "blocked_missing_checkpoint")
         self.assertEqual(by_id["parseq"]["status"], "eval_only")
+        self.assertLess(ids.index("fastvit_t8_ctc"), ids.index("ppocrv5_mobile_rec"))
 
     def test_parse_candidate_selection_supports_csv_and_all(self):
         self.assertEqual(kernel.parse_candidate_selection("all"), ["all"])
@@ -175,11 +177,13 @@ class KaggleCandidateFinetuneTest(unittest.TestCase):
             paddle_package="paddlepaddle-gpu==3.3.0",
             paddle_index_url="https://www.paddlepaddle.org.cn/packages/stable/cu126/",
             paddle_extra_index_url="https://pypi.org/simple",
+            paddle_install_deps=False,
         )
 
         command = kernel.build_paddle_install_command(args)
 
         self.assertIn("paddlepaddle-gpu==3.3.0", command)
+        self.assertIn("--no-deps", command)
         self.assertIn("-i", command)
         self.assertIn("https://www.paddlepaddle.org.cn/packages/stable/cu126/", command)
         self.assertIn("--extra-index-url", command)

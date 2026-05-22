@@ -105,8 +105,8 @@ PADDLEOCR_CANDIDATES = {
 }
 TRAINABLE_CANDIDATES = {
     **LIGHT_SVTR_CANDIDATES,
-    **{candidate_id: spec["architecture"] for candidate_id, spec in PADDLEOCR_CANDIDATES.items()},
     "fastvit_t8_ctc": "fastvit_t8_ctc",
+    **{candidate_id: spec["architecture"] for candidate_id, spec in PADDLEOCR_CANDIDATES.items()},
 }
 NON_TRAINABLE_CANDIDATES = {
     "parseq": {
@@ -398,6 +398,8 @@ def build_paddleocr_result_row(
 
 def build_paddle_install_command(args: argparse.Namespace) -> list[str]:
     command = [sys.executable, "-m", "pip", "install", args.paddle_package]
+    if not args.paddle_install_deps:
+        command.append("--no-deps")
     if args.paddle_index_url:
         command.extend(["-i", args.paddle_index_url])
     if args.paddle_extra_index_url:
@@ -584,6 +586,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--paddle-package", default="paddlepaddle-gpu==3.3.0")
     parser.add_argument("--paddle-index-url", default="https://www.paddlepaddle.org.cn/packages/stable/cu126/")
     parser.add_argument("--paddle-extra-index-url", default="https://pypi.org/simple")
+    parser.add_argument("--paddle-install-deps", action="store_true")
     parser.add_argument("--paddle-epochs", type=int, default=10)
     parser.add_argument("--paddle-batch-size", type=int, default=32)
     parser.add_argument("--paddle-eval-batch-size", type=int, default=32)

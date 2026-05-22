@@ -267,9 +267,16 @@ CUDA 12.6 stable wheel index:
 
 ```bash
 --paddle-package paddlepaddle-gpu==3.3.0 \
+--no-deps \
 --paddle-index-url https://www.paddlepaddle.org.cn/packages/stable/cu126/ \
 --paddle-extra-index-url https://pypi.org/simple
 ```
+
+`--no-deps` is intentional: Kaggle's latest image already carries CUDA 12.8
+runtime packages required by Torch. Installing Paddle dependencies eagerly can
+downgrade those packages and break later Torch candidates, so the default
+candidate order runs FastViT before PaddleOCR and keeps Paddle dependency
+installation opt-in via `--paddle-install-deps`.
 
 For a short Kaggle smoke run, edit the kernel arguments in the Kaggle UI or run
 the script locally with:
