@@ -72,3 +72,4 @@
 - Installed debug APK on connected M2012K11C (`6b9f2b84`), launched `com.driezy.medlog`, confirmed process startup, and found no recent fatal AndroidRuntime entries for the app.
 - Pushed `48e81b9 Resolve Android lint warnings`; GitHub CI passed ktlint, unit tests, and Android Lint, then failed at `Build Debug APK` with `PackageAndroidArtifact$IncrementalSplitterRunnable`.
 - Verified local `./gradlew clean :app:assembleDebug --stacktrace` passes; updated CI and release workflows to opt JS actions into Node 24 and run clean APK builds with stacktraces.
+- GitHub CI for `1891a37` passed, but still emitted a Node 20 deprecation annotation because v4 JS actions were merely forced onto Node 24. Checked upstream tags and upgraded CI/release actions to current Node 24-capable major versions.
