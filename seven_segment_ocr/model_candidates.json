@@ -87,8 +87,29 @@
       "license_surface": "open_model",
       "preferred_adapter": "torch_ctc_onnx",
       "source_path": "timm/fastvit_t8.apple_in1k",
-      "local_path": "exported_candidates/fastvit_t8_ctc/fastvit_t8_ctc.onnx",
-      "metadata_path": "exported_candidates/fastvit_t8_ctc/fastvit_t8_ctc_metadata.json"
+      "local_path": "exported_candidates/fastvit_t8_ctc_reparam.onnx",
+      "metadata_path": "exported_candidates/fastvit_t8_ctc_reparam_metadata.json"
+    },
+    {
+      "id": "light_svtr_tiny_finetuned",
+      "family": "LightSVTR",
+      "license_surface": "project_model",
+      "preferred_adapter": "onnx",
+      "local_path": "exported_candidates/light_svtr_tiny_finetuned.onnx"
+    },
+    {
+      "id": "light_svtr_base_finetuned",
+      "family": "LightSVTR",
+      "license_surface": "project_model",
+      "preferred_adapter": "onnx",
+      "local_path": "exported_candidates/light_svtr_base_finetuned.onnx"
+    },
+    {
+      "id": "light_svtr_large_finetuned",
+      "family": "LightSVTR",
+      "license_surface": "project_model",
+      "preferred_adapter": "onnx",
+      "local_path": "exported_candidates/light_svtr_large_finetuned.onnx"
     },
     {
       "id": "trocr_small_printed",

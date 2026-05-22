@@ -336,6 +336,34 @@ samples:
 | `trocr_small_printed` | Imported Optimum ONNX prediction | 234.82 MB | 61,447,552 | 356.94 ms | 2.80/s | 2.50% | 106.19% | 13.62% |
 | `trocr_base_printed` | Imported Optimum ONNX prediction | 1468.56 MB | 384,802,560 | 1665.23 ms | 0.60/s | 10.83% | 78.51% | 31.20% |
 
+## Integrated Fine-tuned Results
+
+With the successful completion of the Kaggle domain adaptation training, the following models have been fine-tuned on the synthetic seven-segment OCR dataset and re-exported/benchmarked:
+- `fastvit_t8_ctc_reparam` (Apple FastViT-T8 + CTC structural reparameterized)
+- `light_svtr_tiny_finetuned`
+- `light_svtr_base_finetuned`
+- `light_svtr_large_finetuned`
+
+The updated desktop CPU batch result on `/tmp/medlog_bare_benchmark`, 120 synthetic samples (which now evaluates the fine-tuned variants natively under ORT CPU):
+
+| Model | Backend | Size | Params | Mean latency | Throughput | Exact | CER | Digit accuracy |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| `light_svtr_exported` | ONNX Runtime CTC | 2.64 MB | 670,384 | 3.45 ms | 289.95/s | 79.17% | 7.29% | 92.31% |
+| `app_dequant_svtr` | ONNX Runtime CTC | 2.70 MB | 670,404 | 5.90 ms | 169.43/s | 78.33% | 7.47% | 92.31% |
+| `light_svtr_kaggle_domain` | ONNX Runtime CTC | 2.64 MB | 670,384 | 3.68 ms | 271.64/s | 65.00% | 14.75% | 84.89% |
+| `ppocrv5_mobile_rec` | PaddleOCR CTC ONNX | 15.80 MB | 4,113,247 | 51.26 ms | 19.51/s | 10.00% | 74.13% | 29.79% |
+| `en_ppocrv5_mobile_rec` | PaddleOCR CTC ONNX | 7.35 MB | 1,900,399 | 66.91 ms | 14.94/s | 21.67% | 51.91% | 54.27% |
+| `ppocrv5_server_rec` | PaddleOCR CTC ONNX | 80.59 MB | 21,094,619 | 1381.94 ms | 0.72/s | 17.50% | 56.83% | 49.47% |
+| `repsvtr` | PaddleOCR CTC ONNX | 24.20 MB | 6,314,309 | 30.39 ms | 32.90/s | 19.17% | 52.64% | 54.32% |
+| `svtrv2_server` | PaddleOCR CTC ONNX | 80.30 MB | 20,986,236 | 148.42 ms | 6.74/s | 28.33% | 42.44% | 64.41% |
+| `parseq` | PARSeq ONNX | 92.35 MB | 23,832,702 | 92.08 ms | 10.86/s | 19.17% | 50.82% | 57.97% |
+| **`fastvit_t8_ctc` (reparam)** | ORT CTC (Reparameterized) | **12.41 MB** | **3,237,600** | **51.80 ms** | **19.30/s** | **81.67%** | **7.10%** | **93.02%** |
+| `light_svtr_tiny_finetuned` | ONNX Runtime CTC | 1.13 MB | 279,888 | 3.06 ms | 327.26/s | 55.00% | 16.58% | 82.62% |
+| `light_svtr_base_finetuned` | ONNX Runtime CTC | 2.64 MB | 670,384 | 3.95 ms | 253.14/s | 70.00% | 13.84% | 86.14% |
+| `light_svtr_large_finetuned` | ONNX Runtime CTC | 7.36 MB | 1,899,888 | 6.92 ms | 144.56/s | 71.67% | 11.11% | 88.72% |
+| `trocr_small_printed` | Imported Optimum ONNX prediction | 234.82 MB | 61,447,552 | 356.94 ms | 2.80/s | 2.50% | 106.19% | 13.62% |
+| `trocr_base_printed` | Imported Optimum ONNX prediction | 1468.56 MB | 384,802,560 | 1665.23 ms | 0.60/s | 10.83% | 78.51% | 31.20% |
+
 `mlkit_text_recognition_bundled` still needs an official Android runtime
 prediction JSON; it is a closed SDK and is intentionally not converted to ONNX.
 
