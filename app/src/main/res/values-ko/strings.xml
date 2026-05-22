@@ -694,6 +694,11 @@
     <string name="ocr_guidance_fill_frame">프레임 채우기</string>
     <string name="ocr_guidance_hold_steady">흔들림 없이</string>
     <string name="ocr_guidance_avoid_glare">반사 피하기</string>
+    <string name="ocr_source_mlkit_original">ML Kit 원본</string>
+    <string name="ocr_source_preprocessed">강화 전처리</string>
+    <string name="ocr_source_seven_segment">7세그먼트 모델</string>
+    <string name="ocr_source_lcd_crop">LCD 영역 모델</string>
+    <string name="ocr_result_source_count">%d개</string>
     <string name="ocr_health_detected">다음 건강 데이터가 감지되었습니다</string>
     <string name="ocr_health_no_metrics">건강 데이터가 감지되지 않았습니다. 다시 시도하세요</string>
     <string name="ocr_health_numbers_found">숫자가 감지되었습니다. 탭하여 선택</string>

@@ -166,6 +166,7 @@ fun HealthOcrScannerPage(
                     } else {
                         HealthMetricResultList(
                             result = state.parseResult,
+                            recognitionOutput = state.recognitionOutput,
                             suggestedType = suggestedType,
                             onSelect = onMetricSelectedWithHaptic,
                             onRetry = { viewModel.onRetry() },
@@ -183,6 +184,7 @@ fun HealthOcrScannerPage(
 @Composable
 private fun HealthMetricResultList(
     result: OcrParseResult,
+    recognitionOutput: OcrRecognitionOutput,
     suggestedType: HealthType?,
     onSelect: (ParsedHealthMetric) -> Unit,
     onRetry: () -> Unit,
@@ -346,7 +348,7 @@ private fun HealthMetricResultList(
             }
 
             // ── 第三层：原始 OCR 文本行 ──
-            if (result.rawTexts.isNotEmpty()) {
+            if (recognitionOutput.groups.isNotEmpty()) {
                 item {
                     Spacer(Modifier.height(8.dp))
                     Text(
@@ -356,22 +358,44 @@ private fun HealthMetricResultList(
                         modifier = Modifier.padding(bottom = 4.dp),
                     )
                 }
-                itemsIndexed(result.rawTexts) { _, text ->
-                    Surface(
-                        onClick = {
-                            val type = suggestedType ?: HealthType.BLOOD_PRESSURE
-                            onSelect(ParsedHealthMetric(type, 0.0, rawText = text))
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerLow,
-                    ) {
-                        Text(
-                            text = text,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier.padding(12.dp),
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
+                recognitionOutput.groups.forEach { group ->
+                    item(key = "raw_source_${group.source}") {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = MedLogSpacing.Small),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = stringResource(group.source.labelRes()),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurface,
+                            )
+                            Text(
+                                text = stringResource(R.string.ocr_result_source_count, group.texts.size),
+                                style = MaterialTheme.typography.labelMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    itemsIndexed(group.texts, key = { index, text -> "${group.source}_$index:$text" }) { _, text ->
+                        Surface(
+                            onClick = {
+                                val type = suggestedType ?: HealthType.BLOOD_PRESSURE
+                                onSelect(ParsedHealthMetric(type, 0.0, rawText = text))
+                            },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.surfaceContainerLow,
+                        ) {
+                            Text(
+                                text = text,
+                                style = MaterialTheme.typography.bodySmall,
+                                modifier = Modifier.padding(12.dp),
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
                     }
                 }
             }
@@ -392,6 +416,13 @@ private fun HealthMetricResultList(
             Text(stringResource(R.string.ocr_retry))
         }
     }
+}
+
+private fun OcrResultSource.labelRes(): Int = when (this) {
+    OcrResultSource.ML_KIT_ORIGINAL -> R.string.ocr_source_mlkit_original
+    OcrResultSource.PREPROCESSED_VARIANTS -> R.string.ocr_source_preprocessed
+    OcrResultSource.SEVEN_SEGMENT_MODEL -> R.string.ocr_source_seven_segment
+    OcrResultSource.LCD_CROP_MODEL -> R.string.ocr_source_lcd_crop
 }
 
 // ── 血压配对建议卡片 ─────────────────────────────────────────────────────────

@@ -12,7 +12,7 @@ class MlKitOcrPipeline @Inject constructor() : OcrPipeline {
     override fun recognize(
         imageProxy: ImageProxy,
         recognitionRegion: OcrRecognitionRegion,
-        onResult: (List<String>) -> Unit,
+        onResult: (OcrRecognitionOutput) -> Unit,
     ) {
         processImage(
             imageProxy = imageProxy,

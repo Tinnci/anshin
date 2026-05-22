@@ -39,12 +39,12 @@ internal fun processImage(
     recognitionRegion: OcrRecognitionRegion = OcrRecognitionRegion.FullImage,
     sevenSegRecognizer: SevenSegmentRecognizer?,
     lcdDetector: LcdDisplayDetector? = null,
-    onResult: (List<String>) -> Unit,
+    onResult: (OcrRecognitionOutput) -> Unit,
 ) {
     val mediaImage = imageProxy.image
     if (mediaImage == null) {
         imageProxy.close()
-        mainHandler.post { onResult(emptyList()) }
+        mainHandler.post { onResult(OcrRecognitionOutput.Empty) }
         return
     }
 
@@ -115,7 +115,7 @@ internal fun processImage(
         imageProxy.close()
         variantBitmaps.forEach { it.recycle() }
         recycleRecognitionBitmaps(sourceBitmap, recognitionBitmap)
-        mainHandler.post { onResult(emptyList()) }
+        mainHandler.post { onResult(OcrRecognitionOutput.Empty) }
         return
     }
 
@@ -132,13 +132,12 @@ internal fun processImage(
             }
             .addOnCompleteListener {
                 if (completedCount.incrementAndGet() == allInputs.size) {
-                    // 所有识别完成，合并去重 → 回调（包括七段管模型结果 + LCD 检测裁剪结果）
-                    val merged = mergeOcrResults(allResults, sevenSegResult + lcdCropResults)
+                    val grouped = buildRecognitionOutput(allResults, sevenSegResult, lcdCropResults)
                     imageProxy.close()
                     variantBitmaps.forEach { bmp -> bmp.recycle() }
                     recycleRecognitionBitmaps(sourceBitmap, recognitionBitmap)
                     recognizer.close()
-                    mainHandler.post { onResult(merged) }
+                    mainHandler.post { onResult(grouped) }
                 }
             }
     }
@@ -170,31 +169,32 @@ private fun recycleRecognitionBitmaps(sourceBitmap: Bitmap?, recognitionBitmap: 
     sourceBitmap?.recycle()
 }
 
-/**
- * 合并多路 OCR 结果：去重，优先保留原始识别结果的顺序。
- * 七段管模型结果追加在末尾（可能含不同格式的数字）。
- */
-private fun mergeOcrResults(allResults: Array<List<String>>, extraResults: List<String> = emptyList()): List<String> {
-    val seen = mutableSetOf<String>()
-    val merged = mutableListOf<String>()
+private fun buildRecognitionOutput(
+    allResults: Array<List<String>>,
+    sevenSegResult: List<String>,
+    lcdCropResults: List<String>,
+): OcrRecognitionOutput {
+    val groups = buildList {
+        addResultGroup(OcrResultSource.ML_KIT_ORIGINAL, allResults.firstOrNull().orEmpty())
+        addResultGroup(OcrResultSource.PREPROCESSED_VARIANTS, allResults.drop(1).flatten())
+        addResultGroup(OcrResultSource.SEVEN_SEGMENT_MODEL, sevenSegResult)
+        addResultGroup(OcrResultSource.LCD_CROP_MODEL, lcdCropResults)
+    }
+    return OcrRecognitionOutput(groups)
+}
 
-    for (results in allResults) {
-        for (line in results) {
-            // 标准化后去重（忽略空格差异）
-            val normalized = line.replace("\\s+".toRegex(), " ").trim()
-            if (normalized.isNotEmpty() && seen.add(normalized)) {
-                merged.add(line)
-            }
-        }
+private fun MutableList<OcrResultGroup>.addResultGroup(
+    source: OcrResultSource,
+    texts: List<String>,
+) {
+    val seen = mutableSetOf<String>()
+    val cleaned = texts
+        .map { it.trim() }
+        .filter { it.isNotBlank() }
+        .filter { seen.add(it.replace("\\s+".toRegex(), " ")) }
+    if (cleaned.isNotEmpty()) {
+        add(OcrResultGroup(source, cleaned))
     }
-    // 追加额外结果（七段管模型等）
-    for (line in extraResults) {
-        val normalized = line.replace("\\s+".toRegex(), " ").trim()
-        if (normalized.isNotEmpty() && seen.add(normalized)) {
-            merged.add(line)
-        }
-    }
-    return merged
 }
 
 /**

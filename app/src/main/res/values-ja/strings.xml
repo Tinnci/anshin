@@ -693,6 +693,11 @@
     <string name="ocr_guidance_fill_frame">枠いっぱい</string>
     <string name="ocr_guidance_hold_steady">手ブレ防止</string>
     <string name="ocr_guidance_avoid_glare">反射を避ける</string>
+    <string name="ocr_source_mlkit_original">ML Kit 原画像</string>
+    <string name="ocr_source_preprocessed">強調前処理</string>
+    <string name="ocr_source_seven_segment">7セグメントモデル</string>
+    <string name="ocr_source_lcd_crop">LCD 切り出しモデル</string>
+    <string name="ocr_result_source_count">%d 件</string>
     <string name="ocr_health_detected">以下のバイタルデータを検出しました</string>
     <string name="ocr_health_no_metrics">バイタルデータが検出されませんでした。再試行</string>
     <string name="ocr_health_numbers_found">数値を検出しました。タップして選択</string>

@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.update
 import javax.inject.Inject
 
 data class OcrScannerUiState(
-    val recognizedTexts: List<String> = emptyList(),
+    val recognitionOutput: OcrRecognitionOutput = OcrRecognitionOutput.Empty,
     val isProcessing: Boolean = false,
     val showResults: Boolean = false,
     val hasEmptyResult: Boolean = false,
@@ -30,13 +30,13 @@ class OcrScannerViewModel @Inject constructor(
     }
 
     fun onImageCaptured(imageProxy: ImageProxy, recognitionRegion: OcrRecognitionRegion) {
-        pipeline.recognize(imageProxy, recognitionRegion) { texts ->
+        pipeline.recognize(imageProxy, recognitionRegion) { output ->
             _uiState.update {
                 it.copy(
-                    recognizedTexts = texts,
+                    recognitionOutput = output,
                     isProcessing = false,
                     showResults = true,
-                    hasEmptyResult = texts.isEmpty(),
+                    hasEmptyResult = output.mergedTexts.isEmpty(),
                 )
             }
         }

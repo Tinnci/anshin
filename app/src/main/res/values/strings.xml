@@ -713,6 +713,11 @@
     <string name="ocr_guidance_fill_frame">填满框</string>
     <string name="ocr_guidance_hold_steady">拿稳</string>
     <string name="ocr_guidance_avoid_glare">避开反光</string>
+    <string name="ocr_source_mlkit_original">ML Kit 原图识别</string>
+    <string name="ocr_source_preprocessed">增强预处理结果</string>
+    <string name="ocr_source_seven_segment">七段数码管模型</string>
+    <string name="ocr_source_lcd_crop">LCD 区域裁剪模型</string>
+    <string name="ocr_result_source_count">%d 条</string>
     <string name="ocr_health_detected">识别到以下体征数据</string>
     <string name="ocr_health_no_metrics">未识别到体征数据，重试</string>
     <string name="ocr_health_numbers_found">识别到以下数字，点击选择</string>

@@ -13,6 +13,7 @@ import javax.inject.Inject
 
 data class HealthOcrUiState(
     val parseResult: OcrParseResult = OcrParseResult(emptyList(), emptyList(), emptyList()),
+    val recognitionOutput: OcrRecognitionOutput = OcrRecognitionOutput.Empty,
     val isProcessing: Boolean = false,
     val processingStage: Int = 0, // 0=idle, 1=recognizing, 2=parsing
     val showResults: Boolean = false,
@@ -32,12 +33,13 @@ class HealthOcrViewModel @Inject constructor(
 
     fun onImageCaptured(imageProxy: ImageProxy, recognitionRegion: OcrRecognitionRegion) {
         _uiState.update { it.copy(processingStage = 1) }
-        pipeline.recognize(imageProxy, recognitionRegion) { texts ->
+        pipeline.recognize(imageProxy, recognitionRegion) { output ->
             _uiState.update { it.copy(processingStage = 2) }
-            val result = HealthMetricParser.parseAll(texts)
+            val result = HealthMetricParser.parseAll(output.mergedTexts)
             _uiState.update {
                 it.copy(
                     parseResult = result,
+                    recognitionOutput = output,
                     isProcessing = false,
                     processingStage = 0,
                     showResults = true,

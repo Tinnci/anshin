@@ -131,7 +131,7 @@ fun OcrScannerPage(
                         }
                     } else {
                         OcrResultList(
-                            texts = state.recognizedTexts,
+                            output = state.recognitionOutput,
                             onSelect = { text ->
                                 view.performConfirmHapticFeedback()
                                 onResult(text.trim())
@@ -150,11 +150,12 @@ fun OcrScannerPage(
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun OcrResultList(
-    texts: List<String>,
+    output: OcrRecognitionOutput,
     onSelect: (String) -> Unit,
     onRetry: () -> Unit,
 ) {
     val motionScheme = MaterialTheme.motionScheme
+    val texts = output.mergedTexts
 
     Column(modifier = Modifier.fillMaxSize()) {
         Surface(
@@ -200,18 +201,26 @@ private fun OcrResultList(
                 contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Medium),
                 verticalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                itemsIndexed(texts) { index, text ->
+                output.groups.forEachIndexed { groupIndex, group ->
+                    item(key = "source_${group.source}") {
+                        OcrSourceHeader(
+                            source = group.source,
+                            count = group.texts.size,
+                            modifier = Modifier.padding(top = if (groupIndex == 0) 0.dp else MedLogSpacing.Small),
+                        )
+                    }
+                    itemsIndexed(group.texts, key = { index, text -> "${group.source}_$index:$text" }) { index, text ->
                     val animatedAlpha = remember { Animatable(0f) }
                     val animatedOffset = remember { Animatable(24f) }
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(index * 50L)
+                        kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
                         animatedAlpha.animateTo(
                             1f,
                             animationSpec = motionScheme.defaultEffectsSpec(),
                         )
                     }
                     LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay(index * 50L)
+                        kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
                         animatedOffset.animateTo(
                             0f,
                             animationSpec = motionScheme.defaultEffectsSpec(),
@@ -255,6 +264,7 @@ private fun OcrResultList(
                             },
                         )
                     }
+                    }
                 }
             }
         }
@@ -274,4 +284,35 @@ private fun OcrResultList(
             Text(stringResource(R.string.ocr_retry))
         }
     }
+}
+
+@Composable
+private fun OcrSourceHeader(
+    source: OcrResultSource,
+    count: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        Text(
+            text = stringResource(source.labelRes()),
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
+            text = stringResource(R.string.ocr_result_source_count, count),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+private fun OcrResultSource.labelRes(): Int = when (this) {
+    OcrResultSource.ML_KIT_ORIGINAL -> R.string.ocr_source_mlkit_original
+    OcrResultSource.PREPROCESSED_VARIANTS -> R.string.ocr_source_preprocessed
+    OcrResultSource.SEVEN_SEGMENT_MODEL -> R.string.ocr_source_seven_segment
+    OcrResultSource.LCD_CROP_MODEL -> R.string.ocr_source_lcd_crop
 }

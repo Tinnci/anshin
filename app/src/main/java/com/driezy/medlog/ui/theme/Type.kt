@@ -17,7 +17,7 @@ val MedLogTypography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 57.sp,
         lineHeight = 64.sp,
-        letterSpacing = (-0.25).sp,
+        letterSpacing = 0.sp,
     ),
     displayMedium = TextStyle(
         fontWeight = FontWeight.Normal,
@@ -140,7 +140,7 @@ val MedLogEmphasizedTypography = EmphasizedTypography(
         fontWeight = FontWeight.Medium,
         fontSize = 57.sp,
         lineHeight = 64.sp,
-        letterSpacing = (-0.25).sp,
+        letterSpacing = 0.sp,
     ),
     displayMedium = TextStyle(
         fontWeight = FontWeight.Medium,

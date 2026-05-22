@@ -147,12 +147,13 @@ fun MedicationCard(
                         )
                         Text(
                             text = med.name,
+                            modifier = Modifier.weight(1f, fill = false),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 textDecoration = if (item.isTaken) TextDecoration.LineThrough
                                                  else TextDecoration.None,
                             ),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis,
+                            maxLines = 3,
+                            overflow = TextOverflow.Clip,
                         )
                         if (med.isHighPriority) {
                             Icon(
@@ -270,20 +271,27 @@ fun MedicationCard(
                         )
                     }
                     if (med.stock != null && med.refillThreshold != null && med.stock <= med.refillThreshold) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(4.dp),
+                        Spacer(Modifier.height(MedLogSpacing.Tiny))
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MaterialTheme.colorScheme.errorContainer,
+                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
                         ) {
-                            Icon(
-                                Icons.Rounded.Warning, null,
-                                Modifier.size(12.dp),
-                                tint = MaterialTheme.colorScheme.error,
-                            )
-                            Text(
-                                stringResource(R.string.med_card_low_stock, med.stock.toInt().toString(), med.doseUnit),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.error,
-                            )
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                            ) {
+                                Icon(
+                                    Icons.Rounded.Warning,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                )
+                                Text(
+                                    stringResource(R.string.med_card_low_stock, med.stock.toInt().toString(), med.doseUnit),
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
                         }
                     }
                 }
