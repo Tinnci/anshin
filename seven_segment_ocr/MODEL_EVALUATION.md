@@ -262,6 +262,15 @@ training YAMLs with the generated `ppocr_rec` manifests, run `tools/train.py`,
 export the best checkpoint, convert it with `paddle2onnx`, and evaluate the
 resulting ONNX model through the same CTC benchmark path.
 
+The Kaggle installer defaults to PaddlePaddle GPU `3.3.0` from the official
+CUDA 12.6 stable wheel index:
+
+```bash
+--paddle-package paddlepaddle-gpu==3.3.0 \
+--paddle-index-url https://www.paddlepaddle.org.cn/packages/stable/cu126/ \
+--paddle-extra-index-url https://pypi.org/simple
+```
+
 For a short Kaggle smoke run, edit the kernel arguments in the Kaggle UI or run
 the script locally with:
 

@@ -25,4 +25,5 @@
 - PaddleOCR official PP-OCRv5 recognition configs are available on the PaddleOCR `main` branch under `configs/rec/PP-OCRv5/PP-OCRv5_mobile_rec.yml` and `PP-OCRv5_server_rec.yml`.
 - PaddleOCR official RepSVTR/SVTRv2 GTC configs are available on the PaddleOCR `main` branch under `configs/rec/SVTRv2/ch_RepSVTR_rec_gtc.yml` and `ch_SVTRv2_rec_gtc.yml`.
 - PaddleX official pretrained URLs for `PP-OCRv5_mobile_rec_pretrained.pdparams`, `PP-OCRv5_server_rec_pretrained.pdparams`, `ch_RepSVTR_rec_pretrained.pdparams`, and `ch_SVTRv2_rec_pretrained.pdparams` return HTTP 200 and can be used by Kaggle fine-tune.
+- Default PyPI did not expose a matching `paddlepaddle-gpu` wheel from the local resolver; PaddlePaddle's official install docs provide CUDA-specific wheel indexes. The Kaggle runner now defaults to `paddlepaddle-gpu==3.3.0` from the CUDA 12.6 stable index.
 - On M2012K11C, `fastvit_t8_ctc_reparam.onnx` Android ORT benchmark with `RUNS=10` measured CPU mean 49.70 ms and NNAPI mean 49.20 ms. `nnapi_cpu_disabled` single-run also completed at 52 ms, so this evidence does not show meaningful NPU speedup for the current FastViT graph.

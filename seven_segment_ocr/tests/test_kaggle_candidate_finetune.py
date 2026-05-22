@@ -170,6 +170,21 @@ class KaggleCandidateFinetuneTest(unittest.TestCase):
         self.assertEqual(result["mean_latency_ms"], 12.5)
         self.assertEqual(result["throughput_sps"], 80.0)
 
+    def test_build_paddle_install_command_uses_official_cuda_index(self):
+        args = SimpleNamespace(
+            paddle_package="paddlepaddle-gpu==3.3.0",
+            paddle_index_url="https://www.paddlepaddle.org.cn/packages/stable/cu126/",
+            paddle_extra_index_url="https://pypi.org/simple",
+        )
+
+        command = kernel.build_paddle_install_command(args)
+
+        self.assertIn("paddlepaddle-gpu==3.3.0", command)
+        self.assertIn("-i", command)
+        self.assertIn("https://www.paddlepaddle.org.cn/packages/stable/cu126/", command)
+        self.assertIn("--extra-index-url", command)
+        self.assertIn("https://pypi.org/simple", command)
+
 
 if __name__ == "__main__":
     unittest.main()
