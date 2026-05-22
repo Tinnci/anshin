@@ -7,6 +7,8 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
@@ -275,10 +277,10 @@ internal class SevenSegmentRecognizer(
         // 1. Resize to fixed height while maintaining aspect ratio, capping width at INPUT_W
         val ratio = INPUT_H.toFloat() / h
         val scaledW = (w * ratio).toInt().coerceAtMost(INPUT_W.toInt())
-        val scaled = Bitmap.createScaledBitmap(bitmap, scaledW, INPUT_H.toInt(), true)
+        val scaled = bitmap.scale(scaledW, INPUT_H.toInt())
 
         // 2. Pad to INPUT_W width on an ARGB_8888 canvas (default zero-initialized background)
-        val padded = Bitmap.createBitmap(INPUT_W.toInt(), INPUT_H.toInt(), Bitmap.Config.ARGB_8888)
+        val padded = createBitmap(INPUT_W.toInt(), INPUT_H.toInt())
         val canvas = Canvas(padded)
         canvas.drawBitmap(scaled, 0f, 0f, null)
         if (scaled !== padded) scaled.recycle()

@@ -186,9 +186,13 @@
     <string name="settings_persistent_title">継続リマインダー</string>
     <string name="settings_persistent_subtitle">服薬確認まで定期的にリマインダーを繰り返します</string>
     <string name="settings_interval_label">リマインダー間隔</string>
-    <string name="settings_minutes">%d 分</string>
+    <plurals name="settings_minutes">
+        <item quantity="other">%d 分</item>
+    </plurals>
     <string name="settings_early_reminder_title">事前リマインダー</string>
-    <string name="settings_early_reminder_body_on">服薬時間の %d 分前に事前通知</string>
+    <plurals name="settings_early_reminder_body_on">
+        <item quantity="other">服薬時間の %d 分前に事前通知</item>
+    </plurals>
     <string name="settings_early_reminder_body_off">オフ（予定時刻のみ通知）</string>
     <string name="settings_off">オフ</string>
     <string name="settings_1hour">1 時間</string>
@@ -483,13 +487,17 @@
     <plurals name="notif_refill_big_text">
         <item quantity="other">%1$s の残りは約 %2$d 日分です。早めに購入することをお勧めします。</item>
     </plurals>
-    <string name="notif_early_title">%d 分後に服薬</string>
+    <plurals name="notif_early_title">
+        <item quantity="other">%d 分後に服薬</item>
+    </plurals>
     <string name="notif_early_body">%1$s（%2$s）の準備を</string>
     <string name="notif_early_subtext">まもなく服薬</string>
     <plurals name="notif_early_big_text">
         <item quantity="other">%1$d 分後に %3$s の %2$s を服用。準備しましょう。</item>
     </plurals>
-    <string name="notif_early_ticker">%d 分後に服薬</string>
+    <plurals name="notif_early_ticker">
+        <item quantity="other">%d 分後に服薬</item>
+    </plurals>
     <string name="common_action_delete">削除</string>
     <string name="common_action_cancel">キャンセル</string>
     <string name="common_action_edit">編集</string>
@@ -716,7 +724,9 @@
     <string name="settings_follow_up_enable_desc">服薬時間を過ぎても記録がない場合、自動で再通知します</string>
     <string name="settings_follow_up_delay">再通知間隔</string>
     <string name="settings_follow_up_count">最大再通知回数</string>
-    <string name="settings_follow_up_delay_min">%d 分</string>
+    <plurals name="settings_follow_up_delay_min">
+        <item quantity="other">%d 分</item>
+    </plurals>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
     <string name="error_name_required">薬品名を入力</string>

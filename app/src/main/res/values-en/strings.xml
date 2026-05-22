@@ -197,9 +197,15 @@
     <string name="settings_persistent_title">Persistent Reminder</string>
     <string name="settings_persistent_subtitle">Repeats reminder until medication is confirmed</string>
     <string name="settings_interval_label">Reminder Interval</string>
-    <string name="settings_minutes">%d minutes</string>
+    <plurals name="settings_minutes">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
     <string name="settings_early_reminder_title">Advance Reminder</string>
-    <string name="settings_early_reminder_body_on">Sends a reminder %d minutes before scheduled time</string>
+    <plurals name="settings_early_reminder_body_on">
+        <item quantity="one">Sends a reminder 1 minute before scheduled time</item>
+        <item quantity="other">Sends a reminder %d minutes before scheduled time</item>
+    </plurals>
     <string name="settings_early_reminder_body_off">Off (remind only at exact scheduled time)</string>
     <string name="settings_off">Off</string>
     <string name="settings_1hour">1 hr</string>
@@ -506,14 +512,20 @@
         <item quantity="one">Your %1$s has approximately 1 day of supply left. Consider reordering soon.</item>
         <item quantity="other">Your %1$s has approximately %2$d days of supply left. Consider reordering soon.</item>
     </plurals>
-    <string name="notif_early_title">%d minutes until next dose</string>
+    <plurals name="notif_early_title">
+        <item quantity="one">1 minute until next dose</item>
+        <item quantity="other">%d minutes until next dose</item>
+    </plurals>
     <string name="notif_early_body">Prepare %1$s (%2$s)</string>
     <string name="notif_early_subtext">Upcoming dose reminder</string>
     <plurals name="notif_early_big_text">
         <item quantity="one">Get ready — you need to take %2$s of %3$s in 1 minute.</item>
         <item quantity="other">Get ready — you need to take %2$s of %3$s in %1$d minutes.</item>
     </plurals>
-    <string name="notif_early_ticker">%d minutes until next dose</string>
+    <plurals name="notif_early_ticker">
+        <item quantity="one">1 minute until next dose</item>
+        <item quantity="other">%d minutes until next dose</item>
+    </plurals>
     <string name="common_action_delete">Delete</string>
     <string name="common_action_cancel">Cancel</string>
     <string name="common_action_edit">Edit</string>
@@ -763,7 +775,10 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_follow_up_enable_desc">Automatically resend a reminder if a dose isn\'t logged on time</string>
     <string name="settings_follow_up_delay">Reminder Interval</string>
     <string name="settings_follow_up_count">Max. Follow-up Count</string>
-    <string name="settings_follow_up_delay_min">%d minutes</string>
+    <plurals name="settings_follow_up_delay_min">
+        <item quantity="one">1 minute</item>
+        <item quantity="other">%d minutes</item>
+    </plurals>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
     <string name="error_name_required">Medication name is required</string>
@@ -800,11 +815,11 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ocr_model_light_tag">Fast</string>
     <string name="settings_ocr_model_light_size">1.0 MB</string>
     <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
-    <string name="settings_ocr_model_light_accuracy">94.2% accuracy</string>
+    <string name="settings_ocr_model_light_accuracy">94.2%% accuracy</string>
     <string name="settings_ocr_model_fastvit_title">Accuracy Mode (FastViT)</string>
     <string name="settings_ocr_model_fastvit_desc">High accuracy. 13.0 MB size, ~50ms latency. Apple reparameterized Transformer. Handles low-light, reflections, angles, and low contrast.</string>
     <string name="settings_ocr_model_fastvit_tag">Recommended</string>
     <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
     <string name="settings_ocr_model_fastvit_latency">~50ms</string>
-    <string name="settings_ocr_model_fastvit_accuracy">98.6% accuracy</string>
+    <string name="settings_ocr_model_fastvit_accuracy">98.6%% accuracy</string>
 </resources>

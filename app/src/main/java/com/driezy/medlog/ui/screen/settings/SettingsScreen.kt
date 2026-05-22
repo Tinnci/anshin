@@ -432,7 +432,11 @@ fun SettingsScreen(
                                 modifier = Modifier.weight(1f),
                             )
                             Text(
-                                stringResource(R.string.settings_minutes, uiState.persistentIntervalMinutes),
+                                pluralStringResource(
+                                    R.plurals.settings_minutes,
+                                    uiState.persistentIntervalMinutes,
+                                    uiState.persistentIntervalMinutes,
+                                ),
                                 style = MaterialTheme.typography.labelLarge,
                                 color = MaterialTheme.colorScheme.primary,
                                 fontWeight = FontWeight.SemiBold,
@@ -446,7 +450,7 @@ fun SettingsScreen(
                                 FilterChip(
                                     selected = uiState.persistentIntervalMinutes == minutes,
                                     onClick = { viewModel.setPersistentInterval(minutes) },
-                                    label = { Text(stringResource(R.string.settings_minutes, minutes)) },
+                                    label = { Text(pluralStringResource(R.plurals.settings_minutes, minutes, minutes)) },
                                 )
                             }
                         }
@@ -480,7 +484,11 @@ fun SettingsScreen(
                             )
                             Text(
                                 if (uiState.earlyReminderMinutes > 0)
-                                    stringResource(R.string.settings_early_reminder_body_on, uiState.earlyReminderMinutes)
+                                    pluralStringResource(
+                                        R.plurals.settings_early_reminder_body_on,
+                                        uiState.earlyReminderMinutes,
+                                        uiState.earlyReminderMinutes,
+                                    )
                                 else stringResource(R.string.settings_early_reminder_body_off),
                                 style = MaterialTheme.typography.bodySmall,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -491,7 +499,12 @@ fun SettingsScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
-                        listOf(0 to stringResource(R.string.settings_off), 15 to stringResource(R.string.settings_minutes, 15), 30 to stringResource(R.string.settings_minutes, 30), 60 to stringResource(R.string.settings_1hour)).forEach { (mins, label) ->
+                        listOf(
+                            0 to stringResource(R.string.settings_off),
+                            15 to pluralStringResource(R.plurals.settings_minutes, 15, 15),
+                            30 to pluralStringResource(R.plurals.settings_minutes, 30, 30),
+                            60 to stringResource(R.string.settings_1hour),
+                        ).forEach { (mins, label) ->
                             FilterChip(
                                 selected = uiState.earlyReminderMinutes == mins,
                                 onClick = { viewModel.setEarlyReminderMinutes(mins) },
@@ -539,7 +552,15 @@ fun SettingsScreen(
                                 FilterChip(
                                     selected = uiState.followUpDelayMinutes == mins,
                                     onClick = { viewModel.setFollowUpSettings(delayMinutes = mins) },
-                                    label = { Text(stringResource(R.string.settings_follow_up_delay_min, mins)) },
+                                    label = {
+                                        Text(
+                                            pluralStringResource(
+                                                R.plurals.settings_follow_up_delay_min,
+                                                mins,
+                                                mins,
+                                            ),
+                                        )
+                                    },
                                 )
                             }
                         }

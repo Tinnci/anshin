@@ -6,6 +6,7 @@ import android.graphics.ColorMatrix
 import android.graphics.ColorMatrixColorFilter
 import android.graphics.Paint
 import androidx.annotation.VisibleForTesting
+import androidx.core.graphics.createBitmap
 
 /**
  * 七段数码管 (7-segment display) 图像预处理器。
@@ -54,7 +55,7 @@ internal object OcrImagePreprocessor {
     internal fun toGrayscaleHighContrast(source: Bitmap): Bitmap {
         val width = source.width
         val height = source.height
-        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val result = createBitmap(width, height)
         val canvas = Canvas(result)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
 
@@ -102,7 +103,7 @@ internal object OcrImagePreprocessor {
         val threshold = otsuThreshold(histogram, pixels.size)
 
         // 应用阈值
-        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val result = createBitmap(width, height)
         val outPixels = IntArray(pixels.size)
         for (i in luminance.indices) {
             val color = if (luminance[i] > threshold) 0xFFFFFFFF.toInt() else 0xFF000000.toInt()
@@ -152,7 +153,7 @@ internal object OcrImagePreprocessor {
             }
         }
 
-        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val result = createBitmap(width, height)
         result.setPixels(outPixels, 0, width, 0, 0, width, height)
         return result
     }
@@ -165,7 +166,7 @@ internal object OcrImagePreprocessor {
     internal fun invert(bitmap: Bitmap): Bitmap {
         val width = bitmap.width
         val height = bitmap.height
-        val result = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
+        val result = createBitmap(width, height)
         val canvas = Canvas(result)
         val paint = Paint()
         val invertMatrix = ColorMatrix(

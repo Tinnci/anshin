@@ -5,6 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.RectF
 import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
@@ -97,14 +99,12 @@ internal class LcdDisplayDetector(context: Context) {
         val padY = (INPUT_SIZE.toInt() - newH) / 2
 
         // 创建 640x640 灰色画布
-        val padded = Bitmap.createBitmap(
-            INPUT_SIZE.toInt(), INPUT_SIZE.toInt(), Bitmap.Config.ARGB_8888,
-        )
+        val padded = createBitmap(INPUT_SIZE.toInt(), INPUT_SIZE.toInt())
         val canvas = Canvas(padded)
         canvas.drawColor(0xFF808080.toInt()) // 灰色填充
 
         // 缩放绘制原图
-        val scaled = Bitmap.createScaledBitmap(bitmap, newW, newH, true)
+        val scaled = bitmap.scale(newW, newH)
         canvas.drawBitmap(scaled, padX.toFloat(), padY.toFloat(), null)
         if (scaled !== bitmap) scaled.recycle()
 

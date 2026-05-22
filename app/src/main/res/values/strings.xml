@@ -191,9 +191,13 @@
     <string name="settings_persistent_title">持续提醒</string>
     <string name="settings_persistent_subtitle">服药未确认时定期重复提醒</string>
     <string name="settings_interval_label">提醒间隔</string>
-    <string name="settings_minutes">%d 分钟</string>
+    <plurals name="settings_minutes">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
     <string name="settings_early_reminder_title">提前预告提醒</string>
-    <string name="settings_early_reminder_body_on">在服药时间前 %d 分钟发送预告</string>
+    <plurals name="settings_early_reminder_body_on">
+        <item quantity="other">在服药时间前 %d 分钟发送预告</item>
+    </plurals>
     <string name="settings_early_reminder_body_off">关闭（仅在服药时间精确提醒）</string>
     <string name="settings_off">关闭</string>
     <string name="settings_1hour">1 小时</string>
@@ -488,13 +492,17 @@
     <plurals name="notif_refill_big_text">
         <item quantity="other">您的 %1$s 预计还有约 %2$d 天用量，建议提前购买以避免断药。</item>
     </plurals>
-    <string name="notif_early_title">%d 分钟后记得服药</string>
+    <plurals name="notif_early_title">
+        <item quantity="other">%d 分钟后记得服药</item>
+    </plurals>
     <string name="notif_early_body">准备好 %1$s（%2$s）</string>
     <string name="notif_early_subtext">即将服药提醒</string>
     <plurals name="notif_early_big_text">
         <item quantity="other">%1$d 分钟后需要服用 %2$s 的 %3$s，提前准备好。</item>
     </plurals>
-    <string name="notif_early_ticker">%d 分钟后记得服药</string>
+    <plurals name="notif_early_ticker">
+        <item quantity="other">%d 分钟后记得服药</item>
+    </plurals>
     <string name="common_action_delete">删除</string>
     <string name="common_action_cancel">取消</string>
     <string name="common_action_edit">编辑</string>
@@ -741,7 +749,9 @@
     <string name="settings_follow_up_enable_desc">在指定时间未服药时，自动发送再次提醒</string>
     <string name="settings_follow_up_delay">再提醒间隔</string>
     <string name="settings_follow_up_count">最多再提醒次数</string>
-    <string name="settings_follow_up_delay_min">%d 分钟</string>
+    <plurals name="settings_follow_up_delay_min">
+        <item quantity="other">%d 分钟</item>
+    </plurals>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
     <string name="error_name_required">药品名称不能为空</string>

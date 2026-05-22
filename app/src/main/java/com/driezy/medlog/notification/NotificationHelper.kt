@@ -330,7 +330,7 @@ class NotificationHelper @Inject constructor(
         val notification = NotificationCompat.Builder(context, CHANNEL_EARLY_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(brandColor)
-            .setContentTitle(context.getString(R.string.notif_early_title, minutesBefore))
+            .setContentTitle(context.resources.getQuantityString(R.plurals.notif_early_title, minutesBefore, minutesBefore))
             .setContentText(context.getString(R.string.notif_early_body, medicationName, dose))
             .setSubText(context.getString(R.string.notif_early_subtext))
             .setStyle(NotificationCompat.BigTextStyle()
@@ -341,7 +341,7 @@ class NotificationHelper @Inject constructor(
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
             .setTimeoutAfter(minutesBefore * 60_000L + 5 * 60_000L)  // 超时 = 预告时间 + 5 分钟
-            .setTicker(context.getString(R.string.notif_early_ticker, minutesBefore))
+            .setTicker(context.resources.getQuantityString(R.plurals.notif_early_ticker, minutesBefore, minutesBefore))
             .build()
         notificationManager.notify(notificationId, notification)
     }

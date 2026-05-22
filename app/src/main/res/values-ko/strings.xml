@@ -186,9 +186,13 @@
     <string name="settings_persistent_title">지속 알림</string>
     <string name="settings_persistent_subtitle">복약 확인 전까지 알림 반복</string>
     <string name="settings_interval_label">알림 간격</string>
-    <string name="settings_minutes">%d분</string>
+    <plurals name="settings_minutes">
+        <item quantity="other">%d분</item>
+    </plurals>
     <string name="settings_early_reminder_title">사전 알림</string>
-    <string name="settings_early_reminder_body_on">복약 %d분 전에 사전 알림 전송</string>
+    <plurals name="settings_early_reminder_body_on">
+        <item quantity="other">복약 %d분 전에 사전 알림 전송</item>
+    </plurals>
     <string name="settings_early_reminder_body_off">꺼짐 (정해진 시간에만 알림)</string>
     <string name="settings_off">꺼짐</string>
     <string name="settings_1hour">1시간</string>
@@ -483,13 +487,17 @@
     <plurals name="notif_refill_big_text">
         <item quantity="other">%1$s은 약 %2$d일치가 남아 있습니다. 미리 구매하는 것을 권장합니다.</item>
     </plurals>
-    <string name="notif_early_title">%d분 후 복약</string>
+    <plurals name="notif_early_title">
+        <item quantity="other">%d분 후 복약</item>
+    </plurals>
     <string name="notif_early_body">%1$s (%2$s) 준비하세요</string>
     <string name="notif_early_subtext">복약 예정 알림</string>
     <plurals name="notif_early_big_text">
         <item quantity="other">%1$d분 후 %3$s의 %2$s를 복용해야 합니다. 미리 준비하세요.</item>
     </plurals>
-    <string name="notif_early_ticker">%d분 후 복약</string>
+    <plurals name="notif_early_ticker">
+        <item quantity="other">%d분 후 복약</item>
+    </plurals>
     <string name="common_action_delete">삭제</string>
     <string name="common_action_cancel">취소</string>
     <string name="common_action_edit">편집</string>
@@ -712,7 +720,9 @@
     <string name="settings_follow_up_enable_desc">예정 시간에 복약을 기록하지 않으면 자동으로 재알림을 보냅니다</string>
     <string name="settings_follow_up_delay">재알림 간격</string>
     <string name="settings_follow_up_count">최대 재알림 횟수</string>
-    <string name="settings_follow_up_delay_min">%d분</string>
+    <plurals name="settings_follow_up_delay_min">
+        <item quantity="other">%d분</item>
+    </plurals>
 
     <!-- i18n: extracted from Kotlin hardcoded strings -->
     <string name="error_name_required">약품명을 입력하세요</string>

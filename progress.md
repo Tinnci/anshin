@@ -63,3 +63,10 @@
 - Re-verified with `./gradlew :app:compileDebugKotlin`, `./gradlew :app:ktlintCheck`, `./gradlew :app:assembleDebug`, `./gradlew :app:installDebug`, and launched `com.driezy.medlog/.ui.MainActivity` on M2012K11C with no recent fatal logcat entries.
 - Completed a Material Expressive micro-motion pass after checking current official Compose Material3 motion guidance: Home progress digits, medication status confirmation, OCR content swaps, Add Medication dynamic form fields, Settings expand/collapse groups, and shared animated list items now use `MotionScheme` spatial specs for movement/size and effects specs for alpha/color.
 - Installed the micro-motion build on M2012K11C and launched `com.driezy.medlog/.ui.MainActivity`; no recent fatal logcat entries were found.
+- Started current lint cleanup after `:app:lintDebug` report showed 2 errors and 18 warnings despite Gradle success due to lint abort being disabled.
+- First post-upgrade lint run failed because AGP 9.2.1 requires Gradle 9.4.1; updated the Gradle wrapper URL and checksum before retrying.
+- `:app:lintDebug` passed with "Lint found no errors or warnings"; parsed `app/build/reports/lint-results-debug.xml` and confirmed `total=0`.
+- Combined ktlint/test/assemble run failed once at `:app:packageDebug`; isolated `:app:packageDebug --stacktrace` then passed, so continued by suppressing the remaining JVM test warning via `-Xshare:off`.
+- Re-ran `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`; build passed cleanly with no visible warning output.
+- Re-ran `./gradlew :app:lintDebug` after build-script changes; lint passed with no errors or warnings and XML `lint_issues=0`.
+- Installed debug APK on connected M2012K11C (`6b9f2b84`), launched `com.driezy.medlog`, confirmed process startup, and found no recent fatal AndroidRuntime entries for the app.

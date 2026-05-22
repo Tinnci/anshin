@@ -25,6 +25,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 17. Apply Material Expressive health layout slice | completed | Added OCR hero action, grouped health metrics into a titled section, weakened recent records with supporting header, separated metric value/unit typography, and verified LoadingIndicator coverage. |
 | 18. Complete Material Expressive layout/elevation/settings pass | completed | Converted Home default medication list into Now/Later task groups with PRN separated, flattened time-group elevation, consolidated Settings into Appearance, Reminders, OCR & Health, Widgets, and Data & About containers, then installed and launched on M2012K11C. |
 | 19. Apply Material Expressive micro-motion pass | completed | Aligned recurrent micro-interactions with `MotionScheme.expressive()` by using spatial specs for bounds/position changes and effects specs for alpha/color in Home, medication rows, OCR, Add Medication, and Settings. |
+| 20. Clean current Android warnings/errors | completed | Fixed lint-reported resource format errors, English minute plural warnings, KTX bitmap API warnings, generated launcher vector warnings, and Android Gradle Plugin version warning; verified lint XML total=0, ktlint/unit tests/debug assemble, install, launch, and no recent fatal logcat entries. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
@@ -34,3 +35,6 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | FastViT Android 100-run CPU benchmark exceeded the practical wait window | First instrumentation run used `RUNS=100` | Killed the stuck run and used `RUNS=10` for comparable CPU/NNAPI smoke measurements. |
 | `FlowRow` compile error: unsupported `verticalAlignment` parameter | First home overview implementation compile | Switched to supported `verticalArrangement` spacing for wrapped chips. |
 | Health app launch used old shorthand activity | First post-install launch attempted `com.driezy.medlog/.MainActivity` | Relaunched with resolved activity `com.driezy.medlog/.ui.MainActivity`; foreground launch succeeded with no recent fatal logs. |
+| Lint reported 2 errors and 18 warnings while still exiting success | First `:app:lintDebug` returned success because lint abort is disabled | Treat lint XML as the source of truth and fix/suppress each reported issue before release tagging. |
+| AGP 9.2.1 rejected Gradle 9.3.1 | First post-upgrade `:app:lintDebug` | Upgrade Gradle wrapper to 9.4.1, the minimum required by AGP 9.2.1. |
+| Combined verification failed once at `:app:packageDebug` without detailed cause | First combined ktlint/test/assemble run after wrapper upgrade | Reran `:app:packageDebug --stacktrace`; task passed cleanly, indicating an incremental packaging transient after the toolchain switch. |
