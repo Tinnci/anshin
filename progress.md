@@ -70,3 +70,5 @@
 - Re-ran `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`; build passed cleanly with no visible warning output.
 - Re-ran `./gradlew :app:lintDebug` after build-script changes; lint passed with no errors or warnings and XML `lint_issues=0`.
 - Installed debug APK on connected M2012K11C (`6b9f2b84`), launched `com.driezy.medlog`, confirmed process startup, and found no recent fatal AndroidRuntime entries for the app.
+- Pushed `48e81b9 Resolve Android lint warnings`; GitHub CI passed ktlint, unit tests, and Android Lint, then failed at `Build Debug APK` with `PackageAndroidArtifact$IncrementalSplitterRunnable`.
+- Verified local `./gradlew clean :app:assembleDebug --stacktrace` passes; updated CI and release workflows to opt JS actions into Node 24 and run clean APK builds with stacktraces.
