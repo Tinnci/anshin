@@ -40,3 +40,4 @@
   CPU `mean_ms=49.70 p50_ms=50 p95_ms=51 throughput_sps=20.12`;
   NNAPI `mean_ms=49.20 p50_ms=49 p95_ms=50 throughput_sps=20.33`;
   `nnapi_cpu_disabled` one-run smoke `mean_ms=52.00`.
+- Pushed Kaggle candidate fine-tune kernel version 3; remote status reported `KernelWorkerStatus.RUNNING`.
