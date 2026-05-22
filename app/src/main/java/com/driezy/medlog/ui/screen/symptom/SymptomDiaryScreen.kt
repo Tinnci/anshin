@@ -62,9 +62,11 @@ fun SymptomDiaryScreen(
             )
         },
         floatingActionButton = {
-            FloatingActionButton(onClick = viewModel::startAdd) {
-                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.symptom_screen_fab_cd))
-            }
+            ExtendedFloatingActionButton(
+                onClick = viewModel::startAdd,
+                icon = { Icon(Icons.Filled.Add, contentDescription = null) },
+                text = { Text(stringResource(R.string.symptom_screen_fab_cd)) },
+            )
         },
     ) { innerPadding ->
         if (uiState.isLoading) {

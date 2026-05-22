@@ -167,7 +167,10 @@ fun AddMedicationScreen(
                                         Icon(Icons.Rounded.Close, contentDescription = stringResource(R.string.add_clear_cd))
                                     }
                                 }
-                                IconButton(onClick = { showOcrScanner = true }) {
+                                FilledTonalIconButton(
+                                    onClick = { showOcrScanner = true },
+                                    modifier = Modifier.size(40.dp),
+                                ) {
                                     Icon(Icons.Rounded.DocumentScanner, contentDescription = stringResource(R.string.ocr_scan_title))
                                 }
                             }

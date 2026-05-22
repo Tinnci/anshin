@@ -53,16 +53,9 @@ fun HistoryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val floatingToolbarState = rememberFloatingToolbarState()
-    val toolbarScrollBehavior = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
-        state = floatingToolbarState,
-        exitDirection = FloatingToolbarExitDirection.Bottom,
-    )
 
     Scaffold(
-        modifier = Modifier
-            .nestedScroll(scrollBehavior.nestedScrollConnection)
-            .nestedScroll(toolbarScrollBehavior),
+        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             LargeTopAppBar(
                 title = {
@@ -80,6 +73,13 @@ fun HistoryScreen(
                 scrollBehavior = scrollBehavior,
             )
         },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = viewModel::navigateToToday,
+                icon = { Icon(Icons.Rounded.Today, contentDescription = null) },
+                text = { Text(stringResource(R.string.history_today_button)) },
+            )
+        },
     ) { innerPadding ->
         if (uiState.isLoading) {
             Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
@@ -88,11 +88,11 @@ fun HistoryScreen(
             return@Scaffold
         }
 
-        Box(Modifier.fillMaxSize().padding(innerPadding)) {
         LazyColumn(
             modifier = Modifier
-                .fillMaxSize(),
-            contentPadding = MedLogSpacing.ScreenContentWithToolbar,
+                .fillMaxSize()
+                .padding(innerPadding),
+            contentPadding = MedLogSpacing.ScreenContentWithFab,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             // 近30天坚持率概览
@@ -141,28 +141,6 @@ fun HistoryScreen(
                         onEditTakenTime = viewModel::editTakenTime,
                         modifier = Modifier.animateItem(),
                     )
-                }
-            }
-        }
-
-            // ── 底部浮动工具栏：回到今天 ─────────────────────────────────
-            HorizontalFloatingToolbar(
-                expanded = true,
-                floatingActionButton = {
-                    FloatingToolbarDefaults.VibrantFloatingActionButton(
-                        onClick = viewModel::navigateToToday,
-                    ) {
-                        Icon(Icons.Rounded.Today, contentDescription = stringResource(R.string.history_today_button))
-                    }
-                },
-                modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
-                scrollBehavior = toolbarScrollBehavior,
-            ) {
-                IconButton(onClick = { viewModel.navigateMonthBy(-1) }) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowBack, contentDescription = stringResource(R.string.history_prev_month_cd))
-                }
-                IconButton(onClick = { viewModel.navigateMonthBy(1) }) {
-                    Icon(Icons.AutoMirrored.Rounded.ArrowForward, contentDescription = stringResource(R.string.history_next_month_cd))
                 }
             }
         }

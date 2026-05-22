@@ -26,6 +26,8 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 18. Complete Material Expressive layout/elevation/settings pass | completed | Converted Home default medication list into Now/Later task groups with PRN separated, flattened time-group elevation, consolidated Settings into Appearance, Reminders, OCR & Health, Widgets, and Data & About containers, then installed and launched on M2012K11C. |
 | 19. Apply Material Expressive micro-motion pass | completed | Aligned recurrent micro-interactions with `MotionScheme.expressive()` by using spatial specs for bounds/position changes and effects specs for alpha/color in Home, medication rows, OCR, Add Medication, and Settings. |
 | 20. Clean current Android warnings/errors | completed | Fixed lint-reported resource format errors, English minute plural warnings, KTX bitmap API warnings, generated launcher vector warnings, and Android Gradle Plugin version warning; verified lint XML total=0, ktlint/unit tests/debug assemble, install, launch, and no recent fatal logcat entries. |
+| 21. Add debug seed data and non-visual verification | completed | Added deterministic Clock/Calendar helpers, `SeedDemoDataUseCase`, debug-only receiver, and seed format tests; installed/seeding on M2012K11C and verified counts, progress, low stock, latest health values, and FK integrity via adb/Room database queries. |
+| 22. Audit and modernize remaining Material Expressive surfaces | in_progress | Unified cross-page scan entries, scanner surfaces, top-level Extended FAB usage, and low-elevation surface container rules for ordinary content blocks; continuing code-level audit against Material/Expressive guidance without visual screenshots. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

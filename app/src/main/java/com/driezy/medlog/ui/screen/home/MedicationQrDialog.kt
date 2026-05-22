@@ -1,6 +1,7 @@
 package com.driezy.medlog.ui.screen.home
 
 import android.content.Intent
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -20,10 +21,12 @@ import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material.icons.rounded.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
@@ -222,7 +225,7 @@ internal fun MedicationQrDialog(
                 }
 
                 // ── 扫码导入按钮（两个 tab 均可用）───────────────────
-                OutlinedButton(
+                FilledTonalButton(
                     onClick = { showScanner = true },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
@@ -237,7 +240,7 @@ internal fun MedicationQrDialog(
             }
         },
         confirmButton = {
-            TextButton(onClick = {
+            Button(onClick = {
                 val shareText = if (selectedTab == 1 && exportUri != null) exportUri else todayQrText
                 val intent = Intent(Intent.ACTION_SEND).apply {
                     type = "text/plain"
@@ -348,6 +351,10 @@ internal fun ImportPreviewDialog(
                 OutlinedButton(
                     onClick = { onReplace(); onDismiss() },
                     modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                 ) {
                     Text(stringResource(R.string.qr_import_mode_replace))
                 }

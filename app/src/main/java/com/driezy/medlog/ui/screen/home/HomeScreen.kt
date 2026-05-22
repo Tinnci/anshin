@@ -134,7 +134,7 @@ fun HomeScreen(
                     }
                 },
                 actions = {
-                    IconButton(onClick = { showQrDialog = true }) {
+                    FilledTonalIconButton(onClick = { showQrDialog = true }) {
                         Icon(Icons.Rounded.QrCode2, contentDescription = stringResource(R.string.home_share_qr_cd))
                     }
                     IconButton(onClick = viewModel::toggleGroupBy) {

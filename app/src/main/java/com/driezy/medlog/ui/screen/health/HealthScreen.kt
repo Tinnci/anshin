@@ -80,16 +80,17 @@ fun HealthScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showOcrScanner by rememberSaveable { mutableStateOf(false) }
 
-    val floatingToolbarState = rememberFloatingToolbarState()
-    val scrollBehavior = FloatingToolbarDefaults.exitAlwaysScrollBehavior(
-        state = floatingToolbarState,
-        exitDirection = FloatingToolbarExitDirection.Bottom,
-    )
-
     Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text(stringResource(R.string.health_screen_title)) },
+            )
+        },
+        floatingActionButton = {
+            ExtendedFloatingActionButton(
+                onClick = { showOcrScanner = true },
+                icon = { Icon(Icons.Rounded.DocumentScanner, contentDescription = null) },
+                text = { Text(stringResource(R.string.health_ocr_hero_scan)) },
             )
         },
     ) { innerPadding ->
@@ -98,12 +99,11 @@ fun HealthScreen(
                 LoadingIndicator()
             }
         } else {
-            Box(Modifier.fillMaxSize().padding(innerPadding)) {
-                LazyColumn(
-                    contentPadding = MedLogSpacing.ScreenContentWithToolbar,
-                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-                    modifier = Modifier.nestedScroll(scrollBehavior),
-                ) {
+            LazyColumn(
+                contentPadding = MedLogSpacing.ScreenContentWithFab,
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                modifier = Modifier.fillMaxSize().padding(innerPadding),
+            ) {
                     // ── OCR 主入口 Hero ─────────────────────────────────────
                     item(key = "ocr_hero") {
                         HealthOcrHeroCard(
@@ -213,25 +213,6 @@ fun HealthScreen(
                             )
                         }
                     }
-                }
-
-                // ── 底部浮动工具栏 + FAB ─────────────────────────────────────
-                HorizontalFloatingToolbar(
-                    expanded = true,
-                    floatingActionButton = {
-                        FloatingToolbarDefaults.VibrantFloatingActionButton(
-                            onClick = viewModel::startAdd,
-                        ) {
-                            Icon(Icons.Rounded.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
-                        }
-                    },
-                    modifier = Modifier.align(Alignment.BottomCenter).offset(y = (-16).dp),
-                    scrollBehavior = scrollBehavior,
-                ) {
-                    IconButton(onClick = { showOcrScanner = true }) {
-                        Icon(Icons.Rounded.CameraAlt, contentDescription = stringResource(R.string.health_camera_scan_cd))
-                    }
-                }
             }
         }
     }
@@ -298,13 +279,12 @@ private fun HealthOcrHeroCard(
     onScan: () -> Unit,
     onManualRecord: () -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.elevatedCardColors(
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
-        elevation = CardDefaults.elevatedCardElevation(defaultElevation = 0.dp),
     ) {
         Column(
             modifier = Modifier.padding(MedLogSpacing.XLarge),
@@ -644,7 +624,12 @@ private fun BmiCard(
 ) {
     var showHeightDialog by remember { mutableStateOf(false) }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
         Column(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -734,7 +719,12 @@ private fun HealthTrendChart(
     val density = LocalDensity.current
     val dateFormat = remember { SimpleDateFormat("M/d", Locale.getDefault()) }
 
-    ElevatedCard(modifier = Modifier.fillMaxWidth()) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(Icons.AutoMirrored.Rounded.TrendingUp, null, Modifier.size(20.dp))

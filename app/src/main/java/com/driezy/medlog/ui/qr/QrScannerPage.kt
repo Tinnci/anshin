@@ -7,27 +7,25 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.CameraPermissionGate
+import com.driezy.medlog.ui.components.CameraGuidancePill
+import com.driezy.medlog.ui.components.ViewfinderOverlay
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
@@ -43,7 +41,7 @@ private const val TAG = "QrScannerPage"
  * @param onResult 成功扫描到有效二维码内容后回调（只触发一次）
  * @param onBack   用户按返回时回调
  */
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun QrScannerPage(
     onResult: (String) -> Unit,
@@ -80,29 +78,18 @@ fun QrScannerPage(
                         onResult(raw)
                     },
                 )
-                // 取景框叠加层
-                Box(
+                ViewfinderOverlay(
                     modifier = Modifier
-                        .size(260.dp)
-                        .border(
-                            width = 3.dp,
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(20.dp),
-                        ),
+                        .fillMaxSize(),
+                    widthFraction = 0.72f,
+                    aspectRatio = 1f,
                 )
-                Text(
+                CameraGuidancePill(
                     text = stringResource(R.string.qr_scan_hint),
+                    icon = Icons.Rounded.QrCodeScanner,
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
-                        .padding(bottom = MedLogSpacing.Huge)
-                        .background(
-                            color = MaterialTheme.colorScheme.surface.copy(alpha = 0.75f),
-                            shape = RoundedCornerShape(12.dp),
-                        )
-                        .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Small),
-                    style = MaterialTheme.typography.bodyMedium,
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.colorScheme.onSurface,
+                        .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Huge),
                 )
             }
         }
@@ -179,6 +166,6 @@ private fun CameraPreview(
 
     AndroidView(
         factory = { previewView },
-        modifier = modifier.clip(RoundedCornerShape(0.dp)),
+        modifier = modifier,
     )
 }

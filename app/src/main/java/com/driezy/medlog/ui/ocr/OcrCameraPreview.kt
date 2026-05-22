@@ -29,7 +29,8 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FloatingToolbarDefaults
 import androidx.compose.material3.HorizontalFloatingToolbar
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -196,7 +197,21 @@ internal fun OcrCameraPreview(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 40.dp),
         ) {
-            IconButton(onClick = { isFlashOn = !isFlashOn }) {
+            FilledTonalIconButton(
+                onClick = { isFlashOn = !isFlashOn },
+                colors = IconButtonDefaults.filledTonalIconButtonColors(
+                    containerColor = if (isFlashOn) {
+                        MaterialTheme.colorScheme.tertiaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.surfaceContainerHigh
+                    },
+                    contentColor = if (isFlashOn) {
+                        MaterialTheme.colorScheme.onTertiaryContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
+                ),
+            ) {
                 Icon(
                     if (isFlashOn) Icons.Rounded.FlashOn else Icons.Rounded.FlashOff,
                     contentDescription = stringResource(R.string.ocr_flash_toggle),

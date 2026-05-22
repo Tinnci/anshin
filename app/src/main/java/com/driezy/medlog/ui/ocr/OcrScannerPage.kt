@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -29,6 +30,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.CameraPermissionGate
+import com.driezy.medlog.ui.components.CameraGuidancePill
 import com.driezy.medlog.ui.components.ProcessingOverlay
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
@@ -96,22 +98,13 @@ fun OcrScannerPage(
                                 onCaptureRequested = { viewModel.onCaptureRequested() },
                                 onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
                             )
-                            Surface(
+                            CameraGuidancePill(
+                                text = stringResource(R.string.ocr_scan_hint),
+                                icon = Icons.Rounded.DocumentScanner,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(top = 16.dp, start = 24.dp, end = 24.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                                tonalElevation = 2.dp,
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.ocr_scan_hint),
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
+                            )
                             ProcessingOverlay(
                                 visible = state.isProcessing,
                                 text = stringResource(R.string.ocr_processing),
@@ -207,7 +200,7 @@ private fun OcrResultList(
                         )
                     }
 
-                    ElevatedCard(
+                    Card(
                         onClick = { onSelect(text) },
                         modifier = Modifier
                             .fillMaxWidth()
@@ -216,8 +209,8 @@ private fun OcrResultList(
                                 translationY = animatedOffset.value
                             },
                         shape = RoundedCornerShape(16.dp),
-                        elevation = CardDefaults.elevatedCardElevation(
-                            defaultElevation = 1.dp,
+                        colors = CardDefaults.cardColors(
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
                         ),
                     ) {
                         ListItem(

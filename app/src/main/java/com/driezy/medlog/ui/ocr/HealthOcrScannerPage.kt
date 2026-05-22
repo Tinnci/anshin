@@ -19,6 +19,7 @@ import androidx.compose.material.icons.rounded.AirlineStops
 import androidx.compose.material.icons.rounded.Bloodtype
 import androidx.compose.material.icons.rounded.Check
 import androidx.compose.material.icons.rounded.ChevronRight
+import androidx.compose.material.icons.rounded.DocumentScanner
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material.icons.rounded.Favorite
 import androidx.compose.material.icons.rounded.FitnessCenter
@@ -51,6 +52,7 @@ import com.driezy.medlog.data.model.OcrParseResult
 import com.driezy.medlog.data.model.ParsedHealthMetric
 import com.driezy.medlog.ui.components.AnimatedListItem
 import com.driezy.medlog.ui.components.CameraPermissionGate
+import com.driezy.medlog.ui.components.CameraGuidancePill
 import com.driezy.medlog.ui.components.ProcessingOverlay
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
@@ -131,22 +133,13 @@ fun HealthOcrScannerPage(
                                 onCaptureRequested = { viewModel.onCaptureRequested() },
                                 onCapture = { imageProxy -> viewModel.onImageCaptured(imageProxy) },
                             )
-                            Surface(
+                            CameraGuidancePill(
+                                text = stringResource(R.string.ocr_health_scan_hint),
+                                icon = Icons.Rounded.DocumentScanner,
                                 modifier = Modifier
                                     .align(Alignment.TopCenter)
                                     .padding(top = 16.dp, start = 24.dp, end = 24.dp),
-                                shape = RoundedCornerShape(16.dp),
-                                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.85f),
-                                tonalElevation = 2.dp,
-                            ) {
-                                Text(
-                                    text = stringResource(R.string.ocr_health_scan_hint),
-                                    modifier = Modifier.padding(horizontal = 20.dp, vertical = 12.dp),
-                                    style = MaterialTheme.typography.bodyMedium,
-                                    textAlign = TextAlign.Center,
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                )
-                            }
+                            )
                             ProcessingOverlay(
                                 visible = state.isProcessing,
                                 text = processingText,
@@ -391,11 +384,11 @@ private fun BpMergeSuggestionCard(
     diastolic: ExtractedNumber,
     onAccept: () -> Unit,
 ) {
-    ElevatedCard(
+    Card(
         onClick = onAccept,
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.elevatedCardColors(
+        colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
     ) {
@@ -495,7 +488,7 @@ private fun CandidateNumberCard(
         isEditing = false
     }
 
-    ElevatedCard(
+    OutlinedCard(
         onClick = {
             if (!isEditing) {
                 val type = selectedType ?: HealthType.BLOOD_PRESSURE
@@ -511,6 +504,9 @@ private fun CandidateNumberCard(
         },
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.outlinedCardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+        ),
     ) {
         Row(
             modifier = Modifier
