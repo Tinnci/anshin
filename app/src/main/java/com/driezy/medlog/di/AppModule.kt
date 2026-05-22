@@ -1,0 +1,123 @@
+package com.driezy.medlog.di
+
+import android.content.Context
+import androidx.room.Room
+import com.driezy.medlog.data.local.HealthRecordDao
+import com.driezy.medlog.data.local.MedLogDatabase
+import com.driezy.medlog.data.local.MedicationDao
+import com.driezy.medlog.data.local.MedicationLogDao
+import com.driezy.medlog.data.local.RoomTransactionRunner
+import com.driezy.medlog.data.local.SymptomLogDao
+import com.driezy.medlog.data.local.TransactionRunner
+import com.driezy.medlog.data.repository.DrugRepository
+import com.driezy.medlog.data.repository.DrugRepositoryImpl
+import com.driezy.medlog.data.repository.HealthRepository
+import com.driezy.medlog.data.repository.HealthRepositoryImpl
+import com.driezy.medlog.data.repository.LogRepository
+import com.driezy.medlog.data.repository.LogRepositoryImpl
+import com.driezy.medlog.data.repository.MedicationRepository
+import com.driezy.medlog.data.repository.MedicationRepositoryImpl
+import com.driezy.medlog.data.repository.SymptomRepository
+import com.driezy.medlog.data.repository.SymptomRepositoryImpl
+import com.driezy.medlog.widget.GlanceWidgetRefresher
+import com.driezy.medlog.widget.WidgetRefresher
+import dagger.Binds
+import dagger.Module
+import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import javax.inject.Singleton
+
+@Module
+@InstallIn(SingletonComponent::class)
+object DatabaseModule {
+
+    @Provides
+    @Singleton
+    fun provideDatabase(@ApplicationContext context: Context): MedLogDatabase =
+        Room.databaseBuilder(
+            context,
+            MedLogDatabase::class.java,
+            "medlog.db",
+        )
+            .addMigrations(
+                MedLogDatabase.MIGRATION_5_6,
+                MedLogDatabase.MIGRATION_6_7,
+                MedLogDatabase.MIGRATION_7_8,
+                MedLogDatabase.MIGRATION_8_9,
+                MedLogDatabase.MIGRATION_9_10,
+                MedLogDatabase.MIGRATION_10_11,
+                MedLogDatabase.MIGRATION_11_12,
+            )
+            .build()
+
+    @Provides
+    fun provideMedicationDao(db: MedLogDatabase): MedicationDao = db.medicationDao()
+
+    @Provides
+    fun provideMedicationLogDao(db: MedLogDatabase): MedicationLogDao = db.medicationLogDao()
+
+    @Provides
+    fun provideSymptomLogDao(db: MedLogDatabase): SymptomLogDao = db.symptomLogDao()
+
+    @Provides
+    fun provideHealthRecordDao(db: MedLogDatabase): HealthRecordDao = db.healthRecordDao()
+
+    @Provides
+    @Singleton
+    @ApplicationScope
+    fun provideApplicationScope(): CoroutineScope =
+        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+}
+
+@Module
+@InstallIn(SingletonComponent::class)
+abstract class RepositoryModule {
+
+    @Binds
+    @Singleton
+    abstract fun bindMedicationRepository(
+        impl: MedicationRepositoryImpl,
+    ): MedicationRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindLogRepository(
+        impl: LogRepositoryImpl,
+    ): LogRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindDrugRepository(
+        impl: DrugRepositoryImpl,
+    ): DrugRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindSymptomRepository(
+        impl: SymptomRepositoryImpl,
+    ): SymptomRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindHealthRepository(
+        impl: HealthRepositoryImpl,
+    ): HealthRepository
+
+    @Binds
+    @Singleton
+    abstract fun bindWidgetRefresher(
+        impl: GlanceWidgetRefresher,
+    ): WidgetRefresher
+
+    @Binds
+    @Singleton
+    abstract fun bindTransactionRunner(
+        impl: RoomTransactionRunner,
+    ): TransactionRunner
+}
+

@@ -32,10 +32,10 @@ cd "${ROOT_DIR}"
 
 adb logcat -c
 adb shell am instrument -w \
-  -e class com.example.medlog.ocr.FastVitNnapiBenchmarkTest \
+  -e class com.driezy.medlog.ocr.FastVitNnapiBenchmarkTest \
   -e provider "${PROVIDER}" \
   -e modelAsset "${MODEL_ASSET}" \
   -e warmup "${WARMUP}" \
   -e runs "${RUNS}" \
-  com.example.medlog.test/androidx.test.runner.AndroidJUnitRunner
+  com.driezy.medlog.test/androidx.test.runner.AndroidJUnitRunner
 adb logcat -d -s FastVitBenchmark:I '*:S' | grep FASTVIT_BENCHMARK || true

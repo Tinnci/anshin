@@ -20,6 +20,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 12. Implement Kaggle all-candidate fine-tune kernel | completed | Added Kaggle runner for LightSVTR tiny/base/large and FastViT-T8, plus complete pending/eval-only rows for other architectures. |
 | 13. Add PaddleOCR Kaggle fine-tune configs | in_progress | Added tests and implementation for PP-OCRv5 mobile/server, RepSVTR, and SVTRv2 config materialization and Kaggle train/export/eval dispatch. |
 | 14. Run FastViT Android NNAPI benchmark | in_progress | Added instrumentation benchmark and collected initial M2012K11C CPU/NNAPI measurements for `fastvit_t8_ctc_reparam.onnx`. |
+| 15. Rename Android application ID for formal debug build | completed | Replaced app/source package with `com.driezy.medlog`, verified debug/test compilation, installed and launched on connected M2012K11C. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

@@ -22,11 +22,11 @@ private fun signingProp(key: String): String? {
 }
 
 android {
-    namespace = "com.example.medlog"
+    namespace = "com.driezy.medlog"
     compileSdk = 37
 
     defaultConfig {
-        applicationId = "com.example.medlog"
+        applicationId = "com.driezy.medlog"
         minSdk = 26
         targetSdk = 37
         versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: 1

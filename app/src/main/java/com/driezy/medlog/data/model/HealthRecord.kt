@@ -1,0 +1,149 @@
+package com.driezy.medlog.data.model
+
+import androidx.annotation.StringRes
+import androidx.room.Entity
+import androidx.room.Index
+import androidx.room.PrimaryKey
+import com.driezy.medlog.R
+
+/**
+ * 健康体征记录实体。
+ * - 血压：value = 收缩压 (mmHg), secondaryValue = 舒张压; display: "120/80 mmHg"
+ * - 血糖：value = mmol/L; secondaryValue = null
+ * - 体重：value = kg; secondaryValue = null
+ * - 心率：value = bpm; secondaryValue = null
+ * - 体温：value = °C; secondaryValue = null
+ * - 血氧：value = %; secondaryValue = null
+ */
+@Entity(
+    tableName = "health_records",
+    indices = [
+        Index("type"),
+        Index("timestamp"),
+    ],
+)
+data class HealthRecord(
+    @PrimaryKey(autoGenerate = true)
+    val id: Long = 0,
+    /** HealthType.name 字符串存储，以支持未来扩展 */
+    val type: String,
+    /** 主值（收缩压 / 血糖 / 体重 / 心率 / 体温 / 血氧） */
+    val value: Double,
+    /** 次值（仅血压的舒张压使用，其余为 null） */
+    val secondaryValue: Double? = null,
+    /** 记录时间戳（毫秒） */
+    val timestamp: Long = System.currentTimeMillis(),
+    /** 可选备注 */
+    val notes: String = "",
+)
+
+/**
+ * 健康体征类型枚举，包含标签 StringRes、单位、正常范围描述。
+ */
+enum class HealthType(
+    @get:StringRes val labelRes: Int,
+    val unit: String,
+    /** 正常下限（主值）*/
+    val normalMin: Double,
+    /** 正常上限（主值）*/
+    val normalMax: Double,
+    /** 次值正常下限（血压舒张压）*/
+    val normalSecMin: Double? = null,
+    /** 次值正常上限（血压舒张压）*/
+    val normalSecMax: Double? = null,
+    /** 趋势判定阈值：前后半均值差超过此值才判定为上升/下降 */
+    val trendThreshold: Double = 0.5,
+) {
+    BLOOD_PRESSURE(
+        labelRes = R.string.health_type_label_blood_pressure,
+        unit = "mmHg",
+        normalMin = 90.0,
+        normalMax = 120.0,
+        normalSecMin = 60.0,
+        normalSecMax = 80.0,
+        trendThreshold = 3.0,   // 收缩压波动 ±3 mmHg 视为平稳
+    ),
+    BLOOD_GLUCOSE(
+        labelRes = R.string.health_type_label_blood_glucose,
+        unit = "mmol/L",
+        normalMin = 3.9,
+        normalMax = 6.1,
+        trendThreshold = 0.3,   // ±0.3 mmol/L
+    ),
+    WEIGHT(
+        labelRes = R.string.health_type_label_weight,
+        unit = "kg",
+        normalMin = 0.0,
+        normalMax = Double.MAX_VALUE,   // weight has no universal "normal" range
+        trendThreshold = 0.5,   // ±0.5 kg
+    ),
+    HEART_RATE(
+        labelRes = R.string.health_type_label_heart_rate,
+        unit = "bpm",
+        normalMin = 60.0,
+        normalMax = 100.0,
+        trendThreshold = 3.0,   // ±3 bpm
+    ),
+    TEMPERATURE(
+        labelRes = R.string.health_type_label_temperature,
+        unit = "°C",
+        normalMin = 36.1,
+        normalMax = 37.3,
+        trendThreshold = 0.2,   // ±0.2 °C
+    ),
+    SPO2(
+        labelRes = R.string.health_type_label_spo2,
+        unit = "%",
+        normalMin = 95.0,
+        normalMax = 100.0,
+        trendThreshold = 1.0,   // ±1%
+    );
+
+    /** 判断给定的主值是否在正常范围内 */
+    fun isNormal(value: Double): Boolean = value in normalMin..normalMax
+
+    /** 格式化显示值字符串 */
+    fun formatValue(value: Double, secondaryValue: Double?): String = when (this) {
+        BLOOD_PRESSURE -> if (secondaryValue != null) {
+            "${value.toInt()}/${secondaryValue.toInt()} $unit"
+        } else {
+            "${value.toInt()} $unit"
+        }
+        TEMPERATURE    -> "%.1f $unit".format(value)
+        BLOOD_GLUCOSE  -> "%.1f $unit".format(value)
+        WEIGHT         -> "%.1f $unit".format(value)
+        else           -> "${value.toInt()} $unit"
+    }
+
+    companion object {
+        fun fromName(name: String): HealthType = entries.firstOrNull { it.name == name } ?: BLOOD_PRESSURE
+
+        /**
+         * WHO/AHA 血压分类（基于收缩压 + 舒张压）。
+         * @return StringRes 描述血压等级
+         */
+        fun classifyBloodPressure(systolic: Double, diastolic: Double): Int = when {
+            systolic < 90 || diastolic < 60   -> R.string.health_bp_class_low
+            systolic < 120 && diastolic < 80  -> R.string.health_bp_class_normal
+            systolic < 130 && diastolic < 80  -> R.string.health_bp_class_elevated
+            systolic < 140 || diastolic < 90  -> R.string.health_bp_class_stage1
+            systolic < 180 || diastolic < 120 -> R.string.health_bp_class_stage2
+            else                              -> R.string.health_bp_class_crisis
+        }
+
+        /** 计算 BMI。@return null 如果身高不合法 */
+        fun calculateBmi(weightKg: Double, heightCm: Double): Double? {
+            if (heightCm <= 0) return null
+            val heightM = heightCm / 100.0
+            return weightKg / (heightM * heightM)
+        }
+
+        /** BMI 分类 StringRes */
+        fun classifyBmi(bmi: Double): Int = when {
+            bmi < 18.5 -> R.string.health_bmi_underweight
+            bmi < 24.0 -> R.string.health_bmi_normal
+            bmi < 28.0 -> R.string.health_bmi_overweight
+            else       -> R.string.health_bmi_obese
+        }
+    }
+}

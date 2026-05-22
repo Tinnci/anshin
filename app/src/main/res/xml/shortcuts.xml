@@ -16,8 +16,8 @@
         android:shortcutDisabledMessage="@string/shortcut_today_long">
         <intent
             android:action="android.intent.action.VIEW"
-            android:targetPackage="com.example.medlog"
-            android:targetClass="com.example.medlog.ui.MainActivity" />
+            android:targetPackage="com.driezy.medlog"
+            android:targetClass="com.driezy.medlog.ui.MainActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 
@@ -30,9 +30,9 @@
         android:shortcutLongLabel="@string/shortcut_add_long"
         android:shortcutDisabledMessage="@string/shortcut_add_long">
         <intent
-            android:action="com.example.medlog.ADD_MEDICATION"
-            android:targetPackage="com.example.medlog"
-            android:targetClass="com.example.medlog.ui.MainActivity" />
+            android:action="com.driezy.medlog.ADD_MEDICATION"
+            android:targetPackage="com.driezy.medlog"
+            android:targetClass="com.driezy.medlog.ui.MainActivity" />
         <categories android:name="android.shortcut.conversation" />
     </shortcut>
 

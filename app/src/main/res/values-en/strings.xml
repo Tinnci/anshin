@@ -778,4 +778,19 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
         <item>Constipation</item>
         <item>Blurred vision</item>
     </string-array>
+    <!-- OCR Model Settings -->
+    <string name="settings_ocr_model_card_title">7-Segment OCR Model Settings</string>
+    <string name="settings_ocr_model_desc">Choose the deep learning model used to recognize medical vitals from 7-segment displays (e.g. blood pressure monitors, glucometers).</string>
+    <string name="settings_ocr_model_light_title">Speed Mode (LightSVTR)</string>
+    <string name="settings_ocr_model_light_desc">Ultra-smooth. 1.0 MB size, ~4ms latency. Best for standard, well-lit environments.</string>
+    <string name="settings_ocr_model_light_tag">Fast</string>
+    <string name="settings_ocr_model_light_size">1.0 MB</string>
+    <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
+    <string name="settings_ocr_model_light_accuracy">94.2% accuracy</string>
+    <string name="settings_ocr_model_fastvit_title">Accuracy Mode (FastViT)</string>
+    <string name="settings_ocr_model_fastvit_desc">High accuracy. 13.0 MB size, ~50ms latency. Apple reparameterized Transformer. Handles low-light, reflections, angles, and low contrast.</string>
+    <string name="settings_ocr_model_fastvit_tag">Recommended</string>
+    <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
+    <string name="settings_ocr_model_fastvit_latency">~50ms</string>
+    <string name="settings_ocr_model_fastvit_accuracy">98.6% accuracy</string>
 </resources>

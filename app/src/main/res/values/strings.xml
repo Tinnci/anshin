@@ -756,4 +756,19 @@
         <item>便秘</item>
         <item>视力模糊</item>
     </string-array>
+    <!-- OCR 模型设置 -->
+    <string name="settings_ocr_model_card_title">七段数码管 OCR 识别设置</string>
+    <string name="settings_ocr_model_desc">选择用于健康体征数据识别（如血压计、血糖仪等七段数码管显示屏）的深度学习模型。</string>
+    <string name="settings_ocr_model_light_title">极速极简模式 (LightSVTR)</string>
+    <string name="settings_ocr_model_light_desc">极致流畅，1.0 MB 极小体积，平均 4ms 超低延迟，适合日常标准光照环境。</string>
+    <string name="settings_ocr_model_light_tag">极速</string>
+    <string name="settings_ocr_model_light_size">1.0 MB</string>
+    <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
+    <string name="settings_ocr_model_light_accuracy">94.2% 准确率</string>
+    <string name="settings_ocr_model_fastvit_title">超强高精度模式 (FastViT)</string>
+    <string name="settings_ocr_model_fastvit_desc">强悍精准，Apple 重参化 Transformer 架构，特别应对弱光、反光、偏角斜照或极低对比度字迹。</string>
+    <string name="settings_ocr_model_fastvit_tag">推荐</string>
+    <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
+    <string name="settings_ocr_model_fastvit_latency">约 50ms</string>
+    <string name="settings_ocr_model_fastvit_accuracy">98.6% 准确率</string>
 </resources>

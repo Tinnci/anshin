@@ -37,7 +37,7 @@
                 android:resource="@xml/shortcuts" />
             <!-- 添加药品快捷方式深链接 -->
             <intent-filter>
-                <action android:name="com.example.medlog.ADD_MEDICATION" />
+                <action android:name="com.driezy.medlog.ADD_MEDICATION" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>

@@ -28,3 +28,7 @@
 - Default PyPI did not expose a matching `paddlepaddle-gpu` wheel from the local resolver; PaddlePaddle's official install docs provide CUDA-specific wheel indexes. The Kaggle runner now defaults to `paddlepaddle-gpu==3.3.0` from the CUDA 12.6 stable index.
 - Kaggle v4 showed eager Paddle dependency installation downgrading CUDA packages from the image's Torch-compatible CUDA 12.8 set to Paddle's CUDA 12.6 pins. The runner now runs FastViT before PaddleOCR and installs the Paddle wheel with `--no-deps` by default to avoid breaking Torch stages.
 - On M2012K11C, `fastvit_t8_ctc_reparam.onnx` Android ORT benchmark with `RUNS=10` measured CPU mean 49.70 ms and NNAPI mean 49.20 ms. `nnapi_cpu_disabled` single-run also completed at 52 ms, so this evidence does not show meaningful NPU speedup for the current FastViT graph.
+- Current Android debug target is connected over adb as `6b9f2b84` (`M2012K11C`, product/device `haydn`).
+- Existing Android app ID and namespace are `com.example.medlog`; the formal package rename will use `com.driezy.medlog` unless later changed by the project owner.
+- The formal package rename leaves no `com.example.medlog` references under `app/` or `scripts/`; only historical planning notes retain the old string.
+- Device install verification: `com.driezy.medlog` is installed, resolves to `.ui.MainActivity`, launches successfully, and runs in the foreground without recent AndroidRuntime fatal logs. The old `com.example.medlog` package is still installed on the device and was intentionally not removed to avoid deleting data.

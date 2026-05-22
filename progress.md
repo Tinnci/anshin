@@ -46,3 +46,10 @@
 - Pushed Kaggle candidate fine-tune kernel version 4 with the official CUDA 12.6 Paddle wheel index; remote status reported `KernelWorkerStatus.RUNNING`.
 - Added failing tests and fixes for the v4 CUDA dependency conflict: FastViT now runs before PaddleOCR, and Paddle installs with `--no-deps` unless `--paddle-install-deps` is explicitly set.
 - Pushed Kaggle candidate fine-tune kernel version 5 with FastViT-before-Paddle ordering and Paddle `--no-deps`; remote status reported `KernelWorkerStatus.RUNNING`.
+- Started formal Android package rename and debug-device install task.
+- Confirmed connected adb device: `6b9f2b84` (`M2012K11C`).
+- Renamed Android app/source package to `com.driezy.medlog`, including Gradle `namespace`/`applicationId`, Kotlin packages/imports, manifest actions, shortcuts, widget config class names, benchmark script package names, and Room schema export directory.
+- Verified `./gradlew :app:assembleDebug`, `./gradlew :app:installDebug`, and `./gradlew :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin`.
+- Launched `com.driezy.medlog/.ui.MainActivity` on M2012K11C; process `21676` ran in foreground with no recent fatal logcat entries for the new package.
+- Optimized OCR settings UI before commit by extracting the repeated model option card, moving visible badge/spec labels into string resources, and cancelling `SevenSegmentRecognizer`'s settings collection scope on close.
+- Verified optimization with `./gradlew :app:ktlintCheck` and `./gradlew :app:compileDebugKotlin :app:compileDebugUnitTestKotlin :app:compileDebugAndroidTestKotlin`.
