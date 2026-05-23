@@ -98,3 +98,9 @@
 - Optimized build/CI behavior by increasing Gradle daemon heap to 4G with ParallelGC, keeping GitHub Actions on `setup-gradle`, disabling lint's expensive `VectorPath` check for official Material Symbols vectors, and keeping Gradle executions serial to avoid KSP cache contention.
 - Fixed all current lint warnings: debug seed receiver exported warning, OCR result count pluralization, unused strings, KTX bitmap pixel access, and external vector path analysis.
 - Verified `:app:compileDebugKotlin :app:lintDebug`, parsed lint XML with `lint_issues=0`, and ran `:app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug` successfully; warm assemble completed in 8s and final combined verification in 19s.
+- Checked current official Google Fonts Material Symbols and Android Compose icon guidance. Android now recommends Google Font Icons / Material Symbols XML from the Android tab instead of the old Compose `material-icons` artifacts.
+- Confirmed the provided family download URL is a font/ligature asset path, not the runtime model MedLog wants for app icons. MedLog keeps icons as local VectorDrawable XML rendered through `MedLogIcon` and `painterResource`.
+- Added `scripts/update_material_symbols.mjs` to batch-regenerate the 101 Material Symbols Rounded VectorDrawable XML files and `MedLogIcons.kt`, with generated-source comments in every output file.
+- Added `docs/material-symbols.md` documenting the source, update workflow, and rules against runtime symbol fonts, `androidx.compose.material.icons`, `material-icons-extended`, and fake `Icon(imageVector: Int)` overloads.
+- Added a red-then-green reproducibility guard in `MaterialSymbolsMigrationGuardTest`; targeted guard test passed after adding the script, generated markers, and docs.
+- Verified the Material Symbols sourcing iteration with `./gradlew :app:compileDebugKotlin :app:lintDebug :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`; lint reported no errors or warnings.
