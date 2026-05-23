@@ -104,3 +104,7 @@
 - Added `docs/material-symbols.md` documenting the source, update workflow, and rules against runtime symbol fonts, `androidx.compose.material.icons`, `material-icons-extended`, and fake `Icon(imageVector: Int)` overloads.
 - Added a red-then-green reproducibility guard in `MaterialSymbolsMigrationGuardTest`; targeted guard test passed after adding the script, generated markers, and docs.
 - Verified the Material Symbols sourcing iteration with `./gradlew :app:compileDebugKotlin :app:lintDebug :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`; lint reported no errors or warnings.
+- Added failing guard coverage for the two Material Symbols enhancements: selected top-level navigation must use `fill=1` variants, and large display symbols must use 40/48dp optical-size resources.
+- Extended `scripts/update_material_symbols.mjs` to generate 112 XML symbols total: 101 baseline 24dp icons, 6 selected `fill=1` navigation icons, and 5 optical-size display icons.
+- Wired selected variants into bottom navigation, rail, and drawer destinations; wired optical-size variants into the drawer brand icon, OCR empty state, Health empty state, Drugs empty state, and the welcome confirmation moment.
+- Re-ran targeted `MaterialSymbolsMigrationGuardTest`; the new state/optical-size checks passed.

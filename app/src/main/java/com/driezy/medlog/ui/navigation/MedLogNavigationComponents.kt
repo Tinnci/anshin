@@ -116,10 +116,11 @@ fun MedLogBottomNavigationBar(
         tonalElevation = 0.dp,
     ) {
         destinations.forEach { dest ->
+            val selected = currentDestination?.hasRoute(dest.route::class) == true
             NavigationBarItem(
-                selected = currentDestination?.hasRoute(dest.route::class) == true,
+                selected = selected,
                 onClick = { navigateToTopLevel(dest) },
-                icon = { MedLogIcon(dest.icon, contentDescription = null) },
+                icon = { MedLogIcon(if (selected) dest.selectedIcon else dest.icon, contentDescription = null) },
                 label = { Text(stringResource(dest.labelRes)) },
             )
         }
@@ -148,10 +149,11 @@ fun MedLogNavigationRail(
     ) {
         Spacer(Modifier.height(MedLogSpacing.Small))
         destinations.forEach { dest ->
+            val selected = currentDestination?.hasRoute(dest.route::class) == true
             NavigationRailItem(
-                selected = currentDestination?.hasRoute(dest.route::class) == true,
+                selected = selected,
                 onClick = { navigateToTopLevel(dest) },
-                icon = { MedLogIcon(dest.icon, contentDescription = null) },
+                icon = { MedLogIcon(if (selected) dest.selectedIcon else dest.icon, contentDescription = null) },
                 label = { Text(stringResource(dest.labelRes)) },
             )
         }
@@ -166,7 +168,7 @@ fun MedLogNavDrawerContent(
 ) {
     // 抽屉品牌区——图标 + 应用名称
     MedLogIcon(
-        icon = MedLogIcons.Medication,
+        icon = MedLogIcons.MedicationDisplay40,
         contentDescription = null,
         modifier = Modifier
             .padding(horizontal = 28.dp, vertical = MedLogSpacing.XMedium)
@@ -182,10 +184,11 @@ fun MedLogNavDrawerContent(
     Spacer(Modifier.height(MedLogSpacing.Medium))
 
     destinations.forEach { dest ->
+        val selected = currentDestination?.hasRoute(dest.route::class) == true
         NavigationDrawerItem(
-            icon = { MedLogIcon(dest.icon, contentDescription = null) },
+            icon = { MedLogIcon(if (selected) dest.selectedIcon else dest.icon, contentDescription = null) },
             label = { Text(stringResource(dest.labelRes)) },
-            selected = currentDestination?.hasRoute(dest.route::class) == true,
+            selected = selected,
             onClick = { navigateToTopLevel(dest) },
             modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
             colors = NavigationDrawerItemDefaults.colors(

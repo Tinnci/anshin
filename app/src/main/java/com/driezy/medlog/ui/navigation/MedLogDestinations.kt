@@ -33,15 +33,15 @@ import kotlinx.serialization.Serializable
 data class TopLevelDestination(
     val route: Route,
     val icon: Int,
+    val selectedIcon: Int,
     val labelRes: Int,
 )
 
 val TOP_LEVEL_DESTINATIONS = listOf(
-    TopLevelDestination(Route.Home, MedLogIcons.Home, com.driezy.medlog.R.string.tab_today),
-    TopLevelDestination(Route.History, MedLogIcons.History, com.driezy.medlog.R.string.tab_history),
-    TopLevelDestination(Route.Drugs, MedLogIcons.MedicalServices, com.driezy.medlog.R.string.tab_drugs),
-    TopLevelDestination(Route.Diary, MedLogIcons.EditNote, com.driezy.medlog.R.string.tab_diary),
-    TopLevelDestination(Route.Health, MedLogIcons.MonitorHeart, com.driezy.medlog.R.string.tab_health),
-    TopLevelDestination(Route.Settings, MedLogIcons.Settings, com.driezy.medlog.R.string.tab_settings),
+    TopLevelDestination(Route.Home, MedLogIcons.Home, MedLogIcons.HomeSelected, com.driezy.medlog.R.string.tab_today),
+    TopLevelDestination(Route.History, MedLogIcons.History, MedLogIcons.HistorySelected, com.driezy.medlog.R.string.tab_history),
+    TopLevelDestination(Route.Drugs, MedLogIcons.MedicalServices, MedLogIcons.MedicalServicesSelected, com.driezy.medlog.R.string.tab_drugs),
+    TopLevelDestination(Route.Diary, MedLogIcons.EditNote, MedLogIcons.EditNoteSelected, com.driezy.medlog.R.string.tab_diary),
+    TopLevelDestination(Route.Health, MedLogIcons.MonitorHeart, MedLogIcons.MonitorHeartSelected, com.driezy.medlog.R.string.tab_health),
+    TopLevelDestination(Route.Settings, MedLogIcons.Settings, MedLogIcons.SettingsSelected, com.driezy.medlog.R.string.tab_settings),
 )
-

@@ -196,7 +196,7 @@ fun DrugsScreen(
                                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
                             ) {
                                 MedLogIcon(
-                                    MedLogIcons.SearchOff,
+                                    MedLogIcons.SearchOffDisplay48,
                                     contentDescription = null,
                                     modifier = Modifier.size(48.dp),
                                     tint = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -643,4 +643,3 @@ private fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
         modifier = Modifier.clickable(onClick = onClick),
     )
 }
-

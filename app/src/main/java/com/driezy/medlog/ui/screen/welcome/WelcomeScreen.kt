@@ -643,7 +643,7 @@ private fun WelcomePage3(isCurrentPage: Boolean) {
         ) {
             Box(contentAlignment = Alignment.Center) {
                 MedLogIcon(
-                    MedLogIcons.CheckCircle,
+                    MedLogIcons.CheckCircleDisplay48,
                     contentDescription = null,
                     modifier = Modifier.size(48.dp),
                     tint = MaterialTheme.colorScheme.onTertiaryContainer,

@@ -34,6 +34,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 26. Optimize GitHub Actions Gradle caching | completed | CI/release now run full ktlint/unit/lint/APK verification through `setup-gradle` cache, without duplicate Gradle caches or `clean assemble*` steps. |
 | 27. Migrate Compose Material Icons to Material Symbols XML | completed | Added 101 local Material Symbols vector drawables, centralized rendering through `MedLogIcons`/`MedLogIcon`, removed `material-icons-extended`, and added a regression guard test. |
 | 28. Make Material Symbols sourcing reproducible | completed | Added a deterministic update script, generated-source markers, usage docs, and a guard test so future Material Symbols updates stay on local VectorDrawable XML. |
+| 29. Add Material Symbols state and optical-size variants | completed | Generated selected `fill=1` navigation symbols and 40/48dp optical-size display symbols, then wired them into top-level navigation and large icon moments. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

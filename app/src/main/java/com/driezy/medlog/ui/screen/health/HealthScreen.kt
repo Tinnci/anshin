@@ -199,7 +199,7 @@ fun HealthScreen(
                                     verticalArrangement = Arrangement.spacedBy(8.dp),
                                 ) {
                                     MedLogIcon(
-                                        MedLogIcons.MonitorHeart,
+                                        MedLogIcons.MonitorHeartDisplay48,
                                         contentDescription = null,
                                         modifier = Modifier.size(48.dp),
                                         tint = MaterialTheme.colorScheme.outlineVariant,

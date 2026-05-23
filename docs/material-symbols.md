@@ -39,6 +39,12 @@ endpoints, converts them to Android VectorDrawable XML, writes
 This is a batchable form of the same asset model recommended by the Android tab:
 local XML drawables, not a runtime font dependency.
 
+The generated set includes three resource classes:
+
+- Baseline icons: 24dp `default` symbols for ordinary UI.
+- Selected navigation icons: 24dp `fill=1` variants for current top-level destinations.
+- Display icons: 40dp or 48dp optical-size variants for larger brand, empty-state, and hero moments.
+
 After updating icons, run:
 
 ```bash
@@ -53,3 +59,5 @@ After updating icons, run:
 - Do not add `material-icons-extended`.
 - Do not render Symbols as text ligatures in app UI.
 - Do not add a fake `Icon(imageVector: Int)` overload.
+- Use selected `fill=1` variants for top-level navigation selected states.
+- Use 40dp or 48dp optical-size variants when a symbol is intentionally displayed at those sizes.

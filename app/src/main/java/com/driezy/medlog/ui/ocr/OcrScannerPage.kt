@@ -180,7 +180,7 @@ private fun OcrResultList(
             ) {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     MedLogIcon(
-                        MedLogIcons.Refresh,
+                        MedLogIcons.RefreshDisplay48,
                         contentDescription = null,
                         modifier = Modifier.size(48.dp),
                         tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f),
