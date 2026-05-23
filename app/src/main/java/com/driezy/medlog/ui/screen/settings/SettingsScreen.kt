@@ -16,6 +16,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -896,91 +898,93 @@ fun SettingsScreen(
                         icon            = MedLogIcons.TouchApp,
                     )
 
-                    // 今日进度小组件
-                    WidgetPickerCard(
-                        previewType = WidgetPreviewType.TODAY,
-                        name = stringResource(R.string.settings_widget_today_name),
-                        description = stringResource(R.string.settings_widget_today_desc),
-                        sizes = listOf("2×2", "4×2", "4×4"),
-                        canPin = canPin,
-                        showActions = uiState.widgetShowActions,
-                    ) {
-                        if (canPin) {
-                            widgetManager.requestPinAppWidget(
-                                ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
-                            )
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance(context),
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        }
-                    }
-
-                    // 下次服药小组件
-                    WidgetPickerCard(
-                        previewType = WidgetPreviewType.NEXT_DOSE,
-                        name = stringResource(R.string.settings_widget_next_name),
-                        description = stringResource(R.string.settings_widget_next_desc),
-                        sizes = listOf("2×2", "4×2"),
-                        canPin = canPin,
-                        showActions = uiState.widgetShowActions,
-                    ) {
-                        if (canPin) {
-                            widgetManager.requestPinAppWidget(
-                                ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
-                            )
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance(context),
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        }
-                    }
-
-                    // 连续打卡小组件
-                    WidgetPickerCard(
-                        previewType = WidgetPreviewType.STREAK,
-                        name = stringResource(R.string.settings_widget_streak_name),
-                        description = stringResource(R.string.settings_widget_streak_desc),
-                        sizes = listOf("2×2", "4×2"),
-                        canPin = canPin,
-                    ) {
-                        if (canPin) {
-                            widgetManager.requestPinAppWidget(
-                                ComponentName(context, StreakWidgetReceiver::class.java), null, null,
-                            )
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    OemWidgetHelper.manualAddGuidance(context),
-                                    duration = SnackbarDuration.Long,
-                                )
-                            }
-                        }
-                    }
+                    WidgetPreviewCarousel(
+                        items = listOf(
+                            WidgetCarouselItem(
+                                previewType = WidgetPreviewType.TODAY,
+                                name = stringResource(R.string.settings_widget_today_name),
+                                description = stringResource(R.string.settings_widget_today_desc),
+                                sizes = listOf("2×2", "4×2", "4×4"),
+                                canPin = canPin,
+                                showActions = uiState.widgetShowActions,
+                                onAdd = {
+                                    if (canPin) {
+                                        widgetManager.requestPinAppWidget(
+                                            ComponentName(context, MedLogWidgetReceiver::class.java), null, null,
+                                        )
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    } else {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                OemWidgetHelper.manualAddGuidance(context),
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    }
+                                },
+                            ),
+                            WidgetCarouselItem(
+                                previewType = WidgetPreviewType.NEXT_DOSE,
+                                name = stringResource(R.string.settings_widget_next_name),
+                                description = stringResource(R.string.settings_widget_next_desc),
+                                sizes = listOf("2×2", "4×2"),
+                                canPin = canPin,
+                                showActions = uiState.widgetShowActions,
+                                onAdd = {
+                                    if (canPin) {
+                                        widgetManager.requestPinAppWidget(
+                                            ComponentName(context, NextDoseWidgetReceiver::class.java), null, null,
+                                        )
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    } else {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                OemWidgetHelper.manualAddGuidance(context),
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    }
+                                },
+                            ),
+                            WidgetCarouselItem(
+                                previewType = WidgetPreviewType.STREAK,
+                                name = stringResource(R.string.settings_widget_streak_name),
+                                description = stringResource(R.string.settings_widget_streak_desc),
+                                sizes = listOf("2×2", "4×2"),
+                                canPin = canPin,
+                                onAdd = {
+                                    if (canPin) {
+                                        widgetManager.requestPinAppWidget(
+                                            ComponentName(context, StreakWidgetReceiver::class.java), null, null,
+                                        )
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                if (oemNeedsPermission) msgWidgetPinOem else msgWidgetPinOk,
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    } else {
+                                        scope.launch {
+                                            snackbarHostState.showSnackbar(
+                                                OemWidgetHelper.manualAddGuidance(context),
+                                                duration = SnackbarDuration.Long,
+                                            )
+                                        }
+                                    }
+                                },
+                            ),
+                        ),
+                    )
                 }
             }
 
@@ -1089,6 +1093,46 @@ fun SettingsScreen(
                     Text(stringResource(R.string.cancel))
                 }
             },
+        )
+    }
+}
+
+private data class WidgetCarouselItem(
+    val previewType: WidgetPreviewType,
+    val name: String,
+    val description: String,
+    val sizes: List<String>,
+    val canPin: Boolean,
+    val showActions: Boolean = true,
+    val onAdd: () -> Unit,
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun WidgetPreviewCarousel(items: List<WidgetCarouselItem>) {
+    val carouselState = rememberCarouselState { items.size }
+
+    HorizontalCenteredHeroCarousel(
+        state = carouselState,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(296.dp),
+        itemSpacing = MedLogSpacing.Small,
+        maxItemWidth = 320.dp,
+        contentPadding = PaddingValues(horizontal = 0.dp),
+    ) { index ->
+        val item = items[index]
+        WidgetPickerCard(
+            previewType = item.previewType,
+            name = item.name,
+            description = item.description,
+            sizes = item.sizes,
+            canPin = item.canPin,
+            showActions = item.showActions,
+            modifier = Modifier
+                .fillMaxHeight()
+                .maskClip(RoundedCornerShape(24.dp)),
+            onAdd = item.onAdd,
         )
     }
 }

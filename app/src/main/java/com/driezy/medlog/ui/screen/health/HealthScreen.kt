@@ -17,6 +17,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
+import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -27,6 +29,7 @@ import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
 import com.driezy.medlog.ui.theme.emphasizedTypography
@@ -358,8 +361,10 @@ private fun HealthOcrHeroCard(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HealthMetricsSection(stats: List<HealthTypeStat>) {
+    val carouselState = rememberCarouselState { stats.size }
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
@@ -368,15 +373,21 @@ private fun HealthMetricsSection(stats: List<HealthTypeStat>) {
             title = stringResource(R.string.health_metrics_section_title),
             subtitle = stringResource(R.string.health_metrics_section_subtitle),
         )
-        Row(
+        HorizontalUncontainedCarousel(
+            state = carouselState,
+            itemWidth = 168.dp,
             modifier = Modifier
                 .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                .height(168.dp),
+            itemSpacing = MedLogSpacing.Small,
+            contentPadding = PaddingValues(horizontal = 0.dp),
         ) {
-            stats.forEach { stat ->
-                HealthStatCard(stat = stat)
-            }
+            HealthStatCard(
+                stat = stats[it],
+                modifier = Modifier
+                    .fillMaxHeight()
+                    .maskClip(MaterialTheme.shapes.large),
+            )
         }
     }
 }
@@ -400,7 +411,10 @@ private fun SectionHeader(title: String, subtitle: String? = null) {
 }
 
 @Composable
-private fun HealthStatCard(stat: HealthTypeStat) {
+private fun HealthStatCard(
+    stat: HealthTypeStat,
+    modifier: Modifier = Modifier,
+) {
     val dateFormat = remember { SimpleDateFormat("MM-dd", Locale.getDefault()) }
     val containerColor = if (stat.isAbnormal)
         MaterialTheme.colorScheme.errorContainer
@@ -408,7 +422,7 @@ private fun HealthStatCard(stat: HealthTypeStat) {
         MaterialTheme.colorScheme.secondaryContainer
 
     Card(
-        modifier = Modifier.width(168.dp),
+        modifier = modifier.width(168.dp),
         shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
@@ -797,7 +811,7 @@ private fun HealthTrendChart(
 
                 // Y 轴标签
                 val textPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.GRAY
+                    color = labelColor.toArgb()
                     textSize = with(density) { 10.sp.toPx() }
                     textAlign = android.graphics.Paint.Align.RIGHT
                 }
@@ -813,7 +827,7 @@ private fun HealthTrendChart(
 
                 // X 轴日期标签
                 val xTextPaint = android.graphics.Paint().apply {
-                    color = android.graphics.Color.GRAY
+                    color = labelColor.toArgb()
                     textSize = with(density) { 9.sp.toPx() }
                     textAlign = android.graphics.Paint.Align.CENTER
                 }

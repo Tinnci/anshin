@@ -17,12 +17,10 @@ class MotionSystemGuardTest {
 
     @Test
     fun `custom motion uses scheme spring tokens instead of legacy durations`() {
-        val files = listOf(
-            "app/src/main/java/com/driezy/medlog/ui/MedLogApp.kt",
-            "app/src/main/java/com/driezy/medlog/ui/screen/history/HistoryScreen.kt",
-            "app/src/main/java/com/driezy/medlog/ui/screen/detail/MedicationDetailScreen.kt",
-            "app/src/main/java/com/driezy/medlog/ui/screen/welcome/WelcomeScreen.kt",
-        ).map { File(projectRoot, it) }
+        val files = File(projectRoot, "app/src/main/java")
+            .walkTopDown()
+            .filter { it.extension == "kt" }
+            .toList()
         val forbidden = listOf("tween(", "durationMillis", "Spring.DampingRatio", "Spring.Stiffness")
         val offenders = files.flatMap { file ->
             file.readLines().mapIndexedNotNull { index, line ->
@@ -32,6 +30,30 @@ class MotionSystemGuardTest {
         }
 
         assertTrue("Use MaterialTheme.motionScheme spring tokens for custom motion:\n${offenders.joinToString("\n")}", offenders.isEmpty())
+    }
+
+    @Test
+    fun `custom transitions do not rely on unthemed default animation specs`() {
+        val files = File(projectRoot, "app/src/main/java")
+            .walkTopDown()
+            .filter { it.extension == "kt" }
+            .toList()
+        val forbidden = listOf(
+            "fadeIn()",
+            "fadeOut()",
+            "scaleIn()",
+            "scaleOut()",
+            "expandVertically()",
+            "shrinkVertically()",
+        )
+        val offenders = files.flatMap { file ->
+            file.readLines().mapIndexedNotNull { index, line ->
+                val token = forbidden.firstOrNull { line.contains(it) }
+                if (token == null) null else "${file.relativeTo(projectRoot).path}:${index + 1}: $token"
+            }
+        }
+
+        assertTrue("Use MaterialTheme.motionScheme specs for custom transitions:\n${offenders.joinToString("\n")}", offenders.isEmpty())
     }
 
     @Test

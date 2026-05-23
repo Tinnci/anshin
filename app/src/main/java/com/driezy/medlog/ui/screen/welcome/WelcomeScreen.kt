@@ -206,7 +206,11 @@ fun WelcomeScreen(
                 }
 
                 // 跳过（最后一页隐藏）
-                AnimatedVisibility(visible = !isLastPage, enter = fadeIn(), exit = fadeOut()) {
+                AnimatedVisibility(
+                    visible = !isLastPage,
+                    enter = fadeIn(motionScheme.fastEffectsSpec()),
+                    exit = fadeOut(motionScheme.fastEffectsSpec()),
+                ) {
                     TextButton(
                         onClick = { viewModel.finishWelcome() },
                         modifier = Modifier.fillMaxWidth(),

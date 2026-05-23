@@ -46,6 +46,7 @@ fun DrugsScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val motionScheme = MaterialTheme.motionScheme
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -148,8 +149,10 @@ fun DrugsScreen(
                 // ── 搜索结果计数 + 模糊匹配提示 ────────────────
                 AnimatedVisibility(
                     visible = uiState.query.isNotBlank(),
-                    enter = expandVertically(),
-                    exit = shrinkVertically(),
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                        fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                        fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     Row(
                         modifier = Modifier
@@ -401,6 +404,7 @@ private fun DrugCategoryBrowser(
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
     val tabs = listOf(stringResource(R.string.drugs_tab_western_br) to MedLogIcons.Medication, stringResource(R.string.drugs_tab_tcm) to MedLogIcons.LocalFlorist)
+    val motionScheme = MaterialTheme.motionScheme
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
         PrimaryTabRow(selectedTabIndex = selectedTab) {
@@ -416,7 +420,8 @@ private fun DrugCategoryBrowser(
         AnimatedContent(
             targetState = selectedTab,
             transitionSpec = {
-                fadeIn() togetherWith fadeOut()
+                fadeIn(motionScheme.defaultEffectsSpec()) togetherWith
+                    fadeOut(motionScheme.fastEffectsSpec())
             },
             label = "tabContent",
         ) { tab ->

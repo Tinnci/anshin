@@ -302,8 +302,8 @@ internal fun TimePeriodGroupCard(
         // ── 展开时才显示分隔线 + 药品列表 ──────────────────────────────
         AnimatedVisibility(
             visible = isExpanded,
-            enter = expandVertically(),
-            exit = shrinkVertically(),
+            enter = expandVertically(motionScheme.defaultSpatialSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()),
         ) {
             Column {
                 HorizontalDivider(

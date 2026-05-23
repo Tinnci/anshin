@@ -272,4 +272,36 @@ val MedLogEmphasizedTypography = EmphasizedTypography(
     ),
 )
 
+@Immutable
+data class EditorialTypography(
+    val progressNumeral: TextStyle,
+    val progressTotal: TextStyle,
+    val celebrationWord: TextStyle,
+)
+
+val MedLogEditorialTypography = EditorialTypography(
+    progressNumeral = TextStyle(
+        fontFamily = MedLogFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 72.sp,
+        lineHeight = 72.sp,
+        letterSpacing = 0.sp,
+    ),
+    progressTotal = TextStyle(
+        fontFamily = MedLogFontFamily,
+        fontWeight = FontWeight.SemiBold,
+        fontSize = 28.sp,
+        lineHeight = 32.sp,
+        letterSpacing = 0.sp,
+    ),
+    celebrationWord = TextStyle(
+        fontFamily = MedLogFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 44.sp,
+        lineHeight = 48.sp,
+        letterSpacing = 0.sp,
+    ),
+)
+
 val LocalEmphasizedTypography = staticCompositionLocalOf { MedLogEmphasizedTypography }
+val LocalEditorialTypography = staticCompositionLocalOf { MedLogEditorialTypography }

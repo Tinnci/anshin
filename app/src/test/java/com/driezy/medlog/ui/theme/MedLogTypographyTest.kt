@@ -25,6 +25,9 @@ class MedLogTypographyTest {
             MedLogEmphasizedTypography.titleMedium,
             MedLogEmphasizedTypography.labelLarge,
             MedLogEmphasizedTypography.bodyLarge,
+            MedLogEditorialTypography.progressNumeral,
+            MedLogEditorialTypography.progressTotal,
+            MedLogEditorialTypography.celebrationWord,
         ).forEach { style ->
             assertSame(MedLogFontFamily, style.fontFamily)
         }

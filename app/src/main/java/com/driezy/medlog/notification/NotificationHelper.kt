@@ -5,13 +5,20 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Build
+import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.driezy.medlog.R
+import com.driezy.medlog.data.repository.ThemeMode
+import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.ui.theme.MedLogDarkColorScheme
+import com.driezy.medlog.ui.theme.MedLogLightColorScheme
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 const val CHANNEL_REMINDER       = "med_reminder"
 const val CHANNEL_LOW_STOCK      = "low_stock"
@@ -47,14 +54,34 @@ private const val MAX_REMINDER_SLOTS = 20
 @Singleton
 class NotificationHelper @Inject constructor(
     @param:ApplicationContext private val context: Context,
+    private val prefsRepository: UserPreferencesRepository,
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    /** 品牌蓝（用于通知小图标著色） */
-    private val brandColor: Int by lazy {
-        ContextCompat.getColor(context, R.color.ic_launcher_background)
-    }
+    /** 通知小图标着色：跟随用户主题设置，Android 12+ 优先使用系统动态色 primary。 */
+    private val notificationColor: Int
+        get() {
+            val prefs = runCatching { runBlocking { prefsRepository.settingsFlow.first() } }.getOrNull()
+            val darkTheme = when (prefs?.themeMode ?: ThemeMode.SYSTEM) {
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
+                ThemeMode.SYSTEM -> {
+                    val mode = context.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK
+                    mode == Configuration.UI_MODE_NIGHT_YES
+                }
+            }
+            return when {
+                (prefs?.useDynamicColor ?: true) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                    context.getColor(
+                        if (darkTheme) android.R.color.system_accent1_200
+                        else android.R.color.system_accent1_600,
+                    )
+                }
+                darkTheme -> MedLogDarkColorScheme.primary.toArgb()
+                else -> MedLogLightColorScheme.primary.toArgb()
+            }
+        }
 
     /** 打开主界面的 PendingIntent */
     private val openAppPendingIntent: PendingIntent
@@ -80,7 +107,7 @@ class NotificationHelper @Inject constructor(
             enableVibration(true)
             vibrationPattern = longArrayOf(0, 250, 100, 250)   // 双击模式
             enableLights(true)
-            lightColor = ContextCompat.getColor(context, R.color.ic_launcher_background)
+            lightColor = notificationColor
         }
         val stockChannel = NotificationChannel(
             CHANNEL_LOW_STOCK,
@@ -148,7 +175,7 @@ class NotificationHelper @Inject constructor(
 
         val notification = NotificationCompat.Builder(context, CHANNEL_PROGRESS)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(title)
             .setSubText(context.getString(R.string.notif_progress_today))
             .apply {
@@ -215,14 +242,14 @@ class NotificationHelper @Inject constructor(
         // 锁屏公开版本：隐藏药品名称保护隐私
         val publicVersion = NotificationCompat.Builder(context, CHANNEL_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_reminder_public_title))
             .setContentText(context.getString(R.string.notif_reminder_public_body))
             .build()
 
         val notification = NotificationCompat.Builder(context, CHANNEL_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_reminder_title, medicationName))
             .setContentText(context.getString(R.string.notif_reminder_dose_label, dose))
             .setSubText(context.getString(R.string.notif_reminder_subtext))
@@ -275,7 +302,7 @@ class NotificationHelper @Inject constructor(
         val stockStr = stock.toBigDecimal().stripTrailingZeros().toPlainString()
         val notification = NotificationCompat.Builder(context, CHANNEL_LOW_STOCK)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_stock_title, medicationName))
             .setContentText(context.getString(R.string.notif_stock_body, stockStr, unit))
             .setStyle(NotificationCompat.BigTextStyle()
@@ -298,7 +325,7 @@ class NotificationHelper @Inject constructor(
         if (!notificationManager.areNotificationsEnabled()) return
         val notification = NotificationCompat.Builder(context, CHANNEL_LOW_STOCK)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_refill_title, medicationName))
             .setContentText(context.resources.getQuantityString(R.plurals.notif_refill_body, daysRemaining, daysRemaining))
             .setStyle(
@@ -329,7 +356,7 @@ class NotificationHelper @Inject constructor(
         val notificationId = (medicationId * 100 + timeIndex).toInt() + 50_000
         val notification = NotificationCompat.Builder(context, CHANNEL_EARLY_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.resources.getQuantityString(R.plurals.notif_early_title, minutesBefore, minutesBefore))
             .setContentText(context.getString(R.string.notif_early_body, medicationName, dose))
             .setSubText(context.getString(R.string.notif_early_subtext))
@@ -392,7 +419,7 @@ class NotificationHelper @Inject constructor(
         )
         val notification = NotificationCompat.Builder(context, CHANNEL_FOLLOW_UP)
             .setSmallIcon(R.drawable.ic_notification)
-            .setColor(brandColor)
+            .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_follow_up_title, medicationName))
             .setContentText(context.getString(R.string.notif_follow_up_body, dose))
             .setSubText(context.getString(R.string.notif_follow_up_subtext, followUpCount))

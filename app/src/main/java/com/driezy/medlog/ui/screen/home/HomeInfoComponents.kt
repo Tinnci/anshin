@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.editorialTypography
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
@@ -238,39 +239,14 @@ internal fun AnimatedProgressCard(
                         )
                     }
                 }
-                if (total > 0) {
-                    // 数字滚动动画：taken 变化时上滑出、下滑入
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        AnimatedContent(
-                            targetState = taken,
-                            transitionSpec = {
-                                (
-                                    slideInVertically(motionScheme.defaultSpatialSpec()) { -it / 2 } +
-                                        fadeIn(motionScheme.defaultEffectsSpec())
-                                ) togetherWith (
-                                    slideOutVertically(motionScheme.fastSpatialSpec()) { it / 2 } +
-                                        fadeOut(motionScheme.fastEffectsSpec())
-                                )
-                            },
-                            label = "takenNum",
-                        ) { t ->
-                            Text(
-                                text = "$t",
-                                style = MaterialTheme.emphasizedTypography.displaySmall,
-                                color = if (allDone) MaterialTheme.colorScheme.tertiary
-                                else MaterialTheme.colorScheme.primary,
-                            )
-                        }
-                        Text(
-                            text = " / $total",
-                            style = MaterialTheme.emphasizedTypography.titleLarge,
-                            color = if (allDone) MaterialTheme.colorScheme.tertiary
-                            else MaterialTheme.colorScheme.primary,
-                        )
-                    }
-                }
             }
             if (total > 0) {
+                EditorialProgressMoment(
+                    taken = taken,
+                    total = total,
+                    allDone = allDone,
+                    motionScheme = motionScheme,
+                )
                 LinearWavyProgressIndicator(
                     progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
@@ -359,6 +335,53 @@ internal fun AnimatedProgressCard(
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun EditorialProgressMoment(
+    taken: Int,
+    total: Int,
+    allDone: Boolean,
+    motionScheme: androidx.compose.material3.MotionScheme,
+) {
+    val color = if (allDone) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.Bottom,
+    ) {
+        AnimatedContent(
+            targetState = if (allDone) stringResource(R.string.home_editorial_complete) else taken.toString(),
+            transitionSpec = {
+                (
+                    slideInVertically(motionScheme.defaultSpatialSpec()) { -it / 2 } +
+                        fadeIn(motionScheme.defaultEffectsSpec())
+                ) togetherWith (
+                    slideOutVertically(motionScheme.fastSpatialSpec()) { it / 2 } +
+                        fadeOut(motionScheme.fastEffectsSpec())
+                )
+            },
+            label = "editorialProgress",
+        ) { label ->
+            Text(
+                text = label,
+                style = if (allDone)
+                    MaterialTheme.editorialTypography.celebrationWord
+                else
+                    MaterialTheme.editorialTypography.progressNumeral,
+                color = color,
+                maxLines = 1,
+            )
+        }
+        Spacer(Modifier.width(MedLogSpacing.Small))
+        Text(
+            text = if (allDone) "$taken / $total" else "/ $total",
+            style = MaterialTheme.editorialTypography.progressTotal,
+            color = color.copy(alpha = 0.84f),
+            maxLines = 1,
+            modifier = Modifier.padding(bottom = 8.dp),
+        )
     }
 }
 

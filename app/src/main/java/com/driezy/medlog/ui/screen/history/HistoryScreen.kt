@@ -32,7 +32,6 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.MedicationLog
-import com.driezy.medlog.ui.theme.calendarWarning
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -149,7 +148,7 @@ private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifie
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> calendarWarning  // 琅珀色
+            adherence >= 0.6f -> colorScheme.secondary
             else              -> colorScheme.error
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
@@ -321,9 +320,9 @@ private fun DayCell(
             // 有待服药条目（PENDING）：显示轮廓色提示用户当日有计划
             adherenceDay.resolved == 0 && hasPending -> colorScheme.outlineVariant.copy(alpha = 0.25f)
             adherenceDay.resolved == 0       -> Color.Transparent
-            adherenceDay.rate >= 1f          -> colorScheme.tertiary.copy(alpha = 0.8f)
-            adherenceDay.rate >= 0.5f        -> calendarWarning.copy(alpha = 0.7f)
-            else                             -> colorScheme.error.copy(alpha = 0.7f)
+            adherenceDay.rate >= 1f          -> colorScheme.tertiaryContainer
+            adherenceDay.rate >= 0.5f        -> colorScheme.secondaryContainer
+            else                             -> colorScheme.errorContainer
         },
         animationSpec = motionScheme.fastEffectsSpec(),
         label = "dayCellBg",
@@ -332,7 +331,9 @@ private fun DayCell(
         targetValue = when {
             isSelected                          -> colorScheme.onPrimary
             isFuture                            -> colorScheme.onSurface.copy(alpha = 0.35f)
-            adherenceDay != null && adherenceDay.resolved > 0 -> Color.White
+            adherenceDay != null && adherenceDay.resolved > 0 && adherenceDay.rate >= 1f -> colorScheme.onTertiaryContainer
+            adherenceDay != null && adherenceDay.resolved > 0 && adherenceDay.rate >= 0.5f -> colorScheme.onSecondaryContainer
+            adherenceDay != null && adherenceDay.resolved > 0 -> colorScheme.onErrorContainer
             isToday                             -> colorScheme.primary
             hasPending                          -> colorScheme.outline
             else                                -> colorScheme.onSurface
@@ -376,7 +377,7 @@ private fun LegendRow(modifier: Modifier = Modifier) {
         verticalAlignment = Alignment.CenterVertically,
     ) {
         LegendItem(color = colorScheme.tertiary, label = stringResource(R.string.history_legend_all))
-        LegendItem(color = calendarWarning, label = stringResource(R.string.history_legend_partial))
+        LegendItem(color = colorScheme.secondary, label = stringResource(R.string.history_legend_partial))
         LegendItem(color = colorScheme.error, label = stringResource(R.string.history_missed))
         LegendItem(color = colorScheme.outline, label = stringResource(R.string.history_pending))
     }
@@ -512,7 +513,7 @@ private fun DayLogRow(
                 LogStatus.TAKEN   -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
-                LogStatus.PARTIAL -> calendarWarning
+                LogStatus.PARTIAL -> colorScheme.secondary
                 LogStatus.PENDING -> colorScheme.outline
             },
             modifier = Modifier.size(18.dp),
@@ -542,7 +543,7 @@ private fun DayLogRow(
                 LogStatus.TAKEN   -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
                 LogStatus.MISSED  -> colorScheme.error
-                LogStatus.PARTIAL -> calendarWarning
+                LogStatus.PARTIAL -> colorScheme.secondary
                 LogStatus.PENDING -> colorScheme.outline
             },
             modifier = if (log.status == LogStatus.TAKEN)

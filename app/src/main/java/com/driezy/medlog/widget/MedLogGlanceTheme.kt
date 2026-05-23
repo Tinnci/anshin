@@ -1,0 +1,54 @@
+package com.driezy.medlog.widget
+
+import android.os.Build
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.dynamicDarkColorScheme
+import androidx.compose.material3.dynamicLightColorScheme
+import androidx.compose.runtime.Composable
+import androidx.datastore.preferences.core.Preferences
+import androidx.glance.GlanceTheme
+import androidx.glance.LocalContext
+import androidx.glance.material3.ColorProviders
+import com.driezy.medlog.data.repository.ThemeMode
+import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.ui.theme.MedLogDarkColorScheme
+import com.driezy.medlog.ui.theme.MedLogLightColorScheme
+
+@Composable
+internal fun MedLogGlanceTheme(
+    themeMode: ThemeMode,
+    useDynamicColor: Boolean,
+    content: @Composable () -> Unit,
+) {
+    val context = LocalContext.current
+    val systemDarkTheme = isSystemInDarkTheme()
+    val darkTheme = when (themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> systemDarkTheme
+    }
+    val colors = when {
+        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && themeMode == ThemeMode.SYSTEM -> {
+            ColorProviders(dynamicLightColorScheme(context), dynamicDarkColorScheme(context))
+        }
+        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme -> {
+            ColorProviders(dynamicDarkColorScheme(context))
+        }
+        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+            ColorProviders(dynamicLightColorScheme(context))
+        }
+        themeMode == ThemeMode.SYSTEM -> ColorProviders(MedLogLightColorScheme, MedLogDarkColorScheme)
+        darkTheme -> ColorProviders(MedLogDarkColorScheme)
+        else -> ColorProviders(MedLogLightColorScheme)
+    }
+
+    GlanceTheme(colors = colors, content = content)
+}
+
+internal fun Preferences.medLogThemeMode(): ThemeMode =
+    this[UserPreferencesRepository.THEME_MODE]
+        ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
+        ?: ThemeMode.SYSTEM
+
+internal fun Preferences.medLogUseDynamicColor(): Boolean =
+    this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: true

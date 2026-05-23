@@ -32,6 +32,7 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.driezy.medlog.R
+import com.driezy.medlog.data.local.settingsDataStore
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.domain.StreakCalculator
 import com.driezy.medlog.domain.daysAgoStart
@@ -41,6 +42,7 @@ import dagger.hilt.android.EntryPointAccessors
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
+import kotlinx.coroutines.flow.first
 
 /**
  * 连续打卡桌面小组件（Jetpack Glance M3）
@@ -111,9 +113,13 @@ class StreakWidget : GlanceAppWidget() {
             }
             Pair(dayComplete(dayStartMs), label)
         }
+        val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
+        val themeMode = widgetPrefs.medLogThemeMode()
+        val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
 
         provideContent {
-            GlanceTheme {
+            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor) {
                 StreakContent(total = total, streak = streak, dayData = dayData)
             }
         }

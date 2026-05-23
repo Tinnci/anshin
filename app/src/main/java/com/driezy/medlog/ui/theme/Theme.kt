@@ -14,7 +14,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
 import androidx.compose.ui.platform.LocalContext
 
-private val lightColorScheme = lightColorScheme(
+val MedLogLightColorScheme = lightColorScheme(
     primary                  = primaryLight,
     onPrimary                = onPrimaryLight,
     primaryContainer         = primaryContainerLight,
@@ -42,9 +42,30 @@ private val lightColorScheme = lightColorScheme(
     inverseSurface           = inverseSurfaceLight,
     inverseOnSurface         = inverseOnSurfaceLight,
     inversePrimary           = inversePrimaryLight,
+    surfaceTint              = surfaceTintLight,
+    surfaceDim               = surfaceDimLight,
+    surfaceBright            = surfaceBrightLight,
+    surfaceContainerLowest   = surfaceContainerLowestLight,
+    surfaceContainerLow      = surfaceContainerLowLight,
+    surfaceContainer         = surfaceContainerLight,
+    surfaceContainerHigh     = surfaceContainerHighLight,
+    surfaceContainerHighest  = surfaceContainerHighestLight,
+    scrim                    = scrimLight,
+    primaryFixed             = primaryFixedLight,
+    primaryFixedDim          = primaryFixedDimLight,
+    onPrimaryFixed           = onPrimaryFixedLight,
+    onPrimaryFixedVariant    = onPrimaryFixedVariantLight,
+    secondaryFixed           = secondaryFixedLight,
+    secondaryFixedDim        = secondaryFixedDimLight,
+    onSecondaryFixed         = onSecondaryFixedLight,
+    onSecondaryFixedVariant  = onSecondaryFixedVariantLight,
+    tertiaryFixed            = tertiaryFixedLight,
+    tertiaryFixedDim         = tertiaryFixedDimLight,
+    onTertiaryFixed          = onTertiaryFixedLight,
+    onTertiaryFixedVariant   = onTertiaryFixedVariantLight,
 )
 
-private val darkColorScheme = darkColorScheme(
+val MedLogDarkColorScheme = darkColorScheme(
     primary                  = primaryDark,
     onPrimary                = onPrimaryDark,
     primaryContainer         = primaryContainerDark,
@@ -72,6 +93,27 @@ private val darkColorScheme = darkColorScheme(
     inverseSurface           = inverseSurfaceDark,
     inverseOnSurface         = inverseOnSurfaceDark,
     inversePrimary           = inversePrimaryDark,
+    surfaceTint              = surfaceTintDark,
+    surfaceDim               = surfaceDimDark,
+    surfaceBright            = surfaceBrightDark,
+    surfaceContainerLowest   = surfaceContainerLowestDark,
+    surfaceContainerLow      = surfaceContainerLowDark,
+    surfaceContainer         = surfaceContainerDark,
+    surfaceContainerHigh     = surfaceContainerHighDark,
+    surfaceContainerHighest  = surfaceContainerHighestDark,
+    scrim                    = scrimDark,
+    primaryFixed             = primaryFixedDark,
+    primaryFixedDim          = primaryFixedDimDark,
+    onPrimaryFixed           = onPrimaryFixedDark,
+    onPrimaryFixedVariant    = onPrimaryFixedVariantDark,
+    secondaryFixed           = secondaryFixedDark,
+    secondaryFixedDim        = secondaryFixedDimDark,
+    onSecondaryFixed         = onSecondaryFixedDark,
+    onSecondaryFixedVariant  = onSecondaryFixedVariantDark,
+    tertiaryFixed            = tertiaryFixedDark,
+    tertiaryFixedDim         = tertiaryFixedDimDark,
+    onTertiaryFixed          = onTertiaryFixedDark,
+    onTertiaryFixedVariant   = onTertiaryFixedVariantDark,
 )
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -86,8 +128,8 @@ fun MedLogTheme(
             val context = LocalContext.current
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
-        darkTheme -> darkColorScheme
-        else      -> lightColorScheme
+        darkTheme -> MedLogDarkColorScheme
+        else      -> MedLogLightColorScheme
     }
 
     MaterialTheme(
@@ -98,6 +140,7 @@ fun MedLogTheme(
     ) {
         CompositionLocalProvider(
             LocalEmphasizedTypography provides MedLogEmphasizedTypography,
+            LocalEditorialTypography provides MedLogEditorialTypography,
             content = content,
         )
     }
@@ -107,3 +150,7 @@ fun MedLogTheme(
 val MaterialTheme.emphasizedTypography: EmphasizedTypography
     @Composable @ReadOnlyComposable
     get() = LocalEmphasizedTypography.current
+
+val MaterialTheme.editorialTypography: EditorialTypography
+    @Composable @ReadOnlyComposable
+    get() = LocalEditorialTypography.current

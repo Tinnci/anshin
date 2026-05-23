@@ -138,6 +138,7 @@
     <string name="home_progress_no_plan">今日暂无用药计划</string>
     <string name="home_progress_title">今日进度</string>
     <string name="home_progress_all_done">全部完成！今日用药计划已完成 🎉</string>
+    <string name="home_editorial_complete">完成</string>
     <plurals name="home_progress_remaining">
         <item quantity="other">还剩 %d 种药品待服用</item>
     </plurals>

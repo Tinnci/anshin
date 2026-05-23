@@ -141,6 +141,7 @@
     <string name="home_progress_no_plan">No medications today</string>
     <string name="home_progress_title">Today\'s Progress</string>
     <string name="home_progress_all_done">All done! Today\'s plan complete 🎉</string>
+    <string name="home_editorial_complete">DONE</string>
     <plurals name="home_progress_remaining">
         <item quantity="one">1 medication remaining</item>
         <item quantity="other">%d medications remaining</item>

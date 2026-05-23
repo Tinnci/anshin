@@ -112,3 +112,30 @@
 - Added failing `MotionSystemGuardTest`, then migrated navigation transitions, welcome pager/entry/pulse motion, History color transitions, and Medication Detail adherence color transitions to `MaterialTheme.motionScheme` spring tokens.
 - Verified motion changes with targeted `MotionSystemGuardTest`, then ran `:app:ktlintCheck`, targeted motion/icon guard tests, and `:app:assembleDebug`; installed and launched the debug APK on `6b9f2b84`.
 - Android lint was attempted twice after the icon/motion work, but both runs stalled for more than 10 minutes in lint analysis/report generation. The verified compile/ktlint/tests/assemble/install path passed; lint needs a separate tooling-performance investigation.
+
+## 2026-05-23
+- Started Material 3 Carousel adoption analysis for the Android app.
+- Read the planning-with-files skill, checked existing planning files, and appended a dedicated analysis phase without overwriting prior OCR/Material work.
+- Inspected current Compose screens, screenshots, horizontal-scroll sites, widget preview components, and local Material3 carousel classes.
+- Identified Health metrics and Settings widget previews as the strongest candidates, with Drugs featured categories as a secondary candidate and several task/text-heavy surfaces as explicit non-candidates.
+- Started implementation goal for Carousel optimization slice; using test-first guard coverage before production UI changes.
+- Added red `CarouselAdoptionGuardTest`; it failed as expected because Health metrics and Settings widget previews were still non-carousel layouts.
+- Replaced Health metrics' horizontal stat row with `HorizontalUncontainedCarousel`, keeping health filter chips unchanged.
+- Replaced the vertically stacked Settings widget picker cards with a `WidgetPreviewCarousel` using `HorizontalCenteredHeroCarousel`.
+- Verified red-to-green targeted guard test, `:app:ktlintCheck`, `:app:assembleDebug`, full `:app:testDebugUnitTest`, and `git diff --check`.
+- Audited dynamic color/color role implementation against current official Compose Material3 color scheme roles and local theme/UI usage. Result: dynamic wallpaper colors are implemented for Compose screens, but the static fallback role table and some custom/non-Compose surfaces are not fully aligned with latest role coverage.
+- Started dynamic color/color-role optimization goal and added red `ColorRoleGuardTest` covering current M3 role coverage, hardcoded/ad hoc color usage, notification tinting, and bare Glance widget theming.
+- Confirmed the new guard failed before implementation on missing expanded roles, `calendarWarning`, launcher notification tinting, and missing `MedLogGlanceTheme`.
+- Completed the main optimization slice: static light/dark schemes now include expanded M3 roles, custom visual state colors now use Material roles, notifications resolve theme/dynamic primary colors, and Glance widgets use project-owned `ColorProviders`.
+- Re-ran targeted `ColorRoleGuardTest`; it passed after one transient incremental ASM transform failure was cleared by a stacktrace rerun.
+- Verified the completed dynamic color slice with `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug` and `git diff --check`.
+- Started Material Motion/Shape checklist pass from the provided spec. Treated MDC Views APIs as not applicable to the Compose UI, and focused implementation on Compose `MotionScheme` and `Shapes`.
+- Added red motion/shape guard coverage. The new motion guard failed on unthemed default transition specs; the shape guard failed on the custom shape scale.
+- Replaced remaining bare Compose transition specs in Welcome, Drugs, and Home task group expansion with `MaterialTheme.motionScheme` spatial/effects specs.
+- Aligned `MedLogShapes` to Material 3 role values: `4/8/12/16/28dp`.
+- Verified the motion/shape pass with targeted guard tests and full `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`.
+- Started editorial treatment adoption from the provided guidance and screenshots. Selected Home's today-progress card as the appropriate showcase moment because it celebrates user completion/progress.
+- Added red `EditorialTreatmentGuardTest`, then implemented `EditorialTypography` theme tokens and exposed them through `MaterialTheme.editorialTypography`.
+- Added `EditorialProgressMoment` to the Home progress card with large animated progress type and localized completion text for Chinese, English, Japanese, and Korean.
+- Verified the targeted editorial guard with `./gradlew :app:testDebugUnitTest --tests com.driezy.medlog.ui.theme.EditorialTreatmentGuardTest`.
+- Verified the completed editorial treatment slice with `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`.

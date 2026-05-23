@@ -33,12 +33,14 @@ import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.driezy.medlog.R
+import com.driezy.medlog.data.local.settingsDataStore
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.domain.todayEnd
 import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
 import java.util.Calendar
+import kotlinx.coroutines.flow.first
 
 /**
  * 下次服药桌面小组件（Jetpack Glance M3）
@@ -89,9 +91,13 @@ class NextDoseWidget : GlanceAppWidget() {
 
         // 取最近的时间组
         val nextGroup = nextDoseGroups.minByOrNull { it.key }
+        val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
+        val themeMode = widgetPrefs.medLogThemeMode()
+        val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
 
         provideContent {
-            GlanceTheme {
+            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor) {
                 NextDoseContent(
                     total        = total,
                     allDone      = allDone,

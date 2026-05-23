@@ -11,7 +11,6 @@ import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -31,6 +30,7 @@ fun ViewfinderOverlay(
     aspectRatio: Float = 1.5f,
 ) {
     val cornerColor = MaterialTheme.colorScheme.primary
+    val scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f)
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val frameWidth = size.width * widthFraction
@@ -51,7 +51,7 @@ fun ViewfinderOverlay(
             )
         }
         clipPath(framePath, clipOp = ClipOp.Difference) {
-            drawRect(Color.Black.copy(alpha = 0.45f))
+            drawRect(scrimColor)
         }
 
         // 四角角标

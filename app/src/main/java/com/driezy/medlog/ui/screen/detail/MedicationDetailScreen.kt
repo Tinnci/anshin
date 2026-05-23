@@ -28,7 +28,6 @@ import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.formatDosePrecise
-import com.driezy.medlog.ui.theme.calendarWarning
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
@@ -365,7 +364,7 @@ private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> calendarWarning
+            adherence >= 0.6f -> colorScheme.secondary
             else              -> colorScheme.error
         },
         animationSpec = motionScheme.defaultEffectsSpec(),

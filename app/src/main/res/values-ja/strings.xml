@@ -135,6 +135,7 @@
     <string name="home_progress_no_plan">今日の服薬予定なし</string>
     <string name="home_progress_title">今日の進捗</string>
     <string name="home_progress_all_done">完了！今日の服薬をすべて達成しました 🎉</string>
+    <string name="home_editorial_complete">完了</string>
     <plurals name="home_progress_remaining">
         <item quantity="other">残り %d 件</item>
     </plurals>

@@ -36,6 +36,11 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 28. Make Material Symbols sourcing reproducible | completed | Added a deterministic update script, generated-source markers, usage docs, and a guard test so future Material Symbols updates stay on local VectorDrawable XML. |
 | 29. Add Material Symbols state and optical-size variants | completed | Generated selected `fill=1` navigation symbols and 40/48dp optical-size display symbols, then wired them into top-level navigation and large icon moments. |
 | 30. Align custom motion with M3 Expressive spring tokens | completed | Replaced legacy tween/duration and hand-coded Spring constants in navigation, welcome, history, and detail motion hotspots with `MaterialTheme.motionScheme` spatial/effects tokens. |
+| 31. Analyze Material 3 Carousel adoption opportunities | completed | Reviewed current Compose screens/components and mapped suitable carousel layouts, accessibility constraints, and priority candidates. |
+| 32. Implement Material 3 Carousel optimization slice | completed | Applied carousel to Health metrics and Settings widget previews first, with guard tests, ktlint, unit tests, and debug assemble verification. |
+| 33. Complete dynamic color and M3 role optimization | completed | Added guard coverage, completed static ColorScheme roles, moved custom visual states to roles, wired notification/widget colors to Material roles, and verified ktlint/unit/assemble. |
+| 34. Check Material motion and shape theming | completed | Added motion/shape guard coverage, removed unthemed default transition specs, aligned Compose shape scale to Material 3 role values, and verified ktlint/unit/assemble. |
+| 35. Apply editorial treatment selectively | completed | Added editorial typography tokens, applied a single hero-style editorial moment to the Home today-progress card, localized completion text, and verified ktlint/unit/assemble. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |

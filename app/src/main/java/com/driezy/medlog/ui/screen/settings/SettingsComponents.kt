@@ -195,10 +195,11 @@ internal fun WidgetPickerCard(
     sizes: List<String>,
     canPin: Boolean,
     showActions: Boolean = true,
+    modifier: Modifier = Modifier,
     onAdd: () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
