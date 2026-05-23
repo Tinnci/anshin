@@ -1,0 +1,50 @@
+schema_version: 1
+run:
+  name: seven_segment_smoke
+  output_dir: runs/seven_segment_smoke
+  seed: 42
+datasets:
+  hf_7seg_ocr:
+    kind: image_text
+    root: external_datasets
+    labels: preprocessed/hf_7seg_ocr/labels.csv
+    image_column: image_path
+    label_column: text
+    split_column: split
+    source: hf_7seg_ocr
+  kaggle_seven_segment_yolo:
+    kind: yolo
+    root: external_datasets/extracted/kaggle_seven_segment_yolov5
+    data_yaml: data.yaml
+  kaggle_bp_monitor:
+    kind: voc
+    root: external_datasets/extracted/kaggle_bp_monitor
+tasks:
+  - id: inspect_hf
+    type: dataset.inspect
+    dataset: hf_7seg_ocr
+  - id: prepare_hf_recognition
+    type: dataset.prepare_recognition
+    dataset: hf_7seg_ocr
+    depends_on: [inspect_hf]
+  - id: inspect_yolo
+    type: dataset.inspect
+    dataset: kaggle_seven_segment_yolo
+  - id: prepare_yolo_detection
+    type: dataset.prepare_detection
+    dataset: kaggle_seven_segment_yolo
+    depends_on: [inspect_yolo]
+  - id: inspect_bp_voc
+    type: dataset.inspect
+    dataset: kaggle_bp_monitor
+kaggle:
+  kernel_id: tiiann/seven-segment-ocr-pipeline
+  title: Seven Segment OCR Pipeline
+  accelerator: NvidiaTeslaT4
+  enable_gpu: true
+  enable_tpu: false
+  enable_internet: true
+  dataset_sources:
+    - mixaill76/7seg-ocr
+  input_mounts:
+    hf_7seg_ocr: /kaggle/input/7seg-ocr

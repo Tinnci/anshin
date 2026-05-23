@@ -101,3 +101,31 @@
 - Poor fits in the current app: medication task rows, history logs, health records, settings rows, filter chips, and widget cards. Those are functional/scannable surfaces where large editorial type would reduce clarity.
 - Implementation uses dedicated theme tokens (`EditorialTypography`) rather than ad hoc large `TextStyle` calls. This keeps similar future moments consistent and matches the guidance to create tokens for recurring editorial treatments.
 - The first editorial moment is `EditorialProgressMoment`: a large animated progress numeral while in progress and a localized completion word when all planned doses are done. It uses existing motionScheme spatial/effects specs and Material color roles.
+
+## External Seven-Segment Dataset Acquisition
+- Repository data conventions: generated recognition data lives under `seven_segment_ocr/dataset/`, YOLO display detection data lives under `seven_segment_ocr/detection_data/`, and Kaggle domain adaptation expects real LCD data in a simple `images/` plus `labels.csv` layout.
+- External sources should be staged separately under `seven_segment_ocr/external_datasets/` to avoid mixing third-party/raw files with generated training data and exported model artifacts.
+- Initial priority order for automated acquisition: Kaggle medical/device datasets, Hugging Face `MiXaiLL76/7SEG_OCR`, Kaggle YOLO seven-segment data, Roboflow datasets if an API key is available, then YUVA/Oxford/PACMAN resources if direct public links can be resolved.
+- Completed available downloads using Kaggle API plus aria2 RPC for speed and Hugging Face direct LFS/parquet download. Raw size is about 1.1 GB; extracted size about 900 MB; preprocessed size about 200 MB.
+- `kaggle_bp_monitor`: 176 JPEG images and 176 Pascal/VOC XML annotations. The annotation class is `bp_monitor`; it marks whole-device bbox only and does not contain transcribed SYS/DIA/PUL readings.
+- `kaggle_oximeter`: 98 JPEG images and 98 Pascal/VOC XML annotations. The annotation class is `oximeter`; it marks whole-device bbox only and does not contain SpO2/PR reading text.
+- `kaggle_seven_segment_yolov5`: 1,657 YOLO images/labels, split as train 1,452 / valid 135 / test 70. Its class list is `0,1,2,3,4,5,6,66,7,8,9`; class `66` looks suspicious and should be audited before training.
+- `hf_7seg_ocr`: 3,333 synthetic PNG sequence-recognition samples converted from parquet to `images/` plus `labels.csv`; labels use characters `-.0123456789`.
+- Roboflow sources were not downloaded in this environment because `ROBOFLOW_API_KEY` is absent and Universe pages returned Cloudflare challenges. The Kaggle YOLO source itself appears to be a Roboflow export and partially covers the generic YOLO pretraining need.
+- YUVA EB/Mendeley metadata is publicly visible and says 169 energy meter images under CC0, but file list/download API was not reachable without interactive JS/API access in this run.
+- Finnegan/Oxford and PACMAN remain paper/reference resources for now; no stable direct public dataset/code download endpoint was resolved during this pass.
+- Ground-truth audit: Kaggle BP Monitor XML has 176 `bp_monitor` objects with Pascal/VOC bboxes plus `rotation=0.0`; it has no screen bbox, no digit bbox, and no SYS/DIA/PUL text transcription.
+- Ground-truth audit: Kaggle Oximeter XML has 98 `oximeter` objects with Pascal/VOC bboxes plus `rotation=0.0`; it has no screen bbox, no digit bbox, and no SpO2/PR text transcription.
+- Ground-truth audit: Kaggle seven-segment YOLOv5 has valid YOLO bbox labels for all 1,657 images. It is digit/object detection ground truth, not sequence text ground truth. Label counts by class name are `0:983`, `1:1538`, `2:1133`, `3:979`, `4:836`, `5:836`, `6:800`, `66:3`, `7:606`, `8:713`, `9:531`; the rare `66` class needs manual review.
+- Ground-truth audit: HF `7SEG_OCR` has 3,333 image-to-text rows with labels over `-.0123456789`; it is OCR sequence ground truth, but synthetic and includes odd strings such as `.-3820` and trailing-dot values like `5284.`, so label normalization policy should be explicit before training/evaluation.
+
+## Unified OCR Pipeline Design
+- A Kaggle-compatible PySide6 pipeline must keep the GUI separate from training logic. Core tasks should be headless modules or subprocess adapters; PySide6 observes `events.jsonl` and artifacts.
+- Existing scripts already partially fit this model: `train_fastvit_ctc.py` and `kaggle_domain_adaptation.py` emit per-epoch JSON rows; `run_candidate_evaluation.py` writes unified evaluation JSON. Legacy `train.py` and detection generation need structured event adapters.
+- The shared contract should be a YAML/JSON task spec plus JSONL event stream. Kaggle kernels consume the JSON task spec; PySide6 edits/runs the same spec locally and visualizes the same outputs.
+- Required visual surfaces: dataset inspection previews/distributions, training curves/error examples/checkpoints, inference overlays, evaluation comparison tables, and Kaggle push/status/fetch artifact management.
+- Kaggle packager should generate script-only kernels and never import PySide6. It should copy the needed OCR modules, `pipeline_task.json`, and `kernel-metadata.json`, then write outputs under `/kaggle/working/<run_name>/`.
+- Implementation result: the headless core now lives in `seven_segment_ocr/pipeline/`, while PySide6 lives only in `seven_segment_ocr/pipeline_ui/`. Static tests verify the core does not mention `PySide6`, and the generated Kaggle entry script is also free of PySide6 imports.
+- The example task must use the actual staged HF path shape: dataset root `external_datasets`, labels `preprocessed/hf_7seg_ocr/labels.csv`, image column `image_path`, and label column `text`. The preprocessed rows store image paths like `preprocessed/hf_7seg_ocr/images/000000.png`.
+- Smoke inspect results now confirm available counts from the staged data: HF image-text `3333`, BP VOC image count `176`, and seven-segment YOLO image count `1657`. YOLO class `66` is emitted as a warning event instead of being silently relabeled.
+- PySide6 via conda caused slow/noisy pixi environment changes in this workspace. The working setup uses pixi `[pypi-dependencies]` for `pyside6`, plus explicit Qt plugin path environment defaults in `pipeline_ui.app` so `QApplication` can find `libqcocoa`/`libqoffscreen` from the wheel.

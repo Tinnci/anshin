@@ -41,6 +41,9 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 33. Complete dynamic color and M3 role optimization | completed | Added guard coverage, completed static ColorScheme roles, moved custom visual states to roles, wired notification/widget colors to Material roles, and verified ktlint/unit/assemble. |
 | 34. Check Material motion and shape theming | completed | Added motion/shape guard coverage, removed unthemed default transition specs, aligned Compose shape scale to Material 3 role values, and verified ktlint/unit/assemble. |
 | 35. Apply editorial treatment selectively | completed | Added editorial typography tokens, applied a single hero-style editorial moment to the Home today-progress card, localized completion text, and verified ktlint/unit/assemble. |
+| 36. Acquire external seven-segment datasets | completed | Downloaded/preprocessed available Kaggle and Hugging Face sources under `seven_segment_ocr/external_datasets/`; Roboflow/YUVA/Oxford/PACMAN blockers recorded in `dataset_summary.json`. |
+| 37. Design unified OCR pipeline with PySide6/Kaggle compatibility | completed | Added `seven_segment_ocr/PIPELINE_DESIGN.md` defining headless pipeline core, JSONL events, PySide6 visual console, artifact layout, and Kaggle packaging strategy. |
+| 38. Implement unified OCR pipeline and PySide6/Kaggle shell | completed | Added headless `pipeline/`, PySide6 `pipeline_ui/`, example task config, Kaggle packager, dataset inspect/prepare adapters, JSONL events, preview artifacts, pixi tasks, and smoke/test verification. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
@@ -55,3 +58,5 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | Combined verification failed once at `:app:packageDebug` without detailed cause | First combined ktlint/test/assemble run after wrapper upgrade | Reran `:app:packageDebug --stacktrace`; task passed cleanly, indicating an incremental packaging transient after the toolchain switch. |
 | GitHub CI failed at `Build Debug APK` after lint/test success | First remote CI run for `48e81b9` | Updated CI/release APK build steps to run clean builds with stacktraces; then upgraded GitHub JS actions to newer major versions after Node 24 force mode still emitted a deprecation annotation. |
 | KSP generated output/cache corrupted during verification | Parallel Gradle compile and unit-test tasks both ran KSP | Stop concurrent Gradle runs, clear generated KSP debug caches, and retry verification serially. |
+| External dataset access may require credentials/API tokens | Dataset acquisition phase | Attempt direct/package/API downloads first; record blocked sources and keep successfully downloaded sources staged with manifests. |
+| PySide6 conda solve/install stalled and then Qt could not locate platform plugins | First pixi dependency attempt and first QApplication smoke | Switched PySide6 to pixi PyPI dependencies, ran `pixi install`, and set `QT_PLUGIN_PATH` / `QT_QPA_PLATFORM_PLUGIN_PATH` from `pipeline_ui.app` before PySide6 imports. |

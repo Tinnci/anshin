@@ -139,3 +139,30 @@
 - Added `EditorialProgressMoment` to the Home progress card with large animated progress type and localized completion text for Chinese, English, Japanese, and Korean.
 - Verified the targeted editorial guard with `./gradlew :app:testDebugUnitTest --tests com.driezy.medlog.ui.theme.EditorialTreatmentGuardTest`.
 - Verified the completed editorial treatment slice with `./gradlew :app:ktlintCheck :app:testDebugUnitTest :app:assembleDebug`.
+- Started external seven-segment/medical-device dataset acquisition goal.
+- Loaded `planning-with-files`, ran session catchup, and inspected `seven_segment_ocr` structure.
+- Chosen staging convention: `seven_segment_ocr/external_datasets/` for third-party downloads, with raw archives/downloads separated from extracted/preprocessed copies.
+- Added `seven_segment_ocr/external_datasets/` to `.gitignore` so downloaded third-party data remains in the workspace but is not accidentally committed.
+- Downloaded Kaggle sources via aria2 RPC after CLI downloads were slow: BP monitor, oximeter, and seven-segment-display YOLOv5.
+- Downloaded Hugging Face `MiXaiLL76/7SEG_OCR` by direct parquet LFS URL after `snapshot_download` stalled on the LFS file.
+- Extracted Kaggle archives and generated preprocessing outputs:
+  `preprocessed/kaggle_bp_monitor/device_bboxes.csv`,
+  `preprocessed/kaggle_oximeter/device_bboxes.csv`,
+  `preprocessed/kaggle_seven_segment_yolov5/yolo_manifest.csv`,
+  `preprocessed/hf_7seg_ocr/images/`,
+  `preprocessed/hf_7seg_ocr/labels.csv`.
+- Wrote consolidated manifests:
+  `manifests/dataset_summary.json`,
+  `manifests/medical_device_bboxes.csv`,
+  `manifests/preview_contact_sheet.jpg`.
+- Confirmed aria2 has no active/waiting downloads at the end of the acquisition pass.
+- Audited ground truth contents: BP/Oximeter provide only whole-device Pascal/VOC detection boxes; Kaggle seven-segment YOLO provides digit bbox detection labels; HF 7SEG provides synthetic sequence text labels.
+- Designed the unified OCR pipeline with Kaggle compatibility and PySide6 visualization. Added `seven_segment_ocr/PIPELINE_DESIGN.md`.
+- Implemented the unified seven-segment OCR pipeline core under `seven_segment_ocr/pipeline/`: schema parsing, task DAG validation, JSONL events, run artifact layout, image-text/VOC/YOLO dataset inspection, HF recognition normalization, VOC/YOLO detection preparation, subprocess adapters for training/eval, ONNX single-image inference wrapper, Android asset export copy step, and Kaggle script-kernel packaging.
+- Added `seven_segment_ocr/pipeline_ui/` as a PySide6 shell that uses `QProcess` to call `python -m pipeline.cli`, tails `events.jsonl`, and displays dataset profiles/previews, metric curves, inference/evaluation artifacts, and Kaggle push/status/fetch output without importing PySide6 from the headless core.
+- Added `seven_segment_ocr/pipeline_task.example.yaml` covering the downloaded HF 7SEG OCR recognition data, Kaggle seven-segment YOLO data, and Kaggle BP VOC device-bbox data.
+- Added pipeline regression coverage in `seven_segment_ocr/tests/test_pipeline_core.py`; verified schema defaults/cycle rejection, event JSONL rows, dataset inspect/prepare, suspicious YOLO class `66` warning, runner artifacts/events, Kaggle package generation, example config loading, and the no-PySide6-import core boundary.
+- Ran local smoke pipeline: `dataset.inspect -> dataset.prepare_recognition -> dataset.inspect YOLO -> dataset.prepare_detection -> VOC inspect`; result `completed=5 failed=0`, with dataset profiles, preview contact sheets, normalized `labels.csv`, YOLO `data.yaml`, and `sample_preview`/warning events under `runs/seven_segment_smoke/`.
+- Ran Kaggle packaging smoke: generated `runs/seven_segment_smoke/kaggle/kernel/` with `kernel-metadata.json`, `pipeline_task.json`, `kaggle_pipeline_entry.py`, and copied headless OCR modules; verified the entry script does not contain `PySide6`.
+- Switched PySide6 to pixi PyPI dependencies, ran `pixi install`, fixed Qt plugin discovery in `pipeline_ui.app`, and verified `PipelineMainWindow` can instantiate with `QT_QPA_PLATFORM=offscreen`.
+- Verified `pixi run python -m unittest tests.test_pipeline_core -v` passes and full Python test discovery passes 47 tests.
