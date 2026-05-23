@@ -22,6 +22,12 @@ def build_parser() -> argparse.ArgumentParser:
     run_cmd = sub.add_parser("run")
     run_cmd.add_argument("--config", required=True)
     run_cmd.add_argument("--project-dir", default=".")
+    run_cmd.add_argument("--target", nargs="*", default=None)
+    run_cmd.add_argument("--from-task", default=None)
+    run_cmd.add_argument("--resume", action="store_true")
+    run_cmd.add_argument("--no-cache", action="store_true")
+    run_cmd.add_argument("--force", nargs="*", default=None)
+    run_cmd.add_argument("--max-workers", type=int, default=None)
 
     prep_cmd = sub.add_parser("prepare-recognition")
     prep_cmd.add_argument("--config", required=True)
@@ -61,7 +67,16 @@ def main(argv: list[str] | None = None) -> int:
         print(json.dumps({"output_dir": str(output), "labels": str(output / "labels.csv")}, ensure_ascii=False))
         return 0
     if args.command == "run":
-        report = run_pipeline(load_pipeline_config(args.config), project_dir=Path(args.project_dir))
+        report = run_pipeline(
+            load_pipeline_config(args.config),
+            project_dir=Path(args.project_dir),
+            targets=set(args.target or []) or None,
+            from_task=args.from_task,
+            resume=args.resume,
+            use_cache=not args.no_cache,
+            force=set(args.force or []),
+            max_workers=args.max_workers,
+        )
         print(json.dumps({"run": report["run"], "summary": report["summary"]}, ensure_ascii=False))
         return 0
     if args.command == "package-kaggle":
@@ -85,4 +100,3 @@ def main(argv: list[str] | None = None) -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

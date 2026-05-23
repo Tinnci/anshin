@@ -44,6 +44,7 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | 36. Acquire external seven-segment datasets | completed | Downloaded/preprocessed available Kaggle and Hugging Face sources under `seven_segment_ocr/external_datasets/`; Roboflow/YUVA/Oxford/PACMAN blockers recorded in `dataset_summary.json`. |
 | 37. Design unified OCR pipeline with PySide6/Kaggle compatibility | completed | Added `seven_segment_ocr/PIPELINE_DESIGN.md` defining headless pipeline core, JSONL events, PySide6 visual console, artifact layout, and Kaggle packaging strategy. |
 | 38. Implement unified OCR pipeline and PySide6/Kaggle shell | completed | Added headless `pipeline/`, PySide6 `pipeline_ui/`, example task config, Kaggle packager, dataset inspect/prepare adapters, JSONL events, preview artifacts, pixi tasks, and smoke/test verification. |
+| 39. Upgrade pipeline DAG execution and PySide6 control console | completed | Added task cache, partial/resume CLI, concurrent scheduler, DAG view, builder, node logs/artifact filtering, leaderboard scanner/widget, and regression/smoke verification. |
 
 ## Errors Encountered
 | Error | Attempt | Resolution |
@@ -60,3 +61,4 @@ Batch export/evaluate available OCR candidate models on desktop CPU for throughp
 | KSP generated output/cache corrupted during verification | Parallel Gradle compile and unit-test tasks both ran KSP | Stop concurrent Gradle runs, clear generated KSP debug caches, and retry verification serially. |
 | External dataset access may require credentials/API tokens | Dataset acquisition phase | Attempt direct/package/API downloads first; record blocked sources and keep successfully downloaded sources staged with manifests. |
 | PySide6 conda solve/install stalled and then Qt could not locate platform plugins | First pixi dependency attempt and first QApplication smoke | Switched PySide6 to pixi PyPI dependencies, ran `pixi install`, and set `QT_PLUGIN_PATH` / `QT_QPA_PLATFORM_PLUGIN_PATH` from `pipeline_ui.app` before PySide6 imports. |
+| Cache skip of a parent task incorrectly blocked dependent tasks | First real rerun of `pipeline_task.example.yaml` after enabling default cache | Added a regression test and changed the scheduler to continue readiness evaluation after cache-only progress, so skipped dependencies unlock downstream tasks. |

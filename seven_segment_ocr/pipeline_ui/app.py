@@ -7,6 +7,9 @@ import sysconfig
 from pathlib import Path
 from typing import Any
 
+from pipeline_ui import ensure_qt_plugin_paths
+
+ensure_qt_plugin_paths()
 _qt_plugins = Path(sysconfig.get_path("purelib")) / "PySide6" / "Qt" / "plugins"
 if _qt_plugins.exists():
     os.environ.setdefault("QT_PLUGIN_PATH", str(_qt_plugins))
@@ -34,6 +37,9 @@ from PySide6.QtWidgets import (
 
 from pipeline.artifacts import collect_run_artifacts, read_json
 from pipeline.schema import load_pipeline_config
+from pipeline_ui.widgets.builder import ConfigBuilderWidget
+from pipeline_ui.widgets.dag_view import DagView
+from pipeline_ui.widgets.leaderboard import LeaderboardWidget
 
 
 PROJECT_DIR = Path(__file__).resolve().parents[1]
@@ -107,6 +113,7 @@ class PipelineMainWindow(QMainWindow):
         self.config_path: Path | None = None
         self.process: QProcess | None = None
         self._last_event_mtime: float | None = None
+        self.current_task_id: str | None = None
         self.artifacts: list[dict[str, Any]] = []
 
         self.config_line = QLineEdit(str(PROJECT_DIR / "pipeline_task.example.yaml"))
@@ -141,14 +148,34 @@ class PipelineMainWindow(QMainWindow):
         self.eval_text.setReadOnly(True)
         self.kaggle_console = QPlainTextEdit()
         self.kaggle_console.setReadOnly(True)
+        self.dag_view = DagView()
+        self.dag_view.node_selected.connect(self._select_task)
+        self.dag_view.run_target_requested.connect(self._run_target)
+        self.dag_view.resume_from_requested.connect(self._resume_from)
+        self.dag_view.logs_requested.connect(self._show_task_logs)
+        self.dag_view.inspect_requested.connect(self._inspect_task)
+        self.builder = ConfigBuilderWidget()
+        self.leaderboard = LeaderboardWidget(PROJECT_DIR / "runs")
+        self.dag_page = self._dag_tab()
+        self.dataset_page = self._dataset_tab()
+        self.training_page = self._training_tab()
+        self.inference_page = self._inference_tab()
+        self.evaluation_page = self._evaluation_tab()
+        self.builder_page = self._builder_tab()
+        self.leaderboard_page = self._leaderboard_tab()
+        self.kaggle_page = self._kaggle_tab()
+        self.events_page = self._events_tab()
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self._dataset_tab(), "Dataset")
-        self.tabs.addTab(self._training_tab(), "Training")
-        self.tabs.addTab(self._inference_tab(), "Inference")
-        self.tabs.addTab(self._evaluation_tab(), "Evaluation")
-        self.tabs.addTab(self._kaggle_tab(), "Kaggle")
-        self.tabs.addTab(self._events_tab(), "Events")
+        self.tabs.addTab(self.dag_page, "DAG")
+        self.tabs.addTab(self.dataset_page, "Dataset")
+        self.tabs.addTab(self.training_page, "Training")
+        self.tabs.addTab(self.inference_page, "Inference")
+        self.tabs.addTab(self.evaluation_page, "Evaluation")
+        self.tabs.addTab(self.builder_page, "Builder")
+        self.tabs.addTab(self.leaderboard_page, "Leaderboard")
+        self.tabs.addTab(self.kaggle_page, "Kaggle")
+        self.tabs.addTab(self.events_page, "Events")
 
         root = QWidget()
         layout = QVBoxLayout(root)
@@ -179,6 +206,12 @@ class PipelineMainWindow(QMainWindow):
         layout.addWidget(self.run_line, 1)
         layout.addWidget(refresh)
         return layout
+
+    def _dag_tab(self) -> QWidget:
+        box = QWidget()
+        layout = QVBoxLayout(box)
+        layout.addWidget(self.dag_view)
+        return box
 
     def _dataset_tab(self) -> QWidget:
         splitter = QSplitter(Qt.Orientation.Horizontal)
@@ -226,6 +259,24 @@ class PipelineMainWindow(QMainWindow):
         layout = QVBoxLayout(box)
         layout.addWidget(QLabel("Evaluation results"))
         layout.addWidget(self.eval_text)
+        return box
+
+    def _builder_tab(self) -> QWidget:
+        box = QWidget()
+        layout = QVBoxLayout(box)
+        save_button = QPushButton("Save Task YAML As...")
+        save_button.clicked.connect(self._save_builder_yaml)
+        layout.addWidget(save_button)
+        layout.addWidget(self.builder)
+        return box
+
+    def _leaderboard_tab(self) -> QWidget:
+        box = QWidget()
+        layout = QVBoxLayout(box)
+        refresh_button = QPushButton("Refresh Leaderboard")
+        refresh_button.clicked.connect(self.leaderboard.refresh)
+        layout.addWidget(refresh_button)
+        layout.addWidget(self.leaderboard)
         return box
 
     def _kaggle_tab(self) -> QWidget:
@@ -286,6 +337,8 @@ class PipelineMainWindow(QMainWindow):
         self._set_run_dir(run_dir)
         self.config_path = config_path
         self.kernel_line.setText(config.kaggle.kernel_id)
+        self.dag_view.set_config(config)
+        self.builder.load_config(config)
 
     def _set_run_dir(self, run_dir: Path) -> None:
         self.run_dir = run_dir
@@ -304,6 +357,31 @@ class PipelineMainWindow(QMainWindow):
             [sys.executable, "-m", "pipeline.cli", "run", "--config", str(config_path), "--project-dir", str(PROJECT_DIR)],
             self.training_console,
         )
+
+    def _run_target(self, task_id: str) -> None:
+        config_path = Path(self.config_line.text()).expanduser()
+        self._start_process(
+            [sys.executable, "-m", "pipeline.cli", "run", "--config", str(config_path), "--project-dir", str(PROJECT_DIR), "--target", task_id],
+            self.training_console,
+        )
+
+    def _resume_from(self, task_id: str) -> None:
+        config_path = Path(self.config_line.text()).expanduser()
+        self._start_process(
+            [sys.executable, "-m", "pipeline.cli", "run", "--config", str(config_path), "--project-dir", str(PROJECT_DIR), "--from-task", task_id],
+            self.training_console,
+        )
+
+    def _save_builder_yaml(self) -> None:
+        path, _ = QFileDialog.getSaveFileName(self, "Save pipeline task", str(PROJECT_DIR / "pipeline_task.edited.yaml"), "YAML (*.yaml *.yml)")
+        if not path:
+            return
+        try:
+            self.builder.save_yaml(path)
+            self.config_line.setText(path)
+            self._set_run_from_config(Path(path))
+        except Exception as exc:
+            self._show_error("Invalid builder config", str(exc))
 
     def _package_kaggle(self) -> None:
         config_path = Path(self.config_line.text()).expanduser()
@@ -380,11 +458,15 @@ class PipelineMainWindow(QMainWindow):
         events = self._read_events()
         self.artifacts = collect_run_artifacts(self.run_dir)
         self._render_events(events)
+        self.dag_view.apply_events(events)
+        report = read_json(self.run_dir / "run_report.json", default={}) or {}
+        self.dag_view.set_task_report(report)
         self._render_metrics(events)
         self._render_artifacts()
         self._render_dataset_profile()
         self._render_inference()
         self._render_eval()
+        self.leaderboard.refresh()
 
     def _read_events(self) -> list[dict[str, Any]]:
         if not self.run_dir:
@@ -425,8 +507,12 @@ class PipelineMainWindow(QMainWindow):
         self.metric_table.resizeColumnsToContents()
 
     def _render_artifacts(self) -> None:
-        self.artifact_table.setRowCount(len(self.artifacts))
-        for row, artifact in enumerate(self.artifacts):
+        artifacts = [
+            artifact for artifact in self.artifacts
+            if self.current_task_id is None or artifact.get("task_id") == self.current_task_id
+        ]
+        self.artifact_table.setRowCount(len(artifacts))
+        for row, artifact in enumerate(artifacts):
             for col, key in enumerate(["role", "path", "mime"]):
                 self.artifact_table.setItem(row, col, QTableWidgetItem(str(artifact.get(key, ""))))
         self.artifact_table.resizeColumnsToContents()
@@ -480,6 +566,29 @@ class PipelineMainWindow(QMainWindow):
             self._set_label_image(self.dataset_preview, path)
         elif path.exists() and path.is_file():
             self.dataset_summary.setPlainText(path.read_text(encoding="utf-8", errors="replace")[:20000])
+
+    def _select_task(self, task_id: str) -> None:
+        self.current_task_id = task_id
+        self._render_artifacts()
+        self._show_task_logs(task_id)
+
+    def _show_task_logs(self, task_id: str) -> None:
+        if not self.run_dir:
+            return
+        parts = [f"Task: {task_id}"]
+        for suffix in ("stdout", "stderr"):
+            path = self.run_dir / "logs" / f"{task_id}.{suffix}.log"
+            if path.exists():
+                parts.append(f"## {path.name}\n{path.read_text(encoding='utf-8', errors='replace')[-20000:]}")
+        task_events = [event for event in self._read_events() if event.get("task_id") == task_id]
+        if task_events:
+            parts.append("## Events\n" + "\n".join(json.dumps(event, ensure_ascii=False) for event in task_events[-200:]))
+        self.training_console.setPlainText("\n\n".join(parts))
+        self.tabs.setCurrentWidget(self.training_page)
+
+    def _inspect_task(self, task_id: str) -> None:
+        self._select_task(task_id)
+        self.tabs.setCurrentWidget(self.builder_page)
 
     def _set_label_image(self, label: QLabel, path: Path) -> None:
         if not path.exists():

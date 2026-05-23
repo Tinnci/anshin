@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import threading
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
@@ -11,6 +12,7 @@ class EventWriter:
         self.path = Path(path)
         self.run_id = run_id
         self.path.parent.mkdir(parents=True, exist_ok=True)
+        self._lock = threading.Lock()
 
     def emit(
         self,
@@ -31,8 +33,9 @@ class EventWriter:
             "time": datetime.now(timezone.utc).isoformat(),
             "payload": payload or {},
         }
-        with self.path.open("a", encoding="utf-8") as handle:
-            handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+        with self._lock:
+            with self.path.open("a", encoding="utf-8") as handle:
+                handle.write(json.dumps(row, ensure_ascii=False) + "\n")
         return row
 
     def task_started(self, task_id: str, task_type: str, payload: dict[str, Any] | None = None) -> None:
@@ -69,3 +72,6 @@ class EventWriter:
             task_type=task_type,
             payload={"error_type": type(error).__name__, "message": str(error)},
         )
+
+    def task_skipped(self, task_id: str, task_type: str, payload: dict[str, Any]) -> None:
+        self.emit("task_skipped", task_id=task_id, task_type=task_type, payload=payload)

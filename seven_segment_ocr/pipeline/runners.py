@@ -1,59 +1,249 @@
 from __future__ import annotations
 
 import json
+import os
 import shutil
 import subprocess
 import sys
 import time
+from concurrent.futures import FIRST_COMPLETED, Future, ThreadPoolExecutor, wait
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
+from .cache import artifact_paths, cache_entry_is_valid, compute_task_hash, load_task_cache, save_task_cache
 from .datasets import inspect_dataset, prepare_detection_dataset, prepare_recognition_dataset
 from .events import EventWriter
+from .graph import blocked_by_failure, dependency_closure, descendant_closure, ordered_task_ids, ready_task_ids, tasks_by_id
 from .schema import DatasetConfig, PipelineConfig, TaskConfig, pipeline_config_to_dict, write_pipeline_json
 
 
-def run_pipeline(config: PipelineConfig, *, project_dir: Path) -> dict[str, Any]:
+def run_pipeline(
+    config: PipelineConfig,
+    *,
+    project_dir: Path,
+    targets: set[str] | None = None,
+    from_task: str | None = None,
+    resume: bool = False,
+    use_cache: bool = True,
+    force: set[str] | None = None,
+    max_workers: int | None = None,
+) -> dict[str, Any]:
     run_dir = _resolve(config.run.output_dir, project_dir)
     run_dir.mkdir(parents=True, exist_ok=True)
     (run_dir / "logs").mkdir(exist_ok=True)
+    previous_report = _read_previous_report(run_dir)
     write_pipeline_json(config, run_dir / "pipeline_task.json")
     if config.source_path and config.source_path.exists():
         shutil.copy2(config.source_path, run_dir / "pipeline_task.yaml")
     else:
         (run_dir / "pipeline_task.yaml").write_text(json.dumps(pipeline_config_to_dict(config), indent=2), encoding="utf-8")
     event_writer = EventWriter(run_dir / "events.jsonl", run_id=config.run.name)
-    completed: list[str] = []
-    failed: list[str] = []
+    selected_ids = _select_task_ids(config.tasks, targets=targets, from_task=from_task, resume=resume, previous_report=previous_report)
+    selected_order = ordered_task_ids(config.tasks, selected_ids)
+    max_worker_count = max(1, int(max_workers or min(len(selected_ids) or 1, os.cpu_count() or 1)))
+    force_ids = force or set()
+    cache = load_task_cache(run_dir)
+    cache_tasks: dict[str, Any] = cache.setdefault("tasks", {})
+    by_id = tasks_by_id(config.tasks)
+    completed: set[str] = set()
+    failed: set[str] = set()
+    skipped: set[str] = set()
+    blocked: set[str] = set()
+    running: dict[Future[list[dict[str, str]]], str] = {}
     artifacts: list[dict[str, str]] = []
+    artifacts_by_task: dict[str, list[dict[str, str]]] = {}
+    task_report: dict[str, dict[str, Any]] = {
+        task_id: {
+            "task_id": task_id,
+            "task_type": by_id[task_id].type,
+            "status": "pending",
+            "artifacts": [],
+        }
+        for task_id in selected_order
+    }
     start = time.time()
-    for task in _topological_tasks(config.tasks):
-        try:
-            event_writer.task_started(task.id, task.type, {"params": task.params, "dataset": task.dataset})
-            task_artifacts = _run_task(task, config, project_dir=project_dir, run_dir=run_dir, event_writer=event_writer)
-            for artifact in task_artifacts:
-                artifacts.append(artifact)
-                event_writer.artifact(task.id, task.type, artifact["path"], role=artifact["role"], mime=artifact.get("mime"))
-            completed.append(task.id)
-            event_writer.task_finished(task.id, task.type, {"status": "ok", "artifacts": task_artifacts})
-        except Exception as exc:
-            failed.append(task.id)
-            event_writer.task_failed(task.id, task.type, exc)
-            break
+
+    def dependency_artifacts(task: TaskConfig) -> dict[str, list[Path]]:
+        rows: dict[str, list[Path]] = {}
+        for dep_id in task.depends_on:
+            dep_artifacts = artifacts_by_task.get(dep_id)
+            if dep_artifacts is None:
+                dep_artifacts = cache_tasks.get(dep_id, {}).get("artifacts", [])
+            rows[dep_id] = artifact_paths(dep_artifacts)
+        return rows
+
+    def dependency_state(task: TaskConfig) -> dict[str, Any]:
+        rows: dict[str, Any] = {}
+        for dep_id in task.depends_on:
+            entry = cache_tasks.get(dep_id, {})
+            rows[dep_id] = {
+                "status": entry.get("status"),
+                "input_hash": entry.get("input_hash"),
+                "completed_at": entry.get("completed_at"),
+            }
+        return rows
+
+    def mark_artifacts(task: TaskConfig, task_artifacts: list[dict[str, str]]) -> list[dict[str, str]]:
+        owned = []
+        for artifact in task_artifacts:
+            row = dict(artifact)
+            row.setdefault("task_id", task.id)
+            row.setdefault("task_type", task.type)
+            owned.append(row)
+        return owned
+
+    def execute_task(task: TaskConfig) -> list[dict[str, str]]:
+        event_writer.task_started(task.id, task.type, {"params": task.params, "dataset": task.dataset})
+        return _run_task(task, config, project_dir=project_dir, run_dir=run_dir, event_writer=event_writer)
+
+    with ThreadPoolExecutor(max_workers=max_worker_count) as executor:
+        while len(completed | failed | blocked) < len(selected_ids):
+            made_progress_without_future = False
+            if failed:
+                newly_blocked = blocked_by_failure(config.tasks, selected_ids, failed) - blocked - completed - failed
+                for task_id in ordered_task_ids(config.tasks, newly_blocked):
+                    blocked.add(task_id)
+                    task = by_id[task_id]
+                    task_report[task_id]["status"] = "blocked"
+                    task_report[task_id]["blocked_by"] = [dep for dep in task.depends_on if dep in failed or dep in blocked]
+            if not failed:
+                for task_id in ready_task_ids(config.tasks, selected_ids, completed, blocked, set(running.values())):
+                    if len(running) >= max_worker_count:
+                        break
+                    task = by_id[task_id]
+                    input_hash = compute_task_hash(
+                        task,
+                        config,
+                        project_dir=project_dir,
+                        dependency_artifacts=dependency_artifacts(task),
+                        dependency_state=dependency_state(task),
+                    )
+                    task_report[task_id]["input_hash"] = input_hash
+                    entry = cache_tasks.get(task_id)
+                    if use_cache and task_id not in force_ids and cache_entry_is_valid(entry, input_hash):
+                        cached_artifacts = mark_artifacts(task, list(entry.get("artifacts", [])))
+                        artifacts_by_task[task_id] = cached_artifacts
+                        artifacts.extend(cached_artifacts)
+                        completed.add(task_id)
+                        skipped.add(task_id)
+                        task_report[task_id].update({"status": "skipped", "artifacts": cached_artifacts})
+                        event_writer.task_skipped(
+                            task.id,
+                            task.type,
+                            {"reason": "cache_hit", "input_hash": input_hash, "artifacts": cached_artifacts},
+                        )
+                        made_progress_without_future = True
+                        continue
+                    task_report[task_id]["status"] = "running"
+                    running[executor.submit(execute_task, task)] = task_id
+            if not running:
+                if made_progress_without_future:
+                    continue
+                if failed:
+                    break
+                remaining = selected_ids - completed - failed - blocked
+                for task_id in ordered_task_ids(config.tasks, remaining):
+                    blocked.add(task_id)
+                    task_report[task_id]["status"] = "blocked"
+                    task_report[task_id]["blocked_by"] = by_id[task_id].depends_on
+                break
+            done, _ = wait(running, return_when=FIRST_COMPLETED)
+            for future in done:
+                task_id = running.pop(future)
+                task = by_id[task_id]
+                try:
+                    task_artifacts = mark_artifacts(task, future.result())
+                    for artifact in task_artifacts:
+                        artifacts.append(artifact)
+                        event_writer.artifact(task.id, task.type, artifact["path"], role=artifact["role"], mime=artifact.get("mime"))
+                    artifacts_by_task[task_id] = task_artifacts
+                    completed.add(task_id)
+                    task_report[task_id].update({"status": "completed", "artifacts": task_artifacts})
+                    cache_tasks[task_id] = {
+                        "status": "completed",
+                        "input_hash": task_report[task_id].get("input_hash"),
+                        "artifacts": task_artifacts,
+                        "completed_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                    save_task_cache(run_dir, cache)
+                    event_writer.task_finished(task.id, task.type, {"status": "ok", "artifacts": task_artifacts})
+                except Exception as exc:
+                    failed.add(task_id)
+                    task_report[task_id].update({"status": "failed", "error_type": type(exc).__name__, "message": str(exc)})
+                    cache_tasks[task_id] = {
+                        "status": "failed",
+                        "input_hash": task_report[task_id].get("input_hash"),
+                        "artifacts": [],
+                        "completed_at": datetime.now(timezone.utc).isoformat(),
+                    }
+                    save_task_cache(run_dir, cache)
+                    event_writer.task_failed(task.id, task.type, exc)
+
+    for task_id in skipped:
+        cache_tasks[task_id]["status"] = "skipped"
+    save_task_cache(run_dir, cache)
     report = {
         "schema_version": 1,
         "run": {"name": config.run.name, "output_dir": str(run_dir)},
+        "execution": {
+            "selected": {
+                "targets": sorted(targets or []),
+                "from_task": from_task,
+                "resume": resume,
+            },
+            "use_cache": use_cache,
+            "force": sorted(force_ids),
+            "max_workers": max_worker_count,
+        },
         "summary": {
-            "completed": len(completed),
+            "completed": len(completed - skipped),
+            "skipped": len(skipped),
             "failed": len(failed),
+            "blocked": len(blocked),
             "duration_seconds": round(time.time() - start, 3),
         },
-        "completed_tasks": completed,
-        "failed_tasks": failed,
+        "selected_tasks": selected_order,
+        "completed_tasks": ordered_task_ids(config.tasks, completed - skipped),
+        "skipped_tasks": ordered_task_ids(config.tasks, skipped),
+        "failed_tasks": ordered_task_ids(config.tasks, failed),
+        "blocked_tasks": ordered_task_ids(config.tasks, blocked),
+        "tasks": task_report,
         "artifacts": artifacts,
     }
     (run_dir / "run_report.json").write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
     return report
+
+
+def _select_task_ids(
+    tasks: list[TaskConfig],
+    *,
+    targets: set[str] | None,
+    from_task: str | None,
+    resume: bool,
+    previous_report: dict[str, Any] | None,
+) -> set[str]:
+    all_ids = set(tasks_by_id(tasks))
+    if targets:
+        return dependency_closure(tasks, targets)
+    if from_task:
+        return descendant_closure(tasks, {from_task})
+    if resume and previous_report:
+        retry_ids = set(previous_report.get("failed_tasks", [])) | set(previous_report.get("blocked_tasks", []))
+        if retry_ids:
+            return descendant_closure(tasks, retry_ids)
+    return all_ids
+
+
+def _read_previous_report(run_dir: Path) -> dict[str, Any] | None:
+    path = run_dir / "run_report.json"
+    if not path.exists():
+        return None
+    try:
+        raw = json.loads(path.read_text(encoding="utf-8"))
+    except json.JSONDecodeError:
+        return None
+    return raw if isinstance(raw, dict) else None
 
 
 def _run_task(

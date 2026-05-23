@@ -166,3 +166,9 @@
 - Ran Kaggle packaging smoke: generated `runs/seven_segment_smoke/kaggle/kernel/` with `kernel-metadata.json`, `pipeline_task.json`, `kaggle_pipeline_entry.py`, and copied headless OCR modules; verified the entry script does not contain `PySide6`.
 - Switched PySide6 to pixi PyPI dependencies, ran `pixi install`, fixed Qt plugin discovery in `pipeline_ui.app`, and verified `PipelineMainWindow` can instantiate with `QT_QPA_PLATFORM=offscreen`.
 - Verified `pixi run python -m unittest tests.test_pipeline_core -v` passes and full Python test discovery passes 47 tests.
+- Upgraded the pipeline runner with default-on `.task_cache.json`, `task_skipped` events, per-task artifact ownership, partial graph selection (`--target`, `--from-task`, `--resume`), `--no-cache`, `--force`, and dependency-ready concurrent scheduling through `ThreadPoolExecutor`.
+- Added headless graph/cache/leaderboard helpers plus tests for hash invalidation, forced parent reruns invalidating downstream cache, resume/blocked task selection, independent branch scheduling, and CLI flag parsing.
+- Added PySide6 DAG dashboard components: `DagView` for node/edge rendering and event-driven node states, `ConfigBuilderWidget` for YAML-backed task/dataset editing and validated save-as, and `LeaderboardWidget` for cross-run metric comparison.
+- Integrated the UI widgets into `PipelineMainWindow` with DAG, Builder, and Leaderboard tabs, right-click node actions for target/from-task runs, node-specific stdout/stderr/event viewing, and artifact filtering by selected task.
+- Verified the upgraded implementation with `pixi run python -m unittest discover -s tests -v`: 56 tests passed.
+- Ran real pipeline smoke twice with `--max-workers 4`: first run completed 5 tasks, second run cache-skipped all 5 tasks with 0 blocked/failed; Kaggle package smoke still generated a script-only kernel without `PySide6`.

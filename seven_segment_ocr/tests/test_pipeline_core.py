@@ -276,6 +276,222 @@ class PipelineCoreTest(unittest.TestCase):
         self.assertIn("QProcess", ui_source)
         self.assertIn("events.jsonl", ui_source)
 
+    def test_task_cache_hash_changes_with_params_dataset_and_dependency_artifacts(self):
+        from pipeline.cache import compute_task_hash, hash_file
+        from pipeline.schema import parse_pipeline_config
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            dep_artifact = root / "dep.txt"
+            dep_artifact.write_text("one", encoding="utf-8")
+            raw = {
+                "schema_version": 1,
+                "run": {"name": "hash"},
+                "datasets": {"rec": {"kind": "image_text", "root": "dataset", "labels": "labels.csv"}},
+                "tasks": [
+                    {"id": "prepare", "type": "dataset.prepare_recognition", "dataset": "rec", "params": {"batch_size": 8}}
+                ],
+            }
+            config = parse_pipeline_config(raw)
+            task = config.tasks[0]
+            first = compute_task_hash(task, config, project_dir=root, dependency_artifacts={"dep": [dep_artifact]})
+
+            raw["tasks"][0]["params"]["batch_size"] = 16
+            second = compute_task_hash(parse_pipeline_config(raw).tasks[0], parse_pipeline_config(raw), project_dir=root, dependency_artifacts={"dep": [dep_artifact]})
+
+            raw["tasks"][0]["params"]["batch_size"] = 8
+            raw["datasets"]["rec"]["labels"] = "other.csv"
+            third_config = parse_pipeline_config(raw)
+            third = compute_task_hash(third_config.tasks[0], third_config, project_dir=root, dependency_artifacts={"dep": [dep_artifact]})
+
+            dep_artifact.write_text("two", encoding="utf-8")
+            fourth = compute_task_hash(task, config, project_dir=root, dependency_artifacts={"dep": [dep_artifact]})
+            dep_digest_length = len(hash_file(dep_artifact))
+
+        self.assertNotEqual(first, second)
+        self.assertNotEqual(first, third)
+        self.assertNotEqual(first, fourth)
+        self.assertEqual(dep_digest_length, 64)
+
+    def test_runner_uses_default_cache_and_no_cache_reruns(self):
+        from pipeline.runners import run_pipeline
+        from pipeline.schema import load_pipeline_config
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            rec = root / "dataset"
+            self._make_image(rec / "images" / "a.png")
+            (rec / "labels.csv").write_text("image_path,text\nimages/a.png,123\n", encoding="utf-8")
+            config_path = root / "pipeline_task.yaml"
+            config_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": 1,
+                        "run": {"name": "cached", "output_dir": str(root / "runs" / "cached")},
+                        "datasets": {
+                            "rec": {
+                                "kind": "image_text",
+                                "root": str(rec),
+                                "labels": "labels.csv",
+                                "image_column": "image_path",
+                                "label_column": "text",
+                            }
+                        },
+                        "tasks": [
+                            {"id": "inspect", "type": "dataset.inspect", "dataset": "rec"},
+                            {
+                                "id": "prepare",
+                                "type": "dataset.prepare_recognition",
+                                "dataset": "rec",
+                                "depends_on": ["inspect"],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            config = load_pipeline_config(config_path)
+            first = run_pipeline(config, project_dir=Path.cwd())
+            second = run_pipeline(config, project_dir=Path.cwd())
+            forced = run_pipeline(config, project_dir=Path.cwd(), force={"inspect"})
+            third = run_pipeline(config, project_dir=Path.cwd(), use_cache=False)
+            events = [
+                json.loads(line)
+                for line in (root / "runs" / "cached" / "events.jsonl").read_text(encoding="utf-8").splitlines()
+            ]
+
+            self.assertEqual(first["summary"]["completed"], 2)
+            self.assertEqual(second["summary"]["skipped"], 2)
+            self.assertEqual(second["summary"]["blocked"], 0)
+            self.assertEqual(forced["tasks"]["inspect"]["status"], "completed")
+            self.assertEqual(forced["tasks"]["prepare"]["status"], "completed")
+            self.assertEqual(third["summary"]["completed"], 2)
+            self.assertTrue((root / "runs" / "cached" / ".task_cache.json").exists())
+            self.assertIn("task_skipped", {event["event"] for event in events})
+            self.assertIn("prepare", third["tasks"])
+            self.assertEqual(third["tasks"]["prepare"]["status"], "completed")
+
+    def test_runner_target_from_task_force_resume_and_blocked_dependents(self):
+        from pipeline.runners import run_pipeline
+        from pipeline.schema import load_pipeline_config
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            rec = root / "dataset"
+            self._make_image(rec / "images" / "a.png")
+            (rec / "labels.csv").write_text("image_path,text\nimages/a.png,123\n", encoding="utf-8")
+            missing = root / "missing"
+            config_path = root / "pipeline_task.yaml"
+            config_path.write_text(
+                yaml.safe_dump(
+                    {
+                        "schema_version": 1,
+                        "run": {"name": "graph", "output_dir": str(root / "runs" / "graph")},
+                        "datasets": {
+                            "rec": {
+                                "kind": "image_text",
+                                "root": str(rec),
+                                "labels": "labels.csv",
+                                "image_column": "image_path",
+                                "label_column": "text",
+                            },
+                            "bad": {"kind": "image_text", "root": str(missing), "labels": "labels.csv"},
+                        },
+                        "tasks": [
+                            {"id": "inspect", "type": "dataset.inspect", "dataset": "rec"},
+                            {
+                                "id": "prepare",
+                                "type": "dataset.prepare_recognition",
+                                "dataset": "rec",
+                                "depends_on": ["inspect"],
+                            },
+                            {"id": "bad", "type": "dataset.inspect", "dataset": "bad"},
+                            {
+                                "id": "after_bad",
+                                "type": "dataset.prepare_recognition",
+                                "dataset": "bad",
+                                "depends_on": ["bad"],
+                            },
+                        ],
+                    }
+                ),
+                encoding="utf-8",
+            )
+            config = load_pipeline_config(config_path)
+            target_report = run_pipeline(config, project_dir=Path.cwd(), targets={"prepare"})
+            from_report = run_pipeline(config, project_dir=Path.cwd(), from_task="prepare", force={"prepare"})
+            failed_report = run_pipeline(config, project_dir=Path.cwd(), targets={"after_bad"}, force={"bad", "after_bad"})
+            resume_report = run_pipeline(config, project_dir=Path.cwd(), resume=True)
+
+        self.assertEqual(set(target_report["tasks"]), {"inspect", "prepare"})
+        self.assertEqual(set(from_report["tasks"]), {"prepare"})
+        self.assertEqual(failed_report["tasks"]["bad"]["status"], "failed")
+        self.assertEqual(failed_report["tasks"]["after_bad"]["status"], "blocked")
+        self.assertEqual(resume_report["selected_tasks"], ["bad", "after_bad"])
+        self.assertEqual(resume_report["summary"]["blocked"], 1)
+
+    def test_scheduler_runs_independent_tasks_concurrently(self):
+        from pipeline.runners import run_pipeline
+        from pipeline.schema import parse_pipeline_config
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            rec1 = root / "a"
+            rec2 = root / "b"
+            self._make_image(rec1 / "images" / "a.png")
+            self._make_image(rec2 / "images" / "b.png")
+            (rec1 / "labels.csv").write_text("image_path,text\nimages/a.png,1\n", encoding="utf-8")
+            (rec2 / "labels.csv").write_text("image_path,text\nimages/b.png,2\n", encoding="utf-8")
+            config = parse_pipeline_config(
+                {
+                    "schema_version": 1,
+                    "run": {"name": "parallel", "output_dir": str(root / "runs" / "parallel")},
+                    "datasets": {
+                        "a": {"kind": "image_text", "root": str(rec1), "labels": "labels.csv", "image_column": "image_path", "label_column": "text"},
+                        "b": {"kind": "image_text", "root": str(rec2), "labels": "labels.csv", "image_column": "image_path", "label_column": "text"},
+                    },
+                    "tasks": [
+                        {"id": "inspect_a", "type": "dataset.inspect", "dataset": "a"},
+                        {"id": "inspect_b", "type": "dataset.inspect", "dataset": "b"},
+                    ],
+                }
+            )
+            report = run_pipeline(config, project_dir=Path.cwd(), max_workers=2)
+
+        self.assertEqual(report["summary"]["completed"], 2)
+        self.assertEqual(report["execution"]["max_workers"], 2)
+        self.assertEqual(set(report["tasks"]), {"inspect_a", "inspect_b"})
+        self.assertTrue(all(item["status"] in {"completed", "skipped"} for item in report["tasks"].values()))
+
+    def test_cli_run_parser_accepts_partial_cache_and_parallel_flags(self):
+        from pipeline.cli import build_parser
+
+        args = build_parser().parse_args(
+            [
+                "run",
+                "--config",
+                "pipeline_task.yaml",
+                "--target",
+                "prepare",
+                "eval",
+                "--from-task",
+                "prepare",
+                "--resume",
+                "--no-cache",
+                "--force",
+                "prepare",
+                "--max-workers",
+                "4",
+            ]
+        )
+
+        self.assertEqual(args.target, ["prepare", "eval"])
+        self.assertEqual(args.from_task, "prepare")
+        self.assertTrue(args.resume)
+        self.assertTrue(args.no_cache)
+        self.assertEqual(args.force, ["prepare"])
+        self.assertEqual(args.max_workers, 4)
+
 
 if __name__ == "__main__":
     unittest.main()
