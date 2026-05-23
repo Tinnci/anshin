@@ -11,10 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
@@ -50,7 +47,7 @@ import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun WelcomeScreen(
     onFinished: () -> Unit,
@@ -91,14 +88,12 @@ fun WelcomeScreen(
     }
     val pagerState = rememberPagerState(pageCount = { pageList.size })
     val scope = rememberCoroutineScope()
+    val motionScheme = MaterialTheme.motionScheme
 
-    // 弹簧翻页 fling 行为，snap 时使用 medium-low 弹簧
+    // Pager snap uses the product-level Material motion scheme.
     val flingBehavior = PagerDefaults.flingBehavior(
         state = pagerState,
-        snapAnimationSpec = spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness    = Spring.StiffnessMediumLow,
-        ),
+        snapAnimationSpec = motionScheme.defaultSpatialSpec(),
     )
 
     Scaffold(
@@ -164,13 +159,13 @@ fun WelcomeScreen(
                         val isSelected = pagerState.currentPage == index
                         val width by animateDpAsState(
                             targetValue   = if (isSelected) 24.dp else 8.dp,
-                            animationSpec = spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMedium),
+                            animationSpec = motionScheme.fastSpatialSpec(),
                             label         = "dotWidth",
                         )
                         val dotColor by animateColorAsState(
                             targetValue   = if (isSelected) MaterialTheme.colorScheme.primary
                                             else MaterialTheme.colorScheme.outlineVariant,
-                            animationSpec = tween(300),
+                            animationSpec = motionScheme.fastEffectsSpec(),
                             label         = "dotColor",
                         )
                         Box(
@@ -229,6 +224,7 @@ fun WelcomeScreen(
 // ────────────────────────────────────────────────────────────────────────────
 
 /** 弹簧缩放 + 淡入（用于图标/Logo 入场） */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun rememberSpringEntry(
     isCurrentPage: Boolean,
@@ -237,11 +233,12 @@ private fun rememberSpringEntry(
 ): Pair<Float, Float> {
     val scale = remember { Animatable(initialScale) }
     val alpha = remember { Animatable(0f) }
+    val motionScheme = MaterialTheme.motionScheme
     LaunchedEffect(isCurrentPage) {
         if (isCurrentPage) {
             delay(delayMs)
-            launch { scale.animateTo(1f, spring(Spring.DampingRatioLowBouncy, Spring.StiffnessLow)) }
-            launch { alpha.animateTo(1f, tween(350)) }
+            launch { scale.animateTo(1f, motionScheme.slowSpatialSpec()) }
+            launch { alpha.animateTo(1f, motionScheme.defaultEffectsSpec()) }
         } else {
             scale.snapTo(initialScale)
             alpha.snapTo(0f)
@@ -251,6 +248,7 @@ private fun rememberSpringEntry(
 }
 
 /** 弹簧上滑 + 淡入（用于标题/正文入场） */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun rememberSlideEntry(
     isCurrentPage: Boolean,
@@ -259,11 +257,12 @@ private fun rememberSlideEntry(
 ): Pair<Float, Float> {
     val offsetY = remember { Animatable(initialOffsetY) }
     val alpha   = remember { Animatable(0f) }
+    val motionScheme = MaterialTheme.motionScheme
     LaunchedEffect(isCurrentPage) {
         if (isCurrentPage) {
             delay(delayMs)
-            launch { offsetY.animateTo(0f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow)) }
-            launch { alpha.animateTo(1f, tween(300)) }
+            launch { offsetY.animateTo(0f, motionScheme.defaultSpatialSpec()) }
+            launch { alpha.animateTo(1f, motionScheme.defaultEffectsSpec()) }
         } else {
             offsetY.snapTo(initialOffsetY)
             alpha.snapTo(0f)
@@ -514,11 +513,12 @@ private fun WelcomeNotificationPage(
 
     // 未授权时按钮脐冲动画，吸引老年用户注意
     val pulseScale = remember { Animatable(1f) }
+    val motionScheme = MaterialTheme.motionScheme
     LaunchedEffect(isCurrentPage, notifGranted) {
         if (isCurrentPage && !notifGranted) {
             while (true) {
-                pulseScale.animateTo(1.06f, spring(Spring.DampingRatioMediumBouncy, Spring.StiffnessMediumLow))
-                pulseScale.animateTo(1.0f,  spring(Spring.DampingRatioNoBouncy,     Spring.StiffnessMediumLow))
+                pulseScale.animateTo(1.06f, motionScheme.fastSpatialSpec())
+                pulseScale.animateTo(1.0f, motionScheme.defaultSpatialSpec())
                 delay(1200)
             }
         } else {

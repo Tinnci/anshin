@@ -4,7 +4,6 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -146,13 +145,14 @@ fun HistoryScreen(
 @Composable
 private fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifier) {
     val colorScheme = MaterialTheme.colorScheme
+    val motionScheme = MaterialTheme.motionScheme
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
             adherence >= 0.6f -> calendarWarning  // 琅珀色
             else              -> colorScheme.error
         },
-        animationSpec = tween(600),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "adherenceColor",
     )
     Card(
@@ -312,6 +312,7 @@ private fun DayCell(
     modifier: Modifier = Modifier,
 ) {
     val colorScheme = MaterialTheme.colorScheme
+    val motionScheme = MaterialTheme.motionScheme
     val hasPending = adherenceDay != null && adherenceDay.pending > 0
     val bgColor by animateColorAsState(
         targetValue = when {
@@ -324,7 +325,7 @@ private fun DayCell(
             adherenceDay.rate >= 0.5f        -> calendarWarning.copy(alpha = 0.7f)
             else                             -> colorScheme.error.copy(alpha = 0.7f)
         },
-        animationSpec = tween(300),
+        animationSpec = motionScheme.fastEffectsSpec(),
         label = "dayCellBg",
     )
     val textColor by animateColorAsState(
@@ -336,6 +337,7 @@ private fun DayCell(
             hasPending                          -> colorScheme.outline
             else                                -> colorScheme.onSurface
         },
+        animationSpec = motionScheme.fastEffectsSpec(),
         label = "dayCellText",
     )
 

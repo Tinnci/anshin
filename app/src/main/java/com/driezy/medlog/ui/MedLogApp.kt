@@ -4,8 +4,6 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -106,34 +104,42 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     }
 }
 
-// 导航动画弹性 spec（文件级常量，避免在 composable 回调中访问 MaterialTheme）
-private val navSpringSpec = spring<IntOffset>(dampingRatio = 0.82f, stiffness = 360f)
-private val navFadeIn  = fadeIn(tween(durationMillis = 200))
-private val navFadeOut = fadeOut(tween(durationMillis = 160))
-
 @Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 private fun MedLogNavHost(
     navController: androidx.navigation.NavHostController,
     startDest: Route,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
+    val navFadeIn = fadeIn(animationSpec = motionScheme.fastEffectsSpec())
+    val navFadeOut = fadeOut(animationSpec = motionScheme.fastEffectsSpec())
+    fun materialSharedAxisX(forward: Boolean) = slideInHorizontally(
+        animationSpec = motionScheme.defaultSpatialSpec<IntOffset>(),
+        initialOffsetX = { width -> if (forward) width else -width / 4 },
+    ) + navFadeIn
+    fun materialSharedAxisXOut(forward: Boolean) = slideOutHorizontally(
+        animationSpec = motionScheme.defaultSpatialSpec<IntOffset>(),
+        targetOffsetX = { width -> if (forward) width else -width / 4 },
+    ) + navFadeOut
+
     NavHost(
         navController = navController,
         startDestination = startDest,
         // 顶层 Tab 切换：淡入淡出
-        enterTransition = { fadeIn() },
-        exitTransition = { fadeOut() },
+        enterTransition = { navFadeIn },
+        exitTransition = { navFadeOut },
         // 深层导航：水平滑动
         popEnterTransition = {
-            slideInHorizontally(initialOffsetX = { -it / 4 }) + fadeIn()
+            materialSharedAxisX(forward = false)
         },
         popExitTransition = {
-            slideOutHorizontally(targetOffsetX = { it / 4 }) + fadeOut()
+            materialSharedAxisXOut(forward = true)
         },
     ) {
         // ── 欢迎引导（首次启动）───────────────────────────
         composable<Route.Welcome>(
-            enterTransition = { fadeIn() },
-            exitTransition  = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition  = { navFadeOut },
         ) {
             WelcomeScreen(
                 onFinished = {
@@ -145,8 +151,8 @@ private fun MedLogNavHost(
         }
         // ── 顶层目的地（Tab 切换：只淡入淡出）──────────────
         composable<Route.Home>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             HomeScreen(
                 onAddMedication = { navController.navigate(Route.AddMedication()) },
@@ -154,14 +160,14 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.History>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             HistoryScreen()
         }
         composable<Route.Drugs>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             DrugsScreen(
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
@@ -176,20 +182,20 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.Diary>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             SymptomDiaryScreen()
         }
         composable<Route.Health>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             HealthScreen()
         }
         composable<Route.Settings>(
-            enterTransition = { fadeIn() },
-            exitTransition = { fadeOut() },
+            enterTransition = { navFadeIn },
+            exitTransition = { navFadeOut },
         ) {
             SettingsScreen(
                 onNavigateToWelcome = {
@@ -202,10 +208,10 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.MedDetail>(
-            enterTransition    = { slideInHorizontally(navSpringSpec) { it } + navFadeIn },
+            enterTransition    = { materialSharedAxisX(forward = true) },
             exitTransition     = { navFadeOut },
             popEnterTransition = { navFadeIn },
-            popExitTransition  = { slideOutHorizontally(tween(280)) { it } + navFadeOut },
+            popExitTransition  = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.MedDetail = backStackEntry.toRoute()
             MedicationDetailScreen(
@@ -215,10 +221,10 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.AddMedication>(
-            enterTransition    = { slideInHorizontally(navSpringSpec) { it } + navFadeIn },
+            enterTransition    = { materialSharedAxisX(forward = true) },
             exitTransition     = { navFadeOut },
             popEnterTransition = { navFadeIn },
-            popExitTransition  = { slideOutHorizontally(tween(280)) { it } + navFadeOut },
+            popExitTransition  = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.AddMedication = backStackEntry.toRoute()
             AddMedicationScreen(

@@ -108,3 +108,7 @@
 - Extended `scripts/update_material_symbols.mjs` to generate 112 XML symbols total: 101 baseline 24dp icons, 6 selected `fill=1` navigation icons, and 5 optical-size display icons.
 - Wired selected variants into bottom navigation, rail, and drawer destinations; wired optical-size variants into the drawer brand icon, OCR empty state, Health empty state, Drugs empty state, and the welcome confirmation moment.
 - Re-ran targeted `MaterialSymbolsMigrationGuardTest`; the new state/optical-size checks passed.
+- Started M3 Expressive motion physics pass from the May 2025 guidance: keep the product on `MotionScheme.expressive()`, use spatial tokens for movement/size and effects tokens for opacity/color, and avoid legacy duration/easing for custom motion hotspots.
+- Added failing `MotionSystemGuardTest`, then migrated navigation transitions, welcome pager/entry/pulse motion, History color transitions, and Medication Detail adherence color transitions to `MaterialTheme.motionScheme` spring tokens.
+- Verified motion changes with targeted `MotionSystemGuardTest`, then ran `:app:ktlintCheck`, targeted motion/icon guard tests, and `:app:assembleDebug`; installed and launched the debug APK on `6b9f2b84`.
+- Android lint was attempted twice after the icon/motion work, but both runs stalled for more than 10 minutes in lint analysis/report generation. The verified compile/ktlint/tests/assemble/install path passed; lint needs a separate tooling-performance investigation.

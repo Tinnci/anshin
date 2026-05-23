@@ -4,7 +4,6 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -362,13 +361,14 @@ fun MedicationDetailScreen(
 @Composable
 private fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
     val colorScheme = MaterialTheme.colorScheme
+    val motionScheme = MaterialTheme.motionScheme
     val adherenceColor by animateColorAsState(
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
             adherence >= 0.6f -> calendarWarning
             else              -> colorScheme.error
         },
-        animationSpec = tween(600),
+        animationSpec = motionScheme.defaultEffectsSpec(),
         label = "adhColor",
     )
     Card(
