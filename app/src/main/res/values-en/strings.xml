@@ -697,6 +697,7 @@
     <string name="widget_action_btn">Take</string>
     <!-- Widget settings screen -->
     <string name="widget_settings_title">Widget Settings</string>
+    <string name="widget_settings_configure_title">Configure Today\'s Progress Widget</string>
     <string name="widget_settings_show_actions">Quick-take button</string>
     <string name="widget_settings_show_actions_body">Show a one-tap take button on the widget</string>
     <string name="widget_settings_status_body">Show status indicators only, no interactive buttons</string>

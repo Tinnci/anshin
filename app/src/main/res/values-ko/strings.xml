@@ -657,6 +657,7 @@
     <string name="widget_action_btn">복용</string>
     <!-- 위젯 설정 -->
     <string name="widget_settings_title">위젯 설정</string>
+    <string name="widget_settings_configure_title">오늘의 진행 상황 위젯 설정</string>
     <string name="widget_settings_show_actions">빠른 복용 버튼</string>
     <string name="widget_settings_show_actions_body">위젯에 원터치 복용 버튼 표시</string>
     <string name="widget_settings_status_body">상태 표시만, 버튼 없음</string>

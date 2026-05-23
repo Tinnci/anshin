@@ -656,6 +656,7 @@
     <string name="widget_action_btn">飲</string>
     <!-- ウィジェット設定 -->
     <string name="widget_settings_title">ウィジェット設定</string>
+    <string name="widget_settings_configure_title">今日進度ウィジェットの設定</string>
     <string name="widget_settings_show_actions">服薬ボタン</string>
     <string name="widget_settings_show_actions_body">ウィジェットにワンタップ服薬ボタンを表示</string>
     <string name="widget_settings_status_body">状態表示のみ、ボタンなし</string>    <plurals name="widget_next_dose_remaining_fmt">

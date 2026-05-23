@@ -5,6 +5,7 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 
 import android.app.Activity
 import android.appwidget.AppWidgetManager
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -59,6 +60,14 @@ class WidgetSettingsActivity : ComponentActivity() {
             ?.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID)
             ?: AppWidgetManager.INVALID_APPWIDGET_ID
 
+        // 默认设置为 RESULT_CANCELED，若用户直接退出或通过手势返回，则代表取消创建小组件
+        if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            val resultIntent = Intent().apply {
+                putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+            }
+            setResult(Activity.RESULT_CANCELED, resultIntent)
+        }
+
         setContent {
             val viewModel: SettingsViewModel = hiltViewModel()
             val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -70,15 +79,39 @@ class WidgetSettingsActivity : ComponentActivity() {
                 ThemeMode.SYSTEM -> systemDark
             }
 
+            val isConfigureMode = appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID
+
+            // ── 配置模式下，若触发系统物理返回键或返回手势，需携带 appWidgetId 明确取消并退出 ────────────────────
+            if (isConfigureMode) {
+                androidx.activity.compose.BackHandler {
+                    val resultIntent = Intent().apply {
+                        putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                    }
+                    setResult(Activity.RESULT_CANCELED, resultIntent)
+                    finish()
+                }
+            }
+
             MedLogTheme(darkTheme = darkTheme, dynamicColor = uiState.useDynamicColor) {
                 WidgetSettingsScreen(
+                    isConfigureMode = isConfigureMode,
                     widgetShowActions = uiState.widgetShowActions,
                     onShowActionsChange = { viewModel.setWidgetShowActions(it) },
-                    onClose = {
-                        // 若在 configure 流程中，回传 RESULT_OK 让系统放置小组件
-                        if (appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
-                            setResult(Activity.RESULT_OK)
+                    onCancel = {
+                        val resultIntent = Intent().apply {
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
                         }
+                        setResult(Activity.RESULT_CANCELED, resultIntent)
+                        finish()
+                    },
+                    onConfirm = {
+                        val resultIntent = Intent().apply {
+                            putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
+                        }
+                        setResult(Activity.RESULT_OK, resultIntent)
+                        finish()
+                    },
+                    onClose = {
                         finish()
                     },
                 )
@@ -90,22 +123,44 @@ class WidgetSettingsActivity : ComponentActivity() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WidgetSettingsScreen(
+    isConfigureMode: Boolean,
     widgetShowActions: Boolean,
     onShowActionsChange: (Boolean) -> Unit,
+    onCancel: () -> Unit,
+    onConfirm: () -> Unit,
     onClose: () -> Unit,
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.widget_settings_title)) },
+                title = {
+                    Text(
+                        if (isConfigureMode)
+                            stringResource(R.string.widget_settings_configure_title)
+                        else
+                            stringResource(R.string.widget_settings_title)
+                    )
+                },
                 navigationIcon = {
-                    IconButton(onClick = onClose) {
+                    IconButton(onClick = if (isConfigureMode) onCancel else onClose) {
                         MedLogIcon(
-                            MedLogIcons.ArrowBack,
-                            contentDescription = stringResource(R.string.detail_back),
+                            if (isConfigureMode) MedLogIcons.Close else MedLogIcons.ArrowBack,
+                            contentDescription = stringResource(
+                                if (isConfigureMode) R.string.common_action_cancel else R.string.detail_back
+                            ),
                         )
                     }
                 },
+                actions = {
+                    if (isConfigureMode) {
+                        TextButton(onClick = onConfirm) {
+                            Text(
+                                text = stringResource(R.string.common_action_add),
+                                style = MaterialTheme.typography.labelLarge,
+                            )
+                        }
+                    }
+                }
             )
         },
     ) { innerPadding ->
