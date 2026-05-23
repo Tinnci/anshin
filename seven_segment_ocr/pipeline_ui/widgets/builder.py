@@ -16,13 +16,13 @@ class ConfigBuilderWidget(QWidget):
         self._raw: dict[str, Any] = {}
         self._yaml = QPlainTextEdit()
         self._dataset_table = QTableWidget(0, 4)
-        self._dataset_table.setHorizontalHeaderLabels(["id", "kind", "root", "labels"])
+        self._dataset_table.setHorizontalHeaderLabels(["标识 (ID)", "类别 (Kind)", "根路径 (Root)", "标注文件 (Labels)"])
         self._task_table = QTableWidget(0, 5)
-        self._task_table.setHorizontalHeaderLabels(["id", "type", "dataset", "depends_on", "params"])
+        self._task_table.setHorizontalHeaderLabels(["任务 ID", "类型 (Type)", "数据集 (Dataset)", "依赖节点 (Depends On)", "运行参数 (Params)"])
         tabs = QTabWidget()
-        tabs.addTab(self._yaml_tab(), "YAML")
-        tabs.addTab(self._table_tab(self._dataset_table, "Datasets"), "Datasets")
-        tabs.addTab(self._table_tab(self._task_table, "Tasks"), "Tasks")
+        tabs.addTab(self._yaml_tab(), "YAML 配置")
+        tabs.addTab(self._table_tab(self._dataset_table, "数据集列表"), "数据集列表")
+        tabs.addTab(self._table_tab(self._task_table, "任务列表"), "任务列表")
         layout = QVBoxLayout(self)
         layout.addWidget(tabs)
 
@@ -84,7 +84,7 @@ class ConfigBuilderWidget(QWidget):
     def _yaml_tab(self) -> QWidget:
         tab = QWidget()
         layout = QVBoxLayout(tab)
-        layout.addWidget(QLabel("Edit full pipeline YAML, then save through validation."))
+        layout.addWidget(QLabel("编辑完整的管线 YAML，然后验证并保存。"))
         layout.addWidget(self._yaml)
         return tab
 

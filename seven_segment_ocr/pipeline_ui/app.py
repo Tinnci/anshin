@@ -107,7 +107,7 @@ class MetricChart(QWidget):
 class PipelineMainWindow(QMainWindow):
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("Seven Segment OCR Pipeline")
+        self.setWindowTitle("七段数码管 OCR 任务流水线平台 (Seven Segment OCR Pipeline)")
         self.resize(1280, 820)
         self.run_dir: Path | None = None
         self.config_path: Path | None = None
@@ -122,24 +122,24 @@ class PipelineMainWindow(QMainWindow):
         self.kernel_dir_line = QLineEdit("")
 
         self.events_table = QTableWidget(0, 5)
-        self.events_table.setHorizontalHeaderLabels(["Time", "Event", "Task", "Type", "Payload"])
+        self.events_table.setHorizontalHeaderLabels(["事件时间", "事件类型", "所属任务", "任务类别", "负载数据 (Payload)"])
         self.artifact_table = QTableWidget(0, 3)
-        self.artifact_table.setHorizontalHeaderLabels(["Role", "Path", "MIME"])
+        self.artifact_table.setHorizontalHeaderLabels(["产物角色 (Role)", "路径", "MIME 类型"])
         self.artifact_table.itemSelectionChanged.connect(self._show_selected_artifact)
 
         self.dataset_summary = QPlainTextEdit()
         self.dataset_summary.setReadOnly(True)
-        self.dataset_preview = QLabel("No dataset preview")
+        self.dataset_preview = QLabel("无数据集预览")
         self.dataset_preview.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.dataset_preview.setMinimumHeight(300)
 
         self.metric_chart = MetricChart()
         self.metric_table = QTableWidget(0, 2)
-        self.metric_table.setHorizontalHeaderLabels(["Key", "Value"])
+        self.metric_table.setHorizontalHeaderLabels(["指标 (Metric)", "数值"])
         self.training_console = QPlainTextEdit()
         self.training_console.setReadOnly(True)
 
-        self.inference_view = QLabel("No inference overlay")
+        self.inference_view = QLabel("无推理效果预览")
         self.inference_view.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.inference_text = QPlainTextEdit()
         self.inference_text.setReadOnly(True)
@@ -167,15 +167,15 @@ class PipelineMainWindow(QMainWindow):
         self.events_page = self._events_tab()
 
         self.tabs = QTabWidget()
-        self.tabs.addTab(self.dag_page, "DAG")
-        self.tabs.addTab(self.dataset_page, "Dataset")
-        self.tabs.addTab(self.training_page, "Training")
-        self.tabs.addTab(self.inference_page, "Inference")
-        self.tabs.addTab(self.evaluation_page, "Evaluation")
-        self.tabs.addTab(self.builder_page, "Builder")
-        self.tabs.addTab(self.leaderboard_page, "Leaderboard")
-        self.tabs.addTab(self.kaggle_page, "Kaggle")
-        self.tabs.addTab(self.events_page, "Events")
+        self.tabs.addTab(self.dag_page, "拓扑图 (DAG)")
+        self.tabs.addTab(self.dataset_page, "数据集预览")
+        self.tabs.addTab(self.training_page, "运行与日志")
+        self.tabs.addTab(self.inference_page, "模型推理")
+        self.tabs.addTab(self.evaluation_page, "评估报告")
+        self.tabs.addTab(self.builder_page, "配置编辑器")
+        self.tabs.addTab(self.leaderboard_page, "性能排行榜")
+        self.tabs.addTab(self.kaggle_page, "Kaggle 整合")
+        self.tabs.addTab(self.events_page, "事件流日志")
 
         root = QWidget()
         layout = QVBoxLayout(root)
@@ -190,19 +190,19 @@ class PipelineMainWindow(QMainWindow):
 
     def _toolbar(self) -> QHBoxLayout:
         layout = QHBoxLayout()
-        choose_config = QPushButton("Task JSON/YAML")
+        choose_config = QPushButton("任务配置 JSON/YAML")
         choose_config.clicked.connect(self._choose_config)
-        run_button = QPushButton("Run")
+        run_button = QPushButton("启动管线 (Run)")
         run_button.clicked.connect(self._run_config)
-        open_run = QPushButton("Open Run")
+        open_run = QPushButton("打开运行目录")
         open_run.clicked.connect(self._choose_run)
-        refresh = QPushButton("Refresh")
+        refresh = QPushButton("刷新看板 (Refresh)")
         refresh.clicked.connect(self.refresh_run)
         layout.addWidget(choose_config)
         layout.addWidget(self.config_line, 2)
         layout.addWidget(run_button)
         layout.addWidget(open_run)
-        layout.addWidget(QLabel("Run"))
+        layout.addWidget(QLabel("当前运行路径"))
         layout.addWidget(self.run_line, 1)
         layout.addWidget(refresh)
         return layout
@@ -217,13 +217,13 @@ class PipelineMainWindow(QMainWindow):
         splitter = QSplitter(Qt.Orientation.Horizontal)
         left = QWidget()
         left_layout = QVBoxLayout(left)
-        left_layout.addWidget(QLabel("Dataset profile"))
+        left_layout.addWidget(QLabel("数据集属性概要 (Dataset Profile)"))
         left_layout.addWidget(self.dataset_summary)
         right = QWidget()
         right_layout = QVBoxLayout(right)
-        right_layout.addWidget(QLabel("Preview / overlay"))
+        right_layout.addWidget(QLabel("可视化预览与标注覆盖 (Preview / Overlay)"))
         right_layout.addWidget(self.dataset_preview)
-        right_layout.addWidget(QLabel("Artifacts"))
+        right_layout.addWidget(QLabel("输出产物列表 (Artifacts)"))
         right_layout.addWidget(self.artifact_table)
         splitter.addWidget(left)
         splitter.addWidget(right)
@@ -257,14 +257,14 @@ class PipelineMainWindow(QMainWindow):
     def _evaluation_tab(self) -> QWidget:
         box = QWidget()
         layout = QVBoxLayout(box)
-        layout.addWidget(QLabel("Evaluation results"))
+        layout.addWidget(QLabel("模型候选对比评估结果报告"))
         layout.addWidget(self.eval_text)
         return box
 
     def _builder_tab(self) -> QWidget:
         box = QWidget()
         layout = QVBoxLayout(box)
-        save_button = QPushButton("Save Task YAML As...")
+        save_button = QPushButton("保存管线配置为 YAML...")
         save_button.clicked.connect(self._save_builder_yaml)
         layout.addWidget(save_button)
         layout.addWidget(self.builder)
@@ -273,7 +273,7 @@ class PipelineMainWindow(QMainWindow):
     def _leaderboard_tab(self) -> QWidget:
         box = QWidget()
         layout = QVBoxLayout(box)
-        refresh_button = QPushButton("Refresh Leaderboard")
+        refresh_button = QPushButton("刷新排行榜")
         refresh_button.clicked.connect(self.leaderboard.refresh)
         layout.addWidget(refresh_button)
         layout.addWidget(self.leaderboard)
@@ -282,21 +282,21 @@ class PipelineMainWindow(QMainWindow):
     def _kaggle_tab(self) -> QWidget:
         box = QWidget()
         layout = QVBoxLayout(box)
-        package_button = QPushButton("Package Kernel")
+        package_button = QPushButton("打包 Kaggle 代码包")
         package_button.clicked.connect(self._package_kaggle)
-        push_button = QPushButton("Push")
+        push_button = QPushButton("推送至 Kaggle (Push)")
         push_button.clicked.connect(self._push_kaggle)
-        status_button = QPushButton("Status")
+        status_button = QPushButton("查询云端状态 (Status)")
         status_button.clicked.connect(self._status_kaggle)
-        fetch_button = QPushButton("Fetch Output")
+        fetch_button = QPushButton("拉取云端产物 (Fetch)")
         fetch_button.clicked.connect(self._fetch_kaggle)
         row1 = QHBoxLayout()
         row1.addWidget(package_button)
-        row1.addWidget(QLabel("Kernel dir"))
+        row1.addWidget(QLabel("本地代码包目录"))
         row1.addWidget(self.kernel_dir_line)
         row1.addWidget(push_button)
         row2 = QHBoxLayout()
-        row2.addWidget(QLabel("Kernel id"))
+        row2.addWidget(QLabel("云端 Kernel 标识"))
         row2.addWidget(self.kernel_line)
         row2.addWidget(status_button)
         row2.addWidget(fetch_button)
@@ -314,16 +314,16 @@ class PipelineMainWindow(QMainWindow):
     def _choose_config(self) -> None:
         path, _ = QFileDialog.getOpenFileName(
             self,
-            "Open pipeline task",
+            "打开管线任务配置文件",
             str(PROJECT_DIR),
-            "Pipeline tasks (*.yaml *.yml *.json)",
+            "管线任务配置 (*.yaml *.yml *.json)",
         )
         if path:
             self.config_line.setText(path)
             self._set_run_from_config(Path(path))
 
     def _choose_run(self) -> None:
-        path = QFileDialog.getExistingDirectory(self, "Open run directory", str(PROJECT_DIR / "runs"))
+        path = QFileDialog.getExistingDirectory(self, "选择运行结果目录 (Run Directory)", str(PROJECT_DIR / "runs"))
         if path:
             self._set_run_dir(Path(path))
 
@@ -331,7 +331,7 @@ class PipelineMainWindow(QMainWindow):
         try:
             config = load_pipeline_config(config_path)
         except Exception as exc:
-            self._show_error("Invalid config", str(exc))
+            self._show_error("无效的配置文件", str(exc))
             return
         run_dir = config.run.output_dir if config.run.output_dir.is_absolute() else PROJECT_DIR / config.run.output_dir
         self._set_run_dir(run_dir)
@@ -350,7 +350,7 @@ class PipelineMainWindow(QMainWindow):
     def _run_config(self) -> None:
         config_path = Path(self.config_line.text()).expanduser()
         if not config_path.exists():
-            self._show_error("Missing config", f"Config file does not exist: {config_path}")
+            self._show_error("配置文件缺失", f"指定的配置文件路径不存在: {config_path}")
             return
         self._set_run_from_config(config_path)
         self._start_process(
@@ -373,7 +373,7 @@ class PipelineMainWindow(QMainWindow):
         )
 
     def _save_builder_yaml(self) -> None:
-        path, _ = QFileDialog.getSaveFileName(self, "Save pipeline task", str(PROJECT_DIR / "pipeline_task.edited.yaml"), "YAML (*.yaml *.yml)")
+        path, _ = QFileDialog.getSaveFileName(self, "保存管线任务配置文件", str(PROJECT_DIR / "pipeline_task.edited.yaml"), "YAML 配置 (*.yaml *.yml)")
         if not path:
             return
         try:
@@ -381,12 +381,12 @@ class PipelineMainWindow(QMainWindow):
             self.config_line.setText(path)
             self._set_run_from_config(Path(path))
         except Exception as exc:
-            self._show_error("Invalid builder config", str(exc))
+            self._show_error("无效的编辑器配置", str(exc))
 
     def _package_kaggle(self) -> None:
         config_path = Path(self.config_line.text()).expanduser()
         if not config_path.exists():
-            self._show_error("Missing config", f"Config file does not exist: {config_path}")
+            self._show_error("配置文件缺失", f"指定的配置文件路径不存在: {config_path}")
             return
         self._start_process(
             [sys.executable, "-m", "pipeline.cli", "package-kaggle", "--config", str(config_path), "--project-dir", str(PROJECT_DIR)],
@@ -396,7 +396,7 @@ class PipelineMainWindow(QMainWindow):
     def _push_kaggle(self) -> None:
         kernel_dir = self.kernel_dir_line.text().strip()
         if not kernel_dir:
-            self._show_error("Missing kernel dir", "Package a kernel or enter a kernel directory first.")
+            self._show_error("Kaggle 代码包目录缺失", "请先打包 Kernel 或手动输入代码包目录。")
             return
         self._start_process(
             [sys.executable, "-m", "pipeline.cli", "push-kaggle", "--kernel-dir", kernel_dir],
@@ -427,7 +427,7 @@ class PipelineMainWindow(QMainWindow):
 
     def _start_process(self, command: list[str], console: QPlainTextEdit) -> None:
         if self.process and self.process.state() != QProcess.ProcessState.NotRunning:
-            self._show_error("Process running", "Wait for the current pipeline command to finish.")
+            self._show_error("进程正在运行中", "请等待当前管线命令执行完毕。")
             return
         console.clear()
         console.appendPlainText("$ " + " ".join(command))
@@ -520,8 +520,8 @@ class PipelineMainWindow(QMainWindow):
     def _render_dataset_profile(self) -> None:
         profile_artifact = next((a for a in self.artifacts if a.get("role") == "dataset_profile"), None)
         if not profile_artifact:
-            self.dataset_summary.setPlainText("No dataset_profile.json artifact yet.")
-            self.dataset_preview.setText("No dataset preview")
+            self.dataset_summary.setPlainText("尚未生成 dataset_profile.json 分析报告产物。")
+            self.dataset_preview.setText("无数据集预览")
             return
         profile_path = Path(str(profile_artifact["path"]))
         profile = read_json(profile_path, default={}) or {}
@@ -545,7 +545,7 @@ class PipelineMainWindow(QMainWindow):
             if a.get("role") in {"evaluation_results", "evaluation_report", "evaluation_table"}
         ]
         if not candidates:
-            self.eval_text.setPlainText("No evaluation artifacts yet.")
+            self.eval_text.setPlainText("尚未生成模型候选评估结果产物。")
             return
         parts = []
         for artifact in candidates:
@@ -592,11 +592,11 @@ class PipelineMainWindow(QMainWindow):
 
     def _set_label_image(self, label: QLabel, path: Path) -> None:
         if not path.exists():
-            label.setText(f"Missing image: {path}")
+            label.setText(f"图像文件不存在: {path}")
             return
         pixmap = QPixmap(str(path))
         if pixmap.isNull():
-            label.setText(f"Could not load image: {path}")
+            label.setText(f"无法加载图像: {path}")
             return
         label.setPixmap(pixmap.scaled(label.size(), Qt.AspectRatioMode.KeepAspectRatio, Qt.TransformationMode.SmoothTransformation))
 

@@ -86,10 +86,10 @@ class DagView(QGraphicsView):
         if not task_id:
             return super().contextMenuEvent(event)
         menu = QMenu(self)
-        run_action = menu.addAction("Run target")
-        resume_action = menu.addAction("Resume from")
-        logs_action = menu.addAction("View logs")
-        inspect_action = menu.addAction("Inspect parameters")
+        run_action = menu.addAction("运行该节点 (Run target)")
+        resume_action = menu.addAction("从此节点续跑 (Resume from)")
+        logs_action = menu.addAction("查看该节点日志 (View logs)")
+        inspect_action = menu.addAction("检查/编辑参数 (Inspect parameters)")
         chosen = menu.exec(event.globalPos())
         if chosen == run_action:
             self.run_target_requested.emit(task_id)

@@ -121,9 +121,9 @@ class PipelineUiTest(unittest.TestCase):
         labels = [window.tabs.tabText(index) for index in range(window.tabs.count())]
 
         self.assertTrue(hasattr(window, "dag_view"))
-        self.assertIn("DAG", labels)
-        self.assertIn("Builder", labels)
-        self.assertIn("Leaderboard", labels)
+        self.assertIn("拓扑图 (DAG)", labels)
+        self.assertIn("配置编辑器", labels)
+        self.assertIn("性能排行榜", labels)
 
 
 if __name__ == "__main__":
