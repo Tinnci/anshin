@@ -24,6 +24,19 @@ enum class ThemeMode { SYSTEM, LIGHT, DARK }
 /** 七段数码管 OCR 识别模型类型 */
 enum class OcrModelType { LIGHT_SVTR, FASTVIT_T8 }
 
+/** 云端 AI provider。API key 不存放在 DataStore，后续由加密存储提供。 */
+enum class CloudAiProvider(val providerName: String, val defaultModel: String) {
+    MIMO("MiMo", "mimo-v2.5-pro"),
+    GEMINI("Gemini", "gemini-2.5-flash"),
+    ANTHROPIC("Anthropic", "claude-sonnet-4-20250514"),
+    OPENAI_COMPATIBLE("OpenAI-compatible", "gpt-4.1"),
+}
+
+enum class OpenAiCompatibleCloudAuthMode {
+    API_KEY_HEADER,
+    BEARER,
+}
+
 /** DataStore 文件名 */
 // 已移至 data/local/SettingsDataStore.kt 统一管理
 
@@ -89,7 +102,46 @@ data class SettingsPreferences(
 
     // ── OCR 模型选择 ────────────────────────────────────────────────────────────
     val ocrModelType: OcrModelType = OcrModelType.LIGHT_SVTR,
-)
+
+    // ── 云端 AI 设置 ───────────────────────────────────────────────────────────
+    /** 总开关，默认关闭；每个功能还需要单独 opt-in。 */
+    val cloudAiEnabled: Boolean = false,
+    val cloudAiImageAnalysisEnabled: Boolean = false,
+    val cloudAiHealthInsightsEnabled: Boolean = false,
+    /** 默认仅 Wi-Fi 上传图片/上下文到云端。 */
+    val cloudAiWifiOnly: Boolean = true,
+    val cloudAiProvider: CloudAiProvider = CloudAiProvider.MIMO,
+    val cloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
+    val mimoCloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
+    val geminiCloudAiModel: String = CloudAiProvider.GEMINI.defaultModel,
+    val anthropicCloudAiModel: String = CloudAiProvider.ANTHROPIC.defaultModel,
+    val openAiCompatibleCloudAiModel: String = CloudAiProvider.OPENAI_COMPATIBLE.defaultModel,
+    val openAiCompatibleBaseUrl: String = "",
+    val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
+    val openAiCompatibleProviderName: String = "OpenAI-compatible",
+) {
+    fun cloudAiModelFor(provider: CloudAiProvider): String =
+        when (provider) {
+            CloudAiProvider.MIMO -> mimoCloudAiModel.ifBlank { provider.defaultModel }
+            CloudAiProvider.GEMINI -> geminiCloudAiModel.ifBlank { provider.defaultModel }
+            CloudAiProvider.ANTHROPIC -> anthropicCloudAiModel.ifBlank { provider.defaultModel }
+            CloudAiProvider.OPENAI_COMPATIBLE -> openAiCompatibleCloudAiModel.ifBlank { provider.defaultModel }
+        }
+
+    fun activeCloudAiModel(): String {
+        val providerModel = cloudAiModelFor(cloudAiProvider)
+        val providerHasExplicitModel = providerModel != cloudAiProvider.defaultModel
+        val looksLikeLegacyMimoDefault =
+            cloudAiProvider != CloudAiProvider.MIMO && cloudAiModel == CloudAiProvider.MIMO.defaultModel
+        val selectedModel = when {
+            cloudAiModel.isBlank() -> providerModel
+            looksLikeLegacyMimoDefault -> providerModel
+            providerHasExplicitModel -> providerModel
+            else -> cloudAiModel
+        }
+        return selectedModel.ifBlank { cloudAiProvider.defaultModel }
+    }
+}
 
 @Singleton
 class UserPreferencesRepository @Inject constructor(
@@ -136,6 +188,28 @@ class UserPreferencesRepository @Inject constructor(
         val USER_HEIGHT_CM = floatPreferencesKey("user_height_cm")
         // OCR 识别设置
         val OCR_MODEL_TYPE = stringPreferencesKey("ocr_model_type")
+        // 云端 AI 设置
+        val CLOUD_AI_ENABLED = booleanPreferencesKey("cloud_ai_enabled")
+        val CLOUD_AI_IMAGE_ANALYSIS_ENABLED = booleanPreferencesKey("cloud_ai_image_analysis_enabled")
+        val CLOUD_AI_HEALTH_INSIGHTS_ENABLED = booleanPreferencesKey("cloud_ai_health_insights_enabled")
+        val CLOUD_AI_WIFI_ONLY = booleanPreferencesKey("cloud_ai_wifi_only")
+        val CLOUD_AI_PROVIDER = stringPreferencesKey("cloud_ai_provider")
+        val CLOUD_AI_MODEL = stringPreferencesKey("cloud_ai_model")
+        val CLOUD_AI_MIMO_MODEL = stringPreferencesKey("cloud_ai_mimo_model")
+        val CLOUD_AI_GEMINI_MODEL = stringPreferencesKey("cloud_ai_gemini_model")
+        val CLOUD_AI_ANTHROPIC_MODEL = stringPreferencesKey("cloud_ai_anthropic_model")
+        val CLOUD_AI_OPENAI_COMPATIBLE_MODEL = stringPreferencesKey("cloud_ai_openai_compatible_model")
+        val OPENAI_COMPATIBLE_BASE_URL = stringPreferencesKey("openai_compatible_base_url")
+        val OPENAI_COMPATIBLE_AUTH_MODE = stringPreferencesKey("openai_compatible_auth_mode")
+        val OPENAI_COMPATIBLE_PROVIDER_NAME = stringPreferencesKey("openai_compatible_provider_name")
+
+        private fun cloudAiModelKey(provider: CloudAiProvider): Preferences.Key<String> =
+            when (provider) {
+                CloudAiProvider.MIMO -> CLOUD_AI_MIMO_MODEL
+                CloudAiProvider.GEMINI -> CLOUD_AI_GEMINI_MODEL
+                CloudAiProvider.ANTHROPIC -> CLOUD_AI_ANTHROPIC_MODEL
+                CloudAiProvider.OPENAI_COMPATIBLE -> CLOUD_AI_OPENAI_COMPATIBLE_MODEL
+            }
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
@@ -145,6 +219,19 @@ class UserPreferencesRepository @Inject constructor(
             else throw e
         }
         .map { prefs ->
+            val cloudAiProvider = prefs[CLOUD_AI_PROVIDER]?.let {
+                runCatching { CloudAiProvider.valueOf(it) }.getOrNull()
+            } ?: CloudAiProvider.MIMO
+            val legacyCloudAiModel = prefs[CLOUD_AI_MODEL]
+            fun storedModel(provider: CloudAiProvider): String {
+                val legacyForSelectedProvider = if (cloudAiProvider == provider) legacyCloudAiModel else null
+                return prefs[cloudAiModelKey(provider)] ?: legacyForSelectedProvider ?: provider.defaultModel
+            }
+            val mimoCloudAiModel = storedModel(CloudAiProvider.MIMO)
+            val geminiCloudAiModel = storedModel(CloudAiProvider.GEMINI)
+            val anthropicCloudAiModel = storedModel(CloudAiProvider.ANTHROPIC)
+            val openAiCompatibleCloudAiModel = storedModel(CloudAiProvider.OPENAI_COMPATIBLE)
+
             SettingsPreferences(
                 persistentReminder         = prefs[PERSISTENT_REMINDER] ?: false,
                 persistentIntervalMinutes  = prefs[PERSISTENT_INTERVAL_MINUTES] ?: 5,
@@ -173,6 +260,26 @@ class UserPreferencesRepository @Inject constructor(
                 userHeightCm            = prefs[USER_HEIGHT_CM] ?: 0f,
                 ocrModelType            = prefs[OCR_MODEL_TYPE]?.let { runCatching { OcrModelType.valueOf(it) }.getOrNull() }
                                             ?: OcrModelType.LIGHT_SVTR,
+                cloudAiEnabled = prefs[CLOUD_AI_ENABLED] ?: false,
+                cloudAiImageAnalysisEnabled = prefs[CLOUD_AI_IMAGE_ANALYSIS_ENABLED] ?: false,
+                cloudAiHealthInsightsEnabled = prefs[CLOUD_AI_HEALTH_INSIGHTS_ENABLED] ?: false,
+                cloudAiWifiOnly = prefs[CLOUD_AI_WIFI_ONLY] ?: true,
+                cloudAiProvider = cloudAiProvider,
+                cloudAiModel = when (cloudAiProvider) {
+                    CloudAiProvider.MIMO -> mimoCloudAiModel
+                    CloudAiProvider.GEMINI -> geminiCloudAiModel
+                    CloudAiProvider.ANTHROPIC -> anthropicCloudAiModel
+                    CloudAiProvider.OPENAI_COMPATIBLE -> openAiCompatibleCloudAiModel
+                },
+                mimoCloudAiModel = mimoCloudAiModel,
+                geminiCloudAiModel = geminiCloudAiModel,
+                anthropicCloudAiModel = anthropicCloudAiModel,
+                openAiCompatibleCloudAiModel = openAiCompatibleCloudAiModel,
+                openAiCompatibleBaseUrl = prefs[OPENAI_COMPATIBLE_BASE_URL] ?: "",
+                openAiCompatibleAuthMode = prefs[OPENAI_COMPATIBLE_AUTH_MODE]?.let {
+                    runCatching { OpenAiCompatibleCloudAuthMode.valueOf(it) }.getOrNull()
+                } ?: OpenAiCompatibleCloudAuthMode.BEARER,
+                openAiCompatibleProviderName = prefs[OPENAI_COMPATIBLE_PROVIDER_NAME] ?: "OpenAI-compatible",
             )
         }
 
@@ -271,5 +378,44 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新 OCR 识别模型类型 */
     suspend fun updateOcrModelType(modelType: OcrModelType) {
         dataStore.edit { it[OCR_MODEL_TYPE] = modelType.name }
+    }
+
+    suspend fun updateCloudAiSettings(
+        enabled: Boolean? = null,
+        imageAnalysisEnabled: Boolean? = null,
+        healthInsightsEnabled: Boolean? = null,
+        wifiOnly: Boolean? = null,
+        provider: CloudAiProvider? = null,
+        model: String? = null,
+        openAiCompatibleBaseUrl: String? = null,
+        openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode? = null,
+        openAiCompatibleProviderName: String? = null,
+    ) {
+        dataStore.edit { prefs ->
+            val selectedProvider = provider ?: prefs[CLOUD_AI_PROVIDER]?.let {
+                runCatching { CloudAiProvider.valueOf(it) }.getOrNull()
+            } ?: CloudAiProvider.MIMO
+            if (enabled != null) prefs[CLOUD_AI_ENABLED] = enabled
+            if (imageAnalysisEnabled != null) prefs[CLOUD_AI_IMAGE_ANALYSIS_ENABLED] = imageAnalysisEnabled
+            if (healthInsightsEnabled != null) prefs[CLOUD_AI_HEALTH_INSIGHTS_ENABLED] = healthInsightsEnabled
+            if (wifiOnly != null) prefs[CLOUD_AI_WIFI_ONLY] = wifiOnly
+            if (provider != null) {
+                prefs[CLOUD_AI_PROVIDER] = provider.name
+                if (model == null) {
+                    prefs[CLOUD_AI_MODEL] = prefs[cloudAiModelKey(provider)] ?: provider.defaultModel
+                }
+            }
+            if (model != null) {
+                val resolvedModel = model.ifBlank { selectedProvider.defaultModel }
+                prefs[CLOUD_AI_MODEL] = resolvedModel
+                prefs[cloudAiModelKey(selectedProvider)] = resolvedModel
+            }
+            if (openAiCompatibleBaseUrl != null) prefs[OPENAI_COMPATIBLE_BASE_URL] = openAiCompatibleBaseUrl.trim()
+            if (openAiCompatibleAuthMode != null) prefs[OPENAI_COMPATIBLE_AUTH_MODE] = openAiCompatibleAuthMode.name
+            if (openAiCompatibleProviderName != null) {
+                prefs[OPENAI_COMPATIBLE_PROVIDER_NAME] =
+                    openAiCompatibleProviderName.ifBlank { "OpenAI-compatible" }
+            }
+        }
     }
 }

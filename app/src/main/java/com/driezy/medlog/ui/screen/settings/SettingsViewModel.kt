@@ -7,8 +7,14 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import androidx.lifecycle.ViewModel
 import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.ai.AiApiKeyStore
+import com.driezy.medlog.ai.AiCloudConfigResolver
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.repository.AiCacheRepository
+import com.driezy.medlog.data.repository.AiUsageSummaryRow
+import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.MedicationRepository
+import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UserPreferencesRepository
@@ -55,21 +61,43 @@ data class SettingsUiState(
     val followUpDelayMinutes: Int = 15,
     val followUpMaxCount: Int = 1,
     val ocrModelType: OcrModelType = OcrModelType.LIGHT_SVTR,
+    val cloudAiEnabled: Boolean = false,
+    val cloudAiImageAnalysisEnabled: Boolean = false,
+    val cloudAiHealthInsightsEnabled: Boolean = false,
+    val cloudAiWifiOnly: Boolean = true,
+    val cloudAiProvider: CloudAiProvider = CloudAiProvider.MIMO,
+    val cloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
+    val openAiCompatibleBaseUrl: String = "",
+    val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
+    val openAiCompatibleProviderName: String = "OpenAI-compatible",
+    val cloudAiAvailableProviders: Set<CloudAiProvider> = emptySet(),
+    val cloudAiProviderHasApiKey: Boolean = false,
+    val cloudAiSupportsImageInput: Boolean = true,
+    val cloudAiSupportsText: Boolean = true,
+    val cloudAiSupportsJsonInstruction: Boolean = true,
+    val aiUsageSummary: List<AiUsageSummaryRow> = emptyList(),
 )
 
 @HiltViewModel
 class SettingsViewModel @Inject constructor(
     private val repository: MedicationRepository,
     private val prefsRepository: UserPreferencesRepository,
+    private val aiApiKeyStore: AiApiKeyStore,
+    private val aiCacheRepository: AiCacheRepository,
     private val resyncReminders: ResyncRemindersUseCase,
     private val backupRestore: BackupRestoreUseCase,
     @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
+    private val aiUsageSummary = MutableStateFlow(emptyList<AiUsageSummaryRow>())
+
     val uiState: StateFlow<SettingsUiState> = combine(
         repository.getArchivedMedications().catch { e -> Log.e("SettingsVM", "Failed to load archived meds", e); emit(emptyList()) },
         prefsRepository.settingsFlow,
-    ) { archived, prefs ->
+        aiApiKeyStore.availableProviders,
+        aiUsageSummary,
+    ) { archived, prefs, availableProviders, usageSummary ->
+        val cloudAiCapabilities = AiCloudConfigResolver.resolveCapabilities(prefs)
         SettingsUiState(
             archivedMedications     = archived,
             persistentReminder      = prefs.persistentReminder,
@@ -95,8 +123,34 @@ class SettingsViewModel @Inject constructor(
             followUpDelayMinutes    = prefs.followUpDelayMinutes,
             followUpMaxCount        = prefs.followUpMaxCount,
             ocrModelType            = prefs.ocrModelType,
+            cloudAiEnabled = prefs.cloudAiEnabled,
+            cloudAiImageAnalysisEnabled = prefs.cloudAiImageAnalysisEnabled,
+            cloudAiHealthInsightsEnabled = prefs.cloudAiHealthInsightsEnabled,
+            cloudAiWifiOnly = prefs.cloudAiWifiOnly,
+            cloudAiProvider = prefs.cloudAiProvider,
+            cloudAiModel = prefs.cloudAiModel,
+            openAiCompatibleBaseUrl = prefs.openAiCompatibleBaseUrl,
+            openAiCompatibleAuthMode = prefs.openAiCompatibleAuthMode,
+            openAiCompatibleProviderName = prefs.openAiCompatibleProviderName,
+            cloudAiAvailableProviders = availableProviders,
+            cloudAiProviderHasApiKey = prefs.cloudAiProvider in availableProviders,
+            cloudAiSupportsImageInput = cloudAiCapabilities.supportsImageInput,
+            cloudAiSupportsText = cloudAiCapabilities.supportsText,
+            cloudAiSupportsJsonInstruction = cloudAiCapabilities.supportsJsonInstruction,
+            aiUsageSummary = usageSummary,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
+
+    init {
+        refreshAiUsageSummary()
+    }
+
+    fun refreshAiUsageSummary() {
+        safeLaunch {
+            val sevenDaysMillis = 7L * 24 * 60 * 60 * 1000
+            aiUsageSummary.value = aiCacheRepository.usageSummary(System.currentTimeMillis() - sevenDaysMillis)
+        }
+    }
 
     fun setPersistentReminder(enabled: Boolean) {
         safeLaunch { prefsRepository.updatePersistentReminder(enabled) }
@@ -108,6 +162,48 @@ class SettingsViewModel @Inject constructor(
 
     fun setOcrModelType(modelType: OcrModelType) {
         safeLaunch { prefsRepository.updateOcrModelType(modelType) }
+    }
+
+    fun setCloudAiSettings(
+        enabled: Boolean? = null,
+        imageAnalysisEnabled: Boolean? = null,
+        healthInsightsEnabled: Boolean? = null,
+        wifiOnly: Boolean? = null,
+        provider: CloudAiProvider? = null,
+        model: String? = null,
+        openAiCompatibleBaseUrl: String? = null,
+        openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode? = null,
+        openAiCompatibleProviderName: String? = null,
+    ) {
+        safeLaunch {
+            prefsRepository.updateCloudAiSettings(
+                enabled = enabled,
+                imageAnalysisEnabled = imageAnalysisEnabled,
+                healthInsightsEnabled = healthInsightsEnabled,
+                wifiOnly = wifiOnly,
+                provider = provider,
+                model = model,
+                openAiCompatibleBaseUrl = openAiCompatibleBaseUrl,
+                openAiCompatibleAuthMode = openAiCompatibleAuthMode,
+                openAiCompatibleProviderName = openAiCompatibleProviderName,
+            )
+        }
+    }
+
+    fun setCloudAiApiKey(provider: CloudAiProvider, apiKey: String) {
+        safeLaunch { aiApiKeyStore.setApiKey(provider, apiKey) }
+    }
+
+    fun setCurrentCloudAiApiKey(apiKey: String) {
+        setCloudAiApiKey(uiState.value.cloudAiProvider, apiKey)
+    }
+
+    fun clearCloudAiApiKey(provider: CloudAiProvider) {
+        safeLaunch { aiApiKeyStore.clearApiKey(provider) }
+    }
+
+    fun clearCurrentCloudAiApiKey() {
+        clearCloudAiApiKey(uiState.value.cloudAiProvider)
     }
 
     fun unarchiveMedication(id: Long) {

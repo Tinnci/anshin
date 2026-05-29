@@ -5,14 +5,23 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.driezy.medlog.data.model.AiAnalysisCacheEntry
+import com.driezy.medlog.data.model.AiUsageEvent
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.model.SymptomLog
 
 @Database(
-    entities = [Medication::class, MedicationLog::class, SymptomLog::class, HealthRecord::class],
-    version = 12,
+    entities = [
+        Medication::class,
+        MedicationLog::class,
+        SymptomLog::class,
+        HealthRecord::class,
+        AiAnalysisCacheEntry::class,
+        AiUsageEvent::class,
+    ],
+    version = 14,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -21,6 +30,8 @@ abstract class MedLogDatabase : RoomDatabase() {
     abstract fun medicationLogDao(): MedicationLogDao
     abstract fun symptomLogDao(): SymptomLogDao
     abstract fun healthRecordDao(): HealthRecordDao
+    abstract fun aiAnalysisCacheDao(): AiAnalysisCacheDao
+    abstract fun aiUsageEventDao(): AiUsageEventDao
 
     companion object {
         /** v5 → v6: 添加 intervalHours 列（间隔给药小时数） */
@@ -87,6 +98,65 @@ abstract class MedLogDatabase : RoomDatabase() {
                 db.execSQL(
                     "CREATE INDEX IF NOT EXISTS index_medication_logs_medicationId_scheduledTimeMs ON medication_logs (medicationId, scheduledTimeMs)"
                 )
+            }
+        }
+
+        /** v12 → v13: 新增 AI 结果缓存和轻量本地审计表 */
+        val MIGRATION_12_13 = object : Migration(12, 13) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ai_analysis_cache (
+                        cacheKey TEXT NOT NULL PRIMARY KEY,
+                        kind TEXT NOT NULL,
+                        provider TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        promptVersion INTEGER NOT NULL,
+                        inputHash TEXT NOT NULL,
+                        locale TEXT NOT NULL,
+                        responseJson TEXT NOT NULL,
+                        createdAt INTEGER NOT NULL,
+                        expiresAt INTEGER NOT NULL
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_kind ON ai_analysis_cache (kind)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_expiresAt ON ai_analysis_cache (expiresAt)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_kind_createdAt ON ai_analysis_cache (kind, createdAt)")
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS ai_usage_events (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        timestamp INTEGER NOT NULL,
+                        feature TEXT NOT NULL,
+                        provider TEXT NOT NULL,
+                        model TEXT NOT NULL,
+                        networkType TEXT NOT NULL,
+                        cacheHit INTEGER NOT NULL,
+                        result TEXT NOT NULL,
+                        errorCategory TEXT,
+                        inputHashPrefix TEXT,
+                        latencyMs INTEGER
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_usage_events_timestamp ON ai_usage_events (timestamp)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_usage_events_feature ON ai_usage_events (feature)")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_usage_events_result ON ai_usage_events (result)")
+            }
+        }
+
+        /** v13 → v14: 健康记录增加来源 provenance，用于区分手动、本地 OCR、云端 OCR 和导入记录 */
+        val MIGRATION_13_14 = object : Migration(13, 14) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE health_records ADD COLUMN source TEXT NOT NULL DEFAULT 'MANUAL'")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN sourceFeature TEXT")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN sourceProvider TEXT")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN sourceModel TEXT")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN sourceConfidence REAL")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN sourceCacheKey TEXT")
+                db.execSQL("ALTER TABLE health_records ADD COLUMN confirmedAt INTEGER")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_health_records_source ON health_records (source)")
             }
         }
     }

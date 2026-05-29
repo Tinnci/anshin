@@ -2,6 +2,10 @@ package com.driezy.medlog.di
 
 import android.content.Context
 import androidx.room.Room
+import com.driezy.medlog.ai.AiApiKeyStore
+import com.driezy.medlog.ai.AndroidKeystoreAiApiKeyStore
+import com.driezy.medlog.data.local.AiAnalysisCacheDao
+import com.driezy.medlog.data.local.AiUsageEventDao
 import com.driezy.medlog.data.local.HealthRecordDao
 import com.driezy.medlog.data.local.MedLogDatabase
 import com.driezy.medlog.data.local.MedicationDao
@@ -9,6 +13,8 @@ import com.driezy.medlog.data.local.MedicationLogDao
 import com.driezy.medlog.data.local.RoomTransactionRunner
 import com.driezy.medlog.data.local.SymptomLogDao
 import com.driezy.medlog.data.local.TransactionRunner
+import com.driezy.medlog.data.repository.AiCacheRepository
+import com.driezy.medlog.data.repository.AiCacheRepositoryImpl
 import com.driezy.medlog.data.repository.DrugRepository
 import com.driezy.medlog.data.repository.DrugRepositoryImpl
 import com.driezy.medlog.data.repository.HealthRepository
@@ -52,6 +58,8 @@ object DatabaseModule {
                 MedLogDatabase.MIGRATION_9_10,
                 MedLogDatabase.MIGRATION_10_11,
                 MedLogDatabase.MIGRATION_11_12,
+                MedLogDatabase.MIGRATION_12_13,
+                MedLogDatabase.MIGRATION_13_14,
             )
             .build()
 
@@ -66,6 +74,12 @@ object DatabaseModule {
 
     @Provides
     fun provideHealthRecordDao(db: MedLogDatabase): HealthRecordDao = db.healthRecordDao()
+
+    @Provides
+    fun provideAiAnalysisCacheDao(db: MedLogDatabase): AiAnalysisCacheDao = db.aiAnalysisCacheDao()
+
+    @Provides
+    fun provideAiUsageEventDao(db: MedLogDatabase): AiUsageEventDao = db.aiUsageEventDao()
 
     @Provides
     @Singleton
@@ -110,6 +124,12 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
+    abstract fun bindAiApiKeyStore(
+        impl: AndroidKeystoreAiApiKeyStore,
+    ): AiApiKeyStore
+
+    @Binds
+    @Singleton
     abstract fun bindWidgetRefresher(
         impl: GlanceWidgetRefresher,
     ): WidgetRefresher
@@ -119,5 +139,13 @@ abstract class RepositoryModule {
     abstract fun bindTransactionRunner(
         impl: RoomTransactionRunner,
     ): TransactionRunner
-}
 
+    companion object {
+        @Provides
+        @Singleton
+        fun provideAiCacheRepository(
+            cacheDao: AiAnalysisCacheDao,
+            usageEventDao: AiUsageEventDao,
+        ): AiCacheRepository = AiCacheRepositoryImpl(cacheDao, usageEventDao)
+    }
+}

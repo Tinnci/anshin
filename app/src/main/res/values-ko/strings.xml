@@ -9,6 +9,7 @@
     <string name="archive">보관</string>
     <string name="restore">복원</string>
     <string name="cancel">취소</string>
+    <string name="common_save">저장</string>
     <string name="confirm">확인</string>
     <string name="medication_taken">복용 완료</string>
     <string name="medication_skipped">건너뜀</string>
@@ -118,6 +119,7 @@
     <string name="home_period_take_all_btn">모두 복용</string>
     <string name="home_low_stock_title">재고 부족 알림</string>
     <string name="home_low_stock_item">· %1$s: 남은 수량 %2$s %3$s</string>
+    <string name="home_low_stock_more">그 외 %d개 약품의 재고가 부족합니다</string>
     <plurals name="home_streak_current">
         <item quantity="other">🔥 %d일 연속</item>
     </plurals>
@@ -534,9 +536,13 @@
     <string name="health_type_label_blood_pressure">혈압</string>
     <string name="health_type_label_blood_glucose">혈당</string>
     <string name="health_type_label_weight">체중</string>
+    <string name="health_type_label_body_fat">체지방률</string>
     <string name="health_type_label_heart_rate">심박수</string>
     <string name="health_type_label_temperature">체온</string>
     <string name="health_type_label_spo2">혈중 산소</string>
+    <string name="health_insights_section_title">스마트 제안</string>
+    <string name="health_insights_section_subtitle">최근 기록을 자동으로 정리하며 의학적 조언을 대체하지 않습니다</string>
+    <string name="health_insights_pending_body">최근 기록을 요약해 짧은 제안을 생성하는 중…</string>
     <string name="med_card_high_priority_cd">높은 우선순위</string>
     <string name="med_card_tcm_label">한약</string>
     <string name="med_card_taken_at">✓ %s에 복용</string>
@@ -726,6 +732,20 @@
     <string name="ocr_confidence_low">낮음</string>
     <string name="ocr_processing_recognizing">텍스트 인식 중…</string>
     <string name="ocr_processing_parsing">지표 분석 중…</string>
+    <string name="ocr_cloud_analysis_action">클라우드 분석</string>
+    <string name="ocr_cloud_analysis_running">클라우드에서 분석 중…</string>
+    <string name="ocr_cloud_analysis_failed">클라우드 분석에 실패했습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_needs_key">먼저 설정에서 API key를 저장하세요. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_wifi_required">설정에서 Wi‑Fi에서만 업로드하도록 되어 있습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_image_unsupported">현재 모델은 이미지 입력을 지원하지 않습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_base_url_missing">먼저 호환 서비스 URL을 입력하세요. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_disabled">향상된 분석이 활성화되지 않았습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_provider_error">클라우드 서비스를 일시적으로 사용할 수 없습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ocr_cloud_analysis_format_error">클라우드 응답을 확인할 수 없습니다. 로컬 인식 결과를 유지합니다.</string>
+    <string name="ai_status_running">AI 분석 중</string>
+    <string name="ai_status_cloud_success">클라우드 업데이트됨</string>
+    <string name="ai_status_local_fallback">로컬 결과</string>
+    <string name="ai_status_local_only">로컬 분석</string>
     <string name="ocr_no_text_found">텍스트가 감지되지 않았습니다</string>
     <string name="ocr_no_text_hint">문자가 선명하게 보이도록 한 뒤 다시 촬영하세요</string>
     <string name="ocr_edit_value">값 편집</string>
@@ -811,4 +831,41 @@
         <item>변비</item>
         <item>시야 흐림</item>
     </string-array>
+    <string name="settings_ai_section_title">향상된 분석</string>
+    <string name="settings_ai_section_desc">더 강력한 클라우드 모델로 이미지 인식과 건강 제안을 보조할 수 있습니다. 기본은 꺼짐이며 업로드는 사용자 동작이 필요합니다.</string>
+    <string name="settings_ai_enable_title">향상된 분석 사용</string>
+    <string name="settings_ai_enable_subtitle">설정된 클라우드 모델을 우선 사용하고 로컬 인식도 계속 사용할 수 있습니다.</string>
+    <string name="settings_ai_provider_title">서비스 및 모델</string>
+    <string name="settings_ai_status_off">향상된 분석 꺼짐</string>
+    <string name="settings_ai_status_off_body">사진 인식과 건강 제안은 로컬에서 계속 처리되며 데이터는 업로드되지 않습니다.</string>
+    <string name="settings_ai_status_needs_key">설정이 한 단계 남았습니다</string>
+    <string name="settings_ai_status_needs_key_body">API key를 저장하면 향상된 인식과 건강 제안을 사용할 수 있습니다.</string>
+    <string name="settings_ai_status_ready">향상된 분석 사용 가능</string>
+    <string name="settings_ai_status_ready_body">이미지 인식과 건강 제안에 사용할 수 있으며 실패 시 로컬 결과로 자동 전환됩니다.</string>
+    <string name="settings_ai_status_text_only">건강 제안 사용 가능</string>
+    <string name="settings_ai_status_text_only_body">현재 모델은 이미지 입력을 지원하지 않지만 저장된 건강 기록 분석에는 사용할 수 있습니다.</string>
+    <string name="settings_ai_model_label">모델</string>
+    <string name="settings_ai_model_hint">기본값: %s</string>
+    <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
+    <string name="settings_ai_base_url_hint">예: https://api.example.com/v1</string>
+    <string name="settings_ai_provider_name_label">Provider 이름</string>
+    <string name="settings_ai_auth_bearer">Bearer</string>
+    <string name="settings_ai_auth_api_key">api-key</string>
+    <string name="settings_ai_image_title">클라우드 이미지 분석</string>
+    <string name="settings_ai_image_subtitle">결과 화면에서 수동으로 실행합니다. 사진은 자동 업로드되지 않습니다.</string>
+    <string name="settings_ai_image_unsupported_subtitle">현재 provider/model은 이미지 입력을 지원하지 않습니다. 건강 인사이트는 텍스트 컨텍스트로 계속 사용할 수 있습니다.</string>
+    <string name="settings_ai_insights_title">클라우드 건강 인사이트</string>
+    <string name="settings_ai_insights_subtitle">저장된 기록만 사용하며 OCR 이미지 캐시는 읽지 않습니다.</string>
+    <string name="settings_ai_wifi_only_title">Wi-Fi에서만 업로드</string>
+    <string name="settings_ai_wifi_only_subtitle">모바일 네트워크에서는 이미지나 건강 컨텍스트를 기본적으로 업로드하지 않습니다.</string>
+    <string name="settings_ai_api_key_title">API Key</string>
+    <string name="settings_ai_api_key_configured">%s key 설정됨</string>
+    <string name="settings_ai_api_key_missing">%s key 미설정</string>
+    <string name="settings_ai_api_key_label">API key 입력</string>
+    <string name="settings_ai_api_key_storage_hint">Key는 Android Keystore로 암호화되며 백업, 로그, 캐시에 포함되지 않습니다.</string>
+    <string name="settings_ai_api_key_save">key 저장</string>
+    <string name="settings_ai_api_key_clear">삭제</string>
+    <string name="settings_ai_usage_title">최근 7일 내부 상태</string>
+    <string name="settings_ai_usage_summary">총 %1$d회, 성공 %2$d회, 오류 %3$d회, 캐시 적중 %4$d회</string>
+    <string name="settings_ai_usage_last_error">최근 오류: %s</string>
 </resources>

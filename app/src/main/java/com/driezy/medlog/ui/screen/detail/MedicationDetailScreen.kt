@@ -28,6 +28,7 @@ import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.formatDosePrecise
+import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
@@ -62,6 +63,7 @@ fun MedicationDetailScreen(
     var showArchiveDialog by remember { mutableStateOf(false) }
 
     val med = uiState.medication
+    val medDisplayName = med?.displayName()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
     Scaffold(
@@ -80,7 +82,7 @@ fun MedicationDetailScreen(
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.primary,
                             )
-                            Text(med.name)
+                            Text(medDisplayName ?: med.name)
                         }
                     } else {
                         Text(stringResource(R.string.detail_title))
@@ -180,7 +182,7 @@ fun MedicationDetailScreen(
                             color = MaterialTheme.colorScheme.primary,
                             modifier = Modifier.padding(bottom = MedLogSpacing.Small),
                         )
-                        DetailRow(stringResource(R.string.detail_label_name), med.name)
+                        DetailRow(stringResource(R.string.detail_label_name), medDisplayName ?: med.name)
                         DetailRow(stringResource(R.string.detail_label_form), formLabel(med.form))
                         // 分类：支持单路径/多路径（用 \n 分隔的多条 ATC/TCM 路径）
                         val storedPaths = med.fullPath.split("\n").filter { it.isNotBlank() }

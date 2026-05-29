@@ -9,6 +9,7 @@
     <string name="archive">アーカイブ</string>
     <string name="restore">元に戻す</string>
     <string name="cancel">キャンセル</string>
+    <string name="common_save">保存</string>
     <string name="confirm">確認</string>
     <string name="medication_taken">服用済み</string>
     <string name="medication_skipped">スキップ</string>
@@ -118,6 +119,7 @@
     <string name="home_period_take_all_btn">まとめて服用</string>
     <string name="home_low_stock_title">残量不足アラート</string>
     <string name="home_low_stock_item">· %1$s：残 %2$s %3$s</string>
+    <string name="home_low_stock_more">ほか %d 件の薬の残量が不足しています</string>
     <plurals name="home_streak_current">
         <item quantity="other">🔥 %d 日連続</item>
     </plurals>
@@ -534,9 +536,13 @@
     <string name="health_type_label_blood_pressure">血圧</string>
     <string name="health_type_label_blood_glucose">血糖</string>
     <string name="health_type_label_weight">体重</string>
+    <string name="health_type_label_body_fat">体脂率</string>
     <string name="health_type_label_heart_rate">心拍数</string>
     <string name="health_type_label_temperature">体温</string>
     <string name="health_type_label_spo2">SpO2</string>
+    <string name="health_insights_section_title">スマート提案</string>
+    <string name="health_insights_section_subtitle">最近の記録から自動整理します。医師の助言に代わるものではありません</string>
+    <string name="health_insights_pending_body">最近の記録をまとめ、短い提案を生成しています…</string>
     <string name="med_card_high_priority_cd">高優先度</string>
     <string name="med_card_tcm_label">漢方薬</string>
     <string name="med_card_taken_at">✓ %s に服用</string>
@@ -723,6 +729,20 @@
     <string name="ocr_confidence_low">低信頼</string>
     <string name="ocr_processing_recognizing">テキストを認識中…</string>
     <string name="ocr_processing_parsing">指標を解析中…</string>
+    <string name="ocr_cloud_analysis_action">クラウド分析</string>
+    <string name="ocr_cloud_analysis_running">クラウドで分析中…</string>
+    <string name="ocr_cloud_analysis_failed">クラウド分析に失敗しました。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_needs_key">先に設定で API key を保存してください。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_wifi_required">設定で Wi‑Fi のみアップロードになっています。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_image_unsupported">現在のモデルは画像入力に対応していません。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_base_url_missing">先に互換サービス URL を入力してください。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_disabled">強化分析は有効化されていません。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_provider_error">クラウドサービスを一時的に利用できません。ローカル認識結果を保持します。</string>
+    <string name="ocr_cloud_analysis_format_error">クラウドの返答を確認できませんでした。ローカル認識結果を保持します。</string>
+    <string name="ai_status_running">AI 分析中</string>
+    <string name="ai_status_cloud_success">クラウド更新済み</string>
+    <string name="ai_status_local_fallback">ローカル結果</string>
+    <string name="ai_status_local_only">ローカル分析</string>
     <string name="ocr_no_text_found">テキストが検出されませんでした</string>
     <string name="ocr_no_text_hint">文字がはっきり見えるようにして、もう一度撮影してください</string>
     <string name="ocr_edit_value">数値を編集</string>
@@ -808,4 +828,41 @@
         <item>便秘</item>
         <item>視力低下</item>
     </string-array>
+    <string name="settings_ai_section_title">強化分析</string>
+    <string name="settings_ai_section_desc">より強力なクラウドモデルで画像認識と健康提案を補助できます。既定ではオフで、アップロードにはユーザー操作が必要です。</string>
+    <string name="settings_ai_enable_title">強化分析を有効化</string>
+    <string name="settings_ai_enable_subtitle">設定済みクラウドモデルを優先し、ローカル認識も引き続き利用できます。</string>
+    <string name="settings_ai_provider_title">サービスとモデル</string>
+    <string name="settings_ai_status_off">強化分析はオフです</string>
+    <string name="settings_ai_status_off_body">写真認識と健康提案はローカルで継続し、データはアップロードされません。</string>
+    <string name="settings_ai_status_needs_key">あと 1 つ設定が必要です</string>
+    <string name="settings_ai_status_needs_key_body">API key を保存すると、強化認識と健康提案を利用できます。</string>
+    <string name="settings_ai_status_ready">強化分析を利用できます</string>
+    <string name="settings_ai_status_ready_body">画像認識と健康提案に利用できます。失敗時はローカル結果へ自動で戻ります。</string>
+    <string name="settings_ai_status_text_only">健康提案を利用できます</string>
+    <string name="settings_ai_status_text_only_body">現在のモデルは画像入力に対応していませんが、保存済み健康記録の分析に利用できます。</string>
+    <string name="settings_ai_model_label">モデル</string>
+    <string name="settings_ai_model_hint">既定：%s</string>
+    <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
+    <string name="settings_ai_base_url_hint">例: https://api.example.com/v1</string>
+    <string name="settings_ai_provider_name_label">Provider 名</string>
+    <string name="settings_ai_auth_bearer">Bearer</string>
+    <string name="settings_ai_auth_api_key">api-key</string>
+    <string name="settings_ai_image_title">クラウド画像分析</string>
+    <string name="settings_ai_image_subtitle">結果ページから手動で実行します。写真は自動アップロードされません。</string>
+    <string name="settings_ai_image_unsupported_subtitle">現在の provider/model は画像入力に対応していません。健康インサイトはテキスト文脈で引き続き利用できます。</string>
+    <string name="settings_ai_insights_title">クラウド健康インサイト</string>
+    <string name="settings_ai_insights_subtitle">保存済み記録のみ使用し、OCR 画像キャッシュは読みません。</string>
+    <string name="settings_ai_wifi_only_title">Wi-Fi のみアップロード</string>
+    <string name="settings_ai_wifi_only_subtitle">モバイル通信では画像や健康コンテキストを既定でアップロードしません。</string>
+    <string name="settings_ai_api_key_title">API Key</string>
+    <string name="settings_ai_api_key_configured">%s の key は設定済み</string>
+    <string name="settings_ai_api_key_missing">%s の key は未設定</string>
+    <string name="settings_ai_api_key_label">API key を入力</string>
+    <string name="settings_ai_api_key_storage_hint">Key は Android Keystore で暗号化され、バックアップ、ログ、キャッシュには入りません。</string>
+    <string name="settings_ai_api_key_save">key を保存</string>
+    <string name="settings_ai_api_key_clear">クリア</string>
+    <string name="settings_ai_usage_title">過去 7 日間の内部状態</string>
+    <string name="settings_ai_usage_summary">合計 %1$d 回、成功 %2$d 回、エラー %3$d 回、キャッシュヒット %4$d 回</string>
+    <string name="settings_ai_usage_last_error">直近のエラー：%s</string>
 </resources>

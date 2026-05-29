@@ -117,6 +117,12 @@ object HealthMetricParser {
         """(\d{2,3}(?:\.\d{1,2})?)\s*斤""",
     )
 
+    // ── 体脂率 ───────────────────────────────────────────────────────────────
+    private val BODY_FAT = Regex(
+        """(?:(?:body\s*fat|fat\s*rate|体脂率|體脂率|体脂|體脂|bf)\s*[:：]?\s*)(\d{1,2}(?:\.\d{1,2})?)\s*%?""",
+        RegexOption.IGNORE_CASE,
+    )
+
     // ── 血氧 ─────────────────────────────────────────────────────────────────
     private val SPO2 = Regex(
         """(?:(?:sp\s*o\s*2|spo₂|血氧|oxygen\s*saturation)\s*[:：]?\s*)(\d{2,3})\s*%?""",
@@ -225,6 +231,11 @@ object HealthMetricParser {
                     metrics.add(it); foundTypes.add(HealthType.WEIGHT)
                 }
             }
+            if (HealthType.BODY_FAT !in foundTypes) {
+                findBodyFat(text)?.let {
+                    metrics.add(it); foundTypes.add(HealthType.BODY_FAT)
+                }
+            }
             if (HealthType.SPO2 !in foundTypes) {
                 findSpO2(text)?.let {
                     metrics.add(it); foundTypes.add(HealthType.SPO2)
@@ -295,6 +306,7 @@ object HealthMetricParser {
         HealthType.BLOOD_GLUCOSE  -> value in 1.0..40.0
         HealthType.TEMPERATURE    -> value in 30.0..45.0
         HealthType.WEIGHT         -> value in 10.0..500.0
+        HealthType.BODY_FAT       -> value in 3.0..70.0
         HealthType.SPO2           -> value in 50.0..100.0
     }
 
@@ -320,6 +332,7 @@ object HealthMetricParser {
             HealthType.TEMPERATURE    -> 100.0
             HealthType.SPO2           -> 90.0
             HealthType.BLOOD_GLUCOSE  -> 80.0
+            HealthType.BODY_FAT       -> 70.0
             HealthType.HEART_RATE     -> 50.0
             HealthType.BLOOD_PRESSURE -> 40.0
             HealthType.WEIGHT         -> 30.0
@@ -331,6 +344,7 @@ object HealthMetricParser {
             when (type) {
                 HealthType.TEMPERATURE   -> score += 50.0
                 HealthType.BLOOD_GLUCOSE -> score += 40.0
+                HealthType.BODY_FAT      -> score += 25.0
                 HealthType.WEIGHT        -> score += 20.0
                 else -> {}
             }
@@ -341,6 +355,7 @@ object HealthMetricParser {
             HealthType.TEMPERATURE    -> if (value in 35.0..42.0) 30.0 else 0.0
             HealthType.SPO2           -> if (value in 90.0..100.0) 30.0 else 0.0
             HealthType.BLOOD_GLUCOSE  -> if (value in 3.0..20.0) 20.0 else 0.0
+            HealthType.BODY_FAT       -> if (value in 8.0..45.0) 18.0 else 0.0
             HealthType.HEART_RATE     -> if (value in 50.0..120.0) 15.0 else 0.0
             HealthType.BLOOD_PRESSURE -> if (value in 80.0..180.0) 10.0 else 0.0
             HealthType.WEIGHT         -> if (value in 30.0..150.0) 5.0 else 0.0
@@ -468,6 +483,7 @@ object HealthMetricParser {
         HealthType.BLOOD_GLUCOSE -> if (v in 3.0..20.0) 0.05f else 0f
         HealthType.TEMPERATURE -> if (v in 35.0..42.0) 0.05f else 0f
         HealthType.WEIGHT -> if (v in 30.0..150.0) 0.05f else 0f
+        HealthType.BODY_FAT -> if (v in 8.0..45.0) 0.05f else 0f
         HealthType.SPO2 -> if (v in 90.0..100.0) 0.05f else 0f
         else -> 0f
     }
@@ -585,6 +601,14 @@ object HealthMetricParser {
         WEIGHT.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
             if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value, confidence = 0.70f + typicalBonus(v, HealthType.WEIGHT))
+        }
+        return null
+    }
+
+    private fun findBodyFat(text: String): ParsedHealthMetric? {
+        BODY_FAT.find(text)?.let { m ->
+            val v = m.groupValues[1].toDoubleOrNull() ?: return@let
+            if (v in 3.0..70.0) return ParsedHealthMetric(HealthType.BODY_FAT, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.BODY_FAT))
         }
         return null
     }

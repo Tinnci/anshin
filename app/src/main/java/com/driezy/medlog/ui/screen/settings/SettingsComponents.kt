@@ -24,6 +24,7 @@ import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.displayName
 
 // ── 通用设置卡片组（24dp 扁平卡片，含组标题）────────────────────────────────
 
@@ -194,8 +195,8 @@ internal fun WidgetPickerCard(
     description: String,
     sizes: List<String>,
     canPin: Boolean,
-    showActions: Boolean = true,
     modifier: Modifier = Modifier,
+    showActions: Boolean = true,
     onAdd: () -> Unit,
 ) {
     Card(
@@ -451,15 +452,30 @@ internal fun SettingsSwitchRow(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
     icon: Int,
+    enabled: Boolean = true,
 ) {
     ListItem(
-        headlineContent = { Text(title) },
-        supportingContent = { Text(subtitle) },
+        headlineContent = {
+            Text(
+                text = title,
+                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+            )
+        },
+        supportingContent = {
+            Text(
+                text = subtitle,
+                color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+            )
+        },
         leadingContent = {
-            MedLogIcon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            MedLogIcon(
+                icon,
+                null,
+                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+            )
         },
         trailingContent = {
-            Switch(checked = checked, onCheckedChange = onCheckedChange)
+            Switch(checked = checked, onCheckedChange = onCheckedChange, enabled = enabled)
         },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
     )
@@ -682,7 +698,7 @@ internal fun ArchivedMedicationsRow(
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 archived.forEach { med ->
                     ListItem(
-                        headlineContent = { Text(med.name) },
+                        headlineContent = { Text(med.displayName()) },
                         supportingContent = {
                             val catText = med.category.ifBlank { null }
                             val label = when {

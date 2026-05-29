@@ -138,6 +138,14 @@ class HealthMetricParserTest {
         assertEquals(HealthType.WEIGHT, result[0].type)
     }
 
+    @Test
+    fun `parse body fat with percent label`() {
+        val result = HealthMetricParser.parse(listOf("体脂率 24.5%"))
+        assertEquals(1, result.size)
+        assertEquals(HealthType.BODY_FAT, result[0].type)
+        assertEquals(24.5, result[0].value, 0.01)
+    }
+
     // ── 血氧 ──────────────────────────────────────────────────────
 
     @Test

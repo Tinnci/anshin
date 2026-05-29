@@ -43,6 +43,10 @@ import androidx.compose.ui.res.stringResource
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
+import com.driezy.medlog.domain.health.HealthInsight
+import com.driezy.medlog.domain.health.HealthInsightSeverity
+import com.driezy.medlog.domain.health.AiExecutionStatus
+import com.driezy.medlog.ui.components.AiInteractionStatusPill
 import com.driezy.medlog.ui.ocr.HealthOcrScannerPage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -54,6 +58,7 @@ private fun healthTypeIcon(type: HealthType) = when (type) {
     HealthType.BLOOD_PRESSURE -> MedLogIcons.Bloodtype
     HealthType.BLOOD_GLUCOSE  -> MedLogIcons.WaterDrop
     HealthType.WEIGHT         -> MedLogIcons.FitnessCenter
+    HealthType.BODY_FAT       -> MedLogIcons.MonitorWeight
     HealthType.HEART_RATE     -> MedLogIcons.Favorite
     HealthType.TEMPERATURE    -> MedLogIcons.Thermostat
     HealthType.SPO2           -> MedLogIcons.AirlineStops
@@ -68,8 +73,27 @@ private fun HealthType.formatMetricValue(value: Double, secondaryValue: Double?)
     HealthType.TEMPERATURE,
     HealthType.BLOOD_GLUCOSE,
     HealthType.WEIGHT,
+    HealthType.BODY_FAT,
     -> "%.1f".format(value)
     else -> "${value.toInt()}"
+}
+
+internal fun HealthRecord.userVisibleNotes(): String {
+    val trimmed = notes.trim()
+    return if (trimmed.startsWith("seed:", ignoreCase = true)) "" else trimmed
+}
+
+internal data class HealthInsightsPresentation(
+    val showPendingBody: Boolean,
+    val pendingBodyRes: Int = R.string.health_insights_pending_body,
+) {
+    companion object {
+        fun from(
+            insightCount: Int,
+            isRefreshing: Boolean,
+        ): HealthInsightsPresentation =
+            HealthInsightsPresentation(showPendingBody = isRefreshing && insightCount == 0)
+    }
 }
 
 // ─── 主屏幕 ──────────────────────────────────────────────────────────────────
@@ -164,6 +188,20 @@ fun HealthScreen(
                             val visibleStats = if (uiState.selectedType == null) uiState.stats
                                 else uiState.stats.filter { it.type == uiState.selectedType }
                             HealthMetricsSection(stats = visibleStats)
+                        }
+                    }
+
+                    // ── 智能建议：后台聚合，不暴露 prompt / 对话复杂度 ─────────
+                    if (
+                        uiState.insights.isNotEmpty() ||
+                        uiState.isInsightRefreshing
+                    ) {
+                        item(key = "health_insights") {
+                            HealthInsightsSection(
+                                insights = uiState.insights,
+                                executionStatus = uiState.insightExecutionStatus,
+                                isRefreshing = uiState.isInsightRefreshing,
+                            )
                         }
                     }
 
@@ -392,6 +430,119 @@ private fun HealthMetricsSection(stats: List<HealthTypeStat>) {
     }
 }
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun HealthInsightsSection(
+    insights: List<HealthInsight>,
+    executionStatus: AiExecutionStatus,
+    isRefreshing: Boolean,
+) {
+    val presentation = HealthInsightsPresentation.from(
+        insightCount = insights.size,
+        isRefreshing = isRefreshing,
+    )
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            verticalAlignment = Alignment.Top,
+        ) {
+            Box(modifier = Modifier.weight(1f)) {
+                SectionHeader(
+                    title = stringResource(R.string.health_insights_section_title),
+                    subtitle = stringResource(R.string.health_insights_section_subtitle),
+                )
+            }
+            AiInteractionStatusPill(
+                status = executionStatus,
+                isRunning = isRefreshing,
+            )
+        }
+        if (presentation.showPendingBody) {
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                shape = MaterialTheme.shapes.large,
+                color = MaterialTheme.colorScheme.surfaceContainer,
+            ) {
+                Row(
+                    modifier = Modifier.padding(MedLogSpacing.Medium),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    LoadingIndicator(modifier = Modifier.size(24.dp))
+                    Text(
+                        text = stringResource(presentation.pendingBodyRes),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        }
+        insights.forEach { insight ->
+            HealthInsightCard(insight = insight)
+        }
+    }
+}
+
+@Composable
+private fun HealthInsightCard(insight: HealthInsight) {
+    val colors = when (insight.severity) {
+        HealthInsightSeverity.URGENT -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.errorContainer,
+            contentColor = MaterialTheme.colorScheme.onErrorContainer,
+        )
+        HealthInsightSeverity.WARNING -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        )
+        HealthInsightSeverity.INFO -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+    val icon = when (insight.severity) {
+        HealthInsightSeverity.URGENT,
+        HealthInsightSeverity.WARNING,
+        -> MedLogIcons.Warning
+        HealthInsightSeverity.INFO -> MedLogIcons.AutoAwesome
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = MaterialTheme.shapes.large,
+        colors = colors,
+    ) {
+        Row(
+            modifier = Modifier.padding(MedLogSpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            verticalAlignment = Alignment.Top,
+        ) {
+            MedLogIcon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(22.dp),
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                Text(
+                    insight.title,
+                    style = MaterialTheme.emphasizedTypography.titleSmall,
+                )
+                Text(
+                    insight.body,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = LocalContentColor.current.copy(alpha = 0.82f),
+                )
+            }
+        }
+    }
+}
+
 @Composable
 private fun SectionHeader(title: String, subtitle: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
@@ -565,6 +716,7 @@ private fun HealthRecordItem(
     val timeFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
     var showMenu by remember { mutableStateOf(false) }
     val isAbnormal = !type.isNormal(record.value)
+    val visibleNotes = remember(record.notes) { record.userVisibleNotes() }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -600,9 +752,9 @@ private fun HealthRecordItem(
                         timeFormat.format(Date(record.timestamp)),
                         style = MaterialTheme.typography.bodySmall,
                     )
-                    if (record.notes.isNotBlank()) {
+                    if (visibleNotes.isNotBlank()) {
                         Text(
-                            record.notes,
+                            visibleNotes,
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -819,7 +971,7 @@ private fun HealthTrendChart(
                     val v = rangeMin + valueRange * i / 4.0
                     val y = yOf(v)
                     drawContext.canvas.nativeCanvas.drawText(
-                        if (type == HealthType.TEMPERATURE || type == HealthType.BLOOD_GLUCOSE) "%.1f".format(v) else "${v.toInt()}",
+                        if (type == HealthType.TEMPERATURE || type == HealthType.BLOOD_GLUCOSE || type == HealthType.BODY_FAT) "%.1f".format(v) else "${v.toInt()}",
                         leftPadding - 6.dp.toPx(), y + 4.dp.toPx(), textPaint
                     )
                     drawLine(gridColor.copy(alpha = 0.3f), Offset(leftPadding, y), Offset(leftPadding + chartWidth, y), strokeWidth = 0.5.dp.toPx())

@@ -1,7 +1,4 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Launcher / icon colors — single source of truth for all icon assets -->
-    <color name="ic_launcher_background">#FFF7EBD8</color>
-
     <color name="splash_background">#FFF7EBD8</color>
 </resources>

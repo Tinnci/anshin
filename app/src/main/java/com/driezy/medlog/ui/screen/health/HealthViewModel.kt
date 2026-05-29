@@ -5,10 +5,15 @@ import androidx.lifecycle.ViewModel
 import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.HealthRecord
+import com.driezy.medlog.data.model.HealthRecordSource
 import com.driezy.medlog.data.model.HealthType
+import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.repository.HealthRepository
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.domain.SEVEN_DAYS_MS
+import com.driezy.medlog.domain.health.HealthInsight
+import com.driezy.medlog.domain.health.HealthInsightGenerationUseCase
+import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.data.model.ParsedHealthMetric
 import com.driezy.medlog.ui.util.formatDose
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -28,6 +33,13 @@ data class HealthDraftState(
     val secondaryValue: String = "",
     val timestamp: Long = System.currentTimeMillis(),
     val notes: String = "",
+    val source: HealthRecordSource = HealthRecordSource.MANUAL,
+    val sourceFeature: AiUsageFeature? = null,
+    val sourceProvider: String? = null,
+    val sourceModel: String? = null,
+    val sourceConfidence: Float? = null,
+    val sourceCacheKey: String? = null,
+    val confirmedAt: Long? = null,
     /** 编辑时非空 */
     val editingId: Long? = null,
 )
@@ -64,6 +76,11 @@ data class HealthUiState(
     val bmiClassRes: Int? = null,
     /** 用户身高（cm），0 = 未设置 */
     val userHeightCm: Float = 0f,
+    /** 后台智能聚合生成的健康建议，不需要用户输入对话 */
+    val insights: List<HealthInsight> = emptyList(),
+    val isInsightRefreshing: Boolean = false,
+    /** AI 执行/回退内部状态，普通用户界面不显著展示。 */
+    val insightExecutionStatus: AiExecutionStatus = AiExecutionStatus.LocalOnly,
 )
 
 // ─── ViewModel ───────────────────────────────────────────────────────────────
@@ -72,6 +89,7 @@ data class HealthUiState(
 class HealthViewModel @Inject constructor(
     private val repository: HealthRepository,
     private val prefsRepository: UserPreferencesRepository,
+    private val insightGeneration: HealthInsightGenerationUseCase,
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HealthUiState())
@@ -86,6 +104,7 @@ class HealthViewModel @Inject constructor(
         collectRecords()
         collectStats()
         collectChartData()
+        collectInsights()
     }
 
     /** 收集过滤后的记录列表 */
@@ -154,6 +173,33 @@ class HealthViewModel @Inject constructor(
                 .catch { e -> Log.e("HealthVM", "Failed to collect chart data", e) }
                 .collect { points ->
                     _uiState.update { it.copy(chartPoints = points) }
+                }
+        }
+    }
+
+    /** 收集全量记录并生成智能洞察。云端可用时优先使用云端，失败时自动回退本地规则。 */
+    private fun collectInsights() {
+        viewModelScope.launch {
+            combine(
+                repository.getAllRecords(),
+                prefsRepository.settingsFlow,
+            ) { records, settings ->
+                records to settings.userHeightCm
+            }
+                .catch { e -> Log.e("HealthVM", "Failed to build health insights", e) }
+                .collectLatest { (records, heightCm) ->
+                    _uiState.update { it.copy(isInsightRefreshing = true) }
+                    val result = insightGeneration.generateWithStatus(
+                        records = records,
+                        userHeightCm = heightCm,
+                    )
+                    _uiState.update {
+                        it.copy(
+                            insights = result.insights,
+                            insightExecutionStatus = result.executionStatus,
+                            isInsightRefreshing = false,
+                        )
+                    }
                 }
         }
     }
@@ -241,7 +287,13 @@ class HealthViewModel @Inject constructor(
                     type = metric.type,
                     value = valueStr,
                     secondaryValue = secondaryStr,
-                    notes = metric.rawText,
+                    notes = "",
+                    source = metric.source,
+                    sourceFeature = metric.sourceFeature,
+                    sourceProvider = metric.sourceProvider,
+                    sourceModel = metric.sourceModel,
+                    sourceConfidence = metric.confidence,
+                    sourceCacheKey = metric.sourceCacheKey,
                 ),
             )
         }
@@ -257,6 +309,13 @@ class HealthViewModel @Inject constructor(
                     secondaryValue = record.secondaryValue?.formatDose() ?: "",
                     timestamp = record.timestamp,
                     notes = record.notes,
+                    source = record.source,
+                    sourceFeature = record.sourceFeature,
+                    sourceProvider = record.sourceProvider,
+                    sourceModel = record.sourceModel,
+                    sourceConfidence = record.sourceConfidence,
+                    sourceCacheKey = record.sourceCacheKey,
+                    confirmedAt = record.confirmedAt,
                     editingId = record.id,
                 ),
             )
@@ -286,6 +345,13 @@ class HealthViewModel @Inject constructor(
             secondaryValue = secondary,
             timestamp      = draft.timestamp,
             notes          = draft.notes,
+            source         = draft.source,
+            sourceFeature  = draft.sourceFeature,
+            sourceProvider = draft.sourceProvider,
+            sourceModel    = draft.sourceModel,
+            sourceConfidence = draft.sourceConfidence,
+            sourceCacheKey = draft.sourceCacheKey,
+            confirmedAt    = draft.confirmedAt ?: System.currentTimeMillis(),
         )
         safeLaunch {
             if (draft.editingId == null) repository.addRecord(record)

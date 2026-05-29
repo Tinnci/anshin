@@ -210,6 +210,7 @@ class SeedDemoDataUseCase @Inject constructor(
                 health(HealthType.BLOOD_PRESSURE, 118.0, 76.0, calendar.todayAtMs(7, 10), "$tag:health:bp"),
                 health(HealthType.BLOOD_GLUCOSE, 5.8, null, calendar.todayAtMs(7, 20), "$tag:health:glucose"),
                 health(HealthType.WEIGHT, 68.4, null, calendar.daysAgoAtMs(1, 21, 0), "$tag:health:weight"),
+                health(HealthType.BODY_FAT, 23.8, null, calendar.daysAgoAtMs(1, 21, 1), "$tag:health:bodyfat"),
                 health(HealthType.HEART_RATE, 72.0, null, calendar.todayAtMs(7, 12), "$tag:health:heart"),
                 health(HealthType.TEMPERATURE, 36.6, null, calendar.todayAtMs(7, 18), "$tag:health:temp"),
                 health(HealthType.SPO2, 98.0, null, calendar.todayAtMs(7, 15), "$tag:health:spo2"),

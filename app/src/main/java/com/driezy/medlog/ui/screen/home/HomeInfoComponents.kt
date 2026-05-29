@@ -57,11 +57,48 @@ import java.util.Locale
 
 // ── 低库存警告 banner ─────────────────────────────────────────────────────────
 
+private const val LOW_STOCK_VISIBLE_LIMIT = 3
+
+internal data class LowStockItemPresentation(
+    val name: String,
+    val stock: Double,
+    val unit: String,
+)
+
+internal data class LowStockPresentation(
+    val visibleItems: List<LowStockItemPresentation>,
+    val hiddenCount: Int,
+) {
+    companion object {
+        fun from(
+            medications: List<Pair<String, Pair<Double, String>>>,
+            visibleLimit: Int = LOW_STOCK_VISIBLE_LIMIT,
+        ): LowStockPresentation {
+            val collapsed = medications
+                .groupBy { (name, stockPair) -> name.trim() to stockPair.second }
+                .map { (key, entries) ->
+                    val lowestStock = entries.minOf { it.second.first }
+                    LowStockItemPresentation(
+                        name = key.first,
+                        stock = lowestStock,
+                        unit = key.second,
+                    )
+                }
+                .sortedWith(compareBy<LowStockItemPresentation> { it.stock }.thenBy { it.name })
+            return LowStockPresentation(
+                visibleItems = collapsed.take(visibleLimit),
+                hiddenCount = (collapsed.size - visibleLimit).coerceAtLeast(0),
+            )
+        }
+    }
+}
+
 @Composable
 internal fun LowStockBanner(
     medications: List<Pair<String, Pair<Double, String>>>,
     modifier: Modifier = Modifier,
 ) {
+    val presentation = remember(medications) { LowStockPresentation.from(medications) }
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -97,12 +134,24 @@ internal fun LowStockBanner(
                     color = MaterialTheme.colorScheme.onErrorContainer,
                 )
                 Spacer(Modifier.height(4.dp))
-                medications.forEach { (name, stockPair) ->
-                    val (stock, unit) = stockPair
+                presentation.visibleItems.forEach { item ->
                     Text(
-                        text = stringResource(R.string.home_low_stock_item, name, stock.toString(), unit),
+                        text = stringResource(
+                            R.string.home_low_stock_item,
+                            item.name,
+                            item.stock.toString(),
+                            item.unit,
+                        ),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.90f),
+                    )
+                }
+                if (presentation.hiddenCount > 0) {
+                    Spacer(Modifier.height(2.dp))
+                    Text(
+                        text = stringResource(R.string.home_low_stock_more, presentation.hiddenCount),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.78f),
                     )
                 }
             }

@@ -54,6 +54,7 @@ import com.driezy.medlog.R
 import com.driezy.medlog.data.model.DrugInteraction
 import com.driezy.medlog.data.model.InteractionSeverity
 import com.driezy.medlog.ui.components.MedicationCard
+import com.driezy.medlog.ui.util.displayName
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
@@ -193,7 +194,7 @@ fun HomeScreen(
             if (lowStockItems.isNotEmpty()) {
                 item {
                     LowStockBanner(
-                        medications = lowStockItems.map { it.medication.name to ((it.medication.stock ?: 0.0) to it.medication.doseUnit) },
+                        medications = lowStockItems.map { it.medication.displayName() to ((it.medication.stock ?: 0.0) to it.medication.doseUnit) },
                     )
                 }
             }
@@ -238,7 +239,7 @@ fun HomeScreen(
                                     viewModel.undoByMedicationId(item.medication.id)
                                     scope.launch {
                                         snackbarHostState.showSnackbar(
-                                            fmtUndoSkip.format(item.medication.name),
+                                            fmtUndoSkip.format(item.medication.displayName()),
                                             duration = SnackbarDuration.Short,
                                         )
                                     }
@@ -247,7 +248,7 @@ fun HomeScreen(
                                     viewModel.toggleMedicationStatus(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.name),
+                                            message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
                                             actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
@@ -262,7 +263,7 @@ fun HomeScreen(
                                 viewModel.skipMedication(item)
                                 scope.launch {
                                     val result = snackbarHostState.showSnackbar(
-                                        fmtSkipped.format(item.medication.name),
+                                        fmtSkipped.format(item.medication.displayName()),
                                         actionLabel = undoLabel,
                                         duration = SnackbarDuration.Short,
                                     )
@@ -335,7 +336,7 @@ fun HomeScreen(
                                         viewModel.undoByMedicationId(item.medication.id)
                                         scope.launch {
                                             snackbarHostState.showSnackbar(
-                                                fmtUndoSkip.format(item.medication.name),
+                                                fmtUndoSkip.format(item.medication.displayName()),
                                                 duration = SnackbarDuration.Short,
                                             )
                                         }
@@ -344,7 +345,7 @@ fun HomeScreen(
                                         viewModel.toggleMedicationStatus(item)
                                         scope.launch {
                                             val result = snackbarHostState.showSnackbar(
-                                                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.name),
+                                                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
                                                 actionLabel = undoLabel,
                                                 duration = SnackbarDuration.Short,
                                             )
@@ -359,7 +360,7 @@ fun HomeScreen(
                                     viewModel.skipMedication(item)
                                     scope.launch {
                                         val result = snackbarHostState.showSnackbar(
-                                            fmtSkipped.format(item.medication.name),
+                                            fmtSkipped.format(item.medication.displayName()),
                                             actionLabel = undoLabel,
                                             duration = SnackbarDuration.Short,
                                         )
@@ -388,7 +389,7 @@ fun HomeScreen(
                             viewModel.toggleMedicationStatus(item)
                             scope.launch {
                                 val result = snackbarHostState.showSnackbar(
-                                    message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.name),
+                                    message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.displayName()),
                                     actionLabel = undoLabel,
                                     duration = SnackbarDuration.Short,
                                 )

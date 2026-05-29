@@ -32,6 +32,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -56,6 +58,9 @@ import kotlinx.coroutines.launch
 import com.driezy.medlog.BuildConfig
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.repository.AiUsageSummaryRow
+import com.driezy.medlog.data.repository.CloudAiProvider
+import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.widget.MedLogWidgetReceiver
@@ -67,6 +72,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.annotation.StringRes
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -77,6 +84,9 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val motionScheme = MaterialTheme.motionScheme
+    LaunchedEffect(Unit) {
+        viewModel.refreshAiUsageSummary()
+    }
 
     // 精确闹钟权限检测（Android 12+）
     val context = LocalContext.current
@@ -745,6 +755,51 @@ fun SettingsScreen(
                         onSelect = { viewModel.setOcrModelType(OcrModelType.FASTVIT_T8) },
                     )
                 }
+
+                SettingsSectionDivider(
+                    title = stringResource(R.string.settings_ai_section_title),
+                    icon = MedLogIcons.AutoAwesome,
+                )
+                Text(
+                    text = stringResource(R.string.settings_ai_section_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(bottom = MedLogSpacing.Tiny),
+                )
+                CloudAiStatusSummary(
+                    uiState = uiState,
+                    modifier = Modifier
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(bottom = MedLogSpacing.Small),
+                )
+                SettingsSwitchRow(
+                    title = stringResource(R.string.settings_ai_enable_title),
+                    subtitle = stringResource(R.string.settings_ai_enable_subtitle),
+                    checked = uiState.cloudAiEnabled,
+                    onCheckedChange = { viewModel.setCloudAiSettings(enabled = it) },
+                    icon = MedLogIcons.CloudUpload,
+                )
+                AnimatedVisibility(
+                    visible = uiState.cloudAiEnabled,
+                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
+                ) {
+                    CloudAiSettingsPanel(
+                        uiState = uiState,
+                        onProviderChange = { viewModel.setCloudAiSettings(provider = it) },
+                        onModelSave = { viewModel.setCloudAiSettings(model = it) },
+                        onOpenAiBaseUrlSave = { viewModel.setCloudAiSettings(openAiCompatibleBaseUrl = it) },
+                        onOpenAiAuthModeChange = { viewModel.setCloudAiSettings(openAiCompatibleAuthMode = it) },
+                        onOpenAiProviderNameSave = { viewModel.setCloudAiSettings(openAiCompatibleProviderName = it) },
+                        onImageAnalysisChange = { viewModel.setCloudAiSettings(imageAnalysisEnabled = it) },
+                        onHealthInsightsChange = { viewModel.setCloudAiSettings(healthInsightsEnabled = it) },
+                        onWifiOnlyChange = { viewModel.setCloudAiSettings(wifiOnly = it) },
+                        onApiKeySave = viewModel::setCurrentCloudAiApiKey,
+                        onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
+                    )
+                }
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_features),
                     icon = MedLogIcons.Tune,
@@ -1134,6 +1189,435 @@ private fun WidgetPreviewCarousel(items: List<WidgetCarouselItem>) {
                 .maskClip(RoundedCornerShape(24.dp)),
             onAdd = item.onAdd,
         )
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun CloudAiSettingsPanel(
+    uiState: SettingsUiState,
+    onProviderChange: (CloudAiProvider) -> Unit,
+    onModelSave: (String) -> Unit,
+    onOpenAiBaseUrlSave: (String) -> Unit,
+    onOpenAiAuthModeChange: (OpenAiCompatibleCloudAuthMode) -> Unit,
+    onOpenAiProviderNameSave: (String) -> Unit,
+    onImageAnalysisChange: (Boolean) -> Unit,
+    onHealthInsightsChange: (Boolean) -> Unit,
+    onWifiOnlyChange: (Boolean) -> Unit,
+    onApiKeySave: (String) -> Unit,
+    onApiKeyClear: () -> Unit,
+) {
+    var modelDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.cloudAiModel) }
+    var baseUrlDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.openAiCompatibleBaseUrl) }
+    var providerNameDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.openAiCompatibleProviderName) }
+    var apiKeyDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf("") }
+
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MedLogSpacing.Large)
+            .padding(bottom = MedLogSpacing.Medium),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column(
+                modifier = Modifier.padding(MedLogSpacing.Medium),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_ai_provider_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                ) {
+                    CloudAiProvider.entries.forEach { provider ->
+                        FilterChip(
+                            selected = uiState.cloudAiProvider == provider,
+                            onClick = { onProviderChange(provider) },
+                            label = { Text(provider.providerName) },
+                            leadingIcon = if (provider in uiState.cloudAiAvailableProviders) {
+                                {
+                                    MedLogIcon(
+                                        MedLogIcons.CheckCircle,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
+                            } else {
+                                null
+                            },
+                        )
+                    }
+                }
+                OutlinedTextField(
+                    value = modelDraft,
+                    onValueChange = { modelDraft = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.settings_ai_model_label)) },
+                    supportingText = {
+                        Text(stringResource(R.string.settings_ai_model_hint, uiState.cloudAiProvider.defaultModel))
+                    },
+                    trailingIcon = {
+                        TextButton(onClick = { onModelSave(modelDraft) }) {
+                            Text(stringResource(R.string.common_save))
+                        }
+                    },
+                )
+                if (uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE) {
+                    OutlinedTextField(
+                        value = baseUrlDraft,
+                        onValueChange = { baseUrlDraft = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.settings_ai_base_url_label)) },
+                        supportingText = { Text(stringResource(R.string.settings_ai_base_url_hint)) },
+                        trailingIcon = {
+                            TextButton(onClick = { onOpenAiBaseUrlSave(baseUrlDraft) }) {
+                                Text(stringResource(R.string.common_save))
+                            }
+                        },
+                    )
+                    OutlinedTextField(
+                        value = providerNameDraft,
+                        onValueChange = { providerNameDraft = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.settings_ai_provider_name_label)) },
+                        trailingIcon = {
+                            TextButton(onClick = { onOpenAiProviderNameSave(providerNameDraft) }) {
+                                Text(stringResource(R.string.common_save))
+                            }
+                        },
+                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+                    ) {
+                        OpenAiCompatibleCloudAuthMode.entries.forEachIndexed { index, mode ->
+                            ToggleButton(
+                                checked = uiState.openAiCompatibleAuthMode == mode,
+                                onCheckedChange = { onOpenAiAuthModeChange(mode) },
+                                modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                                shapes = when (index) {
+                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                    else -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                },
+                            ) {
+                                Text(
+                                    text = when (mode) {
+                                        OpenAiCompatibleCloudAuthMode.BEARER -> stringResource(R.string.settings_ai_auth_bearer)
+                                        OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> stringResource(R.string.settings_ai_auth_api_key)
+                                    },
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        val imageAnalysisSupported = uiState.cloudAiSupportsImageInput
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_ai_image_title),
+            subtitle = stringResource(
+                if (imageAnalysisSupported) {
+                    R.string.settings_ai_image_subtitle
+                } else {
+                    R.string.settings_ai_image_unsupported_subtitle
+                },
+            ),
+            checked = uiState.cloudAiImageAnalysisEnabled && imageAnalysisSupported,
+            onCheckedChange = { enabled ->
+                if (imageAnalysisSupported) {
+                    onImageAnalysisChange(enabled)
+                }
+            },
+            icon = MedLogIcons.DocumentScanner,
+            enabled = imageAnalysisSupported,
+        )
+        HorizontalDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_ai_insights_title),
+            subtitle = stringResource(R.string.settings_ai_insights_subtitle),
+            checked = uiState.cloudAiHealthInsightsEnabled,
+            onCheckedChange = onHealthInsightsChange,
+            icon = MedLogIcons.AutoAwesome,
+        )
+        HorizontalDivider()
+        SettingsSwitchRow(
+            title = stringResource(R.string.settings_ai_wifi_only_title),
+            subtitle = stringResource(R.string.settings_ai_wifi_only_subtitle),
+            checked = uiState.cloudAiWifiOnly,
+            onCheckedChange = onWifiOnlyChange,
+            icon = MedLogIcons.CloudUpload,
+        )
+        CloudAiUsageSummaryCard(summary = uiState.aiUsageSummary)
+
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(18.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column(
+                modifier = Modifier.padding(MedLogSpacing.Medium),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = stringResource(R.string.settings_ai_api_key_title),
+                            style = MaterialTheme.typography.titleSmall,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        Text(
+                            text = if (uiState.cloudAiProviderHasApiKey) {
+                                stringResource(R.string.settings_ai_api_key_configured, uiState.cloudAiProvider.providerName)
+                            } else {
+                                stringResource(R.string.settings_ai_api_key_missing, uiState.cloudAiProvider.providerName)
+                            },
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    if (uiState.cloudAiProviderHasApiKey) {
+                        OutlinedButton(onClick = onApiKeyClear) {
+                            Text(stringResource(R.string.settings_ai_api_key_clear))
+                        }
+                    }
+                }
+                OutlinedTextField(
+                    value = apiKeyDraft,
+                    onValueChange = { apiKeyDraft = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.settings_ai_api_key_label)) },
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                    supportingText = { Text(stringResource(R.string.settings_ai_api_key_storage_hint)) },
+                )
+                FilledTonalButton(
+                    onClick = {
+                        onApiKeySave(apiKeyDraft)
+                        apiKeyDraft = ""
+                    },
+                    enabled = apiKeyDraft.isNotBlank(),
+                    modifier = Modifier.align(Alignment.End),
+                ) {
+                    Text(stringResource(R.string.settings_ai_api_key_save))
+                }
+            }
+        }
+    }
+}
+
+internal data class CloudAiUsageSummaryPresentation(
+    val isEmpty: Boolean,
+    val totalCount: Int,
+    val successCount: Int,
+    val errorCount: Int,
+    val cacheHitCount: Int,
+    val latestErrorCategory: String?,
+) {
+    companion object {
+        fun from(rows: List<AiUsageSummaryRow>): CloudAiUsageSummaryPresentation =
+            CloudAiUsageSummaryPresentation(
+                isEmpty = rows.isEmpty(),
+                totalCount = rows.sumOf { it.totalCount },
+                successCount = rows.sumOf { it.successCount },
+                errorCount = rows.sumOf { it.errorCount },
+                cacheHitCount = rows.sumOf { it.cacheHitCount },
+                latestErrorCategory = rows
+                    .filter { it.lastErrorCategory != null }
+                    .maxByOrNull { it.lastUsedAt }
+                    ?.lastErrorCategory,
+            )
+    }
+}
+
+@Composable
+private fun CloudAiUsageSummaryCard(
+    summary: List<AiUsageSummaryRow>,
+    modifier: Modifier = Modifier,
+) {
+    val presentation = CloudAiUsageSummaryPresentation.from(summary)
+    if (presentation.isEmpty) return
+
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(18.dp),
+        color = MaterialTheme.colorScheme.surfaceContainerHigh,
+    ) {
+        Column(
+            modifier = Modifier.padding(MedLogSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                MedLogIcon(
+                    MedLogIcons.TrendingUp,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp),
+                )
+                Text(
+                    text = stringResource(R.string.settings_ai_usage_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+            }
+            Text(
+                text = stringResource(
+                    R.string.settings_ai_usage_summary,
+                    presentation.totalCount,
+                    presentation.successCount,
+                    presentation.errorCount,
+                    presentation.cacheHitCount,
+                ),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            presentation.latestErrorCategory?.let { latestError ->
+                AssistChip(
+                    onClick = {},
+                    label = {
+                        Text(stringResource(R.string.settings_ai_usage_last_error, latestError))
+                    },
+                    leadingIcon = {
+                        MedLogIcon(
+                            MedLogIcons.Info,
+                            contentDescription = null,
+                            modifier = Modifier.size(16.dp),
+                        )
+                    },
+                )
+            }
+        }
+    }
+}
+
+internal enum class CloudAiSettingsVisualState {
+    OFF,
+    NEEDS_KEY,
+    READY,
+    TEXT_ONLY,
+}
+
+internal data class CloudAiSettingsPresentation(
+    val visualState: CloudAiSettingsVisualState,
+    @param:StringRes val labelRes: Int,
+    @param:StringRes val bodyRes: Int,
+) {
+    companion object {
+        fun from(
+            enabled: Boolean,
+            hasApiKey: Boolean,
+            supportsImageInput: Boolean,
+        ): CloudAiSettingsPresentation = when {
+            !enabled -> CloudAiSettingsPresentation(
+                visualState = CloudAiSettingsVisualState.OFF,
+                labelRes = R.string.settings_ai_status_off,
+                bodyRes = R.string.settings_ai_status_off_body,
+            )
+            !hasApiKey -> CloudAiSettingsPresentation(
+                visualState = CloudAiSettingsVisualState.NEEDS_KEY,
+                labelRes = R.string.settings_ai_status_needs_key,
+                bodyRes = R.string.settings_ai_status_needs_key_body,
+            )
+            supportsImageInput -> CloudAiSettingsPresentation(
+                visualState = CloudAiSettingsVisualState.READY,
+                labelRes = R.string.settings_ai_status_ready,
+                bodyRes = R.string.settings_ai_status_ready_body,
+            )
+            else -> CloudAiSettingsPresentation(
+                visualState = CloudAiSettingsVisualState.TEXT_ONLY,
+                labelRes = R.string.settings_ai_status_text_only,
+                bodyRes = R.string.settings_ai_status_text_only_body,
+            )
+        }
+    }
+}
+
+@Composable
+private fun CloudAiStatusSummary(
+    uiState: SettingsUiState,
+    modifier: Modifier = Modifier,
+) {
+    val presentation = CloudAiSettingsPresentation.from(
+        enabled = uiState.cloudAiEnabled,
+        hasApiKey = uiState.cloudAiProviderHasApiKey,
+        supportsImageInput = uiState.cloudAiSupportsImageInput,
+    )
+    val colors = when (presentation.visualState) {
+        CloudAiSettingsVisualState.OFF -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        )
+        CloudAiSettingsVisualState.NEEDS_KEY -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+        )
+        CloudAiSettingsVisualState.READY -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.tertiaryContainer,
+            contentColor = MaterialTheme.colorScheme.onTertiaryContainer,
+        )
+        CloudAiSettingsVisualState.TEXT_ONLY -> CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+            contentColor = MaterialTheme.colorScheme.onSurface,
+        )
+    }
+
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        colors = colors,
+        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
+    ) {
+        Row(
+            modifier = Modifier.padding(MedLogSpacing.Medium),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MedLogIcon(
+                icon = when (presentation.visualState) {
+                    CloudAiSettingsVisualState.OFF -> MedLogIcons.CloudUpload
+                    CloudAiSettingsVisualState.NEEDS_KEY -> MedLogIcons.Info
+                    CloudAiSettingsVisualState.READY -> MedLogIcons.AutoAwesome
+                    CloudAiSettingsVisualState.TEXT_ONLY -> MedLogIcons.AutoAwesome
+                },
+                contentDescription = null,
+                modifier = Modifier.size(24.dp),
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                Text(
+                    text = stringResource(presentation.labelRes),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = stringResource(presentation.bodyRes),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = LocalContentColor.current.copy(alpha = 0.82f),
+                )
+            }
+        }
     }
 }
 

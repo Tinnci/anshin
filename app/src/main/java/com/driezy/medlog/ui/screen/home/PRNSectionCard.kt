@@ -42,6 +42,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.displayName
 import kotlinx.coroutines.delay
 
 /**
@@ -113,7 +114,8 @@ internal fun PRNSectionCard(
                 Column {
                     ListItem(
                         headlineContent = {
-                            Text(item.medication.name, fontWeight = FontWeight.Medium)
+                            val displayName = remember(item.medication.name) { item.medication.displayName() }
+                            Text(displayName, fontWeight = FontWeight.Medium)
                         },
                         supportingContent = {
                             val maxDose = item.medication.maxDailyDose

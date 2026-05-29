@@ -37,6 +37,7 @@ import java.util.*
 /** 根据药品剂型返回与添加界面一致的 Material Icon */
 import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDose
+import com.driezy.medlog.ui.util.displayName
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -52,6 +53,7 @@ fun MedicationCard(
     onPartialTake: ((Double) -> Unit)? = null,
 ) {
     val med = item.medication
+    val medDisplayName = remember(med.name) { med.displayName() }
     val motionScheme = MaterialTheme.motionScheme
 
     // 部分服用对话框状态
@@ -145,7 +147,7 @@ fun MedicationCard(
                                 MaterialTheme.colorScheme.primary,
                         )
                         Text(
-                            text = med.name,
+                            text = medDisplayName,
                             modifier = Modifier.weight(1f, fill = false),
                             style = MaterialTheme.typography.titleMedium.copy(
                                 textDecoration = if (item.isTaken) TextDecoration.LineThrough

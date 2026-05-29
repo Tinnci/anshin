@@ -4,6 +4,7 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
@@ -40,6 +41,9 @@ import com.driezy.medlog.data.model.ExtractedNumber
 import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.data.model.OcrParseResult
 import com.driezy.medlog.data.model.ParsedHealthMetric
+import com.driezy.medlog.domain.health.AiExecutionStatus
+import com.driezy.medlog.domain.health.AiFallbackReason
+import com.driezy.medlog.ui.components.AiInteractionStatusPill
 import com.driezy.medlog.ui.components.AnimatedListItem
 import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraGuidancePill
@@ -158,7 +162,12 @@ fun HealthOcrScannerPage(
                             result = state.parseResult,
                             recognitionOutput = state.recognitionOutput,
                             suggestedType = suggestedType,
+                            canRunCloudAnalysis = state.canRunCloudAnalysis,
+                            isCloudAnalyzing = state.isCloudAnalyzing,
+                            cloudAnalysisFailed = state.cloudAnalysisFailed,
+                            cloudAnalysisStatus = state.cloudAnalysisStatus,
                             onSelect = onMetricSelectedWithHaptic,
+                            onCloudAnalyze = { viewModel.onCloudAnalyzeRequested() },
                             onRetry = { viewModel.onRetry() },
                         )
                     }
@@ -176,12 +185,22 @@ private fun HealthMetricResultList(
     result: OcrParseResult,
     recognitionOutput: OcrRecognitionOutput,
     suggestedType: HealthType?,
+    canRunCloudAnalysis: Boolean,
+    isCloudAnalyzing: Boolean,
+    cloudAnalysisFailed: Boolean,
+    cloudAnalysisStatus: AiExecutionStatus,
     onSelect: (ParsedHealthMetric) -> Unit,
+    onCloudAnalyze: () -> Unit,
     onRetry: () -> Unit,
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val hasStructured = result.metrics.isNotEmpty()
     val hasCandidates = result.candidates.isNotEmpty()
+    val cloudActionPresentation = HealthOcrCloudActionPresentation.from(
+        canRunCloudAnalysis = canRunCloudAnalysis,
+        isCloudAnalyzing = isCloudAnalyzing,
+        cloudAnalysisFailed = cloudAnalysisFailed,
+    )
 
     Column(modifier = Modifier.fillMaxSize()) {
         Surface(
@@ -204,6 +223,51 @@ private fun HealthMetricResultList(
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+                AnimatedVisibility(visible = cloudActionPresentation.showPanel) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = MedLogSpacing.Medium),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
+                        if (cloudAnalysisFailed) {
+                            Text(
+                                text = stringResource(cloudAnalysisStatus.cloudAnalysisMessageRes()),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.error,
+                            )
+                        }
+                        Column(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                        ) {
+                            FilledTonalButton(
+                                onClick = onCloudAnalyze,
+                                enabled = canRunCloudAnalysis && !isCloudAnalyzing,
+                                modifier = Modifier.fillMaxWidth(),
+                            ) {
+                                if (isCloudAnalyzing) {
+                                    LoadingIndicator(modifier = Modifier.size(18.dp))
+                                } else {
+                                    MedLogIcon(MedLogIcons.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                }
+                                Spacer(Modifier.width(MedLogSpacing.Small))
+                                Text(
+                                    text = if (isCloudAnalyzing) {
+                                        stringResource(R.string.ocr_cloud_analysis_running)
+                                    } else {
+                                        stringResource(R.string.ocr_cloud_analysis_action)
+                                    },
+                                )
+                            }
+                            AiInteractionStatusPill(
+                                status = cloudAnalysisStatus,
+                                isRunning = isCloudAnalyzing,
+                                modifier = Modifier.align(Alignment.Start),
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -648,11 +712,49 @@ private fun ConfidenceBadge(confidence: Float) {
 
 // ── 工具函数 ─────────────────────────────────────────────────────────────────
 
+internal fun AiExecutionStatus.cloudAnalysisMessageRes(): Int =
+    when (reason) {
+        AiFallbackReason.API_KEY_MISSING -> R.string.ocr_cloud_analysis_needs_key
+        AiFallbackReason.WIFI_REQUIRED -> R.string.ocr_cloud_analysis_wifi_required
+        AiFallbackReason.IMAGE_INPUT_UNSUPPORTED -> R.string.ocr_cloud_analysis_image_unsupported
+        AiFallbackReason.OPENAI_COMPATIBLE_BASE_URL_MISSING -> R.string.ocr_cloud_analysis_base_url_missing
+        AiFallbackReason.CLOUD_AI_DISABLED,
+        AiFallbackReason.FEATURE_DISABLED,
+        -> R.string.ocr_cloud_analysis_disabled
+        AiFallbackReason.PROVIDER_ERROR -> R.string.ocr_cloud_analysis_provider_error
+        AiFallbackReason.RESPONSE_FORMAT_INVALID -> R.string.ocr_cloud_analysis_format_error
+        AiFallbackReason.NO_HEALTH_CONTEXT,
+        AiFallbackReason.UNKNOWN_ERROR,
+        AiFallbackReason.NONE,
+        -> R.string.ocr_cloud_analysis_failed
+    }
+
+internal enum class HealthOcrCloudStatusPlacement {
+    BELOW_PRIMARY_ACTION,
+}
+
+internal data class HealthOcrCloudActionPresentation(
+    val showPanel: Boolean,
+    val statusPlacement: HealthOcrCloudStatusPlacement = HealthOcrCloudStatusPlacement.BELOW_PRIMARY_ACTION,
+) {
+    companion object {
+        fun from(
+            canRunCloudAnalysis: Boolean,
+            isCloudAnalyzing: Boolean,
+            cloudAnalysisFailed: Boolean,
+        ): HealthOcrCloudActionPresentation =
+            HealthOcrCloudActionPresentation(
+                showPanel = canRunCloudAnalysis || isCloudAnalyzing || cloudAnalysisFailed,
+            )
+    }
+}
+
 /** 体征类型对应的图标 */
 private fun healthMetricIcon(type: HealthType): Int = when (type) {
     HealthType.BLOOD_PRESSURE -> MedLogIcons.Bloodtype
     HealthType.BLOOD_GLUCOSE  -> MedLogIcons.WaterDrop
     HealthType.WEIGHT         -> MedLogIcons.FitnessCenter
+    HealthType.BODY_FAT       -> MedLogIcons.MonitorWeight
     HealthType.HEART_RATE     -> MedLogIcons.Favorite
     HealthType.TEMPERATURE    -> MedLogIcons.Thermostat
     HealthType.SPO2           -> MedLogIcons.AirlineStops

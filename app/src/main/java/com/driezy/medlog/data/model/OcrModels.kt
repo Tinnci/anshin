@@ -11,6 +11,12 @@ data class ParsedHealthMetric(
     val rawText: String,
     /** 识别置信度 0.0~1.0（综合匹配模式、单位关键词、值合理性） */
     val confidence: Float = 0f,
+    /** 识别来源，保存为 HealthRecord 时用于审计和 insight 质量判断。 */
+    val source: HealthRecordSource = HealthRecordSource.LOCAL_OCR,
+    val sourceFeature: AiUsageFeature? = null,
+    val sourceProvider: String? = null,
+    val sourceModel: String? = null,
+    val sourceCacheKey: String? = null,
 )
 
 /**
