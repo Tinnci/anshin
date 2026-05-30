@@ -4,6 +4,7 @@ import android.util.Log
 import androidx.lifecycle.ViewModel
 import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.ai.AiApiKeyStore
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthRecordSource
 import com.driezy.medlog.data.model.HealthType
@@ -96,6 +97,7 @@ class HealthViewModel @Inject constructor(
     private val repository: HealthRepository,
     private val prefsRepository: UserPreferencesRepository,
     private val insightGeneration: HealthInsightGenerationUseCase,
+    private val apiKeyStore: AiApiKeyStore,
     private val voiceInputController: VoiceInputController,
 ) : BaseViewModel() {
 
@@ -223,7 +225,8 @@ class HealthViewModel @Inject constructor(
             combine(
                 repository.getAllRecords(),
                 prefsRepository.settingsFlow,
-            ) { records, settings ->
+                apiKeyStore.availableProviders,
+            ) { records, settings, _ ->
                 records to settings.userHeightCm
             }
                 .catch { e -> Log.e("HealthVM", "Failed to build health insights", e) }
