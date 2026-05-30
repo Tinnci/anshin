@@ -59,7 +59,7 @@ data class SettingsPreferences(
     val homeTimeZoneId: String = "",
 
     // ── 可选功能开关 ───────────────────────────────────────────────────────────
-    /** 是否启用症状日记（底部导航显示「日记」Tab） */
+    /** 是否启用身心记录（底部导航显示「日记」Tab） */
     val enableSymptomDiary: Boolean = true,
     /** 是否启用药品相互作用检测（首页横幅 + 实时检测） */
     val enableDrugInteractionCheck: Boolean = true,

@@ -27,6 +27,8 @@ import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
 import com.driezy.medlog.widget.GlanceWidgetRefresher
 import com.driezy.medlog.widget.WidgetRefresher
+import com.driezy.medlog.voice.VoiceInputController
+import com.driezy.medlog.voice.doubao.DoubaoVoiceInputController
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -36,6 +38,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import okhttp3.OkHttpClient
 import javax.inject.Singleton
 
 @Module
@@ -86,6 +89,10 @@ object DatabaseModule {
     @ApplicationScope
     fun provideApplicationScope(): CoroutineScope =
         CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+    @Provides
+    @Singleton
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder().build()
 }
 
 @Module
@@ -139,6 +146,12 @@ abstract class RepositoryModule {
     abstract fun bindTransactionRunner(
         impl: RoomTransactionRunner,
     ): TransactionRunner
+
+    @Binds
+    @Singleton
+    abstract fun bindVoiceInputController(
+        impl: DoubaoVoiceInputController,
+    ): VoiceInputController
 
     companion object {
         @Provides

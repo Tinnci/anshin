@@ -1,5 +1,9 @@
 package com.driezy.medlog.ui.screen.symptom
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 
@@ -14,15 +18,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.SymptomLog
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.voice.VoiceInputError
+import com.driezy.medlog.voice.VoiceInputPhase
+import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -137,6 +146,9 @@ fun SymptomDiaryScreen(
             onCustomSideEffectChange = viewModel::onCustomSideEffectChange,
             onAddCustomSideEffect = viewModel::onAddCustomSideEffect,
             onNoteChange = viewModel::onNoteChange,
+            voiceInput = uiState.voiceInput,
+            onStartVoiceInput = viewModel::startVoiceInput,
+            onStopVoiceInput = viewModel::stopVoiceInput,
             onSave = viewModel::saveLog,
         )
     }
@@ -300,9 +312,36 @@ private fun AddEditDiarySheet(
     onCustomSideEffectChange: (String) -> Unit,
     onAddCustomSideEffect: () -> Unit,
     onNoteChange: (String) -> Unit,
+    voiceInput: VoiceInputUiState,
+    onStartVoiceInput: () -> Unit,
+    onStopVoiceInput: () -> Unit,
     onSave: () -> Unit,
 ) {
     val sheetState = rememberBottomSheetState(initialValue = SheetValue.Hidden)
+    val context = LocalContext.current
+    var showVoicePrivacy by remember { mutableStateOf(false) }
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission(),
+    ) { granted ->
+        if (granted) onStartVoiceInput()
+    }
+
+    fun startVoiceInputWithPrivacy() {
+        showVoicePrivacy = true
+    }
+
+    fun confirmVoicePrivacy() {
+        showVoicePrivacy = false
+        val hasPermission = ContextCompat.checkSelfPermission(
+            context,
+            Manifest.permission.RECORD_AUDIO,
+        ) == PackageManager.PERMISSION_GRANTED
+        if (hasPermission) {
+            onStartVoiceInput()
+        } else {
+            microphonePermissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
+        }
+    }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -321,6 +360,11 @@ private fun AddEditDiarySheet(
                 if (draft.editingId == null) stringResource(R.string.symptom_dialog_add_title) else stringResource(R.string.symptom_dialog_edit_title),
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = stringResource(R.string.symptom_dialog_supporting_text),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
 
             // ── 评级选择 ──────────────────────────────────────────────────
@@ -427,6 +471,39 @@ private fun AddEditDiarySheet(
                 label = { Text(stringResource(R.string.common_notes_hint)) },
                 minLines = 2,
                 maxLines = 4,
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
+                                onStopVoiceInput()
+                            } else {
+                                startVoiceInputWithPrivacy()
+                            }
+                        },
+                    ) {
+                        MedLogIcon(
+                            if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
+                                MedLogIcons.Close
+                            } else {
+                                MedLogIcons.Mic
+                            },
+                            contentDescription = stringResource(
+                                if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
+                                    R.string.voice_input_stop_cd
+                                } else {
+                                    R.string.voice_input_start_cd
+                                },
+                            ),
+                        )
+                    }
+                },
+                supportingText = {
+                    val message = voiceInput.messageText()
+                    if (message != null) {
+                        Text(message)
+                    }
+                },
+                isError = voiceInput.phase == VoiceInputPhase.ERROR,
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -445,5 +522,41 @@ private fun AddEditDiarySheet(
                 ) { Text(stringResource(R.string.symptom_save_btn)) }
             }
         }
+    }
+
+    if (showVoicePrivacy) {
+        AlertDialog(
+            onDismissRequest = { showVoicePrivacy = false },
+            title = { Text(stringResource(R.string.voice_input_privacy_title)) },
+            text = { Text(stringResource(R.string.voice_input_privacy_body)) },
+            confirmButton = {
+                Button(onClick = ::confirmVoicePrivacy) {
+                    Text(stringResource(R.string.voice_input_privacy_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showVoicePrivacy = false }) {
+                    Text(stringResource(R.string.common_action_cancel))
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun VoiceInputUiState.messageText(): String? = when (phase) {
+    VoiceInputPhase.IDLE -> null
+    VoiceInputPhase.CONNECTING -> stringResource(R.string.voice_input_status_connecting)
+    VoiceInputPhase.LISTENING -> stringResource(R.string.voice_input_status_listening)
+    VoiceInputPhase.ERROR -> when (error) {
+        VoiceInputError.MISSING_PERMISSION -> stringResource(R.string.voice_input_error_permission)
+        VoiceInputError.NETWORK_UNAVAILABLE -> stringResource(R.string.voice_input_error_network)
+        VoiceInputError.DEVICE_REGISTRATION_FAILED -> stringResource(R.string.voice_input_error_registration)
+        VoiceInputError.TOKEN_UNAVAILABLE -> stringResource(R.string.voice_input_error_token)
+        VoiceInputError.WEBSOCKET_FAILED -> stringResource(R.string.voice_input_error_websocket)
+        VoiceInputError.ENCODER_UNAVAILABLE -> stringResource(R.string.voice_input_error_encoder)
+        VoiceInputError.RECORDER_UNAVAILABLE -> stringResource(R.string.voice_input_error_recorder)
+        VoiceInputError.PROTOCOL_FAILED -> stringResource(R.string.voice_input_error_protocol)
+        VoiceInputError.UNKNOWN, null -> stringResource(R.string.voice_input_error_unknown)
     }
 }
