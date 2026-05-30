@@ -12,21 +12,17 @@ class SettingsInformationArchitectureTest {
     private fun source(path: String) = File(projectRoot, path).readText()
 
     @Test
-    fun `settings screen top level cards follow user task groups`() {
+    fun `settings home keeps lightweight groups and links to deep settings`() {
         val screen = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsScreen.kt")
         val expectedOrder = listOf(
             "settings_group_appearance_home",
             "settings_group_appearance_home_desc",
-            "settings_group_reminders_routine",
-            "settings_group_reminders_routine_desc",
-            "settings_group_intelligence",
-            "settings_group_intelligence_desc",
             "settings_group_modules_meds",
             "settings_group_modules_meds_desc",
-            "settings_card_widgets",
-            "settings_group_widgets_desc",
-            "settings_group_data_about",
-            "settings_group_data_about_desc",
+            "settings_destination_reminders",
+            "settings_destination_intelligence",
+            "settings_destination_widgets",
+            "settings_destination_data_about",
         )
 
         var cursor = -1
@@ -35,6 +31,27 @@ class SettingsInformationArchitectureTest {
             assertTrue("SettingsScreen should contain top-level group $token.", next >= 0)
             assertTrue("$token should appear after the previous top-level group.", next > cursor)
             cursor = next
+        }
+
+        assertTrue("Settings home should expose reminder settings as a navigation row.", screen.contains("onNavigateToReminderSettings"))
+        assertTrue("Settings home should expose intelligence settings as a navigation row.", screen.contains("onNavigateToIntelligenceSettings"))
+        assertTrue("Settings home should expose widget settings as a navigation row.", screen.contains("onNavigateToWidgetSettings"))
+        assertTrue("Settings home should expose data settings as a navigation row.", screen.contains("onNavigateToDataSettings"))
+    }
+
+    @Test
+    fun `settings deep sections have typed navigation routes`() {
+        val destinations = source("app/src/main/java/com/driezy/medlog/ui/navigation/MedLogDestinations.kt")
+        val app = source("app/src/main/java/com/driezy/medlog/ui/MedLogApp.kt")
+
+        listOf(
+            "SettingsReminders",
+            "SettingsIntelligence",
+            "SettingsWidgets",
+            "SettingsData",
+        ).forEach { route ->
+            assertTrue("Route.$route should exist.", destinations.contains("data object $route"))
+            assertTrue("Route.$route should be registered in NavHost.", app.contains("composable<Route.$route>"))
         }
     }
 

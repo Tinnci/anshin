@@ -15,6 +15,10 @@ import kotlinx.serialization.Serializable
     @Serializable data object Diary         : Route
     @Serializable data object Health        : Route
     @Serializable data object Settings      : Route
+    @Serializable data object SettingsReminders    : Route
+    @Serializable data object SettingsIntelligence : Route
+    @Serializable data object SettingsWidgets      : Route
+    @Serializable data object SettingsData         : Route
     @Serializable data class  MedDetail(val medicationId: Long) : Route
     /**
      * @param medicationId  编辑模式下已有记录的 id（-1 代表新增）

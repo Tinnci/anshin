@@ -12,6 +12,7 @@
     <string name="common_save">Save</string>
     <string name="common_expand">Expand</string>
     <string name="common_collapse">Collapse</string>
+    <string name="common_back">Back</string>
     <string name="confirm">Confirm</string>
     <string name="medication_taken">Taken</string>
     <string name="medication_skipped">Skipped</string>
@@ -201,6 +202,16 @@
     <string name="settings_group_data_about">Data &amp; About</string>
     <string name="settings_group_widgets_desc">Add home screen widgets and tune Today widget interaction</string>
     <string name="settings_group_data_about_desc">Backup, restore, local data safety, and app information</string>
+    <string name="settings_more_title">More settings</string>
+    <string name="settings_more_desc">Open settings that need more context</string>
+    <string name="settings_destination_reminders">Reminders &amp; Routine</string>
+    <string name="settings_destination_reminders_desc">Notification cadence, missed-dose follow-ups, routine periods, and travel timezone</string>
+    <string name="settings_destination_intelligence">Intelligence</string>
+    <string name="settings_destination_intelligence_desc">Local OCR model, cloud enhanced analysis, and upload controls</string>
+    <string name="settings_destination_widgets">Home screen widgets</string>
+    <string name="settings_destination_widgets_desc">Add widgets and tune Today widget interaction mode</string>
+    <string name="settings_destination_data_about">Data &amp; About</string>
+    <string name="settings_destination_data_about_desc">Backup, restore, local data safety, version information, and onboarding reset</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Light</string>
     <string name="settings_theme_dark">Dark</string>

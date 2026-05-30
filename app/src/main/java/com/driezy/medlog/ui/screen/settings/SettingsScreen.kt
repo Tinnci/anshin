@@ -79,11 +79,95 @@ import androidx.core.app.ActivityCompat
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.annotation.StringRes
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
+private enum class SettingsScreenMode(@param:StringRes val titleRes: Int) {
+    HOME(R.string.tab_settings),
+    REMINDERS(R.string.settings_group_reminders_routine),
+    INTELLIGENCE(R.string.settings_group_intelligence),
+    WIDGETS(R.string.settings_card_widgets),
+    DATA(R.string.settings_group_data_about),
+}
+
 @Composable
 fun SettingsScreen(
     onNavigateToWelcome: () -> Unit = {},
+    onNavigateToReminderSettings: () -> Unit = {},
+    onNavigateToIntelligenceSettings: () -> Unit = {},
+    onNavigateToWidgetSettings: () -> Unit = {},
+    onNavigateToDataSettings: () -> Unit = {},
     viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.HOME,
+        onNavigateToWelcome = onNavigateToWelcome,
+        onNavigateToReminderSettings = onNavigateToReminderSettings,
+        onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
+        onNavigateToWidgetSettings = onNavigateToWidgetSettings,
+        onNavigateToDataSettings = onNavigateToDataSettings,
+        viewModel = viewModel,
+    )
+}
+
+@Composable
+fun ReminderSettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.REMINDERS,
+        onBack = onBack,
+        viewModel = viewModel,
+    )
+}
+
+@Composable
+fun IntelligenceSettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.INTELLIGENCE,
+        onBack = onBack,
+        viewModel = viewModel,
+    )
+}
+
+@Composable
+fun WidgetSettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.WIDGETS,
+        onBack = onBack,
+        viewModel = viewModel,
+    )
+}
+
+@Composable
+fun DataSettingsScreen(
+    onBack: () -> Unit,
+    onNavigateToWelcome: () -> Unit = {},
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.DATA,
+        onBack = onBack,
+        onNavigateToWelcome = onNavigateToWelcome,
+        viewModel = viewModel,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun SettingsScaffold(
+    mode: SettingsScreenMode,
+    onBack: (() -> Unit)? = null,
+    onNavigateToWelcome: () -> Unit = {},
+    onNavigateToReminderSettings: () -> Unit = {},
+    onNavigateToIntelligenceSettings: () -> Unit = {},
+    onNavigateToWidgetSettings: () -> Unit = {},
+    onNavigateToDataSettings: () -> Unit = {},
+    viewModel: SettingsViewModel,
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
@@ -194,7 +278,17 @@ fun SettingsScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LargeTopAppBar(
-                title = { Text(stringResource(R.string.tab_settings)) },
+                title = { Text(stringResource(mode.titleRes)) },
+                navigationIcon = {
+                    if (onBack != null) {
+                        IconButton(onClick = onBack) {
+                            MedLogIcon(
+                                MedLogIcons.ArrowBack,
+                                contentDescription = stringResource(R.string.common_back),
+                            )
+                        }
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -336,8 +430,9 @@ fun SettingsScreen(
                     }
                 }
             }
-            // ── 外观与首页 ─────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.HOME) {
+                // ── 外观与首页 ─────────────────────────────────────────
+                SettingsCard(
                 title = stringResource(R.string.settings_group_appearance_home),
                 subtitle = stringResource(R.string.settings_group_appearance_home_desc),
                 icon = MedLogIcons.Palette,
@@ -459,10 +554,12 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setAutoCollapseCompletedGroups,
                     icon = MedLogIcons.UnfoldLess,
                 )
+                }
             }
 
             // ── 提醒与作息 ─────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.REMINDERS) {
+                SettingsCard(
                 title = stringResource(R.string.settings_group_reminders_routine),
                 subtitle = stringResource(R.string.settings_group_reminders_routine_desc),
                 icon = MedLogIcons.Notifications,
@@ -762,10 +859,12 @@ fun SettingsScreen(
                     onCheckedChange = viewModel::setTravelMode,
                     icon = MedLogIcons.Schedule,
                 )
+                }
             }
 
             // ── 智能能力 ───────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.INTELLIGENCE) {
+                SettingsCard(
                 title = stringResource(R.string.settings_group_intelligence),
                 subtitle = stringResource(R.string.settings_group_intelligence_desc),
                 icon = MedLogIcons.Memory,
@@ -869,10 +968,12 @@ fun SettingsScreen(
                         onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
                     )
                 }
+                }
             }
 
             // ── 模块与药品 ─────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.HOME) {
+                SettingsCard(
                 title = stringResource(R.string.settings_group_modules_meds),
                 subtitle = stringResource(R.string.settings_group_modules_meds_desc),
                 icon = MedLogIcons.Tune,
@@ -929,10 +1030,46 @@ fun SettingsScreen(
                     archived = uiState.archivedMedications,
                     onRestore = viewModel::unarchiveMedication,
                 )
+                }
+
+                SettingsCard(
+                    title = stringResource(R.string.settings_more_title),
+                    subtitle = stringResource(R.string.settings_more_desc),
+                    icon = MedLogIcons.Settings,
+                ) {
+                    SettingsNavigationRow(
+                        title = stringResource(R.string.settings_destination_reminders),
+                        subtitle = stringResource(R.string.settings_destination_reminders_desc),
+                        icon = MedLogIcons.Notifications,
+                        onClick = onNavigateToReminderSettings,
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+                    SettingsNavigationRow(
+                        title = stringResource(R.string.settings_destination_intelligence),
+                        subtitle = stringResource(R.string.settings_destination_intelligence_desc),
+                        icon = MedLogIcons.Memory,
+                        onClick = onNavigateToIntelligenceSettings,
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+                    SettingsNavigationRow(
+                        title = stringResource(R.string.settings_destination_widgets),
+                        subtitle = stringResource(R.string.settings_destination_widgets_desc),
+                        icon = MedLogIcons.Widgets,
+                        onClick = onNavigateToWidgetSettings,
+                    )
+                    HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+                    SettingsNavigationRow(
+                        title = stringResource(R.string.settings_destination_data_about),
+                        subtitle = stringResource(R.string.settings_destination_data_about_desc),
+                        icon = MedLogIcons.CloudUpload,
+                        onClick = onNavigateToDataSettings,
+                    )
+                }
             }
 
             // ── 桌面小组件 ────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.WIDGETS) {
+                SettingsCard(
                 title = stringResource(R.string.settings_card_widgets),
                 subtitle = stringResource(R.string.settings_group_widgets_desc),
                 icon = MedLogIcons.Widgets,
@@ -1123,10 +1260,12 @@ fun SettingsScreen(
                         ),
                     )
                 }
+                }
             }
 
             // ── 备份与恢复 ──────────────────────────────────────────
-            SettingsCard(
+            if (mode == SettingsScreenMode.DATA) {
+                SettingsCard(
                 title = stringResource(R.string.settings_group_data_about),
                 subtitle = stringResource(R.string.settings_group_data_about_desc),
                 icon = MedLogIcons.CloudUpload,
@@ -1197,7 +1336,9 @@ fun SettingsScreen(
                         onNavigateToWelcome()
                     },
                     colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-                )            }
+                )
+                }
+            }
         }
     }
 

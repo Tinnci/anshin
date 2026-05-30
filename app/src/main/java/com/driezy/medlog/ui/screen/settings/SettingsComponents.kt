@@ -493,6 +493,35 @@ internal fun SettingsSwitchRow(
 }
 
 @Composable
+internal fun SettingsNavigationRow(
+    title: String,
+    subtitle: String,
+    icon: Int,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(title) },
+        supportingContent = { Text(subtitle) },
+        leadingContent = {
+            MedLogIcon(
+                icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        trailingContent = {
+            MedLogIcon(
+                MedLogIcons.ChevronRight,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        },
+        modifier = Modifier.clickable(onClick = onClick),
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    )
+}
+
+@Composable
 internal fun DataSafetyPanel() {
     Surface(
         modifier = Modifier

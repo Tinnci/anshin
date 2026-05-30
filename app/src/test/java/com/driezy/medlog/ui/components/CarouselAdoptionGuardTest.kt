@@ -33,8 +33,8 @@ class CarouselAdoptionGuardTest {
     @Test
     fun `settings widget previews use Material3 carousel`() {
         val settingsScreen = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsScreen.kt").readText()
-        val widgetSection = settingsScreen.substringAfter("settings_card_widgets")
-            .substringBefore("settings_group_data_about")
+        val widgetSection = settingsScreen.substringAfter("mode == SettingsScreenMode.WIDGETS")
+            .substringBefore("SettingsScreenMode.DATA")
 
         assertTrue(
             "Settings widget previews should use Material3 carousel APIs.",
@@ -42,7 +42,7 @@ class CarouselAdoptionGuardTest {
                 settingsScreen.contains("androidx.compose.material3.carousel.rememberCarouselState"),
         )
         assertTrue(
-            "Widget section should route repeated widget cards through a dedicated carousel.",
+            "Widget settings page should route repeated widget cards through a dedicated carousel.",
             widgetSection.contains("WidgetPreviewCarousel("),
         )
     }

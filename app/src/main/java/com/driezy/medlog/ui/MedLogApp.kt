@@ -33,7 +33,11 @@ import com.driezy.medlog.ui.screen.drugs.DrugsScreen
 import com.driezy.medlog.ui.screen.health.HealthScreen
 import com.driezy.medlog.ui.screen.history.HistoryScreen
 import com.driezy.medlog.ui.screen.home.HomeScreen
+import com.driezy.medlog.ui.screen.settings.DataSettingsScreen
+import com.driezy.medlog.ui.screen.settings.IntelligenceSettingsScreen
+import com.driezy.medlog.ui.screen.settings.ReminderSettingsScreen
 import com.driezy.medlog.ui.screen.settings.SettingsScreen
+import com.driezy.medlog.ui.screen.settings.WidgetSettingsScreen
 import com.driezy.medlog.ui.screen.symptom.SymptomDiaryScreen
 import com.driezy.medlog.ui.screen.welcome.WelcomeScreen
 
@@ -198,6 +202,51 @@ private fun MedLogNavHost(
             exitTransition = { navFadeOut },
         ) {
             SettingsScreen(
+                onNavigateToWelcome = {
+                    navController.navigate(Route.Welcome) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = false
+                        }
+                    }
+                },
+                onNavigateToReminderSettings = { navController.navigate(Route.SettingsReminders) },
+                onNavigateToIntelligenceSettings = { navController.navigate(Route.SettingsIntelligence) },
+                onNavigateToWidgetSettings = { navController.navigate(Route.SettingsWidgets) },
+                onNavigateToDataSettings = { navController.navigate(Route.SettingsData) },
+            )
+        }
+        composable<Route.SettingsReminders>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            ReminderSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable<Route.SettingsIntelligence>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            IntelligenceSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable<Route.SettingsWidgets>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            WidgetSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable<Route.SettingsData>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            DataSettingsScreen(
+                onBack = { navController.popBackStack() },
                 onNavigateToWelcome = {
                     navController.navigate(Route.Welcome) {
                         popUpTo(navController.graph.findStartDestination().id) {
