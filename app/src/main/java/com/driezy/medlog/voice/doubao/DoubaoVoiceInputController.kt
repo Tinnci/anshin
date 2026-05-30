@@ -145,13 +145,15 @@ class DoubaoVoiceInputController @Inject constructor(
             }
         } finally {
             val elapsed = System.currentTimeMillis() - startedAt
-            encoder.encode(ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES), endOfStream = true)?.let { opusFrame ->
-                socket.sendAudio(sequencer.last(opusFrame, elapsed))
+            if (sequencer.sentFrameCount > 0) {
+                encoder.encode(ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES), endOfStream = true)?.let { opusFrame ->
+                    socket.sendAudio(sequencer.last(opusFrame, elapsed))
+                }
+                finishSocket(socket)
             }
             encoder.close()
             runCatching { recorder.stop() }
             recorder.release()
-            finishSocket(socket)
         }
     }
 

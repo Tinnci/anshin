@@ -61,11 +61,12 @@ data class DoubaoAudioPacket(
 }
 
 class DoubaoAudioFrameSequencer {
-    private var sentFrames = 0
+    var sentFrameCount = 0
+        private set
 
     fun next(opusFrame: ByteArray, timestampMs: Long): DoubaoAudioPacket {
-        val state = if (sentFrames == 0) DoubaoFrameState.FIRST else DoubaoFrameState.MIDDLE
-        sentFrames += 1
+        val state = if (sentFrameCount == 0) DoubaoFrameState.FIRST else DoubaoFrameState.MIDDLE
+        sentFrameCount += 1
         return DoubaoAudioPacket(opusFrame, state, timestampMs)
     }
 

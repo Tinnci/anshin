@@ -26,8 +26,12 @@ class DoubaoAudioFrameChunkerTest {
     fun `marks first middle and last opus packets`() {
         val frames = DoubaoAudioFrameSequencer()
 
+        assertEquals(0, frames.sentFrameCount)
         assertEquals(DoubaoFrameState.FIRST, frames.next(ByteArray(3), timestampMs = 100).frameState)
+        assertEquals(1, frames.sentFrameCount)
         assertEquals(DoubaoFrameState.MIDDLE, frames.next(ByteArray(3), timestampMs = 120).frameState)
+        assertEquals(2, frames.sentFrameCount)
         assertEquals(DoubaoFrameState.LAST, frames.last(ByteArray(3), timestampMs = 140).frameState)
+        assertEquals(2, frames.sentFrameCount)
     }
 }
