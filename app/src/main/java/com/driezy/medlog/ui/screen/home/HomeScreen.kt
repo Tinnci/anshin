@@ -70,6 +70,7 @@ internal const val STAGGER_DELAY_MS = 30L
 fun HomeScreen(
     onAddMedication: () -> Unit,
     onMedicationClick: (Long) -> Unit,
+    onOpenSettings: () -> Unit,
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -129,6 +130,12 @@ fun HomeScreen(
                         MedLogIcon(
                             icon = if (uiState.groupByTime) MedLogIcons.Category else MedLogIcons.AccessTime,
                             contentDescription = if (uiState.groupByTime) stringResource(R.string.home_group_toggle_by_category) else stringResource(R.string.home_group_toggle_by_time),
+                        )
+                    }
+                    IconButton(onClick = onOpenSettings) {
+                        MedLogIcon(
+                            MedLogIcons.Settings,
+                            contentDescription = stringResource(R.string.settings_action_open),
                         )
                     }
                 },

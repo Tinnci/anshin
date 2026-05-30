@@ -161,13 +161,14 @@ private fun MedLogNavHost(
             HomeScreen(
                 onAddMedication = { navController.navigate(Route.AddMedication()) },
                 onMedicationClick = { id -> navController.navigate(Route.MedDetail(id)) },
+                onOpenSettings = { navController.navigate(Route.Settings) },
             )
         }
         composable<Route.History>(
             enterTransition = { navFadeIn },
             exitTransition = { navFadeOut },
         ) {
-            HistoryScreen()
+            HistoryScreen(onOpenSettings = { navController.navigate(Route.Settings) })
         }
         composable<Route.Drugs>(
             enterTransition = { navFadeIn },
@@ -175,6 +176,7 @@ private fun MedLogNavHost(
         ) {
             DrugsScreen(
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
+                onOpenSettings = { navController.navigate(Route.Settings) },
                 onDrugSelect = { drug ->
                     navController.navigate(
                         Route.AddMedication(
@@ -189,13 +191,13 @@ private fun MedLogNavHost(
             enterTransition = { navFadeIn },
             exitTransition = { navFadeOut },
         ) {
-            SymptomDiaryScreen()
+            SymptomDiaryScreen(onOpenSettings = { navController.navigate(Route.Settings) })
         }
         composable<Route.Health>(
             enterTransition = { navFadeIn },
             exitTransition = { navFadeOut },
         ) {
-            HealthScreen()
+            HealthScreen(onOpenSettings = { navController.navigate(Route.Settings) })
         }
         composable<Route.Settings>(
             enterTransition = { navFadeIn },

@@ -41,6 +41,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryScreen(
+    onOpenSettings: () -> Unit,
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -60,6 +61,14 @@ fun HistoryScreen(
                                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        MedLogIcon(
+                            MedLogIcons.Settings,
+                            contentDescription = stringResource(R.string.settings_action_open),
+                        )
                     }
                 },
                 scrollBehavior = scrollBehavior,

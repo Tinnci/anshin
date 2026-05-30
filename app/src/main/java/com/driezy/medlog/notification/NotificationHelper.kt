@@ -93,6 +93,12 @@ class NotificationHelper @Inject constructor(
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
 
+    private fun NotificationCompat.Builder.asMedicationLiveUpdate(shortText: String) = this
+        .setRequestPromotedOngoing(true)
+        .setShortCriticalText(shortText)
+        .setOngoing(true)
+        .setOnlyAlertOnce(true)
+
     init {
         createChannels()
     }
@@ -264,9 +270,10 @@ class NotificationHelper @Inject constructor(
             .setVisibility(NotificationCompat.VISIBILITY_PRIVATE)
             .setPublicVersion(publicVersion)
             .setGroup(GROUP_REMINDERS)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setTimeoutAfter(2 * 60 * 60 * 1000L)   // 2小时后自动清除
             .setTicker(context.getString(R.string.notif_reminder_ticker, medicationName))
+            .asMedicationLiveUpdate(context.getString(R.string.notif_live_short_take))
             .build()
 
         notificationManager.notify(notificationId, notification)
@@ -431,9 +438,10 @@ class NotificationHelper @Inject constructor(
             .setContentIntent(openAppPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
-            .setAutoCancel(true)
+            .setAutoCancel(false)
             .setTimeoutAfter(60 * 60 * 1000L)  // 1 小时后自动清除
             .setTicker(context.getString(R.string.notif_follow_up_ticker, medicationName))
+            .asMedicationLiveUpdate(context.getString(R.string.notif_live_short_follow_up))
             .build()
         notificationManager.notify(notificationId, notification)
     }

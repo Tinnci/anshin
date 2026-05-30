@@ -194,6 +194,7 @@
     <string name="settings_dynamic_color_title">Material You ダイナミックカラー</string>
     <string name="settings_dynamic_color_subtitle">壁紙に合わせてアプリカラーを自動調整（Android 12+）</string>
     <string name="settings_display_title">表示サイズとフォント</string>
+    <string name="settings_action_open">設定を開く</string>
     <string name="settings_display_subtitle">システムフォントに従い、アプリ内の文字と要素サイズを個別に調整します</string>
     <string name="settings_font_mode_title">フォント</string>
     <string name="settings_font_mode_system">システム</string>
@@ -514,6 +515,8 @@
     <string name="notif_progress_ticker_update">今日の服薬進捗が更新されました</string>
     <string name="notif_reminder_public_title">服薬リマインダー</string>
     <string name="notif_reminder_public_body">タップして詳細を確認</string>
+    <string name="notif_live_short_take">服薬</string>
+    <string name="notif_live_short_follow_up">再通知</string>
     <string name="notif_reminder_title">服薬時刻です：%s</string>
     <string name="notif_reminder_dose_label">用量：%s</string>
     <string name="notif_reminder_subtext">服薬リマインダー</string>

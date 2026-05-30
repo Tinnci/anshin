@@ -118,7 +118,6 @@ class MaterialSymbolsMigrationGuardTest {
             "MedicalServicesSelected",
             "EditNoteSelected",
             "MonitorHeartSelected",
-            "SettingsSelected",
         )
 
         expected.forEach { property ->

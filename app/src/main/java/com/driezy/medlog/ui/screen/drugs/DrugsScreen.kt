@@ -41,6 +41,7 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
 @Composable
 fun DrugsScreen(
     onAddCustomDrug: () -> Unit,
+    onOpenSettings: () -> Unit,
     onDrugSelect: (Drug) -> Unit,
     viewModel: DrugsViewModel = hiltViewModel(),
 ) {
@@ -53,6 +54,14 @@ fun DrugsScreen(
         topBar = {
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.drugs_title)) },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        MedLogIcon(
+                            MedLogIcons.Settings,
+                            contentDescription = stringResource(R.string.settings_action_open),
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },

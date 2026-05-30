@@ -108,6 +108,7 @@ internal data class HealthInsightsPresentation(
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HealthScreen(
+    onOpenSettings: () -> Unit,
     viewModel: HealthViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -119,6 +120,14 @@ fun HealthScreen(
         topBar = {
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.health_screen_title)) },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        MedLogIcon(
+                            MedLogIcons.Settings,
+                            contentDescription = stringResource(R.string.settings_action_open),
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },

@@ -59,6 +59,7 @@ private fun ratingLabel(rating: Int): String = when (rating) {
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun SymptomDiaryScreen(
+    onOpenSettings: () -> Unit,
     viewModel: SymptomDiaryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -70,6 +71,14 @@ fun SymptomDiaryScreen(
         topBar = {
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.symptom_screen_title)) },
+                actions = {
+                    IconButton(onClick = onOpenSettings) {
+                        MedLogIcon(
+                            MedLogIcons.Settings,
+                            contentDescription = stringResource(R.string.settings_action_open),
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },

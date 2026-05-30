@@ -47,5 +47,4 @@ val TOP_LEVEL_DESTINATIONS = listOf(
     TopLevelDestination(Route.Drugs, MedLogIcons.MedicalServices, MedLogIcons.MedicalServicesSelected, com.driezy.medlog.R.string.tab_drugs),
     TopLevelDestination(Route.Diary, MedLogIcons.EditNote, MedLogIcons.EditNoteSelected, com.driezy.medlog.R.string.tab_diary),
     TopLevelDestination(Route.Health, MedLogIcons.MonitorHeart, MedLogIcons.MonitorHeartSelected, com.driezy.medlog.R.string.tab_health),
-    TopLevelDestination(Route.Settings, MedLogIcons.Settings, MedLogIcons.SettingsSelected, com.driezy.medlog.R.string.tab_settings),
 )

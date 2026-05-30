@@ -194,6 +194,7 @@
     <string name="settings_dynamic_color_title">Material You 다이나믹 컬러</string>
     <string name="settings_dynamic_color_subtitle">배경화면에 맞게 앱 색상 자동 조정 (Android 12+)</string>
     <string name="settings_display_title">표시 크기 및 글꼴</string>
+    <string name="settings_action_open">설정 열기</string>
     <string name="settings_display_subtitle">시스템 글꼴을 따르고 앱 안의 글자와 요소 크기를 따로 조정합니다</string>
     <string name="settings_font_mode_title">글꼴</string>
     <string name="settings_font_mode_system">시스템</string>
@@ -514,6 +515,8 @@
     <string name="notif_progress_ticker_update">오늘 복약 진행 상황이 업데이트되었습니다</string>
     <string name="notif_reminder_public_title">복약 알림</string>
     <string name="notif_reminder_public_body">탭하여 자세히 보기</string>
+    <string name="notif_live_short_take">복용</string>
+    <string name="notif_live_short_follow_up">재알림</string>
     <string name="notif_reminder_title">복약 시간: %s</string>
     <string name="notif_reminder_dose_label">용량: %s</string>
     <string name="notif_reminder_subtext">복약 알림</string>
