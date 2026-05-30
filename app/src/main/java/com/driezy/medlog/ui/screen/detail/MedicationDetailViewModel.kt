@@ -11,6 +11,7 @@ import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.domain.THIRTY_DAYS_MS
 import com.driezy.medlog.domain.ToggleMedicationDoseUseCase
+import com.driezy.medlog.widget.WidgetRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -36,6 +37,7 @@ class MedicationDetailViewModel @Inject constructor(
     private val medicationRepo: MedicationRepository,
     private val logRepo: LogRepository,
     private val toggleDoseUseCase: ToggleMedicationDoseUseCase,
+    private val widgetRefresher: WidgetRefresher,
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(DetailUiState())
@@ -73,6 +75,7 @@ class MedicationDetailViewModel @Inject constructor(
         safeLaunch {
             medicationRepo.archiveMedication(id)
             toggleDoseUseCase.cancelAllReminders(id)
+            widgetRefresher.refreshAll()
         }
     }
 
@@ -81,6 +84,7 @@ class MedicationDetailViewModel @Inject constructor(
         safeLaunch {
             medicationRepo.deleteMedication(med)
             toggleDoseUseCase.cancelAllReminders(med.id)
+            widgetRefresher.refreshAll()
         }
     }
 

@@ -34,6 +34,7 @@ import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidget
 import com.driezy.medlog.widget.NextDoseWidget
 import com.driezy.medlog.widget.StreakWidget
+import com.driezy.medlog.widget.WidgetRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -110,6 +111,7 @@ class SettingsViewModel @Inject constructor(
     private val aiCacheRepository: AiCacheRepository,
     private val resyncReminders: ResyncRemindersUseCase,
     private val backupRestore: BackupRestoreUseCase,
+    private val widgetRefresher: WidgetRefresher,
     @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
@@ -300,7 +302,10 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun unarchiveMedication(id: Long) {
-        safeLaunch { repository.unarchiveMedication(id) }
+        safeLaunch {
+            repository.unarchiveMedication(id)
+            widgetRefresher.refreshAll()
+        }
     }
 
     fun updateRoutineTime(field: String, hour: Int, minute: Int) {

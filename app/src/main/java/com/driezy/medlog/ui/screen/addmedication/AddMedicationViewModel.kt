@@ -21,6 +21,7 @@ import com.driezy.medlog.voice.VoiceInputEvent
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
 import com.driezy.medlog.voice.VoiceTranscriptAppender
+import com.driezy.medlog.widget.WidgetRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.FlowPreview
@@ -96,6 +97,7 @@ class AddMedicationViewModel @Inject constructor(
     private val prefsRepository: UserPreferencesRepository,
     private val drugRepository: DrugRepository,
     private val voiceInputController: VoiceInputController,
+    private val widgetRefresher: WidgetRefresher,
     @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
@@ -351,6 +353,7 @@ class AddMedicationViewModel @Inject constructor(
                 notificationHelper.cancelAllReminderNotifications(existingId)
                 alarmScheduler.scheduleAllReminders(medication)
             }
+            widgetRefresher.refreshAll()
             update { copy(isSaving = false, isSaved = true) }
         }
     }
