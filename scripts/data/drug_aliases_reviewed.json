@@ -3966,7 +3966,7 @@
     "aliases": ["anisodamine", "654-2"]
   },
   "东莨菪碱": {
-    "aliases": ["scopolamine", "丁溴东莨菪碱"]
+    "aliases": ["scopolamine"]
   },
   "氢氧化铝": {
     "aliases": ["aluminium hydroxide"]
@@ -4230,10 +4230,10 @@
     "aliases": ["methazolamide"]
   },
   "帕瑞肽": {
-    "aliases": ["pasireotide", "诺华"]
+    "aliases": ["pasireotide", "Signifor"]
   },
   "胰高血糖素": {
-    "aliases": ["glucagon", "高血糖素"]
+    "aliases": ["glucagon"]
   },
   "西那卡塞": {
     "aliases": ["cinacalcet", "盖平"]
@@ -4261,5 +4261,179 @@
   },
   "托珠单抗": {
     "aliases": ["tocilizumab", "雅美罗"]
+  },
+  "贝尼地平": {
+    "aliases": ["benidipine", "可力洛"]
+  },
+  "马尼地平": {
+    "aliases": ["manidipine"]
+  },
+  "阿罗洛尔": {
+    "aliases": ["arotinolol", "阿尔马尔"]
+  },
+  "美替洛尔": {
+    "aliases": ["metipranolol"]
+  },
+  "西拉普利": {
+    "aliases": ["cilazapril"]
+  },
+  "群多普利": {
+    "aliases": ["trandolapril"]
+  },
+  "阿利吉仑": {
+    "aliases": ["aliskiren", "锐思力"]
+  },
+  "波生坦": {
+    "aliases": ["bosentan", "全可利"]
+  },
+  "安立生坦": {
+    "aliases": ["ambrisentan", "凡瑞克"]
+  },
+  "决奈达隆": {
+    "aliases": ["dronedarone", "迈达龙"]
+  },
+  "齐拉西酮": {
+    "aliases": ["ziprasidone", "卓乐定"]
+  },
+  "帕利哌酮": {
+    "aliases": ["paliperidone", "芮达"]
+  },
+  "鲁拉西酮": {
+    "aliases": ["lurasidone", "罗舒达"]
+  },
+  "安非他酮": {
+    "aliases": ["bupropion", "悦亭"]
+  },
+  "氟伏沙明": {
+    "aliases": ["fluvoxamine", "兰释"]
+  },
+  "吗氯贝胺": {
+    "aliases": ["moclobemide", "朗天"]
+  },
+  "加兰他敏": {
+    "aliases": ["galantamine", "利忆灵"]
+  },
+  "石杉碱甲": {
+    "aliases": ["huperzine A", "双益平"]
+  },
+  "唑尼沙胺": {
+    "aliases": ["zonisamide", "福丁宁"]
+  },
+  "氨曲南": {
+    "aliases": ["aztreonam"]
+  },
+  "达托霉素": {
+    "aliases": ["daptomycin", "克必信"]
+  },
+  "特地唑胺": {
+    "aliases": ["tedizolid"]
+  },
+  "依拉环素": {
+    "aliases": ["eravacycline"]
+  },
+  "奥马环素": {
+    "aliases": ["omadacycline", "Nuzyra"]
+  },
+  "地红霉素": {
+    "aliases": ["dirithromycin"]
+  },
+  "泊沙康唑": {
+    "aliases": ["posaconazole", "诺科飞"]
+  },
+  "艾沙康唑": {
+    "aliases": ["isavuconazole", "艾沙康唑硫酸酯"]
+  },
+  "右兰索拉唑": {
+    "aliases": ["dexlansoprazole", "右兰索拉唑缓释胶囊"]
+  },
+  "艾普拉唑": {
+    "aliases": ["ilaprazole", "壹丽安"]
+  },
+  "普芦卡必利": {
+    "aliases": ["prucalopride", "力洛"]
+  },
+  "帕尼单抗": {
+    "aliases": ["panitumumab", "维克替比"]
+  },
+  "戈利木单抗": {
+    "aliases": ["golimumab", "欣普尼"]
+  },
+  "乌司奴单抗": {
+    "aliases": ["ustekinumab", "喜达诺"]
+  },
+  "依奇珠单抗": {
+    "aliases": ["ixekizumab", "拓咨"]
+  },
+  "司库奇尤单抗": {
+    "aliases": ["secukinumab", "可善挺"]
+  },
+  "美泊利珠单抗": {
+    "aliases": ["mepolizumab", "新可来"]
+  },
+  "依库珠单抗": {
+    "aliases": ["eculizumab", "舒立瑞"]
+  },
+  "伊布替尼": {
+    "aliases": ["ibrutinib", "亿珂"]
+  },
+  "泽布替尼": {
+    "aliases": ["zanubrutinib", "百悦泽"]
+  },
+  "维奈克拉": {
+    "aliases": ["venetoclax", "唯可来"]
+  },
+  "泊马度胺": {
+    "aliases": ["pomalidomide", "泊马度胺胶囊"]
+  },
+  "卡非佐米": {
+    "aliases": ["carfilzomib", "凯洛斯"]
+  },
+  "伊沙佐米": {
+    "aliases": ["ixazomib", "恩莱瑞"]
+  },
+  "阿贝西利": {
+    "aliases": ["abemaciclib", "唯择"]
+  },
+  "恩曲替尼": {
+    "aliases": ["entrectinib", "罗圣全"]
+  },
+  "达拉非尼": {
+    "aliases": ["dabrafenib", "泰菲乐"]
+  },
+  "曲美替尼": {
+    "aliases": ["trametinib", "迈吉宁"]
+  },
+  "维莫非尼": {
+    "aliases": ["vemurafenib", "佐博伏"]
+  },
+  "考比替尼": {
+    "aliases": ["cobimetinib", "Cotellic"]
+  },
+  "卡博替尼": {
+    "aliases": ["cabozantinib", "卡博替尼片"]
+  },
+  "利司那肽": {
+    "aliases": ["lixisenatide", "利时敏"]
+  },
+  "艾塞那肽": {
+    "aliases": ["exenatide", "百泌达"]
+  },
+  "德谷胰岛素": {
+    "aliases": ["insulin degludec", "诺和达"]
+  },
+  "巴瑞替尼": {
+    "aliases": ["baricitinib", "艾乐明"]
+  },
+  "阿普米司特": {
+    "aliases": ["apremilast", "欧泰乐"]
+  },
+  "拉罗尼酶": {
+    "aliases": ["laronidase"]
+  },
+  "伊米苷酶": {
+    "aliases": ["imiglucerase"]
+  },
+  "尼替西农": {
+    "aliases": ["nitisinone"]
   }
 }
