@@ -21,12 +21,6 @@ class DrugRepositoryImpl @Inject constructor(
             cache ?: dataSource.loadAllDrugs().also { cache = it }
         }
 
-    override suspend fun searchDrugs(query: String): List<Drug> {
-        val all = getAllDrugs()
-        return if (query.isBlank()) all
-        else all.filter { it.matches(query) }
-    }
-
     override suspend fun searchDrugsRanked(query: String): List<Drug> {
         val all = getAllDrugs()
         if (query.isBlank()) return all

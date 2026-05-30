@@ -49,15 +49,7 @@ def build_clean_aliases(
             aliases.append(alias)
 
         if aliases:
-            output_entry: dict[str, Any] = {"aliases": aliases}
-            external_ids = {
-                str(key).strip(): str(value).strip()
-                for key, value in entry.get("externalIds", {}).items()
-                if str(key).strip() and str(value).strip()
-            }
-            if external_ids:
-                output_entry["externalIds"] = external_ids
-            clean[canonical_name] = output_entry
+            clean[canonical_name] = {"aliases": aliases}
 
     if conflicts:
         details = "; ".join(f"{alias}: {left} / {right}" for alias, left, right in conflicts[:10])

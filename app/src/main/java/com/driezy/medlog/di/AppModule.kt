@@ -6,6 +6,7 @@ import com.driezy.medlog.ai.AiApiKeyStore
 import com.driezy.medlog.ai.AndroidKeystoreAiApiKeyStore
 import com.driezy.medlog.data.local.AiAnalysisCacheDao
 import com.driezy.medlog.data.local.AiUsageEventDao
+import com.driezy.medlog.data.local.DrugAliasAssetParser
 import com.driezy.medlog.data.local.HealthRecordDao
 import com.driezy.medlog.data.local.MedLogDatabase
 import com.driezy.medlog.data.local.MedicationDao
@@ -25,6 +26,7 @@ import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.MedicationRepositoryImpl
 import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
+import com.driezy.medlog.interaction.DrugAliasNormalizer
 import com.driezy.medlog.widget.GlanceWidgetRefresher
 import com.driezy.medlog.widget.WidgetRefresher
 import com.driezy.medlog.voice.VoiceInputController
@@ -38,6 +40,7 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import java.util.concurrent.TimeUnit
@@ -86,6 +89,17 @@ object DatabaseModule {
 
     @Provides
     fun provideAiUsageEventDao(db: MedLogDatabase): AiUsageEventDao = db.aiUsageEventDao()
+
+    @Provides
+    @Singleton
+    fun provideDrugAliasNormalizer(@ApplicationContext context: Context): DrugAliasNormalizer {
+        val json = Json { ignoreUnknownKeys = true; isLenient = true }
+        val aliasMap = runCatching {
+            val text = context.assets.open("json/drug_aliases_clean.json").bufferedReader().use { it.readText() }
+            DrugAliasAssetParser.parseAliasToCanonical(text, json)
+        }.getOrDefault(emptyMap())
+        return DrugAliasNormalizer(aliasMap)
+    }
 
     @Provides
     @Singleton

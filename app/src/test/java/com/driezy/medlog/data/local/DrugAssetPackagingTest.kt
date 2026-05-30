@@ -1,7 +1,12 @@
 package com.driezy.medlog.data.local
 
 import java.io.File
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertFalse
+import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -36,21 +41,26 @@ class DrugAssetPackagingTest {
 
     @Test
     fun `western drug assets rehome clear misc category records`() {
-        val drugsJson = File(projectRoot, "app/src/main/assets/json/drugs_clean.json").readText()
+        val drugs = readJsonObject("app/src/main/assets/json/drugs_clean.json")
 
-        assertTrue(drugsJson.contains("\"阿托伐他汀\": [\n    \"心血管系统 > 血脂调节剂"))
-        assertTrue(drugsJson.contains("\"乙胺丁醇\": [\n    \"系统用抗感染药 > 抗分支杆菌药"))
+        assertTrue(drugs.getValue("阿托伐他汀").firstPath().startsWith("心血管系统 > 血脂调节剂"))
+        assertTrue(drugs.getValue("乙胺丁醇").firstPath().startsWith("系统用抗感染药 > 抗分支杆菌药"))
     }
 
     @Test
     fun `drug alias asset covers common brand generic and chemical names`() {
-        val aliasesJson = File(projectRoot, "app/src/main/assets/json/drug_aliases_clean.json").readText()
+        val aliases = DrugAliasAssetParser.parseAliases(
+            File(projectRoot, "app/src/main/assets/json/drug_aliases_clean.json").readText(),
+        )
 
-        assertTrue(aliasesJson.contains("\"阿司匹林\""))
-        assertTrue(aliasesJson.contains("\"拜阿司匹灵\""))
-        assertTrue(aliasesJson.contains("\"acetylsalicylic acid\""))
-        assertTrue(aliasesJson.contains("\"对乙酰氨基酚\""))
-        assertTrue(aliasesJson.contains("\"扑热息痛\""))
-        assertTrue(aliasesJson.contains("\"acetaminophen\""))
+        assertEquals(53, aliases.size)
+        assertTrue(aliases.getValue("阿司匹林").containsAll(listOf("拜阿司匹灵", "acetylsalicylic acid")))
+        assertTrue(aliases.getValue("对乙酰氨基酚").containsAll(listOf("扑热息痛", "acetaminophen")))
     }
+
+    private fun readJsonObject(path: String) =
+        Json.parseToJsonElement(File(projectRoot, path).readText()).jsonObject
+
+    private fun kotlinx.serialization.json.JsonElement.firstPath(): String =
+        (this as JsonArray).first().jsonPrimitive.content
 }

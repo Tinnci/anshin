@@ -19,7 +19,7 @@ class InteractionRuleEngineTest {
 
     @Before
     fun setup() {
-        engine = InteractionRuleEngine()
+        engine = InteractionRuleEngine(DrugAliasNormalizer())
     }
 
     // ─── 边界情况 ────────────────────────────────────────────────────────────
@@ -173,6 +173,26 @@ class InteractionRuleEngineTest {
         // 华法林 匹配 groupA, 阿司匹林 匹配 groupB
         assertEquals("华法林", result.drugA)
         assertEquals("阿司匹林", result.drugB)
+    }
+
+    @Test
+    fun `reviewed aliases trigger interactions for manually entered brand and chemical names`() {
+        val aliasAwareEngine = InteractionRuleEngine(
+            aliasNormalizer = DrugAliasNormalizer(
+                mapOf(
+                    "拜阿司匹灵" to "阿司匹林",
+                    "acetylsalicylic acid" to "阿司匹林",
+                    "advil" to "布洛芬",
+                ),
+            ),
+        )
+
+        val results = aliasAwareEngine.check(listOf(med("华法林"), med("拜阿司匹灵")))
+
+        assertTrue(results.isNotEmpty())
+        assertEquals(InteractionSeverity.HIGH, results.first().severity)
+        assertEquals("华法林", results.first().drugA)
+        assertEquals("拜阿司匹灵", results.first().drugB)
     }
 
     // ─── 辅助函数 ────────────────────────────────────────────────────────────

@@ -73,19 +73,7 @@ class DrugDataSource @Inject constructor(
 
     private fun parseDrugAliases(assetPath: String): Map<String, List<String>> = try {
         val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
-        val root = lenientJson.parseToJsonElement(text).jsonObject
-        root.mapValues { (_, value) ->
-            value.jsonObject["aliases"]
-                ?.let { aliases ->
-                    when (aliases) {
-                        is JsonArray -> aliases.mapNotNull { alias ->
-                            (alias as? JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
-                        }
-                        else -> emptyList()
-                    }
-                }
-                .orEmpty()
-        }
+        DrugAliasAssetParser.parseAliases(text, lenientJson)
     } catch (e: Exception) {
         emptyMap()
     }

@@ -402,7 +402,9 @@ private val RULES: List<InteractionRule> = listOf(
 // ─── 引擎 ─────────────────────────────────────────────────────────────────────
 
 @Singleton
-class InteractionRuleEngine @Inject constructor() {
+class InteractionRuleEngine @Inject constructor(
+    private val aliasNormalizer: DrugAliasNormalizer,
+) {
 
     /**
      * 检测活跃药品列表中存在的相互作用。
@@ -417,8 +419,8 @@ class InteractionRuleEngine @Inject constructor() {
             for (j in i + 1 until medications.size) {
                 val a = medications[i]
                 val b = medications[j]
-                val keyA = (a.name + " " + a.fullPath + " " + a.category).lowercase()
-                val keyB = (b.name + " " + b.fullPath + " " + b.category).lowercase()
+                val keyA = aliasNormalizer.searchText(a.name, a.fullPath, a.category)
+                val keyB = aliasNormalizer.searchText(b.name, b.fullPath, b.category)
 
                 for (rule in RULES) {
                     val aMatchesGroupA = rule.groupA.any { keyA.contains(it.lowercase()) }
