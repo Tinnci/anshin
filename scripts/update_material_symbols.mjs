@@ -78,6 +78,7 @@ const ICONS = [
   ["MedicalServices", "medical_services"],
   ["Medication", "medication"],
   ["Memory", "memory"],
+  ["Mic", "mic"],
   ["Monitor", "monitor"],
   ["MonitorHeart", "monitor_heart"],
   ["MonitorWeight", "monitor_weight"],

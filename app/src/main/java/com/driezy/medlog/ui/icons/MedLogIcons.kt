@@ -73,12 +73,12 @@ object MedLogIcons {
     @DrawableRes val MedicalServices: Int = R.drawable.ic_symbol_medical_services
     @DrawableRes val Medication: Int = R.drawable.ic_symbol_medication
     @DrawableRes val Memory: Int = R.drawable.ic_symbol_memory
+    @DrawableRes val Mic: Int = R.drawable.ic_symbol_mic
     @DrawableRes val Monitor: Int = R.drawable.ic_symbol_monitor
     @DrawableRes val MonitorHeart: Int = R.drawable.ic_symbol_monitor_heart
     @DrawableRes val MonitorWeight: Int = R.drawable.ic_symbol_monitor_weight
     @DrawableRes val MoreHoriz: Int = R.drawable.ic_symbol_more_horiz
     @DrawableRes val MoreVert: Int = R.drawable.ic_symbol_more_vert
-    @DrawableRes val Mic: Int = R.drawable.ic_symbol_mic
     @DrawableRes val NightsStay: Int = R.drawable.ic_symbol_nights_stay
     @DrawableRes val Notes: Int = R.drawable.ic_symbol_notes
     @DrawableRes val NotificationAdd: Int = R.drawable.ic_symbol_notification_add
