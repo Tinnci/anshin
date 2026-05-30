@@ -28,8 +28,8 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.SymptomLog
+import com.driezy.medlog.ui.components.messageText
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.voice.VoiceInputError
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
@@ -425,23 +425,5 @@ internal fun AddEditDiarySheet(
                 }
             },
         )
-    }
-}
-
-@Composable
-internal fun VoiceInputUiState.messageText(): String? = when (phase) {
-    VoiceInputPhase.IDLE -> null
-    VoiceInputPhase.CONNECTING -> stringResource(R.string.voice_input_status_connecting)
-    VoiceInputPhase.LISTENING -> stringResource(R.string.voice_input_status_listening)
-    VoiceInputPhase.ERROR -> when (error) {
-        VoiceInputError.MISSING_PERMISSION -> stringResource(R.string.voice_input_error_permission)
-        VoiceInputError.NETWORK_UNAVAILABLE -> stringResource(R.string.voice_input_error_network)
-        VoiceInputError.DEVICE_REGISTRATION_FAILED -> stringResource(R.string.voice_input_error_registration)
-        VoiceInputError.TOKEN_UNAVAILABLE -> stringResource(R.string.voice_input_error_token)
-        VoiceInputError.WEBSOCKET_FAILED -> stringResource(R.string.voice_input_error_websocket)
-        VoiceInputError.ENCODER_UNAVAILABLE -> stringResource(R.string.voice_input_error_encoder)
-        VoiceInputError.RECORDER_UNAVAILABLE -> stringResource(R.string.voice_input_error_recorder)
-        VoiceInputError.PROTOCOL_FAILED -> stringResource(R.string.voice_input_error_protocol)
-        VoiceInputError.UNKNOWN, null -> stringResource(R.string.voice_input_error_unknown)
     }
 }
