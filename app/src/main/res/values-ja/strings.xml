@@ -714,7 +714,17 @@
     <string name="widget_action_btn">飲</string>
     <!-- ウィジェット設定 -->
     <string name="widget_settings_title">ウィジェット設定</string>
-    <string name="widget_settings_configure_title">今日進度ウィジェットの設定</string>
+    <string name="widget_settings_configure_title">ウィジェットを設定</string>
+    <string name="widget_settings_theme_mode">明暗モード</string>
+    <string name="widget_settings_theme_system">システムに従う</string>
+    <string name="widget_settings_theme_app">アプリに従う</string>
+    <string name="widget_settings_color_source">色のソース</string>
+    <string name="widget_settings_color_dynamic">システム動的カラー</string>
+    <string name="widget_settings_color_app">アプリテーマ</string>
+    <string name="widget_settings_color_custom">ウィジェット配色</string>
+    <string name="widget_settings_palette">ウィジェット配色</string>
+    <string name="widget_settings_density">レイアウト密度</string>
+    <string name="widget_settings_text_size">文字サイズ</string>
     <string name="widget_settings_show_actions">服薬ボタン</string>
     <string name="widget_settings_show_actions_body">ウィジェットにワンタップ服薬ボタンを表示</string>
     <string name="widget_settings_status_body">状態表示のみ、ボタンなし</string>    <plurals name="widget_next_dose_remaining_fmt">

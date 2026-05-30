@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -113,13 +112,16 @@ class StreakWidget : GlanceAppWidget() {
         }
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
-        val themeMode = widgetPrefs.medLogThemeMode()
-        val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
-        val themePalette = widgetPrefs.medLogThemePalette()
+        val appearance = widgetPrefs.medLogWidgetAppearance()
 
         provideContent {
-            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor, themePalette = themePalette) {
-                StreakContent(total = total, streak = streak, dayData = dayData)
+            MedLogGlanceTheme(appearance = appearance) {
+                StreakContent(
+                    total = total,
+                    streak = streak,
+                    dayData = dayData,
+                    sizing = appearance.sizing,
+                )
             }
         }
     }
@@ -130,6 +132,7 @@ private fun StreakContent(
     total: Int,
     streak: Int,
     dayData: List<Pair<Boolean, String>>,
+    sizing: WidgetSizing,
 ) {
     val size      = LocalSize.current
     val isCompact = size.width < 160.dp
@@ -140,6 +143,7 @@ private fun StreakContent(
         prominent = streak >= 7,
         modifier = GlanceModifier
             .clickable(actionStartActivity<MainActivity>()),
+        sizing = sizing,
         verticalAlignment   = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
     ) {
@@ -150,18 +154,21 @@ private fun StreakContent(
                     icon = R.drawable.ic_symbol_medication,
                     title = ctx.getString(R.string.widget_no_plan),
                     compact = true,
+                    sizing = sizing,
                 )
             } else {
                 WidgetHeader(
                     icon = R.drawable.ic_symbol_event_repeat,
                     title = ctx.getString(R.string.widget_streak_title),
                     trailing = ctx.getString(R.string.widget_streak_zero),
+                    sizing = sizing,
                 )
-                Spacer(GlanceModifier.height(8.dp))
+                Spacer(GlanceModifier.height(sizing.dp(8)))
                 WidgetEmptyState(
                     icon = R.drawable.ic_symbol_add_to_home_screen,
                     title = ctx.getString(R.string.widget_no_plan_today),
                     body = ctx.getString(R.string.widget_add_prompt),
+                    sizing = sizing,
                 )
             }
             return@WidgetContainer
@@ -172,21 +179,21 @@ private fun StreakContent(
             WidgetIconBadge(
                 icon = R.drawable.ic_symbol_event_repeat,
                 prominent = streak >= 7,
-                size = 40.dp,
-                iconSize = 22.dp,
+                size = sizing.dp(40),
+                iconSize = sizing.dp(22),
             )
-            Spacer(GlanceModifier.height(4.dp))
+            Spacer(GlanceModifier.height(sizing.dp(4)))
             Text(
                 "$streak",
                 style = TextStyle(
-                    fontSize   = 26.sp,
+                    fontSize   = sizing.sp(26),
                     fontWeight = FontWeight.Bold,
                     color      = if (streak >= 7) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
                 ),
             )
             Text(
                 ctx.getString(R.string.widget_streak_days_unit),
-                style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
+                style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurfaceVariant),
             )
         } else {
             // ── 标准 4×2 ─────────────────────────────────────
@@ -200,8 +207,9 @@ private fun StreakContent(
                     ctx.getString(R.string.widget_streak_zero)
                 },
                 prominent = streak >= 7,
+                sizing = sizing,
             )
-            Spacer(GlanceModifier.height(10.dp))
+            Spacer(GlanceModifier.height(sizing.dp(10)))
             // 7 天打点图
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
@@ -215,8 +223,8 @@ private fun StreakContent(
                         // 圆点
                         Box(
                             modifier = GlanceModifier
-                                .size(22.dp)
-                                .cornerRadius(11.dp)
+                                .size(sizing.dp(22))
+                                .cornerRadius(sizing.dp(11))
                                 .background(
                                     when {
                                         isComplete && isToday -> GlanceTheme.colors.tertiary
@@ -230,26 +238,26 @@ private fun StreakContent(
                                 Text(
                                     "✓",
                                     style = TextStyle(
-                                        fontSize   = 10.sp,
+                                        fontSize   = sizing.sp(10),
                                         fontWeight = FontWeight.Bold,
                                         color      = if (isToday) GlanceTheme.colors.onTertiary else GlanceTheme.colors.onPrimary,
                                     ),
                                 )
                             }
                         }
-                        Spacer(GlanceModifier.height(3.dp))
+                        Spacer(GlanceModifier.height(sizing.dp(3)))
                         // 周几标签
                         Text(
                             label,
                             style = TextStyle(
-                                fontSize = 9.sp,
+                                fontSize = sizing.sp(9),
                                 color    = if (isToday) GlanceTheme.colors.primary else GlanceTheme.colors.onSurfaceVariant,
                                 fontWeight = if (isToday) FontWeight.Medium else FontWeight.Normal,
                             ),
                         )
                     }
                     if (index < dayData.size - 1) {
-                        Spacer(GlanceModifier.width(6.dp))
+                        Spacer(GlanceModifier.width(sizing.dp(6)))
                     }
                 }
             }

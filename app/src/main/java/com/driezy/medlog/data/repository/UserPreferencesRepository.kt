@@ -58,6 +58,56 @@ enum class UiDensityScale(val factor: Float) {
     }
 }
 
+/** 小组件明暗主题。默认跟随系统/桌面环境，而不是跟随 App 内主题。 */
+enum class WidgetThemeMode {
+    SYSTEM,
+    APP,
+    LIGHT,
+    DARK,
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): WidgetThemeMode =
+            entries.firstOrNull { it.name == name } ?: SYSTEM
+    }
+}
+
+/** 小组件配色来源：设备动态色、App 当前色板，或独立小组件色板。 */
+enum class WidgetColorSource {
+    SYSTEM_DYNAMIC,
+    APP_THEME,
+    CUSTOM_PALETTE,
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): WidgetColorSource =
+            entries.firstOrNull { it.name == name } ?: SYSTEM_DYNAMIC
+    }
+}
+
+enum class WidgetDensityScale(val factor: Float) {
+    COMPACT(0.90f),
+    STANDARD(1.00f),
+    COMFORTABLE(1.10f),
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): WidgetDensityScale =
+            entries.firstOrNull { it.name == name } ?: STANDARD
+    }
+}
+
+enum class WidgetTextScale(val factor: Float) {
+    STANDARD(1.00f),
+    LARGE(1.10f),
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): WidgetTextScale =
+            entries.firstOrNull { it.name == name } ?: STANDARD
+    }
+}
+
 /** 七段数码管 OCR 识别模型类型 */
 enum class OcrModelType { LIGHT_SVTR, FASTVIT_T8 }
 
@@ -136,6 +186,16 @@ data class SettingsPreferences(
      * true = 操作模式（默认）；false = 状态模式
      */
     val widgetShowActions: Boolean = true,
+    /** 小组件明暗主题，独立于主程序主题。 */
+    val widgetThemeMode: WidgetThemeMode = WidgetThemeMode.SYSTEM,
+    /** 小组件配色来源。 */
+    val widgetColorSource: WidgetColorSource = WidgetColorSource.SYSTEM_DYNAMIC,
+    /** 小组件独立色板名称，仅在 [WidgetColorSource.CUSTOM_PALETTE] 下生效。 */
+    val widgetPaletteName: String = "ANSHIN",
+    /** 小组件布局密度，影响 padding/间距/图标和按钮尺寸。 */
+    val widgetDensityScale: WidgetDensityScale = WidgetDensityScale.STANDARD,
+    /** 小组件文字大小。 */
+    val widgetTextScale: WidgetTextScale = WidgetTextScale.STANDARD,
     // ── 漏服再提醒 ──────────────────────────────────────────────────────────────
     val followUpReminderEnabled: Boolean = false,
     val followUpDelayMinutes: Int = 15,
@@ -231,6 +291,11 @@ class UserPreferencesRepository @Inject constructor(
         val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
         // 小组件显示偏好
         val WIDGET_SHOW_ACTIONS = booleanPreferencesKey("widget_show_actions")
+        val WIDGET_THEME_MODE = stringPreferencesKey("widget_theme_mode")
+        val WIDGET_COLOR_SOURCE = stringPreferencesKey("widget_color_source")
+        val WIDGET_PALETTE = stringPreferencesKey("widget_palette")
+        val WIDGET_DENSITY_SCALE = stringPreferencesKey("widget_density_scale")
+        val WIDGET_TEXT_SCALE = stringPreferencesKey("widget_text_scale")
         // 漏服再提醒
         val FOLLOW_UP_ENABLED       = booleanPreferencesKey("follow_up_reminder_enabled")
         val FOLLOW_UP_DELAY_MINUTES = intPreferencesKey("follow_up_delay_minutes")
@@ -311,6 +376,11 @@ class UserPreferencesRepository @Inject constructor(
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
                 widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
+                widgetThemeMode = WidgetThemeMode.fromStoredName(prefs[WIDGET_THEME_MODE]),
+                widgetColorSource = WidgetColorSource.fromStoredName(prefs[WIDGET_COLOR_SOURCE]),
+                widgetPaletteName = prefs[WIDGET_PALETTE] ?: "ANSHIN",
+                widgetDensityScale = WidgetDensityScale.fromStoredName(prefs[WIDGET_DENSITY_SCALE]),
+                widgetTextScale = WidgetTextScale.fromStoredName(prefs[WIDGET_TEXT_SCALE]),
                 followUpReminderEnabled = prefs[FOLLOW_UP_ENABLED] ?: false,
                 followUpDelayMinutes    = prefs[FOLLOW_UP_DELAY_MINUTES] ?: 15,
                 followUpMaxCount        = prefs[FOLLOW_UP_MAX_COUNT] ?: 1,
@@ -433,6 +503,23 @@ class UserPreferencesRepository @Inject constructor(
     suspend fun updateWidgetShowActions(enabled: Boolean) {
         dataStore.edit { it[WIDGET_SHOW_ACTIONS] = enabled }
     }
+
+    suspend fun updateWidgetAppearance(
+        themeMode: WidgetThemeMode? = null,
+        colorSource: WidgetColorSource? = null,
+        paletteName: String? = null,
+        densityScale: WidgetDensityScale? = null,
+        textScale: WidgetTextScale? = null,
+    ) {
+        dataStore.edit { prefs ->
+            if (themeMode != null) prefs[WIDGET_THEME_MODE] = themeMode.name
+            if (colorSource != null) prefs[WIDGET_COLOR_SOURCE] = colorSource.name
+            if (paletteName != null) prefs[WIDGET_PALETTE] = paletteName
+            if (densityScale != null) prefs[WIDGET_DENSITY_SCALE] = densityScale.name
+            if (textScale != null) prefs[WIDGET_TEXT_SCALE] = textScale.name
+        }
+    }
+
     /** 更新漏服再提醒设置 */
     suspend fun updateFollowUpSettings(
         enabled: Boolean? = null,

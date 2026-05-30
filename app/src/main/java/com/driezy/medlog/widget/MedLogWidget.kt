@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.glance.GlanceId
 import androidx.glance.GlanceModifier
 import androidx.glance.GlanceTheme
@@ -87,13 +86,17 @@ class MedLogWidget : GlanceAppWidget() {
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val widgetShowActions = widgetPrefs[UserPreferencesRepository.WIDGET_SHOW_ACTIONS] ?: true
-        val themeMode = widgetPrefs.medLogThemeMode()
-        val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
-        val themePalette = widgetPrefs.medLogThemePalette()
+        val appearance = widgetPrefs.medLogWidgetAppearance()
 
         provideContent {
-            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor, themePalette = themePalette) {
-                WidgetContent(taken = taken, total = total, pendingMeds = pending, showActions = widgetShowActions)
+            MedLogGlanceTheme(appearance = appearance) {
+                WidgetContent(
+                    taken = taken,
+                    total = total,
+                    pendingMeds = pending,
+                    showActions = widgetShowActions,
+                    sizing = appearance.sizing,
+                )
             }
         }
     }
@@ -105,6 +108,7 @@ private fun WidgetContent(
     total: Int,
     pendingMeds: List<Triple<Long, String, Int>>,
     showActions: Boolean,
+    sizing: WidgetSizing,
 ) {
     val size      = LocalSize.current
     val isCompact = size.width < 160.dp
@@ -124,6 +128,7 @@ private fun WidgetContent(
         prominent = allDone,
         modifier = GlanceModifier
             .clickable(actionStartActivity<MainActivity>()),
+        sizing = sizing,
         verticalAlignment   = if (compactActionMode) Alignment.Vertical.Top else if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact && !compactActionMode) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
     ) {
@@ -135,6 +140,7 @@ private fun WidgetContent(
                 showActions  = showActions,
                 firstPending = pendingMeds.firstOrNull(),
                 pendingCount = pendingMeds.size,
+                sizing       = sizing,
             )
         } else {
             StandardContent(
@@ -144,6 +150,7 @@ private fun WidgetContent(
                 pendingMeds = pendingMeds,
                 maxShow     = maxShow,
                 showActions = showActions,
+                sizing      = sizing,
             )
         }
     }
@@ -158,6 +165,7 @@ private fun CompactContent(
     showActions: Boolean,
     firstPending: Triple<Long, String, Int>?,
     pendingCount: Int,
+    sizing: WidgetSizing,
 ) {
     val ctx = LocalContext.current
     when {
@@ -166,15 +174,16 @@ private fun CompactContent(
                 icon = R.drawable.ic_symbol_medication,
                 title = ctx.getString(R.string.widget_no_plan),
                 compact = true,
+                sizing = sizing,
             )
         }
         allDone -> {
-            WidgetIconBadge(icon = R.drawable.ic_symbol_check_circle, prominent = true, size = 44.dp, iconSize = 26.dp)
-            Spacer(GlanceModifier.height(6.dp))
+            WidgetIconBadge(icon = R.drawable.ic_symbol_check_circle, prominent = true, size = sizing.dp(44), iconSize = sizing.dp(26))
+            Spacer(GlanceModifier.height(sizing.dp(6)))
             Text(
                 ctx.getString(R.string.widget_all_done),
                 style = TextStyle(
-                    fontSize   = 11.sp,
+                    fontSize   = sizing.sp(11),
                     fontWeight = FontWeight.Medium,
                     color      = GlanceTheme.colors.onTertiaryContainer,
                 ),
@@ -186,23 +195,24 @@ private fun CompactContent(
             Text(
                 "${firstPending.second}$moreBadge",
                 style = TextStyle(
-                    fontSize   = 12.sp,
+                    fontSize   = sizing.sp(12),
                     fontWeight = FontWeight.Medium,
                     color      = GlanceTheme.colors.onSurface,
                 ),
             )
-            Spacer(GlanceModifier.height(2.dp))
+            Spacer(GlanceModifier.height(sizing.dp(2)))
             Text(
                 "%02d:%02d".format(firstPending.third / 60, firstPending.third % 60),
-                style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
+                style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurfaceVariant),
             )
-            Spacer(GlanceModifier.height(10.dp))
+            Spacer(GlanceModifier.height(sizing.dp(10)))
             WidgetActionButton(
                 label = ctx.getString(R.string.widget_action_btn),
                 action = actionRunCallback<MarkTakenAction>(
                     actionParametersOf(MarkTakenAction.medIdKey to firstPending.first),
                 ),
-                modifier = GlanceModifier.fillMaxWidth().height(48.dp),
+                modifier = GlanceModifier.fillMaxWidth().height(sizing.dp(48)),
+                sizing = sizing,
             )
         }
         else -> {
@@ -210,17 +220,17 @@ private fun CompactContent(
             Text(
                 "$taken/$total",
                 style = TextStyle(
-                    fontSize   = 24.sp,
+                    fontSize   = sizing.sp(24),
                     fontWeight = FontWeight.Bold,
                     color      = GlanceTheme.colors.onSurface,
                 ),
             )
-            Spacer(GlanceModifier.height(2.dp))
-            Text(ctx.getString(R.string.widget_taken_label), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
-            Spacer(GlanceModifier.height(8.dp))
+            Spacer(GlanceModifier.height(sizing.dp(2)))
+            Text(ctx.getString(R.string.widget_taken_label), style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurfaceVariant))
+            Spacer(GlanceModifier.height(sizing.dp(8)))
             LinearProgressIndicator(
                 progress        = taken.toFloat() / total,
-                modifier        = GlanceModifier.fillMaxWidth().height(6.dp),
+                modifier        = GlanceModifier.fillMaxWidth().height(sizing.dp(6)),
                 color           = GlanceTheme.colors.primary,
                 backgroundColor = GlanceTheme.colors.outline,
             )
@@ -237,6 +247,7 @@ private fun StandardContent(
     pendingMeds: List<Triple<Long, String, Int>>,
     maxShow: Int,
     showActions: Boolean,
+    sizing: WidgetSizing,
 ) {
     val ctx = LocalContext.current
     // 标题 + 核心数字（F 型阅读动线）
@@ -249,14 +260,15 @@ private fun StandardContent(
             else -> "$taken / $total"
         },
         prominent = allDone,
+        sizing = sizing,
     )
 
-    Spacer(GlanceModifier.height(7.dp))
+    Spacer(GlanceModifier.height(sizing.dp(7)))
 
     if (total > 0) {
         LinearProgressIndicator(
             progress        = taken.toFloat() / total,
-            modifier        = GlanceModifier.fillMaxWidth().height(7.dp),
+            modifier        = GlanceModifier.fillMaxWidth().height(sizing.dp(7)),
             color           = if (allDone) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
             backgroundColor = GlanceTheme.colors.outline,
         )
@@ -264,36 +276,38 @@ private fun StandardContent(
 
     // 空数据态
     if (total == 0) {
-        Spacer(GlanceModifier.height(12.dp))
+        Spacer(GlanceModifier.height(sizing.dp(12)))
         WidgetEmptyState(
             icon = R.drawable.ic_symbol_add_to_home_screen,
             title = ctx.getString(R.string.widget_no_plan_today),
             body = ctx.getString(R.string.widget_add_prompt),
+            sizing = sizing,
         )
         return
     }
 
     // 全部完成态
     if (allDone) {
-        Spacer(GlanceModifier.height(12.dp))
+        Spacer(GlanceModifier.height(sizing.dp(12)))
         WidgetEmptyState(
             icon = R.drawable.ic_symbol_check_circle,
             title = ctx.getString(R.string.widget_all_done_msg),
+            sizing = sizing,
         )
         return
     }
 
     // ── 待服列表 + 打卡按钮 ──────────────────────────────────
     if (maxShow > 0 && pendingMeds.isNotEmpty()) {
-        Spacer(GlanceModifier.height(8.dp))
+        Spacer(GlanceModifier.height(sizing.dp(8)))
         Text(
             ctx.getString(R.string.widget_pending_label),
-            style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
+            style = TextStyle(fontSize = sizing.sp(11), fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
         )
-        Spacer(GlanceModifier.height(2.dp))
+        Spacer(GlanceModifier.height(sizing.dp(2)))
 
         pendingMeds.take(maxShow).forEach { (medId, name, scheduledMinutes) ->
-            Spacer(GlanceModifier.height(3.dp))
+            Spacer(GlanceModifier.height(sizing.dp(3)))
             Row(
                 modifier          = GlanceModifier.fillMaxWidth(),
                 verticalAlignment = Alignment.Vertical.CenterVertically,
@@ -301,14 +315,14 @@ private fun StandardContent(
                 // 药品名
                 Text(
                     "· $name",
-                    style    = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurface),
+                    style    = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurface),
                     modifier = GlanceModifier.defaultWeight(),
                 )
                 // 服药时间标签
                 val timeLabel = "%02d:%02d".format(scheduledMinutes / 60, scheduledMinutes % 60)
                 Text(
                     timeLabel,
-                    style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
+                    style = TextStyle(fontSize = sizing.sp(10), color = GlanceTheme.colors.onSurfaceVariant),
                 )
                 // 操作模式：服药按钮（较大圆角矩形）；状态模式：空心圆表示"待服"
                 if (showActions) {
@@ -317,14 +331,15 @@ private fun StandardContent(
                         action = actionRunCallback<MarkTakenAction>(
                             actionParametersOf(MarkTakenAction.medIdKey to medId),
                         ),
+                        sizing = sizing,
                     )
                 } else {
                     // 状态模式：○ 空心圆表示待服，无点击
                     Box(
                         modifier = GlanceModifier
-                            .size(18.dp)
+                            .size(sizing.dp(18))
                             .background(GlanceTheme.colors.primaryContainer)
-                            .cornerRadius(9.dp),
+                            .cornerRadius(sizing.dp(9)),
                         contentAlignment = Alignment.Center,
                     ) {}
                 }
@@ -333,10 +348,10 @@ private fun StandardContent(
 
         val remaining = pendingMeds.size - maxShow
         if (remaining > 0) {
-            Spacer(GlanceModifier.height(3.dp))
+            Spacer(GlanceModifier.height(sizing.dp(3)))
             Text(
                 ctx.resources.getQuantityString(R.plurals.widget_remaining_fmt, remaining, remaining),
-                style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
+                style = TextStyle(fontSize = sizing.sp(10), color = GlanceTheme.colors.onSurfaceVariant),
             )
         }
     }

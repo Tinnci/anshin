@@ -35,6 +35,7 @@ import androidx.glance.text.TextStyle
 internal fun WidgetContainer(
     prominent: Boolean,
     modifier: GlanceModifier = GlanceModifier,
+    sizing: WidgetSizing = WidgetSizing(densityFactor = 1f, textFactor = 1f),
     verticalAlignment: Alignment.Vertical = Alignment.Vertical.Top,
     horizontalAlignment: Alignment.Horizontal = Alignment.Horizontal.Start,
     content: @Composable () -> Unit,
@@ -49,7 +50,7 @@ internal fun WidgetContainer(
                 else GlanceTheme.colors.widgetBackground,
             )
             .cornerRadius(outerRadius)
-            .padding(14.dp),
+            .padding(sizing.dp(14)),
         verticalAlignment = verticalAlignment,
         horizontalAlignment = horizontalAlignment,
     ) {
@@ -63,6 +64,7 @@ internal fun WidgetHeader(
     title: String,
     trailing: String,
     prominent: Boolean = false,
+    sizing: WidgetSizing = WidgetSizing(densityFactor = 1f, textFactor = 1f),
 ) {
     Row(
         modifier = GlanceModifier.fillMaxWidth(),
@@ -72,14 +74,14 @@ internal fun WidgetHeader(
         WidgetIconBadge(
             icon = icon,
             prominent = prominent,
-            size = 28.dp,
-            iconSize = 16.dp,
+            size = sizing.dp(28),
+            iconSize = sizing.dp(16),
         )
-        Spacer(GlanceModifier.size(8.dp))
+        Spacer(GlanceModifier.size(sizing.dp(8)))
         Text(
             title,
             style = TextStyle(
-                fontSize = 12.sp,
+                fontSize = sizing.sp(12),
                 fontWeight = FontWeight.Medium,
                 color = if (prominent) GlanceTheme.colors.onTertiaryContainer else GlanceTheme.colors.onSurfaceVariant,
             ),
@@ -88,7 +90,7 @@ internal fun WidgetHeader(
         Text(
             trailing,
             style = TextStyle(
-                fontSize = 13.sp,
+                fontSize = sizing.sp(13),
                 fontWeight = FontWeight.Bold,
                 color = if (prominent) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
             ),
@@ -133,19 +135,20 @@ private fun systemWidgetCornerRadius(): Dp {
 internal fun WidgetActionButton(
     label: String,
     action: Action,
-    modifier: GlanceModifier = GlanceModifier.size(48.dp),
+    modifier: GlanceModifier? = null,
+    sizing: WidgetSizing = WidgetSizing(densityFactor = 1f, textFactor = 1f),
 ) {
     Box(
-        modifier = modifier
+        modifier = (modifier ?: GlanceModifier.size(sizing.dp(48)))
             .background(GlanceTheme.colors.primaryContainer)
-            .cornerRadius(16.dp)
+            .cornerRadius(sizing.dp(16))
             .clickable(action),
         contentAlignment = Alignment.Center,
     ) {
         Text(
             label,
             style = TextStyle(
-                fontSize = 12.sp,
+                fontSize = sizing.sp(12),
                 fontWeight = FontWeight.Bold,
                 color = GlanceTheme.colors.onPrimaryContainer,
             ),
@@ -159,28 +162,33 @@ internal fun WidgetEmptyState(
     title: String,
     body: String? = null,
     compact: Boolean = false,
+    sizing: WidgetSizing = WidgetSizing(densityFactor = 1f, textFactor = 1f),
 ) {
     Column(
         modifier = GlanceModifier.fillMaxWidth(),
         horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
         verticalAlignment = Alignment.Vertical.CenterVertically,
     ) {
-        WidgetIconBadge(icon = icon, size = if (compact) 36.dp else 40.dp, iconSize = if (compact) 20.dp else 22.dp)
-        Spacer(GlanceModifier.height(if (compact) 6.dp else 10.dp))
+        WidgetIconBadge(
+            icon = icon,
+            size = if (compact) sizing.dp(36) else sizing.dp(40),
+            iconSize = if (compact) sizing.dp(20) else sizing.dp(22),
+        )
+        Spacer(GlanceModifier.height(if (compact) sizing.dp(6) else sizing.dp(10)))
         Text(
             title,
             style = TextStyle(
-                fontSize = if (compact) 11.sp else 12.sp,
+                fontSize = if (compact) sizing.sp(11) else sizing.sp(12),
                 fontWeight = FontWeight.Medium,
                 color = GlanceTheme.colors.onSurface,
             ),
         )
         if (body != null && !compact) {
-            Spacer(GlanceModifier.height(3.dp))
+            Spacer(GlanceModifier.height(sizing.dp(3)))
             Text(
                 body,
                 style = TextStyle(
-                    fontSize = 11.sp,
+                    fontSize = sizing.sp(11),
                     fontWeight = FontWeight.Medium,
                     color = GlanceTheme.colors.primary,
                 ),

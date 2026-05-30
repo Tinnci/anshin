@@ -73,6 +73,6 @@ class WidgetProviderInfoTest {
         }
 
         val chrome = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/WidgetChrome.kt").readText()
-        assertTrue("Shared widget action should meet 48dp touch target guidance.", chrome.contains(".size(48.dp)"))
+        assertTrue("Shared widget action should meet 48dp touch target guidance.", chrome.contains(".size(sizing.dp(48))"))
     }
 }

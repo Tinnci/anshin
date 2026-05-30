@@ -14,4 +14,4 @@
     android:initialLayout="@layout/glance_default_loading_layout"
     android:previewImage="@drawable/widget_preview_today"
     android:configure="com.driezy.medlog.widget.WidgetSettingsActivity"
-    android:widgetFeatures="reconfigurable" />
+    android:widgetFeatures="reconfigurable|configuration_optional" />

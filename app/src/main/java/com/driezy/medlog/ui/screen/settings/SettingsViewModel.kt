@@ -28,6 +28,10 @@ import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.data.repository.WidgetColorSource
+import com.driezy.medlog.data.repository.WidgetDensityScale
+import com.driezy.medlog.data.repository.WidgetTextScale
+import com.driezy.medlog.data.repository.WidgetThemeMode
 import com.driezy.medlog.domain.BackupRestoreUseCase
 import com.driezy.medlog.domain.ResyncRemindersUseCase
 import com.driezy.medlog.ui.theme.ThemePalette
@@ -75,6 +79,11 @@ data class SettingsUiState(
     // ── 小组件显示偏好 ──────────────────────────────────────────────────────────
     /** true = 显示交互服药按钮；false = 仅显示状态指示 */
     val widgetShowActions: Boolean = true,    // ── 漏服再提醒 ──────────────────────────────────────────────────
+    val widgetThemeMode: WidgetThemeMode = WidgetThemeMode.SYSTEM,
+    val widgetColorSource: WidgetColorSource = WidgetColorSource.SYSTEM_DYNAMIC,
+    val widgetPalette: ThemePalette = ThemePalette.ANSHIN,
+    val widgetDensityScale: WidgetDensityScale = WidgetDensityScale.STANDARD,
+    val widgetTextScale: WidgetTextScale = WidgetTextScale.STANDARD,
     val followUpReminderEnabled: Boolean = false,
     val followUpDelayMinutes: Int = 15,
     val followUpMaxCount: Int = 1,
@@ -153,6 +162,11 @@ class SettingsViewModel @Inject constructor(
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
             widgetShowActions = prefs.widgetShowActions,
+            widgetThemeMode = prefs.widgetThemeMode,
+            widgetColorSource = prefs.widgetColorSource,
+            widgetPalette = ThemePalette.fromStoredName(prefs.widgetPaletteName),
+            widgetDensityScale = prefs.widgetDensityScale,
+            widgetTextScale = prefs.widgetTextScale,
             followUpReminderEnabled = prefs.followUpReminderEnabled,
             followUpDelayMinutes    = prefs.followUpDelayMinutes,
             followUpMaxCount        = prefs.followUpMaxCount,
@@ -348,11 +362,17 @@ class SettingsViewModel @Inject constructor(
     }
 
     fun setThemeMode(mode: ThemeMode) {
-        safeLaunch { prefsRepository.updateThemeMode(mode) }
+        safeLaunch {
+            prefsRepository.updateThemeMode(mode)
+            refreshPlacedWidgets()
+        }
     }
 
     fun setUseDynamicColor(enabled: Boolean) {
-        safeLaunch { prefsRepository.updateUseDynamicColor(enabled) }
+        safeLaunch {
+            prefsRepository.updateUseDynamicColor(enabled)
+            refreshPlacedWidgets()
+        }
     }
 
     fun setThemePalette(palette: ThemePalette) {
@@ -388,12 +408,26 @@ class SettingsViewModel @Inject constructor(
     fun setWidgetShowActions(enabled: Boolean) {
         safeLaunch {
             prefsRepository.updateWidgetShowActions(enabled)
-            // SSOT 刷新：设置变更后立即更新所有上屏小组件
-            val widget = MedLogWidget()
-            val manager = GlanceAppWidgetManager(appContext)
-            manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
-                widget.update(appContext, id)
-            }
+            widgetRefresher.refreshAll()
+        }
+    }
+
+    fun setWidgetAppearance(
+        themeMode: WidgetThemeMode? = null,
+        colorSource: WidgetColorSource? = null,
+        palette: ThemePalette? = null,
+        densityScale: WidgetDensityScale? = null,
+        textScale: WidgetTextScale? = null,
+    ) {
+        safeLaunch {
+            prefsRepository.updateWidgetAppearance(
+                themeMode = themeMode,
+                colorSource = colorSource,
+                paletteName = palette?.name,
+                densityScale = densityScale,
+                textScale = textScale,
+            )
+            widgetRefresher.refreshAll()
         }
     }
 

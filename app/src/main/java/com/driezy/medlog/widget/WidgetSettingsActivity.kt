@@ -12,6 +12,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -25,9 +27,14 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import dagger.hilt.android.AndroidEntryPoint
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
+import com.driezy.medlog.data.repository.WidgetColorSource
+import com.driezy.medlog.data.repository.WidgetDensityScale
+import com.driezy.medlog.data.repository.WidgetTextScale
+import com.driezy.medlog.data.repository.WidgetThemeMode
 import com.driezy.medlog.ui.theme.applyMedLogSystemBars
 import com.driezy.medlog.ui.screen.settings.SettingsViewModel
 import com.driezy.medlog.ui.theme.MedLogTheme
+import com.driezy.medlog.ui.theme.ThemePalette
 import kotlinx.coroutines.launch
 
 /**
@@ -42,14 +49,7 @@ class WidgetSettingsActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        // 离开时刷新所有已放置的今日进度小组件以反映最新设置
-        lifecycleScope.launch {
-            val widget = MedLogWidget()
-            val manager = GlanceAppWidgetManager(applicationContext)
-            manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
-                widget.update(applicationContext, id)
-            }
-        }
+        lifecycleScope.launch { refreshPlacedWidgets() }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -105,7 +105,17 @@ class WidgetSettingsActivity : ComponentActivity() {
                 WidgetSettingsScreen(
                     isConfigureMode = isConfigureMode,
                     widgetShowActions = uiState.widgetShowActions,
+                    widgetThemeMode = uiState.widgetThemeMode,
+                    widgetColorSource = uiState.widgetColorSource,
+                    widgetPalette = uiState.widgetPalette,
+                    widgetDensityScale = uiState.widgetDensityScale,
+                    widgetTextScale = uiState.widgetTextScale,
                     onShowActionsChange = { viewModel.setWidgetShowActions(it) },
+                    onWidgetThemeModeChange = { viewModel.setWidgetAppearance(themeMode = it) },
+                    onWidgetColorSourceChange = { viewModel.setWidgetAppearance(colorSource = it) },
+                    onWidgetPaletteChange = { viewModel.setWidgetAppearance(palette = it) },
+                    onWidgetDensityScaleChange = { viewModel.setWidgetAppearance(densityScale = it) },
+                    onWidgetTextScaleChange = { viewModel.setWidgetAppearance(textScale = it) },
                     onCancel = {
                         val resultIntent = Intent().apply {
                             putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId)
@@ -127,14 +137,37 @@ class WidgetSettingsActivity : ComponentActivity() {
             }
         }
     }
+
+    private suspend fun refreshPlacedWidgets() {
+        val manager = GlanceAppWidgetManager(applicationContext)
+        manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
+            MedLogWidget().update(applicationContext, id)
+        }
+        manager.getGlanceIds(NextDoseWidget::class.java).forEach { id ->
+            NextDoseWidget().update(applicationContext, id)
+        }
+        manager.getGlanceIds(StreakWidget::class.java).forEach { id ->
+            StreakWidget().update(applicationContext, id)
+        }
+    }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
 private fun WidgetSettingsScreen(
     isConfigureMode: Boolean,
     widgetShowActions: Boolean,
+    widgetThemeMode: WidgetThemeMode,
+    widgetColorSource: WidgetColorSource,
+    widgetPalette: ThemePalette,
+    widgetDensityScale: WidgetDensityScale,
+    widgetTextScale: WidgetTextScale,
     onShowActionsChange: (Boolean) -> Unit,
+    onWidgetThemeModeChange: (WidgetThemeMode) -> Unit,
+    onWidgetColorSourceChange: (WidgetColorSource) -> Unit,
+    onWidgetPaletteChange: (ThemePalette) -> Unit,
+    onWidgetDensityScaleChange: (WidgetDensityScale) -> Unit,
+    onWidgetTextScaleChange: (WidgetTextScale) -> Unit,
     onCancel: () -> Unit,
     onConfirm: () -> Unit,
     onClose: () -> Unit,
@@ -177,8 +210,57 @@ private fun WidgetSettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
+                .verticalScroll(rememberScrollState())
                 .padding(top = 8.dp),
         ) {
+            WidgetChoiceSection(
+                title = stringResource(R.string.widget_settings_theme_mode),
+                options = listOf(
+                    WidgetThemeMode.SYSTEM to stringResource(R.string.widget_settings_theme_system),
+                    WidgetThemeMode.APP to stringResource(R.string.widget_settings_theme_app),
+                    WidgetThemeMode.LIGHT to stringResource(R.string.settings_theme_light),
+                    WidgetThemeMode.DARK to stringResource(R.string.settings_theme_dark),
+                ),
+                selected = widgetThemeMode,
+                onSelected = onWidgetThemeModeChange,
+            )
+            WidgetChoiceSection(
+                title = stringResource(R.string.widget_settings_color_source),
+                options = listOf(
+                    WidgetColorSource.SYSTEM_DYNAMIC to stringResource(R.string.widget_settings_color_dynamic),
+                    WidgetColorSource.APP_THEME to stringResource(R.string.widget_settings_color_app),
+                    WidgetColorSource.CUSTOM_PALETTE to stringResource(R.string.widget_settings_color_custom),
+                ),
+                selected = widgetColorSource,
+                onSelected = onWidgetColorSourceChange,
+            )
+            if (widgetColorSource == WidgetColorSource.CUSTOM_PALETTE) {
+                WidgetChoiceSection(
+                    title = stringResource(R.string.widget_settings_palette),
+                    options = ThemePalette.entries.map { it to it.displayName },
+                    selected = widgetPalette,
+                    onSelected = onWidgetPaletteChange,
+                )
+            }
+            WidgetChoiceSection(
+                title = stringResource(R.string.widget_settings_density),
+                options = listOf(
+                    WidgetDensityScale.COMPACT to stringResource(R.string.settings_ui_density_compact),
+                    WidgetDensityScale.STANDARD to stringResource(R.string.settings_ui_density_standard),
+                    WidgetDensityScale.COMFORTABLE to stringResource(R.string.settings_ui_density_comfortable),
+                ),
+                selected = widgetDensityScale,
+                onSelected = onWidgetDensityScaleChange,
+            )
+            WidgetChoiceSection(
+                title = stringResource(R.string.widget_settings_text_size),
+                options = listOf(
+                    WidgetTextScale.STANDARD to stringResource(R.string.settings_text_size_standard),
+                    WidgetTextScale.LARGE to stringResource(R.string.settings_text_size_large),
+                ),
+                selected = widgetTextScale,
+                onSelected = onWidgetTextScaleChange,
+            )
             ListItem(
                 headlineContent = { Text(stringResource(R.string.widget_settings_show_actions)) },
                 supportingContent = {
@@ -204,6 +286,36 @@ private fun WidgetSettingsScreen(
                 },
                 colors = ListItemDefaults.colors(containerColor = Color.Transparent),
             )
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalLayoutApi::class)
+private fun <T> WidgetChoiceSection(
+    title: String,
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelected: (T) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Text(title, style = MaterialTheme.typography.labelLarge)
+        FlowRow(
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            options.forEach { (value, label) ->
+                FilterChip(
+                    selected = value == selected,
+                    onClick = { onSelected(value) },
+                    label = { Text(label) },
+                )
+            }
         }
     }
 }

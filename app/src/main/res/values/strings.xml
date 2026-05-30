@@ -748,7 +748,17 @@
     <string name="widget_action_btn">服</string>
     <!-- 小组件设置页 -->
     <string name="widget_settings_title">小组件设置</string>
-    <string name="widget_settings_configure_title">配置今日进度小组件</string>
+    <string name="widget_settings_configure_title">配置小组件</string>
+    <string name="widget_settings_theme_mode">明暗模式</string>
+    <string name="widget_settings_theme_system">跟随系统</string>
+    <string name="widget_settings_theme_app">跟随主程序</string>
+    <string name="widget_settings_color_source">颜色来源</string>
+    <string name="widget_settings_color_dynamic">系统动态色</string>
+    <string name="widget_settings_color_app">主程序主题</string>
+    <string name="widget_settings_color_custom">小组件色板</string>
+    <string name="widget_settings_palette">小组件色板</string>
+    <string name="widget_settings_density">布局密度</string>
+    <string name="widget_settings_text_size">文字大小</string>
     <string name="widget_settings_show_actions">快捷服药按钮</string>
     <string name="widget_settings_show_actions_body">在小组件中显示一键服药按钮，无需开启 App 即可记录</string>
     <string name="widget_settings_status_body">仅显示待服状态指示，不显示可交互按钮</string>

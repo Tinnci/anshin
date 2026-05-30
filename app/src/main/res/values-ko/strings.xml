@@ -715,7 +715,17 @@
     <string name="widget_action_btn">복용</string>
     <!-- 위젯 설정 -->
     <string name="widget_settings_title">위젯 설정</string>
-    <string name="widget_settings_configure_title">오늘의 진행 상황 위젯 설정</string>
+    <string name="widget_settings_configure_title">위젯 설정</string>
+    <string name="widget_settings_theme_mode">밝은/어두운 모드</string>
+    <string name="widget_settings_theme_system">시스템 따르기</string>
+    <string name="widget_settings_theme_app">앱 따르기</string>
+    <string name="widget_settings_color_source">색상 출처</string>
+    <string name="widget_settings_color_dynamic">시스템 동적 색상</string>
+    <string name="widget_settings_color_app">앱 테마</string>
+    <string name="widget_settings_color_custom">위젯 팔레트</string>
+    <string name="widget_settings_palette">위젯 팔레트</string>
+    <string name="widget_settings_density">레이아웃 밀도</string>
+    <string name="widget_settings_text_size">글자 크기</string>
     <string name="widget_settings_show_actions">빠른 복용 버튼</string>
     <string name="widget_settings_show_actions_body">위젯에 원터치 복용 버튼 표시</string>
     <string name="widget_settings_status_body">상태 표시만, 버튼 없음</string>

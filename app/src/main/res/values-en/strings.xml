@@ -771,7 +771,17 @@
     <string name="widget_action_btn">Take</string>
     <!-- Widget settings screen -->
     <string name="widget_settings_title">Widget Settings</string>
-    <string name="widget_settings_configure_title">Configure Today\'s Progress Widget</string>
+    <string name="widget_settings_configure_title">Configure Widget</string>
+    <string name="widget_settings_theme_mode">Light and dark mode</string>
+    <string name="widget_settings_theme_system">Follow system</string>
+    <string name="widget_settings_theme_app">Follow app</string>
+    <string name="widget_settings_color_source">Color source</string>
+    <string name="widget_settings_color_dynamic">System dynamic color</string>
+    <string name="widget_settings_color_app">App theme</string>
+    <string name="widget_settings_color_custom">Widget palette</string>
+    <string name="widget_settings_palette">Widget palette</string>
+    <string name="widget_settings_density">Layout density</string>
+    <string name="widget_settings_text_size">Text size</string>
     <string name="widget_settings_show_actions">Quick-take button</string>
     <string name="widget_settings_show_actions_body">Show a one-tap take button on the widget</string>
     <string name="widget_settings_status_body">Show status indicators only, no interactive buttons</string>

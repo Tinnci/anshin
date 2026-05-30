@@ -12,4 +12,6 @@
     android:widgetCategory="home_screen"
     android:description="@string/widget_next_dose_desc"
     android:initialLayout="@layout/glance_default_loading_layout"
-    android:previewImage="@drawable/widget_preview_next_dose" />
+    android:previewImage="@drawable/widget_preview_next_dose"
+    android:configure="com.driezy.medlog.widget.WidgetSettingsActivity"
+    android:widgetFeatures="reconfigurable|configuration_optional" />
