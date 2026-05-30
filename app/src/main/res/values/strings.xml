@@ -9,6 +9,7 @@
     <string name="restore">恢复</string>
     <string name="cancel">取消</string>
     <string name="common_save">保存</string>
+    <string name="common_select">选择</string>
     <string name="common_expand">展开</string>
     <string name="common_collapse">收起</string>
     <string name="common_back">返回</string>
@@ -944,6 +945,9 @@
     <string name="settings_ai_mimo_endpoint_hint">留空则按 key 自动选择；token plan 新加坡：https://token-plan-sgp.xiaomimimo.com/v1</string>
     <string name="settings_ai_anthropic_endpoint_hint">留空使用 Anthropic 官方 endpoint；也可选择 Anthropic-compatible 预设</string>
     <string name="settings_ai_endpoint_presets_title">opencode API endpoint 预设（%d 个）</string>
+    <string name="settings_ai_endpoint_search_label">搜索端点或 Base URL</string>
+    <string name="settings_ai_endpoint_empty">没有匹配的端点</string>
+    <string name="settings_ai_endpoint_selected">当前</string>
     <string name="settings_ai_provider_name_label">Provider 名称</string>
     <string name="settings_ai_auth_bearer">Bearer</string>
     <string name="settings_ai_auth_api_key">api-key</string>

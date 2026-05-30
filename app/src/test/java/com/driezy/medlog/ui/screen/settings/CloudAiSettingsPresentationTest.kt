@@ -1,6 +1,8 @@
 package com.driezy.medlog.ui.screen.settings
 
 import com.driezy.medlog.R
+import com.driezy.medlog.ai.CloudAiEndpointPreset
+import com.driezy.medlog.ai.CloudAiEndpointProtocol
 import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
 import org.junit.Assert.assertEquals
@@ -88,5 +90,49 @@ class CloudAiSettingsPresentationTest {
         assertEquals(1, presentation.errorCount)
         assertEquals(2, presentation.cacheHitCount)
         assertEquals("POLICY_VIOLATION", presentation.latestErrorCategory)
+    }
+
+    @Test
+    fun `endpoint preset list filters by provider name and api`() {
+        val rows = CloudAiEndpointPresetListPresentation.from(
+            presets = listOf(
+                CloudAiEndpointPreset(
+                    id = "opencode",
+                    name = "opencode",
+                    api = "https://opencode.ai/zen/v1",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+                CloudAiEndpointPreset(
+                    id = "deepseek",
+                    name = "DeepSeek",
+                    api = "https://api.deepseek.com",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            ),
+            query = "zen",
+            currentBaseUrl = "",
+        ).rows
+
+        assertEquals(1, rows.size)
+        assertEquals("opencode", rows.single().name)
+        assertEquals("https://opencode.ai/zen/v1", rows.single().api)
+    }
+
+    @Test
+    fun `endpoint preset list marks current base url`() {
+        val rows = CloudAiEndpointPresetListPresentation.from(
+            presets = listOf(
+                CloudAiEndpointPreset(
+                    id = "deepseek",
+                    name = "DeepSeek",
+                    api = "https://api.deepseek.com",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            ),
+            query = "",
+            currentBaseUrl = "https://api.deepseek.com/",
+        ).rows
+
+        assertEquals(true, rows.single().selected)
     }
 }

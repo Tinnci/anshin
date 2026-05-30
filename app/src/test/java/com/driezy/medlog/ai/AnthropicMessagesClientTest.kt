@@ -164,6 +164,25 @@ class AnthropicMessagesClientTest {
         assertEquals("ok", response.text)
     }
 
+    @Test
+    fun `anthropic config accepts custom compatible endpoint that already includes v1`() = runTest {
+        val http = RecordingAiHttpTransport(
+            AiHttpResponse(code = 200, body = """{"content":[{"type":"text","text":"ok"}]}"""),
+        )
+        val client = AiChatClientFactory.create(
+            AiProviderConfig.Anthropic(
+                apiKey = "key",
+                baseUrl = "https://example.com/anthropic/v1",
+                model = "claude-compat",
+            ),
+            http,
+        )
+
+        client.generate(AiChatRequest.user("ping"))
+
+        assertEquals("https://example.com/anthropic/v1/messages", http.lastRequest!!.url)
+    }
+
     private class RecordingAiHttpTransport(
         private val response: AiHttpResponse,
     ) : AiHttpTransport {

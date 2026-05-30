@@ -45,7 +45,11 @@ class AnthropicMessagesClient(
 
     private fun endpointUrl(): String {
         val normalized = baseUrl.trimEnd('/')
-        return if (normalized.endsWith("/v1/messages")) normalized else "$normalized/v1/messages"
+        return when {
+            normalized.endsWith("/messages") -> normalized
+            normalized.endsWith("/v1") -> "$normalized/messages"
+            else -> "$normalized/v1/messages"
+        }
     }
 
     private fun AiChatRequest.toAnthropicRequest(): AnthropicRequest {

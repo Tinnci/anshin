@@ -5,6 +5,8 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -27,6 +29,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.ai.CloudAiEndpointPreset
@@ -218,7 +221,12 @@ internal fun CloudAiSettingsPanel(
                 if (uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE) {
                     EndpointPresetPicker(
                         presets = uiState.cloudAiEndpointPresets,
-                        onSelect = onEndpointPresetSelect,
+                        currentBaseUrl = uiState.openAiCompatibleBaseUrl,
+                        onSelect = { preset ->
+                            baseUrlDraft = preset.api
+                            providerNameDraft = preset.name
+                            onEndpointPresetSelect(preset)
+                        },
                     )
                     OutlinedTextField(
                         value = baseUrlDraft,
@@ -290,7 +298,12 @@ internal fun CloudAiSettingsPanel(
                         presets = uiState.cloudAiEndpointPresets.filter {
                             it.protocol == CloudAiEndpointProtocol.ANTHROPIC
                         },
-                        onSelect = onEndpointPresetSelect,
+                        currentBaseUrl = uiState.anthropicCloudAiBaseUrl,
+                        onSelect = { preset ->
+                            anthropicBaseUrlDraft = preset.api
+                            providerNameDraft = preset.name
+                            onEndpointPresetSelect(preset)
+                        },
                     )
                     OutlinedTextField(
                         value = anthropicBaseUrlDraft,
@@ -411,14 +424,21 @@ internal fun CloudAiSettingsPanel(
 @Composable
 private fun EndpointPresetPicker(
     presets: List<CloudAiEndpointPreset>,
+    currentBaseUrl: String,
     onSelect: (CloudAiEndpointPreset) -> Unit,
 ) {
     if (presets.isEmpty()) return
 
     var expanded by rememberSaveable { mutableStateOf(false) }
+    var query by rememberSaveable { mutableStateOf("") }
+    val presentation = CloudAiEndpointPresetListPresentation.from(
+        presets = presets,
+        query = query,
+        currentBaseUrl = currentBaseUrl,
+    )
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -444,23 +464,190 @@ private fun EndpointPresetPicker(
             }
         }
         AnimatedVisibility(visible = expanded) {
-            FlowRow(
+            Column(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
-                presets.forEach { preset ->
+                OutlinedTextField(
+                    value = query,
+                    onValueChange = { query = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    label = { Text(stringResource(R.string.settings_ai_endpoint_search_label)) },
+                    leadingIcon = {
+                        MedLogIcon(
+                            MedLogIcons.Search,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    },
+                )
+                if (presentation.rows.isEmpty()) {
+                    Text(
+                        text = stringResource(R.string.settings_ai_endpoint_empty),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(vertical = MedLogSpacing.Tiny),
+                    )
+                } else {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .heightIn(max = 320.dp),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                    ) {
+                        items(presentation.rows, key = { it.id }) { row ->
+                            EndpointPresetRow(
+                                row = row,
+                                onClick = { onSelect(row.preset) },
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+internal data class CloudAiEndpointPresetRowPresentation(
+    val id: String,
+    val name: String,
+    val api: String,
+    val protocol: CloudAiEndpointProtocol,
+    val selected: Boolean,
+    val preset: CloudAiEndpointPreset,
+)
+
+internal data class CloudAiEndpointPresetListPresentation(
+    val rows: List<CloudAiEndpointPresetRowPresentation>,
+) {
+    companion object {
+        fun from(
+            presets: List<CloudAiEndpointPreset>,
+            query: String,
+            currentBaseUrl: String,
+        ): CloudAiEndpointPresetListPresentation {
+            val normalizedQuery = query.trim().lowercase()
+            val normalizedCurrentBaseUrl = currentBaseUrl.normalizedEndpointUrl()
+            val rows = presets
+                .asSequence()
+                .filter { preset ->
+                    normalizedQuery.isBlank() ||
+                        preset.name.lowercase().contains(normalizedQuery) ||
+                        preset.api.lowercase().contains(normalizedQuery) ||
+                        preset.id.lowercase().contains(normalizedQuery)
+                }
+                .sortedWith(compareBy<CloudAiEndpointPreset> { it.api.normalizedEndpointUrl() != normalizedCurrentBaseUrl }.thenBy { it.name.lowercase() })
+                .take(80)
+                .map { preset ->
+                    CloudAiEndpointPresetRowPresentation(
+                        id = preset.id,
+                        name = preset.name,
+                        api = preset.api,
+                        protocol = preset.protocol,
+                        selected = preset.api.normalizedEndpointUrl() == normalizedCurrentBaseUrl,
+                        preset = preset,
+                    )
+                }
+                .toList()
+            return CloudAiEndpointPresetListPresentation(rows)
+        }
+    }
+}
+
+private fun String.normalizedEndpointUrl(): String =
+    trim().trimEnd('/').lowercase()
+
+@Composable
+private fun EndpointPresetRow(
+    row: CloudAiEndpointPresetRowPresentation,
+    onClick: () -> Unit,
+) {
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(8.dp))
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(8.dp),
+        color = if (row.selected) {
+            MaterialTheme.colorScheme.secondaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        },
+        border = BorderStroke(
+            width = 1.dp,
+            color = if (row.selected) {
+                MaterialTheme.colorScheme.secondary
+            } else {
+                MaterialTheme.colorScheme.outlineVariant
+            },
+        ),
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = MedLogSpacing.Small, vertical = MedLogSpacing.Small),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            if (row.selected) {
+                MedLogIcon(
+                    MedLogIcons.CheckCircle,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp),
+                    tint = MaterialTheme.colorScheme.secondary,
+                )
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = row.name,
+                        modifier = Modifier.weight(1f, fill = false),
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.SemiBold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                    )
                     AssistChip(
-                        onClick = { onSelect(preset) },
+                        onClick = onClick,
                         label = {
                             Text(
-                                text = preset.name,
-                                maxLines = 1,
+                                text = when (row.protocol) {
+                                    CloudAiEndpointProtocol.ANTHROPIC -> "Anthropic"
+                                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> "OpenAI"
+                                },
+                                style = MaterialTheme.typography.labelSmall,
                             )
                         },
                     )
                 }
+                Text(
+                    text = row.api,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
             }
+            Text(
+                text = if (row.selected) {
+                    stringResource(R.string.settings_ai_endpoint_selected)
+                } else {
+                    stringResource(R.string.common_select)
+                },
+                style = MaterialTheme.typography.labelMedium,
+                color = if (row.selected) {
+                    MaterialTheme.colorScheme.secondary
+                } else {
+                    MaterialTheme.colorScheme.primary
+                },
+            )
         }
     }
 }

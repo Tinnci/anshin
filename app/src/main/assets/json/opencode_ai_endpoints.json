@@ -42,6 +42,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "anthropic",
+    "name": "Anthropic",
+    "api": "https://api.anthropic.com",
+    "protocol": "anthropic"
+  },
+  {
     "id": "atomic-chat",
     "name": "Atomic Chat",
     "api": "http://127.0.0.1:1337/v1",
@@ -177,6 +183,12 @@
     "id": "gmicloud",
     "name": "GMI Cloud",
     "api": "https://api.gmi-serving.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "groq",
+    "name": "Groq",
+    "api": "https://api.groq.com/openai/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -408,6 +420,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "ollama-local",
+    "name": "Ollama Local",
+    "api": "http://127.0.0.1:11434/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "opencode-go",
     "name": "OpenCode Go",
     "api": "https://opencode.ai/zen/go/v1",
@@ -417,6 +435,12 @@
     "id": "opencode",
     "name": "OpenCode Zen",
     "api": "https://opencode.ai/zen/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "openai",
+    "name": "OpenAI",
+    "api": "https://api.openai.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -603,6 +627,12 @@
     "id": "xiaomi-token-plan-sgp",
     "name": "Xiaomi Token Plan (Singapore)",
     "api": "https://token-plan-sgp.xiaomimimo.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "xai",
+    "name": "xAI",
+    "api": "https://api.x.ai/v1",
     "protocol": "openai_compatible"
   },
   {
