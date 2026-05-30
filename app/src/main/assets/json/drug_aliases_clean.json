@@ -88,15 +88,32 @@
       "propacetamol"
     ]
   },
+  "丙戊酰胺": {
+    "aliases": [
+      "valpromide",
+      "癫健安"
+    ]
+  },
   "丙戊酸": {
     "aliases": [
       "valproic acid"
+    ]
+  },
+  "丙戊酸半钠": {
+    "aliases": [
+      "valproate semisodium",
+      "双丙戊酸钠"
     ]
   },
   "丙戊酸钠": {
     "aliases": [
       "sodium valproate",
       "德巴金"
+    ]
+  },
+  "丙戊酸镁": {
+    "aliases": [
+      "magnesium valproate"
     ]
   },
   "丙泊酚": {
@@ -130,6 +147,12 @@
       "爱尔卡因"
     ]
   },
+  "东莨菪碱": {
+    "aliases": [
+      "scopolamine",
+      "丁溴东莨菪碱"
+    ]
+  },
   "乌司他丁": {
     "aliases": [
       "ulinastatin",
@@ -158,6 +181,12 @@
     "aliases": [
       "hepatitis B vaccine",
       "乙肝疫苗"
+    ]
+  },
+  "乙琥胺": {
+    "aliases": [
+      "ethosuximide",
+      "柴伦丁"
     ]
   },
   "乙胺丁醇": {
@@ -196,6 +225,16 @@
     "aliases": [
       "lactulose",
       "杜密克"
+    ]
+  },
+  "乳酸钙": {
+    "aliases": [
+      "calcium lactate"
+    ]
+  },
+  "乳酸钠": {
+    "aliases": [
+      "sodium lactate"
     ]
   },
   "二巯丁二酸": {
@@ -952,6 +991,11 @@
       "骁悉"
     ]
   },
+  "吗茚酮": {
+    "aliases": [
+      "molindone"
+    ]
+  },
   "吡喹酮": {
     "aliases": [
       "praziquantel"
@@ -1371,6 +1415,11 @@
       "搏拿"
     ]
   },
+  "夸西泮": {
+    "aliases": [
+      "quazepam"
+    ]
+  },
   "奎宁": {
     "aliases": [
       "quinine",
@@ -1540,6 +1589,12 @@
       "尿素乳膏"
     ]
   },
+  "山莨菪碱": {
+    "aliases": [
+      "anisodamine",
+      "654-2"
+    ]
+  },
   "左乙拉西坦": {
     "aliases": [
       "levetiracetam",
@@ -1606,6 +1661,12 @@
       "budesonide",
       "普米克",
       "雷诺考特"
+    ]
+  },
+  "布托啡诺": {
+    "aliases": [
+      "butorphanol",
+      "诺扬"
     ]
   },
   "布林佐胺": {
@@ -1795,6 +1856,12 @@
     "aliases": [
       "zanamivir",
       "乐感清"
+    ]
+  },
+  "扑米酮": {
+    "aliases": [
+      "primidone",
+      "扑痫酮"
     ]
   },
   "托吡卡胺": {
@@ -2192,11 +2259,22 @@
       "Prozac"
     ]
   },
+  "氟西泮": {
+    "aliases": [
+      "flurazepam",
+      "盐酸氟西泮"
+    ]
+  },
   "氢化可的松": {
     "aliases": [
       "hydrocortisone",
       "皮质醇",
       "氢化可的松乳膏"
+    ]
+  },
+  "氢氧化铝": {
+    "aliases": [
+      "aluminium hydroxide"
     ]
   },
   "氢氯噻嗪": {
@@ -2274,6 +2352,13 @@
   "氯化钙": {
     "aliases": [
       "calcium chloride"
+    ]
+  },
+  "氯化钠": {
+    "aliases": [
+      "sodium chloride",
+      "NaCl",
+      "生理盐水"
     ]
   },
   "氯化钾": {
@@ -2459,6 +2544,12 @@
       "阿法根"
     ]
   },
+  "溴西泮": {
+    "aliases": [
+      "bromazepam",
+      "宁神定"
+    ]
+  },
   "溴隐亭": {
     "aliases": [
       "bromocriptine",
@@ -2482,6 +2573,12 @@
       "nicotinamide",
       "维生素B3",
       "维生素PP"
+    ]
+  },
+  "烟酸": {
+    "aliases": [
+      "nicotinic acid",
+      "niacin"
     ]
   },
   "熊去氧胆酸": {
@@ -2692,6 +2789,12 @@
       "硝苯地平控释片"
     ]
   },
+  "硝西泮": {
+    "aliases": [
+      "nitrazepam",
+      "硝基安定"
+    ]
+  },
   "硝酸异山梨酯": {
     "aliases": [
       "isosorbide dinitrate",
@@ -2782,6 +2885,13 @@
       "欧乃派克"
     ]
   },
+  "碳酸氢钠": {
+    "aliases": [
+      "sodium bicarbonate",
+      "小苏打",
+      "NaHCO3"
+    ]
+  },
   "碳酸钙": {
     "aliases": [
       "calcium carbonate"
@@ -2804,6 +2914,12 @@
     "aliases": [
       "fosinopril",
       "蒙诺"
+    ]
+  },
+  "秋水仙碱": {
+    "aliases": [
+      "colchicine",
+      "秋水仙素"
     ]
   },
   "米力农": {
@@ -3260,6 +3376,13 @@
       "大仑丁"
     ]
   },
+  "苯巴比妥": {
+    "aliases": [
+      "phenobarbital",
+      "鲁米那",
+      "phenobarbitone"
+    ]
+  },
   "苯扎氯铵": {
     "aliases": [
       "benzalkonium chloride",
@@ -3282,6 +3405,12 @@
     "aliases": [
       "trihexyphenidyl",
       "安坦"
+    ]
+  },
+  "苯溴马隆": {
+    "aliases": [
+      "benzbromarone",
+      "立加利仙"
     ]
   },
   "茚达特罗": {
