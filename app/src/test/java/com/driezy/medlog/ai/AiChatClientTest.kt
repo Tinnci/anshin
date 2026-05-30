@@ -62,7 +62,8 @@ class AiChatClientTest {
         val body = Json.parseToJsonElement(http.lastRequest!!.body).jsonObject
         assertEquals("mimo-v2.5-pro", body["model"]!!.jsonPrimitive.content)
         assertEquals("0.2", body["temperature"]!!.jsonPrimitive.content)
-        assertEquals("256", body["max_tokens"]!!.jsonPrimitive.content)
+        assertEquals("256", body["max_completion_tokens"]!!.jsonPrimitive.content)
+        assertFalse(body.containsKey("max_tokens"))
         val messages = body["messages"]!!.jsonArray
         assertEquals("system", messages[0].jsonObject["role"]!!.jsonPrimitive.content)
         assertEquals("你是用药助手。", messages[0].jsonObject["content"]!!.jsonPrimitive.content)

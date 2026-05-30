@@ -37,6 +37,8 @@ class AiCloudConfigResolverTest {
         val ready = SettingsPreferences(
             cloudAiEnabled = true,
             cloudAiImageAnalysisEnabled = true,
+            cloudAiModel = "mimo-v2.5",
+            mimoCloudAiModel = "mimo-v2.5",
         )
 
         assertFalse(AiCloudConfigResolver.resolveImageAnalysis(missingGlobal, FakeKeys()).isAvailable)
@@ -144,6 +146,21 @@ class AiCloudConfigResolverTest {
                 FakeKeys(CloudAiProvider.OPENAI_COMPATIBLE to true),
             ).reason,
         )
+    }
+
+    @Test
+    fun `mimo pro is text only while mimo v25 supports image input`() {
+        val textOnly = SettingsPreferences(
+            cloudAiProvider = CloudAiProvider.MIMO,
+            cloudAiModel = "mimo-v2.5-pro",
+        )
+        val imageCapable = SettingsPreferences(
+            cloudAiProvider = CloudAiProvider.MIMO,
+            cloudAiModel = "mimo-v2.5",
+        )
+
+        assertFalse(AiCloudConfigResolver.resolveCapabilities(textOnly).supportsImageInput)
+        assertTrue(AiCloudConfigResolver.resolveCapabilities(imageCapable).supportsImageInput)
     }
 
     @Test

@@ -47,6 +47,7 @@ object AiChatClientFactory {
                     apiKey = config.apiKey,
                     authMode = OpenAiAuthMode.API_KEY_HEADER,
                     providerName = "MiMo",
+                    maxOutputTokensParameter = OpenAiMaxOutputTokensParameter.MAX_COMPLETION_TOKENS,
                     transport = transport,
                 )
 

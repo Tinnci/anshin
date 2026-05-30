@@ -1,6 +1,9 @@
 package com.driezy.medlog.ai
 
 import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -66,6 +69,33 @@ class CloudAiModelDiscoveryClientTest {
         assertEquals(401, result.statusCode)
         assertTrue(result.errorMessage!!.contains("HTTP 401"))
         assertFalse(result.errorMessage.contains("secret-key"))
+    }
+
+    @Test
+    fun `mimo discovery probes chat completions and uses official catalog for image selection`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 200,
+                body = """{"choices":[{"message":{"role":"assistant","content":"ok"}}]}""",
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.Mimo(
+                apiKey = "mimo-key",
+                model = "mimo-v2.5-pro",
+            ),
+        )
+
+        assertTrue(result.isConnected)
+        assertEquals("https://api.xiaomimimo.com/v1/chat/completions", http.lastRequest!!.url)
+        assertEquals("mimo-key", http.lastRequest!!.headers["api-key"])
+
+        val body = Json.parseToJsonElement(http.lastRequest!!.body).jsonObject
+        assertEquals("mimo-v2.5-pro", body["model"]!!.jsonPrimitive.content)
+        assertEquals("1", body["max_completion_tokens"]!!.jsonPrimitive.content)
+        assertEquals("mimo-v2.5", result.selectBestModel(requireImageInput = true)?.id)
     }
 
     @Test

@@ -17,6 +17,8 @@ class HealthCloudImageAnalysisGateTest {
             cloudAiImageAnalysisEnabled = true,
             cloudAiWifiOnly = true,
             cloudAiProvider = CloudAiProvider.MIMO,
+            cloudAiModel = "mimo-v2.5",
+            mimoCloudAiModel = "mimo-v2.5",
         )
 
         val available = HealthCloudImageAnalysisGate.evaluate(

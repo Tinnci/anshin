@@ -21,6 +21,7 @@ class OpenAiCompatibleChatClient(
     private val apiKey: String?,
     private val authMode: OpenAiAuthMode,
     private val providerName: String,
+    private val maxOutputTokensParameter: OpenAiMaxOutputTokensParameter = OpenAiMaxOutputTokensParameter.MAX_TOKENS,
     private val transport: AiHttpTransport = UrlConnectionAiHttpTransport(),
 ) : AiChatClient {
 
@@ -74,7 +75,12 @@ class OpenAiCompatibleChatClient(
                 )
             },
             temperature = temperature,
-            maxTokens = maxOutputTokens,
+            maxTokens = maxOutputTokens.takeIf {
+                maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_TOKENS
+            },
+            maxCompletionTokens = maxOutputTokens.takeIf {
+                maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_COMPLETION_TOKENS
+            },
         )
 
     private fun AiChatMessage.toOpenAiContent(): JsonElement =
@@ -157,6 +163,8 @@ class OpenAiCompatibleChatClient(
         val temperature: Double? = null,
         @SerialName("max_tokens")
         val maxTokens: Int? = null,
+        @SerialName("max_completion_tokens")
+        val maxCompletionTokens: Int? = null,
     )
 
     @Serializable
@@ -212,4 +220,9 @@ class OpenAiCompatibleChatClient(
             ignoreUnknownKeys = true
         }
     }
+}
+
+enum class OpenAiMaxOutputTokensParameter {
+    MAX_TOKENS,
+    MAX_COMPLETION_TOKENS,
 }

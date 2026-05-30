@@ -51,15 +51,18 @@ val CloudAiProvider.capabilities: CloudAiProviderCapabilities
     }
 
 fun CloudAiProviderCapabilities.withModel(settings: SettingsPreferences): CloudAiProviderCapabilities {
-    if (settings.cloudAiProvider != CloudAiProvider.OPENAI_COMPATIBLE) return this
     val normalized = settings.activeCloudAiModel().trim().lowercase()
-    val imageCapable = normalized.isBlank() ||
-        normalized.startsWith("gpt-4") ||
-        normalized.startsWith("gpt-4o") ||
-        normalized.startsWith("o3") ||
-        normalized.startsWith("o4") ||
-        "vision" in normalized ||
-        "vl" in normalized ||
-        "omni" in normalized
+    val imageCapable = when (settings.cloudAiProvider) {
+        CloudAiProvider.MIMO -> normalized == "mimo-v2.5" || normalized == "mimo-v2-omni"
+        CloudAiProvider.OPENAI_COMPATIBLE -> normalized.isBlank() ||
+            normalized.startsWith("gpt-4") ||
+            normalized.startsWith("gpt-4o") ||
+            normalized.startsWith("o3") ||
+            normalized.startsWith("o4") ||
+            "vision" in normalized ||
+            "vl" in normalized ||
+            "omni" in normalized
+        else -> supportsImageInput
+    }
     return copy(supportsImageInput = imageCapable)
 }
