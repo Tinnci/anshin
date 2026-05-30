@@ -217,7 +217,15 @@ See [.github/SIGNING.md](.github/SIGNING.md) for full setup.
 ```bash
 ./setup-hooks.sh    # run once
 # git commit → runs ktlintCheck automatically
-# git push   → runs lintDebug automatically
+# git push   → runs fast unit-test verification automatically
+```
+
+Full Android Lint runs in CI. To force it locally before a push:
+
+```bash
+MEDLOG_PRE_PUSH_LINT=1 git push
+# or persist locally:
+git config hooks.medlogPrePushLint true
 ```
 
 ---

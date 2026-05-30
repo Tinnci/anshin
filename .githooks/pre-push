@@ -1,7 +1,11 @@
 #!/bin/sh
 # MedLog pre-push hook
-# 在推送分支前运行 Android Lint 检查（仅 debug 变体）
-# 优化：跳过 tag 推送、跳过无源码变更的推送
+# 默认运行快速验证，完整 Android Lint 交给 CI。
+#
+# 本地需要完整 lint 时：
+#   MEDLOG_PRE_PUSH_LINT=1 git push
+# 或持久开启：
+#   git config hooks.medlogPrePushLint true
 
 set -e
 
@@ -20,6 +24,7 @@ cd "$REPO_ROOT"
 # ── 读取 stdin（git 传入的 push 信息）──────────────────────────
 # 格式: <local ref> <local sha> <remote ref> <remote sha>
 PUSHING_BRANCH=false
+HAS_SOURCE_CHANGES=false
 while read -r local_ref local_sha remote_ref remote_sha; do
     # 跳过 tag 推送（refs/tags/...）
     case "$remote_ref" in
@@ -33,9 +38,9 @@ while read -r local_ref local_sha remote_ref remote_sha; do
         HAS_SOURCE_CHANGES=true
     else
         CHANGED=$(git diff --name-only "$remote_sha".."$local_sha" -- \
-            '*.kt' '*.kts' '*.java' '*.xml' 'build.gradle*' '*.pro' 2>/dev/null || true)
+            '*.kt' '*.kts' '*.java' '*.xml' '*.json' 'build.gradle*' 'gradle.properties' 'gradle/libs.versions.toml' '*.pro' 2>/dev/null || true)
         if [ -z "$CHANGED" ]; then
-            echo "[pre-push] 无源码变更，跳过 Lint 检查。"
+            echo "[pre-push] 无源码/资源/构建配置变更，跳过验证。"
             continue
         fi
         HAS_SOURCE_CHANGES=true
@@ -51,15 +56,32 @@ if [ "${HAS_SOURCE_CHANGES:-false}" = false ]; then
     exit 0
 fi
 
-echo "[pre-push] 运行 Android Lint 检查..."
+RUN_LINT="${MEDLOG_PRE_PUSH_LINT:-$(git config --bool hooks.medlogPrePushLint 2>/dev/null || true)}"
 
-if ! ./gradlew lintDebug --daemon --quiet 2>&1; then
+if [ "$RUN_LINT" = "1" ] || [ "$RUN_LINT" = "true" ]; then
+    echo "[pre-push] 运行完整 Android Lint 检查..."
+
+    if ! ./gradlew lintDebug --daemon --quiet 2>&1; then
+        echo ""
+        echo "  Android Lint 发现问题，请查看报告："
+        echo "  app/build/reports/lint-results-debug.html"
+        echo ""
+        exit 1
+    fi
+
+    echo "[pre-push] Lint 检查通过 ✓"
+    exit 0
+fi
+
+echo "[pre-push] 运行快速验证（单元测试会触发必要编译/资源处理）..."
+
+if ! ./gradlew :app:testDebugUnitTest --daemon --quiet 2>&1; then
     echo ""
-    echo "  Android Lint 发现问题，请查看报告："
-    echo "  app/build/reports/lint-results-debug.html"
+    echo "  快速验证失败。推送前请修复编译或单元测试问题。"
+    echo "  如需完整检查，请执行：./gradlew ktlintCheck testDebugUnitTest lintDebug assembleDebug"
     echo ""
     exit 1
 fi
 
-echo "[pre-push] Lint 检查通过 ✓"
+echo "[pre-push] 快速验证通过 ✓"
 exit 0
