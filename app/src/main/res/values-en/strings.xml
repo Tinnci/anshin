@@ -638,7 +638,8 @@
     <string name="symptom_screen_title">Wellbeing Journal</string>
     <string name="symptom_screen_fab_cd">Log status</string>
     <string name="symptom_empty_title">No diary entries yet</string>
-    <string name="symptom_empty_body">Tap + to record today\'s feelings, body changes, or medication responses</string>
+    <string name="symptom_empty_body">Record today\'s feelings, body changes, or medication responses, then review changes here over time.</string>
+    <string name="symptom_empty_action">Log today</string>
     <string name="symptom_delete_title">Delete Entry</string>
     <string name="symptom_delete_body">Are you sure you want to delete this wellbeing entry? This action cannot be undone.</string>
     <string name="symptom_card_symptoms_label">Body signals</string>

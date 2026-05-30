@@ -613,7 +613,8 @@
     <string name="symptom_screen_title">身心记录</string>
     <string name="symptom_screen_fab_cd">记录状态</string>
     <string name="symptom_empty_title">还没有日记记录</string>
-    <string name="symptom_empty_body">点击右下角 + 记录今天的感受、身体变化或用药反应</string>
+    <string name="symptom_empty_body">记录今天的感受、身体变化或用药反应，之后可以在这里回看变化。</string>
+    <string name="symptom_empty_action">记录今天</string>
     <string name="symptom_delete_title">删除记录</string>
     <string name="symptom_delete_body">确定要删除这条身心记录吗？此操作无法撤销。</string>
     <string name="symptom_card_symptoms_label">身体信号</string>

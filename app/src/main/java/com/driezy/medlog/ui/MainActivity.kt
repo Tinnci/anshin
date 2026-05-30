@@ -8,6 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -15,6 +16,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
+import com.driezy.medlog.ui.theme.applyMedLogSystemBars
 import com.driezy.medlog.ui.theme.MedLogTheme
 import com.driezy.medlog.ui.theme.ThemePalette
 
@@ -48,6 +50,10 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.LIGHT  -> false
                 ThemeMode.DARK   -> true
                 ThemeMode.SYSTEM -> systemDark
+            }
+
+            SideEffect {
+                applyMedLogSystemBars(darkTheme)
             }
 
             MedLogTheme(

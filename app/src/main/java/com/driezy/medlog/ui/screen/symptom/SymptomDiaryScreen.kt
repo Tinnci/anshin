@@ -4,9 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -22,12 +20,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.SymptomLog
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.voice.VoiceInputError
 import com.driezy.medlog.voice.VoiceInputPhase
@@ -98,28 +99,12 @@ fun SymptomDiaryScreen(
                 contentAlignment = Alignment.Center,
             ) { LoadingIndicator() }
         } else if (uiState.logs.isEmpty()) {
-            Box(
-                Modifier
+            SymptomEmptyState(
+                modifier = Modifier
                     .fillMaxSize()
                     .padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                    Text("✏️", style = MaterialTheme.typography.displayMedium)
-                    Spacer(Modifier.height(12.dp))
-                    Text(
-                        stringResource(R.string.symptom_empty_title),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Spacer(Modifier.height(4.dp))
-                    Text(
-                        stringResource(R.string.symptom_empty_body),
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.outline,
-                    )
-                }
-            }
+                onCreate = viewModel::startAdd,
+            )
         } else {
             LazyColumn(
                 contentPadding = PaddingValues(
@@ -160,5 +145,59 @@ fun SymptomDiaryScreen(
             onStopVoiceInput = viewModel::stopVoiceInput,
             onSave = viewModel::saveLog,
         )
+    }
+}
+
+@Composable
+private fun SymptomEmptyState(
+    onCreate: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier.padding(horizontal = MedLogSpacing.Large),
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Box(
+                modifier = Modifier
+                    .size(72.dp)
+                    .background(
+                        color = MaterialTheme.colorScheme.primaryContainer,
+                        shape = RoundedCornerShape(24.dp),
+                    ),
+                contentAlignment = Alignment.Center,
+            ) {
+                MedLogIcon(
+                    MedLogIcons.EditNote,
+                    contentDescription = null,
+                    modifier = Modifier.size(34.dp),
+                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                )
+            }
+            Spacer(Modifier.height(20.dp))
+            Text(
+                stringResource(R.string.symptom_empty_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(8.dp))
+            Text(
+                stringResource(R.string.symptom_empty_body),
+                modifier = Modifier.widthIn(max = 300.dp),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                textAlign = TextAlign.Center,
+            )
+            Spacer(Modifier.height(20.dp))
+            FilledTonalButton(onClick = onCreate) {
+                MedLogIcon(MedLogIcons.Add, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.symptom_empty_action))
+            }
+        }
     }
 }

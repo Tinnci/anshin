@@ -25,6 +25,7 @@ import androidx.glance.appwidget.GlanceAppWidgetManager
 import dagger.hilt.android.AndroidEntryPoint
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
+import com.driezy.medlog.ui.theme.applyMedLogSystemBars
 import com.driezy.medlog.ui.screen.settings.SettingsViewModel
 import com.driezy.medlog.ui.theme.MedLogTheme
 import kotlinx.coroutines.launch
@@ -77,6 +78,10 @@ class WidgetSettingsActivity : ComponentActivity() {
                 ThemeMode.LIGHT  -> false
                 ThemeMode.DARK   -> true
                 ThemeMode.SYSTEM -> systemDark
+            }
+
+            SideEffect {
+                applyMedLogSystemBars(darkTheme)
             }
 
             val isConfigureMode = appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID
