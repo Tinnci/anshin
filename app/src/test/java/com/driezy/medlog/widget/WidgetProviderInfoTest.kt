@@ -1,6 +1,7 @@
 package com.driezy.medlog.widget
 
 import java.io.File
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -21,5 +22,15 @@ class WidgetProviderInfoTest {
                 text.contains("""android:initialLayout="@layout/glance_default_loading_layout""""),
             )
         }
+    }
+
+    @Test
+    fun `glance theme does not depend on Compose UI configuration locals`() {
+        val text = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/MedLogGlanceTheme.kt").readText()
+
+        assertFalse(
+            "Glance AppWidget composition does not provide Compose UI LocalConfiguration.",
+            text.contains("isSystemInDarkTheme"),
+        )
     }
 }

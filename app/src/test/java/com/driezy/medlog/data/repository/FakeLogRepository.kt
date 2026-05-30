@@ -21,6 +21,8 @@ class FakeLogRepository : LogRepository {
         _logs.value = logs
     }
 
+    fun currentLogs(): List<MedicationLog> = _logs.value
+
     override fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<MedicationLog>> =
         _logs  // Fake: return all logs; test data is already scoped to relevant dates
 

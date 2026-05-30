@@ -21,7 +21,7 @@ import com.driezy.medlog.data.model.SymptomLog
         AiAnalysisCacheEntry::class,
         AiUsageEvent::class,
     ],
-    version = 14,
+    version = 15,
     exportSchema = true,
 )
 @TypeConverters(Converters::class)
@@ -157,6 +157,16 @@ abstract class MedLogDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE health_records ADD COLUMN sourceCacheKey TEXT")
                 db.execSQL("ALTER TABLE health_records ADD COLUMN confirmedAt INTEGER")
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_health_records_source ON health_records (source)")
+            }
+        }
+
+        /** v14 → v15: medication_logs 增加修订元数据，用于区分当天编辑与过期后补改。 */
+        val MIGRATION_14_15 = object : Migration(14, 15) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medication_logs ADD COLUMN createdAtMs INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE medication_logs ADD COLUMN updatedAtMs INTEGER")
+                db.execSQL("ALTER TABLE medication_logs ADD COLUMN revisionType TEXT NOT NULL DEFAULT 'ORIGINAL'")
+                db.execSQL("CREATE INDEX IF NOT EXISTS index_medication_logs_revisionType ON medication_logs (revisionType)")
             }
         }
     }

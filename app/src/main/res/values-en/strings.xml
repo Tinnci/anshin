@@ -453,6 +453,8 @@
     <string name="history_edit_time_title">Edit Taken Time</string>
     <string name="history_current_time_format">Current: %s</string>
     <string name="history_time_unrecorded">Not recorded</string>
+    <string name="history_revision_same_day">Edited</string>
+    <string name="history_revision_retroactive">Backdated edit</string>
     <plurals name="history_streak_count">
         <item quantity="one">🔥 1 day streak</item>
         <item quantity="other">🔥 %d day streak</item>

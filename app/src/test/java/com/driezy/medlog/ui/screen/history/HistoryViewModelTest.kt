@@ -2,6 +2,7 @@ package com.driezy.medlog.ui.screen.history
 
 import app.cash.turbine.test
 import com.driezy.medlog.data.model.LogStatus
+import com.driezy.medlog.data.model.LogRevisionType
 import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.repository.FakeLogRepository
 import com.driezy.medlog.data.repository.FakeMedicationRepository
@@ -53,8 +54,10 @@ class HistoryViewModelTest {
             .toInstant()
             .toEpochMilli()
         return MedicationLog(
+            id = date.toEpochDay(),
             medicationId = medId,
             scheduledTimeMs = tsMs,
+            actualTakenTimeMs = tsMs,
             status = LogStatus.TAKEN,
         )
     }
@@ -259,5 +262,33 @@ class HistoryViewModelTest {
         vm.navigateMonthBy(-1)                         // one more step back → December
         assertEquals(12, vm.uiState.value.displayedMonth.monthValue)
         assertEquals(currentMonth.year - 1, vm.uiState.value.displayedMonth.year)
+    }
+
+    @Test
+    fun `editing previous day taken time marks log as retroactive edit`() = runTest {
+        val yesterday = LocalDate.now().minusDays(1)
+        val log = takenLogAt(yesterday)
+        logRepo.setLogs(listOf(log))
+        val vm = buildViewModel()
+
+        vm.editTakenTime(log, log.scheduledTimeMs + 30 * 60 * 1000)
+        testScheduler.advanceUntilIdle()
+
+        val edited = logRepo.currentLogs().single()
+        assertEquals(LogRevisionType.RETROACTIVE_EDIT, edited.revisionType)
+        assertEquals(log.scheduledTimeMs + 30 * 60 * 1000, edited.actualTakenTimeMs)
+    }
+
+    @Test
+    fun `editing today taken time marks log as same day edit`() = runTest {
+        val today = LocalDate.now()
+        val log = takenLogAt(today)
+        logRepo.setLogs(listOf(log))
+        val vm = buildViewModel()
+
+        vm.editTakenTime(log, log.scheduledTimeMs + 15 * 60 * 1000)
+        testScheduler.advanceUntilIdle()
+
+        assertEquals(LogRevisionType.SAME_DAY_EDIT, logRepo.currentLogs().single().revisionType)
     }
 }

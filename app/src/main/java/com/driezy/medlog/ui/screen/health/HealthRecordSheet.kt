@@ -47,6 +47,10 @@ import com.driezy.medlog.domain.health.HealthInsight
 import com.driezy.medlog.domain.health.HealthInsightSeverity
 import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.ui.components.AiInteractionStatusPill
+import com.driezy.medlog.ui.components.VoiceInputTrailingIcon
+import com.driezy.medlog.ui.components.messageText
+import com.driezy.medlog.voice.VoiceInputPhase
+import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
@@ -64,6 +68,9 @@ internal fun AddEditHealthSheet(
     onNotesChange: (String) -> Unit,
     onTimeChange: (Long) -> Unit,
     onOcrScan: () -> Unit,
+    voiceInput: VoiceInputUiState,
+    onStartVoiceInput: () -> Unit,
+    onStopVoiceInput: () -> Unit,
     onSave: () -> Unit,
 ) {
     val sheetState = rememberBottomSheetState(SheetValue.Hidden, HealthRecordSheetEnabledStates)
@@ -169,6 +176,17 @@ internal fun AddEditHealthSheet(
                 modifier = Modifier.fillMaxWidth(),
                 maxLines = 3,
                 leadingIcon = { MedLogIcon(MedLogIcons.Notes, null) },
+                trailingIcon = {
+                    VoiceInputTrailingIcon(
+                        voiceInput = voiceInput,
+                        onStartVoiceInput = onStartVoiceInput,
+                        onStopVoiceInput = onStopVoiceInput,
+                    )
+                },
+                supportingText = {
+                    voiceInput.messageText()?.let { Text(it) }
+                },
+                isError = voiceInput.phase == VoiceInputPhase.ERROR,
             )
 
             // ── 操作按钮 ──────────────────────────────────────────────

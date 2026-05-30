@@ -34,7 +34,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.components.VoiceInputTrailingIcon
+import com.driezy.medlog.ui.components.messageText
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
@@ -140,6 +143,17 @@ internal fun MedicationNotesSection(
             minLines = 2,
             maxLines = 5,
             placeholder = { Text(stringResource(R.string.add_notes_placeholder)) },
+            trailingIcon = {
+                VoiceInputTrailingIcon(
+                    voiceInput = uiState.voiceInput,
+                    onStartVoiceInput = viewModel::startVoiceInput,
+                    onStopVoiceInput = viewModel::stopVoiceInput,
+                )
+            },
+            supportingText = {
+                uiState.voiceInput.messageText()?.let { Text(it) }
+            },
+            isError = uiState.voiceInput.phase == VoiceInputPhase.ERROR,
         )
     }
 }

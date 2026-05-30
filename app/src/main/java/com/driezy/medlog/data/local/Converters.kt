@@ -3,6 +3,7 @@ package com.driezy.medlog.data.local
 import androidx.room.TypeConverter
 import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.model.HealthRecordSource
+import com.driezy.medlog.data.model.LogRevisionType
 import com.driezy.medlog.data.model.LogStatus
 
 class Converters {
@@ -11,6 +12,13 @@ class Converters {
 
     @TypeConverter
     fun toLogStatus(value: String): LogStatus = LogStatus.valueOf(value)
+
+    @TypeConverter
+    fun fromLogRevisionType(value: LogRevisionType): String = value.name
+
+    @TypeConverter
+    fun toLogRevisionType(value: String): LogRevisionType =
+        LogRevisionType.entries.firstOrNull { it.name == value } ?: LogRevisionType.ORIGINAL
 
     @TypeConverter
     fun fromHealthRecordSource(value: HealthRecordSource): String = value.name

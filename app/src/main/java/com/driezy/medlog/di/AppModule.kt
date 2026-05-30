@@ -65,6 +65,7 @@ object DatabaseModule {
                 MedLogDatabase.MIGRATION_11_12,
                 MedLogDatabase.MIGRATION_12_13,
                 MedLogDatabase.MIGRATION_13_14,
+                MedLogDatabase.MIGRATION_14_15,
             )
             .build()
 

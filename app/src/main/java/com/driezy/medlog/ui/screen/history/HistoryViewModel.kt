@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.LogStatus
+import com.driezy.medlog.data.model.LogRevisionType
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.repository.LogRepository
@@ -255,7 +256,22 @@ class HistoryViewModel @Inject constructor(
      */
     fun editTakenTime(log: com.driezy.medlog.data.model.MedicationLog, newMs: Long) {
         viewModelScope.launch {
-            logRepo.updateLog(log.copy(actualTakenTimeMs = newMs))
+            val now = System.currentTimeMillis()
+            val scheduledDate = Instant.ofEpochMilli(log.scheduledTimeMs)
+                .atZone(zone)
+                .toLocalDate()
+            val revisionType = if (scheduledDate < LocalDate.now(zone)) {
+                LogRevisionType.RETROACTIVE_EDIT
+            } else {
+                LogRevisionType.SAME_DAY_EDIT
+            }
+            logRepo.updateLog(
+                log.copy(
+                    actualTakenTimeMs = newMs,
+                    updatedAtMs = now,
+                    revisionType = revisionType,
+                ),
+            )
         }
     }
 }

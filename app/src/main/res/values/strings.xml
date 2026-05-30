@@ -436,6 +436,8 @@
     <string name="history_edit_time_title">修改服药时间</string>
     <string name="history_current_time_format">当前：%s</string>
     <string name="history_time_unrecorded">未记录</string>
+    <string name="history_revision_same_day">已修订</string>
+    <string name="history_revision_retroactive">过期后补改</string>
     <plurals name="history_streak_count">
         <item quantity="other">🔥 连续 %d 天</item>
     </plurals>

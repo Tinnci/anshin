@@ -16,6 +16,11 @@ import com.driezy.medlog.domain.health.HealthInsightGenerationUseCase
 import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.data.model.ParsedHealthMetric
 import com.driezy.medlog.ui.util.formatDose
+import com.driezy.medlog.voice.VoiceInputController
+import com.driezy.medlog.voice.VoiceInputEvent
+import com.driezy.medlog.voice.VoiceInputPhase
+import com.driezy.medlog.voice.VoiceInputUiState
+import com.driezy.medlog.voice.VoiceTranscriptAppender
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
@@ -81,6 +86,7 @@ data class HealthUiState(
     val isInsightRefreshing: Boolean = false,
     /** AI 执行/回退内部状态，普通用户界面不显著展示。 */
     val insightExecutionStatus: AiExecutionStatus = AiExecutionStatus.LocalOnly,
+    val voiceInput: VoiceInputUiState = VoiceInputUiState(),
 )
 
 // ─── ViewModel ───────────────────────────────────────────────────────────────
@@ -90,10 +96,13 @@ class HealthViewModel @Inject constructor(
     private val repository: HealthRepository,
     private val prefsRepository: UserPreferencesRepository,
     private val insightGeneration: HealthInsightGenerationUseCase,
+    private val voiceInputController: VoiceInputController,
 ) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(HealthUiState())
     val uiState: StateFlow<HealthUiState> = _uiState.asStateFlow()
+    private var acceptsVoiceInput = false
+    private var transcriptAppender: VoiceTranscriptAppender? = null
 
     /** 用户身高（cm），从偏好设置读取 */
     private val heightCmFlow = prefsRepository.settingsFlow
@@ -105,6 +114,37 @@ class HealthViewModel @Inject constructor(
         collectStats()
         collectChartData()
         collectInsights()
+        collectVoiceInput()
+    }
+
+    private fun collectVoiceInput() {
+        viewModelScope.launch {
+            voiceInputController.events.collect { event ->
+                if (!acceptsVoiceInput) return@collect
+                when (event) {
+                    VoiceInputEvent.Connecting -> _uiState.update {
+                        it.copy(voiceInput = VoiceInputUiState(VoiceInputPhase.CONNECTING))
+                    }
+                    VoiceInputEvent.Listening -> {
+                        transcriptAppender = VoiceTranscriptAppender(_uiState.value.draft.notes)
+                        _uiState.update { it.copy(voiceInput = VoiceInputUiState(VoiceInputPhase.LISTENING)) }
+                    }
+                    VoiceInputEvent.Stopped -> {
+                        acceptsVoiceInput = false
+                        transcriptAppender = null
+                        _uiState.update { it.copy(voiceInput = VoiceInputUiState()) }
+                    }
+                    is VoiceInputEvent.Transcript -> applyVoiceTranscript(event)
+                    is VoiceInputEvent.Failed -> {
+                        acceptsVoiceInput = false
+                        transcriptAppender = null
+                        _uiState.update {
+                            it.copy(voiceInput = VoiceInputUiState(VoiceInputPhase.ERROR, event.error))
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /** 收集过滤后的记录列表 */
@@ -322,7 +362,10 @@ class HealthViewModel @Inject constructor(
         }
     }
 
-    fun dismissSheet() = _uiState.update { it.copy(showAddSheet = false) }
+    fun dismissSheet() {
+        stopVoiceInput()
+        _uiState.update { it.copy(showAddSheet = false) }
+    }
 
     fun onDraftTypeChange(type: HealthType) = _uiState.update { s ->
         s.copy(draft = s.draft.copy(type = type, value = "", secondaryValue = ""))
@@ -331,6 +374,19 @@ class HealthViewModel @Inject constructor(
     fun onDraftSecondaryChange(v: String) = _uiState.update { s -> s.copy(draft = s.draft.copy(secondaryValue = v)) }
     fun onDraftTimeChange(ts: Long) = _uiState.update { s -> s.copy(draft = s.draft.copy(timestamp = ts)) }
     fun onDraftNotesChange(v: String) = _uiState.update { s -> s.copy(draft = s.draft.copy(notes = v)) }
+
+    fun startVoiceInput() {
+        acceptsVoiceInput = true
+        _uiState.update { it.copy(voiceInput = VoiceInputUiState(VoiceInputPhase.CONNECTING)) }
+        voiceInputController.start()
+    }
+
+    fun stopVoiceInput() {
+        acceptsVoiceInput = false
+        transcriptAppender = null
+        voiceInputController.stop()
+        _uiState.update { it.copy(voiceInput = VoiceInputUiState()) }
+    }
 
     fun saveRecord() {
         val draft = _uiState.value.draft
@@ -354,10 +410,24 @@ class HealthViewModel @Inject constructor(
             confirmedAt    = draft.confirmedAt ?: System.currentTimeMillis(),
         )
         safeLaunch {
+            stopVoiceInput()
             if (draft.editingId == null) repository.addRecord(record)
             else repository.updateRecord(record)
             _uiState.update { it.copy(showAddSheet = false) }
         }
+    }
+
+    private fun applyVoiceTranscript(event: VoiceInputEvent.Transcript) {
+        val currentNotes = _uiState.value.draft.notes
+        val appender = transcriptAppender ?: VoiceTranscriptAppender(currentNotes).also {
+            transcriptAppender = it
+        }
+        val nextNotes = if (event.isFinal) {
+            appender.commit(event.text, insertSeparator = currentNotes.isNotBlank())
+        } else {
+            appender.preview(event.text, insertSeparator = currentNotes.isNotBlank())
+        }
+        _uiState.update { it.copy(draft = it.draft.copy(notes = nextNotes)) }
     }
 
     fun requestDelete(record: HealthRecord) = _uiState.update { it.copy(deleteTarget = record) }

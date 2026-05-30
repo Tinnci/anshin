@@ -299,6 +299,9 @@ fun HealthScreen(
             onNotesChange   = viewModel::onDraftNotesChange,
             onTimeChange    = viewModel::onDraftTimeChange,
             onOcrScan       = { showOcrScanner = true },
+            voiceInput      = uiState.voiceInput,
+            onStartVoiceInput = viewModel::startVoiceInput,
+            onStopVoiceInput = viewModel::stopVoiceInput,
             onSave          = viewModel::saveRecord,
         )
     }

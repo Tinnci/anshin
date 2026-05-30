@@ -30,6 +30,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
+import com.driezy.medlog.data.model.LogRevisionType
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.MedicationLog
 import java.text.SimpleDateFormat
@@ -418,11 +419,46 @@ internal fun DayLogRow(
         )
         Column(modifier = Modifier.weight(1f)) {
             Text(medicationName, style = MaterialTheme.typography.bodyMedium)
-            Text(
-                stringResource(R.string.history_scheduled_time, timeFmt.format(Date(log.scheduledTimeMs))),
-                style = MaterialTheme.typography.bodySmall,
-                color = colorScheme.onSurfaceVariant,
-            )
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Text(
+                    stringResource(R.string.history_scheduled_time, timeFmt.format(Date(log.scheduledTimeMs))),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = colorScheme.onSurfaceVariant,
+                )
+                if (log.revisionType != LogRevisionType.ORIGINAL) {
+                    AssistChip(
+                        onClick = {},
+                        label = {
+                            Text(
+                                stringResource(
+                                    if (log.revisionType == LogRevisionType.RETROACTIVE_EDIT) {
+                                        R.string.history_revision_retroactive
+                                    } else {
+                                        R.string.history_revision_same_day
+                                    },
+                                ),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
+                        },
+                        colors = AssistChipDefaults.assistChipColors(
+                            containerColor = if (log.revisionType == LogRevisionType.RETROACTIVE_EDIT) {
+                                colorScheme.tertiaryContainer
+                            } else {
+                                colorScheme.secondaryContainer
+                            },
+                            labelColor = if (log.revisionType == LogRevisionType.RETROACTIVE_EDIT) {
+                                colorScheme.onTertiaryContainer
+                            } else {
+                                colorScheme.onSecondaryContainer
+                            },
+                        ),
+                        modifier = Modifier.height(24.dp),
+                    )
+                }
+            }
         }
         Text(
             when (log.status) {

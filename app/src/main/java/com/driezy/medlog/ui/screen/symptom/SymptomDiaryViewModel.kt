@@ -57,6 +57,7 @@ class SymptomDiaryViewModel @Inject constructor(
 
     private val _dialogState = MutableStateFlow<Pair<Boolean, DiaryDraftState>>(false to DiaryDraftState())
     private val _voiceInputState = MutableStateFlow(VoiceInputUiState())
+    private var acceptsVoiceInput = false
     private var transcriptAppender: VoiceTranscriptAppender? = null
 
     val uiState = combine(
@@ -80,6 +81,7 @@ class SymptomDiaryViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             voiceInputController.events.collect { event ->
+                if (!acceptsVoiceInput) return@collect
                 when (event) {
                     VoiceInputEvent.Connecting -> _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.CONNECTING)
                     VoiceInputEvent.Listening -> {
@@ -87,11 +89,13 @@ class SymptomDiaryViewModel @Inject constructor(
                         _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.LISTENING)
                     }
                     VoiceInputEvent.Stopped -> {
+                        acceptsVoiceInput = false
                         transcriptAppender = null
                         _voiceInputState.value = VoiceInputUiState()
                     }
                     is VoiceInputEvent.Transcript -> applyVoiceTranscript(event)
                     is VoiceInputEvent.Failed -> {
+                        acceptsVoiceInput = false
                         transcriptAppender = null
                         _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.ERROR, event.error)
                     }
@@ -126,6 +130,7 @@ class SymptomDiaryViewModel @Inject constructor(
 
     fun dismissDialog() {
         voiceInputController.stop()
+        acceptsVoiceInput = false
         _dialogState.update { (_, draft) -> false to draft }
     }
 
@@ -164,11 +169,13 @@ class SymptomDiaryViewModel @Inject constructor(
     fun onNoteChange(note: String) = updateDraft { it.copy(note = note) }
 
     fun startVoiceInput() {
+        acceptsVoiceInput = true
         _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.CONNECTING)
         voiceInputController.start()
     }
 
     fun stopVoiceInput() {
+        acceptsVoiceInput = false
         voiceInputController.stop()
     }
 

@@ -1,7 +1,8 @@
 package com.driezy.medlog.widget
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
@@ -23,7 +24,7 @@ internal fun MedLogGlanceTheme(
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
-    val systemDarkTheme = isSystemInDarkTheme()
+    val systemDarkTheme = context.isSystemInNightMode()
     val darkTheme = when (themeMode) {
         ThemeMode.LIGHT -> false
         ThemeMode.DARK -> true
@@ -50,6 +51,9 @@ internal fun MedLogGlanceTheme(
 
     GlanceTheme(colors = colors, content = content)
 }
+
+private fun Context.isSystemInNightMode(): Boolean =
+    resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
 internal fun Preferences.medLogThemeMode(): ThemeMode =
     this[UserPreferencesRepository.THEME_MODE]

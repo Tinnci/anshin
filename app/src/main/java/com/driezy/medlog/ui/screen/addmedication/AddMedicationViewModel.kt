@@ -16,6 +16,11 @@ import com.driezy.medlog.util.ReminderTimeUtils
 import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.notification.AlarmScheduler
 import com.driezy.medlog.notification.NotificationHelper
+import com.driezy.medlog.voice.VoiceInputController
+import com.driezy.medlog.voice.VoiceInputEvent
+import com.driezy.medlog.voice.VoiceInputPhase
+import com.driezy.medlog.voice.VoiceInputUiState
+import com.driezy.medlog.voice.VoiceTranscriptAppender
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.FlowPreview
@@ -80,6 +85,7 @@ data class AddMedicationUiState(
     @param:StringRes val errorRes: Int? = null,
     val drugSuggestions: List<Drug> = emptyList(),
     val showDrugSuggestions: Boolean = false,
+    val voiceInput: VoiceInputUiState = VoiceInputUiState(),
 )
 
 @HiltViewModel
@@ -89,6 +95,7 @@ class AddMedicationViewModel @Inject constructor(
     private val alarmScheduler: AlarmScheduler,
     private val prefsRepository: UserPreferencesRepository,
     private val drugRepository: DrugRepository,
+    private val voiceInputController: VoiceInputController,
     @param:ApplicationContext private val appContext: Context,
 ) : BaseViewModel() {
 
@@ -104,6 +111,8 @@ class AddMedicationViewModel @Inject constructor(
 
     /** 药品名称搜索查询 Flow，用于 debounce */
     private val _nameQuery = MutableStateFlow("")
+    private var acceptsVoiceInput = false
+    private var transcriptAppender: VoiceTranscriptAppender? = null
 
     /** 作息时间段模式开关：false 时隐藏作息模式相关 UI，始终以精确时间模式运行 */
     val enableTimePeriodMode: StateFlow<Boolean> = prefsRepository.settingsFlow
@@ -113,6 +122,31 @@ class AddMedicationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             prefsRepository.settingsFlow.collect { _latestPrefs.value = it }
+        }
+        viewModelScope.launch {
+            voiceInputController.events.collect { event ->
+                if (!acceptsVoiceInput) return@collect
+                when (event) {
+                    VoiceInputEvent.Connecting -> update {
+                        copy(voiceInput = VoiceInputUiState(VoiceInputPhase.CONNECTING))
+                    }
+                    VoiceInputEvent.Listening -> {
+                        transcriptAppender = VoiceTranscriptAppender(_uiState.value.notes)
+                        update { copy(voiceInput = VoiceInputUiState(VoiceInputPhase.LISTENING)) }
+                    }
+                    VoiceInputEvent.Stopped -> {
+                        acceptsVoiceInput = false
+                        transcriptAppender = null
+                        update { copy(voiceInput = VoiceInputUiState()) }
+                    }
+                    is VoiceInputEvent.Transcript -> applyVoiceTranscript(event)
+                    is VoiceInputEvent.Failed -> {
+                        acceptsVoiceInput = false
+                        transcriptAppender = null
+                        update { copy(voiceInput = VoiceInputUiState(VoiceInputPhase.ERROR, event.error)) }
+                    }
+                }
+            }
         }
         // 搜索建议：300ms debounce 避免每次击键都触发全库搜索
         @OptIn(FlowPreview::class)
@@ -251,6 +285,19 @@ class AddMedicationViewModel @Inject constructor(
     fun onRefillReminderDaysChange(v: Int)   = update { copy(refillReminderDays = v) }
     fun onNotesChange(v: String)             = update { copy(notes = v) }
 
+    fun startVoiceInput() {
+        acceptsVoiceInput = true
+        update { copy(voiceInput = VoiceInputUiState(VoiceInputPhase.CONNECTING)) }
+        voiceInputController.start()
+    }
+
+    fun stopVoiceInput() {
+        acceptsVoiceInput = false
+        transcriptAppender = null
+        voiceInputController.stop()
+        update { copy(voiceInput = VoiceInputUiState()) }
+    }
+
     // ── 保存 ─────────────────────────────────────────────────────
 
     fun save(existingId: Long?) {
@@ -259,6 +306,7 @@ class AddMedicationViewModel @Inject constructor(
             update { copy(errorRes = R.string.error_name_required) }; return
         }
         safeLaunch(onError = { e -> update { copy(isSaving = false, error = e.message) } }) {
+            stopVoiceInput()
             update { copy(isSaving = true) }
             // 取第一个提醒时间作为 reminderHour/Minute（向后兼容通知调度）
             val firstTime = state.reminderTimes.firstOrNull() ?: "08:00"
@@ -309,5 +357,18 @@ class AddMedicationViewModel @Inject constructor(
 
     private inline fun update(block: AddMedicationUiState.() -> AddMedicationUiState) {
         _uiState.value = _uiState.value.block()
+    }
+
+    private fun applyVoiceTranscript(event: VoiceInputEvent.Transcript) {
+        val currentNotes = _uiState.value.notes
+        val appender = transcriptAppender ?: VoiceTranscriptAppender(currentNotes).also {
+            transcriptAppender = it
+        }
+        val nextNotes = if (event.isFinal) {
+            appender.commit(event.text, insertSeparator = currentNotes.isNotBlank())
+        } else {
+            appender.preview(event.text, insertSeparator = currentNotes.isNotBlank())
+        }
+        update { copy(notes = nextNotes) }
     }
 }
