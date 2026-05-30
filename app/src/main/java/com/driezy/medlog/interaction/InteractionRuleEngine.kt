@@ -115,7 +115,81 @@ private val RULES: List<InteractionRule> = listOf(
         advice = "高剂量甲氨蝶呤期间禁用 NSAIDs；低剂量时也需密切监测血象和肝功能。",
     ),
 
+    InteractionRule(
+        groupA = listOf("硝酸甘油", "单硝酸异山梨酯", "硝酸异山梨酯", "异山梨酯",
+            "nitroglycerin", "isosorbide", "硝酸酯", "抗心绞痛"),
+        groupB = listOf("西地那非", "sildenafil", "他达拉非", "tadalafil",
+            "伐地那非", "vardenafil", "阿伐那非", "avanafil", "pde5"),
+        severity = InteractionSeverity.HIGH,
+        labelA = "硝酸酯类",
+        labelB = "PDE5 抑制剂",
+        description = "两者均扩张血管，合用可造成严重低血压、晕厥甚至心肌缺血。",
+        advice = "禁止合用；近期使用 PDE5 抑制剂时不要自行服用硝酸甘油，请按医生给出的间隔处理。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("利奈唑胺", "linezolid"),
+        groupB = listOf("氟西汀", "fluoxetine", "帕罗西汀", "paroxetine",
+            "舍曲林", "sertraline", "文拉法辛", "venlafaxine",
+            "度洛西汀", "duloxetine", "西酞普兰", "citalopram",
+            "抗抑郁"),
+        severity = InteractionSeverity.HIGH,
+        labelA = "利奈唑胺",
+        labelB = "SSRI / SNRI 抗抑郁药",
+        description = "利奈唑胺具有 MAOI 样作用，与 SSRI/SNRI 合用可诱发 5-HT 综合征。",
+        advice = "通常应避免合用；如感染治疗必须使用，请由医生评估停药、监测和替代方案。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("别嘌醇", "allopurinol", "非布司他", "febuxostat"),
+        groupB = listOf("硫唑嘌呤", "azathioprine", "巯嘌呤", "mercaptopurine"),
+        severity = InteractionSeverity.HIGH,
+        labelA = "黄嘌呤氧化酶抑制剂",
+        labelB = "硫唑嘌呤 / 巯嘌呤",
+        description = "别嘌醇/非布司他抑制嘌呤类免疫抑制剂代谢，可导致严重骨髓抑制和感染风险。",
+        advice = "避免自行合用；如必须合用，需医生大幅调整剂量并密切监测血常规。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("阿片", "吗啡", "morphine", "羟考酮", "oxycodone",
+            "芬太尼", "fentanyl", "曲马多", "tramadol", "可待因", "codeine",
+            "镇痛药"),
+        groupB = listOf("苯二氮", "地西泮", "diazepam", "劳拉西泮", "lorazepam",
+            "阿普唑仑", "alprazolam", "艾司唑仑", "estazolam",
+            "唑吡坦", "zolpidem", "佐匹克隆", "zopiclone", "镇静催眠"),
+        severity = InteractionSeverity.HIGH,
+        labelA = "阿片类镇痛药",
+        labelB = "苯二氮䓬 / Z-drug 镇静催眠药",
+        description = "中枢抑制作用叠加，可导致过度镇静、跌倒、呼吸抑制甚至死亡。",
+        advice = "避免合用或饮酒；如医生必须联用，应使用最低有效剂量并观察嗜睡、呼吸变慢等警示症状。",
+    ),
+
     // ── MODERATE ──────────────────────────────────────────────────────────────
+
+    InteractionRule(
+        groupA = listOf("acei", "血管紧张素转换酶抑制", "卡托普利", "captopril",
+            "依那普利", "enalapril", "赖诺普利", "lisinopril",
+            "培哚普利", "perindopril"),
+        groupB = listOf("arb", "血管紧张素受体拮抗", "缬沙坦", "valsartan",
+            "厄贝沙坦", "irbesartan", "氯沙坦", "losartan", "坎地沙坦", "candesartan"),
+        severity = InteractionSeverity.MODERATE,
+        labelA = "ACEI",
+        labelB = "ARB",
+        description = "ACEI 与 ARB 双重阻断肾素-血管紧张素系统，可能增加低血压、高血钾和肾功能损害风险。",
+        advice = "通常不建议常规合用；如专科医生要求合用，应监测血压、肌酐和血钾。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("acei", "arb", "血管紧张素转换酶抑制", "血管紧张素受体拮抗",
+            "卡托普利", "依那普利", "赖诺普利", "缬沙坦", "厄贝沙坦", "氯沙坦"),
+        groupB = listOf("氯化钾", "potassium chloride", "补钾", "钾片", "枸橼酸钾",
+            "保钾利尿", "螺内酯", "spironolactone", "阿米洛利", "amiloride"),
+        severity = InteractionSeverity.MODERATE,
+        labelA = "ACEI/ARB",
+        labelB = "补钾或保钾药",
+        description = "合用会增加高血钾风险，肾功能下降、老年人或脱水时更明显。",
+        advice = "不要自行补钾；合用时应按医嘱监测血钾和肾功能。",
+    ),
 
     InteractionRule(
         groupA = listOf("他汀", "statin", "辛伐他汀", "simvastatin",
@@ -243,6 +317,41 @@ private val RULES: List<InteractionRule> = listOf(
         advice = "合用时加强血糖监测，必要时减少磺脲剂量。",
     ),
 
+    InteractionRule(
+        groupA = listOf("茶碱", "theophylline", "氨茶碱", "aminophylline"),
+        groupB = listOf("环丙沙星", "ciprofloxacin", "依诺沙星", "enoxacin",
+            "氟伏沙明", "fluvoxamine"),
+        severity = InteractionSeverity.MODERATE,
+        labelA = "茶碱类",
+        labelB = "CYP1A2 抑制剂",
+        description = "上述药物可升高茶碱血药浓度，引起恶心、心悸、震颤、惊厥或心律失常。",
+        advice = "合用时需监测茶碱浓度和不良反应；出现心悸、手抖应及时联系医生。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("卡马西平", "carbamazepine", "苯妥英", "phenytoin",
+            "利福平", "rifampicin", "rifampin"),
+        groupB = listOf("利伐沙班", "rivaroxaban", "阿哌沙班", "apixaban",
+            "达比加群", "dabigatran", "依度沙班", "edoxaban",
+            "口服避孕", "炔雌醇", "ethinylestradiol"),
+        severity = InteractionSeverity.MODERATE,
+        labelA = "强酶诱导剂",
+        labelB = "DOAC / 口服避孕药",
+        description = "强酶诱导剂可降低部分抗凝药或口服避孕药血药浓度，导致疗效下降。",
+        advice = "合用前请让医生或药师评估替代药物、额外避孕方式或抗凝方案。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("左旋多巴", "levodopa", "多巴丝肼", "卡左双多巴"),
+        groupB = listOf("氟哌啶醇", "haloperidol", "利培酮", "risperidone",
+            "奥氮平", "olanzapine", "喹硫平", "quetiapine", "抗精神病"),
+        severity = InteractionSeverity.MODERATE,
+        labelA = "左旋多巴类",
+        labelB = "抗精神病药",
+        description = "多巴胺拮抗作用可能削弱左旋多巴疗效，导致帕金森症状加重。",
+        advice = "出现震颤、僵硬或行动变差时及时反馈；不要自行停用精神科药物。",
+    ),
+
     // ── LOW ───────────────────────────────────────────────────────────────────
 
     InteractionRule(
@@ -266,6 +375,17 @@ private val RULES: List<InteractionRule> = listOf(
         labelB = "布洛芬（NSAIDs）",
         description = "布洛芬与阿司匹林竞争 COX-1 结合位点，可削弱阿司匹林的心脏保护性抗血小板效果。",
         advice = "服用阿司匹林后至少 2 小时再服布洛芬；长期止痛优选对乙酰氨基酚。",
+    ),
+
+    InteractionRule(
+        groupA = listOf("辛伐他汀", "simvastatin", "阿托伐他汀", "atorvastatin",
+            "洛伐他汀", "lovastatin"),
+        groupB = listOf("葡萄柚", "西柚", "grapefruit"),
+        severity = InteractionSeverity.LOW,
+        labelA = "部分他汀类",
+        labelB = "葡萄柚 / 西柚",
+        description = "葡萄柚可抑制肠道 CYP3A4，升高部分他汀暴露量，增加肌痛和横纹肌溶解风险。",
+        advice = "服用辛伐他汀、洛伐他汀或阿托伐他汀期间，避免大量食用葡萄柚或西柚汁。",
     ),
 
     InteractionRule(

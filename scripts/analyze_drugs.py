@@ -5,7 +5,9 @@ import collections
 import os
 import re
 
-BASE = "/Users/driezy/Downloads/MedLogAndroid/app/src/main/assets/json"
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+RAW_BASE = os.path.join(PROJECT_ROOT, "scripts", "data")
+ASSET_BASE = os.path.join(PROJECT_ROOT, "app", "src", "main", "assets", "json")
 
 def analyze(path, label):
     with open(path, encoding="utf-8") as f:
@@ -120,8 +122,8 @@ def count_tree(tree, depth=0):
     return sum(count_tree(v, depth+1) for v in tree.values())
 
 # ---- 分析 ----
-drugs_data, _ = analyze(f"{BASE}/drugs.json", "drugs.json — 西药（ATC 分类）")
-tcm_data, _ = analyze(f"{BASE}/tcm_drugs_flat.json", "tcm_drugs_flat.json — 中成药")
+drugs_data, _ = analyze(os.path.join(RAW_BASE, "drugs.json"), "drugs.json — 西药（ATC 分类）")
+tcm_data, _ = analyze(os.path.join(RAW_BASE, "tcm_drugs_flat.json"), "tcm_drugs_flat.json — 中成药")
 
 # ---- 清理 ----
 print("\n\n" + "="*50)
@@ -135,8 +137,8 @@ print(f"西药: {len(drugs_data)} -> {len(drugs_clean)} (清理了 {len(drugs_da
 print(f"中药: {len(tcm_data)} -> {len(tcm_clean)} (清理了 {len(tcm_data)-len(tcm_clean)} 条)")
 
 # ---- 输出清理后的文件 ----
-out_drugs = f"{BASE}/drugs_clean.json"
-out_tcm = f"{BASE}/tcm_drugs_clean.json"
+out_drugs = os.path.join(ASSET_BASE, "drugs_clean.json")
+out_tcm = os.path.join(ASSET_BASE, "tcm_drugs_clean.json")
 
 with open(out_drugs, "w", encoding="utf-8") as f:
     json.dump(drugs_clean, f, ensure_ascii=False, indent=2)

@@ -15,7 +15,8 @@ import javax.inject.Singleton
 
 /**
  * 从 assets/json/ 加载药品数据库 JSON 文件
- * 支持 drugs.json（西药）和 tcm_drugs_flat.json（中成药）
+ * 运行时只打包清理后的 drugs_clean.json（西药）和 tcm_drugs_clean.json（中成药）。
+ * 原始数据保留在 scripts/data/，避免进入 APK assets。
  */
 @Singleton
 class DrugDataSource @Inject constructor(

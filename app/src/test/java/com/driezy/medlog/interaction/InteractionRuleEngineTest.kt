@@ -105,6 +105,38 @@ class InteractionRuleEngineTest {
         assertEquals(InteractionSeverity.LOW, results.first().severity)
     }
 
+    @Test
+    fun `nitrate + sildenafil produces HIGH interaction`() {
+        val results = engine.check(listOf(med("硝酸甘油"), med("西地那非")))
+
+        assertTrue(results.isNotEmpty())
+        assertEquals(InteractionSeverity.HIGH, results.first().severity)
+    }
+
+    @Test
+    fun `linezolid + ssri produces HIGH interaction`() {
+        val results = engine.check(listOf(med("利奈唑胺"), med("舍曲林")))
+
+        assertTrue(results.isNotEmpty())
+        assertEquals(InteractionSeverity.HIGH, results.first().severity)
+    }
+
+    @Test
+    fun `allopurinol + azathioprine produces HIGH interaction`() {
+        val results = engine.check(listOf(med("别嘌醇"), med("硫唑嘌呤")))
+
+        assertTrue(results.isNotEmpty())
+        assertEquals(InteractionSeverity.HIGH, results.first().severity)
+    }
+
+    @Test
+    fun `ciprofloxacin + theophylline produces MODERATE interaction`() {
+        val results = engine.check(listOf(med("环丙沙星"), med("茶碱")))
+
+        assertTrue(results.isNotEmpty())
+        assertEquals(InteractionSeverity.MODERATE, results.first().severity)
+    }
+
     // ─── 多药品、排序 ────────────────────────────────────────────────────────
 
     @Test
