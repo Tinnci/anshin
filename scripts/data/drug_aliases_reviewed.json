@@ -1,1117 +1,56 @@
 {
-  "阿司匹林": {
+  "13价肺炎球菌多糖结合疫苗": {
     "aliases": [
-      "aspirin",
-      "乙酰水杨酸",
-      "acetylsalicylic acid",
-      "ASA"
-    ],
-    "brandNames": [
-      "拜阿司匹灵"
+      "PCV13",
+      "沛儿13"
     ]
   },
-  "对乙酰氨基酚": {
+  "23价肺炎球菌多糖疫苗": {
     "aliases": [
-      "扑热息痛",
-      "acetaminophen",
-      "paracetamol",
-      "APAP",
-      "N-acetyl-p-aminophenol"
+      "PPSV23",
+      "纽莫法"
     ]
   },
-  "布洛芬": {
+  "丁丙诺啡": {
     "aliases": [
-      "ibuprofen",
-      "异丁苯丙酸",
-      "异丁洛芬",
-      "芬必得"
+      "buprenorphine"
     ]
   },
-  "二甲双胍": {
+  "丁卡因": {
     "aliases": [
-      "metformin",
-      "盐酸二甲双胍",
-      "格华止"
+      "tetracaine",
+      "地卡因"
     ]
   },
-  "阿莫西林": {
+  "丁咯地尔": {
     "aliases": [
-      "amoxicillin",
-      "羟氨苄青霉素",
-      "阿莫仙"
+      "buflomedil",
+      "活脑灵"
     ]
   },
-  "氨氯地平": {
+  "丁苯酞": {
     "aliases": [
-      "amlodipine",
-      "苯磺酸氨氯地平",
-      "络活喜"
+      "dl-3-n-butylphthalide",
+      "恩必普"
     ]
   },
-  "阿托伐他汀": {
+  "丁螺环酮": {
     "aliases": [
-      "atorvastatin",
-      "阿托伐他汀钙",
-      "立普妥"
+      "buspirone",
+      "一舒"
     ]
   },
-  "辛伐他汀": {
+  "丁酸氢化可的松": {
     "aliases": [
-      "simvastatin",
-      "舒降之"
+      "hydrocortisone butyrate",
+      "尤卓尔"
     ]
   },
-  "瑞舒伐他汀": {
+  "七氟烷": {
     "aliases": [
-      "rosuvastatin",
-      "瑞舒伐他汀钙",
-      "可定"
-    ]
-  },
-  "洛伐他汀": {
-    "aliases": [
-      "lovastatin"
-    ]
-  },
-  "普伐他汀": {
-    "aliases": [
-      "pravastatin",
-      "普伐他汀钠"
-    ]
-  },
-  "奥美拉唑": {
-    "aliases": [
-      "omeprazole",
-      "洛赛克"
-    ]
-  },
-  "氯吡格雷": {
-    "aliases": [
-      "clopidogrel",
-      "硫酸氢氯吡格雷",
-      "波立维"
-    ]
-  },
-  "华法林": {
-    "aliases": [
-      "warfarin",
-      "苄丙酮香豆素"
-    ]
-  },
-  "硝酸甘油": {
-    "aliases": [
-      "nitroglycerin",
-      "glyceryl trinitrate",
-      "三硝酸甘油酯",
-      "GTN"
-    ]
-  },
-  "西地那非": {
-    "aliases": [
-      "sildenafil",
-      "枸橼酸西地那非",
-      "万艾可"
-    ]
-  },
-  "利奈唑胺": {
-    "aliases": [
-      "linezolid",
-      "斯沃"
-    ]
-  },
-  "别嘌醇": {
-    "aliases": [
-      "allopurinol"
-    ]
-  },
-  "硫唑嘌呤": {
-    "aliases": [
-      "azathioprine",
-      "依木兰"
-    ]
-  },
-  "茶碱": {
-    "aliases": [
-      "theophylline",
-      "1,3-dimethylxanthine"
-    ]
-  },
-  "环丙沙星": {
-    "aliases": [
-      "ciprofloxacin"
-    ]
-  },
-  "左氧氟沙星": {
-    "aliases": [
-      "levofloxacin",
-      "可乐必妥"
-    ]
-  },
-  "甲硝唑": {
-    "aliases": [
-      "metronidazole",
-      "灭滴灵"
-    ]
-  },
-  "阿奇霉素": {
-    "aliases": [
-      "azithromycin",
-      "希舒美"
-    ]
-  },
-  "克拉霉素": {
-    "aliases": [
-      "clarithromycin",
-      "克拉仙"
-    ]
-  },
-  "氟康唑": {
-    "aliases": [
-      "fluconazole",
-      "大扶康"
-    ]
-  },
-  "氟西汀": {
-    "aliases": [
-      "fluoxetine",
-      "百忧解",
-      "Prozac"
-    ]
-  },
-  "舍曲林": {
-    "aliases": [
-      "sertraline",
-      "左洛复",
-      "Zoloft"
-    ]
-  },
-  "帕罗西汀": {
-    "aliases": [
-      "paroxetine",
-      "赛乐特",
-      "Paxil"
-    ]
-  },
-  "文拉法辛": {
-    "aliases": [
-      "venlafaxine",
-      "怡诺思",
-      "Effexor"
-    ]
-  },
-  "度洛西汀": {
-    "aliases": [
-      "duloxetine",
-      "欣百达",
-      "Cymbalta"
-    ]
-  },
-  "地高辛": {
-    "aliases": [
-      "digoxin",
-      "狄戈辛"
-    ]
-  },
-  "碳酸锂": {
-    "aliases": [
-      "lithium carbonate",
-      "lithium"
-    ]
-  },
-  "甲氨蝶呤": {
-    "aliases": [
-      "methotrexate",
-      "氨甲蝶呤",
-      "MTX"
-    ]
-  },
-  "缬沙坦": {
-    "aliases": [
-      "valsartan",
-      "代文"
-    ]
-  },
-  "氯沙坦": {
-    "aliases": [
-      "losartan",
-      "科素亚"
-    ]
-  },
-  "厄贝沙坦": {
-    "aliases": [
-      "irbesartan",
-      "安博维"
-    ]
-  },
-  "卡托普利": {
-    "aliases": [
-      "captopril"
-    ]
-  },
-  "依那普利": {
-    "aliases": [
-      "enalapril",
-      "依那普利马来酸盐"
-    ]
-  },
-  "赖诺普利": {
-    "aliases": [
-      "lisinopril"
-    ]
-  },
-  "螺内酯": {
-    "aliases": [
-      "spironolactone",
-      "安体舒通"
-    ]
-  },
-  "氯化钾": {
-    "aliases": [
-      "potassium chloride",
-      "KCl"
-    ]
-  },
-  "吗啡": {
-    "aliases": [
-      "morphine"
-    ]
-  },
-  "芬太尼": {
-    "aliases": [
-      "fentanyl"
-    ]
-  },
-  "曲马多": {
-    "aliases": [
-      "tramadol"
-    ]
-  },
-  "地西泮": {
-    "aliases": [
-      "diazepam",
-      "安定",
-      "Valium"
-    ]
-  },
-  "劳拉西泮": {
-    "aliases": [
-      "lorazepam",
-      "Ativan"
-    ]
-  },
-  "阿普唑仑": {
-    "aliases": [
-      "alprazolam",
-      "佳静安定",
-      "Xanax"
-    ]
-  },
-  "唑吡坦": {
-    "aliases": [
-      "zolpidem",
-      "思诺思",
-      "Ambien"
-    ]
-  },
-  "多西环素": {
-    "aliases": [
-      "doxycycline",
-      "强力霉素"
-    ]
-  },
-  "米诺环素": {
-    "aliases": [
-      "minocycline"
-    ]
-  },
-  "碳酸钙": {
-    "aliases": [
-      "calcium carbonate"
-    ]
-  },
-  "铝碳酸镁": {
-    "aliases": [
-      "hydrotalcite",
-      "达喜"
-    ]
-  },
-  "替格瑞洛": {
-    "aliases": [
-      "ticagrelor",
-      "倍林达"
-    ]
-  },
-  "普拉格雷": {
-    "aliases": [
-      "prasugrel",
-      "Effient"
-    ]
-  },
-  "泮托拉唑": {
-    "aliases": [
-      "pantoprazole",
-      "潘妥洛克"
-    ]
-  },
-  "兰索拉唑": {
-    "aliases": [
-      "lansoprazole",
-      "达克普隆"
-    ]
-  },
-  "胺碘酮": {
-    "aliases": [
-      "amiodarone",
-      "可达龙"
-    ]
-  },
-  "维拉帕米": {
-    "aliases": [
-      "verapamil",
-      "异搏定"
-    ]
-  },
-  "美托洛尔": {
-    "aliases": [
-      "metoprolol",
-      "倍他乐克",
-      "酒石酸美托洛尔"
-    ]
-  },
-  "阿替洛尔": {
-    "aliases": [
-      "atenolol",
-      "氨酰心安"
-    ]
-  },
-  "比索洛尔": {
-    "aliases": [
-      "bisoprolol",
-      "康忻",
-      "富马酸比索洛尔"
-    ]
-  },
-  "普萘洛尔": {
-    "aliases": [
-      "propranolol",
-      "心得安"
-    ]
-  },
-  "利伐沙班": {
-    "aliases": [
-      "rivaroxaban",
-      "拜瑞妥"
-    ]
-  },
-  "阿哌沙班": {
-    "aliases": [
-      "apixaban",
-      "艾乐妥"
-    ]
-  },
-  "达比加群": {
-    "aliases": [
-      "dabigatran",
-      "泰毕全"
-    ]
-  },
-  "卡马西平": {
-    "aliases": [
-      "carbamazepine",
-      "得理多",
-      "卡马西平片"
-    ]
-  },
-  "苯妥英": {
-    "aliases": [
-      "phenytoin",
-      "大仑丁"
-    ]
-  },
-  "利福平": {
-    "aliases": [
-      "rifampicin",
-      "rifampin",
-      "甲哌利福霉素"
-    ]
-  },
-  "他达拉非": {
-    "aliases": [
-      "tadalafil",
-      "希爱力"
-    ]
-  },
-  "伐地那非": {
-    "aliases": [
-      "vardenafil",
-      "艾力达"
-    ]
-  },
-  "氟哌啶醇": {
-    "aliases": [
-      "haloperidol",
-      "氟哌丁苯"
-    ]
-  },
-  "利培酮": {
-    "aliases": [
-      "risperidone",
-      "维思通"
-    ]
-  },
-  "奥氮平": {
-    "aliases": [
-      "olanzapine",
-      "再普乐"
-    ]
-  },
-  "喹硫平": {
-    "aliases": [
-      "quetiapine",
-      "思瑞康",
-      "富马酸喹硫平"
-    ]
-  },
-  "左旋多巴": {
-    "aliases": [
-      "levodopa",
-      "L-DOPA"
-    ]
-  },
-  "司来吉兰": {
-    "aliases": [
-      "selegiline",
-      "咪多吡"
-    ]
-  },
-  "苯乙肼": {
-    "aliases": [
-      "phenelzine"
-    ]
-  },
-  "西酞普兰": {
-    "aliases": [
-      "citalopram",
-      "喜普妙"
-    ]
-  },
-  "艾司唑仑": {
-    "aliases": [
-      "estazolam",
-      "舒乐安定"
-    ]
-  },
-  "佐匹克隆": {
-    "aliases": [
-      "zopiclone",
-      "三辰"
-    ]
-  },
-  "左甲状腺素": {
-    "aliases": [
-      "levothyroxine",
-      "优甲乐",
-      "左甲状腺素钠"
-    ]
-  },
-  "格列本脲": {
-    "aliases": [
-      "glibenclamide",
-      "优降糖"
-    ]
-  },
-  "格列美脲": {
-    "aliases": [
-      "glimepiride",
-      "亚莫利"
-    ]
-  },
-  "格列吡嗪": {
-    "aliases": [
-      "glipizide",
-      "美吡达"
-    ]
-  },
-  "格列齐特": {
-    "aliases": [
-      "gliclazide",
-      "达美康"
-    ]
-  },
-  "氨茶碱": {
-    "aliases": [
-      "aminophylline"
-    ]
-  },
-  "红霉素": {
-    "aliases": [
-      "erythromycin"
-    ]
-  },
-  "依诺沙星": {
-    "aliases": [
-      "enoxacin"
-    ]
-  },
-  "伏立康唑": {
-    "aliases": [
-      "voriconazole",
-      "威凡"
-    ]
-  },
-  "吲哚美辛": {
-    "aliases": [
-      "indomethacin",
-      "消炎痛"
-    ]
-  },
-  "萘普生": {
-    "aliases": [
-      "naproxen",
-      "甲氧萘丙酸"
-    ]
-  },
-  "羟考酮": {
-    "aliases": [
-      "oxycodone",
-      "奥施康定"
-    ]
-  },
-  "可待因": {
-    "aliases": [
-      "codeine",
-      "甲基吗啡"
-    ]
-  },
-  "右美沙芬": {
-    "aliases": [
-      "dextromethorphan",
-      "右甲吗喃",
-      "美沙芬"
-    ]
-  },
-  "哌替啶": {
-    "aliases": [
-      "pethidine",
-      "度冷丁",
-      "meperidine"
-    ]
-  },
-  "阿米洛利": {
-    "aliases": [
-      "amiloride"
-    ]
-  },
-  "氨苯蝶啶": {
-    "aliases": [
-      "triamterene"
-    ]
-  },
-  "培哚普利": {
-    "aliases": [
-      "perindopril",
-      "雅施达"
-    ]
-  },
-  "坎地沙坦": {
-    "aliases": [
-      "candesartan",
-      "坎地沙坦酯",
-      "必洛斯"
-    ]
-  },
-  "伊曲康唑": {
-    "aliases": [
-      "itraconazole",
-      "斯皮仁诺"
-    ]
-  },
-  "酮康唑": {
-    "aliases": [
-      "ketoconazole",
-      "里素劳"
-    ]
-  },
-  "巯嘌呤": {
-    "aliases": [
-      "mercaptopurine",
-      "6-MP"
-    ]
-  },
-  "非布司他": {
-    "aliases": [
-      "febuxostat",
-      "非布索坦"
-    ]
-  },
-  "替硝唑": {
-    "aliases": [
-      "tinidazole"
-    ]
-  },
-  "头孢氨苄": {
-    "aliases": [
-      "cefalexin",
-      "头孢菌素IV",
-      "先锋霉素IV"
-    ]
-  },
-  "头孢克洛": {
-    "aliases": [
-      "cefaclor",
-      "希刻劳"
-    ]
-  },
-  "头孢呋辛": {
-    "aliases": [
-      "cefuroxime",
-      "西力欣"
-    ]
-  },
-  "头孢曲松": {
-    "aliases": [
-      "ceftriaxone",
-      "罗氏芬",
-      "头孢曲松钠"
-    ]
-  },
-  "头孢克肟": {
-    "aliases": [
-      "cefixime",
-      "世福素"
-    ]
-  },
-  "青霉素": {
-    "aliases": [
-      "penicillin",
-      "苄青霉素",
-      "青霉素G",
-      "盘尼西林"
-    ]
-  },
-  "苯唑西林": {
-    "aliases": [
-      "oxacillin",
-      "苯唑西林钠"
-    ]
-  },
-  "哌拉西林": {
-    "aliases": [
-      "piperacillin",
-      "哌拉西林钠"
-    ]
-  },
-  "复方磺胺甲噁唑": {
-    "aliases": [
-      "co-trimoxazole",
-      "SMZ-TMP",
-      "复方新诺明",
-      "百炎净"
-    ]
-  },
-  "硝苯地平": {
-    "aliases": [
-      "nifedipine",
-      "拜新同",
-      "心痛定",
-      "硝苯地平控释片"
-    ]
-  },
-  "非洛地平": {
-    "aliases": [
-      "felodipine",
-      "波依定"
-    ]
-  },
-  "拉西地平": {
-    "aliases": [
-      "lacidipine",
-      "乐息平"
-    ]
-  },
-  "贝那普利": {
-    "aliases": [
-      "benazepril",
-      "洛汀新",
-      "盐酸贝那普利"
-    ]
-  },
-  "特拉唑嗪": {
-    "aliases": [
-      "terazosin",
-      "高特灵",
-      "盐酸特拉唑嗪"
-    ]
-  },
-  "阿卡波糖": {
-    "aliases": [
-      "acarbose",
-      "拜唐苹"
-    ]
-  },
-  "瑞格列奈": {
-    "aliases": [
-      "repaglinide",
-      "诺和龙"
-    ]
-  },
-  "那格列奈": {
-    "aliases": [
-      "nateglinide",
-      "唐力"
-    ]
-  },
-  "达格列净": {
-    "aliases": [
-      "dapagliflozin",
-      "安达唐"
-    ]
-  },
-  "恩格列净": {
-    "aliases": [
-      "empagliflozin",
-      "欧唐静"
-    ]
-  },
-  "西格列汀": {
-    "aliases": [
-      "sitagliptin",
-      "捷诺维",
-      "磷酸西格列汀"
-    ]
-  },
-  "利格列汀": {
-    "aliases": [
-      "linagliptin",
-      "欧唐宁"
-    ]
-  },
-  "吡格列酮": {
-    "aliases": [
-      "pioglitazone",
-      "艾可拓",
-      "盐酸吡格列酮"
-    ]
-  },
-  "罗格列酮": {
-    "aliases": [
-      "rosiglitazone",
-      "文迪雅"
-    ]
-  },
-  "氟伐他汀": {
-    "aliases": [
-      "fluvastatin",
-      "来适可",
-      "氟伐他汀钠"
-    ]
-  },
-  "雷贝拉唑": {
-    "aliases": [
-      "rabeprazole",
-      "波利特",
-      "雷贝拉唑钠"
-    ]
-  },
-  "氯雷他定": {
-    "aliases": [
-      "loratadine",
-      "开瑞坦",
-      "氯雷他定片"
-    ]
-  },
-  "西替利嗪": {
-    "aliases": [
-      "cetirizine",
-      "仙特明",
-      "盐酸西替利嗪"
-    ]
-  },
-  "伪麻黄碱": {
-    "aliases": [
-      "pseudoephedrine",
-      "盐酸伪麻黄碱"
-    ]
-  },
-  "特比萘芬": {
-    "aliases": [
-      "terbinafine",
-      "兰美抒",
-      "盐酸特比萘芬"
-    ]
-  },
-  "氯硝西泮": {
-    "aliases": [
-      "clonazepam",
-      "氯硝安定"
-    ]
-  },
-  "咪达唑仑": {
-    "aliases": [
-      "midazolam",
-      "咪唑安定",
-      "力月西"
-    ]
-  },
-  "米氮平": {
-    "aliases": [
-      "mirtazapine",
-      "瑞美隆"
-    ]
-  },
-  "曲唑酮": {
-    "aliases": [
-      "trazodone",
-      "美抒玉",
-      "盐酸曲唑酮"
-    ]
-  },
-  "阿立哌唑": {
-    "aliases": [
-      "aripiprazole",
-      "安律凡",
-      "奥派"
-    ]
-  },
-  "氯氮平": {
-    "aliases": [
-      "clozapine",
-      "氯扎平"
-    ]
-  },
-  "丙戊酸钠": {
-    "aliases": [
-      "sodium valproate",
-      "德巴金"
-    ]
-  },
-  "拉莫三嗪": {
-    "aliases": [
-      "lamotrigine",
-      "利必通"
-    ]
-  },
-  "左乙拉西坦": {
-    "aliases": [
-      "levetiracetam",
-      "开浦兰"
-    ]
-  },
-  "加巴喷丁": {
-    "aliases": [
-      "gabapentin",
-      "迭力"
-    ]
-  },
-  "普瑞巴林": {
-    "aliases": [
-      "pregabalin",
-      "乐瑞卡"
-    ]
-  },
-  "塞来昔布": {
-    "aliases": [
-      "celecoxib",
-      "西乐葆"
-    ]
-  },
-  "美洛昔康": {
-    "aliases": [
-      "meloxicam",
-      "莫比可"
-    ]
-  },
-  "酮咯酸": {
-    "aliases": [
-      "ketorolac",
-      "酮咯酸氨丁三醇"
-    ]
-  },
-  "尼可地尔": {
-    "aliases": [
-      "nicorandil",
-      "喜格迈"
-    ]
-  },
-  "曲美他嗪": {
-    "aliases": [
-      "trimetazidine",
-      "万爽力",
-      "盐酸曲美他嗪"
-    ]
-  },
-  "沙丁胺醇": {
-    "aliases": [
-      "salbutamol",
-      "albuterol",
-      "万托林",
-      "舒喘灵"
-    ]
-  },
-  "布地奈德": {
-    "aliases": [
-      "budesonide",
-      "普米克",
-      "雷诺考特"
-    ]
-  },
-  "异丙托溴铵": {
-    "aliases": [
-      "ipratropium",
-      "爱全乐"
-    ]
-  },
-  "孟鲁司特": {
-    "aliases": [
-      "montelukast",
-      "顺尔宁",
-      "孟鲁司特钠"
-    ]
-  },
-  "多潘立酮": {
-    "aliases": [
-      "domperidone",
-      "吗丁啉"
-    ]
-  },
-  "莫沙必利": {
-    "aliases": [
-      "mosapride",
-      "枸橼酸莫沙必利",
-      "加斯清"
-    ]
-  },
-  "蒙脱石": {
-    "aliases": [
-      "montmorillonite",
-      "思密达",
-      "蒙脱石散"
-    ]
-  },
-  "莫匹罗星": {
-    "aliases": [
-      "mupirocin",
-      "百多邦"
-    ]
-  },
-  "夫西地酸": {
-    "aliases": [
-      "fusidic acid",
-      "夫西地酸钠",
-      "立思丁"
-    ]
-  },
-  "阿莫西林/克拉维酸": {
-    "aliases": [
-      "amoxicillin/clavulanate",
-      "amoxiclav",
-      "安灭菌",
-      "奥格门汀",
-      "阿莫克拉"
-    ]
-  },
-  "头孢他啶": {
-    "aliases": [
-      "ceftazidime",
-      "复达欣",
-      "头孢他啶钠"
-    ]
-  },
-  "头孢噻肟": {
-    "aliases": [
-      "cefotaxime",
-      "头孢噻肟钠",
-      "凯福隆"
-    ]
-  },
-  "头孢哌酮": {
-    "aliases": [
-      "cefoperazone",
-      "头孢哌酮钠",
-      "先锋必"
-    ]
-  },
-  "头孢吡肟": {
-    "aliases": [
-      "cefepime",
-      "马斯平",
-      "头孢吡肟钠"
-    ]
-  },
-  "头孢地尼": {
-    "aliases": [
-      "cefdinir",
-      "世扶尼"
-    ]
-  },
-  "头孢丙烯": {
-    "aliases": [
-      "cefprozil",
-      "施复捷"
-    ]
-  },
-  "头孢泊肟": {
-    "aliases": [
-      "cefpodoxime",
-      "头孢泊肟酯",
-      "搏拿"
-    ]
-  },
-  "头孢拉定": {
-    "aliases": [
-      "cefradine",
-      "cephradine",
-      "先锋霉素VI"
-    ]
-  },
-  "头孢唑林": {
-    "aliases": [
-      "cefazolin",
-      "头孢唑林钠",
-      "先锋霉素V"
-    ]
-  },
-  "美罗培南": {
-    "aliases": [
-      "meropenem",
-      "美平"
-    ]
-  },
-  "厄他培南": {
-    "aliases": [
-      "ertapenem",
-      "怡万之"
-    ]
-  },
-  "庆大霉素": {
-    "aliases": [
-      "gentamicin",
-      "硫酸庆大霉素"
-    ]
-  },
-  "阿米卡星": {
-    "aliases": [
-      "amikacin",
-      "丁胺卡那霉素",
-      "硫酸阿米卡星"
-    ]
-  },
-  "妥布霉素": {
-    "aliases": [
-      "tobramycin",
-      "硫酸妥布霉素"
-    ]
-  },
-  "四环素": {
-    "aliases": [
-      "tetracycline",
-      "盐酸四环素"
-    ]
-  },
-  "氯霉素": {
-    "aliases": [
-      "chloramphenicol",
-      "氯胺苯醇"
+      "sevoflurane",
+      "七氟醚",
+      "喜保福宁"
     ]
   },
   "万古霉素": {
@@ -1121,42 +60,778 @@
       "稳可信"
     ]
   },
-  "去甲万古霉素": {
+  "三唑仑": {
     "aliases": [
-      "norvancomycin",
-      "盐酸去甲万古霉素"
+      "triazolam",
+      "海乐神"
     ]
   },
-  "甲氧苄啶": {
+  "三氟拉嗪": {
     "aliases": [
-      "trimethoprim",
-      "TMP"
+      "trifluoperazine"
+    ],
+    "brandNames": [
+      "三氟拉嗪片"
     ]
   },
-  "呋喃妥因": {
+  "三氧化二砷": {
     "aliases": [
-      "nitrofurantoin",
-      "呋喃坦啶"
+      "arsenic trioxide",
+      "ATO"
+    ],
+    "brandNames": []
+  },
+  "三甲双酮": {
+    "aliases": [
+      "trimethadione"
     ]
   },
-  "阿昔洛韦": {
+  "丙卡特罗": {
     "aliases": [
-      "acyclovir",
-      "无环鸟苷",
-      "阿昔洛韦钠"
+      "procaterol",
+      "美普清"
     ]
   },
-  "更昔洛韦": {
+  "丙吡胺": {
     "aliases": [
-      "ganciclovir",
-      "丽科伟"
+      "disopyramide",
+      "达舒平"
     ]
   },
-  "奥司他韦": {
+  "丙哌维林": {
     "aliases": [
-      "oseltamivir",
-      "达菲",
-      "磷酸奥司他韦"
+      "propiverine"
+    ]
+  },
+  "丙帕他莫": {
+    "aliases": [
+      "propacetamol"
+    ]
+  },
+  "丙戊酰胺": {
+    "aliases": [
+      "valpromide",
+      "癫健安"
+    ]
+  },
+  "丙戊酸": {
+    "aliases": [
+      "valproic acid"
+    ]
+  },
+  "丙戊酸半钠": {
+    "aliases": [
+      "valproate semisodium",
+      "双丙戊酸钠"
+    ]
+  },
+  "丙戊酸钠": {
+    "aliases": [
+      "sodium valproate",
+      "德巴金"
+    ]
+  },
+  "丙戊酸镁": {
+    "aliases": [
+      "magnesium valproate"
+    ]
+  },
+  "丙泊酚": {
+    "aliases": [
+      "propofol",
+      "异丙酚",
+      "得普利麻"
+    ]
+  },
+  "丙环定": {
+    "aliases": [
+      "procyclidine",
+      "开马君"
+    ]
+  },
+  "丙硫异烟胺": {
+    "aliases": [
+      "prothionamide"
+    ]
+  },
+  "丙硫氧嘧啶": {
+    "aliases": [
+      "propylthiouracil",
+      "PTU"
+    ]
+  },
+  "丙磺舒": {
+    "aliases": [
+      "probenecid",
+      "羧苯磺胺"
+    ]
+  },
+  "丙米嗪": {
+    "aliases": [
+      "imipramine",
+      "米帕明"
+    ]
+  },
+  "丙美卡因": {
+    "aliases": [
+      "proparacaine",
+      "爱尔卡因"
+    ]
+  },
+  "东莨菪碱": {
+    "aliases": [
+      "scopolamine"
+    ]
+  },
+  "丝裂霉素": {
+    "aliases": [
+      "mitomycin",
+      "mitomycin C",
+      "MMC"
+    ],
+    "brandNames": [
+      "自力霉素"
+    ]
+  },
+  "两性霉素B": {
+    "aliases": [
+      "amphotericin B"
+    ]
+  },
+  "乌司他丁": {
+    "aliases": [
+      "ulinastatin",
+      "天普洛安"
+    ]
+  },
+  "乌司奴单抗": {
+    "aliases": [
+      "ustekinumab",
+      "喜达诺"
+    ]
+  },
+  "乌拉地尔": {
+    "aliases": [
+      "urapidil",
+      "亚宁定"
+    ]
+  },
+  "乐卡地平": {
+    "aliases": [
+      "lercanidipine",
+      "再宁平"
+    ]
+  },
+  "乙哌立松": {
+    "aliases": [
+      "eperisone",
+      "妙纳"
+    ]
+  },
+  "乙型肝炎疫苗": {
+    "aliases": [
+      "hepatitis B vaccine",
+      "乙肝疫苗"
+    ]
+  },
+  "乙琥胺": {
+    "aliases": [
+      "ethosuximide",
+      "柴伦丁"
+    ]
+  },
+  "乙胺丁醇": {
+    "aliases": [
+      "ethambutol",
+      "盐酸乙胺丁醇"
+    ]
+  },
+  "乙胺嘧啶": {
+    "aliases": [
+      "pyrimethamine",
+      "息疟定"
+    ]
+  },
+  "乙酰半胱氨酸": {
+    "aliases": [
+      "acetylcysteine",
+      "NAC",
+      "富露施"
+    ]
+  },
+  "乙酰唑胺": {
+    "aliases": [
+      "acetazolamide",
+      "醋氮酰胺"
+    ]
+  },
+  "乙醇": {
+    "aliases": [
+      "ethanol",
+      "酒精",
+      "alcohol"
+    ]
+  },
+  "乳果糖": {
+    "aliases": [
+      "lactulose",
+      "杜密克"
+    ]
+  },
+  "乳酸钙": {
+    "aliases": [
+      "calcium lactate"
+    ]
+  },
+  "乳酸钠": {
+    "aliases": [
+      "sodium lactate"
+    ]
+  },
+  "二巯丁二酸": {
+    "aliases": [
+      "succimer",
+      "DMSA"
+    ]
+  },
+  "二巯丙醇": {
+    "aliases": [
+      "dimercaprol",
+      "BAL"
+    ]
+  },
+  "二氮嗪": {
+    "aliases": [
+      "diazoxide",
+      "低压唑"
+    ]
+  },
+  "二甲双胍": {
+    "aliases": [
+      "metformin",
+      "盐酸二甲双胍",
+      "格华止"
+    ]
+  },
+  "二甲硅油": {
+    "aliases": [
+      "dimethicone"
+    ]
+  },
+  "二硫化硒": {
+    "aliases": [
+      "selenium sulfide",
+      "希尔生"
+    ]
+  },
+  "二羟丙茶碱": {
+    "aliases": [
+      "diprophylline",
+      "喘定"
+    ]
+  },
+  "亚叶酸钙": {
+    "aliases": [
+      "calcium folinate",
+      "CF",
+      "立可林"
+    ]
+  },
+  "亚甲蓝": {
+    "aliases": [
+      "methylthioninium chloride",
+      "methylene blue",
+      "美蓝"
+    ]
+  },
+  "交沙霉素": {
+    "aliases": [
+      "josamycin"
+    ]
+  },
+  "亮丙瑞林": {
+    "aliases": [
+      "leuprorelin",
+      "抑那通"
+    ]
+  },
+  "人免疫球蛋白": {
+    "aliases": [
+      "human immunoglobulin"
+    ]
+  },
+  "人凝血酶原复合物": {
+    "aliases": [
+      "prothrombin complex concentrate",
+      "PCC"
+    ]
+  },
+  "仑伐替尼": {
+    "aliases": [
+      "lenvatinib",
+      "乐卫玛"
+    ]
+  },
+  "他克莫司": {
+    "aliases": [
+      "tacrolimus",
+      "FK506",
+      "普特彼"
+    ]
+  },
+  "他卡西醇": {
+    "aliases": [
+      "tacalcitol"
+    ]
+  },
+  "他扎罗汀": {
+    "aliases": [
+      "tazarotene"
+    ]
+  },
+  "他氟前列素": {
+    "aliases": [
+      "tafluprost"
+    ]
+  },
+  "他莫昔芬": {
+    "aliases": [
+      "tamoxifen",
+      "三苯氧胺"
+    ]
+  },
+  "他达拉非": {
+    "aliases": [
+      "tadalafil",
+      "希爱力"
+    ]
+  },
+  "伊伐布雷定": {
+    "aliases": [
+      "ivabradine",
+      "可兰特"
+    ]
+  },
+  "伊布替尼": {
+    "aliases": [
+      "ibrutinib",
+      "亿珂"
+    ]
+  },
+  "伊托必利": {
+    "aliases": [
+      "itopride",
+      "瑞复啉"
+    ]
+  },
+  "伊拉地平": {
+    "aliases": [
+      "isradipine"
+    ]
+  },
+  "伊曲康唑": {
+    "aliases": [
+      "itraconazole",
+      "斯皮仁诺"
+    ]
+  },
+  "伊沙佐米": {
+    "aliases": [
+      "ixazomib",
+      "恩莱瑞"
+    ]
+  },
+  "伊洛前列素": {
+    "aliases": [
+      "iloprost",
+      "万他维"
+    ]
+  },
+  "伊班膦酸": {
+    "aliases": [
+      "ibandronic acid",
+      "邦罗力"
+    ]
+  },
+  "伊立替康": {
+    "aliases": [
+      "irinotecan",
+      "CPT-11",
+      "开普拓"
+    ]
+  },
+  "伊米苷酶": {
+    "aliases": [
+      "imiglucerase"
+    ]
+  },
+  "伊维菌素": {
+    "aliases": [
+      "ivermectin"
+    ]
+  },
+  "伊马替尼": {
+    "aliases": [
+      "imatinib",
+      "格列卫"
+    ]
+  },
+  "伏格列波糖": {
+    "aliases": [
+      "voglibose",
+      "倍欣"
+    ]
+  },
+  "伏硫西汀": {
+    "aliases": [
+      "vortioxetine"
+    ],
+    "brandNames": [
+      "布林特里克斯"
+    ]
+  },
+  "伏立康唑": {
+    "aliases": [
+      "voriconazole",
+      "威凡"
+    ]
+  },
+  "伐地那非": {
+    "aliases": [
+      "vardenafil",
+      "艾力达"
+    ]
+  },
+  "伐昔洛韦": {
+    "aliases": [
+      "valaciclovir",
+      "明竹欣"
+    ]
+  },
+  "伪麻黄碱": {
+    "aliases": [
+      "pseudoephedrine",
+      "盐酸伪麻黄碱"
+    ]
+  },
+  "伯氨喹": {
+    "aliases": [
+      "primaquine",
+      "磷酸伯氨喹"
+    ]
+  },
+  "佐匹克隆": {
+    "aliases": [
+      "zopiclone",
+      "三辰"
+    ]
+  },
+  "佐米曲普坦": {
+    "aliases": [
+      "zolmitriptan",
+      "佐米格"
+    ]
+  },
+  "依他尼酸": {
+    "aliases": [
+      "etacrynic acid",
+      "利尿酸"
+    ]
+  },
+  "依前列醇": {
+    "aliases": [
+      "epoprostenol",
+      "前列环素"
+    ]
+  },
+  "依卡倍特": {
+    "aliases": [
+      "ecabet",
+      "盖爽"
+    ]
+  },
+  "依奇珠单抗": {
+    "aliases": [
+      "ixekizumab",
+      "拓咨"
+    ]
+  },
+  "依巴斯汀": {
+    "aliases": [
+      "ebastine",
+      "苏迪"
+    ]
+  },
+  "依库珠单抗": {
+    "aliases": [
+      "eculizumab",
+      "舒立瑞"
+    ]
+  },
+  "依托咪酯": {
+    "aliases": [
+      "etomidate",
+      "宜妥利"
+    ]
+  },
+  "依托泊苷": {
+    "aliases": [
+      "etoposide",
+      "VP-16"
+    ]
+  },
+  "依托考昔": {
+    "aliases": [
+      "etoricoxib",
+      "安康信"
+    ]
+  },
+  "依折麦布": {
+    "aliases": [
+      "ezetimibe",
+      "益适纯"
+    ]
+  },
+  "依拉环素": {
+    "aliases": [
+      "eravacycline"
+    ]
+  },
+  "依普利酮": {
+    "aliases": [
+      "eplerenone"
+    ]
+  },
+  "依普沙坦": {
+    "aliases": [
+      "eprosartan",
+      "泰络欣"
+    ]
+  },
+  "依替巴肽": {
+    "aliases": [
+      "eptifibatide",
+      "埃替非巴肽"
+    ]
+  },
+  "依替米星": {
+    "aliases": [
+      "etimicin",
+      "悉能"
+    ]
+  },
+  "依替膦酸二钠": {
+    "aliases": [
+      "etidronate disodium",
+      "依膦"
+    ]
+  },
+  "依洛尤单抗": {
+    "aliases": [
+      "evolocumab",
+      "瑞百安"
+    ]
+  },
+  "依特卡肽": {
+    "aliases": [
+      "etelcalcetide"
+    ]
+  },
+  "依美斯汀": {
+    "aliases": [
+      "emedastine",
+      "埃美丁"
+    ]
+  },
+  "依西美坦": {
+    "aliases": [
+      "exemestane"
+    ],
+    "brandNames": [
+      "阿诺新"
+    ]
+  },
+  "依诺沙星": {
+    "aliases": [
+      "enoxacin"
+    ]
+  },
+  "依诺肝素": {
+    "aliases": [
+      "enoxaparin",
+      "依诺肝素钠",
+      "克赛"
+    ]
+  },
+  "依那普利": {
+    "aliases": [
+      "enalapril",
+      "依那普利马来酸盐"
+    ]
+  },
+  "依那西普": {
+    "aliases": [
+      "etanercept",
+      "恩利"
+    ]
+  },
+  "依降钙素": {
+    "aliases": [
+      "elcatonin",
+      "益盖宁"
+    ]
+  },
+  "依非韦伦": {
+    "aliases": [
+      "efavirenz",
+      "施多宁"
+    ]
+  },
+  "促卵泡素": {
+    "aliases": [
+      "follitropin",
+      "FSH",
+      "果纳芬"
+    ]
+  },
+  "倍他司汀": {
+    "aliases": [
+      "betahistine",
+      "敏使朗",
+      "甲磺酸倍他司汀"
+    ]
+  },
+  "倍他洛尔": {
+    "aliases": [
+      "betaxolol",
+      "盐酸倍他洛尔",
+      "贝特舒"
+    ]
+  },
+  "倍氯米松": {
+    "aliases": [
+      "beclomethasone",
+      "丙酸倍氯米松",
+      "必可酮"
+    ]
+  },
+  "克仑特罗": {
+    "aliases": [
+      "clenbuterol",
+      "氨哮素"
+    ]
+  },
+  "克唑替尼": {
+    "aliases": [
+      "crizotinib"
+    ],
+    "brandNames": [
+      "赛可瑞"
+    ]
+  },
+  "克拉屈滨": {
+    "aliases": [
+      "cladribine",
+      "2-CdA"
+    ],
+    "brandNames": [
+      "克拉屈滨注射液"
+    ]
+  },
+  "克拉霉素": {
+    "aliases": [
+      "clarithromycin",
+      "克拉仙"
+    ]
+  },
+  "克林霉素": {
+    "aliases": [
+      "clindamycin",
+      "盐酸克林霉素",
+      "氯洁霉素"
+    ]
+  },
+  "克立硼罗": {
+    "aliases": [
+      "crisaborole",
+      "舒坦明"
+    ]
+  },
+  "克罗米通": {
+    "aliases": [
+      "crotamiton",
+      "优力肤"
+    ]
+  },
+  "克霉唑": {
+    "aliases": [
+      "clotrimazole",
+      "凯妮汀"
+    ]
+  },
+  "兰地洛尔": {
+    "aliases": [
+      "landiolol"
+    ]
+  },
+  "兰瑞肽": {
+    "aliases": [
+      "lanreotide",
+      "索马杜林"
+    ]
+  },
+  "兰索拉唑": {
+    "aliases": [
+      "lansoprazole",
+      "达克普隆"
+    ]
+  },
+  "决奈达隆": {
+    "aliases": [
+      "dronedarone",
+      "迈达龙"
+    ]
+  },
+  "利伐沙班": {
+    "aliases": [
+      "rivaroxaban",
+      "拜瑞妥"
+    ]
+  },
+  "利可君": {
+    "aliases": [
+      "leucogen",
+      "利血生"
+    ]
+  },
+  "利司那肽": {
+    "aliases": [
+      "lixisenatide",
+      "利时敏"
+    ]
+  },
+  "利培酮": {
+    "aliases": [
+      "risperidone",
+      "维思通"
+    ]
+  },
+  "利多卡因": {
+    "aliases": [
+      "lidocaine",
+      "赛罗卡因"
+    ]
+  },
+  "利奈唑胺": {
+    "aliases": [
+      "linezolid",
+      "斯沃"
+    ]
+  },
+  "利妥昔单抗": {
+    "aliases": [
+      "rituximab",
+      "美罗华"
     ]
   },
   "利巴韦林": {
@@ -1166,17 +841,685 @@
       "三氮唑核苷"
     ]
   },
-  "恩替卡韦": {
+  "利扎曲普坦": {
     "aliases": [
-      "entecavir",
-      "博路定"
+      "rizatriptan"
     ]
   },
-  "替诺福韦": {
+  "利托那韦": {
     "aliases": [
-      "tenofovir",
-      "富马酸替诺福韦二吡呋酯",
-      "韦瑞德"
+      "ritonavir",
+      "利托那韦片"
+    ]
+  },
+  "利拉鲁肽": {
+    "aliases": [
+      "liraglutide",
+      "诺和力",
+      "利拉鲁肽注射液"
+    ]
+  },
+  "利格列汀": {
+    "aliases": [
+      "linagliptin",
+      "欧唐宁"
+    ]
+  },
+  "利福喷丁": {
+    "aliases": [
+      "rifapentine"
+    ]
+  },
+  "利福布汀": {
+    "aliases": [
+      "rifabutin"
+    ]
+  },
+  "利福平": {
+    "aliases": [
+      "rifampicin",
+      "rifampin",
+      "甲哌利福霉素"
+    ]
+  },
+  "利福昔明": {
+    "aliases": [
+      "rifaximin",
+      "昔服申"
+    ]
+  },
+  "利血平": {
+    "aliases": [
+      "reserpine",
+      "蛇根碱"
+    ]
+  },
+  "利那洛肽": {
+    "aliases": [
+      "linaclotide",
+      "令泽舒"
+    ]
+  },
+  "别嘌醇": {
+    "aliases": [
+      "allopurinol"
+    ]
+  },
+  "加兰他敏": {
+    "aliases": [
+      "galantamine",
+      "利忆灵"
+    ]
+  },
+  "加压素": {
+    "aliases": [
+      "vasopressin",
+      "抗利尿激素"
+    ]
+  },
+  "加巴喷丁": {
+    "aliases": [
+      "gabapentin",
+      "迭力"
+    ]
+  },
+  "加替沙星": {
+    "aliases": [
+      "gatifloxacin"
+    ]
+  },
+  "劳拉西泮": {
+    "aliases": [
+      "lorazepam",
+      "Ativan"
+    ]
+  },
+  "匹伐他汀": {
+    "aliases": [
+      "pitavastatin",
+      "力清之",
+      "匹伐他汀钙"
+    ]
+  },
+  "匹维溴铵": {
+    "aliases": [
+      "pinaverium bromide",
+      "得舒特"
+    ]
+  },
+  "十一酸睾酮": {
+    "aliases": [
+      "testosterone undecanoate",
+      "安特尔"
+    ]
+  },
+  "华法林": {
+    "aliases": [
+      "warfarin",
+      "苄丙酮香豆素"
+    ]
+  },
+  "单硝酸异山梨酯": {
+    "aliases": [
+      "isosorbide mononitrate",
+      "欣康",
+      "依姆多"
+    ]
+  },
+  "博来霉素": {
+    "aliases": [
+      "bleomycin",
+      "BLM"
+    ],
+    "brandNames": [
+      "博莱霉素"
+    ]
+  },
+  "卡介苗": {
+    "aliases": [
+      "BCG",
+      "bacillus Calmette-Guérin"
+    ]
+  },
+  "卡前列甲酯": {
+    "aliases": [
+      "carboprost methylate"
+    ]
+  },
+  "卡博替尼": {
+    "aliases": [
+      "cabozantinib",
+      "卡博替尼片"
+    ]
+  },
+  "卡培他滨": {
+    "aliases": [
+      "capecitabine",
+      "希罗达"
+    ]
+  },
+  "卡巴拉汀": {
+    "aliases": [
+      "rivastigmine",
+      "艾斯能"
+    ]
+  },
+  "卡托普利": {
+    "aliases": [
+      "captopril"
+    ]
+  },
+  "卡替洛尔": {
+    "aliases": [
+      "carteolol",
+      "美开朗"
+    ]
+  },
+  "卡格列净": {
+    "aliases": [
+      "canagliflozin",
+      "怡可安"
+    ]
+  },
+  "卡比马唑": {
+    "aliases": [
+      "carbimazole",
+      "甲亢平"
+    ]
+  },
+  "卡泊三醇": {
+    "aliases": [
+      "calcipotriol",
+      "达力士"
+    ]
+  },
+  "卡泊芬净": {
+    "aliases": [
+      "caspofungin",
+      "科赛斯"
+    ]
+  },
+  "卡维地洛": {
+    "aliases": [
+      "carvedilol",
+      "达利全",
+      "金络"
+    ]
+  },
+  "卡莫司汀": {
+    "aliases": [
+      "carmustine",
+      "BCNU"
+    ],
+    "brandNames": [
+      "卡氮芥"
+    ]
+  },
+  "卡铂": {
+    "aliases": [
+      "carboplatin",
+      "CBP"
+    ]
+  },
+  "卡非佐米": {
+    "aliases": [
+      "carfilzomib",
+      "凯洛斯"
+    ]
+  },
+  "卡马西平": {
+    "aliases": [
+      "carbamazepine",
+      "得理多",
+      "卡马西平片"
+    ]
+  },
+  "卡麦角林": {
+    "aliases": [
+      "cabergoline",
+      "诺果宁"
+    ]
+  },
+  "卢帕他定": {
+    "aliases": [
+      "rupatadine",
+      "敏奇"
+    ]
+  },
+  "卤米松": {
+    "aliases": [
+      "halometasone",
+      "澳能"
+    ]
+  },
+  "厄他培南": {
+    "aliases": [
+      "ertapenem",
+      "怡万之"
+    ]
+  },
+  "厄多司坦": {
+    "aliases": [
+      "erdosteine",
+      "露畅"
+    ]
+  },
+  "厄洛替尼": {
+    "aliases": [
+      "erlotinib",
+      "特罗凯"
+    ]
+  },
+  "厄贝沙坦": {
+    "aliases": [
+      "irbesartan",
+      "安博维"
+    ]
+  },
+  "厄贝沙坦/氢氯噻嗪": {
+    "aliases": [
+      "irbesartan/hydrochlorothiazide",
+      "安博诺"
+    ]
+  },
+  "去氨加压素": {
+    "aliases": [
+      "desmopressin",
+      "DDAVP",
+      "弥凝"
+    ]
+  },
+  "去甲万古霉素": {
+    "aliases": [
+      "norvancomycin",
+      "盐酸去甲万古霉素"
+    ]
+  },
+  "去甲肾上腺素": {
+    "aliases": [
+      "norepinephrine",
+      "noradrenaline",
+      "重酒石酸去甲肾上腺素"
+    ]
+  },
+  "去铁胺": {
+    "aliases": [
+      "deferoxamine",
+      "去铁敏"
+    ]
+  },
+  "去铁酮": {
+    "aliases": [
+      "deferiprone"
+    ]
+  },
+  "双嘧达莫": {
+    "aliases": [
+      "dipyridamole",
+      "潘生丁"
+    ]
+  },
+  "双歧杆菌": {
+    "aliases": [
+      "bifidobacterium",
+      "培菲康",
+      "双歧杆菌活菌"
+    ]
+  },
+  "双氢青蒿素": {
+    "aliases": [
+      "dihydroartemisinin",
+      "科泰新"
+    ]
+  },
+  "双氯芬酸": {
+    "aliases": [
+      "diclofenac",
+      "扶他林",
+      "英太青"
+    ]
+  },
+  "双环醇": {
+    "aliases": [
+      "bicyclol",
+      "百赛诺"
+    ]
+  },
+  "双醋瑞因": {
+    "aliases": [
+      "diacerein",
+      "安必丁"
+    ]
+  },
+  "可乐定": {
+    "aliases": [
+      "clonidine",
+      "可乐宁"
+    ]
+  },
+  "可待因": {
+    "aliases": [
+      "codeine",
+      "甲基吗啡"
+    ]
+  },
+  "可的松": {
+    "aliases": [
+      "cortisone",
+      "醋酸可的松"
+    ]
+  },
+  "右佐匹克隆": {
+    "aliases": [
+      "eszopiclone",
+      "文飞"
+    ]
+  },
+  "右兰索拉唑": {
+    "aliases": [
+      "dexlansoprazole",
+      "右兰索拉唑缓释胶囊"
+    ]
+  },
+  "右美沙芬": {
+    "aliases": [
+      "dextromethorphan",
+      "右甲吗喃",
+      "美沙芬"
+    ]
+  },
+  "叶酸": {
+    "aliases": [
+      "folic acid",
+      "维生素B9",
+      "folate"
+    ]
+  },
+  "司坦唑醇": {
+    "aliases": [
+      "stanozolol",
+      "康力龙"
+    ]
+  },
+  "司库奇尤单抗": {
+    "aliases": [
+      "secukinumab",
+      "可善挺"
+    ]
+  },
+  "司来吉兰": {
+    "aliases": [
+      "selegiline",
+      "咪多吡"
+    ]
+  },
+  "司美格鲁肽": {
+    "aliases": [
+      "semaglutide",
+      "诺和泰"
+    ]
+  },
+  "司莫司汀": {
+    "aliases": [
+      "semustine",
+      "MeCCNU"
+    ],
+    "brandNames": [
+      "西氮芥"
+    ]
+  },
+  "吉法酯": {
+    "aliases": [
+      "gefarnate",
+      "惠加强"
+    ]
+  },
+  "吉西他滨": {
+    "aliases": [
+      "gemcitabine",
+      "健择"
+    ]
+  },
+  "吉非替尼": {
+    "aliases": [
+      "gefitinib",
+      "易瑞沙"
+    ]
+  },
+  "吗啡": {
+    "aliases": [
+      "morphine"
+    ]
+  },
+  "吗替麦考酚酯": {
+    "aliases": [
+      "mycophenolate mofetil",
+      "MMF",
+      "骁悉"
+    ]
+  },
+  "吗氯贝胺": {
+    "aliases": [
+      "moclobemide",
+      "朗天"
+    ]
+  },
+  "吗茚酮": {
+    "aliases": [
+      "molindone"
+    ]
+  },
+  "吡哌酸": {
+    "aliases": [
+      "pipemidic acid"
+    ]
+  },
+  "吡喹酮": {
+    "aliases": [
+      "praziquantel"
+    ]
+  },
+  "吡嗪酰胺": {
+    "aliases": [
+      "pyrazinamide",
+      "PZA"
+    ]
+  },
+  "吡格列酮": {
+    "aliases": [
+      "pioglitazone",
+      "艾可拓",
+      "盐酸吡格列酮"
+    ]
+  },
+  "吡硫翁锌": {
+    "aliases": [
+      "zinc pyrithione"
+    ]
+  },
+  "吡硫醇": {
+    "aliases": [
+      "pyritinol",
+      "脑复新"
+    ]
+  },
+  "吡美莫司": {
+    "aliases": [
+      "pimecrolimus",
+      "爱宁达"
+    ]
+  },
+  "吡诺克辛": {
+    "aliases": [
+      "pirenoxine",
+      "白内停"
+    ]
+  },
+  "吲哚洛尔": {
+    "aliases": [
+      "pindolol",
+      "心得静"
+    ]
+  },
+  "吲哚美辛": {
+    "aliases": [
+      "indomethacin",
+      "消炎痛"
+    ]
+  },
+  "吲达帕胺": {
+    "aliases": [
+      "indapamide",
+      "纳催离",
+      "寿比山"
+    ]
+  },
+  "呋喃妥因": {
+    "aliases": [
+      "nitrofurantoin",
+      "呋喃坦啶"
+    ]
+  },
+  "呋塞米": {
+    "aliases": [
+      "furosemide",
+      "速尿",
+      "呋喃苯胺酸"
+    ]
+  },
+  "咪康唑": {
+    "aliases": [
+      "miconazole",
+      "达克宁"
+    ]
+  },
+  "咪达唑仑": {
+    "aliases": [
+      "midazolam",
+      "咪唑安定",
+      "力月西"
+    ]
+  },
+  "咪达普利": {
+    "aliases": [
+      "imidapril"
+    ]
+  },
+  "哈西奈德": {
+    "aliases": [
+      "halcinonide",
+      "乐肤液"
+    ]
+  },
+  "哌喹": {
+    "aliases": [
+      "piperaquine"
+    ]
+  },
+  "哌拉西林": {
+    "aliases": [
+      "piperacillin",
+      "哌拉西林钠"
+    ]
+  },
+  "哌替啶": {
+    "aliases": [
+      "pethidine",
+      "度冷丁",
+      "meperidine"
+    ]
+  },
+  "哌甲酯": {
+    "aliases": [
+      "methylphenidate",
+      "利他林",
+      "专注达"
+    ]
+  },
+  "唑吡坦": {
+    "aliases": [
+      "zolpidem",
+      "思诺思",
+      "Ambien"
+    ]
+  },
+  "唑尼沙胺": {
+    "aliases": [
+      "zonisamide",
+      "福丁宁"
+    ]
+  },
+  "唑来膦酸": {
+    "aliases": [
+      "zoledronic acid",
+      "密固达",
+      "择泰"
+    ]
+  },
+  "喷布洛尔": {
+    "aliases": [
+      "penbutolol"
+    ]
+  },
+  "喷托维林": {
+    "aliases": [
+      "pentoxyverine",
+      "咳必清"
+    ]
+  },
+  "喷昔洛韦": {
+    "aliases": [
+      "penciclovir",
+      "夫坦"
+    ]
+  },
+  "喹硫平": {
+    "aliases": [
+      "quetiapine",
+      "思瑞康",
+      "富马酸喹硫平"
+    ]
+  },
+  "喹那普利": {
+    "aliases": [
+      "quinapril"
+    ]
+  },
+  "噻吗洛尔": {
+    "aliases": [
+      "timolol",
+      "马来酸噻吗洛尔",
+      "噻吗心安"
+    ]
+  },
+  "噻托溴铵": {
+    "aliases": [
+      "tiotropium",
+      "思力华"
+    ]
+  },
+  "四环素": {
+    "aliases": [
+      "tetracycline",
+      "盐酸四环素"
+    ]
+  },
+  "地匹福林": {
+    "aliases": [
+      "dipivefrine"
+    ]
+  },
+  "地塞米松": {
+    "aliases": [
+      "dexamethasone",
+      "氟美松",
+      "地塞米松磷酸钠"
+    ]
+  },
+  "地奈德": {
+    "aliases": [
+      "desonide",
+      "地奈德乳膏"
     ]
   },
   "地尔硫䓬": {
@@ -1187,118 +1530,134 @@
       "盐酸地尔硫卓"
     ]
   },
-  "尼莫地平": {
+  "地拉罗司": {
     "aliases": [
-      "nimodipine",
-      "尼莫通"
+      "deferasirox",
+      "恩瑞格"
     ]
   },
-  "尼群地平": {
+  "地昔帕明": {
     "aliases": [
-      "nitrendipine"
+      "desipramine"
     ]
   },
-  "氨氯地平/阿托伐他汀": {
+  "地氟烷": {
     "aliases": [
-      "amlodipine/atorvastatin",
-      "多达一"
+      "desflurane",
+      "地氟醚",
+      "优宁"
     ]
   },
-  "缬沙坦/氨氯地平": {
+  "地特胰岛素": {
     "aliases": [
-      "valsartan/amlodipine",
-      "倍博特"
+      "insulin detemir",
+      "诺和平"
     ]
   },
-  "厄贝沙坦/氢氯噻嗪": {
+  "地红霉素": {
     "aliases": [
-      "irbesartan/hydrochlorothiazide",
-      "安博诺"
+      "dirithromycin"
     ]
   },
-  "氯沙坦/氢氯噻嗪": {
+  "地舒单抗": {
     "aliases": [
-      "losartan/hydrochlorothiazide",
-      "海捷亚"
+      "denosumab",
+      "普罗力"
     ]
   },
-  "氢氯噻嗪": {
+  "地蒽酚": {
     "aliases": [
-      "hydrochlorothiazide",
-      "HCTZ",
-      "双氢克尿噻"
+      "dithranol",
+      "蒽林"
     ]
   },
-  "呋塞米": {
+  "地西泮": {
     "aliases": [
-      "furosemide",
-      "速尿",
-      "呋喃苯胺酸"
+      "diazepam",
+      "安定",
+      "Valium"
     ]
   },
-  "布美他尼": {
+  "地高辛": {
     "aliases": [
-      "bumetanide",
-      "丁尿胺"
+      "digoxin",
+      "狄戈辛"
     ]
   },
-  "托拉塞米": {
+  "坎地沙坦": {
     "aliases": [
-      "torasemide",
-      "torsemide",
-      "特苏尼"
+      "candesartan",
+      "坎地沙坦酯",
+      "必洛斯"
     ]
   },
-  "卡维地洛": {
+  "坦索罗辛": {
     "aliases": [
-      "carvedilol",
-      "达利全",
-      "金络"
+      "tamsulosin",
+      "哈乐",
+      "盐酸坦索罗辛"
     ]
   },
-  "拉贝洛尔": {
+  "培哚普利": {
     "aliases": [
-      "labetalol",
-      "盐酸拉贝洛尔"
+      "perindopril",
+      "雅施达"
     ]
   },
-  "替米沙坦": {
+  "培哚普利/氨氯地平": {
     "aliases": [
-      "telmisartan",
-      "美卡素"
+      "perindopril/amlodipine",
+      "百安新"
     ]
   },
-  "奥美沙坦": {
+  "塞利洛尔": {
     "aliases": [
-      "olmesartan",
-      "奥美沙坦酯",
-      "傲坦"
+      "celiprolol"
     ]
   },
-  "奎尼丁": {
+  "塞来昔布": {
     "aliases": [
-      "quinidine",
-      "硫酸奎尼丁"
+      "celecoxib",
+      "西乐葆"
     ]
   },
-  "普罗帕酮": {
+  "壬二酸": {
     "aliases": [
-      "propafenone",
-      "心律平",
-      "悦复隆"
+      "azelaic acid",
+      "杜鹃花酸"
     ]
   },
-  "索他洛尔": {
+  "复方托吡卡胺": {
     "aliases": [
-      "sotalol",
-      "盐酸索他洛尔",
-      "施太可"
+      "compound tropicamide",
+      "美多丽P"
     ]
   },
-  "阿托品": {
+  "复方磺胺甲噁唑": {
     "aliases": [
-      "atropine",
-      "硫酸阿托品"
+      "co-trimoxazole",
+      "SMZ-TMP",
+      "复方新诺明",
+      "百炎净"
+    ]
+  },
+  "多佐胺": {
+    "aliases": [
+      "dorzolamide",
+      "添素得"
+    ]
+  },
+  "多塞平": {
+    "aliases": [
+      "doxepin",
+      "多虑平",
+      "盐酸多塞平"
+    ]
+  },
+  "多奈哌齐": {
+    "aliases": [
+      "donepezil",
+      "安理申"
     ]
   },
   "多巴胺": {
@@ -1313,384 +1672,34 @@
       "盐酸多巴酚丁胺"
     ]
   },
-  "去甲肾上腺素": {
+  "多廿烷醇": {
     "aliases": [
-      "norepinephrine",
-      "noradrenaline",
-      "重酒石酸去甲肾上腺素"
+      "policosanol"
     ]
   },
-  "肾上腺素": {
+  "多柔比星": {
     "aliases": [
-      "epinephrine",
-      "adrenaline",
-      "盐酸肾上腺素"
+      "doxorubicin",
+      "阿霉素",
+      "ADM"
     ]
   },
-  "硝酸异山梨酯": {
+  "多沙唑嗪": {
     "aliases": [
-      "isosorbide dinitrate",
-      "消心痛",
-      "异舒吉"
+      "doxazosin",
+      "甲磺酸多沙唑嗪"
     ]
   },
-  "单硝酸异山梨酯": {
+  "多潘立酮": {
     "aliases": [
-      "isosorbide mononitrate",
-      "欣康",
-      "依姆多"
+      "domperidone",
+      "吗丁啉"
     ]
   },
-  "肝素": {
+  "多烯磷脂酰胆碱": {
     "aliases": [
-      "heparin",
-      "普通肝素"
-    ]
-  },
-  "依诺肝素": {
-    "aliases": [
-      "enoxaparin",
-      "依诺肝素钠",
-      "克赛"
-    ]
-  },
-  "双嘧达莫": {
-    "aliases": [
-      "dipyridamole",
-      "潘生丁"
-    ]
-  },
-  "胰岛素": {
-    "aliases": [
-      "insulin",
-      "普通胰岛素",
-      "短效胰岛素"
-    ]
-  },
-  "门冬胰岛素": {
-    "aliases": [
-      "insulin aspart",
-      "诺和锐"
-    ]
-  },
-  "甘精胰岛素": {
-    "aliases": [
-      "insulin glargine",
-      "来得时",
-      "长秀霖"
-    ]
-  },
-  "赖脯胰岛素": {
-    "aliases": [
-      "insulin lispro",
-      "优泌乐"
-    ]
-  },
-  "利拉鲁肽": {
-    "aliases": [
-      "liraglutide",
-      "诺和力",
-      "利拉鲁肽注射液"
-    ]
-  },
-  "司美格鲁肽": {
-    "aliases": [
-      "semaglutide",
-      "诺和泰"
-    ]
-  },
-  "度拉糖肽": {
-    "aliases": [
-      "dulaglutide",
-      "度易达"
-    ]
-  },
-  "艾托格列净": {
-    "aliases": [
-      "ertugliflozin"
-    ]
-  },
-  "丙戊酸": {
-    "aliases": [
-      "valproic acid"
-    ]
-  },
-  "托吡酯": {
-    "aliases": [
-      "topiramate",
-      "妥泰"
-    ]
-  },
-  "奥卡西平": {
-    "aliases": [
-      "oxcarbazepine",
-      "曲莱"
-    ]
-  },
-  "氯米帕明": {
-    "aliases": [
-      "clomipramine",
-      "氯丙咪嗪",
-      "安拿芬尼"
-    ]
-  },
-  "阿米替林": {
-    "aliases": [
-      "amitriptyline",
-      "盐酸阿米替林"
-    ]
-  },
-  "多塞平": {
-    "aliases": [
-      "doxepin",
-      "多虑平",
-      "盐酸多塞平"
-    ]
-  },
-  "马普替林": {
-    "aliases": [
-      "maprotiline",
-      "路滴美"
-    ]
-  },
-  "金刚烷胺": {
-    "aliases": [
-      "amantadine",
-      "盐酸金刚烷胺"
-    ]
-  },
-  "苯海索": {
-    "aliases": [
-      "trihexyphenidyl",
-      "安坦"
-    ]
-  },
-  "恩他卡朋": {
-    "aliases": [
-      "entacapone",
-      "珂丹"
-    ]
-  },
-  "苯海拉明": {
-    "aliases": [
-      "diphenhydramine",
-      "盐酸苯海拉明"
-    ]
-  },
-  "异丙嗪": {
-    "aliases": [
-      "promethazine",
-      "非那根",
-      "盐酸异丙嗪"
-    ]
-  },
-  "哌甲酯": {
-    "aliases": [
-      "methylphenidate",
-      "利他林",
-      "专注达"
-    ]
-  },
-  "托莫西汀": {
-    "aliases": [
-      "atomoxetine",
-      "择思达"
-    ]
-  },
-  "福莫特罗": {
-    "aliases": [
-      "formoterol",
-      "富马酸福莫特罗",
-      "奥克斯都保"
-    ]
-  },
-  "茚达特罗": {
-    "aliases": [
-      "indacaterol",
-      "昂润"
-    ]
-  },
-  "噻托溴铵": {
-    "aliases": [
-      "tiotropium",
-      "思力华"
-    ]
-  },
-  "格隆溴铵": {
-    "aliases": [
-      "glycopyrronium",
-      "glycopyrrolate"
-    ]
-  },
-  "氟替卡松": {
-    "aliases": [
-      "fluticasone",
-      "辅舒酮",
-      "氟替卡松丙酸酯"
-    ]
-  },
-  "倍氯米松": {
-    "aliases": [
-      "beclomethasone",
-      "丙酸倍氯米松",
-      "必可酮"
-    ]
-  },
-  "环索奈德": {
-    "aliases": [
-      "ciclesonide",
-      "Alvesco"
-    ]
-  },
-  "氨溴索": {
-    "aliases": [
-      "ambroxol",
-      "盐酸氨溴索",
-      "沐舒坦"
-    ]
-  },
-  "乙酰半胱氨酸": {
-    "aliases": [
-      "acetylcysteine",
-      "NAC",
-      "富露施"
-    ]
-  },
-  "羧甲司坦": {
-    "aliases": [
-      "carbocisteine",
-      "羧甲司坦口服液"
-    ]
-  },
-  "氯苯那敏": {
-    "aliases": [
-      "chlorphenamine",
-      "扑尔敏",
-      "马来酸氯苯那敏"
-    ]
-  },
-  "酮替芬": {
-    "aliases": [
-      "ketotifen",
-      "富马酸酮替芬"
-    ]
-  },
-  "法莫替丁": {
-    "aliases": [
-      "famotidine",
-      "高舒达"
-    ]
-  },
-  "雷尼替丁": {
-    "aliases": [
-      "ranitidine",
-      "善胃得",
-      "盐酸雷尼替丁"
-    ]
-  },
-  "西咪替丁": {
-    "aliases": [
-      "cimetidine",
-      "泰胃美"
-    ]
-  },
-  "硫糖铝": {
-    "aliases": [
-      "sucralfate",
-      "迪先"
-    ]
-  },
-  "米索前列醇": {
-    "aliases": [
-      "misoprostol",
-      "喜克溃"
-    ]
-  },
-  "柳氮磺吡啶": {
-    "aliases": [
-      "sulfasalazine",
-      "SASP"
-    ]
-  },
-  "昂丹司琼": {
-    "aliases": [
-      "ondansetron",
-      "枢复宁"
-    ]
-  },
-  "格拉司琼": {
-    "aliases": [
-      "granisetron",
-      "凯特瑞"
-    ]
-  },
-  "乳果糖": {
-    "aliases": [
-      "lactulose",
-      "杜密克"
-    ]
-  },
-  "比沙可啶": {
-    "aliases": [
-      "bisacodyl",
-      "便塞停"
-    ]
-  },
-  "聚乙二醇": {
-    "aliases": [
-      "polyethylene glycol",
-      "PEG",
-      "福松"
-    ]
-  },
-  "西甲硅油": {
-    "aliases": [
-      "simethicone",
-      "柏西"
-    ]
-  },
-  "双氯芬酸": {
-    "aliases": [
-      "diclofenac",
-      "扶他林",
-      "英太青"
-    ]
-  },
-  "依托考昔": {
-    "aliases": [
-      "etoricoxib",
-      "安康信"
-    ]
-  },
-  "丙帕他莫": {
-    "aliases": [
-      "propacetamol"
-    ]
-  },
-  "环磷酰胺": {
-    "aliases": [
-      "cyclophosphamide",
-      "CTX",
-      "环磷酰胺片"
-    ]
-  },
-  "顺铂": {
-    "aliases": [
-      "cisplatin",
-      "DDP",
-      "顺氯氨铂"
-    ]
-  },
-  "卡铂": {
-    "aliases": [
-      "carboplatin",
-      "CBP"
-    ]
-  },
-  "紫杉醇": {
-    "aliases": [
-      "paclitaxel",
-      "泰素"
+      "polyene phosphatidylcholine",
+      "易善复"
     ]
   },
   "多西他赛": {
@@ -1700,40 +1709,535 @@
       "泰索帝"
     ]
   },
-  "卡培他滨": {
+  "多西环素": {
     "aliases": [
-      "capecitabine",
-      "希罗达"
+      "doxycycline",
+      "强力霉素"
     ]
   },
-  "吉西他滨": {
+  "大观霉素": {
     "aliases": [
-      "gemcitabine",
-      "健择"
+      "spectinomycin",
+      "淋必治"
     ]
   },
-  "伊马替尼": {
+  "天麻素": {
     "aliases": [
-      "imatinib",
-      "格列卫"
+      "gastrodin"
     ]
   },
-  "厄洛替尼": {
+  "夫西地酸": {
     "aliases": [
-      "erlotinib",
-      "特罗凯"
+      "fusidic acid",
+      "夫西地酸钠",
+      "立思丁"
     ]
   },
-  "吉非替尼": {
+  "头孢丙烯": {
     "aliases": [
-      "gefitinib",
-      "易瑞沙"
+      "cefprozil",
+      "施复捷"
+    ]
+  },
+  "头孢他啶": {
+    "aliases": [
+      "ceftazidime",
+      "复达欣",
+      "头孢他啶钠"
+    ]
+  },
+  "头孢克洛": {
+    "aliases": [
+      "cefaclor",
+      "希刻劳"
+    ]
+  },
+  "头孢克肟": {
+    "aliases": [
+      "cefixime",
+      "世福素"
+    ]
+  },
+  "头孢吡肟": {
+    "aliases": [
+      "cefepime",
+      "马斯平",
+      "头孢吡肟钠"
+    ]
+  },
+  "头孢呋辛": {
+    "aliases": [
+      "cefuroxime",
+      "西力欣"
+    ]
+  },
+  "头孢哌酮": {
+    "aliases": [
+      "cefoperazone",
+      "头孢哌酮钠",
+      "先锋必"
+    ]
+  },
+  "头孢唑林": {
+    "aliases": [
+      "cefazolin",
+      "头孢唑林钠",
+      "先锋霉素V"
+    ]
+  },
+  "头孢噻肟": {
+    "aliases": [
+      "cefotaxime",
+      "头孢噻肟钠",
+      "凯福隆"
+    ]
+  },
+  "头孢地尼": {
+    "aliases": [
+      "cefdinir",
+      "世扶尼"
+    ]
+  },
+  "头孢拉定": {
+    "aliases": [
+      "cefradine",
+      "cephradine",
+      "先锋霉素VI"
+    ]
+  },
+  "头孢曲松": {
+    "aliases": [
+      "ceftriaxone",
+      "罗氏芬",
+      "头孢曲松钠"
+    ]
+  },
+  "头孢氨苄": {
+    "aliases": [
+      "cefalexin",
+      "头孢菌素IV",
+      "先锋霉素IV"
+    ]
+  },
+  "头孢泊肟": {
+    "aliases": [
+      "cefpodoxime",
+      "头孢泊肟酯",
+      "搏拿"
+    ]
+  },
+  "头孢美唑": {
+    "aliases": [
+      "cefmetazole"
+    ],
+    "brandNames": [
+      "头孢美唑钠"
+    ]
+  },
+  "头孢西丁": {
+    "aliases": [
+      "cefoxitin"
+    ],
+    "brandNames": [
+      "头孢西丁钠"
+    ]
+  },
+  "夸西泮": {
+    "aliases": [
+      "quazepam"
+    ]
+  },
+  "奈必洛尔": {
+    "aliases": [
+      "nebivolol",
+      "奈必洛尔片"
+    ]
+  },
+  "奈替米星": {
+    "aliases": [
+      "netilmicin"
+    ]
+  },
+  "奈西立肽": {
+    "aliases": [
+      "nesiritide",
+      "新活素"
+    ]
+  },
+  "奋乃静": {
+    "aliases": [
+      "perphenazine"
+    ],
+    "brandNames": [
+      "奋乃静片"
+    ]
+  },
+  "奎宁": {
+    "aliases": [
+      "quinine",
+      "金鸡纳霜"
+    ]
+  },
+  "奎尼丁": {
+    "aliases": [
+      "quinidine",
+      "硫酸奎尼丁"
+    ]
+  },
+  "奥利司他": {
+    "aliases": [
+      "orlistat",
+      "赛尼可",
+      "舒尔佳"
+    ]
+  },
+  "奥卡西平": {
+    "aliases": [
+      "oxcarbazepine",
+      "曲莱"
+    ]
+  },
+  "奥司他韦": {
+    "aliases": [
+      "oseltamivir",
+      "达菲",
+      "磷酸奥司他韦"
+    ]
+  },
+  "奥布卡因": {
+    "aliases": [
+      "oxybuprocaine",
+      "倍诺喜"
     ]
   },
   "奥希替尼": {
     "aliases": [
       "osimertinib",
       "泰瑞沙"
+    ]
+  },
+  "奥拉西坦": {
+    "aliases": [
+      "oxiracetam",
+      "欣可来"
+    ]
+  },
+  "奥昔布宁": {
+    "aliases": [
+      "oxybutynin",
+      "尿多灵"
+    ]
+  },
+  "奥曲肽": {
+    "aliases": [
+      "octreotide",
+      "善宁"
+    ]
+  },
+  "奥替溴铵": {
+    "aliases": [
+      "otilonium bromide",
+      "斯巴敏"
+    ]
+  },
+  "奥氮平": {
+    "aliases": [
+      "olanzapine",
+      "再普乐"
+    ]
+  },
+  "奥沙利铂": {
+    "aliases": [
+      "oxaliplatin",
+      "L-OHP",
+      "乐沙定"
+    ]
+  },
+  "奥沙西泮": {
+    "aliases": [
+      "oxazepam"
+    ],
+    "brandNames": [
+      "去甲羟基安定"
+    ]
+  },
+  "奥洛他定": {
+    "aliases": [
+      "olopatadine",
+      "帕坦洛"
+    ]
+  },
+  "奥美拉唑": {
+    "aliases": [
+      "omeprazole",
+      "洛赛克"
+    ]
+  },
+  "奥美沙坦": {
+    "aliases": [
+      "olmesartan",
+      "奥美沙坦酯",
+      "傲坦"
+    ]
+  },
+  "奥马环素": {
+    "aliases": [
+      "omadacycline",
+      "Nuzyra"
+    ]
+  },
+  "奥马珠单抗": {
+    "aliases": [
+      "omalizumab",
+      "茁乐"
+    ]
+  },
+  "妥布霉素": {
+    "aliases": [
+      "tobramycin",
+      "硫酸妥布霉素"
+    ]
+  },
+  "孟鲁司特": {
+    "aliases": [
+      "montelukast",
+      "顺尔宁",
+      "孟鲁司特钠"
+    ]
+  },
+  "安立生坦": {
+    "aliases": [
+      "ambrisentan",
+      "凡瑞克"
+    ]
+  },
+  "安非他酮": {
+    "aliases": [
+      "bupropion",
+      "悦亭"
+    ]
+  },
+  "富马酸亚铁": {
+    "aliases": [
+      "ferrous fumarate"
+    ]
+  },
+  "对乙酰氨基酚": {
+    "aliases": [
+      "扑热息痛",
+      "acetaminophen",
+      "paracetamol",
+      "APAP",
+      "N-acetyl-p-aminophenol"
+    ]
+  },
+  "小檗碱": {
+    "aliases": [
+      "berberine",
+      "黄连素"
+    ]
+  },
+  "尼卡地平": {
+    "aliases": [
+      "nicardipine",
+      "佩尔地平"
+    ]
+  },
+  "尼可地尔": {
+    "aliases": [
+      "nicorandil",
+      "喜格迈"
+    ]
+  },
+  "尼尔雌醇": {
+    "aliases": [
+      "nilestriol",
+      "维尼安"
+    ]
+  },
+  "尼替西农": {
+    "aliases": [
+      "nitisinone"
+    ]
+  },
+  "尼索地平": {
+    "aliases": [
+      "nisoldipine"
+    ]
+  },
+  "尼群地平": {
+    "aliases": [
+      "nitrendipine"
+    ]
+  },
+  "尼莫司汀": {
+    "aliases": [
+      "nimustine",
+      "ACNU"
+    ],
+    "brandNames": [
+      "尼氮芥"
+    ]
+  },
+  "尼莫地平": {
+    "aliases": [
+      "nimodipine",
+      "尼莫通"
+    ]
+  },
+  "尼麦角林": {
+    "aliases": [
+      "nicergoline",
+      "思尔明"
+    ]
+  },
+  "尿促性素": {
+    "aliases": [
+      "menotropin",
+      "HMG",
+      "丽申宝"
+    ]
+  },
+  "尿激酶": {
+    "aliases": [
+      "urokinase",
+      "UK"
+    ]
+  },
+  "尿素": {
+    "aliases": [
+      "urea",
+      "尿素乳膏"
+    ]
+  },
+  "山莨菪碱": {
+    "aliases": [
+      "anisodamine",
+      "654-2"
+    ]
+  },
+  "左乙拉西坦": {
+    "aliases": [
+      "levetiracetam",
+      "开浦兰"
+    ]
+  },
+  "左布比卡因": {
+    "aliases": [
+      "levobupivacaine"
+    ]
+  },
+  "左旋多巴": {
+    "aliases": [
+      "levodopa",
+      "L-DOPA"
+    ]
+  },
+  "左氧氟沙星": {
+    "aliases": [
+      "levofloxacin",
+      "可乐必妥"
+    ]
+  },
+  "左炔诺孕酮": {
+    "aliases": [
+      "levonorgestrel",
+      "LNG",
+      "毓婷"
+    ]
+  },
+  "左甲状腺素": {
+    "aliases": [
+      "levothyroxine",
+      "优甲乐",
+      "左甲状腺素钠"
+    ]
+  },
+  "左西孟旦": {
+    "aliases": [
+      "levosimendan",
+      "悦维适"
+    ]
+  },
+  "巯嘌呤": {
+    "aliases": [
+      "mercaptopurine",
+      "6-MP"
+    ]
+  },
+  "己酮可可碱": {
+    "aliases": [
+      "pentoxifylline",
+      "潘通"
+    ]
+  },
+  "巴利昔单抗": {
+    "aliases": [
+      "basiliximab",
+      "舒莱"
+    ]
+  },
+  "巴尼地平": {
+    "aliases": [
+      "barnidipine"
+    ]
+  },
+  "巴氯芬": {
+    "aliases": [
+      "baclofen",
+      "力奥来素"
+    ]
+  },
+  "巴瑞替尼": {
+    "aliases": [
+      "baricitinib",
+      "艾乐明"
+    ]
+  },
+  "布地奈德": {
+    "aliases": [
+      "budesonide",
+      "普米克",
+      "雷诺考特"
+    ]
+  },
+  "布托啡诺": {
+    "aliases": [
+      "butorphanol",
+      "诺扬"
+    ]
+  },
+  "布林佐胺": {
+    "aliases": [
+      "brinzolamide",
+      "派立明"
+    ]
+  },
+  "布比卡因": {
+    "aliases": [
+      "bupivacaine",
+      "丁吡卡因",
+      "麻卡因"
+    ]
+  },
+  "布洛芬": {
+    "aliases": [
+      "ibuprofen",
+      "异丁苯丙酸",
+      "异丁洛芬",
+      "芬必得"
+    ]
+  },
+  "布美他尼": {
+    "aliases": [
+      "bumetanide",
+      "丁尿胺"
+    ]
+  },
+  "帕利哌酮": {
+    "aliases": [
+      "paliperidone",
+      "芮达"
     ]
   },
   "帕博利珠单抗": {
@@ -1743,332 +2247,100 @@
       "K药"
     ]
   },
-  "纳武利尤单抗": {
+  "帕尼单抗": {
     "aliases": [
-      "nivolumab",
-      "欧狄沃",
-      "O药"
+      "panitumumab",
+      "维克替比"
     ]
   },
-  "利妥昔单抗": {
+  "帕拉米韦": {
     "aliases": [
-      "rituximab",
-      "美罗华"
+      "peramivir"
     ]
   },
-  "曲妥珠单抗": {
+  "帕瑞肽": {
     "aliases": [
-      "trastuzumab",
-      "赫赛汀"
+      "pasireotide",
+      "Signifor"
     ]
   },
-  "贝伐珠单抗": {
+  "帕立骨化醇": {
     "aliases": [
-      "bevacizumab",
-      "安维汀"
+      "paricalcitol",
+      "胜普乐"
     ]
   },
-  "维A酸": {
+  "帕罗西汀": {
     "aliases": [
-      "tretinoin",
-      "维甲酸",
-      "全反式维A酸"
+      "paroxetine",
+      "赛乐特",
+      "Paxil"
     ]
   },
-  "阿达帕林": {
+  "庆大霉素": {
     "aliases": [
-      "adapalene",
-      "达芙文"
+      "gentamicin",
+      "硫酸庆大霉素"
     ]
   },
-  "他扎罗汀": {
+  "度他雄胺": {
     "aliases": [
-      "tazarotene"
+      "dutasteride",
+      "适尿通"
     ]
   },
-  "氢化可的松": {
+  "度伐利尤单抗": {
     "aliases": [
-      "hydrocortisone",
-      "皮质醇",
-      "氢化可的松乳膏"
+      "durvalumab",
+      "英飞凡"
     ]
   },
-  "地奈德": {
+  "度拉糖肽": {
     "aliases": [
-      "desonide",
-      "地奈德乳膏"
+      "dulaglutide",
+      "度易达"
     ]
   },
-  "卤米松": {
+  "度普利尤单抗": {
     "aliases": [
-      "halometasone",
-      "澳能"
+      "dupilumab",
+      "达必妥"
     ]
   },
-  "吡美莫司": {
+  "度洛西汀": {
     "aliases": [
-      "pimecrolimus",
-      "爱宁达"
+      "duloxetine",
+      "欣百达",
+      "Cymbalta"
     ]
   },
-  "他克莫司": {
+  "度骨化醇": {
     "aliases": [
-      "tacrolimus",
-      "FK506",
-      "普特彼"
+      "doxercalciferol"
     ]
   },
-  "氧氟沙星": {
+  "异丙嗪": {
     "aliases": [
-      "ofloxacin",
-      "氟嗪酸",
-      "泰利必妥"
+      "promethazine",
+      "非那根",
+      "盐酸异丙嗪"
     ]
   },
-  "拉坦前列素": {
+  "异丙托溴铵": {
     "aliases": [
-      "latanoprost",
-      "适利达"
+      "ipratropium",
+      "爱全乐"
     ]
   },
-  "曲伏前列素": {
+  "异帕米星": {
     "aliases": [
-      "travoprost",
-      "苏为坦"
+      "isepamicin"
     ]
   },
-  "布林佐胺": {
+  "异氟烷": {
     "aliases": [
-      "brinzolamide",
-      "派立明"
-    ]
-  },
-  "噻吗洛尔": {
-    "aliases": [
-      "timolol",
-      "马来酸噻吗洛尔",
-      "噻吗心安"
-    ]
-  },
-  "倍他洛尔": {
-    "aliases": [
-      "betaxolol",
-      "盐酸倍他洛尔",
-      "贝特舒"
-    ]
-  },
-  "玻璃酸钠": {
-    "aliases": [
-      "sodium hyaluronate",
-      "透明质酸钠",
-      "爱丽"
-    ]
-  },
-  "枸橼酸铋钾": {
-    "aliases": [
-      "bismuth potassium citrate",
-      "丽珠得乐",
-      "胶体次枸橼酸铋"
-    ]
-  },
-  "胶体果胶铋": {
-    "aliases": [
-      "colloidal bismuth pectin"
-    ]
-  },
-  "瑞巴派特": {
-    "aliases": [
-      "rebamipide",
-      "膜固思达"
-    ]
-  },
-  "替普瑞酮": {
-    "aliases": [
-      "teprenone",
-      "施维舒"
-    ]
-  },
-  "酚酞": {
-    "aliases": [
-      "phenolphthalein",
-      "果导"
-    ]
-  },
-  "洛哌丁胺": {
-    "aliases": [
-      "loperamide",
-      "易蒙停"
-    ]
-  },
-  "双歧杆菌": {
-    "aliases": [
-      "bifidobacterium",
-      "培菲康",
-      "双歧杆菌活菌"
-    ]
-  },
-  "胰酶": {
-    "aliases": [
-      "pancreatin",
-      "得每通",
-      "胰酶肠溶胶囊"
-    ]
-  },
-  "熊去氧胆酸": {
-    "aliases": [
-      "ursodeoxycholic acid",
-      "UDCA",
-      "优思弗"
-    ]
-  },
-  "腺苷蛋氨酸": {
-    "aliases": [
-      "ademetionine",
-      "S-腺苷蛋氨酸",
-      "思美泰"
-    ]
-  },
-  "水飞蓟宾": {
-    "aliases": [
-      "silybin",
-      "利加隆"
-    ]
-  },
-  "联苯双酯": {
-    "aliases": [
-      "bifendate",
-      "联苯双酯滴丸"
-    ]
-  },
-  "甘草酸二铵": {
-    "aliases": [
-      "diammonium glycyrrhizinate",
-      "甘利欣"
-    ]
-  },
-  "甲氧氯普胺": {
-    "aliases": [
-      "metoclopramide",
-      "胃复安",
-      "灭吐灵"
-    ]
-  },
-  "乐卡地平": {
-    "aliases": [
-      "lercanidipine",
-      "再宁平"
-    ]
-  },
-  "福辛普利": {
-    "aliases": [
-      "fosinopril",
-      "蒙诺"
-    ]
-  },
-  "雷米普利": {
-    "aliases": [
-      "ramipril",
-      "瑞泰"
-    ]
-  },
-  "吲达帕胺": {
-    "aliases": [
-      "indapamide",
-      "纳催离",
-      "寿比山"
-    ]
-  },
-  "依普利酮": {
-    "aliases": [
-      "eplerenone"
-    ]
-  },
-  "米力农": {
-    "aliases": [
-      "milrinone",
-      "鲁南力康"
-    ]
-  },
-  "匹伐他汀": {
-    "aliases": [
-      "pitavastatin",
-      "力清之",
-      "匹伐他汀钙"
-    ]
-  },
-  "依折麦布": {
-    "aliases": [
-      "ezetimibe",
-      "益适纯"
-    ]
-  },
-  "非诺贝特": {
-    "aliases": [
-      "fenofibrate",
-      "力平之"
-    ]
-  },
-  "苯扎贝特": {
-    "aliases": [
-      "bezafibrate",
-      "必降脂"
-    ]
-  },
-  "伏格列波糖": {
-    "aliases": [
-      "voglibose",
-      "倍欣"
-    ]
-  },
-  "维格列汀": {
-    "aliases": [
-      "vildagliptin",
-      "佳维乐"
-    ]
-  },
-  "沙格列汀": {
-    "aliases": [
-      "saxagliptin",
-      "安立泽"
-    ]
-  },
-  "卡格列净": {
-    "aliases": [
-      "canagliflozin",
-      "怡可安"
-    ]
-  },
-  "艾司西酞普兰": {
-    "aliases": [
-      "escitalopram",
-      "来士普",
-      "草酸艾司西酞普兰"
-    ]
-  },
-  "右佐匹克隆": {
-    "aliases": [
-      "eszopiclone",
-      "文飞"
-    ]
-  },
-  "罗红霉素": {
-    "aliases": [
-      "roxithromycin",
-      "罗红霉素片"
-    ]
-  },
-  "莫西沙星": {
-    "aliases": [
-      "moxifloxacin",
-      "拜复乐",
-      "盐酸莫西沙星"
-    ]
-  },
-  "克林霉素": {
-    "aliases": [
-      "clindamycin",
-      "盐酸克林霉素",
-      "氯洁霉素"
+      "isoflurane",
+      "异氟醚"
     ]
   },
   "异烟肼": {
@@ -2078,16 +2350,999 @@
       "雷米封"
     ]
   },
-  "乙胺丁醇": {
+  "异环磷酰胺": {
     "aliases": [
-      "ethambutol",
-      "盐酸乙胺丁醇"
+      "ifosfamide",
+      "IFO",
+      "匹服平"
     ]
   },
-  "吡嗪酰胺": {
+  "异甘草酸镁": {
     "aliases": [
-      "pyrazinamide",
-      "PZA"
+      "magnesium isoglycyrrhizinate",
+      "天晴甘美"
+    ]
+  },
+  "异维A酸": {
+    "aliases": [
+      "isotretinoin",
+      "泰尔丝",
+      "13-顺维A酸"
+    ]
+  },
+  "德谷胰岛素": {
+    "aliases": [
+      "insulin degludec",
+      "诺和达"
+    ]
+  },
+  "恩他卡朋": {
+    "aliases": [
+      "entacapone",
+      "珂丹"
+    ]
+  },
+  "恩曲替尼": {
+    "aliases": [
+      "entrectinib",
+      "罗圣全"
+    ]
+  },
+  "恩替卡韦": {
+    "aliases": [
+      "entecavir",
+      "博路定"
+    ]
+  },
+  "恩格列净": {
+    "aliases": [
+      "empagliflozin",
+      "欧唐静"
+    ]
+  },
+  "恩氟烷": {
+    "aliases": [
+      "enflurane",
+      "安氟醚"
+    ]
+  },
+  "愈创甘油醚": {
+    "aliases": [
+      "guaifenesin",
+      "愈创木酚甘油醚"
+    ]
+  },
+  "戈利木单抗": {
+    "aliases": [
+      "golimumab",
+      "欣普尼"
+    ]
+  },
+  "戈舍瑞林": {
+    "aliases": [
+      "goserelin",
+      "诺雷德"
+    ]
+  },
+  "戈那瑞林": {
+    "aliases": [
+      "gonadorelin",
+      "GnRH"
+    ]
+  },
+  "戊酸雌二醇": {
+    "aliases": [
+      "estradiol valerate",
+      "补佳乐"
+    ]
+  },
+  "扎来普隆": {
+    "aliases": [
+      "zaleplon"
+    ],
+    "brandNames": [
+      "安己辛"
+    ]
+  },
+  "扎那米韦": {
+    "aliases": [
+      "zanamivir",
+      "乐感清"
+    ]
+  },
+  "扎鲁司特": {
+    "aliases": [
+      "zafirlukast",
+      "安可来"
+    ]
+  },
+  "扑灭司林": {
+    "aliases": [
+      "permethrin",
+      "扑灭司林乳膏"
+    ]
+  },
+  "扑米酮": {
+    "aliases": [
+      "primidone",
+      "扑痫酮"
+    ]
+  },
+  "托吡卡胺": {
+    "aliases": [
+      "tropicamide",
+      "美多丽"
+    ]
+  },
+  "托吡酯": {
+    "aliases": [
+      "topiramate",
+      "妥泰"
+    ]
+  },
+  "托拉塞米": {
+    "aliases": [
+      "torasemide",
+      "torsemide",
+      "特苏尼"
+    ]
+  },
+  "托特罗定": {
+    "aliases": [
+      "tolterodine",
+      "舍尼亭"
+    ]
+  },
+  "托珠单抗": {
+    "aliases": [
+      "tocilizumab",
+      "雅美罗"
+    ]
+  },
+  "托莫西汀": {
+    "aliases": [
+      "atomoxetine",
+      "择思达"
+    ]
+  },
+  "抗胸腺细胞球蛋白": {
+    "aliases": [
+      "antithymocyte globulin",
+      "ATG"
+    ]
+  },
+  "拉坦前列素": {
+    "aliases": [
+      "latanoprost",
+      "适利达"
+    ]
+  },
+  "拉米夫定": {
+    "aliases": [
+      "lamivudine",
+      "3TC",
+      "贺普丁"
+    ]
+  },
+  "拉罗尼酶": {
+    "aliases": [
+      "laronidase"
+    ]
+  },
+  "拉莫三嗪": {
+    "aliases": [
+      "lamotrigine",
+      "利必通"
+    ]
+  },
+  "拉西地平": {
+    "aliases": [
+      "lacidipine",
+      "乐息平"
+    ]
+  },
+  "拉贝洛尔": {
+    "aliases": [
+      "labetalol",
+      "盐酸拉贝洛尔"
+    ]
+  },
+  "文拉法辛": {
+    "aliases": [
+      "venlafaxine",
+      "怡诺思",
+      "Effexor"
+    ]
+  },
+  "昂丹司琼": {
+    "aliases": [
+      "ondansetron",
+      "枢复宁"
+    ]
+  },
+  "普伐他汀": {
+    "aliases": [
+      "pravastatin",
+      "普伐他汀钠"
+    ]
+  },
+  "普拉克索": {
+    "aliases": [
+      "pramipexole",
+      "森福罗"
+    ]
+  },
+  "普拉格雷": {
+    "aliases": [
+      "prasugrel",
+      "Effient"
+    ]
+  },
+  "普拉洛芬": {
+    "aliases": [
+      "pranoprofen",
+      "普南扑灵"
+    ]
+  },
+  "普瑞巴林": {
+    "aliases": [
+      "pregabalin",
+      "乐瑞卡"
+    ]
+  },
+  "普罗帕酮": {
+    "aliases": [
+      "propafenone",
+      "心律平",
+      "悦复隆"
+    ]
+  },
+  "普芦卡必利": {
+    "aliases": [
+      "prucalopride",
+      "力洛"
+    ]
+  },
+  "普萘洛尔": {
+    "aliases": [
+      "propranolol",
+      "心得安"
+    ]
+  },
+  "曲伏前列素": {
+    "aliases": [
+      "travoprost",
+      "苏为坦"
+    ]
+  },
+  "曲唑酮": {
+    "aliases": [
+      "trazodone",
+      "美抒玉",
+      "盐酸曲唑酮"
+    ]
+  },
+  "曲妥珠单抗": {
+    "aliases": [
+      "trastuzumab",
+      "赫赛汀"
+    ]
+  },
+  "曲安奈德": {
+    "aliases": [
+      "triamcinolone acetonide",
+      "曲安缩松",
+      "康宁克通"
+    ]
+  },
+  "曲美他嗪": {
+    "aliases": [
+      "trimetazidine",
+      "万爽力",
+      "盐酸曲美他嗪"
+    ]
+  },
+  "曲美替尼": {
+    "aliases": [
+      "trametinib",
+      "迈吉宁"
+    ]
+  },
+  "曲马多": {
+    "aliases": [
+      "tramadol"
+    ]
+  },
+  "更昔洛韦": {
+    "aliases": [
+      "ganciclovir",
+      "丽科伟"
+    ]
+  },
+  "替加氟": {
+    "aliases": [
+      "tegafur",
+      "喃氟啶"
+    ]
+  },
+  "替加环素": {
+    "aliases": [
+      "tigecycline"
+    ],
+    "brandNames": [
+      "泰阁"
+    ]
+  },
+  "替勃龙": {
+    "aliases": [
+      "tibolone",
+      "利维爱"
+    ]
+  },
+  "替扎尼定": {
+    "aliases": [
+      "tizanidine",
+      "松得乐"
+    ]
+  },
+  "替普瑞酮": {
+    "aliases": [
+      "teprenone",
+      "施维舒"
+    ]
+  },
+  "替格瑞洛": {
+    "aliases": [
+      "ticagrelor",
+      "倍林达"
+    ]
+  },
+  "替比夫定": {
+    "aliases": [
+      "telbivudine",
+      "素比伏"
+    ]
+  },
+  "替硝唑": {
+    "aliases": [
+      "tinidazole"
+    ]
+  },
+  "替米沙坦": {
+    "aliases": [
+      "telmisartan",
+      "美卡素"
+    ]
+  },
+  "替莫唑胺": {
+    "aliases": [
+      "temozolomide",
+      "TMZ"
+    ],
+    "brandNames": [
+      "泰道",
+      "蒂清"
+    ]
+  },
+  "替诺福韦": {
+    "aliases": [
+      "tenofovir",
+      "富马酸替诺福韦二吡呋酯",
+      "韦瑞德"
+    ]
+  },
+  "来曲唑": {
+    "aliases": [
+      "letrozole",
+      "弗隆"
+    ]
+  },
+  "来氟米特": {
+    "aliases": [
+      "leflunomide",
+      "爱若华"
+    ]
+  },
+  "来那度胺": {
+    "aliases": [
+      "lenalidomide",
+      "瑞复美"
+    ]
+  },
+  "林可霉素": {
+    "aliases": [
+      "lincomycin"
+    ],
+    "brandNames": [
+      "洁霉素"
+    ]
+  },
+  "林旦": {
+    "aliases": [
+      "lindane",
+      "丙体六六六"
+    ]
+  },
+  "枸橼酸钙": {
+    "aliases": [
+      "calcium citrate"
+    ]
+  },
+  "枸橼酸铋钾": {
+    "aliases": [
+      "bismuth potassium citrate",
+      "丽珠得乐",
+      "胶体次枸橼酸铋"
+    ]
+  },
+  "柔红霉素": {
+    "aliases": [
+      "daunorubicin",
+      "DNR"
+    ]
+  },
+  "柳氮磺吡啶": {
+    "aliases": [
+      "sulfasalazine",
+      "SASP"
+    ]
+  },
+  "格列吡嗪": {
+    "aliases": [
+      "glipizide",
+      "美吡达"
+    ]
+  },
+  "格列本脲": {
+    "aliases": [
+      "glibenclamide",
+      "优降糖"
+    ]
+  },
+  "格列美脲": {
+    "aliases": [
+      "glimepiride",
+      "亚莫利"
+    ]
+  },
+  "格列齐特": {
+    "aliases": [
+      "gliclazide",
+      "达美康"
+    ]
+  },
+  "格拉司琼": {
+    "aliases": [
+      "granisetron",
+      "凯特瑞"
+    ]
+  },
+  "格隆溴铵": {
+    "aliases": [
+      "glycopyrronium",
+      "glycopyrrolate"
+    ]
+  },
+  "桂利嗪": {
+    "aliases": [
+      "cinnarizine",
+      "脑益嗪"
+    ]
+  },
+  "比卡鲁胺": {
+    "aliases": [
+      "bicalutamide",
+      "康士得"
+    ]
+  },
+  "比沙可啶": {
+    "aliases": [
+      "bisacodyl",
+      "便塞停"
+    ]
+  },
+  "比索洛尔": {
+    "aliases": [
+      "bisoprolol",
+      "康忻",
+      "富马酸比索洛尔"
+    ]
+  },
+  "毛果芸香碱": {
+    "aliases": [
+      "pilocarpine",
+      "匹鲁卡品"
+    ]
+  },
+  "氟伏沙明": {
+    "aliases": [
+      "fluvoxamine",
+      "兰释"
+    ]
+  },
+  "氟伐他汀": {
+    "aliases": [
+      "fluvastatin",
+      "来适可",
+      "氟伐他汀钠"
+    ]
+  },
+  "氟卡尼": {
+    "aliases": [
+      "flecainide"
+    ]
+  },
+  "氟哌啶醇": {
+    "aliases": [
+      "haloperidol",
+      "氟哌丁苯"
+    ]
+  },
+  "氟尿嘧啶": {
+    "aliases": [
+      "fluorouracil",
+      "5-FU",
+      "5-氟尿嘧啶"
+    ]
+  },
+  "氟康唑": {
+    "aliases": [
+      "fluconazole",
+      "大扶康"
+    ]
+  },
+  "氟替卡松": {
+    "aliases": [
+      "fluticasone",
+      "辅舒酮",
+      "氟替卡松丙酸酯"
+    ]
+  },
+  "氟桂利嗪": {
+    "aliases": [
+      "flunarizine",
+      "西比灵"
+    ]
+  },
+  "氟氢可的松": {
+    "aliases": [
+      "fludrocortisone",
+      "氟氢可的松醋酸酯"
+    ]
+  },
+  "氟米龙": {
+    "aliases": [
+      "fluorometholone",
+      "氟美瞳",
+      "艾氟龙"
+    ]
+  },
+  "氟维司群": {
+    "aliases": [
+      "fulvestrant",
+      "芙仕得"
+    ]
+  },
+  "氟胞嘧啶": {
+    "aliases": [
+      "flucytosine",
+      "5-FC"
+    ]
+  },
+  "氟西汀": {
+    "aliases": [
+      "fluoxetine",
+      "百忧解",
+      "Prozac"
+    ]
+  },
+  "氟西泮": {
+    "aliases": [
+      "flurazepam",
+      "盐酸氟西泮"
+    ]
+  },
+  "氟达拉滨": {
+    "aliases": [
+      "fludarabine"
+    ],
+    "brandNames": [
+      "福达华"
+    ]
+  },
+  "氢化可的松": {
+    "aliases": [
+      "hydrocortisone",
+      "皮质醇",
+      "氢化可的松乳膏"
+    ]
+  },
+  "氢氧化铝": {
+    "aliases": [
+      "aluminium hydroxide"
+    ]
+  },
+  "氢氯噻嗪": {
+    "aliases": [
+      "hydrochlorothiazide",
+      "HCTZ",
+      "双氢克尿噻"
+    ]
+  },
+  "氧化锌": {
+    "aliases": [
+      "zinc oxide"
+    ]
+  },
+  "氧氟沙星": {
+    "aliases": [
+      "ofloxacin",
+      "氟嗪酸",
+      "泰利必妥"
+    ]
+  },
+  "氧雄龙": {
+    "aliases": [
+      "oxandrolone"
+    ]
+  },
+  "氨基己酸": {
+    "aliases": [
+      "aminocaproic acid",
+      "6-氨基己酸"
+    ]
+  },
+  "氨基葡萄糖": {
+    "aliases": [
+      "glucosamine",
+      "维骨力"
+    ]
+  },
+  "氨曲南": {
+    "aliases": [
+      "aztreonam"
+    ]
+  },
+  "氨氯地平": {
+    "aliases": [
+      "amlodipine",
+      "苯磺酸氨氯地平",
+      "络活喜"
+    ]
+  },
+  "氨氯地平/阿托伐他汀": {
+    "aliases": [
+      "amlodipine/atorvastatin",
+      "多达一"
+    ]
+  },
+  "氨溴索": {
+    "aliases": [
+      "ambroxol",
+      "盐酸氨溴索",
+      "沐舒坦"
+    ]
+  },
+  "氨甲环酸": {
+    "aliases": [
+      "tranexamic acid",
+      "妥塞敏"
+    ]
+  },
+  "氨苄西林": {
+    "aliases": [
+      "ampicillin"
+    ],
+    "brandNames": [
+      "氨苄青霉素"
+    ]
+  },
+  "氨苯蝶啶": {
+    "aliases": [
+      "triamterene"
+    ]
+  },
+  "氨茶碱": {
+    "aliases": [
+      "aminophylline"
+    ]
+  },
+  "氯化钙": {
+    "aliases": [
+      "calcium chloride"
+    ]
+  },
+  "氯化钠": {
+    "aliases": [
+      "sodium chloride",
+      "NaCl",
+      "生理盐水"
+    ]
+  },
+  "氯化钾": {
+    "aliases": [
+      "potassium chloride",
+      "KCl"
+    ]
+  },
+  "氯吡格雷": {
+    "aliases": [
+      "clopidogrel",
+      "硫酸氢氯吡格雷",
+      "波立维"
+    ]
+  },
+  "氯唑沙宗": {
+    "aliases": [
+      "chlorzoxazone"
+    ]
+  },
+  "氯喹": {
+    "aliases": [
+      "chloroquine"
+    ]
+  },
+  "氯噻酮": {
+    "aliases": [
+      "chlortalidone"
+    ]
+  },
+  "氯己定": {
+    "aliases": [
+      "chlorhexidine"
+    ]
+  },
+  "氯氮平": {
+    "aliases": [
+      "clozapine",
+      "氯扎平"
+    ]
+  },
+  "氯沙坦": {
+    "aliases": [
+      "losartan",
+      "科素亚"
+    ]
+  },
+  "氯沙坦/氢氯噻嗪": {
+    "aliases": [
+      "losartan/hydrochlorothiazide",
+      "海捷亚"
+    ]
+  },
+  "氯硝西泮": {
+    "aliases": [
+      "clonazepam",
+      "氯硝安定"
+    ]
+  },
+  "氯米帕明": {
+    "aliases": [
+      "clomipramine",
+      "氯丙咪嗪",
+      "安拿芬尼"
+    ]
+  },
+  "氯米芬": {
+    "aliases": [
+      "clomiphene",
+      "克罗米芬",
+      "枸橼酸氯米芬"
+    ]
+  },
+  "氯胺酮": {
+    "aliases": [
+      "ketamine",
+      "凯他敏"
+    ]
+  },
+  "氯苯那敏": {
+    "aliases": [
+      "chlorphenamine",
+      "扑尔敏",
+      "马来酸氯苯那敏"
+    ]
+  },
+  "氯雷他定": {
+    "aliases": [
+      "loratadine",
+      "开瑞坦",
+      "氯雷他定片"
+    ]
+  },
+  "氯霉素": {
+    "aliases": [
+      "chloramphenicol",
+      "氯胺苯醇"
+    ]
+  },
+  "水杨酸": {
+    "aliases": [
+      "salicylic acid",
+      "BHA"
+    ]
+  },
+  "水痘疫苗": {
+    "aliases": [
+      "varicella vaccine"
+    ]
+  },
+  "水飞蓟宾": {
+    "aliases": [
+      "silybin",
+      "利加隆"
+    ]
+  },
+  "沙丁胺醇": {
+    "aliases": [
+      "salbutamol",
+      "albuterol",
+      "万托林",
+      "舒喘灵"
+    ]
+  },
+  "沙利度胺": {
+    "aliases": [
+      "thalidomide",
+      "反应停"
+    ]
+  },
+  "沙格列汀": {
+    "aliases": [
+      "saxagliptin",
+      "安立泽"
+    ]
+  },
+  "泊沙康唑": {
+    "aliases": [
+      "posaconazole",
+      "诺科飞"
+    ]
+  },
+  "泊马度胺": {
+    "aliases": [
+      "pomalidomide",
+      "泊马度胺胶囊"
+    ]
+  },
+  "法莫替丁": {
+    "aliases": [
+      "famotidine",
+      "高舒达"
+    ]
+  },
+  "泛昔洛韦": {
+    "aliases": [
+      "famciclovir",
+      "泛维尔"
+    ]
+  },
+  "泛酸钙": {
+    "aliases": [
+      "calcium pantothenate",
+      "维生素B5"
+    ]
+  },
+  "波生坦": {
+    "aliases": [
+      "bosentan",
+      "全可利"
+    ]
+  },
+  "泮托拉唑": {
+    "aliases": [
+      "pantoprazole",
+      "潘妥洛克"
+    ]
+  },
+  "泼尼松龙": {
+    "aliases": [
+      "prednisolone",
+      "强的松龙",
+      "氢化泼尼松"
+    ]
+  },
+  "泽布替尼": {
+    "aliases": [
+      "zanubrutinib",
+      "百悦泽"
+    ]
+  },
+  "洛伐他汀": {
+    "aliases": [
+      "lovastatin"
+    ]
+  },
+  "洛哌丁胺": {
+    "aliases": [
+      "loperamide",
+      "易蒙停"
+    ]
+  },
+  "洛美沙星": {
+    "aliases": [
+      "lomefloxacin"
+    ]
+  },
+  "洛莫司汀": {
+    "aliases": [
+      "lomustine",
+      "CCNU"
+    ],
+    "brandNames": [
+      "罗氮芥"
+    ]
+  },
+  "溴芬酸": {
+    "aliases": [
+      "bromfenac",
+      "溴芬酸钠"
+    ]
+  },
+  "溴莫尼定": {
+    "aliases": [
+      "brimonidine",
+      "阿法根"
+    ]
+  },
+  "溴西泮": {
+    "aliases": [
+      "bromazepam",
+      "宁神定"
+    ]
+  },
+  "溴隐亭": {
+    "aliases": [
+      "bromocriptine",
+      "溴隐亭片"
+    ]
+  },
+  "炉甘石": {
+    "aliases": [
+      "calamine",
+      "炉甘石洗剂"
+    ]
+  },
+  "炔诺酮": {
+    "aliases": [
+      "norethisterone",
+      "norethindrone"
+    ]
+  },
+  "烟酰胺": {
+    "aliases": [
+      "nicotinamide",
+      "维生素B3",
+      "维生素PP"
+    ]
+  },
+  "烟酸": {
+    "aliases": [
+      "nicotinic acid",
+      "niacin"
+    ]
+  },
+  "煤焦油": {
+    "aliases": [
+      "coal tar"
+    ]
+  },
+  "熊去氧胆酸": {
+    "aliases": [
+      "ursodeoxycholic acid",
+      "UDCA",
+      "优思弗"
+    ]
+  },
+  "特利加压素": {
+    "aliases": [
+      "terlipressin",
+      "可利新"
+    ]
+  },
+  "特地唑胺": {
+    "aliases": [
+      "tedizolid"
     ]
   },
   "特布他林": {
@@ -2095,6 +3350,125 @@
       "terbutaline",
       "博利康尼",
       "硫酸特布他林"
+    ]
+  },
+  "特拉唑嗪": {
+    "aliases": [
+      "terazosin",
+      "高特灵",
+      "盐酸特拉唑嗪"
+    ]
+  },
+  "特比萘芬": {
+    "aliases": [
+      "terbinafine",
+      "兰美抒",
+      "盐酸特比萘芬"
+    ]
+  },
+  "特立帕肽": {
+    "aliases": [
+      "teriparatide",
+      "复泰奥"
+    ]
+  },
+  "环丙沙星": {
+    "aliases": [
+      "ciprofloxacin"
+    ]
+  },
+  "环孢素": {
+    "aliases": [
+      "ciclosporin",
+      "cyclosporine",
+      "新山地明",
+      "田可"
+    ]
+  },
+  "环磷酰胺": {
+    "aliases": [
+      "cyclophosphamide",
+      "CTX",
+      "环磷酰胺片"
+    ]
+  },
+  "环索奈德": {
+    "aliases": [
+      "ciclesonide",
+      "Alvesco"
+    ]
+  },
+  "环苯扎林": {
+    "aliases": [
+      "cyclobenzaprine"
+    ]
+  },
+  "玻璃酸钠": {
+    "aliases": [
+      "sodium hyaluronate",
+      "透明质酸钠",
+      "爱丽"
+    ]
+  },
+  "班布特罗": {
+    "aliases": [
+      "bambuterol",
+      "帮备"
+    ]
+  },
+  "琥珀酸亚铁": {
+    "aliases": [
+      "ferrous succinate",
+      "速力菲"
+    ]
+  },
+  "瑞巴派特": {
+    "aliases": [
+      "rebamipide",
+      "膜固思达"
+    ]
+  },
+  "瑞格列奈": {
+    "aliases": [
+      "repaglinide",
+      "诺和龙"
+    ]
+  },
+  "瑞舒伐他汀": {
+    "aliases": [
+      "rosuvastatin",
+      "瑞舒伐他汀钙",
+      "可定"
+    ]
+  },
+  "甘精胰岛素": {
+    "aliases": [
+      "insulin glargine",
+      "来得时",
+      "长秀霖"
+    ]
+  },
+  "甘草酸": {
+    "aliases": [
+      "glycyrrhizic acid"
+    ]
+  },
+  "甘草酸二铵": {
+    "aliases": [
+      "diammonium glycyrrhizinate",
+      "甘利欣"
+    ]
+  },
+  "生长抑素": {
+    "aliases": [
+      "somatostatin",
+      "思他宁"
+    ]
+  },
+  "甲基多巴": {
+    "aliases": [
+      "methyldopa",
+      "甲多巴"
     ]
   },
   "甲巯咪唑": {
@@ -2105,17 +3479,29 @@
       "他巴唑"
     ]
   },
-  "丙硫氧嘧啶": {
+  "甲氟喹": {
     "aliases": [
-      "propylthiouracil",
-      "PTU"
+      "mefloquine"
     ]
   },
-  "地塞米松": {
+  "甲氧氯普胺": {
     "aliases": [
-      "dexamethasone",
-      "氟美松",
-      "地塞米松磷酸钠"
+      "metoclopramide",
+      "胃复安",
+      "灭吐灵"
+    ]
+  },
+  "甲氧苄啶": {
+    "aliases": [
+      "trimethoprim",
+      "TMP"
+    ]
+  },
+  "甲氨蝶呤": {
+    "aliases": [
+      "methotrexate",
+      "氨甲蝶呤",
+      "MTX"
     ]
   },
   "甲泼尼龙": {
@@ -2125,708 +3511,17 @@
       "甲基强的松龙"
     ]
   },
-  "非那雄胺": {
+  "甲硝唑": {
     "aliases": [
-      "finasteride",
-      "保列治",
-      "保法止"
+      "metronidazole",
+      "灭滴灵"
     ]
   },
-  "坦索罗辛": {
+  "甲紫": {
     "aliases": [
-      "tamsulosin",
-      "哈乐",
-      "盐酸坦索罗辛"
-    ]
-  },
-  "多沙唑嗪": {
-    "aliases": [
-      "doxazosin",
-      "甲磺酸多沙唑嗪"
-    ]
-  },
-  "克霉唑": {
-    "aliases": [
-      "clotrimazole",
-      "凯妮汀"
-    ]
-  },
-  "叶酸": {
-    "aliases": [
-      "folic acid",
-      "维生素B9",
-      "folate"
-    ]
-  },
-  "维生素B12": {
-    "aliases": [
-      "vitamin B12",
-      "氰钴胺",
-      "cobalamin"
-    ]
-  },
-  "铁": {
-    "aliases": [
-      "iron",
-      "补铁",
-      "铁剂"
-    ]
-  },
-  "硫酸亚铁": {
-    "aliases": [
-      "ferrous sulfate"
-    ]
-  },
-  "琥珀酸亚铁": {
-    "aliases": [
-      "ferrous succinate",
-      "速力菲"
-    ]
-  },
-  "利可君": {
-    "aliases": [
-      "leucogen",
-      "利血生"
-    ]
-  },
-  "重组人促红素": {
-    "aliases": [
-      "recombinant human erythropoietin",
-      "EPO",
-      "依泊汀",
-      "利血宝"
-    ]
-  },
-  "纳洛酮": {
-    "aliases": [
-      "naloxone"
-    ]
-  },
-  "亚甲蓝": {
-    "aliases": [
-      "methylthioninium chloride",
-      "methylene blue",
-      "美蓝"
-    ]
-  },
-  "葡萄糖酸钙": {
-    "aliases": [
-      "calcium gluconate"
-    ]
-  },
-  "氯化钙": {
-    "aliases": [
-      "calcium chloride"
-    ]
-  },
-  "维生素D": {
-    "aliases": [
-      "vitamin D",
-      "胆钙化醇",
-      "cholecalciferol"
-    ]
-  },
-  "骨化三醇": {
-    "aliases": [
-      "calcitriol",
-      "罗盖全"
-    ]
-  },
-  "异环磷酰胺": {
-    "aliases": [
-      "ifosfamide",
-      "IFO",
-      "匹服平"
-    ]
-  },
-  "美法仑": {
-    "aliases": [
-      "melphalan",
-      "马法兰",
-      "L-PAM"
-    ]
-  },
-  "苯丁酸氮芥": {
-    "aliases": [
-      "chlorambucil",
-      "留可然"
-    ]
-  },
-  "阿糖胞苷": {
-    "aliases": [
-      "cytarabine",
-      "Ara-C"
-    ]
-  },
-  "氟尿嘧啶": {
-    "aliases": [
-      "fluorouracil",
-      "5-FU",
-      "5-氟尿嘧啶"
-    ]
-  },
-  "替加氟": {
-    "aliases": [
-      "tegafur",
-      "喃氟啶"
-    ]
-  },
-  "多柔比星": {
-    "aliases": [
-      "doxorubicin",
-      "阿霉素",
-      "ADM"
-    ]
-  },
-  "表柔比星": {
-    "aliases": [
-      "epirubicin",
-      "表阿霉素",
-      "EPI"
-    ]
-  },
-  "柔红霉素": {
-    "aliases": [
-      "daunorubicin",
-      "DNR"
-    ]
-  },
-  "米托蒽醌": {
-    "aliases": [
-      "mitoxantrone",
-      "MIT"
-    ]
-  },
-  "长春新碱": {
-    "aliases": [
-      "vincristine",
-      "VCR"
-    ]
-  },
-  "长春碱": {
-    "aliases": [
-      "vinblastine",
-      "VLB"
-    ]
-  },
-  "长春瑞滨": {
-    "aliases": [
-      "vinorelbine",
-      "NVB",
-      "诺维本"
-    ]
-  },
-  "奥沙利铂": {
-    "aliases": [
-      "oxaliplatin",
-      "L-OHP",
-      "乐沙定"
-    ]
-  },
-  "依托泊苷": {
-    "aliases": [
-      "etoposide",
-      "VP-16"
-    ]
-  },
-  "伊立替康": {
-    "aliases": [
-      "irinotecan",
-      "CPT-11",
-      "开普拓"
-    ]
-  },
-  "阿法替尼": {
-    "aliases": [
-      "afatinib",
-      "吉泰瑞"
-    ]
-  },
-  "索拉非尼": {
-    "aliases": [
-      "sorafenib",
-      "多吉美"
-    ]
-  },
-  "舒尼替尼": {
-    "aliases": [
-      "sunitinib",
-      "索坦"
-    ]
-  },
-  "仑伐替尼": {
-    "aliases": [
-      "lenvatinib",
-      "乐卫玛"
-    ]
-  },
-  "阿昔替尼": {
-    "aliases": [
-      "axitinib",
-      "英立达"
-    ]
-  },
-  "阿替利珠单抗": {
-    "aliases": [
-      "atezolizumab",
-      "T药",
-      "泰圣奇"
-    ]
-  },
-  "度伐利尤单抗": {
-    "aliases": [
-      "durvalumab",
-      "英飞凡"
-    ]
-  },
-  "西妥昔单抗": {
-    "aliases": [
-      "cetuximab",
-      "爱必妥"
-    ]
-  },
-  "来那度胺": {
-    "aliases": [
-      "lenalidomide",
-      "瑞复美"
-    ]
-  },
-  "沙利度胺": {
-    "aliases": [
-      "thalidomide",
-      "反应停"
-    ]
-  },
-  "硼替佐米": {
-    "aliases": [
-      "bortezomib",
-      "万珂"
-    ]
-  },
-  "他莫昔芬": {
-    "aliases": [
-      "tamoxifen",
-      "三苯氧胺"
-    ]
-  },
-  "阿那曲唑": {
-    "aliases": [
-      "anastrozole",
-      "瑞宁得"
-    ]
-  },
-  "来曲唑": {
-    "aliases": [
-      "letrozole",
-      "弗隆"
-    ]
-  },
-  "氟维司群": {
-    "aliases": [
-      "fulvestrant",
-      "芙仕得"
-    ]
-  },
-  "戈舍瑞林": {
-    "aliases": [
-      "goserelin",
-      "诺雷德"
-    ]
-  },
-  "亮丙瑞林": {
-    "aliases": [
-      "leuprorelin",
-      "抑那通"
-    ]
-  },
-  "艾多沙班": {
-    "aliases": [
-      "edoxaban",
-      "里先安"
-    ]
-  },
-  "链激酶": {
-    "aliases": [
-      "streptokinase",
-      "SK"
-    ]
-  },
-  "尿激酶": {
-    "aliases": [
-      "urokinase",
-      "UK"
-    ]
-  },
-  "阿替普酶": {
-    "aliases": [
-      "alteplase",
-      "tPA",
-      "爱通立"
-    ]
-  },
-  "氨甲环酸": {
-    "aliases": [
-      "tranexamic acid",
-      "妥塞敏"
-    ]
-  },
-  "氨基己酸": {
-    "aliases": [
-      "aminocaproic acid",
-      "6-氨基己酸"
-    ]
-  },
-  "酚磺乙胺": {
-    "aliases": [
-      "etamsylate",
-      "止血敏"
-    ]
-  },
-  "维生素K1": {
-    "aliases": [
-      "vitamin K1",
-      "phytomenadione",
-      "叶绿醌"
-    ]
-  },
-  "富马酸亚铁": {
-    "aliases": [
-      "ferrous fumarate"
-    ]
-  },
-  "甲钴胺": {
-    "aliases": [
-      "mecobalamin",
-      "弥可保"
-    ]
-  },
-  "腺苷钴胺": {
-    "aliases": [
-      "cobamamide"
-    ]
-  },
-  "罗沙司他": {
-    "aliases": [
-      "roxadustat",
-      "爱瑞卓"
-    ]
-  },
-  "重组人血小板生成素": {
-    "aliases": [
-      "recombinant human thrombopoietin",
-      "TPO",
-      "特比澳"
-    ]
-  },
-  "艾曲泊帕": {
-    "aliases": [
-      "eltrombopag",
-      "瑞弗兰"
-    ]
-  },
-  "鲨肝醇": {
-    "aliases": [
-      "batyl alcohol"
-    ]
-  },
-  "丁酸氢化可的松": {
-    "aliases": [
-      "hydrocortisone butyrate",
-      "尤卓尔"
-    ]
-  },
-  "哈西奈德": {
-    "aliases": [
-      "halcinonide",
-      "乐肤液"
-    ]
-  },
-  "曲安奈德": {
-    "aliases": [
-      "triamcinolone acetonide",
-      "曲安缩松",
-      "康宁克通"
-    ]
-  },
-  "异维A酸": {
-    "aliases": [
-      "isotretinoin",
-      "泰尔丝",
-      "13-顺维A酸"
-    ]
-  },
-  "咪康唑": {
-    "aliases": [
-      "miconazole",
-      "达克宁"
-    ]
-  },
-  "联苯苄唑": {
-    "aliases": [
-      "bifonazole",
-      "美克"
-    ]
-  },
-  "喷昔洛韦": {
-    "aliases": [
-      "penciclovir",
-      "夫坦"
-    ]
-  },
-  "炉甘石": {
-    "aliases": [
-      "calamine",
-      "炉甘石洗剂"
-    ]
-  },
-  "氧化锌": {
-    "aliases": [
-      "zinc oxide"
-    ]
-  },
-  "尿素": {
-    "aliases": [
-      "urea",
-      "尿素乳膏"
-    ]
-  },
-  "水杨酸": {
-    "aliases": [
-      "salicylic acid",
-      "BHA"
-    ]
-  },
-  "过氧苯甲酰": {
-    "aliases": [
-      "benzoyl peroxide",
-      "班赛"
-    ]
-  },
-  "壬二酸": {
-    "aliases": [
-      "azelaic acid",
-      "杜鹃花酸"
-    ]
-  },
-  "米诺地尔": {
-    "aliases": [
-      "minoxidil",
-      "落健",
-      "蔓迪"
-    ]
-  },
-  "他氟前列素": {
-    "aliases": [
-      "tafluprost"
-    ]
-  },
-  "卡替洛尔": {
-    "aliases": [
-      "carteolol",
-      "美开朗"
-    ]
-  },
-  "多佐胺": {
-    "aliases": [
-      "dorzolamide",
-      "添素得"
-    ]
-  },
-  "溴莫尼定": {
-    "aliases": [
-      "brimonidine",
-      "阿法根"
-    ]
-  },
-  "毛果芸香碱": {
-    "aliases": [
-      "pilocarpine",
-      "匹鲁卡品"
-    ]
-  },
-  "普拉洛芬": {
-    "aliases": [
-      "pranoprofen",
-      "普南扑灵"
-    ]
-  },
-  "溴芬酸": {
-    "aliases": [
-      "bromfenac",
-      "溴芬酸钠"
-    ]
-  },
-  "氟米龙": {
-    "aliases": [
-      "fluorometholone",
-      "氟美瞳",
-      "艾氟龙"
-    ]
-  },
-  "托吡卡胺": {
-    "aliases": [
-      "tropicamide",
-      "美多丽"
-    ]
-  },
-  "复方托吡卡胺": {
-    "aliases": [
-      "compound tropicamide",
-      "美多丽P"
-    ]
-  },
-  "度他雄胺": {
-    "aliases": [
-      "dutasteride",
-      "适尿通"
-    ]
-  },
-  "赛洛多辛": {
-    "aliases": [
-      "silodosin",
-      "优利福"
-    ]
-  },
-  "索利那新": {
-    "aliases": [
-      "solifenacin",
-      "卫喜康"
-    ]
-  },
-  "托特罗定": {
-    "aliases": [
-      "tolterodine",
-      "舍尼亭"
-    ]
-  },
-  "米拉贝隆": {
-    "aliases": [
-      "mirabegron",
-      "贝坦利"
-    ]
-  },
-  "奥昔布宁": {
-    "aliases": [
-      "oxybutynin",
-      "尿多灵"
-    ]
-  },
-  "达泊西汀": {
-    "aliases": [
-      "dapoxetine",
-      "必利劲"
-    ]
-  },
-  "碘塞罗宁": {
-    "aliases": [
-      "liothyronine",
-      "T3"
-    ]
-  },
-  "卡比马唑": {
-    "aliases": [
-      "carbimazole",
-      "甲亢平"
-    ]
-  },
-  "泼尼松龙": {
-    "aliases": [
-      "prednisolone",
-      "强的松龙",
-      "氢化泼尼松"
-    ]
-  },
-  "氟氢可的松": {
-    "aliases": [
-      "fludrocortisone",
-      "氟氢可的松醋酸酯"
-    ]
-  },
-  "地特胰岛素": {
-    "aliases": [
-      "insulin detemir",
-      "诺和平"
-    ]
-  },
-  "阿苯达唑": {
-    "aliases": [
-      "albendazole",
-      "肠虫清"
-    ]
-  },
-  "吡喹酮": {
-    "aliases": [
-      "praziquantel"
-    ]
-  },
-  "氯喹": {
-    "aliases": [
-      "chloroquine"
-    ]
-  },
-  "羟氯喹": {
-    "aliases": [
-      "hydroxychloroquine",
-      "纷乐",
-      "硫酸羟氯喹"
-    ]
-  },
-  "青蒿素": {
-    "aliases": [
-      "artemisinin",
-      "青蒿素片"
-    ]
-  },
-  "青蒿琥酯": {
-    "aliases": [
-      "artesunate"
-    ]
-  },
-  "蒿甲醚": {
-    "aliases": [
-      "artemether"
-    ]
-  },
-  "伯氨喹": {
-    "aliases": [
-      "primaquine",
-      "磷酸伯氨喹"
-    ]
-  },
-  "乙胺嘧啶": {
-    "aliases": [
-      "pyrimethamine",
-      "息疟定"
-    ]
-  },
-  "戊酸雌二醇": {
-    "aliases": [
-      "estradiol valerate",
-      "补佳乐"
-    ]
-  },
-  "雌二醇": {
-    "aliases": [
-      "estradiol",
-      "E2"
-    ]
-  },
-  "结合雌激素": {
-    "aliases": [
-      "conjugated estrogens",
-      "倍美力"
-    ]
-  },
-  "尼尔雌醇": {
-    "aliases": [
-      "nilestriol",
-      "维尼安"
-    ]
-  },
-  "黄体酮": {
-    "aliases": [
-      "progesterone",
-      "孕酮"
+      "methylrosanilinium chloride",
+      "紫药水",
+      "龙胆紫"
     ]
   },
   "甲羟孕酮": {
@@ -2836,17 +3531,20 @@
       "安宫黄体酮"
     ]
   },
-  "炔诺酮": {
+  "甲钴胺": {
     "aliases": [
-      "norethisterone",
-      "norethindrone"
+      "mecobalamin",
+      "弥可保"
     ]
   },
-  "左炔诺孕酮": {
+  "白消安": {
     "aliases": [
-      "levonorgestrel",
-      "LNG",
-      "毓婷"
+      "busulfan",
+      "busulphan",
+      "BU"
+    ],
+    "brandNames": [
+      "马利兰"
     ]
   },
   "睾酮": {
@@ -2855,40 +3553,10 @@
       "睾丸素"
     ]
   },
-  "十一酸睾酮": {
+  "石杉碱甲": {
     "aliases": [
-      "testosterone undecanoate",
-      "安特尔"
-    ]
-  },
-  "比卡鲁胺": {
-    "aliases": [
-      "bicalutamide",
-      "康士得"
-    ]
-  },
-  "氯米芬": {
-    "aliases": [
-      "clomiphene",
-      "克罗米芬",
-      "枸橼酸氯米芬"
-    ]
-  },
-  "米非司酮": {
-    "aliases": [
-      "mifepristone",
-      "息隐"
-    ]
-  },
-  "卡前列甲酯": {
-    "aliases": [
-      "carboprost methylate"
-    ]
-  },
-  "替勃龙": {
-    "aliases": [
-      "tibolone",
-      "利维爱"
+      "huperzine A",
+      "双益平"
     ]
   },
   "破伤风抗毒素": {
@@ -2897,28 +3565,78 @@
       "TAT"
     ]
   },
-  "人免疫球蛋白": {
+  "硝苯地平": {
     "aliases": [
-      "human immunoglobulin"
+      "nifedipine",
+      "拜新同",
+      "心痛定",
+      "硝苯地平控释片"
     ]
   },
-  "静注人免疫球蛋白": {
+  "硝西泮": {
     "aliases": [
-      "intravenous immunoglobulin",
-      "IVIG",
-      "静丙"
+      "nitrazepam",
+      "硝基安定"
     ]
   },
-  "抗胸腺细胞球蛋白": {
+  "硝酸异山梨酯": {
     "aliases": [
-      "antithymocyte globulin",
-      "ATG"
+      "isosorbide dinitrate",
+      "消心痛",
+      "异舒吉"
     ]
   },
-  "碘海醇": {
+  "硝酸甘油": {
     "aliases": [
-      "iohexol",
-      "欧乃派克"
+      "nitroglycerin",
+      "glyceryl trinitrate",
+      "三硝酸甘油酯",
+      "GTN"
+    ]
+  },
+  "硫唑嘌呤": {
+    "aliases": [
+      "azathioprine",
+      "依木兰"
+    ]
+  },
+  "硫喷妥钠": {
+    "aliases": [
+      "thiopental sodium",
+      "戊硫巴比妥钠"
+    ]
+  },
+  "硫糖铝": {
+    "aliases": [
+      "sucralfate",
+      "迪先"
+    ]
+  },
+  "硫酸亚铁": {
+    "aliases": [
+      "ferrous sulfate"
+    ]
+  },
+  "硫酸软骨素": {
+    "aliases": [
+      "chondroitin sulfate"
+    ]
+  },
+  "硫酸钡": {
+    "aliases": [
+      "barium sulfate",
+      "钡餐"
+    ]
+  },
+  "硫酸锌": {
+    "aliases": [
+      "zinc sulfate"
+    ]
+  },
+  "硼替佐米": {
+    "aliases": [
+      "bortezomib",
+      "万珂"
     ]
   },
   "碘佛醇": {
@@ -2933,132 +3651,200 @@
       "威视派克"
     ]
   },
+  "碘塞罗宁": {
+    "aliases": [
+      "liothyronine",
+      "T3"
+    ]
+  },
   "碘普罗胺": {
     "aliases": [
       "iopromide",
       "优维显"
     ]
   },
-  "钆喷酸葡胺": {
+  "碘海醇": {
     "aliases": [
-      "gadopentetate dimeglumine",
-      "马根维显"
+      "iohexol",
+      "欧乃派克"
     ]
   },
-  "钆布醇": {
+  "碳酸氢钠": {
     "aliases": [
-      "gadobutrol",
-      "加乐显"
+      "sodium bicarbonate",
+      "小苏打",
+      "NaHCO3"
     ]
   },
-  "钆特酸葡胺": {
+  "碳酸钙": {
     "aliases": [
-      "gadoterate meglumine",
-      "多它灵"
+      "calcium carbonate"
     ]
   },
-  "硫酸钡": {
+  "碳酸锂": {
     "aliases": [
-      "barium sulfate",
-      "钡餐"
+      "lithium carbonate",
+      "lithium"
     ]
   },
-  "聚维酮碘": {
+  "磷霉素": {
     "aliases": [
-      "povidone iodine",
-      "碘伏",
-      "PVP-I"
+      "fosfomycin",
+      "复美欣"
     ]
   },
-  "氯己定": {
+  "磺胺甲噁唑": {
     "aliases": [
-      "chlorhexidine"
+      "sulfamethoxazole",
+      "SMZ"
+    ],
+    "brandNames": [
+      "新诺明"
     ]
   },
-  "苯扎氯铵": {
+  "福多司坦": {
     "aliases": [
-      "benzalkonium chloride",
-      "洁尔灭"
+      "fudosteine"
     ]
   },
-  "过氧化氢": {
+  "福莫特罗": {
     "aliases": [
-      "hydrogen peroxide",
-      "双氧水"
+      "formoterol",
+      "富马酸福莫特罗",
+      "奥克斯都保"
     ]
   },
-  "乙醇": {
+  "福辛普利": {
     "aliases": [
-      "ethanol",
-      "酒精",
-      "alcohol"
+      "fosinopril",
+      "蒙诺"
     ]
   },
-  "甲紫": {
+  "秋水仙碱": {
     "aliases": [
-      "methylrosanilinium chloride",
-      "紫药水",
-      "龙胆紫"
+      "colchicine",
+      "秋水仙素"
     ]
   },
-  "去氨加压素": {
+  "米力农": {
     "aliases": [
-      "desmopressin",
-      "DDAVP",
-      "弥凝"
+      "milrinone",
+      "鲁南力康"
     ]
   },
-  "尿促性素": {
+  "米卡芬净": {
     "aliases": [
-      "menotropin",
-      "HMG",
-      "丽申宝"
+      "micafungin",
+      "米开民"
     ]
   },
-  "戈那瑞林": {
+  "米托蒽醌": {
     "aliases": [
-      "gonadorelin",
-      "GnRH"
+      "mitoxantrone",
+      "MIT"
     ]
   },
-  "巴氯芬": {
+  "米拉贝隆": {
     "aliases": [
-      "baclofen",
-      "力奥来素"
+      "mirabegron",
+      "贝坦利"
     ]
   },
-  "乙哌立松": {
+  "米氮平": {
     "aliases": [
-      "eperisone",
-      "妙纳"
+      "mirtazapine",
+      "瑞美隆"
     ]
   },
-  "替扎尼定": {
+  "米索前列醇": {
     "aliases": [
-      "tizanidine",
-      "松得乐"
+      "misoprostol",
+      "喜克溃"
     ]
   },
-  "氯唑沙宗": {
+  "米诺地尔": {
     "aliases": [
-      "chlorzoxazone"
+      "minoxidil",
+      "落健",
+      "蔓迪"
     ]
   },
-  "环苯扎林": {
+  "米诺环素": {
     "aliases": [
-      "cyclobenzaprine"
+      "minocycline"
     ]
   },
-  "美索巴莫": {
+  "米非司酮": {
     "aliases": [
-      "methocarbamol",
-      "鲁南贝特"
+      "mifepristone",
+      "息隐"
     ]
   },
-  "阿曲库铵": {
+  "索他洛尔": {
     "aliases": [
-      "atracurium",
-      "苯磺阿曲库铵"
+      "sotalol",
+      "盐酸索他洛尔",
+      "施太可"
+    ]
+  },
+  "索利那新": {
+    "aliases": [
+      "solifenacin",
+      "卫喜康"
+    ]
+  },
+  "索拉非尼": {
+    "aliases": [
+      "sorafenib",
+      "多吉美"
+    ]
+  },
+  "索磷布韦": {
+    "aliases": [
+      "sofosbuvir",
+      "索华迪"
+    ]
+  },
+  "紫杉醇": {
+    "aliases": [
+      "paclitaxel",
+      "泰素"
+    ]
+  },
+  "红霉素": {
+    "aliases": [
+      "erythromycin"
+    ]
+  },
+  "纳武利尤单抗": {
+    "aliases": [
+      "nivolumab",
+      "欧狄沃",
+      "O药"
+    ]
+  },
+  "纳洛酮": {
+    "aliases": [
+      "naloxone"
+    ]
+  },
+  "结合雌激素": {
+    "aliases": [
+      "conjugated estrogens",
+      "倍美力"
+    ]
+  },
+  "维A酸": {
+    "aliases": [
+      "tretinoin",
+      "维甲酸",
+      "全反式维A酸"
+    ]
+  },
+  "维奈克拉": {
+    "aliases": [
+      "venetoclax",
+      "唯可来"
     ]
   },
   "维库溴铵": {
@@ -3067,152 +3853,16 @@
       "万可松"
     ]
   },
-  "罗库溴铵": {
+  "维拉帕米": {
     "aliases": [
-      "rocuronium",
-      "爱可松"
+      "verapamil",
+      "异搏定"
     ]
   },
-  "己酮可可碱": {
+  "维格列汀": {
     "aliases": [
-      "pentoxifylline",
-      "潘通"
-    ]
-  },
-  "丁咯地尔": {
-    "aliases": [
-      "buflomedil",
-      "活脑灵"
-    ]
-  },
-  "尼麦角林": {
-    "aliases": [
-      "nicergoline",
-      "思尔明"
-    ]
-  },
-  "长春西汀": {
-    "aliases": [
-      "vinpocetine",
-      "开文通"
-    ]
-  },
-  "倍他司汀": {
-    "aliases": [
-      "betahistine",
-      "敏使朗",
-      "甲磺酸倍他司汀"
-    ]
-  },
-  "氟桂利嗪": {
-    "aliases": [
-      "flunarizine",
-      "西比灵"
-    ]
-  },
-  "桂利嗪": {
-    "aliases": [
-      "cinnarizine",
-      "脑益嗪"
-    ]
-  },
-  "贝前列素": {
-    "aliases": [
-      "beraprost",
-      "德纳"
-    ]
-  },
-  "丙泊酚": {
-    "aliases": [
-      "propofol",
-      "异丙酚",
-      "得普利麻"
-    ]
-  },
-  "依托咪酯": {
-    "aliases": [
-      "etomidate",
-      "宜妥利"
-    ]
-  },
-  "氯胺酮": {
-    "aliases": [
-      "ketamine",
-      "凯他敏"
-    ]
-  },
-  "硫喷妥钠": {
-    "aliases": [
-      "thiopental sodium",
-      "戊硫巴比妥钠"
-    ]
-  },
-  "七氟烷": {
-    "aliases": [
-      "sevoflurane",
-      "七氟醚",
-      "喜保福宁"
-    ]
-  },
-  "异氟烷": {
-    "aliases": [
-      "isoflurane",
-      "异氟醚"
-    ]
-  },
-  "地氟烷": {
-    "aliases": [
-      "desflurane",
-      "地氟醚",
-      "优宁"
-    ]
-  },
-  "恩氟烷": {
-    "aliases": [
-      "enflurane",
-      "安氟醚"
-    ]
-  },
-  "利多卡因": {
-    "aliases": [
-      "lidocaine",
-      "赛罗卡因"
-    ]
-  },
-  "布比卡因": {
-    "aliases": [
-      "bupivacaine",
-      "丁吡卡因",
-      "麻卡因"
-    ]
-  },
-  "罗哌卡因": {
-    "aliases": [
-      "ropivacaine",
-      "耐乐品"
-    ]
-  },
-  "左布比卡因": {
-    "aliases": [
-      "levobupivacaine"
-    ]
-  },
-  "丁卡因": {
-    "aliases": [
-      "tetracaine",
-      "地卡因"
-    ]
-  },
-  "丙美卡因": {
-    "aliases": [
-      "proparacaine",
-      "爱尔卡因"
-    ]
-  },
-  "奥布卡因": {
-    "aliases": [
-      "oxybuprocaine",
-      "倍诺喜"
+      "vildagliptin",
+      "佳维乐"
     ]
   },
   "维生素A": {
@@ -3227,6 +3877,13 @@
       "vitamin B1",
       "thiamine",
       "硫胺素"
+    ]
+  },
+  "维生素B12": {
+    "aliases": [
+      "vitamin B12",
+      "氰钴胺",
+      "cobalamin"
     ]
   },
   "维生素B2": {
@@ -3250,6 +3907,13 @@
       "抗坏血酸"
     ]
   },
+  "维生素D": {
+    "aliases": [
+      "vitamin D",
+      "胆钙化醇",
+      "cholecalciferol"
+    ]
+  },
   "维生素E": {
     "aliases": [
       "vitamin E",
@@ -3257,32 +3921,356 @@
       "生育酚"
     ]
   },
-  "烟酰胺": {
+  "维生素K1": {
     "aliases": [
-      "nicotinamide",
-      "维生素B3",
-      "维生素PP"
+      "vitamin K1",
+      "phytomenadione",
+      "叶绿醌"
     ]
   },
-  "泛酸钙": {
+  "维莫非尼": {
     "aliases": [
-      "calcium pantothenate",
-      "维生素B5"
+      "vemurafenib",
+      "佐博伏"
     ]
   },
-  "枸橼酸钙": {
+  "缬沙坦": {
     "aliases": [
-      "calcium citrate"
+      "valsartan",
+      "代文"
     ]
   },
-  "硫酸锌": {
+  "缬沙坦/氨氯地平": {
     "aliases": [
-      "zinc sulfate"
+      "valsartan/amlodipine",
+      "倍博特"
     ]
   },
-  "葡萄糖酸锌": {
+  "罗匹尼罗": {
     "aliases": [
-      "zinc gluconate"
+      "ropinirole"
+    ]
+  },
+  "罗哌卡因": {
+    "aliases": [
+      "ropivacaine",
+      "耐乐品"
+    ]
+  },
+  "罗库溴铵": {
+    "aliases": [
+      "rocuronium",
+      "爱可松"
+    ]
+  },
+  "罗格列酮": {
+    "aliases": [
+      "rosiglitazone",
+      "文迪雅"
+    ]
+  },
+  "罗沙司他": {
+    "aliases": [
+      "roxadustat",
+      "爱瑞卓"
+    ]
+  },
+  "罗红霉素": {
+    "aliases": [
+      "roxithromycin",
+      "罗红霉素片"
+    ]
+  },
+  "美司钠": {
+    "aliases": [
+      "mesna",
+      "美安"
+    ]
+  },
+  "美托拉宗": {
+    "aliases": [
+      "metolazone"
+    ]
+  },
+  "美托洛尔": {
+    "aliases": [
+      "metoprolol",
+      "倍他乐克",
+      "酒石酸美托洛尔"
+    ]
+  },
+  "美替洛尔": {
+    "aliases": [
+      "metipranolol"
+    ]
+  },
+  "美泊利珠单抗": {
+    "aliases": [
+      "mepolizumab",
+      "新可来"
+    ]
+  },
+  "美法仑": {
+    "aliases": [
+      "melphalan",
+      "马法兰",
+      "L-PAM"
+    ]
+  },
+  "美洛昔康": {
+    "aliases": [
+      "meloxicam",
+      "莫比可"
+    ]
+  },
+  "美索巴莫": {
+    "aliases": [
+      "methocarbamol",
+      "鲁南贝特"
+    ]
+  },
+  "美罗培南": {
+    "aliases": [
+      "meropenem",
+      "美平"
+    ]
+  },
+  "美贝维林": {
+    "aliases": [
+      "mebeverine",
+      "杜适林"
+    ]
+  },
+  "美金刚": {
+    "aliases": [
+      "memantine",
+      "盐酸美金刚",
+      "易倍申"
+    ]
+  },
+  "羟基脲": {
+    "aliases": [
+      "hydroxycarbamide",
+      "hydroxyurea",
+      "HU"
+    ],
+    "brandNames": [
+      "羟基脲片"
+    ]
+  },
+  "羟氯喹": {
+    "aliases": [
+      "hydroxychloroquine",
+      "纷乐",
+      "硫酸羟氯喹"
+    ]
+  },
+  "羟甲烯龙": {
+    "aliases": [
+      "oxymetholone",
+      "康复龙"
+    ]
+  },
+  "羟考酮": {
+    "aliases": [
+      "oxycodone",
+      "奥施康定"
+    ]
+  },
+  "群多普利": {
+    "aliases": [
+      "trandolapril"
+    ]
+  },
+  "羧甲司坦": {
+    "aliases": [
+      "carbocisteine",
+      "羧甲司坦口服液"
+    ]
+  },
+  "羧甲基纤维素": {
+    "aliases": [
+      "carboxymethylcellulose",
+      "潇莱威"
+    ]
+  },
+  "考比替尼": {
+    "aliases": [
+      "cobimetinib",
+      "Cotellic"
+    ]
+  },
+  "联苯双酯": {
+    "aliases": [
+      "bifendate",
+      "联苯双酯滴丸"
+    ]
+  },
+  "联苯苄唑": {
+    "aliases": [
+      "bifonazole",
+      "美克"
+    ]
+  },
+  "聚乙二醇": {
+    "aliases": [
+      "polyethylene glycol",
+      "PEG",
+      "福松"
+    ]
+  },
+  "聚乙烯醇": {
+    "aliases": [
+      "polyvinyl alcohol",
+      "瑞新"
+    ]
+  },
+  "聚维酮碘": {
+    "aliases": [
+      "povidone iodine",
+      "碘伏",
+      "PVP-I"
+    ]
+  },
+  "肝素": {
+    "aliases": [
+      "heparin",
+      "普通肝素"
+    ]
+  },
+  "肾上腺素": {
+    "aliases": [
+      "epinephrine",
+      "adrenaline",
+      "盐酸肾上腺素"
+    ]
+  },
+  "胰岛素": {
+    "aliases": [
+      "insulin",
+      "普通胰岛素",
+      "短效胰岛素"
+    ]
+  },
+  "胰酶": {
+    "aliases": [
+      "pancreatin",
+      "得每通",
+      "胰酶肠溶胶囊"
+    ]
+  },
+  "胰高血糖素": {
+    "aliases": [
+      "glucagon"
+    ]
+  },
+  "胶体果胶铋": {
+    "aliases": [
+      "colloidal bismuth pectin"
+    ]
+  },
+  "胺碘酮": {
+    "aliases": [
+      "amiodarone",
+      "可达龙"
+    ]
+  },
+  "腺苷蛋氨酸": {
+    "aliases": [
+      "ademetionine",
+      "S-腺苷蛋氨酸",
+      "思美泰"
+    ]
+  },
+  "腺苷钴胺": {
+    "aliases": [
+      "cobamamide"
+    ]
+  },
+  "舍曲林": {
+    "aliases": [
+      "sertraline",
+      "左洛复",
+      "Zoloft"
+    ]
+  },
+  "舒尼替尼": {
+    "aliases": [
+      "sunitinib",
+      "索坦"
+    ]
+  },
+  "舒必利": {
+    "aliases": [
+      "sulpiride"
+    ],
+    "brandNames": [
+      "舒必利片"
+    ]
+  },
+  "舒马普坦": {
+    "aliases": [
+      "sumatriptan",
+      "英明格"
+    ]
+  },
+  "艾司唑仑": {
+    "aliases": [
+      "estazolam",
+      "舒乐安定"
+    ]
+  },
+  "艾司西酞普兰": {
+    "aliases": [
+      "escitalopram",
+      "来士普",
+      "草酸艾司西酞普兰"
+    ]
+  },
+  "艾塞那肽": {
+    "aliases": [
+      "exenatide",
+      "百泌达"
+    ]
+  },
+  "艾多沙班": {
+    "aliases": [
+      "edoxaban",
+      "里先安"
+    ]
+  },
+  "艾托格列净": {
+    "aliases": [
+      "ertugliflozin"
+    ]
+  },
+  "艾普拉唑": {
+    "aliases": [
+      "ilaprazole",
+      "壹丽安"
+    ]
+  },
+  "艾曲泊帕": {
+    "aliases": [
+      "eltrombopag",
+      "瑞弗兰"
+    ]
+  },
+  "艾沙康唑": {
+    "aliases": [
+      "isavuconazole",
+      "艾沙康唑硫酸酯"
+    ]
+  },
+  "芬太尼": {
+    "aliases": [
+      "fentanyl"
+    ]
+  },
+  "苯丁酸氮芥": {
+    "aliases": [
+      "chlorambucil",
+      "留可然"
     ]
   },
   "苯丙哌林": {
@@ -3291,37 +4279,193 @@
       "咳快好"
     ]
   },
-  "喷托维林": {
+  "苯丙醇": {
     "aliases": [
-      "pentoxyverine",
-      "咳必清"
+      "phenylpropanol",
+      "利胆醇"
     ]
   },
-  "愈创甘油醚": {
+  "苯乙肼": {
     "aliases": [
-      "guaifenesin",
-      "愈创木酚甘油醚"
+      "phenelzine"
     ]
   },
-  "麻黄碱": {
+  "苯唑西林": {
     "aliases": [
-      "ephedrine",
-      "盐酸麻黄碱"
+      "oxacillin",
+      "苯唑西林钠"
     ]
   },
-  "环孢素": {
+  "苯妥英": {
     "aliases": [
-      "ciclosporin",
-      "cyclosporine",
-      "新山地明",
-      "田可"
+      "phenytoin",
+      "大仑丁"
     ]
   },
-  "吗替麦考酚酯": {
+  "苯巴比妥": {
     "aliases": [
-      "mycophenolate mofetil",
-      "MMF",
-      "骁悉"
+      "phenobarbital",
+      "鲁米那",
+      "phenobarbitone"
+    ]
+  },
+  "苯扎氯铵": {
+    "aliases": [
+      "benzalkonium chloride",
+      "洁尔灭"
+    ]
+  },
+  "苯扎贝特": {
+    "aliases": [
+      "bezafibrate",
+      "必降脂"
+    ]
+  },
+  "苯海拉明": {
+    "aliases": [
+      "diphenhydramine",
+      "盐酸苯海拉明"
+    ]
+  },
+  "苯海索": {
+    "aliases": [
+      "trihexyphenidyl",
+      "安坦"
+    ]
+  },
+  "苯溴马隆": {
+    "aliases": [
+      "benzbromarone",
+      "立加利仙"
+    ]
+  },
+  "茚达特罗": {
+    "aliases": [
+      "indacaterol",
+      "昂润"
+    ]
+  },
+  "茴三硫": {
+    "aliases": [
+      "anethol trithione",
+      "胆维他"
+    ]
+  },
+  "茴拉西坦": {
+    "aliases": [
+      "aniracetam",
+      "三乐喜"
+    ]
+  },
+  "茶碱": {
+    "aliases": [
+      "theophylline",
+      "1,3-dimethylxanthine"
+    ]
+  },
+  "莫匹罗星": {
+    "aliases": [
+      "mupirocin",
+      "百多邦"
+    ]
+  },
+  "莫沙必利": {
+    "aliases": [
+      "mosapride",
+      "枸橼酸莫沙必利",
+      "加斯清"
+    ]
+  },
+  "莫西沙星": {
+    "aliases": [
+      "moxifloxacin",
+      "拜复乐",
+      "盐酸莫西沙星"
+    ]
+  },
+  "萘普生": {
+    "aliases": [
+      "naproxen",
+      "甲氧萘丙酸"
+    ]
+  },
+  "葡萄糖酸钙": {
+    "aliases": [
+      "calcium gluconate"
+    ]
+  },
+  "葡萄糖酸锌": {
+    "aliases": [
+      "zinc gluconate"
+    ]
+  },
+  "蒙脱石": {
+    "aliases": [
+      "montmorillonite",
+      "思密达",
+      "蒙脱石散"
+    ]
+  },
+  "蒿甲醚": {
+    "aliases": [
+      "artemether"
+    ]
+  },
+  "螺内酯": {
+    "aliases": [
+      "spironolactone",
+      "安体舒通"
+    ]
+  },
+  "表柔比星": {
+    "aliases": [
+      "epirubicin",
+      "表阿霉素",
+      "EPI"
+    ]
+  },
+  "西咪替丁": {
+    "aliases": [
+      "cimetidine",
+      "泰胃美"
+    ]
+  },
+  "西地那非": {
+    "aliases": [
+      "sildenafil",
+      "枸橼酸西地那非",
+      "万艾可"
+    ]
+  },
+  "西妥昔单抗": {
+    "aliases": [
+      "cetuximab",
+      "爱必妥"
+    ]
+  },
+  "西拉普利": {
+    "aliases": [
+      "cilazapril"
+    ]
+  },
+  "西替利嗪": {
+    "aliases": [
+      "cetirizine",
+      "仙特明",
+      "盐酸西替利嗪"
+    ]
+  },
+  "西格列汀": {
+    "aliases": [
+      "sitagliptin",
+      "捷诺维",
+      "磷酸西格列汀"
+    ]
+  },
+  "西甲硅油": {
+    "aliases": [
+      "simethicone",
+      "柏西"
     ]
   },
   "西罗莫司": {
@@ -3331,59 +4475,121 @@
       "雷帕鸣"
     ]
   },
-  "来氟米特": {
+  "西那卡塞": {
     "aliases": [
-      "leflunomide",
-      "爱若华"
+      "cinacalcet",
+      "盖平"
     ]
   },
-  "巴利昔单抗": {
+  "西酞普兰": {
     "aliases": [
-      "basiliximab",
-      "舒莱"
+      "citalopram",
+      "喜普妙"
     ]
   },
-  "伐昔洛韦": {
+  "诺氟沙星": {
     "aliases": [
-      "valaciclovir",
-      "明竹欣"
+      "norfloxacin",
+      "氟哌酸"
     ]
   },
-  "泛昔洛韦": {
+  "贝伐珠单抗": {
     "aliases": [
-      "famciclovir",
-      "泛维尔"
+      "bevacizumab",
+      "安维汀"
     ]
   },
-  "扎那米韦": {
+  "贝前列素": {
     "aliases": [
-      "zanamivir",
-      "乐感清"
+      "beraprost",
+      "德纳"
     ]
   },
-  "拉米夫定": {
+  "贝尼地平": {
     "aliases": [
-      "lamivudine",
-      "3TC",
-      "贺普丁"
+      "benidipine",
+      "可力洛"
     ]
   },
-  "索磷布韦": {
+  "贝那普利": {
     "aliases": [
-      "sofosbuvir",
-      "索华迪"
+      "benazepril",
+      "洛汀新",
+      "盐酸贝那普利"
     ]
   },
-  "双环醇": {
+  "赖脯胰岛素": {
     "aliases": [
-      "bicyclol",
-      "百赛诺"
+      "insulin lispro",
+      "优泌乐"
     ]
   },
-  "异甘草酸镁": {
+  "赖诺普利": {
     "aliases": [
-      "magnesium isoglycyrrhizinate",
-      "天晴甘美"
+      "lisinopril"
+    ]
+  },
+  "赛洛多辛": {
+    "aliases": [
+      "silodosin",
+      "优利福"
+    ]
+  },
+  "辛伐他汀": {
+    "aliases": [
+      "simvastatin",
+      "舒降之"
+    ]
+  },
+  "达卡巴嗪": {
+    "aliases": [
+      "dacarbazine",
+      "DTIC"
+    ],
+    "brandNames": [
+      "氮烯咪胺"
+    ]
+  },
+  "达托霉素": {
+    "aliases": [
+      "daptomycin",
+      "克必信"
+    ]
+  },
+  "达拉非尼": {
+    "aliases": [
+      "dabrafenib",
+      "泰菲乐"
+    ]
+  },
+  "达格列净": {
+    "aliases": [
+      "dapagliflozin",
+      "安达唐"
+    ]
+  },
+  "达比加群": {
+    "aliases": [
+      "dabigatran",
+      "泰毕全"
+    ]
+  },
+  "达泊西汀": {
+    "aliases": [
+      "dapoxetine",
+      "必利劲"
+    ]
+  },
+  "过氧化氢": {
+    "aliases": [
+      "hydrogen peroxide",
+      "双氧水"
+    ]
+  },
+  "过氧苯甲酰": {
+    "aliases": [
+      "benzoyl peroxide",
+      "班赛"
     ]
   },
   "还原型谷胱甘肽": {
@@ -3393,315 +4599,58 @@
       "古拉定"
     ]
   },
-  "多烯磷脂酰胆碱": {
+  "那他霉素": {
     "aliases": [
-      "polyene phosphatidylcholine",
-      "易善复"
+      "natamycin"
     ]
   },
-  "茴三硫": {
+  "那格列奈": {
     "aliases": [
-      "anethol trithione",
-      "胆维他"
+      "nateglinide",
+      "唐力"
     ]
   },
-  "苯丙醇": {
+  "酚磺乙胺": {
     "aliases": [
-      "phenylpropanol",
-      "利胆醇"
+      "etamsylate",
+      "止血敏"
     ]
   },
-  "13价肺炎球菌多糖结合疫苗": {
+  "酚酞": {
     "aliases": [
-      "PCV13",
-      "沛儿13"
+      "phenolphthalein",
+      "果导"
     ]
   },
-  "23价肺炎球菌多糖疫苗": {
+  "酮咯酸": {
     "aliases": [
-      "PPSV23",
-      "纽莫法"
+      "ketorolac",
+      "酮咯酸氨丁三醇"
     ]
   },
-  "乙型肝炎疫苗": {
+  "酮康唑": {
     "aliases": [
-      "hepatitis B vaccine",
-      "乙肝疫苗"
+      "ketoconazole",
+      "里素劳"
     ]
   },
-  "水痘疫苗": {
+  "酮替芬": {
     "aliases": [
-      "varicella vaccine"
+      "ketotifen",
+      "富马酸酮替芬"
     ]
   },
-  "卡介苗": {
+  "醋甲唑胺": {
     "aliases": [
-      "BCG",
-      "bacillus Calmette-Guérin"
+      "methazolamide"
     ]
   },
-  "依替膦酸二钠": {
+  "重组人促红素": {
     "aliases": [
-      "etidronate disodium",
-      "依膦"
-    ]
-  },
-  "唑来膦酸": {
-    "aliases": [
-      "zoledronic acid",
-      "密固达",
-      "择泰"
-    ]
-  },
-  "伊班膦酸": {
-    "aliases": [
-      "ibandronic acid",
-      "邦罗力"
-    ]
-  },
-  "特立帕肽": {
-    "aliases": [
-      "teriparatide",
-      "复泰奥"
-    ]
-  },
-  "依降钙素": {
-    "aliases": [
-      "elcatonin",
-      "益盖宁"
-    ]
-  },
-  "帕立骨化醇": {
-    "aliases": [
-      "paricalcitol",
-      "胜普乐"
-    ]
-  },
-  "度骨化醇": {
-    "aliases": [
-      "doxercalciferol"
-    ]
-  },
-  "奥利司他": {
-    "aliases": [
-      "orlistat",
-      "赛尼可",
-      "舒尔佳"
-    ]
-  },
-  "司坦唑醇": {
-    "aliases": [
-      "stanozolol",
-      "康力龙"
-    ]
-  },
-  "氧雄龙": {
-    "aliases": [
-      "oxandrolone"
-    ]
-  },
-  "羟甲烯龙": {
-    "aliases": [
-      "oxymetholone",
-      "康复龙"
-    ]
-  },
-  "伊托必利": {
-    "aliases": [
-      "itopride",
-      "瑞复啉"
-    ]
-  },
-  "培哚普利/氨氯地平": {
-    "aliases": [
-      "perindopril/amlodipine",
-      "百安新"
-    ]
-  },
-  "乌司他丁": {
-    "aliases": [
-      "ulinastatin",
-      "天普洛安"
-    ]
-  },
-  "亚叶酸钙": {
-    "aliases": [
-      "calcium folinate",
-      "CF",
-      "立可林"
-    ]
-  },
-  "二巯丁二酸": {
-    "aliases": [
-      "succimer",
-      "DMSA"
-    ]
-  },
-  "二巯丙醇": {
-    "aliases": [
-      "dimercaprol",
-      "BAL"
-    ]
-  },
-  "二氮嗪": {
-    "aliases": [
-      "diazoxide",
-      "低压唑"
-    ]
-  },
-  "二甲硅油": {
-    "aliases": [
-      "dimethicone"
-    ]
-  },
-  "美司钠": {
-    "aliases": [
-      "mesna",
-      "美安"
-    ]
-  },
-  "小檗碱": {
-    "aliases": [
-      "berberine",
-      "黄连素"
-    ]
-  },
-  "丁苯酞": {
-    "aliases": [
-      "dl-3-n-butylphthalide",
-      "恩必普"
-    ]
-  },
-  "丁螺环酮": {
-    "aliases": [
-      "buspirone",
-      "一舒"
-    ]
-  },
-  "三唑仑": {
-    "aliases": [
-      "triazolam",
-      "海乐神"
-    ]
-  },
-  "丙米嗪": {
-    "aliases": [
-      "imipramine",
-      "米帕明"
-    ]
-  },
-  "丁丙诺啡": {
-    "aliases": [
-      "buprenorphine"
-    ]
-  },
-  "交沙霉素": {
-    "aliases": [
-      "josamycin"
-    ]
-  },
-  "依替米星": {
-    "aliases": [
-      "etimicin",
-      "悉能"
-    ]
-  },
-  "利福喷丁": {
-    "aliases": [
-      "rifapentine"
-    ]
-  },
-  "利托那韦": {
-    "aliases": [
-      "ritonavir",
-      "利托那韦片"
-    ]
-  },
-  "依非韦伦": {
-    "aliases": [
-      "efavirenz",
-      "施多宁"
-    ]
-  },
-  "替比夫定": {
-    "aliases": [
-      "telbivudine",
-      "素比伏"
-    ]
-  },
-  "乌拉地尔": {
-    "aliases": [
-      "urapidil",
-      "亚宁定"
-    ]
-  },
-  "伊伐布雷定": {
-    "aliases": [
-      "ivabradine",
-      "可兰特"
-    ]
-  },
-  "伊拉地平": {
-    "aliases": [
-      "isradipine"
-    ]
-  },
-  "依洛尤单抗": {
-    "aliases": [
-      "evolocumab",
-      "瑞百安"
-    ]
-  },
-  "阿利西尤单抗": {
-    "aliases": [
-      "alirocumab",
-      "波立达"
-    ]
-  },
-  "丙吡胺": {
-    "aliases": [
-      "disopyramide",
-      "达舒平"
-    ]
-  },
-  "氟卡尼": {
-    "aliases": [
-      "flecainide"
-    ]
-  },
-  "依普沙坦": {
-    "aliases": [
-      "eprosartan",
-      "泰络欣"
-    ]
-  },
-  "依替巴肽": {
-    "aliases": [
-      "eptifibatide",
-      "埃替非巴肽"
-    ]
-  },
-  "依前列醇": {
-    "aliases": [
-      "epoprostenol",
-      "前列环素"
-    ]
-  },
-  "伊洛前列素": {
-    "aliases": [
-      "iloprost",
-      "万他维"
-    ]
-  },
-  "阿加曲班": {
-    "aliases": [
-      "argatroban"
-    ]
-  },
-  "人凝血酶原复合物": {
-    "aliases": [
-      "prothrombin complex concentrate",
-      "PCC"
+      "recombinant human erythropoietin",
+      "EPO",
+      "依泊汀",
+      "利血宝"
     ]
   },
   "重组人凝血因子VIIa": {
@@ -3710,32 +4659,326 @@
       "诺其"
     ]
   },
-  "二硫化硒": {
+  "重组人血小板生成素": {
     "aliases": [
-      "selenium sulfide",
-      "希尔生"
+      "recombinant human thrombopoietin",
+      "TPO",
+      "特比澳"
     ]
   },
-  "伊维菌素": {
+  "金刚烷胺": {
     "aliases": [
-      "ivermectin"
+      "amantadine",
+      "盐酸金刚烷胺"
     ]
   },
-  "卡泊三醇": {
+  "钆喷酸葡胺": {
     "aliases": [
-      "calcipotriol",
-      "达力士"
+      "gadopentetate dimeglumine",
+      "马根维显"
     ]
   },
-  "他卡西醇": {
+  "钆布醇": {
     "aliases": [
-      "tacalcitol"
+      "gadobutrol",
+      "加乐显"
     ]
   },
-  "克立硼罗": {
+  "钆特酸葡胺": {
     "aliases": [
-      "crisaborole",
-      "舒坦明"
+      "gadoterate meglumine",
+      "多它灵"
+    ]
+  },
+  "铁": {
+    "aliases": [
+      "iron"
+    ]
+  },
+  "铝碳酸镁": {
+    "aliases": [
+      "hydrotalcite",
+      "达喜"
+    ]
+  },
+  "链激酶": {
+    "aliases": [
+      "streptokinase",
+      "SK"
+    ]
+  },
+  "长春新碱": {
+    "aliases": [
+      "vincristine",
+      "VCR"
+    ]
+  },
+  "长春瑞滨": {
+    "aliases": [
+      "vinorelbine",
+      "NVB",
+      "诺维本"
+    ]
+  },
+  "长春碱": {
+    "aliases": [
+      "vinblastine",
+      "VLB"
+    ]
+  },
+  "长春西汀": {
+    "aliases": [
+      "vinpocetine",
+      "开文通"
+    ]
+  },
+  "门冬胰岛素": {
+    "aliases": [
+      "insulin aspart",
+      "诺和锐"
+    ]
+  },
+  "阿利吉仑": {
+    "aliases": [
+      "aliskiren",
+      "锐思力"
+    ]
+  },
+  "阿利维A酸": {
+    "aliases": [
+      "alitretinoin"
+    ]
+  },
+  "阿利西尤单抗": {
+    "aliases": [
+      "alirocumab",
+      "波立达"
+    ]
+  },
+  "阿加曲班": {
+    "aliases": [
+      "argatroban"
+    ]
+  },
+  "阿卡波糖": {
+    "aliases": [
+      "acarbose",
+      "拜唐苹"
+    ]
+  },
+  "阿司匹林": {
+    "aliases": [
+      "aspirin",
+      "乙酰水杨酸",
+      "acetylsalicylic acid",
+      "ASA"
+    ],
+    "brandNames": [
+      "拜阿司匹灵"
+    ]
+  },
+  "阿哌沙班": {
+    "aliases": [
+      "apixaban",
+      "艾乐妥"
+    ]
+  },
+  "阿奇霉素": {
+    "aliases": [
+      "azithromycin",
+      "希舒美"
+    ]
+  },
+  "阿尼芬净": {
+    "aliases": [
+      "anidulafungin"
+    ]
+  },
+  "阿巴西普": {
+    "aliases": [
+      "abatacept",
+      "恩瑞舒"
+    ]
+  },
+  "阿帕替尼": {
+    "aliases": [
+      "apatinib"
+    ],
+    "brandNames": [
+      "艾坦"
+    ]
+  },
+  "阿扑吗啡": {
+    "aliases": [
+      "apomorphine"
+    ]
+  },
+  "阿托伐他汀": {
+    "aliases": [
+      "atorvastatin",
+      "阿托伐他汀钙",
+      "立普妥"
+    ]
+  },
+  "阿托品": {
+    "aliases": [
+      "atropine",
+      "硫酸阿托品"
+    ]
+  },
+  "阿昔替尼": {
+    "aliases": [
+      "axitinib",
+      "英立达"
+    ]
+  },
+  "阿昔洛韦": {
+    "aliases": [
+      "acyclovir",
+      "无环鸟苷",
+      "阿昔洛韦钠"
+    ]
+  },
+  "阿昔莫司": {
+    "aliases": [
+      "acipimox",
+      "乐脂平"
+    ]
+  },
+  "阿普唑仑": {
+    "aliases": [
+      "alprazolam",
+      "佳静安定",
+      "Xanax"
+    ]
+  },
+  "阿普米司特": {
+    "aliases": [
+      "apremilast",
+      "欧泰乐"
+    ]
+  },
+  "阿曲库铵": {
+    "aliases": [
+      "atracurium",
+      "苯磺阿曲库铵"
+    ]
+  },
+  "阿替利珠单抗": {
+    "aliases": [
+      "atezolizumab",
+      "T药",
+      "泰圣奇"
+    ]
+  },
+  "阿替普酶": {
+    "aliases": [
+      "alteplase",
+      "tPA",
+      "爱通立"
+    ]
+  },
+  "阿替洛尔": {
+    "aliases": [
+      "atenolol",
+      "氨酰心安"
+    ]
+  },
+  "阿来替尼": {
+    "aliases": [
+      "alectinib"
+    ],
+    "brandNames": [
+      "安圣莎"
+    ]
+  },
+  "阿柏西普": {
+    "aliases": [
+      "aflibercept",
+      "艾力雅"
+    ]
+  },
+  "阿法替尼": {
+    "aliases": [
+      "afatinib",
+      "吉泰瑞"
+    ]
+  },
+  "阿立哌唑": {
+    "aliases": [
+      "aripiprazole",
+      "安律凡",
+      "奥派"
+    ]
+  },
+  "阿米卡星": {
+    "aliases": [
+      "amikacin",
+      "丁胺卡那霉素",
+      "硫酸阿米卡星"
+    ]
+  },
+  "阿米替林": {
+    "aliases": [
+      "amitriptyline",
+      "盐酸阿米替林"
+    ]
+  },
+  "阿米洛利": {
+    "aliases": [
+      "amiloride"
+    ]
+  },
+  "阿糖胞苷": {
+    "aliases": [
+      "cytarabine",
+      "Ara-C"
+    ]
+  },
+  "阿罗洛尔": {
+    "aliases": [
+      "arotinolol",
+      "阿尔马尔"
+    ]
+  },
+  "阿苯达唑": {
+    "aliases": [
+      "albendazole",
+      "肠虫清"
+    ]
+  },
+  "阿莫罗芬": {
+    "aliases": [
+      "amorolfine",
+      "罗每乐"
+    ]
+  },
+  "阿莫西林": {
+    "aliases": [
+      "amoxicillin",
+      "羟氨苄青霉素",
+      "阿莫仙"
+    ]
+  },
+  "阿莫西林/克拉维酸": {
+    "aliases": [
+      "amoxicillin/clavulanate",
+      "amoxiclav",
+      "安灭菌",
+      "奥格门汀",
+      "阿莫克拉"
+    ]
+  },
+  "阿贝西利": {
+    "aliases": [
+      "abemaciclib",
+      "唯择"
+    ]
+  },
+  "阿达帕林": {
+    "aliases": [
+      "adapalene",
+      "达芙文"
     ]
   },
   "阿达木单抗": {
@@ -3744,51 +4987,161 @@
       "修美乐"
     ]
   },
-  "度普利尤单抗": {
+  "阿那曲唑": {
     "aliases": [
-      "dupilumab",
-      "达必妥"
+      "anastrozole",
+      "瑞宁得"
     ]
   },
-  "丙卡特罗": {
+  "雌二醇": {
     "aliases": [
-      "procaterol",
-      "美普清"
+      "estradiol",
+      "E2"
     ]
   },
-  "克仑特罗": {
+  "雷尼替丁": {
     "aliases": [
-      "clenbuterol",
-      "氨哮素"
+      "ranitidine",
+      "善胃得",
+      "盐酸雷尼替丁"
     ]
   },
-  "二羟丙茶碱": {
+  "雷沙吉兰": {
     "aliases": [
-      "diprophylline",
-      "喘定"
+      "rasagiline",
+      "安齐来"
     ]
   },
-  "依巴斯汀": {
+  "雷珠单抗": {
     "aliases": [
-      "ebastine",
-      "苏迪"
+      "ranibizumab",
+      "诺适得"
     ]
   },
-  "卢帕他定": {
+  "雷米普利": {
     "aliases": [
-      "rupatadine",
-      "敏奇"
+      "ramipril",
+      "瑞泰"
     ]
   },
-  "奥马珠单抗": {
+  "雷贝拉唑": {
     "aliases": [
-      "omalizumab",
-      "茁乐"
+      "rabeprazole",
+      "波利特",
+      "雷贝拉唑钠"
     ]
   },
-  "丙哌维林": {
+  "青蒿琥酯": {
     "aliases": [
-      "propiverine"
+      "artesunate"
+    ]
+  },
+  "青蒿素": {
+    "aliases": [
+      "artemisinin",
+      "青蒿素片"
+    ]
+  },
+  "青霉素": {
+    "aliases": [
+      "penicillin",
+      "苄青霉素",
+      "青霉素G",
+      "盘尼西林"
+    ]
+  },
+  "静注人免疫球蛋白": {
+    "aliases": [
+      "intravenous immunoglobulin",
+      "IVIG",
+      "静丙"
+    ]
+  },
+  "非布司他": {
+    "aliases": [
+      "febuxostat",
+      "非布索坦"
+    ]
+  },
+  "非洛地平": {
+    "aliases": [
+      "felodipine",
+      "波依定"
+    ]
+  },
+  "非索非那定": {
+    "aliases": [
+      "fexofenadine",
+      "莱多菲"
+    ]
+  },
+  "非诺贝特": {
+    "aliases": [
+      "fenofibrate",
+      "力平之"
+    ]
+  },
+  "非那雄胺": {
+    "aliases": [
+      "finasteride",
+      "保列治",
+      "保法止"
+    ]
+  },
+  "顺铂": {
+    "aliases": [
+      "cisplatin",
+      "DDP",
+      "顺氯氨铂"
+    ]
+  },
+  "马尼地平": {
+    "aliases": [
+      "manidipine"
+    ]
+  },
+  "马普替林": {
+    "aliases": [
+      "maprotiline",
+      "路滴美"
+    ]
+  },
+  "骨化三醇": {
+    "aliases": [
+      "calcitriol",
+      "罗盖全"
+    ]
+  },
+  "高三尖杉酯碱": {
+    "aliases": [
+      "homoharringtonine",
+      "HHT"
+    ],
+    "brandNames": [
+      "高三尖杉酯碱注射液"
+    ]
+  },
+  "鲁拉西酮": {
+    "aliases": [
+      "lurasidone",
+      "罗舒达"
+    ]
+  },
+  "鲨肝醇": {
+    "aliases": [
+      "batyl alcohol"
+    ]
+  },
+  "麻黄碱": {
+    "aliases": [
+      "ephedrine",
+      "盐酸麻黄碱"
+    ]
+  },
+  "黄体酮": {
+    "aliases": [
+      "progesterone",
+      "孕酮"
     ]
   },
   "黄酮哌酯": {
@@ -3797,643 +5150,10 @@
       "津源灵"
     ]
   },
-  "卡麦角林": {
-    "aliases": [
-      "cabergoline",
-      "诺果宁"
-    ]
-  },
-  "溴隐亭": {
-    "aliases": [
-      "bromocriptine",
-      "溴隐亭片"
-    ]
-  },
-  "促卵泡素": {
-    "aliases": [
-      "follitropin",
-      "FSH",
-      "果纳芬"
-    ]
-  },
-  "丙磺舒": {
-    "aliases": [
-      "probenecid",
-      "羧苯磺胺"
-    ]
-  },
-  "双醋瑞因": {
-    "aliases": [
-      "diacerein",
-      "安必丁"
-    ]
-  },
-  "氨基葡萄糖": {
-    "aliases": [
-      "glucosamine",
-      "维骨力"
-    ]
-  },
-  "硫酸软骨素": {
-    "aliases": [
-      "chondroitin sulfate"
-    ]
-  },
-  "乙酰唑胺": {
-    "aliases": [
-      "acetazolamide",
-      "醋氮酰胺"
-    ]
-  },
-  "可的松": {
-    "aliases": [
-      "cortisone",
-      "醋酸可的松"
-    ]
-  },
-  "吡诺克辛": {
-    "aliases": [
-      "pirenoxine",
-      "白内停"
-    ]
-  },
-  "地匹福林": {
-    "aliases": [
-      "dipivefrine"
-    ]
-  },
-  "依美斯汀": {
-    "aliases": [
-      "emedastine",
-      "埃美丁"
-    ]
-  },
-  "双氢青蒿素": {
-    "aliases": [
-      "dihydroartemisinin",
-      "科泰新"
-    ]
-  },
-  "奎宁": {
-    "aliases": [
-      "quinine",
-      "金鸡纳霜"
-    ]
-  },
-  "甲氟喹": {
-    "aliases": [
-      "mefloquine"
-    ]
-  },
-  "哌喹": {
-    "aliases": [
-      "piperaquine"
-    ]
-  },
-  "奥曲肽": {
-    "aliases": [
-      "octreotide",
-      "善宁"
-    ]
-  },
-  "生长抑素": {
-    "aliases": [
-      "somatostatin",
-      "思他宁"
-    ]
-  },
-  "加压素": {
-    "aliases": [
-      "vasopressin",
-      "抗利尿激素"
-    ]
-  },
-  "特利加压素": {
-    "aliases": [
-      "terlipressin",
-      "可利新"
-    ]
-  },
-  "兰瑞肽": {
-    "aliases": [
-      "lanreotide",
-      "索马杜林"
-    ]
-  },
-  "丙戊酸镁": {
-    "aliases": ["magnesium valproate"]
-  },
-  "丙戊酸半钠": {
-    "aliases": ["valproate semisodium", "双丙戊酸钠"]
-  },
-  "丙戊酰胺": {
-    "aliases": ["valpromide", "癫健安"]
-  },
-  "苯巴比妥": {
-    "aliases": ["phenobarbital", "鲁米那", "phenobarbitone"]
-  },
-  "扑米酮": {
-    "aliases": ["primidone", "扑痫酮"]
-  },
-  "乙琥胺": {
-    "aliases": ["ethosuximide", "柴伦丁"]
-  },
-  "硝西泮": {
-    "aliases": ["nitrazepam", "硝基安定"]
-  },
-  "氟西泮": {
-    "aliases": ["flurazepam", "盐酸氟西泮"]
-  },
-  "夸西泮": {
-    "aliases": ["quazepam"]
-  },
-  "溴西泮": {
-    "aliases": ["bromazepam", "宁神定"]
-  },
-  "吗茚酮": {
-    "aliases": ["molindone"]
-  },
-  "布托啡诺": {
-    "aliases": ["butorphanol", "诺扬"]
-  },
-  "秋水仙碱": {
-    "aliases": ["colchicine", "秋水仙素"]
-  },
-  "苯溴马隆": {
-    "aliases": ["benzbromarone", "立加利仙"]
-  },
-  "山莨菪碱": {
-    "aliases": ["anisodamine", "654-2"]
-  },
-  "东莨菪碱": {
-    "aliases": ["scopolamine"]
-  },
-  "氢氧化铝": {
-    "aliases": ["aluminium hydroxide"]
-  },
-  "碳酸氢钠": {
-    "aliases": ["sodium bicarbonate", "小苏打", "NaHCO3"]
-  },
-  "烟酸": {
-    "aliases": ["nicotinic acid", "niacin"]
-  },
-  "乳酸钙": {
-    "aliases": ["calcium lactate"]
-  },
-  "氯化钠": {
-    "aliases": ["sodium chloride", "NaCl", "生理盐水"]
-  },
-  "乳酸钠": {
-    "aliases": ["sodium lactate"]
-  },
-  "尼卡地平": {
-    "aliases": ["nicardipine", "佩尔地平"]
-  },
-  "尼索地平": {
-    "aliases": ["nisoldipine"]
-  },
-  "巴尼地平": {
-    "aliases": ["barnidipine"]
-  },
-  "吲哚洛尔": {
-    "aliases": ["pindolol", "心得静"]
-  },
-  "奈必洛尔": {
-    "aliases": ["nebivolol", "奈必洛尔片"]
-  },
-  "塞利洛尔": {
-    "aliases": ["celiprolol"]
-  },
-  "喷布洛尔": {
-    "aliases": ["penbutolol"]
-  },
-  "兰地洛尔": {
-    "aliases": ["landiolol"]
-  },
-  "喹那普利": {
-    "aliases": ["quinapril"]
-  },
-  "咪达普利": {
-    "aliases": ["imidapril"]
-  },
-  "依他尼酸": {
-    "aliases": ["etacrynic acid", "利尿酸"]
-  },
-  "氯噻酮": {
-    "aliases": ["chlortalidone"]
-  },
-  "美托拉宗": {
-    "aliases": ["metolazone"]
-  },
-  "阿昔莫司": {
-    "aliases": ["acipimox", "乐脂平"]
-  },
-  "多廿烷醇": {
-    "aliases": ["policosanol"]
-  },
-  "奈西立肽": {
-    "aliases": ["nesiritide", "新活素"]
-  },
-  "左西孟旦": {
-    "aliases": ["levosimendan", "悦维适"]
-  },
-  "三甲双酮": {
-    "aliases": ["trimethadione"]
-  },
-  "地昔帕明": {
-    "aliases": ["desipramine"]
-  },
-  "利血平": {
-    "aliases": ["reserpine", "蛇根碱"]
-  },
-  "甲基多巴": {
-    "aliases": ["methyldopa", "甲多巴"]
-  },
-  "可乐定": {
-    "aliases": ["clonidine", "可乐宁"]
-  },
-  "多奈哌齐": {
-    "aliases": ["donepezil", "安理申"]
-  },
-  "卡巴拉汀": {
-    "aliases": ["rivastigmine", "艾斯能"]
-  },
-  "美金刚": {
-    "aliases": ["memantine", "盐酸美金刚", "易倍申"]
-  },
-  "雷沙吉兰": {
-    "aliases": ["rasagiline", "安齐来"]
-  },
-  "罗匹尼罗": {
-    "aliases": ["ropinirole"]
-  },
-  "普拉克索": {
-    "aliases": ["pramipexole", "森福罗"]
-  },
-  "阿扑吗啡": {
-    "aliases": ["apomorphine"]
-  },
-  "佐米曲普坦": {
-    "aliases": ["zolmitriptan", "佐米格"]
-  },
-  "舒马普坦": {
-    "aliases": ["sumatriptan", "英明格"]
-  },
-  "利扎曲普坦": {
-    "aliases": ["rizatriptan"]
-  },
-  "天麻素": {
-    "aliases": ["gastrodin"]
-  },
-  "吡硫醇": {
-    "aliases": ["pyritinol", "脑复新"]
-  },
-  "茴拉西坦": {
-    "aliases": ["aniracetam", "三乐喜"]
-  },
-  "奥拉西坦": {
-    "aliases": ["oxiracetam", "欣可来"]
-  },
-  "丙环定": {
-    "aliases": ["procyclidine", "开马君"]
-  },
-  "磷霉素": {
-    "aliases": ["fosfomycin", "复美欣"]
-  },
-  "利福昔明": {
-    "aliases": ["rifaximin", "昔服申"]
-  },
-  "吡哌酸": {
-    "aliases": ["pipemidic acid"]
-  },
-  "诺氟沙星": {
-    "aliases": ["norfloxacin", "氟哌酸"]
-  },
-  "洛美沙星": {
-    "aliases": ["lomefloxacin"]
-  },
-  "加替沙星": {
-    "aliases": ["gatifloxacin"]
-  },
-  "大观霉素": {
-    "aliases": ["spectinomycin", "淋必治"]
-  },
-  "异帕米星": {
-    "aliases": ["isepamicin"]
-  },
-  "奈替米星": {
-    "aliases": ["netilmicin"]
-  },
-  "利福布汀": {
-    "aliases": ["rifabutin"]
-  },
-  "丙硫异烟胺": {
-    "aliases": ["prothionamide"]
-  },
-  "阿莫罗芬": {
-    "aliases": ["amorolfine", "罗每乐"]
-  },
-  "卡泊芬净": {
-    "aliases": ["caspofungin", "科赛斯"]
-  },
-  "米卡芬净": {
-    "aliases": ["micafungin", "米开民"]
-  },
-  "阿尼芬净": {
-    "aliases": ["anidulafungin"]
-  },
-  "两性霉素B": {
-    "aliases": ["amphotericin B"]
-  },
-  "氟胞嘧啶": {
-    "aliases": ["flucytosine", "5-FC"]
-  },
-  "帕拉米韦": {
-    "aliases": ["peramivir"]
-  },
-  "吉法酯": {
-    "aliases": ["gefarnate", "惠加强"]
-  },
-  "依卡倍特": {
-    "aliases": ["ecabet", "盖爽"]
-  },
-  "美贝维林": {
-    "aliases": ["mebeverine", "杜适林"]
-  },
-  "匹维溴铵": {
-    "aliases": ["pinaverium bromide", "得舒特"]
-  },
-  "奥替溴铵": {
-    "aliases": ["otilonium bromide", "斯巴敏"]
-  },
-  "利那洛肽": {
-    "aliases": ["linaclotide", "令泽舒"]
-  },
-  "甘草酸": {
-    "aliases": ["glycyrrhizic acid"]
-  },
-  "班布特罗": {
-    "aliases": ["bambuterol", "帮备"]
-  },
-  "奥洛他定": {
-    "aliases": ["olopatadine", "帕坦洛"]
-  },
-  "非索非那定": {
-    "aliases": ["fexofenadine", "莱多菲"]
-  },
-  "扎鲁司特": {
-    "aliases": ["zafirlukast", "安可来"]
-  },
-  "厄多司坦": {
-    "aliases": ["erdosteine", "露畅"]
-  },
-  "福多司坦": {
-    "aliases": ["fudosteine"]
-  },
-  "克罗米通": {
-    "aliases": ["crotamiton", "优力肤"]
-  },
-  "林旦": {
-    "aliases": ["lindane", "丙体六六六"]
-  },
-  "扑灭司林": {
-    "aliases": ["permethrin", "扑灭司林乳膏"]
-  },
-  "吡硫翁锌": {
-    "aliases": ["zinc pyrithione"]
-  },
-  "煤焦油": {
-    "aliases": ["coal tar"]
-  },
-  "地蒽酚": {
-    "aliases": ["dithranol", "蒽林"]
-  },
-  "阿利维A酸": {
-    "aliases": ["alitretinoin"]
-  },
-  "雷珠单抗": {
-    "aliases": ["ranibizumab", "诺适得"]
-  },
-  "阿柏西普": {
-    "aliases": ["aflibercept", "艾力雅"]
-  },
-  "聚乙烯醇": {
-    "aliases": ["polyvinyl alcohol", "瑞新"]
-  },
-  "羧甲基纤维素": {
-    "aliases": ["carboxymethylcellulose", "潇莱威"]
-  },
-  "那他霉素": {
-    "aliases": ["natamycin"]
-  },
-  "醋甲唑胺": {
-    "aliases": ["methazolamide"]
-  },
-  "帕瑞肽": {
-    "aliases": ["pasireotide", "Signifor"]
-  },
-  "胰高血糖素": {
-    "aliases": ["glucagon"]
-  },
-  "西那卡塞": {
-    "aliases": ["cinacalcet", "盖平"]
-  },
-  "依特卡肽": {
-    "aliases": ["etelcalcetide"]
-  },
-  "地舒单抗": {
-    "aliases": ["denosumab", "普罗力"]
-  },
-  "去铁胺": {
-    "aliases": ["deferoxamine", "去铁敏"]
-  },
-  "地拉罗司": {
-    "aliases": ["deferasirox", "恩瑞格"]
-  },
-  "去铁酮": {
-    "aliases": ["deferiprone"]
-  },
-  "依那西普": {
-    "aliases": ["etanercept", "恩利"]
-  },
-  "阿巴西普": {
-    "aliases": ["abatacept", "恩瑞舒"]
-  },
-  "托珠单抗": {
-    "aliases": ["tocilizumab", "雅美罗"]
-  },
-  "贝尼地平": {
-    "aliases": ["benidipine", "可力洛"]
-  },
-  "马尼地平": {
-    "aliases": ["manidipine"]
-  },
-  "阿罗洛尔": {
-    "aliases": ["arotinolol", "阿尔马尔"]
-  },
-  "美替洛尔": {
-    "aliases": ["metipranolol"]
-  },
-  "西拉普利": {
-    "aliases": ["cilazapril"]
-  },
-  "群多普利": {
-    "aliases": ["trandolapril"]
-  },
-  "阿利吉仑": {
-    "aliases": ["aliskiren", "锐思力"]
-  },
-  "波生坦": {
-    "aliases": ["bosentan", "全可利"]
-  },
-  "安立生坦": {
-    "aliases": ["ambrisentan", "凡瑞克"]
-  },
-  "决奈达隆": {
-    "aliases": ["dronedarone", "迈达龙"]
-  },
   "齐拉西酮": {
-    "aliases": ["ziprasidone", "卓乐定"]
-  },
-  "帕利哌酮": {
-    "aliases": ["paliperidone", "芮达"]
-  },
-  "鲁拉西酮": {
-    "aliases": ["lurasidone", "罗舒达"]
-  },
-  "安非他酮": {
-    "aliases": ["bupropion", "悦亭"]
-  },
-  "氟伏沙明": {
-    "aliases": ["fluvoxamine", "兰释"]
-  },
-  "吗氯贝胺": {
-    "aliases": ["moclobemide", "朗天"]
-  },
-  "加兰他敏": {
-    "aliases": ["galantamine", "利忆灵"]
-  },
-  "石杉碱甲": {
-    "aliases": ["huperzine A", "双益平"]
-  },
-  "唑尼沙胺": {
-    "aliases": ["zonisamide", "福丁宁"]
-  },
-  "氨曲南": {
-    "aliases": ["aztreonam"]
-  },
-  "达托霉素": {
-    "aliases": ["daptomycin", "克必信"]
-  },
-  "特地唑胺": {
-    "aliases": ["tedizolid"]
-  },
-  "依拉环素": {
-    "aliases": ["eravacycline"]
-  },
-  "奥马环素": {
-    "aliases": ["omadacycline", "Nuzyra"]
-  },
-  "地红霉素": {
-    "aliases": ["dirithromycin"]
-  },
-  "泊沙康唑": {
-    "aliases": ["posaconazole", "诺科飞"]
-  },
-  "艾沙康唑": {
-    "aliases": ["isavuconazole", "艾沙康唑硫酸酯"]
-  },
-  "右兰索拉唑": {
-    "aliases": ["dexlansoprazole", "右兰索拉唑缓释胶囊"]
-  },
-  "艾普拉唑": {
-    "aliases": ["ilaprazole", "壹丽安"]
-  },
-  "普芦卡必利": {
-    "aliases": ["prucalopride", "力洛"]
-  },
-  "帕尼单抗": {
-    "aliases": ["panitumumab", "维克替比"]
-  },
-  "戈利木单抗": {
-    "aliases": ["golimumab", "欣普尼"]
-  },
-  "乌司奴单抗": {
-    "aliases": ["ustekinumab", "喜达诺"]
-  },
-  "依奇珠单抗": {
-    "aliases": ["ixekizumab", "拓咨"]
-  },
-  "司库奇尤单抗": {
-    "aliases": ["secukinumab", "可善挺"]
-  },
-  "美泊利珠单抗": {
-    "aliases": ["mepolizumab", "新可来"]
-  },
-  "依库珠单抗": {
-    "aliases": ["eculizumab", "舒立瑞"]
-  },
-  "伊布替尼": {
-    "aliases": ["ibrutinib", "亿珂"]
-  },
-  "泽布替尼": {
-    "aliases": ["zanubrutinib", "百悦泽"]
-  },
-  "维奈克拉": {
-    "aliases": ["venetoclax", "唯可来"]
-  },
-  "泊马度胺": {
-    "aliases": ["pomalidomide", "泊马度胺胶囊"]
-  },
-  "卡非佐米": {
-    "aliases": ["carfilzomib", "凯洛斯"]
-  },
-  "伊沙佐米": {
-    "aliases": ["ixazomib", "恩莱瑞"]
-  },
-  "阿贝西利": {
-    "aliases": ["abemaciclib", "唯择"]
-  },
-  "恩曲替尼": {
-    "aliases": ["entrectinib", "罗圣全"]
-  },
-  "达拉非尼": {
-    "aliases": ["dabrafenib", "泰菲乐"]
-  },
-  "曲美替尼": {
-    "aliases": ["trametinib", "迈吉宁"]
-  },
-  "维莫非尼": {
-    "aliases": ["vemurafenib", "佐博伏"]
-  },
-  "考比替尼": {
-    "aliases": ["cobimetinib", "Cotellic"]
-  },
-  "卡博替尼": {
-    "aliases": ["cabozantinib", "卡博替尼片"]
-  },
-  "利司那肽": {
-    "aliases": ["lixisenatide", "利时敏"]
-  },
-  "艾塞那肽": {
-    "aliases": ["exenatide", "百泌达"]
-  },
-  "德谷胰岛素": {
-    "aliases": ["insulin degludec", "诺和达"]
-  },
-  "巴瑞替尼": {
-    "aliases": ["baricitinib", "艾乐明"]
-  },
-  "阿普米司特": {
-    "aliases": ["apremilast", "欧泰乐"]
-  },
-  "拉罗尼酶": {
-    "aliases": ["laronidase"]
-  },
-  "伊米苷酶": {
-    "aliases": ["imiglucerase"]
-  },
-  "尼替西农": {
-    "aliases": ["nitisinone"]
+    "aliases": [
+      "ziprasidone",
+      "卓乐定"
+    ]
   }
 }
