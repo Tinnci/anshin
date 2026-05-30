@@ -8,7 +8,7 @@ import java.net.URL
 data class AiHttpRequest(
     val url: String,
     val headers: Map<String, String>,
-    val body: String,
+    val body: String = "",
 )
 
 data class AiHttpResponse(
@@ -18,6 +18,9 @@ data class AiHttpResponse(
 
 interface AiHttpTransport {
     suspend fun post(request: AiHttpRequest): AiHttpResponse
+
+    suspend fun get(request: AiHttpRequest): AiHttpResponse =
+        throw UnsupportedOperationException("GET is not supported by this transport")
 }
 
 class UrlConnectionAiHttpTransport(
@@ -26,18 +29,30 @@ class UrlConnectionAiHttpTransport(
 ) : AiHttpTransport {
 
     override suspend fun post(request: AiHttpRequest): AiHttpResponse =
+        execute(request = request, method = "POST", writeBody = true)
+
+    override suspend fun get(request: AiHttpRequest): AiHttpResponse =
+        execute(request = request, method = "GET", writeBody = false)
+
+    private suspend fun execute(
+        request: AiHttpRequest,
+        method: String,
+        writeBody: Boolean,
+    ): AiHttpResponse =
         withContext(Dispatchers.IO) {
             val connection = (URL(request.url).openConnection() as HttpURLConnection).apply {
-                requestMethod = "POST"
+                requestMethod = method
                 connectTimeout = connectTimeoutMillis
                 readTimeout = readTimeoutMillis
-                doOutput = true
+                doOutput = writeBody
                 request.headers.forEach { (key, value) -> setRequestProperty(key, value) }
             }
 
             try {
-                connection.outputStream.use { output ->
-                    output.write(request.body.toByteArray(Charsets.UTF_8))
+                if (writeBody) {
+                    connection.outputStream.use { output ->
+                        output.write(request.body.toByteArray(Charsets.UTF_8))
+                    }
                 }
 
                 val stream = if (connection.responseCode in 200..299) {

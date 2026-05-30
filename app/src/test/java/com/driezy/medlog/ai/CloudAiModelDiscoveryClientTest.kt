@@ -1,0 +1,110 @@
+package com.driezy.medlog.ai
+
+import kotlinx.coroutines.test.runTest
+import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
+import org.junit.Assert.assertTrue
+import org.junit.Test
+
+class CloudAiModelDiscoveryClientTest {
+    @Test
+    fun `openai compatible discovery fetches models and detects image capable metadata`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 200,
+                body = """
+                    {
+                      "data": [
+                        { "id": "gpt-3.5-turbo" },
+                        { "id": "gpt-4.1-mini", "modalities": ["text", "image"] },
+                        { "id": "llava", "capabilities": { "vision": true } }
+                      ]
+                    }
+                """.trimIndent(),
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.OpenAiCompatible(
+                baseUrl = "https://api.example.com/v1",
+                model = "gpt-3.5-turbo",
+                apiKey = "key",
+                authMode = OpenAiAuthMode.API_KEY_HEADER,
+                providerName = "ExampleAI",
+            ),
+        )
+
+        assertTrue(result.isConnected)
+        assertEquals("https://api.example.com/v1/models", http.lastRequest!!.url)
+        assertEquals("key", http.lastRequest!!.headers["api-key"])
+        assertEquals(listOf("gpt-3.5-turbo", "gpt-4.1-mini", "llava"), result.models.map { it.id })
+        assertFalse(result.models[0].supportsImageInput)
+        assertTrue(result.models[1].supportsImageInput)
+        assertTrue(result.models[2].supportsImageInput)
+        assertEquals("gpt-4.1-mini", result.selectBestModel(requireImageInput = true)?.id)
+    }
+
+    @Test
+    fun `model discovery reports failed connectivity without exposing the api key`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 401,
+                body = """{"error":"bad key"}""",
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.Mimo(
+                apiKey = "secret-key",
+                model = "mimo-v2.5-pro",
+            ),
+        )
+
+        assertFalse(result.isConnected)
+        assertEquals(401, result.statusCode)
+        assertTrue(result.errorMessage!!.contains("HTTP 401"))
+        assertFalse(result.errorMessage.contains("secret-key"))
+    }
+
+    @Test
+    fun `anthropic discovery uses v1 models endpoint and required headers`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 200,
+                body = """{"data":[{"id":"claude-sonnet-4-20250514"}]}""",
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.Anthropic(
+                apiKey = "anthropic-key",
+                model = "claude-sonnet-4-20250514",
+            ),
+        )
+
+        assertTrue(result.isConnected)
+        assertEquals("https://api.anthropic.com/v1/models", http.lastRequest!!.url)
+        assertEquals("anthropic-key", http.lastRequest!!.headers["x-api-key"])
+        assertEquals("2023-06-01", http.lastRequest!!.headers["anthropic-version"])
+        assertTrue(result.models.single().supportsImageInput)
+    }
+
+    private class RecordingAiHttpTransport(
+        private val response: AiHttpResponse,
+    ) : AiHttpTransport {
+        var lastRequest: AiHttpRequest? = null
+
+        override suspend fun post(request: AiHttpRequest): AiHttpResponse {
+            lastRequest = request
+            return response
+        }
+
+        override suspend fun get(request: AiHttpRequest): AiHttpResponse {
+            lastRequest = request
+            return response
+        }
+    }
+}

@@ -856,6 +856,7 @@ fun SettingsScreen(
                         onOpenAiBaseUrlSave = { viewModel.setCloudAiSettings(openAiCompatibleBaseUrl = it) },
                         onOpenAiAuthModeChange = { viewModel.setCloudAiSettings(openAiCompatibleAuthMode = it) },
                         onOpenAiProviderNameSave = { viewModel.setCloudAiSettings(openAiCompatibleProviderName = it) },
+                        onRefreshModels = viewModel::refreshCloudAiModels,
                         onImageAnalysisChange = { viewModel.setCloudAiSettings(imageAnalysisEnabled = it) },
                         onHealthInsightsChange = { viewModel.setCloudAiSettings(healthInsightsEnabled = it) },
                         onWifiOnlyChange = { viewModel.setCloudAiSettings(wifiOnly = it) },
@@ -1278,6 +1279,7 @@ private fun CloudAiSettingsPanel(
     onOpenAiBaseUrlSave: (String) -> Unit,
     onOpenAiAuthModeChange: (OpenAiCompatibleCloudAuthMode) -> Unit,
     onOpenAiProviderNameSave: (String) -> Unit,
+    onRefreshModels: () -> Unit,
     onImageAnalysisChange: (Boolean) -> Unit,
     onHealthInsightsChange: (Boolean) -> Unit,
     onWifiOnlyChange: (Boolean) -> Unit,
@@ -1349,6 +1351,83 @@ private fun CloudAiSettingsPanel(
                         }
                     },
                 )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val connected = uiState.cloudAiModelDiscoveryConnected
+                    Text(
+                        text = when {
+                            uiState.cloudAiModelDiscoveryInProgress ->
+                                stringResource(R.string.settings_ai_models_fetching)
+                            connected == true && uiState.cloudAiDiscoveredModels.isNotEmpty() ->
+                                stringResource(
+                                    R.string.settings_ai_models_connected,
+                                    uiState.cloudAiDiscoveredModels.size,
+                                )
+                            connected == true -> stringResource(R.string.settings_ai_models_empty)
+                            connected == false -> stringResource(
+                                R.string.settings_ai_models_failed,
+                                uiState.cloudAiModelDiscoveryError.orEmpty(),
+                            )
+                            else -> stringResource(R.string.settings_ai_models_not_checked)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.weight(1f),
+                    )
+                    TextButton(
+                        onClick = onRefreshModels,
+                        enabled = !uiState.cloudAiModelDiscoveryInProgress,
+                    ) {
+                        if (uiState.cloudAiModelDiscoveryInProgress) {
+                            CircularProgressIndicator(
+                                modifier = Modifier.size(16.dp),
+                                strokeWidth = 2.dp,
+                            )
+                        } else {
+                            Text(stringResource(R.string.settings_ai_models_fetch))
+                        }
+                    }
+                }
+                if (uiState.cloudAiDiscoveredModels.isNotEmpty()) {
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                    ) {
+                        uiState.cloudAiDiscoveredModels.take(12).forEach { model ->
+                            AssistChip(
+                                onClick = {
+                                    modelDraft = model.id
+                                    onModelSave(model.id)
+                                },
+                                label = {
+                                    Text(
+                                        text = if (model.supportsImageInput) {
+                                            stringResource(R.string.settings_ai_model_chip_image, model.id)
+                                        } else {
+                                            stringResource(R.string.settings_ai_model_chip_text, model.id)
+                                        },
+                                        maxLines = 1,
+                                    )
+                                },
+                                leadingIcon = if (model.supportsImageInput) {
+                                    {
+                                        MedLogIcon(
+                                            MedLogIcons.DocumentScanner,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp),
+                                        )
+                                    }
+                                } else {
+                                    null
+                                },
+                            )
+                        }
+                    }
+                }
                 if (uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE) {
                     OutlinedTextField(
                         value = baseUrlDraft,

@@ -9,6 +9,10 @@ import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.ai.AiApiKeyStore
 import com.driezy.medlog.ai.AiCloudConfigResolver
+import com.driezy.medlog.ai.AiProviderConfig
+import com.driezy.medlog.ai.CloudAiDiscoveredModel
+import com.driezy.medlog.ai.CloudAiModelDiscoveryClient
+import com.driezy.medlog.ai.OpenAiAuthMode
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
@@ -79,6 +83,10 @@ data class SettingsUiState(
     val cloudAiSupportsImageInput: Boolean = true,
     val cloudAiSupportsText: Boolean = true,
     val cloudAiSupportsJsonInstruction: Boolean = true,
+    val cloudAiModelDiscoveryInProgress: Boolean = false,
+    val cloudAiModelDiscoveryConnected: Boolean? = null,
+    val cloudAiModelDiscoveryError: String? = null,
+    val cloudAiDiscoveredModels: List<CloudAiDiscoveredModel> = emptyList(),
     val aiUsageSummary: List<AiUsageSummaryRow> = emptyList(),
 )
 
@@ -94,13 +102,16 @@ class SettingsViewModel @Inject constructor(
 ) : BaseViewModel() {
 
     private val aiUsageSummary = MutableStateFlow(emptyList<AiUsageSummaryRow>())
+    private val modelDiscoveryClient = CloudAiModelDiscoveryClient()
+    private val cloudAiModelDiscovery = MutableStateFlow(CloudAiModelDiscoveryUiState())
 
     val uiState: StateFlow<SettingsUiState> = combine(
         repository.getArchivedMedications().catch { e -> Log.e("SettingsVM", "Failed to load archived meds", e); emit(emptyList()) },
         prefsRepository.settingsFlow,
         aiApiKeyStore.availableProviders,
         aiUsageSummary,
-    ) { archived, prefs, availableProviders, usageSummary ->
+        cloudAiModelDiscovery,
+    ) { archived, prefs, availableProviders, usageSummary, modelDiscovery ->
         val cloudAiCapabilities = AiCloudConfigResolver.resolveCapabilities(prefs)
         SettingsUiState(
             archivedMedications     = archived,
@@ -142,6 +153,10 @@ class SettingsViewModel @Inject constructor(
             cloudAiSupportsImageInput = cloudAiCapabilities.supportsImageInput,
             cloudAiSupportsText = cloudAiCapabilities.supportsText,
             cloudAiSupportsJsonInstruction = cloudAiCapabilities.supportsJsonInstruction,
+            cloudAiModelDiscoveryInProgress = modelDiscovery.inProgress,
+            cloudAiModelDiscoveryConnected = modelDiscovery.connected,
+            cloudAiModelDiscoveryError = modelDiscovery.error,
+            cloudAiDiscoveredModels = modelDiscovery.models,
             aiUsageSummary = usageSummary,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
@@ -201,6 +216,38 @@ class SettingsViewModel @Inject constructor(
 
     fun setCurrentCloudAiApiKey(apiKey: String) {
         setCloudAiApiKey(uiState.value.cloudAiProvider, apiKey)
+    }
+
+    fun refreshCloudAiModels() {
+        safeLaunch {
+            cloudAiModelDiscovery.value = cloudAiModelDiscovery.value.copy(
+                inProgress = true,
+                connected = null,
+                error = null,
+            )
+            val settings = prefsRepository.settingsFlow.first()
+            val apiKey = aiApiKeyStore.getApiKey(settings.cloudAiProvider)
+            val config = settings.toDiscoveryConfig(apiKey)
+            if (config == null) {
+                cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
+                    connected = false,
+                    error = "API key or OpenAI-compatible Base URL is missing.",
+                )
+                return@safeLaunch
+            }
+
+            val result = modelDiscoveryClient.fetch(config)
+            val selected = result.selectBestModel(requireImageInput = true)
+                ?: result.selectBestModel(requireImageInput = false)
+            if (result.isConnected && selected != null) {
+                prefsRepository.updateCloudAiSettings(model = selected.id)
+            }
+            cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
+                connected = result.isConnected,
+                error = result.errorMessage,
+                models = result.models,
+            )
+        }
     }
 
     fun clearCloudAiApiKey(provider: CloudAiProvider) {
@@ -366,3 +413,50 @@ class SettingsViewModel @Inject constructor(
         }
     }
 }
+
+private data class CloudAiModelDiscoveryUiState(
+    val inProgress: Boolean = false,
+    val connected: Boolean? = null,
+    val error: String? = null,
+    val models: List<CloudAiDiscoveredModel> = emptyList(),
+)
+
+private fun com.driezy.medlog.data.repository.SettingsPreferences.toDiscoveryConfig(
+    apiKey: String?,
+): AiProviderConfig? =
+    when (cloudAiProvider) {
+        CloudAiProvider.MIMO -> apiKey?.let {
+            AiProviderConfig.Mimo(
+                apiKey = it,
+                model = activeCloudAiModel(),
+            )
+        }
+
+        CloudAiProvider.GEMINI -> apiKey?.let {
+            AiProviderConfig.Gemini(
+                apiKey = it,
+                model = activeCloudAiModel(),
+            )
+        }
+
+        CloudAiProvider.ANTHROPIC -> apiKey?.let {
+            AiProviderConfig.Anthropic(
+                apiKey = it,
+                model = activeCloudAiModel(),
+            )
+        }
+
+        CloudAiProvider.OPENAI_COMPATIBLE -> {
+            val baseUrl = openAiCompatibleBaseUrl.takeIf { it.isNotBlank() } ?: return null
+            AiProviderConfig.OpenAiCompatible(
+                baseUrl = baseUrl,
+                model = activeCloudAiModel(),
+                apiKey = apiKey,
+                authMode = when (openAiCompatibleAuthMode) {
+                    OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> OpenAiAuthMode.API_KEY_HEADER
+                    OpenAiCompatibleCloudAuthMode.BEARER -> OpenAiAuthMode.BEARER
+                },
+                providerName = openAiCompatibleProviderName.ifBlank { CloudAiProvider.OPENAI_COMPATIBLE.providerName },
+            )
+        }
+    }

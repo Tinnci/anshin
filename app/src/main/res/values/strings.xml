@@ -885,6 +885,14 @@
     <string name="settings_ai_status_text_only_body">当前模型不支持图片输入，但可用于基于记录的健康建议。</string>
     <string name="settings_ai_model_label">模型</string>
     <string name="settings_ai_model_hint">默认：%s</string>
+    <string name="settings_ai_models_not_checked">尚未检查 API 连通性和模型列表</string>
+    <string name="settings_ai_models_fetch">检查并自动选择</string>
+    <string name="settings_ai_models_fetching">正在检查 API 连通性…</string>
+    <string name="settings_ai_models_connected">连接成功，已获取 %d 个模型；优先选择支持图片的模型</string>
+    <string name="settings_ai_models_empty">连接成功，但 API 未返回可用模型</string>
+    <string name="settings_ai_models_failed">连接失败：%s</string>
+    <string name="settings_ai_model_chip_image">%s · 图片</string>
+    <string name="settings_ai_model_chip_text">%s · 文本</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">例如 https://api.example.com/v1</string>
     <string name="settings_ai_provider_name_label">Provider 名称</string>

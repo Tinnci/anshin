@@ -914,6 +914,14 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_status_text_only_body">The current model does not support image input, but can still analyze saved health records.</string>
     <string name="settings_ai_model_label">Model</string>
     <string name="settings_ai_model_hint">Default: %s</string>
+    <string name="settings_ai_models_not_checked">API connectivity and model list have not been checked</string>
+    <string name="settings_ai_models_fetch">Check and auto-select</string>
+    <string name="settings_ai_models_fetching">Checking API connectivity…</string>
+    <string name="settings_ai_models_connected">Connected, found %d models; image-capable models are preferred</string>
+    <string name="settings_ai_models_empty">Connected, but the API returned no available models</string>
+    <string name="settings_ai_models_failed">Connection failed: %s</string>
+    <string name="settings_ai_model_chip_image">%s · Image</string>
+    <string name="settings_ai_model_chip_text">%s · Text</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">For example, https://api.example.com/v1</string>
     <string name="settings_ai_provider_name_label">Provider name</string>
