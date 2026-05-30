@@ -6,7 +6,6 @@ import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.junit.Assert.assertFalse
-import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -53,7 +52,7 @@ class DrugAssetPackagingTest {
             File(projectRoot, "app/src/main/assets/json/drug_aliases_clean.json").readText(),
         )
 
-        assertEquals(53, aliases.size)
+        assertTrue("Expected at least the initial reviewed alias coverage", aliases.size >= 53)
         assertTrue(aliases.getValue("阿司匹林").containsAll(listOf("拜阿司匹灵", "acetylsalicylic acid")))
         assertTrue(aliases.getValue("对乙酰氨基酚").containsAll(listOf("扑热息痛", "acetaminophen")))
     }
