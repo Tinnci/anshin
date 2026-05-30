@@ -22,10 +22,8 @@ import androidx.glance.layout.Box
 import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
-import androidx.glance.layout.padding
 import androidx.glance.layout.size
 import androidx.glance.layout.width
 import androidx.glance.text.FontWeight
@@ -50,7 +48,7 @@ import kotlinx.coroutines.flow.first
  * 展示用户连续每日完成用药的天数（Streak），以及最近 7 天的完成情况可视化。
  *
  * 支持两种尺寸：
- * - 紧凑 2×2：大号 Streak 天数 + 火焰 Emoji
+ * - 紧凑 2×2：大号 Streak 天数 + 图标徽章
  * - 标准 4×2：7 天打点图 + Streak 天数 + 简述
  */
 class StreakWidget : GlanceAppWidget() {
@@ -138,15 +136,9 @@ private fun StreakContent(
     val ctx = LocalContext.current
 
     // 背景色：streak >= 7 使用 tertiaryContainer（高激励色），否则默认
-    val bg = if (streak >= 7) GlanceTheme.colors.tertiaryContainer
-             else              GlanceTheme.colors.surfaceVariant
-
-    Column(
+    WidgetContainer(
+        prominent = streak >= 7,
         modifier = GlanceModifier
-            .fillMaxSize()
-            .background(bg)
-            .cornerRadius(20.dp)
-            .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
         verticalAlignment   = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
@@ -154,27 +146,36 @@ private fun StreakContent(
         if (total == 0) {
             // 无用药计划
             if (isCompact) {
-                Text("💊", style = TextStyle(fontSize = 20.sp))
-                Spacer(GlanceModifier.height(4.dp))
-                Text(ctx.getString(R.string.widget_no_plan), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
+                WidgetEmptyState(
+                    icon = R.drawable.ic_symbol_medication,
+                    title = ctx.getString(R.string.widget_no_plan),
+                    compact = true,
+                )
             } else {
-                Text(
-                    ctx.getString(R.string.widget_streak_title),
-                    style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
+                WidgetHeader(
+                    icon = R.drawable.ic_symbol_event_repeat,
+                    title = ctx.getString(R.string.widget_streak_title),
+                    trailing = ctx.getString(R.string.widget_streak_zero),
                 )
                 Spacer(GlanceModifier.height(8.dp))
-                Text(ctx.getString(R.string.widget_no_plan_today), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
+                WidgetEmptyState(
+                    icon = R.drawable.ic_symbol_add_to_home_screen,
+                    title = ctx.getString(R.string.widget_no_plan_today),
+                    body = ctx.getString(R.string.widget_add_prompt),
+                )
             }
-            return@Column
+            return@WidgetContainer
         }
 
         if (isCompact) {
             // ── 紧凑 2×2 ─────────────────────────────────────────
-            Text(
-                if (streak > 0) "🔥" else "💊",
-                style = TextStyle(fontSize = 18.sp),
+            WidgetIconBadge(
+                icon = R.drawable.ic_symbol_event_repeat,
+                prominent = streak >= 7,
+                size = 40.dp,
+                iconSize = 22.dp,
             )
-            Spacer(GlanceModifier.height(2.dp))
+            Spacer(GlanceModifier.height(4.dp))
             Text(
                 "$streak",
                 style = TextStyle(
@@ -190,24 +191,16 @@ private fun StreakContent(
         } else {
             // ── 标准 4×2 ─────────────────────────────────────
             // 标题行
-            Row(
-                modifier          = GlanceModifier.fillMaxWidth(),
-                verticalAlignment = Alignment.Vertical.CenterVertically,
-            ) {
-                Text(
-                    ctx.getString(R.string.widget_streak_title),
-                    style    = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
-                    modifier = GlanceModifier.defaultWeight(),
-                )
-                Text(
-                    if (streak > 0) ctx.resources.getQuantityString(R.plurals.widget_streak_days_fmt, streak, streak) else ctx.getString(R.string.widget_streak_zero),
-                    style = TextStyle(
-                        fontSize   = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = if (streak >= 7) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
-                    ),
-                )
-            }
+            WidgetHeader(
+                icon = R.drawable.ic_symbol_event_repeat,
+                title = ctx.getString(R.string.widget_streak_title),
+                trailing = if (streak > 0) {
+                    ctx.resources.getQuantityString(R.plurals.widget_streak_days_fmt, streak, streak)
+                } else {
+                    ctx.getString(R.string.widget_streak_zero)
+                },
+                prominent = streak >= 7,
+            )
             Spacer(GlanceModifier.height(10.dp))
             // 7 天打点图
             Row(

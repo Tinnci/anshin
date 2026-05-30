@@ -16,19 +16,14 @@ import androidx.glance.action.clickable
 import androidx.glance.appwidget.GlanceAppWidget
 import androidx.glance.appwidget.SizeMode
 import androidx.glance.appwidget.action.actionRunCallback
-import androidx.glance.appwidget.cornerRadius
 import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
-import androidx.glance.layout.Box
-import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
-import androidx.glance.layout.size
 import androidx.glance.text.FontWeight
 import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
@@ -137,15 +132,9 @@ private fun NextDoseContent(
         else                   -> ctx.getString(R.string.widget_next_dose_h_fmt, diff / 60)
     }
 
-    Column(
+    WidgetContainer(
+        prominent = allDone,
         modifier = GlanceModifier
-            .fillMaxSize()
-            .background(
-                if (allDone) GlanceTheme.colors.tertiaryContainer
-                else         GlanceTheme.colors.surfaceVariant,
-            )
-            .cornerRadius(20.dp)
-            .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
         verticalAlignment   = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
@@ -154,37 +143,42 @@ private fun NextDoseContent(
             total == 0 -> {
                 // 无计划
                 if (isCompact) {
-                    Text("💊", style = TextStyle(fontSize = 20.sp))
-                    Spacer(GlanceModifier.height(4.dp))
-                    Text(ctx.getString(R.string.widget_no_plan), style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant))
+                    WidgetEmptyState(
+                        icon = R.drawable.ic_symbol_medication,
+                        title = ctx.getString(R.string.widget_no_plan),
+                        compact = true,
+                    )
                 } else {
-                    Text(
-                        ctx.getString(R.string.widget_next_dose_title),
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
+                    WidgetHeader(
+                        icon = R.drawable.ic_symbol_schedule,
+                        title = ctx.getString(R.string.widget_next_dose_title),
+                        trailing = "--",
                     )
                     Spacer(GlanceModifier.height(10.dp))
-                    Text(ctx.getString(R.string.widget_no_plan_today), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
-                    Text(
-                        ctx.getString(R.string.widget_add_prompt),
-                        style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.primary),
+                    WidgetEmptyState(
+                        icon = R.drawable.ic_symbol_add_to_home_screen,
+                        title = ctx.getString(R.string.widget_no_plan_today),
+                        body = ctx.getString(R.string.widget_add_prompt),
                     )
                 }
             }
             allDone -> {
                 // 全部完成
                 if (isCompact) {
-                    Text("✓", style = TextStyle(fontSize = 32.sp, fontWeight = FontWeight.Bold, color = GlanceTheme.colors.tertiary))
-                    Spacer(GlanceModifier.height(2.dp))
+                    WidgetIconBadge(icon = R.drawable.ic_symbol_check_circle, prominent = true, size = 44.dp, iconSize = 26.dp)
+                    Spacer(GlanceModifier.height(6.dp))
                     Text(ctx.getString(R.string.widget_today_done_label), style = TextStyle(fontSize = 10.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onTertiaryContainer))
                 } else {
-                    Text(
-                        ctx.getString(R.string.widget_next_dose_title),
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
+                    WidgetHeader(
+                        icon = R.drawable.ic_symbol_check_circle,
+                        title = ctx.getString(R.string.widget_next_dose_title),
+                        trailing = ctx.getString(R.string.widget_goal_done),
+                        prominent = true,
                     )
                     Spacer(GlanceModifier.height(10.dp))
-                    Text(
-                        ctx.getString(R.string.widget_all_done_msg),
-                        style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onTertiaryContainer),
+                    WidgetEmptyState(
+                        icon = R.drawable.ic_symbol_check_circle,
+                        title = ctx.getString(R.string.widget_all_done_msg),
                     )
                 }
             }
@@ -198,6 +192,8 @@ private fun NextDoseContent(
             }
             isCompact -> {
                 // 2×2：大号时间 + 第一个药品名（仅 1 种）或薯品总数（多种）
+                WidgetIconBadge(icon = R.drawable.ic_symbol_schedule, size = 36.dp, iconSize = 20.dp)
+                Spacer(GlanceModifier.height(6.dp))
                 Text(
                     timeStr,
                     style = TextStyle(fontSize = 22.sp, fontWeight = FontWeight.Bold, color = GlanceTheme.colors.primary),
@@ -214,20 +210,11 @@ private fun NextDoseContent(
             else -> {
                 // 4×2：完整显示 + 打卡按钮
                 // 标题行（F 型）
-                Row(
-                    modifier          = GlanceModifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.Vertical.CenterVertically,
-                ) {
-                    Text(
-                        ctx.getString(R.string.widget_next_dose_title),
-                        style    = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurfaceVariant),
-                        modifier = GlanceModifier.defaultWeight(),
-                    )
-                    Text(
-                        timeStr,
-                        style = TextStyle(fontSize = 14.sp, fontWeight = FontWeight.Bold, color = GlanceTheme.colors.primary),
-                    )
-                }
+                WidgetHeader(
+                    icon = R.drawable.ic_symbol_schedule,
+                    title = ctx.getString(R.string.widget_next_dose_title),
+                    trailing = timeStr,
+                )
                 Spacer(GlanceModifier.height(4.dp))
                 // 倒计时（次要信息）
                 Text(
@@ -236,7 +223,7 @@ private fun NextDoseContent(
                 )
                 Spacer(GlanceModifier.height(6.dp))
                 // 药品列表 + ✓ 打卡按钮（行之间插入细分隔线）
-                nextMedPairs.take(3).forEachIndexed { idx, (medId, name) ->
+                nextMedPairs.take(1).forEachIndexed { idx, (medId, name) ->
                     if (idx > 0) {
                         Spacer(
                             GlanceModifier
@@ -256,28 +243,17 @@ private fun NextDoseContent(
                             style    = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurface),
                             modifier = GlanceModifier.defaultWeight(),
                         )
-                        Box(
-                            modifier = GlanceModifier
-                                .size(24.dp)
-                                .background(GlanceTheme.colors.primaryContainer)
-                                .cornerRadius(12.dp)
-                                .clickable(
-                                    actionRunCallback<MarkTakenAction>(
-                                        actionParametersOf(MarkTakenAction.medIdKey to medId),
-                                    ),
-                                ),
-                            contentAlignment = Alignment.Center,
-                        ) {
-                            Text(
-                                "✓",
-                                style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Bold, color = GlanceTheme.colors.primary),
-                            )
-                        }
+                        WidgetActionButton(
+                            label = ctx.getString(R.string.widget_action_btn),
+                            action = actionRunCallback<MarkTakenAction>(
+                                actionParametersOf(MarkTakenAction.medIdKey to medId),
+                            ),
+                        )
                     }
                 }
-                if (nextMedPairs.size > 3) {
+                if (nextMedPairs.size > 1) {
                     Text(
-                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_remaining_fmt, nextMedPairs.size - 3, nextMedPairs.size - 3),
+                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_remaining_fmt, nextMedPairs.size - 1, nextMedPairs.size - 1),
                         style = TextStyle(fontSize = 10.sp, color = GlanceTheme.colors.onSurfaceVariant),
                     )
                 }

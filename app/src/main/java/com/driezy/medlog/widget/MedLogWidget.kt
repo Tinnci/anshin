@@ -22,10 +22,8 @@ import androidx.glance.appwidget.provideContent
 import androidx.glance.background
 import androidx.glance.layout.Alignment
 import androidx.glance.layout.Box
-import androidx.glance.layout.Column
 import androidx.glance.layout.Row
 import androidx.glance.layout.Spacer
-import androidx.glance.layout.fillMaxSize
 import androidx.glance.layout.fillMaxWidth
 import androidx.glance.layout.height
 import androidx.glance.layout.padding
@@ -49,10 +47,10 @@ import kotlinx.coroutines.flow.first
  *
  * 根据小米小部件规范设计，支持三种响应式尺寸：
  * - 紧凑 2×2 (≤160dp 宽)：大号进度数字 + 进度条，垂直居中
- * - 标准 4×2 (≤260dp 宽)：标题行 + 进度条 + 最多 2 条待服（含 ✓ 打卡按钮）
- * - 宽屏 4×4 (高度≥160dp)：完整信息 + 最多 5 条待服（含 ✓ 打卡按钮）
+ * - 标准 4×2 (≤260dp 宽)：标题行 + 进度条 + 关键待服项（含打卡按钮）
+ * - 宽屏 4×4 (高度≥160dp)：完整信息 + 多条待服项（含打卡按钮）
  *
- * 交互：点击待服药品旁的 ✓ 触发 [MarkTakenAction]，写入 TAKEN 日志并刷新。
+ * 交互：点击待服药品旁的按钮触发 [MarkTakenAction]，写入 TAKEN 日志并刷新。
  */
 class MedLogWidget : GlanceAppWidget() {
 
@@ -111,21 +109,20 @@ private fun WidgetContent(
     val size      = LocalSize.current
     val isCompact = size.width < 160.dp
     val isTall    = size.height >= 160.dp
-    val maxShow   = when { isCompact -> 0; isTall -> 5; else -> 2 }
+    val maxShow   = when {
+        isCompact -> 0
+        isTall && showActions -> 3
+        isTall -> 5
+        else -> 1
+    }
     val allDone   = total > 0 && taken == total
 
     // 2×2 操作模式时需要 Top 对齐（Spacer.defaultWeight 才能把按钮推到底）
     val compactActionMode = isCompact && showActions && !allDone && total > 0 && pendingMeds.isNotEmpty()
 
-    Column(
+    WidgetContainer(
+        prominent = allDone,
         modifier = GlanceModifier
-            .fillMaxSize()
-            .background(
-                if (allDone) GlanceTheme.colors.tertiaryContainer
-                else         GlanceTheme.colors.surfaceVariant,
-            )
-            .cornerRadius(20.dp)
-            .padding(14.dp)
             .clickable(actionStartActivity<MainActivity>()),
         verticalAlignment   = if (compactActionMode) Alignment.Vertical.Top else if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact && !compactActionMode) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
@@ -165,23 +162,15 @@ private fun CompactContent(
     val ctx = LocalContext.current
     when {
         total == 0 -> {
-            Text("💊", style = TextStyle(fontSize = 22.sp))
-            Spacer(GlanceModifier.height(4.dp))
-            Text(
-                ctx.getString(R.string.widget_no_plan),
-                style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
+            WidgetEmptyState(
+                icon = R.drawable.ic_symbol_medication,
+                title = ctx.getString(R.string.widget_no_plan),
+                compact = true,
             )
         }
         allDone -> {
-            Text(
-                "✓",
-                style = TextStyle(
-                    fontSize   = 32.sp,
-                    fontWeight = FontWeight.Bold,
-                    color      = GlanceTheme.colors.tertiary,
-                ),
-            )
-            Spacer(GlanceModifier.height(2.dp))
+            WidgetIconBadge(icon = R.drawable.ic_symbol_check_circle, prominent = true, size = 44.dp, iconSize = 26.dp)
+            Spacer(GlanceModifier.height(6.dp))
             Text(
                 ctx.getString(R.string.widget_all_done),
                 style = TextStyle(
@@ -208,29 +197,13 @@ private fun CompactContent(
                 style = TextStyle(fontSize = 11.sp, color = GlanceTheme.colors.onSurfaceVariant),
             )
             Spacer(GlanceModifier.height(10.dp))
-            // 全宽服药按钮
-            Box(
-                modifier = GlanceModifier
-                    .fillMaxWidth()
-                    .height(32.dp)
-                    .background(GlanceTheme.colors.primaryContainer)
-                    .cornerRadius(16.dp)
-                    .clickable(
-                        actionRunCallback<MarkTakenAction>(
-                            actionParametersOf(MarkTakenAction.medIdKey to firstPending.first),
-                        ),
-                    ),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    ctx.getString(R.string.widget_action_btn),
-                    style = TextStyle(
-                        fontSize   = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        color      = GlanceTheme.colors.primary,
-                    ),
-                )
-            }
+            WidgetActionButton(
+                label = ctx.getString(R.string.widget_action_btn),
+                action = actionRunCallback<MarkTakenAction>(
+                    actionParametersOf(MarkTakenAction.medIdKey to firstPending.first),
+                ),
+                modifier = GlanceModifier.fillMaxWidth().height(48.dp),
+            )
         }
         else -> {
             // 状态模式 或 无待服药品：显示进度数字 + 进度条
@@ -267,33 +240,16 @@ private fun StandardContent(
 ) {
     val ctx = LocalContext.current
     // 标题 + 核心数字（F 型阅读动线）
-    Row(
-        modifier            = GlanceModifier.fillMaxWidth(),
-        verticalAlignment   = Alignment.Vertical.CenterVertically,
-        horizontalAlignment = Alignment.Horizontal.Start,
-    ) {
-        Text(
-            ctx.getString(R.string.widget_app_label),
-            style    = TextStyle(
-                fontSize   = 12.sp,
-                fontWeight = FontWeight.Medium,
-                color      = GlanceTheme.colors.onSurfaceVariant,
-            ),
-            modifier = GlanceModifier.defaultWeight(),
-        )
-        Text(
-            text  = when {
-                total == 0 -> "--"
-                allDone    -> ctx.getString(R.string.widget_goal_done)
-                else       -> "$taken / $total"
-            },
-            style = TextStyle(
-                fontSize   = 13.sp,
-                fontWeight = FontWeight.Bold,
-                color      = if (allDone) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
-            ),
-        )
-    }
+    WidgetHeader(
+        icon = R.drawable.ic_symbol_medication,
+        title = ctx.getString(R.string.widget_app_label),
+        trailing = when {
+            total == 0 -> "--"
+            allDone -> ctx.getString(R.string.widget_goal_done)
+            else -> "$taken / $total"
+        },
+        prominent = allDone,
+    )
 
     Spacer(GlanceModifier.height(7.dp))
 
@@ -308,21 +264,21 @@ private fun StandardContent(
 
     // 空数据态
     if (total == 0) {
-        Spacer(GlanceModifier.height(10.dp))
-        Text(ctx.getString(R.string.widget_no_plan_today), style = TextStyle(fontSize = 12.sp, color = GlanceTheme.colors.onSurfaceVariant))
-        Text(
-            ctx.getString(R.string.widget_add_prompt),
-            style = TextStyle(fontSize = 11.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.primary),
+        Spacer(GlanceModifier.height(12.dp))
+        WidgetEmptyState(
+            icon = R.drawable.ic_symbol_add_to_home_screen,
+            title = ctx.getString(R.string.widget_no_plan_today),
+            body = ctx.getString(R.string.widget_add_prompt),
         )
         return
     }
 
     // 全部完成态
     if (allDone) {
-        Spacer(GlanceModifier.height(10.dp))
-        Text(
-            ctx.getString(R.string.widget_all_done_msg),
-            style = TextStyle(fontSize = 12.sp, fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onTertiaryContainer),
+        Spacer(GlanceModifier.height(12.dp))
+        WidgetEmptyState(
+            icon = R.drawable.ic_symbol_check_circle,
+            title = ctx.getString(R.string.widget_all_done_msg),
         )
         return
     }
@@ -356,38 +312,21 @@ private fun StandardContent(
                 )
                 // 操作模式：服药按钮（较大圆角矩形）；状态模式：空心圆表示"待服"
                 if (showActions) {
-                    Box(
-                        modifier = GlanceModifier
-                            .size(36.dp)
-                            .background(GlanceTheme.colors.primaryContainer)
-                            .cornerRadius(8.dp)
-                            .clickable(
-                                actionRunCallback<MarkTakenAction>(
-                                    actionParametersOf(MarkTakenAction.medIdKey to medId),
-                                ),
-                            ),
-                        contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            ctx.getString(R.string.widget_action_btn),
-                            style = TextStyle(
-                                fontSize   = 13.sp,
-                                fontWeight = FontWeight.Bold,
-                                color      = GlanceTheme.colors.primary,
-                            ),
-                        )
-                    }
+                    WidgetActionButton(
+                        label = ctx.getString(R.string.widget_action_btn),
+                        action = actionRunCallback<MarkTakenAction>(
+                            actionParametersOf(MarkTakenAction.medIdKey to medId),
+                        ),
+                    )
                 } else {
                     // 状态模式：○ 空心圆表示待服，无点击
                     Box(
-                        modifier         = GlanceModifier.size(20.dp),
+                        modifier = GlanceModifier
+                            .size(18.dp)
+                            .background(GlanceTheme.colors.primaryContainer)
+                            .cornerRadius(9.dp),
                         contentAlignment = Alignment.Center,
-                    ) {
-                        Text(
-                            "○",
-                            style = TextStyle(fontSize = 14.sp, color = GlanceTheme.colors.primary),
-                        )
-                    }
+                    ) {}
                 }
             }
         }

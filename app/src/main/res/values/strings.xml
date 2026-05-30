@@ -710,7 +710,7 @@
     <string name="date_format_day_label">M月d日 EEEE</string>
     <string name="date_format_log_item">M月d日 HH:mm</string>
     <string name="widget_all_done">全部完成</string>
-    <string name="widget_all_done_msg">🎉 今日用药全部完成！</string>
+    <string name="widget_all_done_msg">今日用药全部完成</string>
     <string name="widget_taken_label">已服</string>
     <string name="widget_pending_label">待服</string>
     <string name="widget_no_plan">无计划</string>

@@ -33,4 +33,46 @@ class WidgetProviderInfoTest {
             text.contains("isSystemInDarkTheme"),
         )
     }
+
+    @Test
+    fun `widgets use shared Material chrome and launcher background shape`() {
+        val chrome = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/WidgetChrome.kt").readText()
+        val widgetFiles = listOf(
+            "MedLogWidget.kt",
+            "NextDoseWidget.kt",
+            "StreakWidget.kt",
+        )
+
+        assertTrue(chrome.contains("appWidgetBackground()"))
+        assertTrue(chrome.contains("system_app_widget_background_radius"))
+        assertTrue(chrome.contains("WidgetHeader("))
+        assertTrue(chrome.contains("WidgetIconBadge("))
+        assertTrue(chrome.contains("WidgetActionButton("))
+        widgetFiles.forEach { fileName ->
+            val text = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/$fileName").readText()
+            assertTrue("$fileName should use shared widget container chrome.", text.contains("WidgetContainer("))
+        }
+    }
+
+    @Test
+    fun `widgets avoid emoji decoration and keep action touch targets large`() {
+        val widgetFiles = listOf(
+            "MedLogWidget.kt",
+            "NextDoseWidget.kt",
+            "StreakWidget.kt",
+        )
+        val forbiddenDecorations = listOf("💊", "🔥", "🎉")
+
+        widgetFiles.forEach { fileName ->
+            val text = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/$fileName").readText()
+            forbiddenDecorations.forEach { token ->
+                assertFalse("$fileName should use Material icon resources instead of $token.", text.contains(token))
+            }
+            assertFalse("$fileName should not use undersized 24dp action targets.", text.contains(".size(24.dp)"))
+            assertFalse("$fileName should not use undersized 36dp action targets.", text.contains(".size(36.dp)"))
+        }
+
+        val chrome = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/WidgetChrome.kt").readText()
+        assertTrue("Shared widget action should meet 48dp touch target guidance.", chrome.contains(".size(48.dp)"))
+    }
 }

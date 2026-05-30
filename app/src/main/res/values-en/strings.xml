@@ -730,7 +730,7 @@
     <string name="date_format_day_label">MMMM d, EEEE</string>
     <string name="date_format_log_item">MMM d HH:mm</string>
     <string name="widget_all_done">All done</string>
-    <string name="widget_all_done_msg">🎉 All meds taken today!</string>
+    <string name="widget_all_done_msg">All meds taken today</string>
     <string name="widget_taken_label">Taken</string>
     <string name="widget_pending_label">Pending</string>
     <string name="widget_no_plan">No plan</string>
