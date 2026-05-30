@@ -33,6 +33,8 @@ from typing import Iterable
 from pypinyin import lazy_pinyin
 from rapidfuzz import fuzz
 
+from drug_category_rules import MISC_REHOME_RULES
+
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 ASSET_BASE = PROJECT_ROOT / "app" / "src" / "main" / "assets" / "json"
@@ -50,24 +52,6 @@ BRANDISH_TOKENS = (
     "必", "达", "宁", "灵", "康", "欣", "舒", "乐", "泰", "安", "适", "优",
     "力", "可", "敏", "芬", "通", "清", "悦", "迪", "邦", "克",
 )
-
-V_REHOME_RULES: dict[str, str] = {
-    "系统用药的抗病毒药": "系统用抗感染药",
-    "抗分支杆菌药": "系统用抗感染药",
-    "性激素和生殖系统调节药": "生殖泌尿系统和性激素",
-    "精神兴奋药": "神经系统",
-    "抗抑郁药": "神经系统",
-    "抗震颤麻痹药": "神经系统",
-    "免疫抑制剂": "抗肿瘤药和免疫调节剂",
-    "内分泌疗法": "全身用激素类制剂",
-    "垂体和下丘脑激素及其类似药物": "全身用激素类制剂",
-    "血脂调节剂": "心血管系统",
-    "抗高血压药": "心血管系统",
-    "β-受体阻断药": "心血管系统",
-    "钙通道阻断药": "心血管系统",
-    "外周血管扩张剂": "心血管系统",
-    "抗痤疮药": "皮肤病用药",
-}
 
 EXTERNAL_NAME_SEEDS: dict[str, str] = {
     "阿司匹林": "aspirin",
@@ -221,11 +205,11 @@ def audit(records: list[DrugRecord], output_dir: Path) -> None:
         (
             record.name,
             record.second_category,
-            V_REHOME_RULES[record.second_category],
+            MISC_REHOME_RULES[record.second_category],
             record.primary_path,
         )
         for record in records
-        if record.top_category == "杂类" and record.second_category in V_REHOME_RULES
+        if record.top_category == "杂类" and record.second_category in MISC_REHOME_RULES
     ]
     pinyin_mismatches = [
         (record.name, gb2312_bucket_initial(record.name), pinyin_initial(record.name))

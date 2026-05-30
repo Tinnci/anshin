@@ -5,6 +5,9 @@ import collections
 import os
 import re
 
+from drug_category_rules import normalize_western_path
+from drug_aliases import write_clean_aliases
+
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW_BASE = os.path.join(PROJECT_ROOT, "scripts", "data")
 ASSET_BASE = os.path.join(PROJECT_ROOT, "app", "src", "main", "assets", "json")
@@ -59,7 +62,7 @@ def analyze(path, label):
             print(f"    示例: {k} -> {v}")
     return data, top_cats
 
-def clean_and_normalize(data):
+def clean_and_normalize(data, normalize_path=None):
     """
     清理规则：
     1. 去除空药名、空路径条目
@@ -76,6 +79,8 @@ def clean_and_normalize(data):
             paths = [paths.strip()]
         else:
             paths = [p.strip() for p in paths if p.strip()]
+        if normalize_path is not None:
+            paths = [normalize_path(p) for p in paths]
         # 路径内去重，保持顺序
         seen = set()
         deduped = []
@@ -130,7 +135,7 @@ print("\n\n" + "="*50)
 print("  清理处理")
 print("="*50)
 
-drugs_clean = clean_and_normalize(drugs_data)
+drugs_clean = clean_and_normalize(drugs_data, normalize_path=normalize_western_path)
 tcm_clean = clean_and_normalize(tcm_data)
 
 print(f"西药: {len(drugs_data)} -> {len(drugs_clean)} (清理了 {len(drugs_data)-len(drugs_clean)} 条)")
@@ -149,6 +154,9 @@ with open(out_tcm, "w", encoding="utf-8") as f:
 print(f"\n已输出:")
 print(f"  {out_drugs}")
 print(f"  {out_tcm}")
+
+aliases_clean = write_clean_aliases(set(drugs_clean))
+print(f"  {os.path.join(ASSET_BASE, 'drug_aliases_clean.json')} ({len(aliases_clean)} 条人工审核别名)")
 
 # ---- 分类树统计 ----
 print("\n\n" + "="*50)

@@ -22,6 +22,8 @@ gradle-app.setting
 .gradletasknamecache
 proguard/
 crash-log.txt
+__pycache__/
+*.py[cod]
 
 # Keystore files — never commit signing secrets
 *.jks

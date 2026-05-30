@@ -25,12 +25,17 @@ class DrugDataSource @Inject constructor(
     private val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true }
 
     suspend fun loadAllDrugs(): List<Drug> = withContext(Dispatchers.IO) {
-        val western = parseJsonDrugs("json/drugs_clean.json", isTcm = false)
+        val aliases = parseDrugAliases("json/drug_aliases_clean.json")
+        val western = parseJsonDrugs("json/drugs_clean.json", isTcm = false, aliases = aliases)
         val tcm = parseJsonDrugs("json/tcm_drugs_clean.json", isTcm = true)
         (western + tcm).sortedWith(compareBy({ it.initial }, { it.name }))
     }
 
-    private fun parseJsonDrugs(assetPath: String, isTcm: Boolean): List<Drug> = try {
+    private fun parseJsonDrugs(
+        assetPath: String,
+        isTcm: Boolean,
+        aliases: Map<String, List<String>> = emptyMap(),
+    ): List<Drug> = try {
         val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
         val root = lenientJson.parseToJsonElement(text).jsonObject
         val result = ArrayList<Drug>(root.size)
@@ -57,12 +62,32 @@ class DrugDataSource @Inject constructor(
                 allPaths = if (paths.size > 1) paths else emptyList(),
                 isTcm = isTcm,
                 initial = computeInitial(name),
+                tags = aliases[name].orEmpty(),
                 isCompound = isCompound,
             )
         }
         result
     } catch (e: Exception) {
         emptyList()
+    }
+
+    private fun parseDrugAliases(assetPath: String): Map<String, List<String>> = try {
+        val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
+        val root = lenientJson.parseToJsonElement(text).jsonObject
+        root.mapValues { (_, value) ->
+            value.jsonObject["aliases"]
+                ?.let { aliases ->
+                    when (aliases) {
+                        is JsonArray -> aliases.mapNotNull { alias ->
+                            (alias as? JsonPrimitive)?.content?.takeIf { it.isNotBlank() }
+                        }
+                        else -> emptyList()
+                    }
+                }
+                .orEmpty()
+        }
+    } catch (e: Exception) {
+        emptyMap()
     }
 
     /**
