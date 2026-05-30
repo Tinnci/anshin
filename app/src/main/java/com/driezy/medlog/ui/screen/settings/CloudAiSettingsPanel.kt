@@ -222,6 +222,7 @@ internal fun CloudAiSettingsPanel(
                     EndpointPresetPicker(
                         presets = uiState.cloudAiEndpointPresets,
                         currentBaseUrl = uiState.openAiCompatibleBaseUrl,
+                        protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
                         onSelect = { preset ->
                             baseUrlDraft = preset.api
                             providerNameDraft = preset.name
@@ -295,10 +296,9 @@ internal fun CloudAiSettingsPanel(
                 }
                 if (uiState.cloudAiProvider == CloudAiProvider.ANTHROPIC) {
                     EndpointPresetPicker(
-                        presets = uiState.cloudAiEndpointPresets.filter {
-                            it.protocol == CloudAiEndpointProtocol.ANTHROPIC
-                        },
+                        presets = uiState.cloudAiEndpointPresets,
                         currentBaseUrl = uiState.anthropicCloudAiBaseUrl,
+                        protocol = CloudAiEndpointProtocol.ANTHROPIC,
                         onSelect = { preset ->
                             anthropicBaseUrlDraft = preset.api
                             providerNameDraft = preset.name
@@ -425,9 +425,11 @@ internal fun CloudAiSettingsPanel(
 private fun EndpointPresetPicker(
     presets: List<CloudAiEndpointPreset>,
     currentBaseUrl: String,
+    protocol: CloudAiEndpointProtocol,
     onSelect: (CloudAiEndpointPreset) -> Unit,
 ) {
-    if (presets.isEmpty()) return
+    val protocolPresetCount = presets.count { it.protocol == protocol }
+    if (protocolPresetCount == 0) return
 
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
@@ -435,6 +437,7 @@ private fun EndpointPresetPicker(
         presets = presets,
         query = query,
         currentBaseUrl = currentBaseUrl,
+        protocol = protocol,
     )
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -446,7 +449,7 @@ private fun EndpointPresetPicker(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             Text(
-                text = stringResource(R.string.settings_ai_endpoint_presets_title, presets.size),
+                text = stringResource(R.string.settings_ai_endpoint_presets_title, protocolPresetCount),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.weight(1f),
@@ -526,11 +529,13 @@ internal data class CloudAiEndpointPresetListPresentation(
             presets: List<CloudAiEndpointPreset>,
             query: String,
             currentBaseUrl: String,
+            protocol: CloudAiEndpointProtocol,
         ): CloudAiEndpointPresetListPresentation {
             val normalizedQuery = query.trim().lowercase()
             val normalizedCurrentBaseUrl = currentBaseUrl.normalizedEndpointUrl()
             val rows = presets
                 .asSequence()
+                .filter { preset -> preset.protocol == protocol }
                 .filter { preset ->
                     normalizedQuery.isBlank() ||
                         preset.name.lowercase().contains(normalizedQuery) ||

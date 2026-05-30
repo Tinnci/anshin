@@ -111,6 +111,7 @@ class CloudAiSettingsPresentationTest {
             ),
             query = "zen",
             currentBaseUrl = "",
+            protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
         ).rows
 
         assertEquals(1, rows.size)
@@ -131,8 +132,34 @@ class CloudAiSettingsPresentationTest {
             ),
             query = "",
             currentBaseUrl = "https://api.deepseek.com/",
+            protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
         ).rows
 
         assertEquals(true, rows.single().selected)
+    }
+
+    @Test
+    fun `endpoint preset list filters by protocol`() {
+        val rows = CloudAiEndpointPresetListPresentation.from(
+            presets = listOf(
+                CloudAiEndpointPreset(
+                    id = "openai",
+                    name = "OpenAI",
+                    api = "https://api.openai.com/v1",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+                CloudAiEndpointPreset(
+                    id = "anthropic",
+                    name = "Anthropic",
+                    api = "https://api.anthropic.com",
+                    protocol = CloudAiEndpointProtocol.ANTHROPIC,
+                ),
+            ),
+            query = "",
+            currentBaseUrl = "",
+            protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+        ).rows
+
+        assertEquals(listOf("openai"), rows.map { it.id })
     }
 }
