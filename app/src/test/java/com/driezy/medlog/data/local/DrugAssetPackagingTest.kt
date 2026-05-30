@@ -23,7 +23,7 @@ class DrugAssetPackagingTest {
     fun `drug normalization script reads raw inputs outside apk assets`() {
         val script = File(projectRoot, "scripts/analyze_drugs.py").readText()
 
-        assertTrue(script.contains("scripts/data"))
+        assertTrue(script.contains("\"scripts\", \"data\""))
         assertTrue(script.contains("RAW_BASE"))
         assertTrue(script.contains("ASSET_BASE"))
     }
