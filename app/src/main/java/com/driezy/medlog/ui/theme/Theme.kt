@@ -12,7 +12,13 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
+import com.driezy.medlog.data.repository.AppTextScale
+import com.driezy.medlog.data.repository.FontMode
+import com.driezy.medlog.data.repository.UiDensityScale
 
 val MedLogLightColorScheme = lightColorScheme(
     primary                  = primaryLight,
@@ -122,6 +128,9 @@ fun MedLogTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     dynamicColor: Boolean = true,   // Material You — Android 12+
     palette: ThemePalette = ThemePalette.ANSHIN,
+    fontMode: FontMode = FontMode.SYSTEM,
+    appTextScale: AppTextScale = AppTextScale.STANDARD,
+    uiDensityScale: UiDensityScale = UiDensityScale.STANDARD,
     content: @Composable () -> Unit,
 ) {
     val colorScheme = when {
@@ -132,17 +141,30 @@ fun MedLogTheme(
         else -> palette.colorScheme(darkTheme)
     }
 
-    MaterialTheme(
-        colorScheme  = colorScheme,
-        typography   = MedLogTypography,
-        shapes       = MedLogShapes,
-        motionScheme = MotionScheme.expressive(),
-    ) {
-        CompositionLocalProvider(
-            LocalEmphasizedTypography provides MedLogEmphasizedTypography,
-            LocalEditorialTypography provides MedLogEditorialTypography,
-            content = content,
+    val typography = remember(fontMode) { medLogTypography(fontMode) }
+    val emphasizedTypography = remember(fontMode) { medLogEmphasizedTypography(fontMode) }
+    val editorialTypography = remember(fontMode) { medLogEditorialTypography(fontMode) }
+    val currentDensity = LocalDensity.current
+    val displayDensity = remember(currentDensity, appTextScale, uiDensityScale) {
+        Density(
+            density = currentDensity.density * uiDensityScale.factor,
+            fontScale = currentDensity.fontScale * appTextScale.factor,
         )
+    }
+
+    CompositionLocalProvider(LocalDensity provides displayDensity) {
+        MaterialTheme(
+            colorScheme  = colorScheme,
+            typography   = typography,
+            shapes       = MedLogShapes,
+            motionScheme = MotionScheme.expressive(),
+        ) {
+            CompositionLocalProvider(
+                LocalEmphasizedTypography provides emphasizedTypography,
+                LocalEditorialTypography provides editorialTypography,
+                content = content,
+            )
+        }
     }
 }
 

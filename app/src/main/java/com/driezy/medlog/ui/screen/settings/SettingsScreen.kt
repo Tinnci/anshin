@@ -62,10 +62,13 @@ import com.driezy.medlog.ai.CloudAiEndpointPreset
 import com.driezy.medlog.ai.CloudAiEndpointProtocol
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
+import com.driezy.medlog.data.repository.AppTextScale
 import com.driezy.medlog.data.repository.CloudAiProvider
+import com.driezy.medlog.data.repository.FontMode
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
+import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidgetReceiver
 import com.driezy.medlog.widget.NextDoseWidgetReceiver
@@ -541,6 +544,68 @@ private fun SettingsScaffold(
                         checked = uiState.useDynamicColor,
                         onCheckedChange = viewModel::setUseDynamicColor,
                         icon = MedLogIcons.ColorLens,
+                    )
+                }
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
+                        MedLogIcon(
+                            MedLogIcons.Notes,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_display_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                stringResource(R.string.settings_display_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    DisplayOptionGroup(
+                        title = stringResource(R.string.settings_font_mode_title),
+                        options = listOf(
+                            FontMode.SYSTEM to stringResource(R.string.settings_font_mode_system),
+                            FontMode.ANSHIN to stringResource(R.string.settings_font_mode_anshin),
+                        ),
+                        selected = uiState.fontMode,
+                        onSelected = viewModel::setFontMode,
+                    )
+                    DisplayOptionGroup(
+                        title = stringResource(R.string.settings_text_size_title),
+                        options = listOf(
+                            AppTextScale.SMALL to stringResource(R.string.settings_text_size_small),
+                            AppTextScale.STANDARD to stringResource(R.string.settings_text_size_standard),
+                            AppTextScale.LARGE to stringResource(R.string.settings_text_size_large),
+                            AppTextScale.EXTRA_LARGE to stringResource(R.string.settings_text_size_extra_large),
+                        ),
+                        selected = uiState.appTextScale,
+                        onSelected = viewModel::setAppTextScale,
+                    )
+                    DisplayOptionGroup(
+                        title = stringResource(R.string.settings_ui_density_title),
+                        options = listOf(
+                            UiDensityScale.COMPACT to stringResource(R.string.settings_ui_density_compact),
+                            UiDensityScale.STANDARD to stringResource(R.string.settings_ui_density_standard),
+                            UiDensityScale.COMFORTABLE to stringResource(R.string.settings_ui_density_comfortable),
+                        ),
+                        selected = uiState.uiDensityScale,
+                        onSelected = viewModel::setUiDensityScale,
                     )
                 }
                 SettingsSectionDivider(
@@ -1521,8 +1586,9 @@ private fun CloudAiSettingsPanel(
                             uiState.cloudAiModelDiscoveryInProgress ->
                                 stringResource(R.string.settings_ai_models_fetching)
                             connected == true && uiState.cloudAiDiscoveredModels.isNotEmpty() ->
-                                stringResource(
-                                    R.string.settings_ai_models_connected,
+                                pluralStringResource(
+                                    R.plurals.settings_ai_models_connected,
+                                    uiState.cloudAiDiscoveredModels.size,
                                     uiState.cloudAiDiscoveredModels.size,
                                 )
                             connected == true -> stringResource(R.string.settings_ai_models_empty)
@@ -1978,6 +2044,42 @@ private fun ThemePaletteChip(
                     else MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 1,
                 )
+            }
+        }
+    }
+}
+
+@Composable
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+private fun <T> DisplayOptionGroup(
+    title: String,
+    options: List<Pair<T, String>>,
+    selected: T,
+    onSelected: (T) -> Unit,
+) {
+    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny)) {
+        Text(
+            title,
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+        ) {
+            options.forEachIndexed { index, (value, label) ->
+                ToggleButton(
+                    checked = selected == value,
+                    onCheckedChange = { onSelected(value) },
+                    modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
+                    shapes = when (index) {
+                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                    },
+                ) {
+                    Text(label, style = MaterialTheme.typography.labelSmall)
+                }
             }
         }
     }

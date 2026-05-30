@@ -19,11 +19,14 @@ import com.driezy.medlog.ai.OpenAiAuthMode
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
+import com.driezy.medlog.data.repository.AppTextScale
 import com.driezy.medlog.data.repository.CloudAiProvider
+import com.driezy.medlog.data.repository.FontMode
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
+import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.domain.BackupRestoreUseCase
 import com.driezy.medlog.domain.ResyncRemindersUseCase
@@ -60,6 +63,9 @@ data class SettingsUiState(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = true,
     val themePalette: ThemePalette = ThemePalette.ANSHIN,
+    val fontMode: FontMode = FontMode.SYSTEM,
+    val appTextScale: AppTextScale = AppTextScale.STANDARD,
+    val uiDensityScale: UiDensityScale = UiDensityScale.STANDARD,
     // ── 今日页面 ────────────────────────────────────────────────────────────
     val autoCollapseCompletedGroups: Boolean = true,
     // ── 提前预告提醒 ─────────────────────────────────────────────────────────
@@ -139,6 +145,9 @@ class SettingsViewModel @Inject constructor(
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
             themePalette    = ThemePalette.fromStoredName(prefs.themePaletteName),
+            fontMode        = prefs.fontMode,
+            appTextScale    = prefs.appTextScale,
+            uiDensityScale  = prefs.uiDensityScale,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
             widgetShowActions = prefs.widgetShowActions,
@@ -346,6 +355,21 @@ class SettingsViewModel @Inject constructor(
             prefsRepository.updateThemePalette(palette.name)
             refreshPlacedWidgets()
         }
+    }
+
+    fun setFontMode(mode: FontMode) {
+        safeLaunch {
+            prefsRepository.updateFontMode(mode)
+            refreshPlacedWidgets()
+        }
+    }
+
+    fun setAppTextScale(scale: AppTextScale) {
+        safeLaunch { prefsRepository.updateAppTextScale(scale) }
+    }
+
+    fun setUiDensityScale(scale: UiDensityScale) {
+        safeLaunch { prefsRepository.updateUiDensityScale(scale) }
     }
 
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {

@@ -217,6 +217,20 @@
     <string name="settings_theme_dark">Dark</string>
     <string name="settings_dynamic_color_title">Material You Dynamic Color</string>
     <string name="settings_dynamic_color_subtitle">Automatically match app colors to your wallpaper (Android 12+)</string>
+    <string name="settings_display_title">Display size &amp; font</string>
+    <string name="settings_display_subtitle">Follow the system font and tune in-app text and element sizes separately</string>
+    <string name="settings_font_mode_title">Font</string>
+    <string name="settings_font_mode_system">System</string>
+    <string name="settings_font_mode_anshin">Anshin</string>
+    <string name="settings_text_size_title">Text size</string>
+    <string name="settings_text_size_small">90%</string>
+    <string name="settings_text_size_standard">100%</string>
+    <string name="settings_text_size_large">115%</string>
+    <string name="settings_text_size_extra_large">130%</string>
+    <string name="settings_ui_density_title">Element size</string>
+    <string name="settings_ui_density_compact">Compact</string>
+    <string name="settings_ui_density_standard">Standard</string>
+    <string name="settings_ui_density_comfortable">Roomy</string>
     <string name="settings_palette_title">Poetic palettes</string>
     <string name="settings_palette_subtitle">Choose a crafted palette; non-Anshin palettes take priority over dynamic color</string>
     <string name="settings_palette_desc_anshin">Clean medical blue-green</string>
@@ -644,7 +658,7 @@
     <string name="voice_input_privacy_body">Your voice will be sent over the network to Doubao IME speech recognition and converted to text. Avoid recording sensitive content you do not want to upload.</string>
     <string name="voice_input_privacy_confirm">Start recording</string>
     <string name="voice_input_status_connecting">Connecting to speech recognition…</string>
-    <string name="voice_input_status_listening">Listening. Tap the microphone to stop.</string>
+    <string name="voice_input_status_listening">Listening. It stops after a pause; tap the microphone to stop.</string>
     <string name="voice_input_error_permission">Microphone permission is required for voice input</string>
     <string name="voice_input_error_network">Network is unavailable</string>
     <string name="voice_input_error_registration">Device registration failed. Try again later.</string>
@@ -930,7 +944,10 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_models_not_checked">API connectivity and model list have not been checked</string>
     <string name="settings_ai_models_fetch">Check and auto-select</string>
     <string name="settings_ai_models_fetching">Checking API connectivity…</string>
-    <string name="settings_ai_models_connected">Connected, found %d models; image-capable models are preferred</string>
+    <plurals name="settings_ai_models_connected">
+        <item quantity="one">Connected, found %d model; image-capable models are preferred</item>
+        <item quantity="other">Connected, found %d models; image-capable models are preferred</item>
+    </plurals>
     <string name="settings_ai_models_empty">Connected, but the API returned no available models</string>
     <string name="settings_ai_models_failed">Connection failed: %s</string>
     <string name="settings_ai_model_chip_image">%s · Image</string>

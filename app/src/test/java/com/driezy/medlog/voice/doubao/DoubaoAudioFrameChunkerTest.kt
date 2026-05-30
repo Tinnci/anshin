@@ -34,4 +34,44 @@ class DoubaoAudioFrameChunkerTest {
         assertEquals(DoubaoFrameState.LAST, frames.last(ByteArray(3), timestampMs = 140).frameState)
         assertEquals(2, frames.sentFrameCount)
     }
+
+    @Test
+    fun `detects end of voice after trailing silence`() {
+        val detector = DoubaoSilenceEndDetector(
+            trailingSilenceMs = 60,
+            initialSilenceMs = 200,
+        )
+
+        assertTrue(detector.offer(speechFrame(amplitude = 2_000)).not())
+        assertTrue(detector.offer(silenceFrame()).not())
+        assertTrue(detector.offer(silenceFrame()).not())
+
+        assertTrue(detector.offer(silenceFrame()))
+    }
+
+    @Test
+    fun `detects abandoned recording after initial silence`() {
+        val detector = DoubaoSilenceEndDetector(
+            trailingSilenceMs = 60,
+            initialSilenceMs = 60,
+        )
+
+        assertTrue(detector.offer(silenceFrame()).not())
+        assertTrue(detector.offer(silenceFrame()).not())
+
+        assertTrue(detector.offer(silenceFrame()))
+    }
+
+    private fun silenceFrame(): ByteArray = ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES)
+
+    private fun speechFrame(amplitude: Short): ByteArray {
+        val frame = ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES)
+        var index = 0
+        while (index < frame.size) {
+            frame[index] = (amplitude.toInt() and 0xff).toByte()
+            frame[index + 1] = ((amplitude.toInt() shr 8) and 0xff).toByte()
+            index += 2
+        }
+        return frame
+    }
 }

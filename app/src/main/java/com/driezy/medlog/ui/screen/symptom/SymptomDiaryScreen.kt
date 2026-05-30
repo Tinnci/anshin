@@ -472,23 +472,28 @@ private fun AddEditDiarySheet(
                 minLines = 2,
                 maxLines = 4,
                 trailingIcon = {
+                    val isVoiceInputActive = voiceInput.phase == VoiceInputPhase.LISTENING ||
+                        voiceInput.phase == VoiceInputPhase.CONNECTING
                     IconButton(
                         onClick = {
-                            if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
+                            if (isVoiceInputActive) {
                                 onStopVoiceInput()
                             } else {
                                 startVoiceInputWithPrivacy()
                             }
                         },
+                        colors = IconButtonDefaults.iconButtonColors(
+                            contentColor = if (isVoiceInputActive) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
+                        ),
                     ) {
                         MedLogIcon(
-                            if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
-                                MedLogIcons.Close
-                            } else {
-                                MedLogIcons.Mic
-                            },
+                            MedLogIcons.Mic,
                             contentDescription = stringResource(
-                                if (voiceInput.phase == VoiceInputPhase.LISTENING || voiceInput.phase == VoiceInputPhase.CONNECTING) {
+                                if (isVoiceInputActive) {
                                     R.string.voice_input_stop_cd
                                 } else {
                                     R.string.voice_input_start_cd

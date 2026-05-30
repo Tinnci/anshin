@@ -85,10 +85,14 @@ class DoubaoVoiceInputController @Inject constructor(
             socket.await(DoubaoAsrResponseType.SESSION_STARTED)
 
             _events.emit(VoiceInputEvent.Listening)
-            coroutineScope {
+            val sessionStoppedNormally = coroutineScope {
                 val audioJob = launchAudioSender(socket)
-                receiveResponses(socket)
+                val stoppedNormally = receiveResponses(socket)
                 audioJob.cancelAndJoin()
+                stoppedNormally
+            }
+            if (sessionStoppedNormally) {
+                _events.emit(VoiceInputEvent.Stopped)
             }
         } catch (cancelled: CancellationException) {
             socket?.let { finishSocket(it) }
@@ -127,15 +131,19 @@ class DoubaoVoiceInputController @Inject constructor(
             recorder.release()
             throw OpusEncoderUnavailableException(it)
         }
+        val silenceEndDetector = DoubaoSilenceEndDetector()
         val readBuffer = ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES * 2)
         val startedAt = System.currentTimeMillis()
 
         try {
             recorder.startRecording()
-            while (true) {
+            recording@ while (true) {
                 val read = recorder.read(readBuffer, 0, readBuffer.size, AudioRecord.READ_BLOCKING)
                 if (read > 0) {
                     chunker.offer(readBuffer.copyOf(read)).forEach { pcmFrame ->
+                        if (silenceEndDetector.offer(pcmFrame)) {
+                            break@recording
+                        }
                         encoder.encode(pcmFrame)?.let { opusFrame ->
                             val elapsed = System.currentTimeMillis() - startedAt
                             socket.sendAudio(sequencer.next(opusFrame, elapsed))
@@ -157,26 +165,32 @@ class DoubaoVoiceInputController @Inject constructor(
         }
     }
 
-    private suspend fun receiveResponses(socket: DoubaoAsrSocket) {
+    private suspend fun receiveResponses(socket: DoubaoAsrSocket): Boolean {
         try {
             while (true) {
                 val response = socket.responses.receive()
                 when (response.type) {
                     DoubaoAsrResponseType.INTERIM_RESULT,
                     DoubaoAsrResponseType.FINAL_RESULT,
-                    -> if (response.text.isNotBlank()) {
-                        _events.emit(VoiceInputEvent.Transcript(response.text, response.isFinal))
+                    -> {
+                        if (response.text.isNotBlank()) {
+                            _events.emit(VoiceInputEvent.Transcript(response.text, response.isFinal))
+                        }
+                        if (response.vadFinished) {
+                            finishSocket(socket)
+                            return true
+                        }
                     }
                     DoubaoAsrResponseType.ERROR -> {
                         _events.emit(VoiceInputEvent.Failed(VoiceInputError.PROTOCOL_FAILED, response.errorMessage))
-                        return
+                        return false
                     }
-                    DoubaoAsrResponseType.SESSION_FINISHED -> return
+                    DoubaoAsrResponseType.SESSION_FINISHED -> return true
                     else -> Unit
                 }
             }
         } catch (_: ClosedReceiveChannelException) {
-            _events.emit(VoiceInputEvent.Stopped)
+            return true
         }
     }
 

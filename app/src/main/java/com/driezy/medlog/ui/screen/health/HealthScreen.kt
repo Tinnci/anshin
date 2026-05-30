@@ -83,6 +83,13 @@ internal fun HealthRecord.userVisibleNotes(): String {
     return if (trimmed.startsWith("seed:", ignoreCase = true)) "" else trimmed
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
+internal val HealthRecordSheetEnabledStates = setOf(
+    SheetValue.Hidden,
+    SheetValue.PartiallyExpanded,
+    SheetValue.Expanded,
+)
+
 internal data class HealthInsightsPresentation(
     val showPendingBody: Boolean,
     val pendingBodyRes: Int = R.string.health_insights_pending_body,
@@ -1043,7 +1050,7 @@ private fun AddEditHealthSheet(
     onOcrScan: () -> Unit,
     onSave: () -> Unit,
 ) {
-    val sheetState = rememberBottomSheetState(SheetValue.Hidden, setOf(SheetValue.PartiallyExpanded))
+    val sheetState = rememberBottomSheetState(SheetValue.Hidden, HealthRecordSheetEnabledStates)
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,

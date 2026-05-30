@@ -210,6 +210,20 @@
     <string name="settings_theme_dark">深色</string>
     <string name="settings_dynamic_color_title">Material You 动态颜色</string>
     <string name="settings_dynamic_color_subtitle">根据壁纸自动匹配应用配色（Android 12+）</string>
+    <string name="settings_display_title">显示大小与字体</string>
+    <string name="settings_display_subtitle">跟随系统字体，并可单独调整应用内文字和元素大小</string>
+    <string name="settings_font_mode_title">字体</string>
+    <string name="settings_font_mode_system">系统</string>
+    <string name="settings_font_mode_anshin">Anshin</string>
+    <string name="settings_text_size_title">文字大小</string>
+    <string name="settings_text_size_small">90%</string>
+    <string name="settings_text_size_standard">100%</string>
+    <string name="settings_text_size_large">115%</string>
+    <string name="settings_text_size_extra_large">130%</string>
+    <string name="settings_ui_density_title">元素大小</string>
+    <string name="settings_ui_density_compact">紧凑</string>
+    <string name="settings_ui_density_standard">标准</string>
+    <string name="settings_ui_density_comfortable">宽松</string>
     <string name="settings_palette_title">文艺配色</string>
     <string name="settings_palette_subtitle">选择一组更有气息的应用色板；非 Anshin 色板会优先于动态颜色</string>
     <string name="settings_palette_desc_anshin">清爽医疗蓝绿</string>
@@ -619,7 +633,7 @@
     <string name="voice_input_privacy_body">语音会通过网络发送到豆包输入法语音识别服务，用于转写成文字。请避免录入不想上传的敏感内容。</string>
     <string name="voice_input_privacy_confirm">开始录音</string>
     <string name="voice_input_status_connecting">正在连接语音识别…</string>
-    <string name="voice_input_status_listening">正在听写，点击麦克风可停止</string>
+    <string name="voice_input_status_listening">正在听写，停顿后会自动结束；点击麦克风可停止</string>
     <string name="voice_input_error_permission">需要麦克风权限才能语音输入</string>
     <string name="voice_input_error_network">当前网络不可用</string>
     <string name="voice_input_error_registration">设备注册失败，请稍后重试</string>
@@ -901,7 +915,9 @@
     <string name="settings_ai_models_not_checked">尚未检查 API 连通性和模型列表</string>
     <string name="settings_ai_models_fetch">检查并自动选择</string>
     <string name="settings_ai_models_fetching">正在检查 API 连通性…</string>
-    <string name="settings_ai_models_connected">连接成功，已获取 %d 个模型；优先选择支持图片的模型</string>
+    <plurals name="settings_ai_models_connected">
+        <item quantity="other">连接成功，已获取 %d 个模型；优先选择支持图片的模型</item>
+    </plurals>
     <string name="settings_ai_models_empty">连接成功，但 API 未返回可用模型</string>
     <string name="settings_ai_models_failed">连接失败：%s</string>
     <string name="settings_ai_model_chip_image">%s · 图片</string>

@@ -21,6 +21,43 @@ import javax.inject.Singleton
 /** 应用主题模式 */
 enum class ThemeMode { SYSTEM, LIGHT, DARK }
 
+/** 应用字体模式：默认尊重系统字体，可切换为品牌字体。 */
+enum class FontMode {
+    SYSTEM,
+    ANSHIN,
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): FontMode =
+            entries.firstOrNull { it.name == name } ?: SYSTEM
+    }
+}
+
+enum class AppTextScale(val factor: Float) {
+    SMALL(0.90f),
+    STANDARD(1.00f),
+    LARGE(1.15f),
+    EXTRA_LARGE(1.30f),
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): AppTextScale =
+            entries.firstOrNull { it.name == name } ?: STANDARD
+    }
+}
+
+enum class UiDensityScale(val factor: Float) {
+    COMPACT(0.94f),
+    STANDARD(1.00f),
+    COMFORTABLE(1.08f),
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): UiDensityScale =
+            entries.firstOrNull { it.name == name } ?: STANDARD
+    }
+}
+
 /** 七段数码管 OCR 识别模型类型 */
 enum class OcrModelType { LIGHT_SVTR, FASTVIT_T8 }
 
@@ -77,6 +114,12 @@ data class SettingsPreferences(
     val useDynamicColor: Boolean = true,
     /** 主题配色方案名称。实际色板定义在 UI theme 层。 */
     val themePaletteName: String = "ANSHIN",
+    /** 字体模式。默认 SYSTEM，尊重系统字体设置。 */
+    val fontMode: FontMode = FontMode.SYSTEM,
+    /** 应用内文字大小缩放，叠加在系统字体大小之上。 */
+    val appTextScale: AppTextScale = AppTextScale.STANDARD,
+    /** 应用内元素密度缩放，影响 dp 尺寸。 */
+    val uiDensityScale: UiDensityScale = UiDensityScale.STANDARD,
 
     // ── 今日页面显示偏好 ───────────────────────────────────────────────────────
     /** 已全部服用的时段默认折叠，节省屏幕空间 */
@@ -179,6 +222,9 @@ class UserPreferencesRepository @Inject constructor(
         val THEME_MODE         = stringPreferencesKey("theme_mode")
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
         val THEME_PALETTE      = stringPreferencesKey("theme_palette")
+        val FONT_MODE          = stringPreferencesKey("font_mode")
+        val APP_TEXT_SCALE     = stringPreferencesKey("app_text_scale")
+        val UI_DENSITY_SCALE   = stringPreferencesKey("ui_density_scale")
         // 今日页面显示偏好
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
         // 提前预告提醒
@@ -259,6 +305,9 @@ class UserPreferencesRepository @Inject constructor(
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
                 themePaletteName = prefs[THEME_PALETTE] ?: "ANSHIN",
+                fontMode = FontMode.fromStoredName(prefs[FONT_MODE]),
+                appTextScale = AppTextScale.fromStoredName(prefs[APP_TEXT_SCALE]),
+                uiDensityScale = UiDensityScale.fromStoredName(prefs[UI_DENSITY_SCALE]),
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
                 widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
@@ -356,6 +405,18 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新主题配色方案 */
     suspend fun updateThemePalette(paletteName: String) {
         dataStore.edit { it[THEME_PALETTE] = paletteName }
+    }
+
+    suspend fun updateFontMode(fontMode: FontMode) {
+        dataStore.edit { it[FONT_MODE] = fontMode.name }
+    }
+
+    suspend fun updateAppTextScale(scale: AppTextScale) {
+        dataStore.edit { it[APP_TEXT_SCALE] = scale.name }
+    }
+
+    suspend fun updateUiDensityScale(scale: UiDensityScale) {
+        dataStore.edit { it[UI_DENSITY_SCALE] = scale.name }
     }
 
     /** 更新「已完成分组默认折叠」开关 */

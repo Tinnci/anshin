@@ -54,6 +54,9 @@ class MainActivity : ComponentActivity() {
                 darkTheme = darkTheme,
                 dynamicColor = prefs.useDynamicColor,
                 palette = ThemePalette.fromStoredName(prefs.themePaletteName),
+                fontMode = prefs.fontMode,
+                appTextScale = prefs.appTextScale,
+                uiDensityScale = prefs.uiDensityScale,
             ) {
                 MedLogApp(openAddMedication = openAddMedication)
             }

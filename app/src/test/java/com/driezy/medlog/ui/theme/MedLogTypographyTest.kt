@@ -1,6 +1,8 @@
 package com.driezy.medlog.ui.theme
 
+import com.driezy.medlog.data.repository.FontMode
 import org.junit.Assert.assertSame
+import org.junit.Assert.assertNull
 import org.junit.Test
 
 class MedLogTypographyTest {
@@ -30,6 +32,33 @@ class MedLogTypographyTest {
             MedLogEditorialTypography.celebrationWord,
         ).forEach { style ->
             assertSame(MedLogFontFamily, style.fontFamily)
+        }
+    }
+
+    @Test
+    fun `system font mode leaves font family unspecified`() {
+        val typography = medLogTypography(FontMode.SYSTEM)
+        val emphasized = medLogEmphasizedTypography(FontMode.SYSTEM)
+        val editorial = medLogEditorialTypography(FontMode.SYSTEM)
+
+        listOf(
+            typography.displayLarge,
+            typography.headlineLarge,
+            typography.titleLarge,
+            typography.titleMedium,
+            typography.labelLarge,
+            typography.bodyLarge,
+            emphasized.displayLarge,
+            emphasized.headlineLarge,
+            emphasized.titleLarge,
+            emphasized.titleMedium,
+            emphasized.labelLarge,
+            emphasized.bodyLarge,
+            editorial.progressNumeral,
+            editorial.progressTotal,
+            editorial.celebrationWord,
+        ).forEach { style ->
+            assertNull(style.fontFamily)
         }
     }
 }
