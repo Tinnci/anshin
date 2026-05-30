@@ -26,8 +26,9 @@ class DrugDataSource @Inject constructor(
 
     suspend fun loadAllDrugs(): List<Drug> = withContext(Dispatchers.IO) {
         val aliases = parseDrugAliases("json/drug_aliases_clean.json")
-        val western = parseJsonDrugs("json/drugs_clean.json", isTcm = false, aliases = aliases)
-        val tcm = parseJsonDrugs("json/tcm_drugs_clean.json", isTcm = true)
+        val initials = parseDrugInitials("json/drug_initials_clean.json")
+        val western = parseJsonDrugs("json/drugs_clean.json", isTcm = false, aliases = aliases, initials = initials)
+        val tcm = parseJsonDrugs("json/tcm_drugs_clean.json", isTcm = true, initials = initials)
         (western + tcm).sortedWith(compareBy({ it.initial }, { it.name }))
     }
 
@@ -35,6 +36,7 @@ class DrugDataSource @Inject constructor(
         assetPath: String,
         isTcm: Boolean,
         aliases: Map<String, List<String>> = emptyMap(),
+        initials: Map<String, String> = emptyMap(),
     ): List<Drug> = try {
         val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
         val root = lenientJson.parseToJsonElement(text).jsonObject
@@ -61,8 +63,8 @@ class DrugDataSource @Inject constructor(
                 fullPath = bestPath,
                 allPaths = if (paths.size > 1) paths else emptyList(),
                 isTcm = isTcm,
-                initial = computeInitial(name),
-                tags = aliases[name].orEmpty(),
+                initial = initials[name] ?: fallbackInitial(name),
+                aliases = aliases[name].orEmpty(),
                 isCompound = isCompound,
             )
         }
@@ -75,48 +77,23 @@ class DrugDataSource @Inject constructor(
         val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
         DrugAliasAssetParser.parseAliases(text, lenientJson)
     } catch (e: Exception) {
+            emptyMap()
+    }
+
+    private fun parseDrugInitials(assetPath: String): Map<String, String> = try {
+        val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
+        lenientJson.parseToJsonElement(text).jsonObject.mapValues { (_, value) ->
+            value.jsonPrimitive.content
+        }
+    } catch (e: Exception) {
         emptyMap()
     }
 
-    /**
-     * 计算拼音首字母：
-     * - ASCII 字母 → 大写
-     * - 常用中文首字按 GB2312 区间近似映射到 A-Z
-     * - 其他 → '#'
-     */
-    private fun computeInitial(name: String): String {
+    private fun fallbackInitial(name: String): String {
         if (name.isEmpty()) return "#"
         val c = name[0]
         if (c in 'a'..'z') return c.uppercaseChar().toString()
         if (c in 'A'..'Z') return c.toString()
-        if (c.code < 0x4E00 || c.code > 0x9FA5) return "#"
-        // GB2312 区间映射（近似拼音首字母）
-        val code = c.code
-        return when {
-            code < 0x554A -> "A"
-            code < 0x5C1B -> "B"
-            code < 0x6015 -> "C"
-            code < 0x61A7 -> "D"
-            code < 0x63D3 -> "E"
-            code < 0x6617 -> "F"
-            code < 0x6747 -> "G"
-            code < 0x6B2D -> "H"
-            code < 0x6D84 -> "J"
-            code < 0x7057 -> "K"
-            code < 0x725C -> "L"
-            code < 0x7528 -> "M"
-            code < 0x7838 -> "N"
-            code < 0x7E31 -> "O"
-            code < 0x81D9 -> "P"
-            code < 0x8426 -> "Q"
-            code < 0x8704 -> "R"
-            code < 0x8C28 -> "S"
-            code < 0x8EA0 -> "T"
-            code < 0x9128 -> "W"
-            code < 0x9294 -> "X"
-            code < 0x96AF -> "Y"
-            code < 0x9B31 -> "Z"
-            else           -> "#"
-        }
+        return "#"
     }
 }

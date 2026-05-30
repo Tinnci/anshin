@@ -362,7 +362,7 @@
     <string name="detail_log_actual_time">복용 시간: %s</string>
     <string name="drugs_title">약품 데이터베이스</string>
     <string name="drugs_fab_add">직접 추가</string>
-    <string name="drugs_search_placeholder">이름, 분류, 태그 또는 핀인으로 검색…</string>
+    <string name="drugs_search_placeholder">이름, 분류, 별칭 또는 핀인으로 검색…</string>
     <string name="drugs_close_search_cd">검색 닫기</string>
     <string name="drugs_tab_all">전체</string>
     <string name="drugs_tab_western">양약</string>
@@ -384,7 +384,7 @@
         <item quantity="other">%d 종 약품</item>
     </plurals>
     <string name="drugs_tcm_badge">  ·  한약</string>
-    <string name="drugs_tag_hint">태그: %s</string>
+    <string name="drugs_tag_hint">별칭: %s</string>
     <string name="drugs_compound">복합</string>
     <string name="history_title">복약 기록</string>
     <string name="history_adherence_header">30일 복약률 %d%%</string>

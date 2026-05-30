@@ -379,7 +379,7 @@
     <string name="detail_log_actual_time">实际服用：%s</string>
     <string name="drugs_title">药品数据库</string>
     <string name="drugs_fab_add">自定义添加</string>
-    <string name="drugs_search_placeholder">搜索药品名称、分类、标签或拼音…</string>
+    <string name="drugs_search_placeholder">搜索药品名称、分类、别名或拼音…</string>
     <string name="drugs_close_search_cd">关闭搜索</string>
     <string name="drugs_tab_all">全部</string>
     <string name="drugs_tab_western">西药</string>
@@ -401,7 +401,7 @@
         <item quantity="other">%d 种药品</item>
     </plurals>
     <string name="drugs_tcm_badge">  ·  中成药</string>
-    <string name="drugs_tag_hint">标签：%s</string>
+    <string name="drugs_tag_hint">别名：%s</string>
     <string name="drugs_compound">复方</string>
     <string name="history_title">服药历史</string>
     <string name="history_adherence_header">近30天坚持率 %d%%</string>

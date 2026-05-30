@@ -392,7 +392,7 @@
     <string name="detail_log_actual_time">Taken at: %s</string>
     <string name="drugs_title">Drug Database</string>
     <string name="drugs_fab_add">Add Custom</string>
-    <string name="drugs_search_placeholder">Search by name, category, tag, or pinyin…</string>
+    <string name="drugs_search_placeholder">Search by name, category, alias, or pinyin…</string>
     <string name="drugs_close_search_cd">Close search</string>
     <string name="drugs_tab_all">All</string>
     <string name="drugs_tab_western">Western</string>
@@ -417,7 +417,7 @@
         <item quantity="other">%d drugs</item>
     </plurals>
     <string name="drugs_tcm_badge">  ·  TCM</string>
-    <string name="drugs_tag_hint">Tag: %s</string>
+    <string name="drugs_tag_hint">Alias: %s</string>
     <string name="drugs_compound">Compound</string>
     <string name="history_title">Medication History</string>
     <string name="history_adherence_header">%d%% adherence (30d)</string>

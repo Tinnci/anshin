@@ -34,6 +34,7 @@ from pypinyin import lazy_pinyin
 from rapidfuzz import fuzz
 
 from drug_category_rules import MISC_REHOME_RULES
+from drug_aliases import find_alias_semantic_warnings, load_alias_source
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
@@ -116,6 +117,14 @@ def load_records() -> list[DrugRecord]:
         *(DrugRecord(name, "western", tuple(paths)) for name, paths in western.items()),
         *(DrugRecord(name, "tcm", tuple(paths)) for name, paths in tcm.items()),
     ]
+
+
+def load_initials() -> dict[str, str]:
+    path = ASSET_BASE / "drug_initials_clean.json"
+    if not path.exists():
+        return {}
+    with path.open(encoding="utf-8") as handle:
+        return {str(name): str(initial) for name, initial in json.load(handle).items()}
 
 
 def path_part(path: str, index: int) -> str:
@@ -211,11 +220,14 @@ def audit(records: list[DrugRecord], output_dir: Path) -> None:
         for record in records
         if record.top_category == "杂类" and record.second_category in MISC_REHOME_RULES
     ]
+    initials = load_initials()
     pinyin_mismatches = [
-        (record.name, gb2312_bucket_initial(record.name), pinyin_initial(record.name))
+        (record.name, initials.get(record.name, ""), pinyin_initial(record.name))
         for record in records
-        if gb2312_bucket_initial(record.name) != pinyin_initial(record.name)
+        if initials.get(record.name) != pinyin_initial(record.name)
     ]
+    western_names = {record.name for record in records if record.source == "western"}
+    alias_warnings = find_alias_semantic_warnings(western_names, load_alias_source())
 
     write_csv(
         output_dir / "v_rehome_candidates.csv",
@@ -229,13 +241,21 @@ def audit(records: list[DrugRecord], output_dir: Path) -> None:
     )
     write_csv(
         output_dir / "pinyin_initial_mismatches.csv",
-        ("name", "gb2312_bucket_initial", "pypinyin_initial"),
+        ("name", "asset_initial", "pypinyin_initial"),
         pinyin_mismatches,
     )
     write_csv(
         output_dir / "fuzzy_duplicate_candidates.csv",
         ("name_a", "name_b", "similarity"),
         find_fuzzy_duplicates(records),
+    )
+    write_csv(
+        output_dir / "alias_semantic_warnings.csv",
+        ("canonical_name", "alias", "reason", "field_name"),
+        (
+            (warning.canonical_name, warning.alias, warning.reason, warning.field_name)
+            for warning in alias_warnings
+        ),
     )
 
     summary = [
@@ -247,7 +267,8 @@ def audit(records: list[DrugRecord], output_dir: Path) -> None:
         f"- multi-path western/tcm records: {len(multi_path)}",
         f"- V/misc rehome candidates: {len(v_candidates)}",
         f"- cross database duplicate names: {len(find_cross_database_duplicates(records))}",
-        f"- pinyin initial mismatches versus GB2312 bucket: {len(pinyin_mismatches)}",
+        f"- pinyin initial asset mismatches: {len(pinyin_mismatches)}",
+        f"- alias semantic warning candidates: {len(alias_warnings)}",
         "",
         "## Name classification heuristic",
         *[f"- {key}: {value}" for key, value in name_classes.most_common()],

@@ -261,9 +261,9 @@ internal fun DrugFlatList(
 
 @Composable
 internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
-    // 标签匹配提示：当名称不包含 query 但标签匹配时显示
-    val tagMatchHint = if (query.isNotBlank() && !drug.nameLower.contains(query.lowercase())) {
-        drug.tags.firstOrNull { it.lowercase().contains(query.lowercase()) }
+    // 别名匹配提示：当名称不包含 query 但别名匹配时显示
+    val aliasMatchHint = if (query.isNotBlank() && !drug.nameLower.contains(query.lowercase())) {
+        drug.aliases.firstOrNull { it.lowercase().contains(query.lowercase()) }
     } else null
 
     // 多路径药品：提取所有唯一的一级分类作为 badge 列表
@@ -294,7 +294,7 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                     text = buildString {
                         append(drug.category)
                         if (drug.isTcm) append(tcmBadge)
-                        if (drug.tags.isNotEmpty()) append("  ·  ${drug.tags.take(2).joinToString(", ")}")
+                        if (drug.aliases.isNotEmpty()) append("  ·  ${drug.aliases.take(2).joinToString(", ")}")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -322,10 +322,10 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                         }
                     }
                 }
-                // 语义/模糊匹配原因提示
-                if (tagMatchHint != null) {
+                // 别名匹配原因提示
+                if (aliasMatchHint != null) {
                     Text(
-                        text = stringResource(R.string.drugs_tag_hint, tagMatchHint),
+                        text = stringResource(R.string.drugs_tag_hint, aliasMatchHint),
                         style = MaterialTheme.typography.labelSmall,
                         color = MaterialTheme.colorScheme.tertiary,
                     )

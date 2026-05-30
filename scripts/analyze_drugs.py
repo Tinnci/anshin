@@ -1,16 +1,28 @@
 #!/usr/bin/env python3
+# /// script
+# requires-python = ">=3.11"
+# dependencies = [
+#   "pypinyin>=0.51.0",
+# ]
+# ///
 """分析和清理药品 JSON 数据库，输出整理后的标准格式"""
 import json
 import collections
+import hashlib
 import os
 import re
+from datetime import datetime, timezone
 
 from drug_category_rules import normalize_western_path
-from drug_aliases import write_clean_aliases
+from drug_aliases import load_alias_source, write_clean_aliases
+from drug_data_cleaning import build_drug_initials, merge_format_duplicate_records, should_keep_source_record
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW_BASE = os.path.join(PROJECT_ROOT, "scripts", "data")
 ASSET_BASE = os.path.join(PROJECT_ROOT, "app", "src", "main", "assets", "json")
+DATASET_MANIFEST = os.path.join(ASSET_BASE, "drug_dataset_manifest.json")
+DATA_VERSION = "1"
+PROTECTED_CANONICAL_NAMES = set(load_alias_source())
 
 def analyze(path, label):
     with open(path, encoding="utf-8") as f:
@@ -62,7 +74,7 @@ def analyze(path, label):
             print(f"    示例: {k} -> {v}")
     return data, top_cats
 
-def clean_and_normalize(data, normalize_path=None):
+def clean_and_normalize(data, source, normalize_path=None):
     """
     清理规则：
     1. 去除空药名、空路径条目
@@ -74,6 +86,8 @@ def clean_and_normalize(data, normalize_path=None):
     for name, paths in data.items():
         name = name.strip()
         if not name:
+            continue
+        if not should_keep_source_record(name, source):
             continue
         if isinstance(paths, str):
             paths = [paths.strip()]
@@ -91,6 +105,7 @@ def clean_and_normalize(data, normalize_path=None):
         if not deduped:
             continue
         cleaned[name] = deduped
+    cleaned = merge_format_duplicate_records(cleaned, protected_names=PROTECTED_CANONICAL_NAMES)
     # 按药名 Unicode 排序
     return dict(sorted(cleaned.items()))
 
@@ -126,6 +141,58 @@ def count_tree(tree, depth=0):
         return len(tree)
     return sum(count_tree(v, depth+1) for v in tree.values())
 
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
+
+def preserved_generated_at(manifest_path, comparable_payload):
+    if not os.path.exists(manifest_path):
+        return None
+    try:
+        with open(manifest_path, encoding="utf-8") as f:
+            existing = json.load(f)
+    except (OSError, json.JSONDecodeError):
+        return None
+    for key, value in comparable_payload.items():
+        if existing.get(key) != value:
+            return None
+    return existing.get("generatedAt")
+
+def write_dataset_manifest(western_count, tcm_count, reviewed_alias_count, initial_count):
+    source_files = {
+        "drugs.json": os.path.join(RAW_BASE, "drugs.json"),
+        "tcm_drugs_flat.json": os.path.join(RAW_BASE, "tcm_drugs_flat.json"),
+        "drug_aliases_reviewed.json": os.path.join(RAW_BASE, "drug_aliases_reviewed.json"),
+    }
+    asset_files = {
+        "drugs_clean.json": os.path.join(ASSET_BASE, "drugs_clean.json"),
+        "tcm_drugs_clean.json": os.path.join(ASSET_BASE, "tcm_drugs_clean.json"),
+        "drug_aliases_clean.json": os.path.join(ASSET_BASE, "drug_aliases_clean.json"),
+        "drug_initials_clean.json": os.path.join(ASSET_BASE, "drug_initials_clean.json"),
+    }
+    comparable_payload = {
+        "dataVersion": DATA_VERSION,
+        "generator": "scripts/analyze_drugs.py",
+        "westernDrugCount": western_count,
+        "tcmDrugCount": tcm_count,
+        "reviewedAliasCount": reviewed_alias_count,
+        "initialCount": initial_count,
+        "sourceHashes": {name: sha256_file(path) for name, path in source_files.items()},
+        "assetHashes": {name: sha256_file(path) for name, path in asset_files.items()},
+    }
+    manifest = {
+        **comparable_payload,
+        "generatedAt": preserved_generated_at(DATASET_MANIFEST, comparable_payload)
+        or datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z"),
+    }
+    with open(DATASET_MANIFEST, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, ensure_ascii=False, indent=2)
+        f.write("\n")
+    return manifest
+
 # ---- 分析 ----
 drugs_data, _ = analyze(os.path.join(RAW_BASE, "drugs.json"), "drugs.json — 西药（ATC 分类）")
 tcm_data, _ = analyze(os.path.join(RAW_BASE, "tcm_drugs_flat.json"), "tcm_drugs_flat.json — 中成药")
@@ -135,8 +202,8 @@ print("\n\n" + "="*50)
 print("  清理处理")
 print("="*50)
 
-drugs_clean = clean_and_normalize(drugs_data, normalize_path=normalize_western_path)
-tcm_clean = clean_and_normalize(tcm_data)
+drugs_clean = clean_and_normalize(drugs_data, source="western", normalize_path=normalize_western_path)
+tcm_clean = clean_and_normalize(tcm_data, source="tcm")
 
 print(f"西药: {len(drugs_data)} -> {len(drugs_clean)} (清理了 {len(drugs_data)-len(drugs_clean)} 条)")
 print(f"中药: {len(tcm_data)} -> {len(tcm_clean)} (清理了 {len(tcm_data)-len(tcm_clean)} 条)")
@@ -144,6 +211,7 @@ print(f"中药: {len(tcm_data)} -> {len(tcm_clean)} (清理了 {len(tcm_data)-le
 # ---- 输出清理后的文件 ----
 out_drugs = os.path.join(ASSET_BASE, "drugs_clean.json")
 out_tcm = os.path.join(ASSET_BASE, "tcm_drugs_clean.json")
+out_initials = os.path.join(ASSET_BASE, "drug_initials_clean.json")
 
 with open(out_drugs, "w", encoding="utf-8") as f:
     json.dump(drugs_clean, f, ensure_ascii=False, indent=2)
@@ -151,12 +219,20 @@ with open(out_drugs, "w", encoding="utf-8") as f:
 with open(out_tcm, "w", encoding="utf-8") as f:
     json.dump(tcm_clean, f, ensure_ascii=False, indent=2)
 
+drug_initials = build_drug_initials(drugs_clean, tcm_clean)
+with open(out_initials, "w", encoding="utf-8") as f:
+    json.dump(drug_initials, f, ensure_ascii=False, indent=2)
+    f.write("\n")
+
 print(f"\n已输出:")
 print(f"  {out_drugs}")
 print(f"  {out_tcm}")
+print(f"  {out_initials} ({len(drug_initials)} 条拼音首字母)")
 
 aliases_clean = write_clean_aliases(set(drugs_clean))
 print(f"  {os.path.join(ASSET_BASE, 'drug_aliases_clean.json')} ({len(aliases_clean)} 条人工审核别名)")
+dataset_manifest = write_dataset_manifest(len(drugs_clean), len(tcm_clean), len(aliases_clean), len(drug_initials))
+print(f"  {DATASET_MANIFEST} (dataVersion {dataset_manifest['dataVersion']})")
 
 # ---- 分类树统计 ----
 print("\n\n" + "="*50)

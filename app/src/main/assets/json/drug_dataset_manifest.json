@@ -1,0 +1,20 @@
+{
+  "dataVersion": "1",
+  "generator": "scripts/analyze_drugs.py",
+  "westernDrugCount": 4245,
+  "tcmDrugCount": 7094,
+  "reviewedAliasCount": 886,
+  "initialCount": 11339,
+  "sourceHashes": {
+    "drugs.json": "822287eda8c7d17afd26e252d01f5c589510cebd33daec0b1a45480554e3162a",
+    "tcm_drugs_flat.json": "2638d8a8faf546b59402588cf0a7e951e0107858eb32a85cc98fc9dca2160a30",
+    "drug_aliases_reviewed.json": "06e143fbb5bd2b98a5ca49059e5e2d57d88faa12a16b3d04120aa9bb791c8596"
+  },
+  "assetHashes": {
+    "drugs_clean.json": "42c70bb6a79c156e2cfcc2dfa875c98ead01b35f66bf63458e21fc9f31fc7302",
+    "tcm_drugs_clean.json": "4ae56a0f6c761673dbb639f320b8adc5944687e488c2d3f8f5e76ed38b747cc5",
+    "drug_aliases_clean.json": "10abf2b9e4954e80696e47e9662a5f0593cc72a62471485f2c3f122469c0e832",
+    "drug_initials_clean.json": "bdc06f05d620a7ad5bbd56513201b2d32db0fc683122b7555c4f4bec5ff95a22"
+  },
+  "generatedAt": "2026-05-30T15:55:36Z"
+}

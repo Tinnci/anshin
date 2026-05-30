@@ -10,13 +10,15 @@ data class Drug(
     val allPaths: List<String> = emptyList(), // 全部分类路径（复方/多效药可能有多条）
     val isTcm: Boolean = false,
     val initial: String = "#",      // 拼音首字母 (A-Z or #)
-    val tags: List<String> = emptyList(),
+    val aliases: List<String> = emptyList(),
+    val semanticTags: List<String> = emptyList(),
     val isCompound: Boolean = false,
 ) {
     /** 预小写化，用于高性能搜索 */
     val nameLower: String = name.lowercase()
     val categoryLower: String = category.lowercase()
-    val tagsLower: List<String> = tags.map { it.lowercase() }
+    val aliasesLower: List<String> = aliases.map { it.lowercase() }
+    val semanticTagsLower: List<String> = semanticTags.map { it.lowercase() }
     val allPathsLower: List<String> = allPaths.map { it.lowercase() }
 
     /** 精确/包含匹配（保留向后兼容） */
@@ -27,7 +29,8 @@ data class Drug(
                categoryLower.contains(q) ||
                fullPath.lowercase().contains(q) ||
                allPathsLower.any { it.contains(q) } ||
-               tagsLower.any { it.contains(q) }
+               aliasesLower.any { it.contains(q) } ||
+               semanticTagsLower.any { it.contains(q) }
     }
 
     /**
@@ -37,6 +40,9 @@ data class Drug(
      *   1.00 - 名称完全相等
      *   0.92 - 名称前缀匹配
      *   0.80 - 名称包含
+     *   0.88 - 别名完全相等
+     *   0.78 - 别名前缀匹配
+     *   0.68 - 别名包含
      *   0.72 - 标签完全相等（语义：如"降糖""高血压"）
      *   0.62 - 标签包含
      *   0.55 - 分类包含
@@ -52,9 +58,13 @@ data class Drug(
         if (nameLower.startsWith(q)) return 0.92f
         if (nameLower.contains(q)) return 0.80f
 
+        if (aliasesLower.any { it == q }) return 0.88f
+        if (aliasesLower.any { it.startsWith(q) }) return 0.78f
+        if (aliasesLower.any { it.contains(q) }) return 0.68f
+
         // 语义搜索：按标签匹配（如"降压""降糖""消炎"）
-        if (tagsLower.any { it == q }) return 0.72f
-        if (tagsLower.any { it.contains(q) }) return 0.62f
+        if (semanticTagsLower.any { it == q }) return 0.72f
+        if (semanticTagsLower.any { it.contains(q) }) return 0.62f
 
         if (categoryLower.contains(q)) return 0.55f
         if (fullPath.lowercase().contains(q)) return 0.45f

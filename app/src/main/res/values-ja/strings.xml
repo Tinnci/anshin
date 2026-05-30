@@ -362,7 +362,7 @@
     <string name="detail_log_actual_time">実際の服用：%s</string>
     <string name="drugs_title">薬品データベース</string>
     <string name="drugs_fab_add">カスタム追加</string>
-    <string name="drugs_search_placeholder">名前・分類・タグ・ピンイン検索…</string>
+    <string name="drugs_search_placeholder">名前・分類・別名・ピンイン検索…</string>
     <string name="drugs_close_search_cd">検索を閉じる</string>
     <string name="drugs_tab_all">すべて</string>
     <string name="drugs_tab_western">西洋薬</string>
@@ -384,7 +384,7 @@
         <item quantity="other">%d 種の薬品</item>
     </plurals>
     <string name="drugs_tcm_badge">  ·  漢方薬</string>
-    <string name="drugs_tag_hint">タグ：%s</string>
+    <string name="drugs_tag_hint">別名：%s</string>
     <string name="drugs_compound">複合</string>
     <string name="history_title">服薬履歴</string>
     <string name="history_adherence_header">30日間の服薬率 %d%%</string>
