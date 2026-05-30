@@ -16,6 +16,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.ui.theme.MedLogTheme
+import com.driezy.medlog.ui.theme.ThemePalette
 
 /** 从快捷方式 / 通知触发"立即添加"流程时使用的 intent action */
 const val ACTION_ADD_MEDICATION = "com.driezy.medlog.ADD_MEDICATION"
@@ -49,7 +50,11 @@ class MainActivity : ComponentActivity() {
                 ThemeMode.SYSTEM -> systemDark
             }
 
-            MedLogTheme(darkTheme = darkTheme, dynamicColor = prefs.useDynamicColor) {
+            MedLogTheme(
+                darkTheme = darkTheme,
+                dynamicColor = prefs.useDynamicColor,
+                palette = ThemePalette.fromStoredName(prefs.themePaletteName),
+            ) {
                 MedLogApp(openAddMedication = openAddMedication)
             }
         }

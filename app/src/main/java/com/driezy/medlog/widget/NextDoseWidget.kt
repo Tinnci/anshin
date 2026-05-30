@@ -95,9 +95,10 @@ class NextDoseWidget : GlanceAppWidget() {
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val themeMode = widgetPrefs.medLogThemeMode()
         val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
+        val themePalette = widgetPrefs.medLogThemePalette()
 
         provideContent {
-            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor) {
+            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor, themePalette = themePalette) {
                 NextDoseContent(
                     total        = total,
                     allDone      = allDone,

@@ -20,7 +20,10 @@ import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.domain.BackupRestoreUseCase
 import com.driezy.medlog.domain.ResyncRemindersUseCase
+import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidget
+import com.driezy.medlog.widget.NextDoseWidget
+import com.driezy.medlog.widget.StreakWidget
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
@@ -49,6 +52,7 @@ data class SettingsUiState(
     // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     val useDynamicColor: Boolean = true,
+    val themePalette: ThemePalette = ThemePalette.ANSHIN,
     // ── 今日页面 ────────────────────────────────────────────────────────────
     val autoCollapseCompletedGroups: Boolean = true,
     // ── 提前预告提醒 ─────────────────────────────────────────────────────────
@@ -116,6 +120,7 @@ class SettingsViewModel @Inject constructor(
             enableTimePeriodMode       = prefs.enableTimePeriodMode,
             themeMode       = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
+            themePalette    = ThemePalette.fromStoredName(prefs.themePaletteName),
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
             widgetShowActions = prefs.widgetShowActions,
@@ -257,6 +262,13 @@ class SettingsViewModel @Inject constructor(
         safeLaunch { prefsRepository.updateUseDynamicColor(enabled) }
     }
 
+    fun setThemePalette(palette: ThemePalette) {
+        safeLaunch {
+            prefsRepository.updateThemePalette(palette.name)
+            refreshPlacedWidgets()
+        }
+    }
+
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {
         safeLaunch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
     }
@@ -274,6 +286,22 @@ class SettingsViewModel @Inject constructor(
             manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
                 widget.update(appContext, id)
             }
+        }
+    }
+
+    private suspend fun refreshPlacedWidgets() {
+        val manager = GlanceAppWidgetManager(appContext)
+        val todayWidget = MedLogWidget()
+        manager.getGlanceIds(MedLogWidget::class.java).forEach { id ->
+            todayWidget.update(appContext, id)
+        }
+        val nextDoseWidget = NextDoseWidget()
+        manager.getGlanceIds(NextDoseWidget::class.java).forEach { id ->
+            nextDoseWidget.update(appContext, id)
+        }
+        val streakWidget = StreakWidget()
+        manager.getGlanceIds(StreakWidget::class.java).forEach { id ->
+            streakWidget.update(appContext, id)
         }
     }
 

@@ -32,6 +32,7 @@ import com.driezy.medlog.ui.util.displayName
 internal fun SettingsCard(
     title: String,
     icon: Int,
+    subtitle: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     Card(
@@ -63,6 +64,16 @@ internal fun SettingsCard(
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.SemiBold,
+                )
+            }
+            if (subtitle != null) {
+                Text(
+                    text = subtitle,
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(bottom = MedLogSpacing.Small),
                 )
             }
             content()

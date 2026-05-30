@@ -22,8 +22,8 @@ class FastVitNnapiBenchmarkTest {
         val warmup = args.getString("warmup")?.toIntOrNull() ?: 10
         val runs = args.getString("runs")?.toIntOrNull() ?: 100
 
-        val testContext = InstrumentationRegistry.getInstrumentation().context
-        val modelBytes = testContext.assets.open(modelAsset).use { it.readBytes() }
+        val targetContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val modelBytes = targetContext.assets.open(modelAsset).use { it.readBytes() }
         val environment = OrtEnvironment.getEnvironment()
         val options = OrtSession.SessionOptions().apply {
             setOptimizationLevel(OrtSession.SessionOptions.OptLevel.ALL_OPT)

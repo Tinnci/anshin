@@ -11,6 +11,7 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -63,6 +64,7 @@ import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.OcrModelType
+import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidgetReceiver
 import com.driezy.medlog.widget.NextDoseWidgetReceiver
 import com.driezy.medlog.widget.StreakWidgetReceiver
@@ -139,6 +141,12 @@ fun SettingsScreen(
     val scope = rememberCoroutineScope()
     val msgWidgetPinOem = stringResource(R.string.settings_widget_pin_oem)
     val msgWidgetPinOk = stringResource(R.string.settings_widget_pin_ok)
+    val systemDarkTheme = isSystemInDarkTheme()
+    val palettePreviewDark = when (uiState.themeMode) {
+        ThemeMode.LIGHT -> false
+        ThemeMode.DARK -> true
+        ThemeMode.SYSTEM -> systemDarkTheme
+    }
 
     // ── 备份/恢复 ─────────────────────────
     val backupInProgress by viewModel.backupInProgress.collectAsStateWithLifecycle()
@@ -326,8 +334,12 @@ fun SettingsScreen(
                     }
                 }
             }
-            // ── 外观 ───────────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_appearance), icon = MedLogIcons.Palette) {
+            // ── 外观与首页 ─────────────────────────────────────────
+            SettingsCard(
+                title = stringResource(R.string.settings_group_appearance_home),
+                subtitle = stringResource(R.string.settings_group_appearance_home_desc),
+                icon = MedLogIcons.Palette,
+            ) {
                 // ―― 主题模式 ――
                 Column(
                     modifier = Modifier
@@ -377,6 +389,52 @@ fun SettingsScreen(
                         }
                     }
                 }
+                HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = MedLogSpacing.Large)
+                        .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
+                        MedLogIcon(
+                            MedLogIcons.LocalFlorist,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.size(18.dp),
+                        )
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                stringResource(R.string.settings_palette_title),
+                                style = MaterialTheme.typography.bodyMedium,
+                                fontWeight = FontWeight.Medium,
+                            )
+                            Text(
+                                stringResource(R.string.settings_palette_subtitle),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                        }
+                    }
+                    FlowRow(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
+                        ThemePalette.entries.forEach { palette ->
+                            ThemePaletteChip(
+                                palette = palette,
+                                selected = uiState.themePalette == palette,
+                                darkTheme = palettePreviewDark,
+                                onClick = { viewModel.setThemePalette(palette) },
+                            )
+                        }
+                    }
+                }
                 // ―― Material You 动态颜色（Android 12+）――
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                     HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
@@ -401,8 +459,12 @@ fun SettingsScreen(
                 )
             }
 
-            // ── 提醒设置 ─────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_reminder), icon = MedLogIcons.Notifications) {
+            // ── 提醒与作息 ─────────────────────────────────────────
+            SettingsCard(
+                title = stringResource(R.string.settings_group_reminders_routine),
+                subtitle = stringResource(R.string.settings_group_reminders_routine_desc),
+                icon = MedLogIcons.Notifications,
+            ) {
                 NotificationSettingsOverview(uiState)
                 SettingsSwitchRow(
                     title = stringResource(R.string.settings_persistent_title),
@@ -700,10 +762,11 @@ fun SettingsScreen(
                 )
             }
 
-            // ── OCR 模型配置 ──────────────────────────────────────
+            // ── 智能能力 ───────────────────────────────────────────
             SettingsCard(
-                title = stringResource(R.string.settings_group_ocr_health),
-                icon = MedLogIcons.Memory
+                title = stringResource(R.string.settings_group_intelligence),
+                subtitle = stringResource(R.string.settings_group_intelligence_desc),
+                icon = MedLogIcons.Memory,
             ) {
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_ocr_model_card_title),
@@ -800,9 +863,18 @@ fun SettingsScreen(
                         onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
                     )
                 }
+            }
+
+            // ── 模块与药品 ─────────────────────────────────────────
+            SettingsCard(
+                title = stringResource(R.string.settings_group_modules_meds),
+                subtitle = stringResource(R.string.settings_group_modules_meds_desc),
+                icon = MedLogIcons.Tune,
+            ) {
                 SettingsSectionDivider(
                     title = stringResource(R.string.settings_card_features),
                     icon = MedLogIcons.Tune,
+                    modifier = Modifier.padding(top = 0.dp),
                 )
                 Text(
                     stringResource(R.string.settings_features_hint),
@@ -854,7 +926,11 @@ fun SettingsScreen(
             }
 
             // ── 桌面小组件 ────────────────────────────────────────
-            SettingsCard(title = stringResource(R.string.settings_card_widgets), icon = MedLogIcons.Widgets) {
+            SettingsCard(
+                title = stringResource(R.string.settings_card_widgets),
+                subtitle = stringResource(R.string.settings_group_widgets_desc),
+                icon = MedLogIcons.Widgets,
+            ) {
                 val widgetManager = AppWidgetManager.getInstance(context)
                 val canPin = widgetManager.isRequestPinAppWidgetSupported
                 val oemNeedsPermission = OemWidgetHelper.requiresExtraPermission
@@ -1046,6 +1122,7 @@ fun SettingsScreen(
             // ── 备份与恢复 ──────────────────────────────────────────
             SettingsCard(
                 title = stringResource(R.string.settings_group_data_about),
+                subtitle = stringResource(R.string.settings_group_data_about_desc),
                 icon = MedLogIcons.CloudUpload,
             ) {
                 SettingsSectionDivider(
@@ -1504,6 +1581,66 @@ private fun CloudAiUsageSummaryCard(
                             modifier = Modifier.size(16.dp),
                         )
                     },
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ThemePaletteChip(
+    palette: ThemePalette,
+    selected: Boolean,
+    darkTheme: Boolean,
+    onClick: () -> Unit,
+) {
+    val scheme = palette.colorScheme(darkTheme)
+    Surface(
+        modifier = Modifier
+            .widthIn(min = 148.dp)
+            .height(64.dp)
+            .clip(RoundedCornerShape(18.dp))
+            .clickable(onClick = onClick)
+            .semantics { role = Role.RadioButton },
+        shape = RoundedCornerShape(18.dp),
+        color = if (selected) scheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
+        contentColor = if (selected) scheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
+        border = BorderStroke(
+            width = if (selected) 2.dp else 1.dp,
+            color = if (selected) scheme.primary else MaterialTheme.colorScheme.outlineVariant,
+        ),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Small, vertical = MedLogSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
+                listOf(scheme.primary, scheme.secondary, scheme.tertiary).forEach { swatchColor ->
+                    Surface(
+                        modifier = Modifier.size(width = 8.dp, height = 34.dp),
+                        shape = RoundedCornerShape(4.dp),
+                        color = swatchColor,
+                        content = {},
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(2.dp),
+            ) {
+                Text(
+                    text = palette.displayName,
+                    style = MaterialTheme.typography.labelLarge,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                )
+                Text(
+                    text = stringResource(palette.descriptionRes),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = if (selected) scheme.onPrimaryContainer.copy(alpha = 0.78f)
+                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
                 )
             }
         }

@@ -92,7 +92,11 @@ class WidgetSettingsActivity : ComponentActivity() {
                 }
             }
 
-            MedLogTheme(darkTheme = darkTheme, dynamicColor = uiState.useDynamicColor) {
+            MedLogTheme(
+                darkTheme = darkTheme,
+                dynamicColor = uiState.useDynamicColor,
+                palette = uiState.themePalette,
+            ) {
                 WidgetSettingsScreen(
                     isConfigureMode = isConfigureMode,
                     widgetShowActions = uiState.widgetShowActions,

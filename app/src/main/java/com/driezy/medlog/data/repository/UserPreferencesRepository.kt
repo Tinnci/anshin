@@ -75,6 +75,8 @@ data class SettingsPreferences(
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** 是否使用 Material You 动态颜色（Android 12+ 才生效） */
     val useDynamicColor: Boolean = true,
+    /** 主题配色方案名称。实际色板定义在 UI theme 层。 */
+    val themePaletteName: String = "ANSHIN",
 
     // ── 今日页面显示偏好 ───────────────────────────────────────────────────────
     /** 已全部服用的时段默认折叠，节省屏幕空间 */
@@ -174,6 +176,7 @@ class UserPreferencesRepository @Inject constructor(
         // 外观
         val THEME_MODE         = stringPreferencesKey("theme_mode")
         val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
+        val THEME_PALETTE      = stringPreferencesKey("theme_palette")
         // 今日页面显示偏好
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
         // 提前预告提醒
@@ -251,6 +254,7 @@ class UserPreferencesRepository @Inject constructor(
                 themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                                     ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
+                themePaletteName = prefs[THEME_PALETTE] ?: "ANSHIN",
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
                 widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
@@ -341,6 +345,11 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新动态颜色（Material You）开关 */
     suspend fun updateUseDynamicColor(enabled: Boolean) {
         dataStore.edit { it[USE_DYNAMIC_COLOR] = enabled }
+    }
+
+    /** 更新主题配色方案 */
+    suspend fun updateThemePalette(paletteName: String) {
+        dataStore.edit { it[THEME_PALETTE] = paletteName }
     }
 
     /** 更新「已完成分组默认折叠」开关 */

@@ -91,9 +91,10 @@ class MedLogWidget : GlanceAppWidget() {
         val widgetShowActions = widgetPrefs[UserPreferencesRepository.WIDGET_SHOW_ACTIONS] ?: true
         val themeMode = widgetPrefs.medLogThemeMode()
         val useDynamicColor = widgetPrefs.medLogUseDynamicColor()
+        val themePalette = widgetPrefs.medLogThemePalette()
 
         provideContent {
-            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor) {
+            MedLogGlanceTheme(themeMode = themeMode, useDynamicColor = useDynamicColor, themePalette = themePalette) {
                 WidgetContent(taken = taken, total = total, pendingMeds = pending, showActions = widgetShowActions)
             }
         }

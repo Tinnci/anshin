@@ -13,11 +13,13 @@ import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.ui.theme.MedLogDarkColorScheme
 import com.driezy.medlog.ui.theme.MedLogLightColorScheme
+import com.driezy.medlog.ui.theme.ThemePalette
 
 @Composable
 internal fun MedLogGlanceTheme(
     themeMode: ThemeMode,
     useDynamicColor: Boolean,
+    themePalette: ThemePalette = ThemePalette.ANSHIN,
     content: @Composable () -> Unit,
 ) {
     val context = LocalContext.current
@@ -28,18 +30,22 @@ internal fun MedLogGlanceTheme(
         ThemeMode.SYSTEM -> systemDarkTheme
     }
     val colors = when {
-        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && themeMode == ThemeMode.SYSTEM -> {
+        themePalette.allowsDynamicColor && useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && themeMode == ThemeMode.SYSTEM -> {
             ColorProviders(dynamicLightColorScheme(context), dynamicDarkColorScheme(context))
         }
-        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme -> {
+        themePalette.allowsDynamicColor && useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme -> {
             ColorProviders(dynamicDarkColorScheme(context))
         }
-        useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        themePalette.allowsDynamicColor && useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             ColorProviders(dynamicLightColorScheme(context))
         }
-        themeMode == ThemeMode.SYSTEM -> ColorProviders(MedLogLightColorScheme, MedLogDarkColorScheme)
-        darkTheme -> ColorProviders(MedLogDarkColorScheme)
-        else -> ColorProviders(MedLogLightColorScheme)
+        themeMode == ThemeMode.SYSTEM && themePalette == ThemePalette.ANSHIN -> {
+            ColorProviders(MedLogLightColorScheme, MedLogDarkColorScheme)
+        }
+        themeMode == ThemeMode.SYSTEM -> {
+            ColorProviders(themePalette.colorScheme(darkTheme = false), themePalette.colorScheme(darkTheme = true))
+        }
+        else -> ColorProviders(themePalette.colorScheme(darkTheme))
     }
 
     GlanceTheme(colors = colors, content = content)
@@ -52,3 +58,6 @@ internal fun Preferences.medLogThemeMode(): ThemeMode =
 
 internal fun Preferences.medLogUseDynamicColor(): Boolean =
     this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: true
+
+internal fun Preferences.medLogThemePalette(): ThemePalette =
+    ThemePalette.fromStoredName(this[UserPreferencesRepository.THEME_PALETTE])
