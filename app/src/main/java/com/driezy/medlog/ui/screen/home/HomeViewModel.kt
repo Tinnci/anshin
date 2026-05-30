@@ -19,6 +19,7 @@ import com.driezy.medlog.domain.ImportPlanUseCase
 import com.driezy.medlog.domain.ImportMode
 import com.driezy.medlog.domain.PlanExport
 import com.driezy.medlog.domain.PlanExportCodec
+import com.driezy.medlog.domain.PlanExportDecodeResult
 import com.driezy.medlog.domain.todayRange
 import com.driezy.medlog.interaction.InteractionRuleEngine
 import com.driezy.medlog.domain.ProgressNotificationUseCase
@@ -468,12 +469,20 @@ class HomeViewModel @Inject constructor(
 
     /** 解码扫描到的 QR 内容，若合法则设置导入预览 */
     fun onQrScanned(raw: String) {
-        val plan = PlanExportCodec.decode(raw)
-        if (plan == null || plan.meds.isEmpty()) {
-            _importError.value = "invalid_qr"
-            return
+        when (val result = PlanExportCodec.decodeWithDiagnostics(raw)) {
+            is PlanExportDecodeResult.Success -> {
+                if (result.plan.meds.isEmpty()) {
+                    Log.w("HomeVM", "QR import failed: empty medication list")
+                    _importError.value = "invalid_qr"
+                    return
+                }
+                _importPreview.value = result.plan
+            }
+            is PlanExportDecodeResult.Failure -> {
+                Log.w("HomeVM", "QR import failed: ${result.reason}")
+                _importError.value = "invalid_qr"
+            }
         }
-        _importPreview.value = plan
     }
 
     /** 用户选择导入模式后执行实际导入 */

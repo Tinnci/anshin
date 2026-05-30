@@ -95,13 +95,22 @@ object PlanExportCodec {
     }.getOrNull()
 
     /** 解码压缩 URI 串为 PlanExport；前缀不匹配或格式错误时返回 null */
-    fun decode(encoded: String): PlanExport? = runCatching {
-        if (!encoded.startsWith(SCHEME)) return null
+    fun decode(encoded: String): PlanExport? = when (val result = decodeWithDiagnostics(encoded)) {
+        is PlanExportDecodeResult.Success -> result.plan
+        is PlanExportDecodeResult.Failure -> null
+    }
+
+    fun decodeWithDiagnostics(encoded: String): PlanExportDecodeResult = runCatching {
+        if (!encoded.startsWith(SCHEME)) {
+            return PlanExportDecodeResult.Failure("Invalid prefix")
+        }
         val b64 = encoded.removePrefix(SCHEME)
         val gzipped = Base64.getUrlDecoder().decode(b64)
         val jsonStr = gunzip(gzipped).toString(Charsets.UTF_8)
-        jsonSerializer.decodeFromString<PlanExport>(jsonStr)
-    }.getOrNull()
+        PlanExportDecodeResult.Success(jsonSerializer.decodeFromString<PlanExport>(jsonStr))
+    }.getOrElse { error ->
+        PlanExportDecodeResult.Failure("${error::class.java.simpleName}: ${error.message.orEmpty()}")
+    }
 
     /**
      * 编码后的字符串是否足够短以在 QR 码中显示。
@@ -181,4 +190,9 @@ object PlanExportCodec {
 
     private fun gunzip(data: ByteArray): ByteArray =
         GZIPInputStream(ByteArrayInputStream(data)).use { it.readBytes() }
+}
+
+sealed interface PlanExportDecodeResult {
+    data class Success(val plan: PlanExport) : PlanExportDecodeResult
+    data class Failure(val reason: String) : PlanExportDecodeResult
 }

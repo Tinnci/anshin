@@ -141,7 +141,13 @@ class HealthViewModel @Inject constructor(
                         acceptsVoiceInput = false
                         transcriptAppender = null
                         _uiState.update {
-                            it.copy(voiceInput = VoiceInputUiState(VoiceInputPhase.ERROR, event.error))
+                            it.copy(
+                                voiceInput = VoiceInputUiState(
+                                    phase = VoiceInputPhase.ERROR,
+                                    error = event.error,
+                                    detail = event.detail,
+                                ),
+                            )
                         }
                     }
                 }

@@ -1,6 +1,7 @@
 package com.driezy.medlog.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -86,6 +87,7 @@ class NextDoseWidget : GlanceAppWidget() {
         // 取最近的时间组
         val nextGroup = nextDoseGroups.minByOrNull { it.key }
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .onFailure { Log.w(TAG, "Failed to read widget preferences", it) }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val appearance = widgetPrefs.medLogWidgetAppearance()
 
@@ -103,6 +105,8 @@ class NextDoseWidget : GlanceAppWidget() {
         }
     }
 }
+
+private const val TAG = "NextDoseWidget"
 
 @Composable
 private fun NextDoseContent(

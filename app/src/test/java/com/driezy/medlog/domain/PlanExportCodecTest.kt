@@ -62,6 +62,14 @@ class PlanExportCodecTest {
     }
 
     @Test
+    fun `decodeWithDiagnostics reports invalid payload reason`() {
+        val result = PlanExportCodec.decodeWithDiagnostics("${PlanExportCodec.SCHEME}!!!invalid-base64!!!")
+
+        assertTrue(result is PlanExportDecodeResult.Failure)
+        assertTrue((result as PlanExportDecodeResult.Failure).reason.contains("IllegalArgumentException"))
+    }
+
+    @Test
     fun `encode then decode round-trips medication name and doseUnit`() {
         val original = med(name = "布洛芬", doseUnit = "粒")
         val encoded = PlanExportCodec.encode(listOf(original))!!

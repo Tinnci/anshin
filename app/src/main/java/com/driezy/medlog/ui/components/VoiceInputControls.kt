@@ -107,15 +107,18 @@ internal fun VoiceInputUiState.messageText(): String? = when (phase) {
     VoiceInputPhase.IDLE -> null
     VoiceInputPhase.CONNECTING -> stringResource(R.string.voice_input_status_connecting)
     VoiceInputPhase.LISTENING -> stringResource(R.string.voice_input_status_listening)
-    VoiceInputPhase.ERROR -> when (error) {
-        VoiceInputError.MISSING_PERMISSION -> stringResource(R.string.voice_input_error_permission)
-        VoiceInputError.NETWORK_UNAVAILABLE -> stringResource(R.string.voice_input_error_network)
-        VoiceInputError.DEVICE_REGISTRATION_FAILED -> stringResource(R.string.voice_input_error_registration)
-        VoiceInputError.TOKEN_UNAVAILABLE -> stringResource(R.string.voice_input_error_token)
-        VoiceInputError.WEBSOCKET_FAILED -> stringResource(R.string.voice_input_error_websocket)
-        VoiceInputError.ENCODER_UNAVAILABLE -> stringResource(R.string.voice_input_error_encoder)
-        VoiceInputError.RECORDER_UNAVAILABLE -> stringResource(R.string.voice_input_error_recorder)
-        VoiceInputError.PROTOCOL_FAILED -> stringResource(R.string.voice_input_error_protocol)
-        VoiceInputError.UNKNOWN, null -> stringResource(R.string.voice_input_error_unknown)
+    VoiceInputPhase.ERROR -> {
+        val baseMessage = when (error) {
+            VoiceInputError.MISSING_PERMISSION -> stringResource(R.string.voice_input_error_permission)
+            VoiceInputError.NETWORK_UNAVAILABLE -> stringResource(R.string.voice_input_error_network)
+            VoiceInputError.DEVICE_REGISTRATION_FAILED -> stringResource(R.string.voice_input_error_registration)
+            VoiceInputError.TOKEN_UNAVAILABLE -> stringResource(R.string.voice_input_error_token)
+            VoiceInputError.WEBSOCKET_FAILED -> stringResource(R.string.voice_input_error_websocket)
+            VoiceInputError.ENCODER_UNAVAILABLE -> stringResource(R.string.voice_input_error_encoder)
+            VoiceInputError.RECORDER_UNAVAILABLE -> stringResource(R.string.voice_input_error_recorder)
+            VoiceInputError.PROTOCOL_FAILED -> stringResource(R.string.voice_input_error_protocol)
+            VoiceInputError.UNKNOWN, null -> stringResource(R.string.voice_input_error_unknown)
+        }
+        if (detail.isNotBlank()) "$baseMessage\n$detail" else baseMessage
     }
 }

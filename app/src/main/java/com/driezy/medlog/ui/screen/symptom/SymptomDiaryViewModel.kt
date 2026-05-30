@@ -97,7 +97,11 @@ class SymptomDiaryViewModel @Inject constructor(
                     is VoiceInputEvent.Failed -> {
                         acceptsVoiceInput = false
                         transcriptAppender = null
-                        _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.ERROR, event.error)
+                        _voiceInputState.value = VoiceInputUiState(
+                            phase = VoiceInputPhase.ERROR,
+                            error = event.error,
+                            detail = event.detail,
+                        )
                     }
                 }
             }

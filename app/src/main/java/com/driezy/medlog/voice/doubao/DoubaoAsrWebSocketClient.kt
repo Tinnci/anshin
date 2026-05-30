@@ -1,5 +1,6 @@
 package com.driezy.medlog.voice.doubao
 
+import android.util.Log
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -41,14 +42,30 @@ class DoubaoAsrWebSocketClient @Inject constructor(
                 }
 
                 override fun onMessage(webSocket: WebSocket, bytes: ByteString) {
-                    responseChannel.trySend(DoubaoAsrProtocol.parseResponse(bytes.toByteArray()))
+                    runCatching {
+                        DoubaoAsrProtocol.parseResponse(bytes.toByteArray())
+                    }.onSuccess { response ->
+                        responseChannel.trySend(response)
+                    }.onFailure { error ->
+                        val message = "Failed to parse ASR response: ${error.message ?: error::class.java.simpleName}; bytes=${bytes.size}"
+                        Log.e(TAG, message, error)
+                        responseChannel.trySend(
+                            DoubaoAsrResponse(
+                                type = DoubaoAsrResponseType.ERROR,
+                                errorMessage = message,
+                            ),
+                        )
+                    }
                 }
 
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
+                    val httpStatus = "HTTP ${response?.code} ${response?.message.orEmpty()}".trim()
+                    val message = "WebSocket failure: ${t.message ?: t::class.java.simpleName}; $httpStatus"
+                    Log.e(TAG, message, t)
                     responseChannel.trySend(
                         DoubaoAsrResponse(
                             type = DoubaoAsrResponseType.ERROR,
-                            errorMessage = t.message.orEmpty(),
+                            errorMessage = message,
                         ),
                     )
                     responseChannel.close(t)
@@ -56,6 +73,15 @@ class DoubaoAsrWebSocketClient @Inject constructor(
                 }
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
+                    Log.i(TAG, "WebSocket closed: code=$code reason=$reason")
+                    if (code != NORMAL_CLOSURE) {
+                        responseChannel.trySend(
+                            DoubaoAsrResponse(
+                                type = DoubaoAsrResponseType.ERROR,
+                                errorMessage = "WebSocket closed unexpectedly: code=$code reason=$reason",
+                            ),
+                        )
+                    }
                     responseChannel.close()
                 }
             }
@@ -105,3 +131,7 @@ class DoubaoAsrSocket internal constructor(
         }
     }
 }
+
+private const val NORMAL_CLOSURE = 1000
+
+private const val TAG = "DoubaoAsrWebSocket"

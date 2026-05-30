@@ -67,7 +67,23 @@ class DoubaoAsrProtocolTest {
         val response = DoubaoAsrProtocol.parseResponse(responseBytes)
 
         assertEquals(DoubaoAsrResponseType.ERROR, response.type)
-        assertEquals("bad token", response.errorMessage)
+        assertTrue(response.errorMessage.contains("bad token"))
+    }
+
+    @Test
+    fun `failed response preserves diagnostic context`() {
+        val responseBytes = encodeResponse(
+            messageType = "SessionFailed",
+            statusMessage = "bad token",
+            resultJson = """{"code":401,"message":"expired"}""",
+        )
+
+        val response = DoubaoAsrProtocol.parseResponse(responseBytes)
+
+        assertEquals(DoubaoAsrResponseType.ERROR, response.type)
+        assertTrue(response.errorMessage.contains("SessionFailed"))
+        assertTrue(response.errorMessage.contains("bad token"))
+        assertTrue(response.errorMessage.contains("expired"))
     }
 
     private data class FieldValue(

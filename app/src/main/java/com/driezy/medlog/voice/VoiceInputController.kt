@@ -31,6 +31,7 @@ enum class VoiceInputError {
 data class VoiceInputUiState(
     val phase: VoiceInputPhase = VoiceInputPhase.IDLE,
     val error: VoiceInputError? = null,
+    val detail: String = "",
 )
 
 enum class VoiceInputPhase {

@@ -1,6 +1,7 @@
 package com.driezy.medlog.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -111,6 +112,7 @@ class StreakWidget : GlanceAppWidget() {
             Pair(dayComplete(dayStartMs), label)
         }
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .onFailure { Log.w(TAG, "Failed to read widget preferences", it) }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val appearance = widgetPrefs.medLogWidgetAppearance()
 
@@ -126,6 +128,8 @@ class StreakWidget : GlanceAppWidget() {
         }
     }
 }
+
+private const val TAG = "StreakWidget"
 
 @Composable
 private fun StreakContent(

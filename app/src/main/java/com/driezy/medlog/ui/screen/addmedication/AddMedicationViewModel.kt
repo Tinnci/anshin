@@ -145,7 +145,15 @@ class AddMedicationViewModel @Inject constructor(
                     is VoiceInputEvent.Failed -> {
                         acceptsVoiceInput = false
                         transcriptAppender = null
-                        update { copy(voiceInput = VoiceInputUiState(VoiceInputPhase.ERROR, event.error)) }
+                        update {
+                            copy(
+                                voiceInput = VoiceInputUiState(
+                                    phase = VoiceInputPhase.ERROR,
+                                    error = event.error,
+                                    detail = event.detail,
+                                ),
+                            )
+                        }
                     }
                 }
             }

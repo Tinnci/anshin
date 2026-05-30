@@ -1,6 +1,7 @@
 package com.driezy.medlog.widget
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -84,6 +85,7 @@ class MedLogWidget : GlanceAppWidget() {
 
         // 读取小组件显示设置（SSOT：与主应用共享同一 DataStore）
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
+            .onFailure { Log.w(TAG, "Failed to read widget preferences", it) }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val widgetShowActions = widgetPrefs[UserPreferencesRepository.WIDGET_SHOW_ACTIONS] ?: true
         val appearance = widgetPrefs.medLogWidgetAppearance()
@@ -101,6 +103,8 @@ class MedLogWidget : GlanceAppWidget() {
         }
     }
 }
+
+private const val TAG = "MedLogWidget"
 
 @Composable
 private fun WidgetContent(

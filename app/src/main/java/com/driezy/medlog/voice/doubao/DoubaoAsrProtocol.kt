@@ -65,7 +65,11 @@ object DoubaoAsrProtocol {
             "SessionFinished" -> DoubaoAsrResponse(type = DoubaoAsrResponseType.SESSION_FINISHED)
             "TaskFailed", "SessionFailed" -> DoubaoAsrResponse(
                 type = DoubaoAsrResponseType.ERROR,
-                errorMessage = statusMessage,
+                errorMessage = diagnosticMessage(
+                    messageType = messageType,
+                    statusMessage = statusMessage,
+                    resultJson = resultJson,
+                ),
             )
             else -> parseResultJson(resultJson)
         }
@@ -74,8 +78,16 @@ object DoubaoAsrProtocol {
     private fun parseResultJson(resultJson: String): DoubaoAsrResponse {
         if (resultJson.isBlank()) return DoubaoAsrResponse(type = DoubaoAsrResponseType.UNKNOWN)
 
-        val json = runCatching { Json.parseToJsonElement(resultJson).jsonObject }.getOrNull()
-            ?: return DoubaoAsrResponse(type = DoubaoAsrResponseType.UNKNOWN)
+        val json = runCatching { Json.parseToJsonElement(resultJson).jsonObject }.getOrElse { error ->
+            return DoubaoAsrResponse(
+                type = DoubaoAsrResponseType.ERROR,
+                errorMessage = diagnosticMessage(
+                    messageType = "Result",
+                    statusMessage = "Invalid result JSON: ${error.message.orEmpty()}",
+                    resultJson = resultJson,
+                ),
+            )
+        }
         val extra = json["extra"]?.jsonObjectOrNull()
         val results = json["results"]?.jsonArrayOrNull()
 
@@ -117,6 +129,16 @@ object DoubaoAsrProtocol {
             vadFinished = vadFinished,
         )
     }
+
+    private fun diagnosticMessage(
+        messageType: String,
+        statusMessage: String,
+        resultJson: String,
+    ): String = buildList {
+        add("messageType=${messageType.ifBlank { "unknown" }}")
+        statusMessage.takeIf { it.isNotBlank() }?.let { add("status=$it") }
+        resultJson.takeIf { it.isNotBlank() }?.let { add("result=$it") }
+    }.joinToString(separator = "; ")
 }
 
 enum class DoubaoAsrResponseType {
