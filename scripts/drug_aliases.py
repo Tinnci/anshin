@@ -40,6 +40,9 @@ def build_clean_aliases(
             folded = alias.casefold()
             if not alias or folded in seen:
                 continue
+            if alias in known_drug_names and alias != canonical_name:
+                conflicts.append((alias, alias, canonical_name))
+                continue
             seen.add(folded)
             previous = alias_owner.get(folded)
             if previous is not None and previous != canonical_name:
