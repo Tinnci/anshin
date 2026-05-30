@@ -58,6 +58,8 @@ import androidx.core.content.ContextCompat
 import kotlinx.coroutines.launch
 import com.driezy.medlog.BuildConfig
 import com.driezy.medlog.R
+import com.driezy.medlog.ai.CloudAiEndpointPreset
+import com.driezy.medlog.ai.CloudAiEndpointProtocol
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
 import com.driezy.medlog.data.repository.CloudAiProvider
@@ -853,9 +855,12 @@ fun SettingsScreen(
                         uiState = uiState,
                         onProviderChange = { viewModel.setCloudAiSettings(provider = it) },
                         onModelSave = { viewModel.setCloudAiSettings(model = it) },
+                        onMimoBaseUrlSave = { viewModel.setCloudAiSettings(mimoBaseUrl = it) },
+                        onAnthropicBaseUrlSave = { viewModel.setCloudAiSettings(anthropicBaseUrl = it) },
                         onOpenAiBaseUrlSave = { viewModel.setCloudAiSettings(openAiCompatibleBaseUrl = it) },
                         onOpenAiAuthModeChange = { viewModel.setCloudAiSettings(openAiCompatibleAuthMode = it) },
                         onOpenAiProviderNameSave = { viewModel.setCloudAiSettings(openAiCompatibleProviderName = it) },
+                        onEndpointPresetSelect = viewModel::applyCloudAiEndpointPreset,
                         onRefreshModels = viewModel::refreshCloudAiModels,
                         onImageAnalysisChange = { viewModel.setCloudAiSettings(imageAnalysisEnabled = it) },
                         onHealthInsightsChange = { viewModel.setCloudAiSettings(healthInsightsEnabled = it) },
@@ -1276,9 +1281,12 @@ private fun CloudAiSettingsPanel(
     uiState: SettingsUiState,
     onProviderChange: (CloudAiProvider) -> Unit,
     onModelSave: (String) -> Unit,
+    onMimoBaseUrlSave: (String) -> Unit,
+    onAnthropicBaseUrlSave: (String) -> Unit,
     onOpenAiBaseUrlSave: (String) -> Unit,
     onOpenAiAuthModeChange: (OpenAiCompatibleCloudAuthMode) -> Unit,
     onOpenAiProviderNameSave: (String) -> Unit,
+    onEndpointPresetSelect: (CloudAiEndpointPreset) -> Unit,
     onRefreshModels: () -> Unit,
     onImageAnalysisChange: (Boolean) -> Unit,
     onHealthInsightsChange: (Boolean) -> Unit,
@@ -1287,8 +1295,18 @@ private fun CloudAiSettingsPanel(
     onApiKeyClear: () -> Unit,
 ) {
     var modelDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.cloudAiModel) }
-    var baseUrlDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.openAiCompatibleBaseUrl) }
-    var providerNameDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.openAiCompatibleProviderName) }
+    var mimoBaseUrlDraft by rememberSaveable(uiState.cloudAiProvider, uiState.mimoCloudAiBaseUrl) {
+        mutableStateOf(uiState.mimoCloudAiBaseUrl)
+    }
+    var anthropicBaseUrlDraft by rememberSaveable(uiState.cloudAiProvider, uiState.anthropicCloudAiBaseUrl) {
+        mutableStateOf(uiState.anthropicCloudAiBaseUrl)
+    }
+    var baseUrlDraft by rememberSaveable(uiState.cloudAiProvider, uiState.openAiCompatibleBaseUrl) {
+        mutableStateOf(uiState.openAiCompatibleBaseUrl)
+    }
+    var providerNameDraft by rememberSaveable(uiState.cloudAiProvider, uiState.openAiCompatibleProviderName) {
+        mutableStateOf(uiState.openAiCompatibleProviderName)
+    }
     var apiKeyDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf("") }
 
     Column(
@@ -1429,6 +1447,10 @@ private fun CloudAiSettingsPanel(
                     }
                 }
                 if (uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE) {
+                    EndpointPresetPicker(
+                        presets = uiState.cloudAiEndpointPresets,
+                        onSelect = onEndpointPresetSelect,
+                    )
                     OutlinedTextField(
                         value = baseUrlDraft,
                         onValueChange = { baseUrlDraft = it },
@@ -1478,6 +1500,42 @@ private fun CloudAiSettingsPanel(
                             }
                         }
                     }
+                }
+                if (uiState.cloudAiProvider == CloudAiProvider.MIMO) {
+                    OutlinedTextField(
+                        value = mimoBaseUrlDraft,
+                        onValueChange = { mimoBaseUrlDraft = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.settings_ai_endpoint_label)) },
+                        supportingText = { Text(stringResource(R.string.settings_ai_mimo_endpoint_hint)) },
+                        trailingIcon = {
+                            TextButton(onClick = { onMimoBaseUrlSave(mimoBaseUrlDraft) }) {
+                                Text(stringResource(R.string.common_save))
+                            }
+                        },
+                    )
+                }
+                if (uiState.cloudAiProvider == CloudAiProvider.ANTHROPIC) {
+                    EndpointPresetPicker(
+                        presets = uiState.cloudAiEndpointPresets.filter {
+                            it.protocol == CloudAiEndpointProtocol.ANTHROPIC
+                        },
+                        onSelect = onEndpointPresetSelect,
+                    )
+                    OutlinedTextField(
+                        value = anthropicBaseUrlDraft,
+                        onValueChange = { anthropicBaseUrlDraft = it },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        label = { Text(stringResource(R.string.settings_ai_endpoint_label)) },
+                        supportingText = { Text(stringResource(R.string.settings_ai_anthropic_endpoint_hint)) },
+                        trailingIcon = {
+                            TextButton(onClick = { onAnthropicBaseUrlSave(anthropicBaseUrlDraft) }) {
+                                Text(stringResource(R.string.common_save))
+                            }
+                        },
+                    )
                 }
             }
         }
@@ -1574,6 +1632,64 @@ private fun CloudAiSettingsPanel(
                     modifier = Modifier.align(Alignment.End),
                 ) {
                     Text(stringResource(R.string.settings_ai_api_key_save))
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun EndpointPresetPicker(
+    presets: List<CloudAiEndpointPreset>,
+    onSelect: (CloudAiEndpointPreset) -> Unit,
+) {
+    if (presets.isEmpty()) return
+
+    var expanded by rememberSaveable { mutableStateOf(false) }
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(
+                text = stringResource(R.string.settings_ai_endpoint_presets_title, presets.size),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.weight(1f),
+            )
+            TextButton(onClick = { expanded = !expanded }) {
+                Text(
+                    stringResource(
+                        if (expanded) {
+                            R.string.common_collapse
+                        } else {
+                            R.string.common_expand
+                        },
+                    ),
+                )
+            }
+        }
+        AnimatedVisibility(visible = expanded) {
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                presets.forEach { preset ->
+                    AssistChip(
+                        onClick = { onSelect(preset) },
+                        label = {
+                            Text(
+                                text = preset.name,
+                                maxLines = 1,
+                            )
+                        },
+                    )
                 }
             }
         }

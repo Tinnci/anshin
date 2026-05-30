@@ -78,6 +78,48 @@ class AiCloudConfigResolverTest {
     }
 
     @Test
+    fun `mimo token plan keys use singapore token plan endpoint`() {
+        val config = AiCloudConfigResolver.toProviderConfig(
+            settings = SettingsPreferences(cloudAiProvider = CloudAiProvider.MIMO),
+            apiKey = "tp-s177x-example",
+        )
+
+        assertTrue(config is AiProviderConfig.Mimo)
+        config as AiProviderConfig.Mimo
+        assertEquals("https://token-plan-sgp.xiaomimimo.com/v1", config.baseUrl)
+    }
+
+    @Test
+    fun `mimo custom endpoint overrides key inferred endpoint`() {
+        val config = AiCloudConfigResolver.toProviderConfig(
+            settings = SettingsPreferences(
+                cloudAiProvider = CloudAiProvider.MIMO,
+                mimoCloudAiBaseUrl = "https://custom.example.com/v1",
+            ),
+            apiKey = "tp-s177x-example",
+        )
+
+        assertTrue(config is AiProviderConfig.Mimo)
+        config as AiProviderConfig.Mimo
+        assertEquals("https://custom.example.com/v1", config.baseUrl)
+    }
+
+    @Test
+    fun `anthropic compatible presets can override anthropic endpoint`() {
+        val config = AiCloudConfigResolver.toProviderConfig(
+            settings = SettingsPreferences(
+                cloudAiProvider = CloudAiProvider.ANTHROPIC,
+                anthropicCloudAiBaseUrl = "https://api.minimax.io/anthropic/v1",
+            ),
+            apiKey = "key",
+        )
+
+        assertTrue(config is AiProviderConfig.Anthropic)
+        config as AiProviderConfig.Anthropic
+        assertEquals("https://api.minimax.io/anthropic/v1", config.baseUrl)
+    }
+
+    @Test
     fun `openai compatible settings preserve custom endpoint and auth mode`() {
         val settings = SettingsPreferences(
             cloudAiEnabled = true,

@@ -115,8 +115,10 @@ data class SettingsPreferences(
     val cloudAiProvider: CloudAiProvider = CloudAiProvider.MIMO,
     val cloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
     val mimoCloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
+    val mimoCloudAiBaseUrl: String = "",
     val geminiCloudAiModel: String = CloudAiProvider.GEMINI.defaultModel,
     val anthropicCloudAiModel: String = CloudAiProvider.ANTHROPIC.defaultModel,
+    val anthropicCloudAiBaseUrl: String = "",
     val openAiCompatibleCloudAiModel: String = CloudAiProvider.OPENAI_COMPATIBLE.defaultModel,
     val openAiCompatibleBaseUrl: String = "",
     val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
@@ -199,8 +201,10 @@ class UserPreferencesRepository @Inject constructor(
         val CLOUD_AI_PROVIDER = stringPreferencesKey("cloud_ai_provider")
         val CLOUD_AI_MODEL = stringPreferencesKey("cloud_ai_model")
         val CLOUD_AI_MIMO_MODEL = stringPreferencesKey("cloud_ai_mimo_model")
+        val CLOUD_AI_MIMO_BASE_URL = stringPreferencesKey("cloud_ai_mimo_base_url")
         val CLOUD_AI_GEMINI_MODEL = stringPreferencesKey("cloud_ai_gemini_model")
         val CLOUD_AI_ANTHROPIC_MODEL = stringPreferencesKey("cloud_ai_anthropic_model")
+        val CLOUD_AI_ANTHROPIC_BASE_URL = stringPreferencesKey("cloud_ai_anthropic_base_url")
         val CLOUD_AI_OPENAI_COMPATIBLE_MODEL = stringPreferencesKey("cloud_ai_openai_compatible_model")
         val OPENAI_COMPATIBLE_BASE_URL = stringPreferencesKey("openai_compatible_base_url")
         val OPENAI_COMPATIBLE_AUTH_MODE = stringPreferencesKey("openai_compatible_auth_mode")
@@ -276,8 +280,10 @@ class UserPreferencesRepository @Inject constructor(
                     CloudAiProvider.OPENAI_COMPATIBLE -> openAiCompatibleCloudAiModel
                 },
                 mimoCloudAiModel = mimoCloudAiModel,
+                mimoCloudAiBaseUrl = prefs[CLOUD_AI_MIMO_BASE_URL] ?: "",
                 geminiCloudAiModel = geminiCloudAiModel,
                 anthropicCloudAiModel = anthropicCloudAiModel,
+                anthropicCloudAiBaseUrl = prefs[CLOUD_AI_ANTHROPIC_BASE_URL] ?: "",
                 openAiCompatibleCloudAiModel = openAiCompatibleCloudAiModel,
                 openAiCompatibleBaseUrl = prefs[OPENAI_COMPATIBLE_BASE_URL] ?: "",
                 openAiCompatibleAuthMode = prefs[OPENAI_COMPATIBLE_AUTH_MODE]?.let {
@@ -396,6 +402,8 @@ class UserPreferencesRepository @Inject constructor(
         wifiOnly: Boolean? = null,
         provider: CloudAiProvider? = null,
         model: String? = null,
+        mimoBaseUrl: String? = null,
+        anthropicBaseUrl: String? = null,
         openAiCompatibleBaseUrl: String? = null,
         openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode? = null,
         openAiCompatibleProviderName: String? = null,
@@ -419,6 +427,8 @@ class UserPreferencesRepository @Inject constructor(
                 prefs[CLOUD_AI_MODEL] = resolvedModel
                 prefs[cloudAiModelKey(selectedProvider)] = resolvedModel
             }
+            if (mimoBaseUrl != null) prefs[CLOUD_AI_MIMO_BASE_URL] = mimoBaseUrl.trim()
+            if (anthropicBaseUrl != null) prefs[CLOUD_AI_ANTHROPIC_BASE_URL] = anthropicBaseUrl.trim()
             if (openAiCompatibleBaseUrl != null) prefs[OPENAI_COMPATIBLE_BASE_URL] = openAiCompatibleBaseUrl.trim()
             if (openAiCompatibleAuthMode != null) prefs[OPENAI_COMPATIBLE_AUTH_MODE] = openAiCompatibleAuthMode.name
             if (openAiCompatibleProviderName != null) {

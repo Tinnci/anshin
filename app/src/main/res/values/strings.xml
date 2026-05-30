@@ -9,6 +9,8 @@
     <string name="restore">恢复</string>
     <string name="cancel">取消</string>
     <string name="common_save">保存</string>
+    <string name="common_expand">展开</string>
+    <string name="common_collapse">收起</string>
     <string name="confirm">确认</string>
     <string name="medication_taken">已服用</string>
     <string name="medication_skipped">已跳过</string>
@@ -895,6 +897,10 @@
     <string name="settings_ai_model_chip_text">%s · 文本</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">例如 https://api.example.com/v1</string>
+    <string name="settings_ai_endpoint_label">API Endpoint</string>
+    <string name="settings_ai_mimo_endpoint_hint">留空则按 key 自动选择；token plan 新加坡：https://token-plan-sgp.xiaomimimo.com/v1</string>
+    <string name="settings_ai_anthropic_endpoint_hint">留空使用 Anthropic 官方 endpoint；也可选择 Anthropic-compatible 预设</string>
+    <string name="settings_ai_endpoint_presets_title">opencode API endpoint 预设（%d 个）</string>
     <string name="settings_ai_provider_name_label">Provider 名称</string>
     <string name="settings_ai_auth_bearer">Bearer</string>
     <string name="settings_ai_auth_api_key">api-key</string>

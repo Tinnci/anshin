@@ -10,6 +10,9 @@ import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.ai.AiApiKeyStore
 import com.driezy.medlog.ai.AiCloudConfigResolver
 import com.driezy.medlog.ai.AiProviderConfig
+import com.driezy.medlog.ai.CloudAiEndpointPreset
+import com.driezy.medlog.ai.CloudAiEndpointPresetLoader
+import com.driezy.medlog.ai.CloudAiEndpointProtocol
 import com.driezy.medlog.ai.CloudAiDiscoveredModel
 import com.driezy.medlog.ai.CloudAiModelDiscoveryClient
 import com.driezy.medlog.ai.OpenAiAuthMode
@@ -75,6 +78,8 @@ data class SettingsUiState(
     val cloudAiWifiOnly: Boolean = true,
     val cloudAiProvider: CloudAiProvider = CloudAiProvider.MIMO,
     val cloudAiModel: String = CloudAiProvider.MIMO.defaultModel,
+    val mimoCloudAiBaseUrl: String = "",
+    val anthropicCloudAiBaseUrl: String = "",
     val openAiCompatibleBaseUrl: String = "",
     val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
     val openAiCompatibleProviderName: String = "OpenAI-compatible",
@@ -87,6 +92,7 @@ data class SettingsUiState(
     val cloudAiModelDiscoveryConnected: Boolean? = null,
     val cloudAiModelDiscoveryError: String? = null,
     val cloudAiDiscoveredModels: List<CloudAiDiscoveredModel> = emptyList(),
+    val cloudAiEndpointPresets: List<CloudAiEndpointPreset> = emptyList(),
     val aiUsageSummary: List<AiUsageSummaryRow> = emptyList(),
 )
 
@@ -104,6 +110,7 @@ class SettingsViewModel @Inject constructor(
     private val aiUsageSummary = MutableStateFlow(emptyList<AiUsageSummaryRow>())
     private val modelDiscoveryClient = CloudAiModelDiscoveryClient()
     private val cloudAiModelDiscovery = MutableStateFlow(CloudAiModelDiscoveryUiState())
+    private val endpointPresets = CloudAiEndpointPresetLoader.load(appContext)
 
     val uiState: StateFlow<SettingsUiState> = combine(
         repository.getArchivedMedications().catch { e -> Log.e("SettingsVM", "Failed to load archived meds", e); emit(emptyList()) },
@@ -145,6 +152,8 @@ class SettingsViewModel @Inject constructor(
             cloudAiWifiOnly = prefs.cloudAiWifiOnly,
             cloudAiProvider = prefs.cloudAiProvider,
             cloudAiModel = prefs.cloudAiModel,
+            mimoCloudAiBaseUrl = prefs.mimoCloudAiBaseUrl,
+            anthropicCloudAiBaseUrl = prefs.anthropicCloudAiBaseUrl,
             openAiCompatibleBaseUrl = prefs.openAiCompatibleBaseUrl,
             openAiCompatibleAuthMode = prefs.openAiCompatibleAuthMode,
             openAiCompatibleProviderName = prefs.openAiCompatibleProviderName,
@@ -157,6 +166,7 @@ class SettingsViewModel @Inject constructor(
             cloudAiModelDiscoveryConnected = modelDiscovery.connected,
             cloudAiModelDiscoveryError = modelDiscovery.error,
             cloudAiDiscoveredModels = modelDiscovery.models,
+            cloudAiEndpointPresets = endpointPresets,
             aiUsageSummary = usageSummary,
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
@@ -191,6 +201,8 @@ class SettingsViewModel @Inject constructor(
         wifiOnly: Boolean? = null,
         provider: CloudAiProvider? = null,
         model: String? = null,
+        mimoBaseUrl: String? = null,
+        anthropicBaseUrl: String? = null,
         openAiCompatibleBaseUrl: String? = null,
         openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode? = null,
         openAiCompatibleProviderName: String? = null,
@@ -203,6 +215,8 @@ class SettingsViewModel @Inject constructor(
                 wifiOnly = wifiOnly,
                 provider = provider,
                 model = model,
+                mimoBaseUrl = mimoBaseUrl,
+                anthropicBaseUrl = anthropicBaseUrl,
                 openAiCompatibleBaseUrl = openAiCompatibleBaseUrl,
                 openAiCompatibleAuthMode = openAiCompatibleAuthMode,
                 openAiCompatibleProviderName = openAiCompatibleProviderName,
@@ -247,6 +261,24 @@ class SettingsViewModel @Inject constructor(
                 error = result.errorMessage,
                 models = result.models,
             )
+        }
+    }
+
+    fun applyCloudAiEndpointPreset(preset: CloudAiEndpointPreset) {
+        safeLaunch {
+            when (preset.protocol) {
+                CloudAiEndpointProtocol.ANTHROPIC -> prefsRepository.updateCloudAiSettings(
+                    provider = CloudAiProvider.ANTHROPIC,
+                    anthropicBaseUrl = preset.api,
+                    openAiCompatibleProviderName = preset.name,
+                )
+                CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> prefsRepository.updateCloudAiSettings(
+                    provider = CloudAiProvider.OPENAI_COMPATIBLE,
+                    openAiCompatibleBaseUrl = preset.api,
+                    openAiCompatibleProviderName = preset.name,
+                    openAiCompatibleAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
+                )
+            }
         }
     }
 
@@ -429,6 +461,7 @@ private fun com.driezy.medlog.data.repository.SettingsPreferences.toDiscoveryCon
             AiProviderConfig.Mimo(
                 apiKey = it,
                 model = activeCloudAiModel(),
+                baseUrl = mimoCloudAiBaseUrl.ifBlank { AiCloudConfigResolver.mimoBaseUrlFor(it) },
             )
         }
 
@@ -443,6 +476,7 @@ private fun com.driezy.medlog.data.repository.SettingsPreferences.toDiscoveryCon
             AiProviderConfig.Anthropic(
                 apiKey = it,
                 model = activeCloudAiModel(),
+                baseUrl = anthropicCloudAiBaseUrl.ifBlank { "https://api.anthropic.com" },
             )
         }
 

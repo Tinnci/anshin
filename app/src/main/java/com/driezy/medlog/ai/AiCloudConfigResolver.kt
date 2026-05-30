@@ -59,6 +59,7 @@ object AiCloudConfigResolver {
                 AiProviderConfig.Mimo(
                     apiKey = apiKey,
                     model = settings.activeCloudAiModel(),
+                    baseUrl = settings.mimoCloudAiBaseUrl.ifBlank { mimoBaseUrlFor(apiKey) },
                 )
             CloudAiProvider.GEMINI ->
                 AiProviderConfig.Gemini(
@@ -69,6 +70,7 @@ object AiCloudConfigResolver {
                 AiProviderConfig.Anthropic(
                     apiKey = apiKey,
                     model = settings.activeCloudAiModel(),
+                    baseUrl = settings.anthropicCloudAiBaseUrl.ifBlank { "https://api.anthropic.com" },
                 )
             CloudAiProvider.OPENAI_COMPATIBLE ->
                 AiProviderConfig.OpenAiCompatible(
@@ -83,6 +85,13 @@ object AiCloudConfigResolver {
                         CloudAiProvider.OPENAI_COMPATIBLE.providerName
                     },
                 )
+        }
+
+    fun mimoBaseUrlFor(apiKey: String): String =
+        if (apiKey.trim().startsWith("tp-")) {
+            "https://token-plan-sgp.xiaomimimo.com/v1"
+        } else {
+            "https://api.xiaomimimo.com/v1"
         }
 
     private fun resolve(

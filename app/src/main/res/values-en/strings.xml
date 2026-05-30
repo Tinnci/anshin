@@ -10,6 +10,8 @@
     <string name="restore">Restore</string>
     <string name="cancel">Cancel</string>
     <string name="common_save">Save</string>
+    <string name="common_expand">Expand</string>
+    <string name="common_collapse">Collapse</string>
     <string name="confirm">Confirm</string>
     <string name="medication_taken">Taken</string>
     <string name="medication_skipped">Skipped</string>
@@ -924,6 +926,10 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_model_chip_text">%s · Text</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">For example, https://api.example.com/v1</string>
+    <string name="settings_ai_endpoint_label">API Endpoint</string>
+    <string name="settings_ai_mimo_endpoint_hint">Leave blank to infer from the key; Singapore token plan: https://token-plan-sgp.xiaomimimo.com/v1</string>
+    <string name="settings_ai_anthropic_endpoint_hint">Leave blank to use Anthropic official endpoint, or choose an Anthropic-compatible preset</string>
+    <string name="settings_ai_endpoint_presets_title">opencode API endpoint presets (%d)</string>
     <string name="settings_ai_provider_name_label">Provider name</string>
     <string name="settings_ai_auth_bearer">Bearer</string>
     <string name="settings_ai_auth_api_key">api-key</string>
