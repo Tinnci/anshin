@@ -11,14 +11,17 @@ class CarouselAdoptionGuardTest {
 
     @Test
     fun `health metrics summary uses Material3 carousel`() {
-        val healthScreen = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/health/HealthScreen.kt").readText()
-        val metricsSection = healthScreen.substringAfter("private fun HealthMetricsSection")
-            .substringBefore("private fun SectionHeader")
+        val healthSource = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/health")
+            .walkTopDown()
+            .filter { it.extension == "kt" }
+            .joinToString("\n") { it.readText() }
+        val metricsSection = healthSource.substringAfter("fun HealthMetricsSection")
+            .substringBefore("fun SectionHeader")
 
         assertTrue(
             "Health metrics should use Material3 carousel APIs.",
-            healthScreen.contains("androidx.compose.material3.carousel.HorizontalUncontainedCarousel") &&
-                healthScreen.contains("androidx.compose.material3.carousel.rememberCarouselState"),
+            healthSource.contains("androidx.compose.material3.carousel.HorizontalUncontainedCarousel") &&
+                healthSource.contains("androidx.compose.material3.carousel.rememberCarouselState"),
         )
         assertTrue(
             "HealthMetricsSection should render stat cards through HorizontalUncontainedCarousel.",
@@ -32,17 +35,19 @@ class CarouselAdoptionGuardTest {
 
     @Test
     fun `settings widget previews use Material3 carousel`() {
-        val settingsComponents = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsContentComponents.kt").readText()
-        val settingsSections = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsSections.kt").readText()
+        val settingsSource = File(projectRoot, "app/src/main/java/com/driezy/medlog/ui/screen/settings")
+            .walkTopDown()
+            .filter { it.extension == "kt" }
+            .joinToString("\n") { it.readText() }
 
         assertTrue(
             "Settings widget previews should use Material3 carousel APIs.",
-            settingsComponents.contains("androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel") &&
-                settingsComponents.contains("androidx.compose.material3.carousel.rememberCarouselState"),
+            settingsSource.contains("androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel") &&
+                settingsSource.contains("androidx.compose.material3.carousel.rememberCarouselState"),
         )
         assertTrue(
             "Widget settings page should route repeated widget cards through a dedicated carousel.",
-            settingsSections.contains("WidgetPreviewCarousel("),
+            settingsSource.contains("WidgetPreviewCarousel("),
         )
     }
 
