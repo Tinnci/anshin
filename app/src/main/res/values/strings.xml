@@ -122,7 +122,9 @@
     <string name="home_period_take_all_btn">全部服用</string>
     <string name="home_low_stock_title">库存不足提醒</string>
     <string name="home_low_stock_item">· %1$s：剩余 %2$s %3$s</string>
-    <string name="home_low_stock_more">另外 %d 种药品库存不足</string>
+    <plurals name="home_low_stock_more">
+        <item quantity="other">另外 %d 种药品库存不足</item>
+    </plurals>
     <plurals name="home_streak_current">
         <item quantity="other">🔥 连续 %d 天</item>
     </plurals>
@@ -179,7 +181,6 @@
     <string name="settings_notif_perm_title">通知权限未开启</string>
     <string name="settings_notif_perm_body">无法收到服药提醒。在系统设置中开启通知权限</string>
     <string name="settings_notif_perm_btn">前往设置</string>
-    <string name="settings_card_appearance">外观</string>
     <string name="settings_group_appearance_home">外观与首页</string>
     <string name="settings_group_appearance_home_desc">主题配色、动态颜色与今日页面显示偏好</string>
     <string name="settings_group_reminders_routine">提醒与作息</string>
@@ -206,7 +207,6 @@
     <string name="settings_card_today">今日页面</string>
     <string name="settings_auto_collapse_title">已完成分组默认折叠</string>
     <string name="settings_auto_collapse_subtitle">今日页面中已全部服用的时段将自动折叠，节省屏幕空间</string>
-    <string name="settings_card_reminder">提醒设置</string>
     <string name="settings_persistent_title">实时进度通知</string>
     <string name="settings_persistent_subtitle">在通知栏显示今日完成度，并随服药记录更新</string>
     <string name="settings_notifications_overview_title">通知状态</string>

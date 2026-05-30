@@ -123,7 +123,10 @@
     <string name="home_period_take_all_btn">Take all</string>
     <string name="home_low_stock_title">Low Stock Alert</string>
     <string name="home_low_stock_item">· %1$s: %2$s %3$s remaining</string>
-    <string name="home_low_stock_more">%d more medications are low</string>
+    <plurals name="home_low_stock_more">
+        <item quantity="one">%d more medication is low</item>
+        <item quantity="other">%d more medications are low</item>
+    </plurals>
     <plurals name="home_streak_current">
         <item quantity="one">🔥 1 day streak</item>
         <item quantity="other">🔥 %d day streak</item>
@@ -185,7 +188,6 @@
     <string name="settings_notif_perm_title">Notification permission denied</string>
     <string name="settings_notif_perm_body">Unable to receive medication reminders. Enable notification permission in system settings</string>
     <string name="settings_notif_perm_btn">Go to Settings</string>
-    <string name="settings_card_appearance">Appearance</string>
     <string name="settings_group_appearance_home">Appearance &amp; Home</string>
     <string name="settings_group_appearance_home_desc">Theme palettes, dynamic color, and Today view display preferences</string>
     <string name="settings_group_reminders_routine">Reminders &amp; Routine</string>
@@ -212,7 +214,6 @@
     <string name="settings_card_today">Today View</string>
     <string name="settings_auto_collapse_title">Collapse completed groups by default</string>
     <string name="settings_auto_collapse_subtitle">Time periods with all doses taken will auto-collapse to save screen space</string>
-    <string name="settings_card_reminder">Reminder Settings</string>
     <string name="settings_persistent_title">Live Progress Notification</string>
     <string name="settings_persistent_subtitle">Shows today\'s completion in notifications and updates as doses are logged</string>
     <string name="settings_notifications_overview_title">Notification status</string>
@@ -916,6 +917,6 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_api_key_save">Save key</string>
     <string name="settings_ai_api_key_clear">Clear</string>
     <string name="settings_ai_usage_title">Internal status, last 7 days</string>
-    <string name="settings_ai_usage_summary">%1$d runs, %2$d successful, %3$d errors, %4$d cache hits</string>
+    <string name="settings_ai_usage_summary">Runs: %1$d · Successful: %2$d · Errors: %3$d · Cache hits: %4$d</string>
     <string name="settings_ai_usage_last_error">Latest error: %s</string>
 </resources>

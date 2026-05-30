@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.util.Log
 import androidx.camera.core.ImageProxy
+import androidx.core.graphics.scale
 import java.io.ByteArrayOutputStream
 
 private const val TAG = "HealthOcrImageCapture"
@@ -39,5 +40,5 @@ private fun Bitmap.scaleDown(maxDimension: Int): Bitmap {
     val scale = maxDimension.toFloat() / currentMax.toFloat()
     val targetWidth = (width * scale).toInt().coerceAtLeast(1)
     val targetHeight = (height * scale).toInt().coerceAtLeast(1)
-    return Bitmap.createScaledBitmap(this, targetWidth, targetHeight, true)
+    return scale(targetWidth, targetHeight)
 }

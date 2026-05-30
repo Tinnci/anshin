@@ -3,6 +3,7 @@ package com.driezy.medlog.ai
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
+import androidx.core.content.edit
 import com.driezy.medlog.data.repository.CloudAiProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.security.KeyStore
@@ -42,16 +43,16 @@ class AndroidKeystoreAiApiKeyStore @Inject constructor(
             clearApiKey(provider)
             return
         }
-        preferences.edit()
-            .putString(provider.preferenceKey(), encrypt(trimmed))
-            .apply()
+        preferences.edit {
+            putString(provider.preferenceKey(), encrypt(trimmed))
+        }
         publishAvailability()
     }
 
     override suspend fun clearApiKey(provider: CloudAiProvider) {
-        preferences.edit()
-            .remove(provider.preferenceKey())
-            .apply()
+        preferences.edit {
+            remove(provider.preferenceKey())
+        }
         publishAvailability()
     }
 

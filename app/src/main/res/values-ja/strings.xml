@@ -119,7 +119,9 @@
     <string name="home_period_take_all_btn">まとめて服用</string>
     <string name="home_low_stock_title">残量不足アラート</string>
     <string name="home_low_stock_item">· %1$s：残 %2$s %3$s</string>
-    <string name="home_low_stock_more">ほか %d 件の薬の残量が不足しています</string>
+    <plurals name="home_low_stock_more">
+        <item quantity="other">ほか %d 件の薬の残量が不足しています</item>
+    </plurals>
     <plurals name="home_streak_current">
         <item quantity="other">🔥 %d 日連続</item>
     </plurals>
@@ -176,7 +178,6 @@
     <string name="settings_notif_perm_title">通知権限がオフです</string>
     <string name="settings_notif_perm_body">服薬リマインダーを受信できません。システム設定で通知権限をオンにしてください</string>
     <string name="settings_notif_perm_btn">設定へ移動</string>
-    <string name="settings_card_appearance">外観</string>
     <string name="settings_group_appearance_home">外観とホーム</string>
     <string name="settings_group_appearance_home_desc">テーマ配色、ダイナミックカラー、今日画面の表示設定</string>
     <string name="settings_group_reminders_routine">リマインダーと生活リズム</string>
@@ -202,7 +203,6 @@
     <string name="settings_card_today">今日の画面</string>
     <string name="settings_auto_collapse_title">完了済みグループをデフォルトで折りたたむ</string>
     <string name="settings_auto_collapse_subtitle">服薬完了の時間帯は自動で折りたたまれます</string>
-    <string name="settings_card_reminder">リマインダー設定</string>
     <string name="settings_persistent_title">ライブ進捗通知</string>
     <string name="settings_persistent_subtitle">今日の完了状況を通知に表示し、服薬記録に合わせて更新します</string>
     <string name="settings_notifications_overview_title">通知状態</string>

@@ -149,7 +149,11 @@ internal fun LowStockBanner(
                 if (presentation.hiddenCount > 0) {
                     Spacer(Modifier.height(2.dp))
                     Text(
-                        text = stringResource(R.string.home_low_stock_more, presentation.hiddenCount),
+                        text = pluralStringResource(
+                            R.plurals.home_low_stock_more,
+                            presentation.hiddenCount,
+                            presentation.hiddenCount,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.78f),
                     )
