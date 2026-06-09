@@ -112,8 +112,8 @@ internal fun SettingsHomeModulesContent(
     }
 
     SettingsCard(
-        title = stringResource(R.string.settings_more_title),
-        subtitle = stringResource(R.string.settings_more_desc),
+        title = stringResource(R.string.settings_home_center_title),
+        subtitle = stringResource(R.string.settings_home_center_desc),
         icon = MedLogIcons.Settings,
     ) {
         SettingsNavigationRow(

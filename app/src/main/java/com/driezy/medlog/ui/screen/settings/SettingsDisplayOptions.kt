@@ -146,6 +146,51 @@ internal enum class CloudAiSettingsVisualState {
     TEXT_ONLY,
 }
 
+internal enum class SettingsHomeStatusTone {
+    OK,
+    WARNING,
+    INFO,
+}
+
+internal data class SettingsHomeOverviewPresentation(
+    val attentionCount: Int,
+    val enabledModuleCount: Int,
+    val reminderTone: SettingsHomeStatusTone,
+    val intelligenceTone: SettingsHomeStatusTone,
+) {
+    companion object {
+        fun from(
+            uiState: SettingsUiState,
+            canScheduleExactAlarms: Boolean,
+            canPostNotifications: Boolean,
+        ): SettingsHomeOverviewPresentation {
+            val reminderWarning = !canScheduleExactAlarms || !canPostNotifications
+            val intelligenceWarning = uiState.cloudAiEnabled && !uiState.cloudAiProviderHasApiKey
+            val enabledModuleCount = listOf(
+                uiState.enableSymptomDiary,
+                uiState.enableDrugInteractionCheck,
+                uiState.enableDrugDatabase,
+                uiState.enableHealthModule,
+            ).count { it }
+
+            return SettingsHomeOverviewPresentation(
+                attentionCount = listOf(
+                    !canScheduleExactAlarms,
+                    !canPostNotifications,
+                    intelligenceWarning,
+                ).count { it },
+                enabledModuleCount = enabledModuleCount,
+                reminderTone = if (reminderWarning) SettingsHomeStatusTone.WARNING else SettingsHomeStatusTone.OK,
+                intelligenceTone = when {
+                    intelligenceWarning -> SettingsHomeStatusTone.WARNING
+                    uiState.cloudAiEnabled -> SettingsHomeStatusTone.OK
+                    else -> SettingsHomeStatusTone.INFO
+                },
+            )
+        }
+    }
+}
+
 internal data class CloudAiSettingsPresentation(
     val visualState: CloudAiSettingsVisualState,
     @param:StringRes val labelRes: Int,

@@ -48,6 +48,7 @@ class CloudAiEndpointPresetCodecTest {
             "github-copilot" to ExpectedPreset("https://api.githubcopilot.com", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "groq" to ExpectedPreset("https://api.groq.com/openai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "lmstudio" to ExpectedPreset("http://127.0.0.1:1234/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "nvidia-nim" to ExpectedPreset("https://integrate.api.nvidia.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "ollama-local" to ExpectedPreset("http://127.0.0.1:11434/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "opencode" to ExpectedPreset("https://opencode.ai/zen/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "opencode-go" to ExpectedPreset("https://opencode.ai/zen/go/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),

@@ -206,6 +206,26 @@
     <string name="settings_more_title">More settings</string>
     <string name="settings_action_open">Open settings</string>
     <string name="settings_more_desc">Open settings that need more context</string>
+    <string name="settings_home_status_title">Settings status</string>
+    <string name="settings_home_status_all_good">Reminders, modules, and local intelligence are running normally</string>
+    <plurals name="settings_home_status_attention">
+        <item quantity="one">%d setting needs attention</item>
+        <item quantity="other">%d settings need attention</item>
+    </plurals>
+    <string name="settings_home_reminders_ok">Reminders ready</string>
+    <string name="settings_home_reminders_warning">Reminder permissions need attention</string>
+    <string name="settings_home_ai_ready">Intelligence ready</string>
+    <string name="settings_home_ai_warning">Intelligence setup needed</string>
+    <string name="settings_home_ai_local">Local intelligence running</string>
+    <plurals name="settings_home_modules_enabled">
+        <item quantity="one">%d module on</item>
+        <item quantity="other">%d modules on</item>
+    </plurals>
+    <string name="settings_home_action_reminders">Check reminders</string>
+    <string name="settings_home_action_intelligence">Set up intelligence</string>
+    <string name="settings_home_action_data">Data and backup</string>
+    <string name="settings_home_center_title">Settings center</string>
+    <string name="settings_home_center_desc">Open reminders, intelligence, widgets, and data management by task</string>
     <string name="settings_destination_reminders">Reminders &amp; Routine</string>
     <string name="settings_destination_reminders_desc">Notification cadence, missed-dose follow-ups, routine periods, and travel timezone</string>
     <string name="settings_destination_intelligence">Intelligence</string>
@@ -975,6 +995,7 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_mimo_endpoint_hint">Leave blank to infer from the key; Singapore token plan: https://token-plan-sgp.xiaomimimo.com/v1</string>
     <string name="settings_ai_anthropic_endpoint_hint">Leave blank to use Anthropic official endpoint, or choose an Anthropic-compatible preset</string>
     <string name="settings_ai_endpoint_presets_title">opencode API endpoint presets (%d)</string>
+    <string name="settings_ai_endpoint_featured_title">Recommended endpoints</string>
     <string name="settings_ai_endpoint_search_label">Search endpoints or Base URL</string>
     <string name="settings_ai_endpoint_empty">No matching endpoints</string>
     <string name="settings_ai_endpoint_selected">Current</string>

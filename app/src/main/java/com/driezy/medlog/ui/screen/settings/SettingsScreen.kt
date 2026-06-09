@@ -435,6 +435,14 @@ private fun SettingsScaffold(
             }
             when (mode) {
                 SettingsScreenMode.HOME -> {
+                    SettingsHomeOverviewPanel(
+                        uiState = uiState,
+                        canScheduleExactAlarms = canScheduleExactAlarms,
+                        canPostNotifications = canPostNotifications,
+                        onNavigateToReminderSettings = onNavigateToReminderSettings,
+                        onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
+                        onNavigateToDataSettings = onNavigateToDataSettings,
+                    )
                     SettingsHomeAppearanceContent(
                         uiState = uiState,
                         viewModel = viewModel,

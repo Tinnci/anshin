@@ -402,8 +402,8 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "nvidia",
-    "name": "Nvidia",
+    "id": "nvidia-nim",
+    "name": "NVIDIA NIM APIs",
     "api": "https://integrate.api.nvidia.com/v1",
     "protocol": "openai_compatible"
   },

@@ -10,6 +10,42 @@ import org.junit.Test
 
 class CloudAiSettingsPresentationTest {
     @Test
+    fun `settings home overview counts permissions and missing cloud key as attention`() {
+        val presentation = SettingsHomeOverviewPresentation.from(
+            uiState = SettingsUiState(
+                cloudAiEnabled = true,
+                cloudAiProviderHasApiKey = false,
+            ),
+            canScheduleExactAlarms = false,
+            canPostNotifications = false,
+        )
+
+        assertEquals(3, presentation.attentionCount)
+        assertEquals(SettingsHomeStatusTone.WARNING, presentation.reminderTone)
+        assertEquals(SettingsHomeStatusTone.WARNING, presentation.intelligenceTone)
+    }
+
+    @Test
+    fun `settings home overview treats local intelligence as safe info state`() {
+        val presentation = SettingsHomeOverviewPresentation.from(
+            uiState = SettingsUiState(
+                enableSymptomDiary = true,
+                enableDrugInteractionCheck = true,
+                enableDrugDatabase = false,
+                enableHealthModule = true,
+                cloudAiEnabled = false,
+            ),
+            canScheduleExactAlarms = true,
+            canPostNotifications = true,
+        )
+
+        assertEquals(0, presentation.attentionCount)
+        assertEquals(3, presentation.enabledModuleCount)
+        assertEquals(SettingsHomeStatusTone.OK, presentation.reminderTone)
+        assertEquals(SettingsHomeStatusTone.INFO, presentation.intelligenceTone)
+    }
+
+    @Test
     fun `disabled cloud AI is presented as off`() {
         val presentation = CloudAiSettingsPresentation.from(
             enabled = false,
@@ -161,5 +197,37 @@ class CloudAiSettingsPresentationTest {
         ).rows
 
         assertEquals(listOf("openai"), rows.map { it.id })
+    }
+
+    @Test
+    fun `endpoint preset list features nvidia nim before the full alphabetical list`() {
+        val presentation = CloudAiEndpointPresetListPresentation.from(
+            presets = listOf(
+                CloudAiEndpointPreset(
+                    id = "abacus",
+                    name = "Abacus",
+                    api = "https://routellm.abacus.ai/v1",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+                CloudAiEndpointPreset(
+                    id = "nvidia-nim",
+                    name = "NVIDIA NIM APIs",
+                    api = "https://integrate.api.nvidia.com/v1",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+                CloudAiEndpointPreset(
+                    id = "openai",
+                    name = "OpenAI",
+                    api = "https://api.openai.com/v1",
+                    protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            ),
+            query = "",
+            currentBaseUrl = "",
+            protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+        )
+
+        assertEquals(listOf("nvidia-nim", "openai"), presentation.featuredRows.map { it.id })
+        assertEquals(listOf("NVIDIA NIM APIs", "OpenAI", "Abacus"), presentation.rows.map { it.name })
     }
 }

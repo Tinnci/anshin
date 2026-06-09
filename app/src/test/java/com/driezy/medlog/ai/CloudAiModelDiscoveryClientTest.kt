@@ -49,6 +49,51 @@ class CloudAiModelDiscoveryClientTest {
     }
 
     @Test
+    fun `nvidia nim discovery uses hosted v1 models endpoint and detects vl models`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 200,
+                body = """
+                    {
+                      "object": "list",
+                      "data": [
+                        {
+                          "id": "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+                          "object": "model",
+                          "owned_by": "nvidia"
+                        },
+                        {
+                          "id": "nvidia/nemotron-nano-12b-v2-vl",
+                          "object": "model",
+                          "owned_by": "nvidia"
+                        }
+                      ]
+                    }
+                """.trimIndent(),
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.OpenAiCompatible(
+                baseUrl = "https://integrate.api.nvidia.com/v1",
+                model = "nvidia/llama-3.1-nemotron-ultra-253b-v1",
+                apiKey = "nvapi-key",
+                authMode = OpenAiAuthMode.BEARER,
+                providerName = "NVIDIA NIM APIs",
+            ),
+        )
+
+        assertTrue(result.isConnected)
+        assertEquals("https://integrate.api.nvidia.com/v1/models", http.lastRequest!!.url)
+        assertEquals("Bearer nvapi-key", http.lastRequest!!.headers["Authorization"])
+        assertEquals("NVIDIA NIM APIs", result.providerName)
+        assertFalse(result.models[0].supportsImageInput)
+        assertTrue(result.models[1].supportsImageInput)
+        assertEquals("nvidia/nemotron-nano-12b-v2-vl", result.selectBestModel(requireImageInput = true)?.id)
+    }
+
+    @Test
     fun `model discovery reports failed connectivity without exposing the api key`() = runTest {
         val http = RecordingAiHttpTransport(
             response = AiHttpResponse(

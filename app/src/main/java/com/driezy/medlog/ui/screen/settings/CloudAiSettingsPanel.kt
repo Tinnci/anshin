@@ -466,6 +466,48 @@ private fun EndpointPresetPicker(
                 )
             }
         }
+        if (presentation.featuredRows.isNotEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                Text(
+                    text = stringResource(R.string.settings_ai_endpoint_featured_title),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                FlowRow(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                ) {
+                    presentation.featuredRows.forEach { row ->
+                        FilterChip(
+                            selected = row.selected,
+                            onClick = { onSelect(row.preset) },
+                            label = {
+                                Text(
+                                    text = row.name,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            leadingIcon = if (row.selected) {
+                                {
+                                    MedLogIcon(
+                                        MedLogIcons.CheckCircle,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(16.dp),
+                                    )
+                                }
+                            } else {
+                                null
+                            },
+                        )
+                    }
+                }
+            }
+        }
         AnimatedVisibility(visible = expanded) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
@@ -523,6 +565,7 @@ internal data class CloudAiEndpointPresetRowPresentation(
 
 internal data class CloudAiEndpointPresetListPresentation(
     val rows: List<CloudAiEndpointPresetRowPresentation>,
+    val featuredRows: List<CloudAiEndpointPresetRowPresentation> = emptyList(),
 ) {
     companion object {
         fun from(
@@ -533,7 +576,7 @@ internal data class CloudAiEndpointPresetListPresentation(
         ): CloudAiEndpointPresetListPresentation {
             val normalizedQuery = query.trim().lowercase()
             val normalizedCurrentBaseUrl = currentBaseUrl.normalizedEndpointUrl()
-            val rows = presets
+            val filteredPresets = presets
                 .asSequence()
                 .filter { preset -> preset.protocol == protocol }
                 .filter { preset ->
@@ -542,26 +585,62 @@ internal data class CloudAiEndpointPresetListPresentation(
                         preset.api.lowercase().contains(normalizedQuery) ||
                         preset.id.lowercase().contains(normalizedQuery)
                 }
-                .sortedWith(compareBy<CloudAiEndpointPreset> { it.api.normalizedEndpointUrl() != normalizedCurrentBaseUrl }.thenBy { it.name.lowercase() })
-                .take(80)
-                .map { preset ->
-                    CloudAiEndpointPresetRowPresentation(
-                        id = preset.id,
-                        name = preset.name,
-                        api = preset.api,
-                        protocol = preset.protocol,
-                        selected = preset.api.normalizedEndpointUrl() == normalizedCurrentBaseUrl,
-                        preset = preset,
-                    )
-                }
                 .toList()
-            return CloudAiEndpointPresetListPresentation(rows)
+            val featuredRanks = if (normalizedQuery.isBlank()) {
+                protocol.featuredPresetRanks()
+            } else {
+                emptyMap()
+            }
+            val rows = filteredPresets
+                .sortedWith(
+                    compareBy<CloudAiEndpointPreset> {
+                        it.api.normalizedEndpointUrl() != normalizedCurrentBaseUrl
+                    }.thenBy {
+                        featuredRanks[it.id] ?: Int.MAX_VALUE
+                    }.thenBy {
+                        it.name.lowercase()
+                    },
+                )
+                .take(80)
+                .map { preset -> preset.toRow(normalizedCurrentBaseUrl) }
+                .toList()
+            val featuredRows = filteredPresets
+                .filter { preset -> preset.id in featuredRanks }
+                .sortedBy { preset -> featuredRanks[preset.id] ?: Int.MAX_VALUE }
+                .map { preset -> preset.toRow(normalizedCurrentBaseUrl) }
+            return CloudAiEndpointPresetListPresentation(
+                rows = rows,
+                featuredRows = featuredRows,
+            )
         }
     }
 }
 
 private fun String.normalizedEndpointUrl(): String =
     trim().trimEnd('/').lowercase()
+
+private fun CloudAiEndpointProtocol.featuredPresetRanks(): Map<String, Int> =
+    when (this) {
+        CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> listOf(
+            "nvidia-nim",
+            "openai",
+            "openrouter",
+            "groq",
+            "lmstudio",
+            "ollama-local",
+        )
+        CloudAiEndpointProtocol.ANTHROPIC -> listOf("anthropic")
+    }.withIndex().associate { (index, id) -> id to index }
+
+private fun CloudAiEndpointPreset.toRow(normalizedCurrentBaseUrl: String): CloudAiEndpointPresetRowPresentation =
+    CloudAiEndpointPresetRowPresentation(
+        id = id,
+        name = name,
+        api = api,
+        protocol = protocol,
+        selected = api.normalizedEndpointUrl() == normalizedCurrentBaseUrl,
+        preset = this,
+    )
 
 @Composable
 private fun EndpointPresetRow(

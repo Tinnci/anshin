@@ -305,6 +305,8 @@ class CloudAiModelDiscoveryClient(
             "qwen2-vl" in normalized ||
             "qwen2.5-vl" in normalized ||
             "vl-" in normalized ||
+            "-vl" in normalized ||
+            "vila" in normalized ||
             "pixtral" in normalized
     }
 

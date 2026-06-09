@@ -116,6 +116,175 @@ internal fun SettingsSectionDivider(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
+internal fun SettingsHomeOverviewPanel(
+    uiState: SettingsUiState,
+    canScheduleExactAlarms: Boolean,
+    canPostNotifications: Boolean,
+    onNavigateToReminderSettings: () -> Unit,
+    onNavigateToIntelligenceSettings: () -> Unit,
+    onNavigateToDataSettings: () -> Unit,
+) {
+    val presentation = SettingsHomeOverviewPresentation.from(
+        uiState = uiState,
+        canScheduleExactAlarms = canScheduleExactAlarms,
+        canPostNotifications = canPostNotifications,
+    )
+    Surface(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(24.dp),
+        color = MaterialTheme.colorScheme.primaryContainer,
+        contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+    ) {
+        Column(
+            modifier = Modifier.padding(MedLogSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    MedLogIcon(
+                        MedLogIcons.Settings,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(MedLogSpacing.Small)
+                            .size(24.dp),
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+                ) {
+                    Text(
+                        text = stringResource(R.string.settings_home_status_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        text = if (presentation.attentionCount > 0) {
+                            pluralStringResource(
+                                R.plurals.settings_home_status_attention,
+                                presentation.attentionCount,
+                                presentation.attentionCount,
+                            )
+                        } else {
+                            stringResource(R.string.settings_home_status_all_good)
+                        },
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+                    )
+                }
+            }
+            FlowRow(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                SettingsHomeStatusChip(
+                    text = stringResource(
+                        if (presentation.reminderTone == SettingsHomeStatusTone.WARNING) {
+                            R.string.settings_home_reminders_warning
+                        } else {
+                            R.string.settings_home_reminders_ok
+                        },
+                    ),
+                    icon = MedLogIcons.Notifications,
+                    tone = presentation.reminderTone,
+                )
+                SettingsHomeStatusChip(
+                    text = stringResource(
+                        when (presentation.intelligenceTone) {
+                            SettingsHomeStatusTone.WARNING -> R.string.settings_home_ai_warning
+                            SettingsHomeStatusTone.OK -> R.string.settings_home_ai_ready
+                            SettingsHomeStatusTone.INFO -> R.string.settings_home_ai_local
+                        },
+                    ),
+                    icon = MedLogIcons.AutoAwesome,
+                    tone = presentation.intelligenceTone,
+                )
+                SettingsHomeStatusChip(
+                    text = pluralStringResource(
+                        R.plurals.settings_home_modules_enabled,
+                        presentation.enabledModuleCount,
+                        presentation.enabledModuleCount,
+                    ),
+                    icon = MedLogIcons.Tune,
+                    tone = SettingsHomeStatusTone.INFO,
+                )
+            }
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            ) {
+                FilledTonalButton(
+                    onClick = onNavigateToReminderSettings,
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(stringResource(R.string.settings_home_action_reminders))
+                }
+                FilledTonalButton(
+                    onClick = if (presentation.intelligenceTone == SettingsHomeStatusTone.WARNING) {
+                        onNavigateToIntelligenceSettings
+                    } else {
+                        onNavigateToDataSettings
+                    },
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        stringResource(
+                            if (presentation.intelligenceTone == SettingsHomeStatusTone.WARNING) {
+                                R.string.settings_home_action_intelligence
+                            } else {
+                                R.string.settings_home_action_data
+                            },
+                        ),
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SettingsHomeStatusChip(
+    text: String,
+    icon: Int,
+    tone: SettingsHomeStatusTone,
+) {
+    val containerColor = when (tone) {
+        SettingsHomeStatusTone.OK -> MaterialTheme.colorScheme.secondaryContainer
+        SettingsHomeStatusTone.WARNING -> MaterialTheme.colorScheme.tertiaryContainer
+        SettingsHomeStatusTone.INFO -> MaterialTheme.colorScheme.surfaceContainerHigh
+    }
+    val contentColor = when (tone) {
+        SettingsHomeStatusTone.OK -> MaterialTheme.colorScheme.onSecondaryContainer
+        SettingsHomeStatusTone.WARNING -> MaterialTheme.colorScheme.onTertiaryContainer
+        SettingsHomeStatusTone.INFO -> MaterialTheme.colorScheme.onSurfaceVariant
+    }
+    Surface(
+        shape = RoundedCornerShape(14.dp),
+        color = containerColor,
+        contentColor = contentColor,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
+            Text(text = text, style = MaterialTheme.typography.labelMedium)
+        }
+    }
+}
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
 internal fun NotificationSettingsOverview(uiState: SettingsUiState) {
     Surface(
         modifier = Modifier

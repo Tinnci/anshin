@@ -908,6 +908,7 @@
     <string name="settings_ai_model_hint">기본값: %s</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">예: https://api.example.com/v1</string>
+    <string name="settings_ai_endpoint_featured_title">추천 endpoint</string>
     <string name="settings_ai_provider_name_label">Provider 이름</string>
     <string name="settings_ai_auth_bearer">Bearer</string>
     <string name="settings_ai_auth_api_key">api-key</string>
