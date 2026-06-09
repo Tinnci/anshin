@@ -34,6 +34,8 @@ import com.driezy.medlog.data.repository.WidgetTextScale
 import com.driezy.medlog.data.repository.WidgetThemeMode
 import com.driezy.medlog.domain.BackupRestoreUseCase
 import com.driezy.medlog.domain.ResyncRemindersUseCase
+import com.driezy.medlog.domain.UnifiedImportPayload
+import com.driezy.medlog.domain.UnifiedImportPayloadCodec
 import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidget
 import com.driezy.medlog.widget.NextDoseWidget
@@ -255,6 +257,31 @@ class SettingsViewModel @Inject constructor(
 
     fun setCurrentCloudAiApiKey(apiKey: String) {
         setCloudAiApiKey(uiState.value.cloudAiProvider, apiKey)
+    }
+
+    fun importCloudAiApiKey(raw: String) {
+        safeLaunch {
+            val key = when (val payload = UnifiedImportPayloadCodec.decode(raw)) {
+                is UnifiedImportPayload.CloudAiApiKey -> payload.key
+                else -> return@safeLaunch
+            }
+
+            aiApiKeyStore.setApiKey(key.provider, key.apiKey)
+            prefsRepository.updateCloudAiSettings(
+                enabled = true,
+                provider = key.provider,
+                model = key.model,
+                mimoBaseUrl = key.baseUrl.takeIf { key.provider == CloudAiProvider.MIMO },
+                anthropicBaseUrl = key.baseUrl.takeIf { key.provider == CloudAiProvider.ANTHROPIC },
+                openAiCompatibleBaseUrl = key.baseUrl.takeIf { key.provider == CloudAiProvider.OPENAI_COMPATIBLE },
+                openAiCompatibleAuthMode = key.openAiAuthMode.takeIf {
+                    key.provider == CloudAiProvider.OPENAI_COMPATIBLE
+                },
+                openAiCompatibleProviderName = key.providerName.takeIf {
+                    key.provider == CloudAiProvider.OPENAI_COMPATIBLE
+                },
+            )
+        }
     }
 
     fun refreshCloudAiModels() {

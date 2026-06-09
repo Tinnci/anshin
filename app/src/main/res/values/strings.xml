@@ -984,6 +984,13 @@
     <string name="settings_ai_api_key_storage_hint">Key 使用 Android Keystore 加密保存，不进入备份、日志或缓存</string>
     <string name="settings_ai_api_key_save">保存 key</string>
     <string name="settings_ai_api_key_clear">清除</string>
+    <string name="settings_ai_api_key_import_label">粘贴标准导入内容或 .env</string>
+    <string name="settings_ai_api_key_import_hint">支持 anshin:key:v1:、NVIDIA_API_KEY、OPENAI_API_KEY/OPENAI_BASE_URL 等格式</string>
+    <string name="settings_ai_api_key_import_preview">将导入 %1$s</string>
+    <string name="settings_ai_api_key_import_preview_with_model">将导入 %1$s · %2$s</string>
+    <string name="settings_ai_api_key_import_standard_chip">标准格式</string>
+    <string name="settings_ai_api_key_import_env_chip">.env</string>
+    <string name="settings_ai_api_key_import_save">导入并保存</string>
     <string name="settings_ai_usage_title">最近 7 天内部状态</string>
     <string name="settings_ai_usage_summary">共 %1$d 次，成功 %2$d 次，错误 %3$d 次，缓存命中 %4$d 次</string>
     <string name="settings_ai_usage_last_error">最近错误：%s</string>

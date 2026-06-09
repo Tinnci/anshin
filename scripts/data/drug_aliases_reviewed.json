@@ -44,7 +44,9 @@
   },
   "丁螺环酮": {
     "aliases": [
-      "buspirone",
+      "buspirone"
+    ],
+    "brandNames": [
       "一舒"
     ]
   },
@@ -57,30 +59,35 @@
   "七氟烷": {
     "aliases": [
       "sevoflurane",
-      "七氟醚",
+      "七氟醚"
+    ],
+    "brandNames": [
       "喜保福宁"
     ]
   },
   "万古霉素": {
     "aliases": [
       "vancomycin",
-      "盐酸万古霉素",
+      "盐酸万古霉素"
+    ],
+    "brandNames": [
       "稳可信"
     ]
   },
   "三唑仑": {
     "aliases": [
-      "triazolam",
+      "triazolam"
+    ],
+    "brandNames": [
       "海乐神"
     ]
   },
   "三氟拉嗪": {
     "aliases": [
-      "trifluoperazine"
-    ],
-    "brandNames": [
+      "trifluoperazine",
       "三氟拉嗪片"
-    ]
+    ],
+    "brandNames": []
   },
   "三氧化二砷": {
     "aliases": [
@@ -96,13 +103,17 @@
   },
   "丙卡特罗": {
     "aliases": [
-      "procaterol",
+      "procaterol"
+    ],
+    "brandNames": [
       "美普清"
     ]
   },
   "丙吡胺": {
     "aliases": [
-      "disopyramide",
+      "disopyramide"
+    ],
+    "brandNames": [
       "达舒平"
     ]
   },
@@ -118,7 +129,9 @@
   },
   "丙戊酰胺": {
     "aliases": [
-      "valpromide",
+      "valpromide"
+    ],
+    "brandNames": [
       "癫健安"
     ]
   },
@@ -135,7 +148,9 @@
   },
   "丙戊酸钠": {
     "aliases": [
-      "sodium valproate",
+      "sodium valproate"
+    ],
+    "brandNames": [
       "德巴金"
     ]
   },
@@ -182,17 +197,18 @@
   },
   "丙美卡因": {
     "aliases": [
-      "proparacaine",
+      "proparacaine"
+    ],
+    "brandNames": [
       "爱尔卡因"
     ]
   },
   "丙胺卡因": {
     "aliases": [
-      "prilocaine"
-    ],
-    "brandNames": [
+      "prilocaine",
       "丙胺卡因注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "丙酚替诺福韦": {
     "aliases": [
@@ -225,33 +241,40 @@
   },
   "乌司他丁": {
     "aliases": [
-      "ulinastatin",
+      "ulinastatin"
+    ],
+    "brandNames": [
       "天普洛安"
     ]
   },
   "乌司奴单抗": {
     "aliases": [
-      "ustekinumab",
+      "ustekinumab"
+    ],
+    "brandNames": [
       "喜达诺"
     ]
   },
   "乌拉地尔": {
     "aliases": [
-      "urapidil",
+      "urapidil"
+    ],
+    "brandNames": [
       "亚宁定"
     ]
   },
   "乌美溴铵": {
     "aliases": [
-      "umeclidinium"
-    ],
-    "brandNames": [
+      "umeclidinium",
       "乌美溴铵吸入粉雾剂"
-    ]
+    ],
+    "brandNames": []
   },
   "乐卡地平": {
     "aliases": [
-      "lercanidipine",
+      "lercanidipine"
+    ],
+    "brandNames": [
       "再宁平"
     ]
   },
@@ -275,11 +298,10 @@
   },
   "乙硫异烟胺": {
     "aliases": [
-      "ethionamide"
-    ],
-    "brandNames": [
+      "ethionamide",
       "乙硫异烟胺片"
-    ]
+    ],
+    "brandNames": []
   },
   "乙胺丁醇": {
     "aliases": [
@@ -296,7 +318,9 @@
   "乙酰半胱氨酸": {
     "aliases": [
       "acetylcysteine",
-      "NAC",
+      "NAC"
+    ],
+    "brandNames": [
       "富露施"
     ]
   },
@@ -358,7 +382,9 @@
   "二甲双胍": {
     "aliases": [
       "metformin",
-      "盐酸二甲双胍",
+      "盐酸二甲双胍"
+    ],
+    "brandNames": [
       "格华止"
     ]
   },
@@ -381,23 +407,26 @@
   },
   "五氟利多": {
     "aliases": [
-      "penfluridol"
-    ],
-    "brandNames": [
+      "penfluridol",
       "五氟利多片"
-    ]
+    ],
+    "brandNames": []
   },
   "亚叶酸钙": {
     "aliases": [
       "calcium folinate",
-      "CF",
+      "CF"
+    ],
+    "brandNames": [
       "立可林"
     ]
   },
   "亚甲蓝": {
     "aliases": [
       "methylthioninium chloride",
-      "methylene blue",
+      "methylene blue"
+    ],
+    "brandNames": [
       "美蓝"
     ]
   },
@@ -425,17 +454,18 @@
   },
   "仑伐替尼": {
     "aliases": [
-      "lenvatinib",
+      "lenvatinib"
+    ],
+    "brandNames": [
       "乐卫玛"
     ]
   },
   "仑氨西林": {
     "aliases": [
-      "lenampicillin"
-    ],
-    "brandNames": [
+      "lenampicillin",
       "仑氨西林片"
-    ]
+    ],
+    "brandNames": []
   },
   "他克莫司": {
     "aliases": [
@@ -467,25 +497,33 @@
   },
   "他达拉非": {
     "aliases": [
-      "tadalafil",
+      "tadalafil"
+    ],
+    "brandNames": [
       "希爱力"
     ]
   },
   "伊伐布雷定": {
     "aliases": [
-      "ivabradine",
+      "ivabradine"
+    ],
+    "brandNames": [
       "可兰特"
     ]
   },
   "伊布替尼": {
     "aliases": [
-      "ibrutinib",
+      "ibrutinib"
+    ],
+    "brandNames": [
       "亿珂"
     ]
   },
   "伊托必利": {
     "aliases": [
-      "itopride",
+      "itopride"
+    ],
+    "brandNames": [
       "瑞复啉"
     ]
   },
@@ -496,32 +534,42 @@
   },
   "伊曲康唑": {
     "aliases": [
-      "itraconazole",
+      "itraconazole"
+    ],
+    "brandNames": [
       "斯皮仁诺"
     ]
   },
   "伊沙佐米": {
     "aliases": [
-      "ixazomib",
+      "ixazomib"
+    ],
+    "brandNames": [
       "恩莱瑞"
     ]
   },
   "伊洛前列素": {
     "aliases": [
-      "iloprost",
+      "iloprost"
+    ],
+    "brandNames": [
       "万他维"
     ]
   },
   "伊班膦酸": {
     "aliases": [
-      "ibandronic acid",
+      "ibandronic acid"
+    ],
+    "brandNames": [
       "邦罗力"
     ]
   },
   "伊立替康": {
     "aliases": [
       "irinotecan",
-      "CPT-11",
+      "CPT-11"
+    ],
+    "brandNames": [
       "开普拓"
     ]
   },
@@ -537,13 +585,17 @@
   },
   "伊马替尼": {
     "aliases": [
-      "imatinib",
+      "imatinib"
+    ],
+    "brandNames": [
       "格列卫"
     ]
   },
   "伏格列波糖": {
     "aliases": [
-      "voglibose",
+      "voglibose"
+    ],
+    "brandNames": [
       "倍欣"
     ]
   },
@@ -557,19 +609,25 @@
   },
   "伏立康唑": {
     "aliases": [
-      "voriconazole",
+      "voriconazole"
+    ],
+    "brandNames": [
       "威凡"
     ]
   },
   "伐地那非": {
     "aliases": [
-      "vardenafil",
+      "vardenafil"
+    ],
+    "brandNames": [
       "艾力达"
     ]
   },
   "伐昔洛韦": {
     "aliases": [
-      "valaciclovir",
+      "valaciclovir"
+    ],
+    "brandNames": [
       "明竹欣"
     ]
   },
@@ -593,7 +651,9 @@
   },
   "佐匹克隆": {
     "aliases": [
-      "zopiclone",
+      "zopiclone"
+    ],
+    "brandNames": [
       "三辰"
     ]
   },
@@ -635,7 +695,9 @@
   },
   "依库珠单抗": {
     "aliases": [
-      "eculizumab",
+      "eculizumab"
+    ],
+    "brandNames": [
       "舒立瑞"
     ]
   },
@@ -653,13 +715,17 @@
   },
   "依托考昔": {
     "aliases": [
-      "etoricoxib",
+      "etoricoxib"
+    ],
+    "brandNames": [
       "安康信"
     ]
   },
   "依折麦布": {
     "aliases": [
-      "ezetimibe",
+      "ezetimibe"
+    ],
+    "brandNames": [
       "益适纯"
     ]
   },
@@ -675,7 +741,9 @@
   },
   "依普沙坦": {
     "aliases": [
-      "eprosartan",
+      "eprosartan"
+    ],
+    "brandNames": [
       "泰络欣"
     ]
   },
@@ -699,7 +767,9 @@
   },
   "依洛尤单抗": {
     "aliases": [
-      "evolocumab",
+      "evolocumab"
+    ],
+    "brandNames": [
       "瑞百安"
     ]
   },
@@ -710,7 +780,9 @@
   },
   "依美斯汀": {
     "aliases": [
-      "emedastine",
+      "emedastine"
+    ],
+    "brandNames": [
       "埃美丁"
     ]
   },
@@ -748,13 +820,17 @@
   },
   "依降钙素": {
     "aliases": [
-      "elcatonin",
+      "elcatonin"
+    ],
+    "brandNames": [
       "益盖宁"
     ]
   },
   "依非韦伦": {
     "aliases": [
-      "efavirenz",
+      "efavirenz"
+    ],
+    "brandNames": [
       "施多宁"
     ]
   },
@@ -776,24 +852,27 @@
   "倍他司汀": {
     "aliases": [
       "betahistine",
-      "敏使朗",
       "甲磺酸倍他司汀"
+    ],
+    "brandNames": [
+      "敏使朗"
     ]
   },
   "倍他洛尔": {
     "aliases": [
       "betaxolol",
-      "盐酸倍他洛尔",
+      "盐酸倍他洛尔"
+    ],
+    "brandNames": [
       "贝特舒"
     ]
   },
   "倍他米松": {
     "aliases": [
-      "betamethasone"
-    ],
-    "brandNames": [
+      "betamethasone",
       "倍他米松片"
-    ]
+    ],
+    "brandNames": []
   },
   "倍氯米松": {
     "aliases": [
@@ -819,15 +898,16 @@
   "克拉屈滨": {
     "aliases": [
       "cladribine",
-      "2-CdA"
-    ],
-    "brandNames": [
+      "2-CdA",
       "克拉屈滨注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "克拉霉素": {
     "aliases": [
-      "clarithromycin",
+      "clarithromycin"
+    ],
+    "brandNames": [
       "克拉仙"
     ]
   },
@@ -840,30 +920,35 @@
   },
   "克立硼罗": {
     "aliases": [
-      "crisaborole",
+      "crisaborole"
+    ],
+    "brandNames": [
       "舒坦明"
     ]
   },
   "克罗米通": {
     "aliases": [
-      "crotamiton",
+      "crotamiton"
+    ],
+    "brandNames": [
       "优力肤"
     ]
   },
   "克霉唑": {
     "aliases": [
-      "clotrimazole",
+      "clotrimazole"
+    ],
+    "brandNames": [
       "凯妮汀"
     ]
   },
   "免疫球蛋白": {
     "aliases": [
       "immunoglobulin",
-      "Ig"
-    ],
-    "brandNames": [
+      "Ig",
       "免疫球蛋白注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "兰地洛尔": {
     "aliases": [
@@ -878,19 +963,25 @@
   },
   "兰索拉唑": {
     "aliases": [
-      "lansoprazole",
+      "lansoprazole"
+    ],
+    "brandNames": [
       "达克普隆"
     ]
   },
   "决奈达隆": {
     "aliases": [
-      "dronedarone",
+      "dronedarone"
+    ],
+    "brandNames": [
       "迈达龙"
     ]
   },
   "利伐沙班": {
     "aliases": [
-      "rivaroxaban",
+      "rivaroxaban"
+    ],
+    "brandNames": [
       "拜瑞妥"
     ]
   },
@@ -902,7 +993,9 @@
   },
   "利司那肽": {
     "aliases": [
-      "lixisenatide",
+      "lixisenatide"
+    ],
+    "brandNames": [
       "利时敏"
     ]
   },
@@ -926,7 +1019,9 @@
   },
   "利妥昔单抗": {
     "aliases": [
-      "rituximab",
+      "rituximab"
+    ],
+    "brandNames": [
       "美罗华"
     ]
   },
@@ -951,13 +1046,17 @@
   "利拉鲁肽": {
     "aliases": [
       "liraglutide",
-      "诺和力",
       "利拉鲁肽注射液"
+    ],
+    "brandNames": [
+      "诺和力"
     ]
   },
   "利格列汀": {
     "aliases": [
-      "linagliptin",
+      "linagliptin"
+    ],
+    "brandNames": [
       "欧唐宁"
     ]
   },
@@ -992,7 +1091,9 @@
   },
   "利那洛肽": {
     "aliases": [
-      "linaclotide",
+      "linaclotide"
+    ],
+    "brandNames": [
       "令泽舒"
     ]
   },
@@ -1015,7 +1116,9 @@
   },
   "加巴喷丁": {
     "aliases": [
-      "gabapentin",
+      "gabapentin"
+    ],
+    "brandNames": [
       "迭力"
     ]
   },
@@ -1033,19 +1136,25 @@
   "匹伐他汀": {
     "aliases": [
       "pitavastatin",
-      "力清之",
       "匹伐他汀钙"
+    ],
+    "brandNames": [
+      "力清之"
     ]
   },
   "匹维溴铵": {
     "aliases": [
-      "pinaverium bromide",
+      "pinaverium bromide"
+    ],
+    "brandNames": [
       "得舒特"
     ]
   },
   "十一酸睾酮": {
     "aliases": [
-      "testosterone undecanoate",
+      "testosterone undecanoate"
+    ],
+    "brandNames": [
       "安特尔"
     ]
   },
@@ -1058,8 +1167,10 @@
   "单硝酸异山梨酯": {
     "aliases": [
       "isosorbide mononitrate",
-      "欣康",
       "依姆多"
+    ],
+    "brandNames": [
+      "欣康"
     ]
   },
   "博来霉素": {
@@ -1090,7 +1201,9 @@
   },
   "卡培他滨": {
     "aliases": [
-      "capecitabine",
+      "capecitabine"
+    ],
+    "brandNames": [
       "希罗达"
     ]
   },
@@ -1107,13 +1220,17 @@
   },
   "卡替洛尔": {
     "aliases": [
-      "carteolol",
+      "carteolol"
+    ],
+    "brandNames": [
       "美开朗"
     ]
   },
   "卡格列净": {
     "aliases": [
-      "canagliflozin",
+      "canagliflozin"
+    ],
+    "brandNames": [
       "怡可安"
     ]
   },
@@ -1125,7 +1242,9 @@
   },
   "卡泊三醇": {
     "aliases": [
-      "calcipotriol",
+      "calcipotriol"
+    ],
+    "brandNames": [
       "达力士"
     ]
   },
@@ -1146,8 +1265,10 @@
   "卡维地洛": {
     "aliases": [
       "carvedilol",
-      "达利全",
       "金络"
+    ],
+    "brandNames": [
+      "达利全"
     ]
   },
   "卡莫司汀": {
@@ -1161,11 +1282,10 @@
   },
   "卡那霉素": {
     "aliases": [
-      "kanamycin"
-    ],
-    "brandNames": [
+      "kanamycin",
       "卡那霉素注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "卡铂": {
     "aliases": [
@@ -1188,13 +1308,17 @@
   },
   "卡麦角林": {
     "aliases": [
-      "cabergoline",
+      "cabergoline"
+    ],
+    "brandNames": [
       "诺果宁"
     ]
   },
   "卢帕他定": {
     "aliases": [
-      "rupatadine",
+      "rupatadine"
+    ],
+    "brandNames": [
       "敏奇"
     ]
   },
@@ -1224,13 +1348,17 @@
   },
   "厄贝沙坦": {
     "aliases": [
-      "irbesartan",
+      "irbesartan"
+    ],
+    "brandNames": [
       "安博维"
     ]
   },
   "厄贝沙坦/氢氯噻嗪": {
     "aliases": [
-      "irbesartan/hydrochlorothiazide",
+      "irbesartan/hydrochlorothiazide"
+    ],
+    "brandNames": [
       "安博诺"
     ]
   },
@@ -1256,7 +1384,9 @@
   },
   "去铁胺": {
     "aliases": [
-      "deferoxamine",
+      "deferoxamine"
+    ],
+    "brandNames": [
       "去铁敏"
     ]
   },
@@ -1274,38 +1404,50 @@
   "双歧杆菌": {
     "aliases": [
       "bifidobacterium",
-      "培菲康",
       "双歧杆菌活菌"
+    ],
+    "brandNames": [
+      "培菲康"
     ]
   },
   "双氢青蒿素": {
     "aliases": [
-      "dihydroartemisinin",
+      "dihydroartemisinin"
+    ],
+    "brandNames": [
       "科泰新"
     ]
   },
   "双氯芬酸": {
     "aliases": [
       "diclofenac",
-      "扶他林",
       "英太青"
+    ],
+    "brandNames": [
+      "扶他林"
     ]
   },
   "双环醇": {
     "aliases": [
-      "bicyclol",
+      "bicyclol"
+    ],
+    "brandNames": [
       "百赛诺"
     ]
   },
   "双醋瑞因": {
     "aliases": [
-      "diacerein",
+      "diacerein"
+    ],
+    "brandNames": [
       "安必丁"
     ]
   },
   "可乐定": {
     "aliases": [
-      "clonidine",
+      "clonidine"
+    ],
+    "brandNames": [
       "可乐宁"
     ]
   },
@@ -1335,16 +1477,17 @@
   },
   "右旋糖酐": {
     "aliases": [
-      "dextran"
-    ],
-    "brandNames": [
+      "dextran",
       "右旋糖酐注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "右美沙芬": {
     "aliases": [
       "dextromethorphan",
-      "右甲吗喃",
+      "右甲吗喃"
+    ],
+    "brandNames": [
       "美沙芬"
     ]
   },
@@ -1357,13 +1500,17 @@
   },
   "司坦唑醇": {
     "aliases": [
-      "stanozolol",
+      "stanozolol"
+    ],
+    "brandNames": [
       "康力龙"
     ]
   },
   "司库奇尤单抗": {
     "aliases": [
-      "secukinumab",
+      "secukinumab"
+    ],
+    "brandNames": [
       "可善挺"
     ]
   },
@@ -1375,7 +1522,9 @@
   },
   "司美格鲁肽": {
     "aliases": [
-      "semaglutide",
+      "semaglutide"
+    ],
+    "brandNames": [
       "诺和泰"
     ]
   },
@@ -1402,7 +1551,9 @@
   },
   "吉非替尼": {
     "aliases": [
-      "gefitinib",
+      "gefitinib"
+    ],
+    "brandNames": [
       "易瑞沙"
     ]
   },
@@ -1448,8 +1599,10 @@
   "吡格列酮": {
     "aliases": [
       "pioglitazone",
-      "艾可拓",
       "盐酸吡格列酮"
+    ],
+    "brandNames": [
+      "艾可拓"
     ]
   },
   "吡硫翁锌": {
@@ -1459,13 +1612,17 @@
   },
   "吡硫醇": {
     "aliases": [
-      "pyritinol",
+      "pyritinol"
+    ],
+    "brandNames": [
       "脑复新"
     ]
   },
   "吡美莫司": {
     "aliases": [
-      "pimecrolimus",
+      "pimecrolimus"
+    ],
+    "brandNames": [
       "爱宁达"
     ]
   },
@@ -1489,9 +1646,11 @@
   },
   "吲达帕胺": {
     "aliases": [
-      "indapamide",
-      "纳催离",
-      "寿比山"
+      "indapamide"
+    ],
+    "brandNames": [
+      "寿比山",
+      "纳催离"
     ]
   },
   "呋喃妥因": {
@@ -1503,19 +1662,25 @@
   "呋塞米": {
     "aliases": [
       "furosemide",
-      "速尿",
       "呋喃苯胺酸"
+    ],
+    "brandNames": [
+      "速尿"
     ]
   },
   "咪康唑": {
     "aliases": [
-      "miconazole",
+      "miconazole"
+    ],
+    "brandNames": [
       "达克宁"
     ]
   },
   "咪达唑仑": {
     "aliases": [
-      "midazolam",
+      "midazolam"
+    ],
+    "brandNames": [
       "咪唑安定",
       "力月西"
     ]
@@ -1527,7 +1692,9 @@
   },
   "哈西奈德": {
     "aliases": [
-      "halcinonide",
+      "halcinonide"
+    ],
+    "brandNames": [
       "乐肤液"
     ]
   },
@@ -1545,33 +1712,43 @@
   "哌替啶": {
     "aliases": [
       "pethidine",
-      "度冷丁",
       "meperidine"
+    ],
+    "brandNames": [
+      "度冷丁"
     ]
   },
   "哌甲酯": {
     "aliases": [
       "methylphenidate",
-      "利他林",
+      "利他林"
+    ],
+    "brandNames": [
       "专注达"
     ]
   },
   "唑吡坦": {
     "aliases": [
       "zolpidem",
-      "思诺思",
       "Ambien"
+    ],
+    "brandNames": [
+      "思诺思"
     ]
   },
   "唑尼沙胺": {
     "aliases": [
-      "zonisamide",
+      "zonisamide"
+    ],
+    "brandNames": [
       "福丁宁"
     ]
   },
   "唑来膦酸": {
     "aliases": [
-      "zoledronic acid",
+      "zoledronic acid"
+    ],
+    "brandNames": [
       "密固达",
       "择泰"
     ]
@@ -1596,8 +1773,10 @@
   "喹硫平": {
     "aliases": [
       "quetiapine",
-      "思瑞康",
       "富马酸喹硫平"
+    ],
+    "brandNames": [
+      "思瑞康"
     ]
   },
   "喹那普利": {
@@ -1608,13 +1787,17 @@
   "噻吗洛尔": {
     "aliases": [
       "timolol",
-      "马来酸噻吗洛尔",
+      "马来酸噻吗洛尔"
+    ],
+    "brandNames": [
       "噻吗心安"
     ]
   },
   "噻托溴铵": {
     "aliases": [
-      "tiotropium",
+      "tiotropium"
+    ],
+    "brandNames": [
       "思力华"
     ]
   },
@@ -1632,8 +1815,10 @@
   "地塞米松": {
     "aliases": [
       "dexamethasone",
-      "氟美松",
       "地塞米松磷酸钠"
+    ],
+    "brandNames": [
+      "氟美松"
     ]
   },
   "地奈德": {
@@ -1660,7 +1845,9 @@
   },
   "地拉罗司": {
     "aliases": [
-      "deferasirox",
+      "deferasirox"
+    ],
+    "brandNames": [
       "恩瑞格"
     ]
   },
@@ -1672,13 +1859,17 @@
   "地氟烷": {
     "aliases": [
       "desflurane",
-      "地氟醚",
+      "地氟醚"
+    ],
+    "brandNames": [
       "优宁"
     ]
   },
   "地特胰岛素": {
     "aliases": [
-      "insulin detemir",
+      "insulin detemir"
+    ],
+    "brandNames": [
       "诺和平"
     ]
   },
@@ -1689,7 +1880,9 @@
   },
   "地舒单抗": {
     "aliases": [
-      "denosumab",
+      "denosumab"
+    ],
+    "brandNames": [
       "普罗力"
     ]
   },
@@ -1710,8 +1903,10 @@
   "地西泮": {
     "aliases": [
       "diazepam",
-      "安定",
       "Valium"
+    ],
+    "brandNames": [
+      "安定"
     ]
   },
   "地高辛": {
@@ -1723,26 +1918,34 @@
   "坎地沙坦": {
     "aliases": [
       "candesartan",
-      "坎地沙坦酯",
+      "坎地沙坦酯"
+    ],
+    "brandNames": [
       "必洛斯"
     ]
   },
   "坦索罗辛": {
     "aliases": [
       "tamsulosin",
-      "哈乐",
       "盐酸坦索罗辛"
+    ],
+    "brandNames": [
+      "哈乐"
     ]
   },
   "培哚普利": {
     "aliases": [
-      "perindopril",
+      "perindopril"
+    ],
+    "brandNames": [
       "雅施达"
     ]
   },
   "培哚普利/氨氯地平": {
     "aliases": [
-      "perindopril/amlodipine",
+      "perindopril/amlodipine"
+    ],
+    "brandNames": [
       "百安新"
     ]
   },
@@ -1753,7 +1956,9 @@
   },
   "塞来昔布": {
     "aliases": [
-      "celecoxib",
+      "celecoxib"
+    ],
+    "brandNames": [
       "西乐葆"
     ]
   },
@@ -1773,8 +1978,10 @@
     "aliases": [
       "co-trimoxazole",
       "SMZ-TMP",
-      "复方新诺明",
       "百炎净"
+    ],
+    "brandNames": [
+      "复方新诺明"
     ]
   },
   "多佐胺": {
@@ -1792,7 +1999,9 @@
   },
   "多奈哌齐": {
     "aliases": [
-      "donepezil",
+      "donepezil"
+    ],
+    "brandNames": [
       "安理申"
     ]
   },
@@ -1828,28 +2037,33 @@
   },
   "多潘立酮": {
     "aliases": [
-      "domperidone",
+      "domperidone"
+    ],
+    "brandNames": [
       "吗丁啉"
     ]
   },
   "多烯磷脂酰胆碱": {
     "aliases": [
-      "polyene phosphatidylcholine",
+      "polyene phosphatidylcholine"
+    ],
+    "brandNames": [
       "易善复"
     ]
   },
   "多粘菌素B": {
     "aliases": [
-      "polymyxin B"
-    ],
-    "brandNames": [
+      "polymyxin B",
       "多粘菌素B注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "多西他赛": {
     "aliases": [
       "docetaxel",
-      "多西紫杉醇",
+      "多西紫杉醇"
+    ],
+    "brandNames": [
       "泰索帝"
     ]
   },
@@ -1879,15 +2093,19 @@
   },
   "头孢丙烯": {
     "aliases": [
-      "cefprozil",
+      "cefprozil"
+    ],
+    "brandNames": [
       "施复捷"
     ]
   },
   "头孢他啶": {
     "aliases": [
       "ceftazidime",
-      "复达欣",
       "头孢他啶钠"
+    ],
+    "brandNames": [
+      "复达欣"
     ]
   },
   "头孢克洛": {
@@ -1898,47 +2116,61 @@
   },
   "头孢克肟": {
     "aliases": [
-      "cefixime",
+      "cefixime"
+    ],
+    "brandNames": [
       "世福素"
     ]
   },
   "头孢吡肟": {
     "aliases": [
       "cefepime",
-      "马斯平",
       "头孢吡肟钠"
+    ],
+    "brandNames": [
+      "马斯平"
     ]
   },
   "头孢呋辛": {
     "aliases": [
-      "cefuroxime",
+      "cefuroxime"
+    ],
+    "brandNames": [
       "西力欣"
     ]
   },
   "头孢哌酮": {
     "aliases": [
       "cefoperazone",
-      "头孢哌酮钠",
+      "头孢哌酮钠"
+    ],
+    "brandNames": [
       "先锋必"
     ]
   },
   "头孢唑林": {
     "aliases": [
       "cefazolin",
-      "头孢唑林钠",
+      "头孢唑林钠"
+    ],
+    "brandNames": [
       "先锋霉素V"
     ]
   },
   "头孢噻肟": {
     "aliases": [
       "cefotaxime",
-      "头孢噻肟钠",
+      "头孢噻肟钠"
+    ],
+    "brandNames": [
       "凯福隆"
     ]
   },
   "头孢地尼": {
     "aliases": [
-      "cefdinir",
+      "cefdinir"
+    ],
+    "brandNames": [
       "世扶尼"
     ]
   },
@@ -1952,8 +2184,10 @@
   "头孢曲松": {
     "aliases": [
       "ceftriaxone",
-      "罗氏芬",
       "头孢曲松钠"
+    ],
+    "brandNames": [
+      "罗氏芬"
     ]
   },
   "头孢氨苄": {
@@ -1966,7 +2200,9 @@
   "头孢泊肟": {
     "aliases": [
       "cefpodoxime",
-      "头孢泊肟酯",
+      "头孢泊肟酯"
+    ],
+    "brandNames": [
       "搏拿"
     ]
   },
@@ -2010,11 +2246,10 @@
   },
   "奋乃静": {
     "aliases": [
-      "perphenazine"
-    ],
-    "brandNames": [
+      "perphenazine",
       "奋乃静片"
-    ]
+    ],
+    "brandNames": []
   },
   "奎宁": {
     "aliases": [
@@ -2030,27 +2265,35 @@
   },
   "奥利司他": {
     "aliases": [
-      "orlistat",
+      "orlistat"
+    ],
+    "brandNames": [
       "赛尼可",
       "舒尔佳"
     ]
   },
   "奥卡西平": {
     "aliases": [
-      "oxcarbazepine",
+      "oxcarbazepine"
+    ],
+    "brandNames": [
       "曲莱"
     ]
   },
   "奥司他韦": {
     "aliases": [
       "oseltamivir",
-      "达菲",
       "磷酸奥司他韦"
+    ],
+    "brandNames": [
+      "达菲"
     ]
   },
   "奥布卡因": {
     "aliases": [
-      "oxybuprocaine",
+      "oxybuprocaine"
+    ],
+    "brandNames": [
       "倍诺喜"
     ]
   },
@@ -2064,13 +2307,17 @@
   },
   "奥希替尼": {
     "aliases": [
-      "osimertinib",
+      "osimertinib"
+    ],
+    "brandNames": [
       "泰瑞沙"
     ]
   },
   "奥拉西坦": {
     "aliases": [
-      "oxiracetam",
+      "oxiracetam"
+    ],
+    "brandNames": [
       "欣可来"
     ]
   },
@@ -2082,26 +2329,34 @@
   },
   "奥曲肽": {
     "aliases": [
-      "octreotide",
+      "octreotide"
+    ],
+    "brandNames": [
       "善宁"
     ]
   },
   "奥替溴铵": {
     "aliases": [
-      "otilonium bromide",
+      "otilonium bromide"
+    ],
+    "brandNames": [
       "斯巴敏"
     ]
   },
   "奥氮平": {
     "aliases": [
-      "olanzapine",
+      "olanzapine"
+    ],
+    "brandNames": [
       "再普乐"
     ]
   },
   "奥沙利铂": {
     "aliases": [
       "oxaliplatin",
-      "L-OHP",
+      "L-OHP"
+    ],
+    "brandNames": [
       "乐沙定"
     ]
   },
@@ -2121,7 +2376,9 @@
   },
   "奥美拉唑": {
     "aliases": [
-      "omeprazole",
+      "omeprazole"
+    ],
+    "brandNames": [
       "洛赛克"
     ]
   },
@@ -2140,7 +2397,9 @@
   },
   "奥马珠单抗": {
     "aliases": [
-      "omalizumab",
+      "omalizumab"
+    ],
+    "brandNames": [
       "茁乐"
     ]
   },
@@ -2153,19 +2412,25 @@
   "孟鲁司特": {
     "aliases": [
       "montelukast",
-      "顺尔宁",
       "孟鲁司特钠"
+    ],
+    "brandNames": [
+      "顺尔宁"
     ]
   },
   "安立生坦": {
     "aliases": [
-      "ambrisentan",
+      "ambrisentan"
+    ],
+    "brandNames": [
       "凡瑞克"
     ]
   },
   "安非他酮": {
     "aliases": [
-      "bupropion",
+      "bupropion"
+    ],
+    "brandNames": [
       "悦亭"
     ]
   },
@@ -2191,19 +2456,25 @@
   },
   "尼卡地平": {
     "aliases": [
-      "nicardipine",
+      "nicardipine"
+    ],
+    "brandNames": [
       "佩尔地平"
     ]
   },
   "尼可地尔": {
     "aliases": [
-      "nicorandil",
+      "nicorandil"
+    ],
+    "brandNames": [
       "喜格迈"
     ]
   },
   "尼尔雌醇": {
     "aliases": [
-      "nilestriol",
+      "nilestriol"
+    ],
+    "brandNames": [
       "维尼安"
     ]
   },
@@ -2241,13 +2512,17 @@
   },
   "尼莫地平": {
     "aliases": [
-      "nimodipine",
+      "nimodipine"
+    ],
+    "brandNames": [
       "尼莫通"
     ]
   },
   "尼麦角林": {
     "aliases": [
-      "nicergoline",
+      "nicergoline"
+    ],
+    "brandNames": [
       "思尔明"
     ]
   },
@@ -2283,7 +2558,9 @@
   },
   "左乙拉西坦": {
     "aliases": [
-      "levetiracetam",
+      "levetiracetam"
+    ],
+    "brandNames": [
       "开浦兰"
     ]
   },
@@ -2300,22 +2577,28 @@
   },
   "左氧氟沙星": {
     "aliases": [
-      "levofloxacin",
+      "levofloxacin"
+    ],
+    "brandNames": [
       "可乐必妥"
     ]
   },
   "左炔诺孕酮": {
     "aliases": [
       "levonorgestrel",
-      "LNG",
+      "LNG"
+    ],
+    "brandNames": [
       "毓婷"
     ]
   },
   "左甲状腺素": {
     "aliases": [
       "levothyroxine",
-      "优甲乐",
       "左甲状腺素钠"
+    ],
+    "brandNames": [
+      "优甲乐"
     ]
   },
   "左西孟旦": {
@@ -2338,7 +2621,9 @@
   },
   "巴利昔单抗": {
     "aliases": [
-      "basiliximab",
+      "basiliximab"
+    ],
+    "brandNames": [
       "舒莱"
     ]
   },
@@ -2355,33 +2640,43 @@
   },
   "巴瑞替尼": {
     "aliases": [
-      "baricitinib",
+      "baricitinib"
+    ],
+    "brandNames": [
       "艾乐明"
     ]
   },
   "布地奈德": {
     "aliases": [
       "budesonide",
-      "普米克",
+      "普米克"
+    ],
+    "brandNames": [
       "雷诺考特"
     ]
   },
   "布托啡诺": {
     "aliases": [
-      "butorphanol",
+      "butorphanol"
+    ],
+    "brandNames": [
       "诺扬"
     ]
   },
   "布林佐胺": {
     "aliases": [
-      "brinzolamide",
+      "brinzolamide"
+    ],
+    "brandNames": [
       "派立明"
     ]
   },
   "布比卡因": {
     "aliases": [
       "bupivacaine",
-      "丁吡卡因",
+      "丁吡卡因"
+    ],
+    "brandNames": [
       "麻卡因"
     ]
   },
@@ -2389,7 +2684,9 @@
     "aliases": [
       "ibuprofen",
       "异丁苯丙酸",
-      "异丁洛芬",
+      "异丁洛芬"
+    ],
+    "brandNames": [
       "芬必得"
     ]
   },
@@ -2401,20 +2698,26 @@
   },
   "帕利哌酮": {
     "aliases": [
-      "paliperidone",
+      "paliperidone"
+    ],
+    "brandNames": [
       "芮达"
     ]
   },
   "帕博利珠单抗": {
     "aliases": [
       "pembrolizumab",
-      "可瑞达",
       "K药"
+    ],
+    "brandNames": [
+      "可瑞达"
     ]
   },
   "帕尼单抗": {
     "aliases": [
-      "panitumumab",
+      "panitumumab"
+    ],
+    "brandNames": [
       "维克替比"
     ]
   },
@@ -2431,15 +2734,19 @@
   },
   "帕立骨化醇": {
     "aliases": [
-      "paricalcitol",
+      "paricalcitol"
+    ],
+    "brandNames": [
       "胜普乐"
     ]
   },
   "帕罗西汀": {
     "aliases": [
       "paroxetine",
-      "赛乐特",
       "Paxil"
+    ],
+    "brandNames": [
+      "赛乐特"
     ]
   },
   "庆大霉素": {
@@ -2462,21 +2769,27 @@
   },
   "度拉糖肽": {
     "aliases": [
-      "dulaglutide",
+      "dulaglutide"
+    ],
+    "brandNames": [
       "度易达"
     ]
   },
   "度普利尤单抗": {
     "aliases": [
-      "dupilumab",
+      "dupilumab"
+    ],
+    "brandNames": [
       "达必妥"
     ]
   },
   "度洛西汀": {
     "aliases": [
       "duloxetine",
-      "欣百达",
       "Cymbalta"
+    ],
+    "brandNames": [
+      "欣百达"
     ]
   },
   "度骨化醇": {
@@ -2493,7 +2806,9 @@
   },
   "异丙托溴铵": {
     "aliases": [
-      "ipratropium",
+      "ipratropium"
+    ],
+    "brandNames": [
       "爱全乐"
     ]
   },
@@ -2533,20 +2848,26 @@
   },
   "异甘草酸镁": {
     "aliases": [
-      "magnesium isoglycyrrhizinate",
+      "magnesium isoglycyrrhizinate"
+    ],
+    "brandNames": [
       "天晴甘美"
     ]
   },
   "异维A酸": {
     "aliases": [
       "isotretinoin",
-      "泰尔丝",
       "13-顺维A酸"
+    ],
+    "brandNames": [
+      "泰尔丝"
     ]
   },
   "德谷胰岛素": {
     "aliases": [
-      "insulin degludec",
+      "insulin degludec"
+    ],
+    "brandNames": [
       "诺和达"
     ]
   },
@@ -2559,21 +2880,24 @@
   "恩曲他滨": {
     "aliases": [
       "emtricitabine",
-      "FTC"
-    ],
-    "brandNames": [
+      "FTC",
       "恩曲他滨胶囊"
-    ]
+    ],
+    "brandNames": []
   },
   "恩曲替尼": {
     "aliases": [
-      "entrectinib",
+      "entrectinib"
+    ],
+    "brandNames": [
       "罗圣全"
     ]
   },
   "恩替卡韦": {
     "aliases": [
-      "entecavir",
+      "entecavir"
+    ],
+    "brandNames": [
       "博路定"
     ]
   },
@@ -2597,13 +2921,17 @@
   },
   "戈利木单抗": {
     "aliases": [
-      "golimumab",
+      "golimumab"
+    ],
+    "brandNames": [
       "欣普尼"
     ]
   },
   "戈舍瑞林": {
     "aliases": [
-      "goserelin",
+      "goserelin"
+    ],
+    "brandNames": [
       "诺雷德"
     ]
   },
@@ -2615,7 +2943,9 @@
   },
   "戊酸雌二醇": {
     "aliases": [
-      "estradiol valerate",
+      "estradiol valerate"
+    ],
+    "brandNames": [
       "补佳乐"
     ]
   },
@@ -2629,13 +2959,17 @@
   },
   "扎那米韦": {
     "aliases": [
-      "zanamivir",
+      "zanamivir"
+    ],
+    "brandNames": [
       "乐感清"
     ]
   },
   "扎鲁司特": {
     "aliases": [
-      "zafirlukast",
+      "zafirlukast"
+    ],
+    "brandNames": [
       "安可来"
     ]
   },
@@ -2653,20 +2987,26 @@
   },
   "托吡卡胺": {
     "aliases": [
-      "tropicamide",
+      "tropicamide"
+    ],
+    "brandNames": [
       "美多丽"
     ]
   },
   "托吡酯": {
     "aliases": [
-      "topiramate",
+      "topiramate"
+    ],
+    "brandNames": [
       "妥泰"
     ]
   },
   "托拉塞米": {
     "aliases": [
       "torasemide",
-      "torsemide",
+      "torsemide"
+    ],
+    "brandNames": [
       "特苏尼"
     ]
   },
@@ -2686,13 +3026,17 @@
   },
   "托珠单抗": {
     "aliases": [
-      "tocilizumab",
+      "tocilizumab"
+    ],
+    "brandNames": [
       "雅美罗"
     ]
   },
   "托莫西汀": {
     "aliases": [
-      "atomoxetine",
+      "atomoxetine"
+    ],
+    "brandNames": [
       "择思达"
     ]
   },
@@ -2704,7 +3048,9 @@
   },
   "拉坦前列素": {
     "aliases": [
-      "latanoprost",
+      "latanoprost"
+    ],
+    "brandNames": [
       "适利达"
     ]
   },
@@ -2728,7 +3074,9 @@
   },
   "拉西地平": {
     "aliases": [
-      "lacidipine",
+      "lacidipine"
+    ],
+    "brandNames": [
       "乐息平"
     ]
   },
@@ -2741,21 +3089,24 @@
   "文拉法辛": {
     "aliases": [
       "venlafaxine",
-      "怡诺思",
       "Effexor"
+    ],
+    "brandNames": [
+      "怡诺思"
     ]
   },
   "新斯的明": {
     "aliases": [
-      "neostigmine"
-    ],
-    "brandNames": [
+      "neostigmine",
       "新斯的明注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "昂丹司琼": {
     "aliases": [
-      "ondansetron",
+      "ondansetron"
+    ],
+    "brandNames": [
       "枢复宁"
     ]
   },
@@ -2785,26 +3136,34 @@
   },
   "普瑞巴林": {
     "aliases": [
-      "pregabalin",
+      "pregabalin"
+    ],
+    "brandNames": [
       "乐瑞卡"
     ]
   },
   "普罗帕酮": {
     "aliases": [
       "propafenone",
-      "心律平",
       "悦复隆"
+    ],
+    "brandNames": [
+      "心律平"
     ]
   },
   "普芦卡必利": {
     "aliases": [
-      "prucalopride",
+      "prucalopride"
+    ],
+    "brandNames": [
       "力洛"
     ]
   },
   "普萘洛尔": {
     "aliases": [
-      "propranolol",
+      "propranolol"
+    ],
+    "brandNames": [
       "心得安"
     ]
   },
@@ -2817,19 +3176,25 @@
   "曲唑酮": {
     "aliases": [
       "trazodone",
-      "美抒玉",
       "盐酸曲唑酮"
+    ],
+    "brandNames": [
+      "美抒玉"
     ]
   },
   "曲妥珠单抗": {
     "aliases": [
-      "trastuzumab",
+      "trastuzumab"
+    ],
+    "brandNames": [
       "赫赛汀"
     ]
   },
   "曲安奈德": {
     "aliases": [
-      "triamcinolone acetonide",
+      "triamcinolone acetonide"
+    ],
+    "brandNames": [
       "曲安缩松",
       "康宁克通"
     ]
@@ -2845,13 +3210,17 @@
   "曲美他嗪": {
     "aliases": [
       "trimetazidine",
-      "万爽力",
       "盐酸曲美他嗪"
+    ],
+    "brandNames": [
+      "万爽力"
     ]
   },
   "曲美替尼": {
     "aliases": [
-      "trametinib",
+      "trametinib"
+    ],
+    "brandNames": [
       "迈吉宁"
     ]
   },
@@ -2882,31 +3251,41 @@
   },
   "替勃龙": {
     "aliases": [
-      "tibolone",
+      "tibolone"
+    ],
+    "brandNames": [
       "利维爱"
     ]
   },
   "替扎尼定": {
     "aliases": [
-      "tizanidine",
+      "tizanidine"
+    ],
+    "brandNames": [
       "松得乐"
     ]
   },
   "替普瑞酮": {
     "aliases": [
-      "teprenone",
+      "teprenone"
+    ],
+    "brandNames": [
       "施维舒"
     ]
   },
   "替格瑞洛": {
     "aliases": [
-      "ticagrelor",
+      "ticagrelor"
+    ],
+    "brandNames": [
       "倍林达"
     ]
   },
   "替比夫定": {
     "aliases": [
-      "telbivudine",
+      "telbivudine"
+    ],
+    "brandNames": [
       "素比伏"
     ]
   },
@@ -2934,7 +3313,9 @@
   "替诺福韦": {
     "aliases": [
       "tenofovir",
-      "富马酸替诺福韦二吡呋酯",
+      "富马酸替诺福韦二吡呋酯"
+    ],
+    "brandNames": [
       "韦瑞德"
     ]
   },
@@ -2948,19 +3329,25 @@
   },
   "来曲唑": {
     "aliases": [
-      "letrozole",
+      "letrozole"
+    ],
+    "brandNames": [
       "弗隆"
     ]
   },
   "来氟米特": {
     "aliases": [
-      "leflunomide",
+      "leflunomide"
+    ],
+    "brandNames": [
       "爱若华"
     ]
   },
   "来那度胺": {
     "aliases": [
-      "lenalidomide",
+      "lenalidomide"
+    ],
+    "brandNames": [
       "瑞复美"
     ]
   },
@@ -2986,8 +3373,10 @@
   "枸橼酸铋钾": {
     "aliases": [
       "bismuth potassium citrate",
-      "丽珠得乐",
       "胶体次枸橼酸铋"
+    ],
+    "brandNames": [
+      "丽珠得乐"
     ]
   },
   "柔红霉素": {
@@ -3004,13 +3393,17 @@
   },
   "格列吡嗪": {
     "aliases": [
-      "glipizide",
+      "glipizide"
+    ],
+    "brandNames": [
       "美吡达"
     ]
   },
   "格列本脲": {
     "aliases": [
-      "glibenclamide",
+      "glibenclamide"
+    ],
+    "brandNames": [
       "优降糖"
     ]
   },
@@ -3022,13 +3415,17 @@
   },
   "格列齐特": {
     "aliases": [
-      "gliclazide",
+      "gliclazide"
+    ],
+    "brandNames": [
       "达美康"
     ]
   },
   "格拉司琼": {
     "aliases": [
-      "granisetron",
+      "granisetron"
+    ],
+    "brandNames": [
       "凯特瑞"
     ]
   },
@@ -3040,13 +3437,17 @@
   },
   "桂利嗪": {
     "aliases": [
-      "cinnarizine",
+      "cinnarizine"
+    ],
+    "brandNames": [
       "脑益嗪"
     ]
   },
   "比卡鲁胺": {
     "aliases": [
-      "bicalutamide",
+      "bicalutamide"
+    ],
+    "brandNames": [
       "康士得"
     ]
   },
@@ -3059,8 +3460,10 @@
   "比索洛尔": {
     "aliases": [
       "bisoprolol",
-      "康忻",
       "富马酸比索洛尔"
+    ],
+    "brandNames": [
+      "康忻"
     ]
   },
   "毛果芸香碱": {
@@ -3078,8 +3481,10 @@
   "氟伐他汀": {
     "aliases": [
       "fluvastatin",
-      "来适可",
       "氟伐他汀钠"
+    ],
+    "brandNames": [
+      "来适可"
     ]
   },
   "氟卡尼": {
@@ -3102,7 +3507,9 @@
   },
   "氟康唑": {
     "aliases": [
-      "fluconazole",
+      "fluconazole"
+    ],
+    "brandNames": [
       "大扶康"
     ]
   },
@@ -3115,7 +3522,9 @@
   },
   "氟桂利嗪": {
     "aliases": [
-      "flunarizine",
+      "flunarizine"
+    ],
+    "brandNames": [
       "西比灵"
     ]
   },
@@ -3128,13 +3537,17 @@
   "氟米龙": {
     "aliases": [
       "fluorometholone",
-      "氟美瞳",
       "艾氟龙"
+    ],
+    "brandNames": [
+      "氟美瞳"
     ]
   },
   "氟维司群": {
     "aliases": [
-      "fulvestrant",
+      "fulvestrant"
+    ],
+    "brandNames": [
       "芙仕得"
     ]
   },
@@ -3147,8 +3560,10 @@
   "氟西汀": {
     "aliases": [
       "fluoxetine",
-      "百忧解",
       "Prozac"
+    ],
+    "brandNames": [
+      "百忧解"
     ]
   },
   "氟西泮": {
@@ -3201,7 +3616,9 @@
   "氧氟沙星": {
     "aliases": [
       "ofloxacin",
-      "氟嗪酸",
+      "氟嗪酸"
+    ],
+    "brandNames": [
       "泰利必妥"
     ]
   },
@@ -3218,7 +3635,9 @@
   },
   "氨基葡萄糖": {
     "aliases": [
-      "glucosamine",
+      "glucosamine"
+    ],
+    "brandNames": [
       "维骨力"
     ]
   },
@@ -3238,26 +3657,34 @@
   "氨氯地平": {
     "aliases": [
       "amlodipine",
-      "苯磺酸氨氯地平",
+      "苯磺酸氨氯地平"
+    ],
+    "brandNames": [
       "络活喜"
     ]
   },
   "氨氯地平/阿托伐他汀": {
     "aliases": [
-      "amlodipine/atorvastatin",
+      "amlodipine/atorvastatin"
+    ],
+    "brandNames": [
       "多达一"
     ]
   },
   "氨溴索": {
     "aliases": [
       "ambroxol",
-      "盐酸氨溴索",
+      "盐酸氨溴索"
+    ],
+    "brandNames": [
       "沐舒坦"
     ]
   },
   "氨甲环酸": {
     "aliases": [
-      "tranexamic acid",
+      "tranexamic acid"
+    ],
+    "brandNames": [
       "妥塞敏"
     ]
   },
@@ -3300,7 +3727,9 @@
   "氯吡格雷": {
     "aliases": [
       "clopidogrel",
-      "硫酸氢氯吡格雷",
+      "硫酸氢氯吡格雷"
+    ],
+    "brandNames": [
       "波立维"
     ]
   },
@@ -3326,11 +3755,10 @@
   },
   "氯巴占": {
     "aliases": [
-      "clobazam"
-    ],
-    "brandNames": [
+      "clobazam",
       "氯巴占片"
-    ]
+    ],
+    "brandNames": []
   },
   "氯普噻吨": {
     "aliases": [
@@ -3342,13 +3770,17 @@
   },
   "氯氮平": {
     "aliases": [
-      "clozapine",
+      "clozapine"
+    ],
+    "brandNames": [
       "氯扎平"
     ]
   },
   "氯沙坦": {
     "aliases": [
-      "losartan",
+      "losartan"
+    ],
+    "brandNames": [
       "科素亚"
     ]
   },
@@ -3360,14 +3792,18 @@
   },
   "氯硝西泮": {
     "aliases": [
-      "clonazepam",
+      "clonazepam"
+    ],
+    "brandNames": [
       "氯硝安定"
     ]
   },
   "氯米帕明": {
     "aliases": [
       "clomipramine",
-      "氯丙咪嗪",
+      "氯丙咪嗪"
+    ],
+    "brandNames": [
       "安拿芬尼"
     ]
   },
@@ -3380,30 +3816,35 @@
   },
   "氯胺酮": {
     "aliases": [
-      "ketamine",
+      "ketamine"
+    ],
+    "brandNames": [
       "凯他敏"
     ]
   },
   "氯苯那敏": {
     "aliases": [
       "chlorphenamine",
-      "扑尔敏",
       "马来酸氯苯那敏"
+    ],
+    "brandNames": [
+      "扑尔敏"
     ]
   },
   "氯贝丁酯": {
     "aliases": [
-      "clofibrate"
-    ],
-    "brandNames": [
+      "clofibrate",
       "氯贝丁酯胶囊"
-    ]
+    ],
+    "brandNames": []
   },
   "氯雷他定": {
     "aliases": [
       "loratadine",
-      "开瑞坦",
       "氯雷他定片"
+    ],
+    "brandNames": [
+      "开瑞坦"
     ]
   },
   "氯霉素": {
@@ -3425,16 +3866,20 @@
   },
   "水飞蓟宾": {
     "aliases": [
-      "silybin",
+      "silybin"
+    ],
+    "brandNames": [
       "利加隆"
     ]
   },
   "沙丁胺醇": {
     "aliases": [
       "salbutamol",
-      "albuterol",
-      "万托林",
-      "舒喘灵"
+      "albuterol"
+    ],
+    "brandNames": [
+      "舒喘灵",
+      "万托林"
     ]
   },
   "沙利度胺": {
@@ -3445,13 +3890,17 @@
   },
   "沙格列汀": {
     "aliases": [
-      "saxagliptin",
+      "saxagliptin"
+    ],
+    "brandNames": [
       "安立泽"
     ]
   },
   "泊沙康唑": {
     "aliases": [
-      "posaconazole",
+      "posaconazole"
+    ],
+    "brandNames": [
       "诺科飞"
     ]
   },
@@ -3463,13 +3912,17 @@
   },
   "法莫替丁": {
     "aliases": [
-      "famotidine",
+      "famotidine"
+    ],
+    "brandNames": [
       "高舒达"
     ]
   },
   "泛昔洛韦": {
     "aliases": [
-      "famciclovir",
+      "famciclovir"
+    ],
+    "brandNames": [
       "泛维尔"
     ]
   },
@@ -3481,7 +3934,9 @@
   },
   "波生坦": {
     "aliases": [
-      "bosentan",
+      "bosentan"
+    ],
+    "brandNames": [
       "全可利"
     ]
   },
@@ -3511,7 +3966,9 @@
   },
   "洛哌丁胺": {
     "aliases": [
-      "loperamide",
+      "loperamide"
+    ],
+    "brandNames": [
       "易蒙停"
     ]
   },
@@ -3543,7 +4000,9 @@
   },
   "溴西泮": {
     "aliases": [
-      "bromazepam",
+      "bromazepam"
+    ],
+    "brandNames": [
       "宁神定"
     ]
   },
@@ -3580,11 +4039,10 @@
   },
   "烟酸肌醇酯": {
     "aliases": [
-      "inositol nicotinate"
-    ],
-    "brandNames": [
+      "inositol nicotinate",
       "烟酸肌醇酯片"
-    ]
+    ],
+    "brandNames": []
   },
   "煤焦油": {
     "aliases": [
@@ -3594,13 +4052,17 @@
   "熊去氧胆酸": {
     "aliases": [
       "ursodeoxycholic acid",
-      "UDCA",
+      "UDCA"
+    ],
+    "brandNames": [
       "优思弗"
     ]
   },
   "特利加压素": {
     "aliases": [
-      "terlipressin",
+      "terlipressin"
+    ],
+    "brandNames": [
       "可利新"
     ]
   },
@@ -3612,22 +4074,28 @@
   "特布他林": {
     "aliases": [
       "terbutaline",
-      "博利康尼",
       "硫酸特布他林"
+    ],
+    "brandNames": [
+      "博利康尼"
     ]
   },
   "特拉唑嗪": {
     "aliases": [
       "terazosin",
-      "高特灵",
       "盐酸特拉唑嗪"
+    ],
+    "brandNames": [
+      "高特灵"
     ]
   },
   "特比萘芬": {
     "aliases": [
       "terbinafine",
-      "兰美抒",
       "盐酸特比萘芬"
+    ],
+    "brandNames": [
+      "兰美抒"
     ]
   },
   "特瑞普利单抗": {
@@ -3640,7 +4108,9 @@
   },
   "特立帕肽": {
     "aliases": [
-      "teriparatide",
+      "teriparatide"
+    ],
+    "brandNames": [
       "复泰奥"
     ]
   },
@@ -3668,7 +4138,9 @@
   "环孢素": {
     "aliases": [
       "ciclosporin",
-      "cyclosporine",
+      "cyclosporine"
+    ],
+    "brandNames": [
       "新山地明",
       "田可"
     ]
@@ -3694,7 +4166,9 @@
   "玻璃酸钠": {
     "aliases": [
       "sodium hyaluronate",
-      "透明质酸钠",
+      "透明质酸钠"
+    ],
+    "brandNames": [
       "爱丽"
     ]
   },
@@ -3706,40 +4180,49 @@
   },
   "琥珀酸亚铁": {
     "aliases": [
-      "ferrous succinate",
+      "ferrous succinate"
+    ],
+    "brandNames": [
       "速力菲"
     ]
   },
   "瑞巴派特": {
     "aliases": [
-      "rebamipide",
+      "rebamipide"
+    ],
+    "brandNames": [
       "膜固思达"
     ]
   },
   "瑞替普酶": {
     "aliases": [
-      "reteplase"
-    ],
-    "brandNames": [
+      "reteplase",
       "瑞替普酶注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "瑞格列奈": {
     "aliases": [
-      "repaglinide",
+      "repaglinide"
+    ],
+    "brandNames": [
       "诺和龙"
     ]
   },
   "瑞舒伐他汀": {
     "aliases": [
       "rosuvastatin",
-      "瑞舒伐他汀钙",
+      "瑞舒伐他汀钙"
+    ],
+    "brandNames": [
       "可定"
     ]
   },
   "甘精胰岛素": {
     "aliases": [
-      "insulin glargine",
+      "insulin glargine"
+    ],
+    "brandNames": [
       "来得时",
       "长秀霖"
     ]
@@ -3757,7 +4240,9 @@
   },
   "生长抑素": {
     "aliases": [
-      "somatostatin",
+      "somatostatin"
+    ],
+    "brandNames": [
       "思他宁"
     ]
   },
@@ -3770,7 +4255,9 @@
   "甲巯咪唑": {
     "aliases": [
       "thiamazole",
-      "methimazole",
+      "methimazole"
+    ],
+    "brandNames": [
       "赛治",
       "他巴唑"
     ]
@@ -3783,8 +4270,10 @@
   "甲氧氯普胺": {
     "aliases": [
       "metoclopramide",
-      "胃复安",
       "灭吐灵"
+    ],
+    "brandNames": [
+      "胃复安"
     ]
   },
   "甲氧苄啶": {
@@ -3803,13 +4292,17 @@
   "甲泼尼龙": {
     "aliases": [
       "methylprednisolone",
-      "美卓乐",
       "甲基强的松龙"
+    ],
+    "brandNames": [
+      "美卓乐"
     ]
   },
   "甲硝唑": {
     "aliases": [
-      "metronidazole",
+      "metronidazole"
+    ],
+    "brandNames": [
       "灭滴灵"
     ]
   },
@@ -3829,7 +4322,9 @@
   },
   "甲钴胺": {
     "aliases": [
-      "mecobalamin",
+      "mecobalamin"
+    ],
+    "brandNames": [
       "弥可保"
     ]
   },
@@ -3851,7 +4346,9 @@
   },
   "石杉碱甲": {
     "aliases": [
-      "huperzine A",
+      "huperzine A"
+    ],
+    "brandNames": [
       "双益平"
     ]
   },
@@ -3864,30 +4361,35 @@
   "硝普钠": {
     "aliases": [
       "sodium nitroprusside",
-      "nitroprusside"
-    ],
-    "brandNames": [
+      "nitroprusside",
       "硝普钠注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "硝苯地平": {
     "aliases": [
       "nifedipine",
-      "拜新同",
       "心痛定",
       "硝苯地平控释片"
+    ],
+    "brandNames": [
+      "拜新同"
     ]
   },
   "硝西泮": {
     "aliases": [
-      "nitrazepam",
+      "nitrazepam"
+    ],
+    "brandNames": [
       "硝基安定"
     ]
   },
   "硝酸异山梨酯": {
     "aliases": [
       "isosorbide dinitrate",
-      "消心痛",
+      "消心痛"
+    ],
+    "brandNames": [
       "异舒吉"
     ]
   },
@@ -3901,7 +4403,9 @@
   },
   "硫唑嘌呤": {
     "aliases": [
-      "azathioprine",
+      "azathioprine"
+    ],
+    "brandNames": [
       "依木兰"
     ]
   },
@@ -3913,7 +4417,9 @@
   },
   "硫糖铝": {
     "aliases": [
-      "sucralfate",
+      "sucralfate"
+    ],
+    "brandNames": [
       "迪先"
     ]
   },
@@ -3940,13 +4446,17 @@
   },
   "硼替佐米": {
     "aliases": [
-      "bortezomib",
+      "bortezomib"
+    ],
+    "brandNames": [
       "万珂"
     ]
   },
   "碘佛醇": {
     "aliases": [
-      "ioversol",
+      "ioversol"
+    ],
+    "brandNames": [
       "安射力"
     ]
   },
@@ -3964,7 +4474,9 @@
   },
   "碘普罗胺": {
     "aliases": [
-      "iopromide",
+      "iopromide"
+    ],
+    "brandNames": [
       "优维显"
     ]
   },
@@ -3994,7 +4506,9 @@
   },
   "磷霉素": {
     "aliases": [
-      "fosfomycin",
+      "fosfomycin"
+    ],
+    "brandNames": [
       "复美欣"
     ]
   },
@@ -4015,13 +4529,17 @@
   "福莫特罗": {
     "aliases": [
       "formoterol",
-      "富马酸福莫特罗",
+      "富马酸福莫特罗"
+    ],
+    "brandNames": [
       "奥克斯都保"
     ]
   },
   "福辛普利": {
     "aliases": [
-      "fosinopril",
+      "fosinopril"
+    ],
+    "brandNames": [
       "蒙诺"
     ]
   },
@@ -4033,13 +4551,17 @@
   },
   "米力农": {
     "aliases": [
-      "milrinone",
+      "milrinone"
+    ],
+    "brandNames": [
       "鲁南力康"
     ]
   },
   "米卡芬净": {
     "aliases": [
-      "micafungin",
+      "micafungin"
+    ],
+    "brandNames": [
       "米开民"
     ]
   },
@@ -4051,7 +4573,9 @@
   },
   "米拉贝隆": {
     "aliases": [
-      "mirabegron",
+      "mirabegron"
+    ],
+    "brandNames": [
       "贝坦利"
     ]
   },
@@ -4065,19 +4589,25 @@
   },
   "米氮平": {
     "aliases": [
-      "mirtazapine",
+      "mirtazapine"
+    ],
+    "brandNames": [
       "瑞美隆"
     ]
   },
   "米索前列醇": {
     "aliases": [
-      "misoprostol",
+      "misoprostol"
+    ],
+    "brandNames": [
       "喜克溃"
     ]
   },
   "米诺地尔": {
     "aliases": [
-      "minoxidil",
+      "minoxidil"
+    ],
+    "brandNames": [
       "落健",
       "蔓迪"
     ]
@@ -4089,32 +4619,42 @@
   },
   "米非司酮": {
     "aliases": [
-      "mifepristone",
+      "mifepristone"
+    ],
+    "brandNames": [
       "息隐"
     ]
   },
   "索他洛尔": {
     "aliases": [
       "sotalol",
-      "盐酸索他洛尔",
+      "盐酸索他洛尔"
+    ],
+    "brandNames": [
       "施太可"
     ]
   },
   "索利那新": {
     "aliases": [
-      "solifenacin",
+      "solifenacin"
+    ],
+    "brandNames": [
       "卫喜康"
     ]
   },
   "索拉非尼": {
     "aliases": [
-      "sorafenib",
+      "sorafenib"
+    ],
+    "brandNames": [
       "多吉美"
     ]
   },
   "索磷布韦": {
     "aliases": [
-      "sofosbuvir",
+      "sofosbuvir"
+    ],
+    "brandNames": [
       "索华迪"
     ]
   },
@@ -4143,7 +4683,9 @@
   },
   "结合雌激素": {
     "aliases": [
-      "conjugated estrogens",
+      "conjugated estrogens"
+    ],
+    "brandNames": [
       "倍美力"
     ]
   },
@@ -4156,25 +4698,33 @@
   },
   "维奈克拉": {
     "aliases": [
-      "venetoclax",
+      "venetoclax"
+    ],
+    "brandNames": [
       "唯可来"
     ]
   },
   "维库溴铵": {
     "aliases": [
-      "vecuronium",
+      "vecuronium"
+    ],
+    "brandNames": [
       "万可松"
     ]
   },
   "维拉帕米": {
     "aliases": [
-      "verapamil",
+      "verapamil"
+    ],
+    "brandNames": [
       "异搏定"
     ]
   },
   "维格列汀": {
     "aliases": [
-      "vildagliptin",
+      "vildagliptin"
+    ],
+    "brandNames": [
       "佳维乐"
     ]
   },
@@ -4243,13 +4793,17 @@
   },
   "维莫非尼": {
     "aliases": [
-      "vemurafenib",
+      "vemurafenib"
+    ],
+    "brandNames": [
       "佐博伏"
     ]
   },
   "缬沙坦": {
     "aliases": [
-      "valsartan",
+      "valsartan"
+    ],
+    "brandNames": [
       "代文"
     ]
   },
@@ -4266,25 +4820,33 @@
   },
   "罗哌卡因": {
     "aliases": [
-      "ropivacaine",
+      "ropivacaine"
+    ],
+    "brandNames": [
       "耐乐品"
     ]
   },
   "罗库溴铵": {
     "aliases": [
-      "rocuronium",
+      "rocuronium"
+    ],
+    "brandNames": [
       "爱可松"
     ]
   },
   "罗格列酮": {
     "aliases": [
-      "rosiglitazone",
+      "rosiglitazone"
+    ],
+    "brandNames": [
       "文迪雅"
     ]
   },
   "罗沙司他": {
     "aliases": [
-      "roxadustat",
+      "roxadustat"
+    ],
+    "brandNames": [
       "爱瑞卓"
     ]
   },
@@ -4296,7 +4858,9 @@
   },
   "美司钠": {
     "aliases": [
-      "mesna",
+      "mesna"
+    ],
+    "brandNames": [
       "美安"
     ]
   },
@@ -4308,8 +4872,10 @@
   "美托洛尔": {
     "aliases": [
       "metoprolol",
-      "倍他乐克",
       "酒石酸美托洛尔"
+    ],
+    "brandNames": [
+      "倍他乐克"
     ]
   },
   "美替洛尔": {
@@ -4319,7 +4885,9 @@
   },
   "美泊利珠单抗": {
     "aliases": [
-      "mepolizumab",
+      "mepolizumab"
+    ],
+    "brandNames": [
       "新可来"
     ]
   },
@@ -4332,7 +4900,9 @@
   },
   "美洛昔康": {
     "aliases": [
-      "meloxicam",
+      "meloxicam"
+    ],
+    "brandNames": [
       "莫比可"
     ]
   },
@@ -4344,20 +4914,26 @@
   },
   "美罗培南": {
     "aliases": [
-      "meropenem",
+      "meropenem"
+    ],
+    "brandNames": [
       "美平"
     ]
   },
   "美贝维林": {
     "aliases": [
-      "mebeverine",
+      "mebeverine"
+    ],
+    "brandNames": [
       "杜适林"
     ]
   },
   "美金刚": {
     "aliases": [
       "memantine",
-      "盐酸美金刚",
+      "盐酸美金刚"
+    ],
+    "brandNames": [
       "易倍申"
     ]
   },
@@ -4375,28 +4951,33 @@
     "aliases": [
       "hydroxycarbamide",
       "hydroxyurea",
-      "HU"
-    ],
-    "brandNames": [
+      "HU",
       "羟基脲片"
-    ]
+    ],
+    "brandNames": []
   },
   "羟氯喹": {
     "aliases": [
       "hydroxychloroquine",
-      "纷乐",
       "硫酸羟氯喹"
+    ],
+    "brandNames": [
+      "纷乐"
     ]
   },
   "羟甲烯龙": {
     "aliases": [
-      "oxymetholone",
+      "oxymetholone"
+    ],
+    "brandNames": [
       "康复龙"
     ]
   },
   "羟考酮": {
     "aliases": [
-      "oxycodone",
+      "oxycodone"
+    ],
+    "brandNames": [
       "奥施康定"
     ]
   },
@@ -4431,7 +5012,9 @@
   },
   "联苯苄唑": {
     "aliases": [
-      "bifonazole",
+      "bifonazole"
+    ],
+    "brandNames": [
       "美克"
     ]
   },
@@ -4444,7 +5027,9 @@
   },
   "聚乙烯醇": {
     "aliases": [
-      "polyvinyl alcohol",
+      "polyvinyl alcohol"
+    ],
+    "brandNames": [
       "瑞新"
     ]
   },
@@ -4494,14 +5079,18 @@
   },
   "胺碘酮": {
     "aliases": [
-      "amiodarone",
+      "amiodarone"
+    ],
+    "brandNames": [
       "可达龙"
     ]
   },
   "腺苷蛋氨酸": {
     "aliases": [
       "ademetionine",
-      "S-腺苷蛋氨酸",
+      "S-腺苷蛋氨酸"
+    ],
+    "brandNames": [
       "思美泰"
     ]
   },
@@ -4513,33 +5102,40 @@
   "舍曲林": {
     "aliases": [
       "sertraline",
-      "左洛复",
       "Zoloft"
+    ],
+    "brandNames": [
+      "左洛复"
     ]
   },
   "舒尼替尼": {
     "aliases": [
-      "sunitinib",
+      "sunitinib"
+    ],
+    "brandNames": [
       "索坦"
     ]
   },
   "舒必利": {
     "aliases": [
-      "sulpiride"
-    ],
-    "brandNames": [
+      "sulpiride",
       "舒必利片"
-    ]
+    ],
+    "brandNames": []
   },
   "舒马普坦": {
     "aliases": [
-      "sumatriptan",
+      "sumatriptan"
+    ],
+    "brandNames": [
       "英明格"
     ]
   },
   "艾司唑仑": {
     "aliases": [
-      "estazolam",
+      "estazolam"
+    ],
+    "brandNames": [
       "舒乐安定"
     ]
   },
@@ -4552,13 +5148,17 @@
   },
   "艾塞那肽": {
     "aliases": [
-      "exenatide",
+      "exenatide"
+    ],
+    "brandNames": [
       "百泌达"
     ]
   },
   "艾多沙班": {
     "aliases": [
-      "edoxaban",
+      "edoxaban"
+    ],
+    "brandNames": [
       "里先安"
     ]
   },
@@ -4569,13 +5169,17 @@
   },
   "艾普拉唑": {
     "aliases": [
-      "ilaprazole",
+      "ilaprazole"
+    ],
+    "brandNames": [
       "壹丽安"
     ]
   },
   "艾曲泊帕": {
     "aliases": [
-      "eltrombopag",
+      "eltrombopag"
+    ],
+    "brandNames": [
       "瑞弗兰"
     ]
   },
@@ -4592,7 +5196,9 @@
   },
   "苯丁酸氮芥": {
     "aliases": [
-      "chlorambucil",
+      "chlorambucil"
+    ],
+    "brandNames": [
       "留可然"
     ]
   },
@@ -4621,26 +5227,34 @@
   },
   "苯妥英": {
     "aliases": [
-      "phenytoin",
+      "phenytoin"
+    ],
+    "brandNames": [
       "大仑丁"
     ]
   },
   "苯巴比妥": {
     "aliases": [
       "phenobarbital",
-      "鲁米那",
       "phenobarbitone"
+    ],
+    "brandNames": [
+      "鲁米那"
     ]
   },
   "苯扎氯铵": {
     "aliases": [
-      "benzalkonium chloride",
+      "benzalkonium chloride"
+    ],
+    "brandNames": [
       "洁尔灭"
     ]
   },
   "苯扎贝特": {
     "aliases": [
-      "bezafibrate",
+      "bezafibrate"
+    ],
+    "brandNames": [
       "必降脂"
     ]
   },
@@ -4652,7 +5266,9 @@
   },
   "苯海索": {
     "aliases": [
-      "trihexyphenidyl",
+      "trihexyphenidyl"
+    ],
+    "brandNames": [
       "安坦"
     ]
   },
@@ -4664,7 +5280,9 @@
   },
   "茚达特罗": {
     "aliases": [
-      "indacaterol",
+      "indacaterol"
+    ],
+    "brandNames": [
       "昂润"
     ]
   },
@@ -4676,7 +5294,9 @@
   },
   "茴拉西坦": {
     "aliases": [
-      "aniracetam",
+      "aniracetam"
+    ],
+    "brandNames": [
       "三乐喜"
     ]
   },
@@ -4688,7 +5308,9 @@
   },
   "莫匹罗星": {
     "aliases": [
-      "mupirocin",
+      "mupirocin"
+    ],
+    "brandNames": [
       "百多邦"
     ]
   },
@@ -4702,8 +5324,10 @@
   "莫西沙星": {
     "aliases": [
       "moxifloxacin",
-      "拜复乐",
       "盐酸莫西沙星"
+    ],
+    "brandNames": [
+      "拜复乐"
     ]
   },
   "萘普生": {
@@ -4725,8 +5349,10 @@
   "蒙脱石": {
     "aliases": [
       "montmorillonite",
-      "思密达",
       "蒙脱石散"
+    ],
+    "brandNames": [
+      "思密达"
     ]
   },
   "蒿甲醚": {
@@ -4736,7 +5362,9 @@
   },
   "螺内酯": {
     "aliases": [
-      "spironolactone",
+      "spironolactone"
+    ],
+    "brandNames": [
       "安体舒通"
     ]
   },
@@ -4749,20 +5377,26 @@
   },
   "西咪替丁": {
     "aliases": [
-      "cimetidine",
+      "cimetidine"
+    ],
+    "brandNames": [
       "泰胃美"
     ]
   },
   "西地那非": {
     "aliases": [
       "sildenafil",
-      "枸橼酸西地那非",
+      "枸橼酸西地那非"
+    ],
+    "brandNames": [
       "万艾可"
     ]
   },
   "西妥昔单抗": {
     "aliases": [
-      "cetuximab",
+      "cetuximab"
+    ],
+    "brandNames": [
       "爱必妥"
     ]
   },
@@ -4782,15 +5416,19 @@
   "西替利嗪": {
     "aliases": [
       "cetirizine",
-      "仙特明",
       "盐酸西替利嗪"
+    ],
+    "brandNames": [
+      "仙特明"
     ]
   },
   "西格列汀": {
     "aliases": [
       "sitagliptin",
-      "捷诺维",
       "磷酸西格列汀"
+    ],
+    "brandNames": [
+      "捷诺维"
     ]
   },
   "西洛他唑": {
@@ -4810,7 +5448,9 @@
   "西罗莫司": {
     "aliases": [
       "sirolimus",
-      "雷帕霉素",
+      "雷帕霉素"
+    ],
+    "brandNames": [
       "雷帕鸣"
     ]
   },
@@ -4834,32 +5474,42 @@
   },
   "贝伐珠单抗": {
     "aliases": [
-      "bevacizumab",
+      "bevacizumab"
+    ],
+    "brandNames": [
       "安维汀"
     ]
   },
   "贝前列素": {
     "aliases": [
-      "beraprost",
+      "beraprost"
+    ],
+    "brandNames": [
       "德纳"
     ]
   },
   "贝尼地平": {
     "aliases": [
-      "benidipine",
+      "benidipine"
+    ],
+    "brandNames": [
       "可力洛"
     ]
   },
   "贝那普利": {
     "aliases": [
       "benazepril",
-      "洛汀新",
       "盐酸贝那普利"
+    ],
+    "brandNames": [
+      "洛汀新"
     ]
   },
   "赖脯胰岛素": {
     "aliases": [
-      "insulin lispro",
+      "insulin lispro"
+    ],
+    "brandNames": [
       "优泌乐"
     ]
   },
@@ -4870,13 +5520,17 @@
   },
   "赛洛多辛": {
     "aliases": [
-      "silodosin",
+      "silodosin"
+    ],
+    "brandNames": [
       "优利福"
     ]
   },
   "辛伐他汀": {
     "aliases": [
-      "simvastatin",
+      "simvastatin"
+    ],
+    "brandNames": [
       "舒降之"
     ]
   },
@@ -4891,31 +5545,41 @@
   },
   "达托霉素": {
     "aliases": [
-      "daptomycin",
+      "daptomycin"
+    ],
+    "brandNames": [
       "克必信"
     ]
   },
   "达拉非尼": {
     "aliases": [
-      "dabrafenib",
+      "dabrafenib"
+    ],
+    "brandNames": [
       "泰菲乐"
     ]
   },
   "达格列净": {
     "aliases": [
-      "dapagliflozin",
+      "dapagliflozin"
+    ],
+    "brandNames": [
       "安达唐"
     ]
   },
   "达比加群": {
     "aliases": [
-      "dabigatran",
+      "dabigatran"
+    ],
+    "brandNames": [
       "泰毕全"
     ]
   },
   "达泊西汀": {
     "aliases": [
-      "dapoxetine",
+      "dapoxetine"
+    ],
+    "brandNames": [
       "必利劲"
     ]
   },
@@ -4953,7 +5617,9 @@
   },
   "那格列奈": {
     "aliases": [
-      "nateglinide",
+      "nateglinide"
+    ],
+    "brandNames": [
       "唐力"
     ]
   },
@@ -4967,7 +5633,9 @@
   },
   "酚磺乙胺": {
     "aliases": [
-      "etamsylate",
+      "etamsylate"
+    ],
+    "brandNames": [
       "止血敏"
     ]
   },
@@ -5003,21 +5671,27 @@
   "重组人促红素": {
     "aliases": [
       "recombinant human erythropoietin",
-      "EPO",
+      "EPO"
+    ],
+    "brandNames": [
       "依泊汀",
       "利血宝"
     ]
   },
   "重组人凝血因子VIIa": {
     "aliases": [
-      "recombinant factor VIIa",
+      "recombinant factor VIIa"
+    ],
+    "brandNames": [
       "诺其"
     ]
   },
   "重组人血小板生成素": {
     "aliases": [
       "recombinant human thrombopoietin",
-      "TPO",
+      "TPO"
+    ],
+    "brandNames": [
       "特比澳"
     ]
   },
@@ -5035,7 +5709,9 @@
   },
   "钆布醇": {
     "aliases": [
-      "gadobutrol",
+      "gadobutrol"
+    ],
+    "brandNames": [
       "加乐显"
     ]
   },
@@ -5052,7 +5728,9 @@
   },
   "铝碳酸镁": {
     "aliases": [
-      "hydrotalcite",
+      "hydrotalcite"
+    ],
+    "brandNames": [
       "达喜"
     ]
   },
@@ -5064,11 +5742,10 @@
   },
   "链霉素": {
     "aliases": [
-      "streptomycin"
-    ],
-    "brandNames": [
+      "streptomycin",
       "链霉素注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "长春新碱": {
     "aliases": [
@@ -5079,7 +5756,9 @@
   "长春瑞滨": {
     "aliases": [
       "vinorelbine",
-      "NVB",
+      "NVB"
+    ],
+    "brandNames": [
       "诺维本"
     ]
   },
@@ -5097,13 +5776,17 @@
   },
   "门冬胰岛素": {
     "aliases": [
-      "insulin aspart",
+      "insulin aspart"
+    ],
+    "brandNames": [
       "诺和锐"
     ]
   },
   "阿利吉仑": {
     "aliases": [
-      "aliskiren",
+      "aliskiren"
+    ],
+    "brandNames": [
       "锐思力"
     ]
   },
@@ -5114,7 +5797,9 @@
   },
   "阿利西尤单抗": {
     "aliases": [
-      "alirocumab",
+      "alirocumab"
+    ],
+    "brandNames": [
       "波立达"
     ]
   },
@@ -5125,7 +5810,9 @@
   },
   "阿卡波糖": {
     "aliases": [
-      "acarbose",
+      "acarbose"
+    ],
+    "brandNames": [
       "拜唐苹"
     ]
   },
@@ -5142,13 +5829,17 @@
   },
   "阿哌沙班": {
     "aliases": [
-      "apixaban",
+      "apixaban"
+    ],
+    "brandNames": [
       "艾乐妥"
     ]
   },
   "阿奇霉素": {
     "aliases": [
-      "azithromycin",
+      "azithromycin"
+    ],
+    "brandNames": [
       "希舒美"
     ]
   },
@@ -5159,7 +5850,9 @@
   },
   "阿巴西普": {
     "aliases": [
-      "abatacept",
+      "abatacept"
+    ],
+    "brandNames": [
       "恩瑞舒"
     ]
   },
@@ -5204,7 +5897,9 @@
   "阿托伐他汀": {
     "aliases": [
       "atorvastatin",
-      "阿托伐他汀钙",
+      "阿托伐他汀钙"
+    ],
+    "brandNames": [
       "立普妥"
     ]
   },
@@ -5216,7 +5911,9 @@
   },
   "阿昔替尼": {
     "aliases": [
-      "axitinib",
+      "axitinib"
+    ],
+    "brandNames": [
       "英立达"
     ]
   },
@@ -5229,20 +5926,26 @@
   },
   "阿昔莫司": {
     "aliases": [
-      "acipimox",
+      "acipimox"
+    ],
+    "brandNames": [
       "乐脂平"
     ]
   },
   "阿普唑仑": {
     "aliases": [
       "alprazolam",
-      "佳静安定",
       "Xanax"
+    ],
+    "brandNames": [
+      "佳静安定"
     ]
   },
   "阿普米司特": {
     "aliases": [
-      "apremilast",
+      "apremilast"
+    ],
+    "brandNames": [
       "欧泰乐"
     ]
   },
@@ -5255,20 +5958,26 @@
   "阿替利珠单抗": {
     "aliases": [
       "atezolizumab",
-      "T药",
+      "T药"
+    ],
+    "brandNames": [
       "泰圣奇"
     ]
   },
   "阿替普酶": {
     "aliases": [
       "alteplase",
-      "tPA",
+      "tPA"
+    ],
+    "brandNames": [
       "爱通立"
     ]
   },
   "阿替洛尔": {
     "aliases": [
-      "atenolol",
+      "atenolol"
+    ],
+    "brandNames": [
       "氨酰心安"
     ]
   },
@@ -5282,22 +5991,25 @@
   },
   "阿柏西普": {
     "aliases": [
-      "aflibercept",
+      "aflibercept"
+    ],
+    "brandNames": [
       "艾力雅"
     ]
   },
   "阿比多尔": {
     "aliases": [
       "arbidol",
-      "umifenovir"
-    ],
-    "brandNames": [
+      "umifenovir",
       "阿比多尔片"
-    ]
+    ],
+    "brandNames": []
   },
   "阿法替尼": {
     "aliases": [
-      "afatinib",
+      "afatinib"
+    ],
+    "brandNames": [
       "吉泰瑞"
     ]
   },
@@ -5312,8 +6024,10 @@
   "阿立哌唑": {
     "aliases": [
       "aripiprazole",
-      "安律凡",
       "奥派"
+    ],
+    "brandNames": [
+      "安律凡"
     ]
   },
   "阿米卡星": {
@@ -5350,26 +6064,34 @@
   },
   "阿罗洛尔": {
     "aliases": [
-      "arotinolol",
+      "arotinolol"
+    ],
+    "brandNames": [
       "阿尔马尔"
     ]
   },
   "阿苯达唑": {
     "aliases": [
-      "albendazole",
+      "albendazole"
+    ],
+    "brandNames": [
       "肠虫清"
     ]
   },
   "阿莫罗芬": {
     "aliases": [
-      "amorolfine",
+      "amorolfine"
+    ],
+    "brandNames": [
       "罗每乐"
     ]
   },
   "阿莫西林": {
     "aliases": [
       "amoxicillin",
-      "羟氨苄青霉素",
+      "羟氨苄青霉素"
+    ],
+    "brandNames": [
       "阿莫仙"
     ]
   },
@@ -5390,19 +6112,25 @@
   },
   "阿达帕林": {
     "aliases": [
-      "adapalene",
+      "adapalene"
+    ],
+    "brandNames": [
       "达芙文"
     ]
   },
   "阿达木单抗": {
     "aliases": [
-      "adalimumab",
+      "adalimumab"
+    ],
+    "brandNames": [
       "修美乐"
     ]
   },
   "阿那曲唑": {
     "aliases": [
-      "anastrozole",
+      "anastrozole"
+    ],
+    "brandNames": [
       "瑞宁得"
     ]
   },
@@ -5415,13 +6143,17 @@
   "雷尼替丁": {
     "aliases": [
       "ranitidine",
-      "善胃得",
       "盐酸雷尼替丁"
+    ],
+    "brandNames": [
+      "善胃得"
     ]
   },
   "雷沙吉兰": {
     "aliases": [
-      "rasagiline",
+      "rasagiline"
+    ],
+    "brandNames": [
       "安齐来"
     ]
   },
@@ -5435,21 +6167,27 @@
   },
   "雷珠单抗": {
     "aliases": [
-      "ranibizumab",
+      "ranibizumab"
+    ],
+    "brandNames": [
       "诺适得"
     ]
   },
   "雷米普利": {
     "aliases": [
-      "ramipril",
+      "ramipril"
+    ],
+    "brandNames": [
       "瑞泰"
     ]
   },
   "雷贝拉唑": {
     "aliases": [
       "rabeprazole",
-      "波利特",
       "雷贝拉唑钠"
+    ],
+    "brandNames": [
+      "波利特"
     ]
   },
   "青蒿琥酯": {
@@ -5486,25 +6224,33 @@
   },
   "非洛地平": {
     "aliases": [
-      "felodipine",
+      "felodipine"
+    ],
+    "brandNames": [
       "波依定"
     ]
   },
   "非索非那定": {
     "aliases": [
-      "fexofenadine",
+      "fexofenadine"
+    ],
+    "brandNames": [
       "莱多菲"
     ]
   },
   "非诺贝特": {
     "aliases": [
-      "fenofibrate",
+      "fenofibrate"
+    ],
+    "brandNames": [
       "力平之"
     ]
   },
   "非那雄胺": {
     "aliases": [
-      "finasteride",
+      "finasteride"
+    ],
+    "brandNames": [
       "保列治",
       "保法止"
     ]
@@ -5523,7 +6269,9 @@
   },
   "马普替林": {
     "aliases": [
-      "maprotiline",
+      "maprotiline"
+    ],
+    "brandNames": [
       "路滴美"
     ]
   },
@@ -5536,23 +6284,23 @@
   "高三尖杉酯碱": {
     "aliases": [
       "homoharringtonine",
-      "HHT"
-    ],
-    "brandNames": [
+      "HHT",
       "高三尖杉酯碱注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "鱼精蛋白": {
     "aliases": [
-      "protamine"
-    ],
-    "brandNames": [
+      "protamine",
       "鱼精蛋白注射液"
-    ]
+    ],
+    "brandNames": []
   },
   "鲁拉西酮": {
     "aliases": [
-      "lurasidone",
+      "lurasidone"
+    ],
+    "brandNames": [
       "罗舒达"
     ]
   },
@@ -5581,7 +6329,9 @@
   },
   "齐拉西酮": {
     "aliases": [
-      "ziprasidone",
+      "ziprasidone"
+    ],
+    "brandNames": [
       "卓乐定"
     ]
   }

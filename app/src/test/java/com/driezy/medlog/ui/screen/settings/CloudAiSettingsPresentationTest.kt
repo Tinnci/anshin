@@ -230,4 +230,18 @@ class CloudAiSettingsPresentationTest {
         assertEquals(listOf("nvidia-nim", "openai"), presentation.featuredRows.map { it.id })
         assertEquals(listOf("NVIDIA NIM APIs", "OpenAI", "Abacus"), presentation.rows.map { it.name })
     }
+
+    @Test
+    fun `api key import presentation previews matched provider and model`() {
+        val presentation = CloudAiApiKeyImportPresentation.from(
+            """
+            NVIDIA_API_KEY=nvapi-preview
+            NVIDIA_MODEL=meta/llama-3.1-8b-instruct
+            """.trimIndent(),
+        )
+
+        assertEquals(true, presentation.canImport)
+        assertEquals("NVIDIA NIM APIs", presentation.providerName)
+        assertEquals("meta/llama-3.1-8b-instruct", presentation.model)
+    }
 }

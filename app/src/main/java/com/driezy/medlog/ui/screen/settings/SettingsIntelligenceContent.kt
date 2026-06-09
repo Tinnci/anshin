@@ -151,6 +151,7 @@ internal fun SettingsIntelligenceContent(
             onHealthInsightsChange = { viewModel.setCloudAiSettings(healthInsightsEnabled = it) },
             onWifiOnlyChange = { viewModel.setCloudAiSettings(wifiOnly = it) },
             onApiKeySave = viewModel::setCurrentCloudAiApiKey,
+            onApiKeyImport = viewModel::importCloudAiApiKey,
             onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
         )
     }

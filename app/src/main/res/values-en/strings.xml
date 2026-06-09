@@ -1016,6 +1016,13 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_api_key_storage_hint">Keys are encrypted with Android Keystore and are not included in backups, logs, or cache</string>
     <string name="settings_ai_api_key_save">Save key</string>
     <string name="settings_ai_api_key_clear">Clear</string>
+    <string name="settings_ai_api_key_import_label">Paste a standard import or .env block</string>
+    <string name="settings_ai_api_key_import_hint">Supports anshin:key:v1:, NVIDIA_API_KEY, OPENAI_API_KEY/OPENAI_BASE_URL, and similar formats</string>
+    <string name="settings_ai_api_key_import_preview">Will import %1$s</string>
+    <string name="settings_ai_api_key_import_preview_with_model">Will import %1$s · %2$s</string>
+    <string name="settings_ai_api_key_import_standard_chip">Standard</string>
+    <string name="settings_ai_api_key_import_env_chip">.env</string>
+    <string name="settings_ai_api_key_import_save">Import and save</string>
     <string name="settings_ai_usage_title">Internal status, last 7 days</string>
     <string name="settings_ai_usage_summary">Runs: %1$d · Successful: %2$d · Errors: %3$d · Cache hits: %4$d</string>
     <string name="settings_ai_usage_last_error">Latest error: %s</string>

@@ -63,6 +63,7 @@ internal fun CloudAiSettingsPanel(
     onHealthInsightsChange: (Boolean) -> Unit,
     onWifiOnlyChange: (Boolean) -> Unit,
     onApiKeySave: (String) -> Unit,
+    onApiKeyImport: (String) -> Unit,
     onApiKeyClear: () -> Unit,
 ) {
     var modelDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(uiState.cloudAiModel) }
@@ -79,6 +80,8 @@ internal fun CloudAiSettingsPanel(
         mutableStateOf(uiState.openAiCompatibleProviderName)
     }
     var apiKeyDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf("") }
+    var apiKeyImportDraft by rememberSaveable { mutableStateOf("") }
+    val apiKeyImportPresentation = CloudAiApiKeyImportPresentation.from(apiKeyImportDraft)
 
     Column(
         modifier = Modifier
@@ -414,6 +417,62 @@ internal fun CloudAiSettingsPanel(
                     modifier = Modifier.align(Alignment.End),
                 ) {
                     Text(stringResource(R.string.settings_ai_api_key_save))
+                }
+                HorizontalDivider()
+                OutlinedTextField(
+                    value = apiKeyImportDraft,
+                    onValueChange = { apiKeyImportDraft = it },
+                    modifier = Modifier.fillMaxWidth(),
+                    minLines = 2,
+                    maxLines = 5,
+                    label = { Text(stringResource(R.string.settings_ai_api_key_import_label)) },
+                    supportingText = {
+                        if (apiKeyImportPresentation.canImport) {
+                            val model = apiKeyImportPresentation.model
+                            Text(
+                                text = if (model.isNullOrBlank()) {
+                                    stringResource(
+                                        R.string.settings_ai_api_key_import_preview,
+                                        apiKeyImportPresentation.providerName.orEmpty(),
+                                    )
+                                } else {
+                                    stringResource(
+                                        R.string.settings_ai_api_key_import_preview_with_model,
+                                        apiKeyImportPresentation.providerName.orEmpty(),
+                                        model,
+                                    )
+                                },
+                            )
+                        } else {
+                            Text(stringResource(R.string.settings_ai_api_key_import_hint))
+                        }
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                )
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small, Alignment.End),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    AssistChip(
+                        onClick = {},
+                        enabled = false,
+                        label = { Text(stringResource(R.string.settings_ai_api_key_import_standard_chip)) },
+                    )
+                    AssistChip(
+                        onClick = {},
+                        enabled = false,
+                        label = { Text(stringResource(R.string.settings_ai_api_key_import_env_chip)) },
+                    )
+                    FilledTonalButton(
+                        onClick = {
+                            onApiKeyImport(apiKeyImportDraft)
+                            apiKeyImportDraft = ""
+                        },
+                        enabled = apiKeyImportPresentation.canImport,
+                    ) {
+                        Text(stringResource(R.string.settings_ai_api_key_import_save))
+                    }
                 }
             }
         }

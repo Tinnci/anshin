@@ -37,6 +37,8 @@ import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.FontMode
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.UiDensityScale
+import com.driezy.medlog.domain.UnifiedImportPayload
+import com.driezy.medlog.domain.UnifiedImportPayloadCodec
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -221,6 +223,24 @@ internal data class CloudAiSettingsPresentation(
                 visualState = CloudAiSettingsVisualState.TEXT_ONLY,
                 labelRes = R.string.settings_ai_status_text_only,
                 bodyRes = R.string.settings_ai_status_text_only_body,
+            )
+        }
+    }
+}
+
+internal data class CloudAiApiKeyImportPresentation(
+    val canImport: Boolean,
+    val providerName: String?,
+    val model: String?,
+) {
+    companion object {
+        fun from(raw: String): CloudAiApiKeyImportPresentation {
+            val payload = UnifiedImportPayloadCodec.decode(raw)
+            val key = (payload as? UnifiedImportPayload.CloudAiApiKey)?.key
+            return CloudAiApiKeyImportPresentation(
+                canImport = key != null,
+                providerName = key?.providerName ?: key?.provider?.providerName,
+                model = key?.model,
             )
         }
     }
