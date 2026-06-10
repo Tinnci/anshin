@@ -823,6 +823,8 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="qr_tab_export">Export Plan</string>
     <string name="qr_scan_import">Scan to Import</string>
     <string name="qr_scan_title">Scan QR Code</string>
+    <string name="qr_scan_from_gallery">Choose from gallery</string>
+    <string name="qr_scan_image_not_found">No valid QR code detected in the photo</string>
     <string name="qr_scan_hint">Align QR code within the frame</string>
     <string name="qr_scan_permission_rationale">Camera permission is required to scan QR codes</string>
     <string name="qr_scan_grant_permission">Grant Permission</string>

@@ -130,6 +130,7 @@ dependencies {
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.androidx.splashscreen)
     implementation(libs.okhttp)
+    implementation(libs.androidx.photopicker.compose)
 
     // Room
     implementation(libs.androidx.room.runtime)

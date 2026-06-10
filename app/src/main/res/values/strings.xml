@@ -797,6 +797,8 @@
     <string name="qr_tab_export">导出计划</string>
     <string name="qr_scan_import">扫描导入</string>
     <string name="qr_scan_title">扫描二维码</string>
+    <string name="qr_scan_from_gallery">从相册选择</string>
+    <string name="qr_scan_image_not_found">照片中未检测到有效的二维码</string>
     <string name="qr_scan_hint">将二维码对准取景框</string>
     <string name="qr_scan_permission_rationale">需要相机权限以扫描二维码</string>
     <string name="qr_scan_grant_permission">授予权限</string>
