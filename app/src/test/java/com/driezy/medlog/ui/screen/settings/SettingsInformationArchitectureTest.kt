@@ -79,8 +79,9 @@ class SettingsInformationArchitectureTest {
         val files = settingsDir.listFiles { file -> file.extension == "kt" }?.map { it.name }.orEmpty()
         val screen = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsScreen.kt")
 
-        assertTrue(files.contains("SettingsSections.kt"))
-        assertTrue(files.contains("SettingsContentComponents.kt"))
+        assertTrue(files.contains("CloudAiSettingsPanel.kt"))
+        assertTrue(files.contains("SettingsCardComponents.kt"))
+        assertTrue(files.contains("SettingsRowsComponents.kt"))
         assertFalse("SettingsScreen should delegate mode-specific content.", screen.contains("SettingsIntelligenceContent") && screen.contains("settings_ai_section_title"))
         assertFalse("SettingsScreen should delegate widget implementation.", screen.contains("WidgetPreviewCarousel("))
     }

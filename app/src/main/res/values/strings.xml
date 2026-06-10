@@ -991,6 +991,9 @@
     <string name="settings_ai_api_key_import_standard_chip">标准格式</string>
     <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">导入并保存</string>
+    <string name="settings_ai_endpoint_section_title">端点配置</string>
+    <string name="settings_ai_api_key_tab_manual">手动输入</string>
+    <string name="settings_ai_api_key_tab_import">粘贴导入</string>
     <string name="settings_ai_usage_title">最近 7 天内部状态</string>
     <string name="settings_ai_usage_summary">共 %1$d 次，成功 %2$d 次，错误 %3$d 次，缓存命中 %4$d 次</string>
     <string name="settings_ai_usage_last_error">最近错误：%s</string>

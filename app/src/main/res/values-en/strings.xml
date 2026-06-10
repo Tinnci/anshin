@@ -1023,6 +1023,9 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_api_key_import_standard_chip">Standard</string>
     <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">Import and save</string>
+    <string name="settings_ai_endpoint_section_title">Endpoint Configuration</string>
+    <string name="settings_ai_api_key_tab_manual">Manual Input</string>
+    <string name="settings_ai_api_key_tab_import">Paste Import</string>
     <string name="settings_ai_usage_title">Internal status, last 7 days</string>
     <string name="settings_ai_usage_summary">Runs: %1$d · Successful: %2$d · Errors: %3$d · Cache hits: %4$d</string>
     <string name="settings_ai_usage_last_error">Latest error: %s</string>
