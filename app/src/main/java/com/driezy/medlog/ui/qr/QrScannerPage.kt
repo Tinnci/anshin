@@ -22,17 +22,22 @@ import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.CameraPermissionGate
@@ -65,6 +70,9 @@ fun QrScannerPage(
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.qr_scan_image_not_found)
 
+    // Tracks if a QR code has been successfully scanned to trigger UI animations and prevent duplicate analysis.
+    var isScanned by remember { mutableStateOf(false) }
+
     val isSupported = remember {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
                 android.os.ext.SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
@@ -86,8 +94,13 @@ fun QrScannerPage(
                         .addOnSuccessListener { barcodes ->
                             val rawValue = barcodes.firstOrNull()?.rawValue
                             if (rawValue != null) {
+                                isScanned = true
                                 haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                onResult(rawValue)
+                                // Delay callback to allow the icon change animation to finish smoothly
+                                scope.launch {
+                                    kotlinx.coroutines.delay(450)
+                                    onResult(rawValue)
+                                }
                             } else {
                                 scope.launch {
                                     snackbarHostState.showSnackbar(errorMessage)
@@ -124,8 +137,13 @@ fun QrScannerPage(
                     .addOnSuccessListener { barcodes ->
                         val rawValue = barcodes.firstOrNull()?.rawValue
                         if (rawValue != null) {
+                            isScanned = true
                             haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            onResult(rawValue)
+                            // Delay callback to allow the icon change animation to finish smoothly
+                            scope.launch {
+                                kotlinx.coroutines.delay(450)
+                                onResult(rawValue)
+                            }
                         } else {
                             scope.launch {
                                 snackbarHostState.showSnackbar(errorMessage)
@@ -216,10 +234,18 @@ fun QrScannerPage(
                 grantButtonRes = R.string.qr_scan_grant_permission,
             ) {
                 CameraPreview(
+                    isScanned = isScanned,
                     modifier = Modifier.fillMaxSize(),
                     onQrScanned = { raw ->
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        onResult(raw)
+                        if (!isScanned) {
+                            isScanned = true
+                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            // Delay callback to allow the icon change animation to finish smoothly
+                            scope.launch {
+                                kotlinx.coroutines.delay(450)
+                                onResult(raw)
+                            }
+                        }
                     },
                 )
                 ViewfinderOverlay(
@@ -229,12 +255,38 @@ fun QrScannerPage(
                     widthFraction = 0.72f,
                     aspectRatio = 1f,
                 )
+
+                // Smoothly animate the weights, fills, and colors of the guidance icon upon success.
+                val weight by animateFloatAsState(
+                    targetValue = if (isScanned) 600f else 300f,
+                    animationSpec = tween(durationMillis = 400),
+                    label = "weightAnim"
+                )
+                val fill by animateFloatAsState(
+                    targetValue = if (isScanned) 1f else 0f,
+                    animationSpec = tween(durationMillis = 400),
+                    label = "fillAnim"
+                )
+                val iconColor by animateColorAsState(
+                    targetValue = if (isScanned) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
+                    animationSpec = tween(durationMillis = 400),
+                    label = "colorAnim"
+                )
+
                 CameraGuidancePill(
                     text = stringResource(R.string.qr_scan_hint),
-                    icon = MedLogIcons.QrCodeScanner,
                     modifier = Modifier
                         .align(Alignment.TopCenter)
                         .padding(top = 24.dp),
+                    iconContent = {
+                        com.driezy.medlog.ui.components.MaterialSymbolIcon(
+                            iconHex = "f60a", // Unicode for qr_code_scanner
+                            weight = weight,
+                            fill = fill,
+                            color = iconColor,
+                            size = 18.sp
+                        )
+                    }
                 )
             }
         }
@@ -244,13 +296,16 @@ fun QrScannerPage(
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
 private fun CameraPreview(
+    isScanned: Boolean,
     modifier: Modifier = Modifier,
     onQrScanned: (String) -> Unit,
 ) {
     val context        = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    var scanned        by remember { mutableStateOf(false) }
     val executor       = remember { Executors.newSingleThreadExecutor() }
+    
+    // Using rememberUpdatedState to read the latest isScanned safely in the analyzer background thread.
+    val currentIsScanned by rememberUpdatedState(isScanned)
 
     DisposableEffect(Unit) {
         onDispose { executor.shutdown() }
@@ -279,13 +334,12 @@ private fun CameraPreview(
             .also { ia ->
                 ia.setAnalyzer(executor) { imageProxy ->
                     val mediaImage = imageProxy.image
-                    if (mediaImage != null && !scanned) {
+                    if (mediaImage != null && !currentIsScanned) {
                         val image = InputImage.fromMediaImage(mediaImage, imageProxy.imageInfo.rotationDegrees)
                         barcodeScanner.process(image)
                             .addOnSuccessListener { barcodes ->
                                 barcodes.firstOrNull()?.rawValue?.let { value ->
-                                    if (!scanned) {
-                                        scanned = true
+                                    if (!currentIsScanned) {
                                         onQrScanned(value)
                                     }
                                 }

@@ -24,6 +24,27 @@ fun CameraGuidancePill(
     icon: Int,
     modifier: Modifier = Modifier,
 ) {
+    CameraGuidancePill(
+        text = text,
+        modifier = modifier,
+        iconContent = {
+            MedLogIcon(
+                icon = icon,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp),
+                tint = MaterialTheme.colorScheme.primary,
+            )
+        }
+    )
+}
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+fun CameraGuidancePill(
+    text: String,
+    modifier: Modifier = Modifier,
+    iconContent: @Composable () -> Unit,
+) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),
@@ -36,12 +57,7 @@ fun CameraGuidancePill(
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            MedLogIcon(
-                icon = icon,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp),
-                tint = MaterialTheme.colorScheme.primary,
-            )
+            iconContent()
             Text(
                 text = text,
                 style = MaterialTheme.typography.bodyMedium,
