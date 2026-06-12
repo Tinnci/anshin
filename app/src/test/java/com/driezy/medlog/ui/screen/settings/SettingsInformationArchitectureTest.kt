@@ -121,6 +121,7 @@ class SettingsInformationArchitectureTest {
             "Soft",
             "Fresh",
             "Warm",
+            "opencode",
         )
 
         bannedCopy.forEach { word ->
@@ -154,6 +155,39 @@ class SettingsInformationArchitectureTest {
     }
 
     @Test
+    fun `cloud api settings follow configuration order`() {
+        val panel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiSettingsPanel.kt")
+        val providerModel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiProviderModelSection.kt")
+        val providerIndex = panel.indexOf("CloudAiProviderSection(")
+        val keyIndex = panel.indexOf("ApiKeyManagementSection(")
+        val endpointIndex = panel.indexOf("EndpointConfigSection(")
+        val modelIndex = panel.indexOf("CloudAiModelSection(")
+        val featureIndex = panel.indexOf("CloudAiFeatureToggles(")
+
+        assertTrue("Service should be selected before credentials.", providerIndex >= 0 && providerIndex < keyIndex)
+        assertTrue("API key should be configured before endpoint fields.", keyIndex < endpointIndex)
+        assertTrue("Endpoint fields should come before model discovery.", endpointIndex < modelIndex)
+        assertTrue("Model discovery should come before upload feature switches.", modelIndex < featureIndex)
+        assertFalse("Provider and model should not be merged into one section.", panel.contains("ProviderAndModelSection("))
+        assertTrue("Model check should be gated by API key state.", providerModel.contains("uiState.cloudAiProviderHasApiKey"))
+    }
+
+    @Test
+    fun `api key setup keeps manual paste and scan together`() {
+        val apiKeySection = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiApiKeySection.kt")
+        val manualIndex = apiKeySection.indexOf("ManualApiKeyInput(")
+        val importIndex = apiKeySection.indexOf("ApiKeyImportInput(")
+        val scanIndex = apiKeySection.indexOf("settings_ai_api_key_import_scan")
+
+        assertTrue("Manual key input should be present.", manualIndex >= 0)
+        assertTrue("Paste import should be present.", importIndex >= 0)
+        assertTrue("Scan action should be present.", scanIndex >= 0)
+        assertTrue("Manual input should come before paste import.", manualIndex < importIndex)
+        assertTrue("Scan action should live with import actions.", importIndex < scanIndex)
+        assertFalse("API key setup should not hide input methods behind tabs.", apiKeySection.contains("SecondaryTabRow"))
+    }
+
+    @Test
     fun `settings deep sections have typed navigation routes`() {
         val destinations = source("app/src/main/java/com/driezy/medlog/ui/navigation/MedLogDestinations.kt")
         val app = source("app/src/main/java/com/driezy/medlog/ui/MedLogApp.kt")
@@ -161,6 +195,7 @@ class SettingsInformationArchitectureTest {
         listOf(
             "SettingsReminders",
             "SettingsIntelligence",
+            "SettingsCloudApi",
             "SettingsWidgets",
             "SettingsData",
         ).forEach { route ->
@@ -178,6 +213,19 @@ class SettingsInformationArchitectureTest {
         assertTrue("Feature controls should live under Modules and medications.", screen.indexOf("settings_card_features") > screen.indexOf("settings_group_modules_meds"))
         assertTrue("Archived medication controls should live under Modules and medications.", screen.indexOf("settings_card_meds") > screen.indexOf("settings_group_modules_meds"))
         assertFalse("The old mixed OCR and health group should not remain.", screen.contains("settings_group_ocr_health"))
+    }
+
+    @Test
+    fun `cloud api setup is a child settings screen`() {
+        val settingsScreen = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsScreen.kt")
+        val intelligence = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsIntelligenceContent.kt")
+
+        assertTrue("Settings should expose a cloud API screen mode.", settingsScreen.contains("CLOUD_API(R.string.settings_ai_config_title)"))
+        assertTrue("Settings should expose a cloud API screen composable.", settingsScreen.contains("fun CloudApiSettingsScreen("))
+        assertTrue("Cloud API screen should render CloudAiSettingsPanel.", settingsScreen.contains("SettingsScreenMode.CLOUD_API -> CloudApiSettingsContent("))
+        assertTrue("Intelligence screen should navigate to cloud API settings.", intelligence.contains("onNavigateToCloudApiSettings"))
+        assertTrue("Intelligence screen should use a navigation row for cloud API settings.", intelligence.contains("settings_ai_config_title"))
+        assertFalse("Intelligence screen should not render the cloud API form inline.", intelligence.contains("CloudAiSettingsPanel("))
     }
 
     @Test

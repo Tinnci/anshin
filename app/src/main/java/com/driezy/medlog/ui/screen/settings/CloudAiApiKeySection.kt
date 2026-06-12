@@ -13,13 +13,10 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
@@ -46,7 +43,6 @@ internal fun ApiKeyManagementSection(
     var apiKeyDraft by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf("") }
     var apiKeyImportDraft by rememberSaveable { mutableStateOf("") }
     val apiKeyImportPresentation = CloudAiApiKeyImportPresentation.from(apiKeyImportDraft)
-    var selectedTabIndex by rememberSaveable { mutableIntStateOf(0) }
 
     Surface(
         modifier = Modifier.fillMaxWidth(),
@@ -61,38 +57,24 @@ internal fun ApiKeyManagementSection(
                 uiState = uiState,
                 onApiKeyClear = onApiKeyClear,
             )
-            SecondaryTabRow(selectedTabIndex = selectedTabIndex) {
-                Tab(
-                    selected = selectedTabIndex == 0,
-                    onClick = { selectedTabIndex = 0 },
-                    text = { Text(stringResource(R.string.settings_ai_api_key_tab_manual)) },
-                )
-                Tab(
-                    selected = selectedTabIndex == 1,
-                    onClick = { selectedTabIndex = 1 },
-                    text = { Text(stringResource(R.string.settings_ai_api_key_tab_import)) },
-                )
-            }
-            when (selectedTabIndex) {
-                0 -> ManualApiKeyPane(
-                    draft = apiKeyDraft,
-                    onDraftChange = { apiKeyDraft = it },
-                    onSave = {
-                        onApiKeySave(apiKeyDraft)
-                        apiKeyDraft = ""
-                    },
-                )
-                1 -> ApiKeyImportPane(
-                    draft = apiKeyImportDraft,
-                    presentation = apiKeyImportPresentation,
-                    onDraftChange = { apiKeyImportDraft = it },
-                    onScan = onApiKeyScan,
-                    onImport = {
-                        onApiKeyImport(apiKeyImportDraft)
-                        apiKeyImportDraft = ""
-                    },
-                )
-            }
+            ManualApiKeyInput(
+                draft = apiKeyDraft,
+                onDraftChange = { apiKeyDraft = it },
+                onSave = {
+                    onApiKeySave(apiKeyDraft)
+                    apiKeyDraft = ""
+                },
+            )
+            ApiKeyImportInput(
+                draft = apiKeyImportDraft,
+                presentation = apiKeyImportPresentation,
+                onDraftChange = { apiKeyImportDraft = it },
+                onScan = onApiKeyScan,
+                onImport = {
+                    onApiKeyImport(apiKeyImportDraft)
+                    apiKeyImportDraft = ""
+                },
+            )
         }
     }
 }
@@ -132,7 +114,7 @@ private fun ApiKeyStatusHeader(
 }
 
 @Composable
-private fun ManualApiKeyPane(
+private fun ManualApiKeyInput(
     draft: String,
     onDraftChange: (String) -> Unit,
     onSave: () -> Unit,
@@ -159,7 +141,7 @@ private fun ManualApiKeyPane(
 }
 
 @Composable
-private fun ApiKeyImportPane(
+private fun ApiKeyImportInput(
     draft: String,
     presentation: CloudAiApiKeyImportPresentation,
     onDraftChange: (String) -> Unit,

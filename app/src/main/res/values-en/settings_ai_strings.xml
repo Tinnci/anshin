@@ -16,9 +16,12 @@
     <string name="settings_ocr_model_fastvit_accuracy">98.6%% accuracy</string>
     <string name="settings_ai_section_title">Cloud analysis</string>
     <string name="settings_ai_section_desc">Optionally use cloud models for image recognition and health suggestions. Off by default; uploads require a user action.</string>
+    <string name="settings_ai_config_title">Cloud API setup</string>
+    <string name="settings_ai_config_desc">Service, key, endpoints, models, and upload controls</string>
     <string name="settings_ai_enable_title">Enable cloud analysis</string>
     <string name="settings_ai_enable_subtitle">Uses configured cloud models while keeping on-device recognition available</string>
-    <string name="settings_ai_provider_title">Service and model</string>
+    <string name="settings_ai_provider_title">Service</string>
+    <string name="settings_ai_model_section_title">Model selection</string>
     <string name="settings_ai_status_off">Cloud analysis is off</string>
     <string name="settings_ai_status_off_body">Photo recognition and health suggestions continue locally without uploading data.</string>
     <string name="settings_ai_status_needs_key">One setup step left</string>
@@ -30,6 +33,7 @@
     <string name="settings_ai_model_label">Model</string>
     <string name="settings_ai_model_hint">Default: %s</string>
     <string name="settings_ai_models_not_checked">API connectivity and model list have not been checked</string>
+    <string name="settings_ai_models_key_required">Save an API key before checking models</string>
     <string name="settings_ai_models_fetch">Check and select</string>
     <string name="settings_ai_models_fetching">Checking API connectivity…</string>
     <plurals name="settings_ai_models_connected">
@@ -45,7 +49,9 @@
     <string name="settings_ai_endpoint_label">API Endpoint</string>
     <string name="settings_ai_mimo_endpoint_hint">Leave blank to infer from the key; Singapore token plan: https://token-plan-sgp.xiaomimimo.com/v1</string>
     <string name="settings_ai_anthropic_endpoint_hint">Leave blank to use Anthropic official endpoint, or choose an Anthropic-compatible preset</string>
-    <string name="settings_ai_endpoint_presets_title">opencode API endpoint presets (%d)</string>
+    <string name="settings_ai_endpoint_presets_title">API endpoint presets (%d)</string>
+    <string name="settings_ai_endpoint_image_title">Image analysis endpoint</string>
+    <string name="settings_ai_endpoint_text_title">Language model endpoint</string>
     <string name="settings_ai_endpoint_featured_title">Endpoints</string>
     <string name="settings_ai_endpoint_search_label">Search endpoints or Base URL</string>
     <string name="settings_ai_endpoint_empty">No matching endpoints</string>
@@ -63,7 +69,7 @@
     <string name="settings_ai_api_key_title">API Key</string>
     <string name="settings_ai_api_key_configured">%s key configured</string>
     <string name="settings_ai_api_key_missing">%s key not configured</string>
-    <string name="settings_ai_api_key_label">Enter API key</string>
+    <string name="settings_ai_api_key_label">API key</string>
     <string name="settings_ai_api_key_storage_hint">Keys are encrypted with Android Keystore and are not included in backups, logs, or cache</string>
     <string name="settings_ai_api_key_save">Save key</string>
     <string name="settings_ai_api_key_clear">Clear</string>
@@ -77,8 +83,6 @@
     <string name="settings_ai_api_key_import_save">Import and save</string>
     <string name="settings_ai_api_key_import_scan">Scan key QR</string>
     <string name="settings_ai_endpoint_section_title">Endpoint Configuration</string>
-    <string name="settings_ai_api_key_tab_manual">Manual Input</string>
-    <string name="settings_ai_api_key_tab_import">Paste Import</string>
     <string name="settings_ai_usage_title">Internal status, last 7 days</string>
     <string name="settings_ai_usage_summary">Runs: %1$d · Successful: %2$d · Errors: %3$d · Cache hits: %4$d</string>
     <string name="settings_ai_usage_last_error">Latest error: %s</string>

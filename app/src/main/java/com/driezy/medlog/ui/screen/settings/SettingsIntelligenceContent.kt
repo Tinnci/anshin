@@ -34,7 +34,6 @@ import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
-import com.driezy.medlog.ui.qr.QrScannerPage
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.ui.utils.OemWidgetHelper
@@ -50,9 +49,9 @@ import kotlinx.coroutines.launch
 internal fun SettingsIntelligenceContent(
     uiState: SettingsUiState,
     viewModel: SettingsViewModel,
+    onNavigateToCloudApiSettings: () -> Unit,
 ) {
     val motionScheme = MaterialTheme.motionScheme
-    var showApiKeyScanner by rememberSaveable { mutableStateOf(false) }
     SettingsCard(
     title = stringResource(R.string.settings_group_intelligence),
     subtitle = stringResource(R.string.settings_group_intelligence_desc),
@@ -139,42 +138,12 @@ internal fun SettingsIntelligenceContent(
         enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
         exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
     ) {
-        CloudAiSettingsPanel(
-            uiState = uiState,
-            onProviderChange = { viewModel.setCloudAiSettings(provider = it) },
-            onModelSave = { viewModel.setCloudAiSettings(model = it) },
-            onMimoBaseUrlSave = { viewModel.setCloudAiSettings(mimoBaseUrl = it) },
-            onAnthropicBaseUrlSave = { viewModel.setCloudAiSettings(anthropicBaseUrl = it) },
-            onOpenAiBaseUrlSave = { viewModel.setCloudAiSettings(openAiCompatibleBaseUrl = it) },
-            onOpenAiAuthModeChange = { viewModel.setCloudAiSettings(openAiCompatibleAuthMode = it) },
-            onOpenAiProviderNameSave = { viewModel.setCloudAiSettings(openAiCompatibleProviderName = it) },
-            onEndpointPresetSelect = viewModel::applyCloudAiEndpointPreset,
-            onRefreshModels = viewModel::refreshCloudAiModels,
-            onImageAnalysisChange = { viewModel.setCloudAiSettings(imageAnalysisEnabled = it) },
-            onHealthInsightsChange = { viewModel.setCloudAiSettings(healthInsightsEnabled = it) },
-            onWifiOnlyChange = { viewModel.setCloudAiSettings(wifiOnly = it) },
-            onApiKeySave = viewModel::setCurrentCloudAiApiKey,
-            onApiKeyImport = viewModel::importCloudAiApiKey,
-            onApiKeyScan = { showApiKeyScanner = true },
-            onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
+        SettingsNavigationRow(
+            title = stringResource(R.string.settings_ai_config_title),
+            subtitle = stringResource(R.string.settings_ai_config_desc),
+            icon = MedLogIcons.CloudUpload,
+            onClick = onNavigateToCloudApiSettings,
         )
     }
-    }
-    if (showApiKeyScanner) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { showApiKeyScanner = false },
-            properties = androidx.compose.ui.window.DialogProperties(
-                usePlatformDefaultWidth = false,
-                dismissOnBackPress = true,
-            ),
-        ) {
-            QrScannerPage(
-                onResult = { raw ->
-                    showApiKeyScanner = false
-                    viewModel.importCloudAiApiKey(raw)
-                },
-                onBack = { showApiKeyScanner = false },
-            )
-        }
     }
 }

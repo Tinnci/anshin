@@ -50,11 +50,17 @@ internal fun CloudAiSettingsPanel(
             .padding(bottom = MedLogSpacing.Medium),
         verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
     ) {
-        ProviderAndModelSection(
+        CloudAiProviderSection(
             uiState = uiState,
             onProviderChange = onProviderChange,
-            onModelSave = onModelSave,
-            onRefreshModels = onRefreshModels,
+        )
+
+        ApiKeyManagementSection(
+            uiState = uiState,
+            onApiKeySave = onApiKeySave,
+            onApiKeyImport = onApiKeyImport,
+            onApiKeyScan = onApiKeyScan,
+            onApiKeyClear = onApiKeyClear,
         )
 
         AnimatedVisibility(
@@ -73,6 +79,12 @@ internal fun CloudAiSettingsPanel(
             )
         }
 
+        CloudAiModelSection(
+            uiState = uiState,
+            onModelSave = onModelSave,
+            onRefreshModels = onRefreshModels,
+        )
+
         CloudAiFeatureToggles(
             uiState = uiState,
             onImageAnalysisChange = onImageAnalysisChange,
@@ -81,14 +93,6 @@ internal fun CloudAiSettingsPanel(
         )
 
         CloudAiUsageSummaryCard(summary = uiState.aiUsageSummary)
-
-        ApiKeyManagementSection(
-            uiState = uiState,
-            onApiKeySave = onApiKeySave,
-            onApiKeyImport = onApiKeyImport,
-            onApiKeyScan = onApiKeyScan,
-            onApiKeyClear = onApiKeyClear,
-        )
     }
 }
 

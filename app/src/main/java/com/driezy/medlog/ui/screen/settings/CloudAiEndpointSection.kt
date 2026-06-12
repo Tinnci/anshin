@@ -72,6 +72,11 @@ internal fun EndpointConfigSection(
         ) {
             EndpointSectionHeader()
 
+            Text(
+                text = stringResource(R.string.settings_ai_endpoint_image_title),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             when (uiState.cloudAiProvider) {
                 CloudAiProvider.OPENAI_COMPATIBLE -> OpenAiCompatibleEndpointFields(
                     uiState = uiState,
@@ -111,6 +116,16 @@ internal fun EndpointConfigSection(
 
                 else -> Unit
             }
+            Text(
+                text = stringResource(R.string.settings_ai_endpoint_text_title),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Text(
+                text = stringResource(R.string.settings_ai_model_hint, uiState.cloudAiProvider.defaultModel),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

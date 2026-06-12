@@ -86,6 +86,7 @@ private enum class SettingsScreenMode(@param:StringRes val titleRes: Int) {
     HOME(R.string.tab_settings),
     REMINDERS(R.string.settings_group_reminders_routine),
     INTELLIGENCE(R.string.settings_group_intelligence),
+    CLOUD_API(R.string.settings_ai_config_title),
     WIDGETS(R.string.settings_card_widgets),
     DATA(R.string.settings_group_data_about),
 }
@@ -125,10 +126,24 @@ fun ReminderSettingsScreen(
 @Composable
 fun IntelligenceSettingsScreen(
     onBack: () -> Unit,
+    onNavigateToCloudApiSettings: () -> Unit,
     viewModel: SettingsViewModel = hiltViewModel(),
 ) {
     SettingsScaffold(
         mode = SettingsScreenMode.INTELLIGENCE,
+        onBack = onBack,
+        onNavigateToCloudApiSettings = onNavigateToCloudApiSettings,
+        viewModel = viewModel,
+    )
+}
+
+@Composable
+fun CloudApiSettingsScreen(
+    onBack: () -> Unit,
+    viewModel: SettingsViewModel = hiltViewModel(),
+) {
+    SettingsScaffold(
+        mode = SettingsScreenMode.CLOUD_API,
         onBack = onBack,
         viewModel = viewModel,
     )
@@ -168,6 +183,7 @@ private fun SettingsScaffold(
     onNavigateToWelcome: () -> Unit = {},
     onNavigateToReminderSettings: () -> Unit = {},
     onNavigateToIntelligenceSettings: () -> Unit = {},
+    onNavigateToCloudApiSettings: () -> Unit = {},
     onNavigateToWidgetSettings: () -> Unit = {},
     onNavigateToDataSettings: () -> Unit = {},
     viewModel: SettingsViewModel,
@@ -462,6 +478,11 @@ private fun SettingsScaffold(
                     viewModel = viewModel,
                 )
                 SettingsScreenMode.INTELLIGENCE -> SettingsIntelligenceContent(
+                    uiState = uiState,
+                    viewModel = viewModel,
+                    onNavigateToCloudApiSettings = onNavigateToCloudApiSettings,
+                )
+                SettingsScreenMode.CLOUD_API -> CloudApiSettingsContent(
                     uiState = uiState,
                     viewModel = viewModel,
                 )
