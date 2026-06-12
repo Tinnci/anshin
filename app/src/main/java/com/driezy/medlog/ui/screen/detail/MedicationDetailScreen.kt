@@ -29,6 +29,12 @@ import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.formatDosePrecise
 import com.driezy.medlog.ui.util.displayName
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenOverlay
+import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
@@ -59,87 +65,99 @@ fun MedicationDetailScreen(
     LaunchedEffect(medicationId) { viewModel.loadMedication(medicationId) }
 
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showDeleteDialog by remember { mutableStateOf(false) }
-    var showArchiveDialog by remember { mutableStateOf(false) }
+    var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
 
     val med = uiState.medication
     val medDisplayName = med?.displayName()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val archiveTitle = stringResource(R.string.detail_archive_title)
+    val archiveBody = stringResource(R.string.detail_archive_body)
+    val archiveLabel = stringResource(R.string.archive)
+    val cancelLabel = stringResource(R.string.cancel)
+    val deleteTitle = stringResource(R.string.detail_delete_title)
+    val deleteBody = stringResource(R.string.detail_delete_body)
+    val deleteLabel = stringResource(R.string.delete)
+    val commonCancelLabel = stringResource(R.string.common_action_cancel)
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    if (med != null) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(8.dp),
-                        ) {
-                            MedLogIcon(
-                                icon = formIcon(med.form),
-                                contentDescription = formLabel(med.form),
-                                modifier = Modifier.size(24.dp),
-                                tint = MaterialTheme.colorScheme.primary,
-                            )
-                            Text(medDisplayName ?: med.name)
-                        }
-                    } else {
-                        Text(stringResource(R.string.detail_title))
-                    }
-                },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.detail_back))
-                    }
-                },
-                actions = {
-                    if (med != null) {
-                        IconButton(onClick = { onEdit(med.id) }) {
-                            MedLogIcon(MedLogIcons.Edit, contentDescription = stringResource(R.string.detail_edit_cd))
-                        }
-                        var menuExpanded by remember { mutableStateOf(false) }
-                        Box {
-                            IconButton(onClick = { menuExpanded = true }) {
-                                MedLogIcon(MedLogIcons.MoreVert, contentDescription = stringResource(R.string.detail_more_cd))
-                            }
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false },
-                            ) {
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.archive)) },
-                                    onClick = { menuExpanded = false; showArchiveDialog = true },
-                                    leadingIcon = { MedLogIcon(MedLogIcons.Archive, null) },
-                                )
-                                DropdownMenuItem(
-                                    text = { Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error) },
-                                    onClick = { menuExpanded = false; showDeleteDialog = true },
-                                    leadingIcon = {
-                                        MedLogIcon(
-                                            MedLogIcons.Delete, null,
-                                            tint = MaterialTheme.colorScheme.error,
-                                        )
-                                    },
-                                )
-                            }
-                        }
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-    ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                LoadingIndicator()
+    MedLogScreenScaffold(
+        title = {
+            if (med != null) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    MedLogIcon(
+                        icon = formIcon(med.form),
+                        contentDescription = formLabel(med.form),
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                    Text(medDisplayName ?: med.name)
+                }
+            } else {
+                Text(stringResource(R.string.detail_title))
             }
-            return@Scaffold
-        }
-
+        },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.detail_back))
+            }
+        },
+        actions = if (med != null) {
+            listOf(
+                TopBarAction(
+                    id = "edit",
+                    label = stringResource(R.string.detail_edit_cd),
+                    icon = MedLogIcons.Edit,
+                    priority = TopBarActionPriority.Primary,
+                    onClick = { onEdit(med.id) },
+                ),
+                TopBarAction(
+                    id = "archive",
+                    label = stringResource(R.string.archive),
+                    icon = MedLogIcons.Archive,
+                    priority = TopBarActionPriority.Danger,
+                    onClick = {
+                        overlay = ScreenOverlay.Confirm(
+                            id = "detail:archive:${med.id}",
+                            title = archiveTitle,
+                            body = archiveBody,
+                            confirmLabel = archiveLabel,
+                            dismissLabel = cancelLabel,
+                            targetKey = med.id.toString(),
+                            onConfirm = {
+                                viewModel.archiveMedication()
+                                onBack()
+                            },
+                        )
+                    },
+                ),
+                TopBarAction(
+                    id = "delete",
+                    label = stringResource(R.string.delete),
+                    icon = MedLogIcons.Delete,
+                    priority = TopBarActionPriority.Danger,
+                    onClick = {
+                        overlay = ScreenOverlay.Confirm(
+                            id = "detail:delete:${med.id}",
+                            title = deleteTitle,
+                            body = deleteBody,
+                            confirmLabel = deleteLabel,
+                            dismissLabel = commonCancelLabel,
+                            targetKey = med.id.toString(),
+                            isDanger = true,
+                            onConfirm = {
+                                viewModel.deleteMedication()
+                                onBack()
+                            },
+                        )
+                    },
+                ),
+            )
+        } else {
+            emptyList()
+        },
+        chromeState = ScreenChromeState(isLoading = uiState.isLoading),
+    ) { innerPadding ->
         if (med == null) {
             Box(
                 Modifier.fillMaxSize().padding(innerPadding),
@@ -147,7 +165,7 @@ fun MedicationDetailScreen(
             ) {
                 Text(stringResource(R.string.detail_not_found))
             }
-            return@Scaffold
+            return@MedLogScreenScaffold
         }
 
         LazyColumn(
@@ -315,44 +333,5 @@ fun MedicationDetailScreen(
         }
     }
 
-    if (showArchiveDialog) {
-        AlertDialog(
-            onDismissRequest = { showArchiveDialog = false },
-            title = { Text(stringResource(R.string.detail_archive_title)) },
-            text = { Text(stringResource(R.string.detail_archive_body)) },
-            confirmButton = {
-                TextButton(onClick = {
-                    showArchiveDialog = false
-                    viewModel.archiveMedication()
-                    onBack()
-                }) { Text(stringResource(R.string.archive)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showArchiveDialog = false }) { Text(stringResource(R.string.cancel)) }
-            },
-        )
-    }
-
-    if (showDeleteDialog) {
-        AlertDialog(
-            onDismissRequest = { showDeleteDialog = false },
-            title = { Text(stringResource(R.string.detail_delete_title)) },
-            text = { Text(stringResource(R.string.detail_delete_body)) },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        showDeleteDialog = false
-                        viewModel.deleteMedication()
-                        onBack()
-                    },
-                    colors = ButtonDefaults.textButtonColors(
-                        contentColor = MaterialTheme.colorScheme.error,
-                    ),
-                ) { Text(stringResource(R.string.delete)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.common_action_cancel)) }
-            },
-        )
-    }
+    ScreenOverlayHost(overlay = overlay, onDismiss = { overlay = null })
 }

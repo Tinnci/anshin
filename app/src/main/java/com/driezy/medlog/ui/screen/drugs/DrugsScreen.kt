@@ -35,6 +35,11 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Drug
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -46,32 +51,26 @@ fun DrugsScreen(
     viewModel: DrugsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val motionScheme = MaterialTheme.motionScheme
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text(stringResource(R.string.drugs_title)) },
-                actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        MedLogIcon(
-                            MedLogIcons.Settings,
-                            contentDescription = stringResource(R.string.settings_action_open),
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                text = { Text(stringResource(R.string.drugs_fab_add)) },
-                icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
+    MedLogScreenScaffold(
+        title = { Text(stringResource(R.string.drugs_title)) },
+        actions = listOf(
+            TopBarAction(
+                id = "settings",
+                label = stringResource(R.string.settings_action_open),
+                icon = MedLogIcons.Settings,
+                priority = TopBarActionPriority.Secondary,
+                onClick = onOpenSettings,
+            ),
+        ),
+        chromeState = ScreenChromeState(
+            fab = ScreenFab(
+                label = stringResource(R.string.drugs_fab_add),
+                icon = MedLogIcons.Add,
                 onClick = onAddCustomDrug,
-            )
-        },
+            ),
+        ),
     ) { padding ->
         Column(
             modifier = Modifier

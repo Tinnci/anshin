@@ -44,11 +44,8 @@
     <string name="settings_ai_models_failed">Connection failed: %s</string>
     <string name="settings_ai_model_chip_image">%s · Image</string>
     <string name="settings_ai_model_chip_text">%s · Text</string>
-    <string name="settings_ai_adk_title">ADK agent</string>
-    <string name="settings_ai_adk_body">Use for on-device agents or backend agents. Do not ship cloud API keys in the client; route cloud models through your backend or Firebase AI Logic.</string>
-    <string name="settings_ai_adk_android_chip">Android runtime</string>
-    <string name="settings_ai_adk_ksp_chip">KSP tools</string>
-    <string name="settings_ai_adk_nano_chip">Gemini Nano</string>
+    <string name="settings_ai_provider_details_title">Provider details</string>
+    <string name="settings_ai_provider_details_desc">Endpoints, auth mode, provider name</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">For example, https://api.example.com/v1</string>
     <string name="settings_ai_endpoint_label">API Endpoint</string>

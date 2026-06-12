@@ -5,18 +5,30 @@ import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import com.driezy.medlog.R
 import com.driezy.medlog.ai.CloudAiEndpointPreset
 import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
+import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
@@ -43,6 +55,15 @@ internal fun CloudAiSettingsPanel(
     onApiKeyScan: () -> Unit,
     onApiKeyClear: () -> Unit,
 ) {
+    var showProviderDetails by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(false) }
+    val showConfiguredControls = uiState.cloudAiProviderHasApiKey
+
+    LaunchedEffect(uiState.cloudAiModelDiscoveryConnected, showConfiguredControls) {
+        if (showConfiguredControls && uiState.cloudAiModelDiscoveryConnected == false) {
+            showProviderDetails = true
+        }
+    }
+
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -64,7 +85,30 @@ internal fun CloudAiSettingsPanel(
         )
 
         AnimatedVisibility(
-            visible = uiState.cloudAiProvider.needsCustomEndpoint,
+            visible = showConfiguredControls,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            CloudAiModelSection(
+                uiState = uiState,
+                onModelSave = onModelSave,
+                onRefreshModels = onRefreshModels,
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showConfiguredControls && uiState.cloudAiProvider.needsCustomEndpoint,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            ProviderDetailsDisclosureRow(
+                expanded = showProviderDetails,
+                onClick = { showProviderDetails = !showProviderDetails },
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint,
             enter = expandVertically() + fadeIn(),
             exit = shrinkVertically() + fadeOut(),
         ) {
@@ -79,23 +123,57 @@ internal fun CloudAiSettingsPanel(
             )
         }
 
-        CloudAiModelSection(
-            uiState = uiState,
-            onModelSave = onModelSave,
-            onRefreshModels = onRefreshModels,
-        )
+        AnimatedVisibility(
+            visible = showConfiguredControls,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            CloudAiFeatureToggles(
+                uiState = uiState,
+                onImageAnalysisChange = onImageAnalysisChange,
+                onHealthInsightsChange = onHealthInsightsChange,
+                onWifiOnlyChange = onWifiOnlyChange,
+            )
+        }
 
-        AdkAgentSection()
-
-        CloudAiFeatureToggles(
-            uiState = uiState,
-            onImageAnalysisChange = onImageAnalysisChange,
-            onHealthInsightsChange = onHealthInsightsChange,
-            onWifiOnlyChange = onWifiOnlyChange,
-        )
-
-        CloudAiUsageSummaryCard(summary = uiState.aiUsageSummary)
+        AnimatedVisibility(
+            visible = showConfiguredControls,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            CloudAiUsageSummaryCard(summary = uiState.aiUsageSummary)
+        }
     }
+}
+
+@Composable
+private fun ProviderDetailsDisclosureRow(
+    expanded: Boolean,
+    onClick: () -> Unit,
+) {
+    ListItem(
+        headlineContent = { Text(stringResource(R.string.settings_ai_provider_details_title)) },
+        supportingContent = { Text(stringResource(R.string.settings_ai_provider_details_desc)) },
+        leadingContent = {
+            MedLogIcon(
+                MedLogIcons.Tune,
+                contentDescription = null,
+            )
+        },
+        trailingContent = {
+            MedLogIcon(
+                if (expanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,
+                contentDescription = null,
+            )
+        },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(
+                role = Role.Button,
+                onClick = onClick,
+            ),
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+    )
 }
 
 @Composable

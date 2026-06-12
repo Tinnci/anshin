@@ -41,4 +41,27 @@ class ScreenArchitectureGuardTest {
             )
         }
     }
+
+    @Test
+    fun mainRoutesDoNotReintroducePageLevelOverlayBooleans() {
+        val routeFiles = listOf(
+            "app/src/main/java/com/driezy/medlog/ui/screen/home/HomeScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/addmedication/AddMedicationScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/health/HealthScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/drugs/DrugsScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/history/HistoryScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/detail/MedicationDetailScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/symptom/SymptomDiaryScreen.kt",
+            "app/src/main/java/com/driezy/medlog/ui/screen/welcome/WelcomeScreen.kt",
+        )
+        val forbiddenState = Regex("""var\s+show[A-Za-z0-9_]*\s+by\s+remember""")
+
+        routeFiles.forEach { relativePath ->
+            val source = File(projectRoot, relativePath).readText()
+            assertTrue(
+                "$relativePath should model transient dialogs, sheets, and scanners with ScreenOverlay instead of page-level showXxx Booleans.",
+                !forbiddenState.containsMatchIn(source),
+            )
+        }
+    }
 }

@@ -16,13 +16,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
@@ -34,6 +32,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenOverlay
+import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.util.icon
@@ -58,9 +61,7 @@ fun AddMedicationScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val enableTimePeriodMode by viewModel.enableTimePeriodMode.collectAsStateWithLifecycle()
-    var showCustomDoseDialog by remember { mutableStateOf(false) }
-    var customDoseText     by remember { mutableStateOf("") }
-    var showOcrScanner by remember { mutableStateOf(false) }
+    var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
 
     val formOptions = listOf(
         FormOption("tablet",  stringResource(R.string.add_form_tablet), MedLogIcons.Medication),
@@ -80,9 +81,10 @@ fun AddMedicationScreen(
         stringResource(R.string.add_unit_tube),
         stringResource(R.string.add_unit_patch_unit),
     )
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-    val motionScheme = MaterialTheme.motionScheme
-
+    val customDoseTitle = stringResource(R.string.add_dose_custom_dialog_title)
+    val customDoseLabel = stringResource(R.string.add_dose_custom_dialog_hint)
+    val confirmLabel = stringResource(R.string.confirm)
+    val cancelLabel = stringResource(R.string.cancel)
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.loadExisting(medicationId)
     }
@@ -95,34 +97,25 @@ fun AddMedicationScreen(
         if (uiState.isSaved) onSaved()
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text(if (medicationId == null) stringResource(R.string.add_title_new) else stringResource(R.string.add_title_edit)) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.add_back_cd))
-                    }
-                },
-                actions = {
-                    Button(
-                        onClick = { viewModel.save(medicationId) },
-                        enabled = !uiState.isSaving,
-                        modifier = Modifier.padding(end = MedLogSpacing.Medium),
-                    ) {
-                        if (uiState.isSaving) {
-                            LoadingIndicator(
-                                modifier = Modifier.size(16.dp),
-                            )
-                            Spacer(Modifier.width(MedLogSpacing.Small))
-                        }
-                        Text(stringResource(R.string.add_save))
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
+    MedLogScreenScaffold(
+        title = {
+            Text(if (medicationId == null) stringResource(R.string.add_title_new) else stringResource(R.string.add_title_edit))
         },
+        navigationIcon = {
+            IconButton(onClick = onBack) {
+                MedLogIcon(MedLogIcons.ArrowBack, contentDescription = stringResource(R.string.add_back_cd))
+            }
+        },
+        actions = listOf(
+            TopBarAction(
+                id = "save",
+                label = stringResource(R.string.add_save),
+                icon = MedLogIcons.Check,
+                priority = TopBarActionPriority.Primary,
+                enabled = !uiState.isSaving,
+                onClick = { viewModel.save(medicationId) },
+            ),
+        ),
     ) { paddingValues ->
         AddMedicationFormContent(
             paddingValues = paddingValues,
@@ -131,58 +124,34 @@ fun AddMedicationScreen(
             formOptions = formOptions,
             doseUnits = doseUnits,
             viewModel = viewModel,
-            onOpenOcrScanner = { showOcrScanner = true },
-            onEditCustomDose = { doseText ->
-                customDoseText = doseText
-                showCustomDoseDialog = true
+            onOpenOcrScanner = {
+                overlay = ScreenOverlay.FullScreen(id = "add:ocr") {
+                    com.driezy.medlog.ui.ocr.OcrScannerPage(
+                        onResult = { text ->
+                            overlay = null
+                            viewModel.onNameChange(text)
+                        },
+                        onBack = { overlay = null },
+                    )
+                }
             },
-        )
-    }
-
-    // ── 自定义剂量输入对话框 ─────────────────────────────────────────────
-    if (showCustomDoseDialog) {
-        AlertDialog(
-            onDismissRequest = { showCustomDoseDialog = false },
-            title = { Text(stringResource(R.string.add_dose_custom_dialog_title)) },
-            text = {
-                OutlinedTextField(
-                    value = customDoseText,
-                    onValueChange = { customDoseText = it },
-                    label = { Text(stringResource(R.string.add_dose_custom_dialog_hint)) },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    singleLine = true,
+            onEditCustomDose = { doseText ->
+                overlay = ScreenOverlay.TextInput(
+                    id = "add:custom-dose",
+                    title = customDoseTitle,
+                    label = customDoseLabel,
+                    confirmLabel = confirmLabel,
+                    dismissLabel = cancelLabel,
+                    initialValue = doseText,
+                    keyboardType = KeyboardType.Decimal,
+                    onConfirm = { text ->
+                        text.toDoubleOrNull()?.let { v ->
+                            if (v > 0.0) viewModel.onDoseQuantityChange(v.coerceIn(0.125, 99.0))
+                        }
+                    },
                 )
             },
-            confirmButton = {
-                TextButton(onClick = {
-                    customDoseText.toDoubleOrNull()?.let { v ->
-                        if (v > 0.0) viewModel.onDoseQuantityChange(v.coerceIn(0.125, 99.0))
-                    }
-                    showCustomDoseDialog = false
-                }) { Text(stringResource(R.string.confirm)) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showCustomDoseDialog = false }) { Text(stringResource(R.string.cancel)) }
-            },
         )
     }
-
-    // ── OCR 扫描器全屏覆盖层 ─────────────────────────────────────────────────
-    if (showOcrScanner) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { showOcrScanner = false },
-            properties = androidx.compose.ui.window.DialogProperties(
-                usePlatformDefaultWidth = false,
-                dismissOnBackPress = true,
-            ),
-        ) {
-            com.driezy.medlog.ui.ocr.OcrScannerPage(
-                onResult = { text ->
-                    showOcrScanner = false
-                    viewModel.onNameChange(text)
-                },
-                onBack = { showOcrScanner = false },
-            )
-        }
-    }
+    ScreenOverlayHost(overlay = overlay, onDismiss = { overlay = null })
 }

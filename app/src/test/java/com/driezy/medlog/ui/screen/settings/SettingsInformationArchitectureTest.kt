@@ -162,16 +162,40 @@ class SettingsInformationArchitectureTest {
         val keyIndex = panel.indexOf("ApiKeyManagementSection(")
         val endpointIndex = panel.indexOf("EndpointConfigSection(")
         val modelIndex = panel.indexOf("CloudAiModelSection(")
-        val agentIndex = panel.indexOf("AdkAgentSection(")
+        val detailsIndex = panel.indexOf("ProviderDetailsDisclosureRow(")
         val featureIndex = panel.indexOf("CloudAiFeatureToggles(")
 
         assertTrue("Service should be selected before credentials.", providerIndex >= 0 && providerIndex < keyIndex)
-        assertTrue("API key should be configured before endpoint fields.", keyIndex < endpointIndex)
-        assertTrue("Endpoint fields should come before model discovery.", endpointIndex < modelIndex)
-        assertTrue("Model discovery should come before ADK agent guidance.", modelIndex < agentIndex)
-        assertTrue("ADK agent guidance should come before upload feature switches.", agentIndex < featureIndex)
+        assertTrue("API key should be configured before model discovery.", keyIndex < modelIndex)
+        assertTrue("Model discovery should come before provider detail disclosure.", modelIndex < detailsIndex)
+        assertTrue("Provider detail disclosure should come before endpoint fields.", detailsIndex < endpointIndex)
+        assertTrue("Provider detail disclosure should come before upload feature switches.", detailsIndex < featureIndex)
+        assertFalse("ADK implementation details should not be a primary setting.", panel.contains("AdkAgentSection()"))
         assertFalse("Provider and model should not be merged into one section.", panel.contains("ProviderAndModelSection("))
         assertTrue("Model check should be gated by API key state.", providerModel.contains("uiState.cloudAiProviderHasApiKey"))
+    }
+
+    @Test
+    fun `cloud api provider details are collapsed until requested`() {
+        val panel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiSettingsPanel.kt")
+
+        assertTrue("Provider details should have local expanded state.", panel.contains("showProviderDetails"))
+        assertTrue("Provider details should have a visible disclosure row.", panel.contains("ProviderDetailsDisclosureRow("))
+        assertTrue(
+            "Endpoint controls should only render after provider details are opened.",
+            panel.contains("visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"),
+        )
+    }
+
+    @Test
+    fun `cloud api keeps post key controls out of the initial path`() {
+        val panel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiSettingsPanel.kt")
+
+        assertTrue("Configured controls should be gated by saved key state.", panel.contains("val showConfiguredControls = uiState.cloudAiProviderHasApiKey"))
+        assertTrue("Model controls should only appear after a key is saved.", panel.contains("visible = showConfiguredControls"))
+        assertTrue("Provider details should only appear after a key is saved.", panel.contains("visible = showConfiguredControls && uiState.cloudAiProvider.needsCustomEndpoint"))
+        assertTrue("Endpoint controls should stay behind the provider details disclosure.", panel.contains("visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"))
+        assertTrue("Connection failure should open provider details for recovery.", panel.contains("uiState.cloudAiModelDiscoveryConnected == false"))
     }
 
     @Test

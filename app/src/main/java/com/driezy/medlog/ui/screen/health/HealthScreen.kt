@@ -20,7 +20,6 @@ import androidx.compose.material3.*
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -47,6 +46,13 @@ import com.driezy.medlog.domain.health.HealthInsight
 import com.driezy.medlog.domain.health.HealthInsightSeverity
 import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.ui.components.AiInteractionStatusPill
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
+import com.driezy.medlog.ui.components.ScreenOverlay
+import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.ocr.HealthOcrScannerPage
 import java.text.SimpleDateFormat
 import java.util.*
@@ -112,50 +118,50 @@ fun HealthScreen(
     viewModel: HealthViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    var showOcrScanner by rememberSaveable { mutableStateOf(false) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
-
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text(stringResource(R.string.health_screen_title)) },
-                actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        MedLogIcon(
-                            MedLogIcons.Settings,
-                            contentDescription = stringResource(R.string.settings_action_open),
-                        )
-                    }
+    var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
+    fun showOcrScanner() {
+        overlay = ScreenOverlay.FullScreen(
+            id = "health:ocr",
+            dismissOnClickOutside = false,
+        ) {
+            HealthOcrScannerPage(
+                onMetricSelected = { metric ->
+                    overlay = null
+                    viewModel.applyOcrMetric(metric)
                 },
-                scrollBehavior = scrollBehavior,
+                onBack = { overlay = null },
+                suggestedType = uiState.draft.type,
             )
-        },
-        floatingActionButton = {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                SmallFloatingActionButton(
-                    onClick = viewModel::startAdd,
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                ) {
-                    MedLogIcon(MedLogIcons.Add, contentDescription = stringResource(R.string.health_screen_fab_cd))
-                }
-                ExtendedFloatingActionButton(
-                    onClick = { showOcrScanner = true },
-                    icon = { MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null) },
-                    text = { Text(stringResource(R.string.health_ocr_hero_scan)) },
-                )
-            }
-        },
+        }
+    }
+
+    MedLogScreenScaffold(
+        title = { Text(stringResource(R.string.health_screen_title)) },
+        actions = listOf(
+            TopBarAction(
+                id = "manual-record",
+                label = stringResource(R.string.health_screen_fab_cd),
+                icon = MedLogIcons.Add,
+                priority = TopBarActionPriority.Secondary,
+                onClick = viewModel::startAdd,
+            ),
+            TopBarAction(
+                id = "settings",
+                label = stringResource(R.string.settings_action_open),
+                icon = MedLogIcons.Settings,
+                priority = TopBarActionPriority.Secondary,
+                onClick = onOpenSettings,
+            ),
+        ),
+        chromeState = ScreenChromeState(
+            isLoading = uiState.isLoading,
+            fab = ScreenFab(
+                label = stringResource(R.string.health_ocr_hero_scan),
+                icon = MedLogIcons.DocumentScanner,
+                onClick = ::showOcrScanner,
+            ),
+        ),
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
-            }
-        } else {
             LazyColumn(
                 contentPadding = MedLogSpacing.ScreenContentWithFab,
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
@@ -164,7 +170,7 @@ fun HealthScreen(
                     // ── OCR 主入口 Hero ─────────────────────────────────────
                     item(key = "ocr_hero") {
                         HealthOcrHeroCard(
-                            onScan = { showOcrScanner = true },
+                            onScan = ::showOcrScanner,
                             onManualRecord = viewModel::startAdd,
                         )
                     }
@@ -285,63 +291,48 @@ fun HealthScreen(
                         }
                     }
             }
-        }
     }
 
-    // ── 新增/编辑底部表单 ────────────────────────────────────────────────────
-    if (uiState.showAddSheet) {
-        AddEditHealthSheet(
-            draft           = uiState.draft,
-            onDismiss       = viewModel::dismissSheet,
-            onTypeChange    = viewModel::onDraftTypeChange,
-            onValueChange   = viewModel::onDraftValueChange,
-            onSecondaryChange = viewModel::onDraftSecondaryChange,
-            onNotesChange   = viewModel::onDraftNotesChange,
-            onTimeChange    = viewModel::onDraftTimeChange,
-            onOcrScan       = { showOcrScanner = true },
-            voiceInput      = uiState.voiceInput,
-            onStartVoiceInput = viewModel::startVoiceInput,
-            onStopVoiceInput = viewModel::stopVoiceInput,
-            onSave          = viewModel::saveRecord,
-        )
-    }
-
-    // ── 删除确认对话框 ────────────────────────────────────────────────────────
-    if (uiState.deleteTarget != null) {
-        AlertDialog(
-            onDismissRequest = viewModel::cancelDelete,
-            title = { Text(stringResource(R.string.health_delete_title)) },
-            text  = { Text(stringResource(R.string.health_delete_body)) },
-            confirmButton = {
-                Button(
-                    onClick = viewModel::confirmDelete,
-                    colors  = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text(stringResource(R.string.common_action_delete)) }
-            },
-            dismissButton = {
-                TextButton(onClick = viewModel::cancelDelete) { Text(stringResource(R.string.common_action_cancel)) }
-            },
-        )
-    }
-
-    // ── OCR 体征扫描器全屏覆盖层 ─────────────────────────────────────────────
-    if (showOcrScanner) {
-        androidx.compose.ui.window.Dialog(
-            onDismissRequest = { showOcrScanner = false },
-            properties = androidx.compose.ui.window.DialogProperties(
-                usePlatformDefaultWidth = false,
-                dismissOnBackPress = true,
-                dismissOnClickOutside = false,
-            ),
-        ) {
-            HealthOcrScannerPage(
-                onMetricSelected = { metric ->
-                    showOcrScanner = false
-                    viewModel.applyOcrMetric(metric)
-                },
-                onBack = { showOcrScanner = false },
-                suggestedType = uiState.draft.type,
+    val deleteTarget = uiState.deleteTarget
+    val stateOverlay = when {
+        uiState.showAddSheet -> ScreenOverlay.Custom(id = "health:record-sheet") {
+            AddEditHealthSheet(
+                draft = uiState.draft,
+                onDismiss = viewModel::dismissSheet,
+                onTypeChange = viewModel::onDraftTypeChange,
+                onValueChange = viewModel::onDraftValueChange,
+                onSecondaryChange = viewModel::onDraftSecondaryChange,
+                onNotesChange = viewModel::onDraftNotesChange,
+                onTimeChange = viewModel::onDraftTimeChange,
+                onOcrScan = ::showOcrScanner,
+                voiceInput = uiState.voiceInput,
+                onStartVoiceInput = viewModel::startVoiceInput,
+                onStopVoiceInput = viewModel::stopVoiceInput,
+                onSave = viewModel::saveRecord,
             )
         }
+        deleteTarget != null -> ScreenOverlay.Confirm(
+            id = "health:delete:${deleteTarget.id}",
+            title = stringResource(R.string.health_delete_title),
+            body = stringResource(R.string.health_delete_body),
+            confirmLabel = stringResource(R.string.common_action_delete),
+            dismissLabel = stringResource(R.string.common_action_cancel),
+            targetKey = deleteTarget.id.toString(),
+            isDanger = true,
+            onConfirm = viewModel::confirmDelete,
+        )
+        else -> null
     }
+    ScreenOverlayHost(
+        overlay = overlay ?: stateOverlay,
+        onDismiss = {
+            if (overlay != null) {
+                overlay = null
+            } else if (uiState.showAddSheet) {
+                viewModel.dismissSheet()
+            } else if (uiState.deleteTarget != null) {
+                viewModel.cancelDelete()
+            }
+        },
+    )
 }

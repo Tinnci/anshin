@@ -27,6 +27,13 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.SymptomLog
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
+import com.driezy.medlog.ui.components.ScreenOverlay
+import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -65,40 +72,28 @@ fun SymptomDiaryScreen(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = { Text(stringResource(R.string.symptom_screen_title)) },
-                actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        MedLogIcon(
-                            MedLogIcons.Settings,
-                            contentDescription = stringResource(R.string.settings_action_open),
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
+    MedLogScreenScaffold(
+        title = { Text(stringResource(R.string.symptom_screen_title)) },
+        actions = listOf(
+            TopBarAction(
+                id = "settings",
+                label = stringResource(R.string.settings_action_open),
+                icon = MedLogIcons.Settings,
+                priority = TopBarActionPriority.Secondary,
+                onClick = onOpenSettings,
+            ),
+        ),
+        chromeState = ScreenChromeState(
+            isLoading = uiState.isLoading,
+            fab = ScreenFab(
+                label = stringResource(R.string.symptom_screen_fab_cd),
+                icon = MedLogIcons.Add,
                 onClick = viewModel::startAdd,
-                icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
-                text = { Text(stringResource(R.string.symptom_screen_fab_cd)) },
-            )
-        },
+            ),
+        ),
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) { LoadingIndicator() }
-        } else if (uiState.logs.isEmpty()) {
+        if (uiState.logs.isEmpty()) {
             SymptomEmptyState(
                 modifier = Modifier
                     .fillMaxSize()
@@ -127,9 +122,9 @@ fun SymptomDiaryScreen(
         }
     }
 
-    // ── 新增 / 编辑底部弹窗 ──────────────────────────────────────────────────
-    if (uiState.showDialog) {
-        AddEditDiarySheet(
+    val stateOverlay = if (uiState.showDialog) {
+        ScreenOverlay.Custom(id = "diary:edit-sheet") {
+            AddEditDiarySheet(
             draft = uiState.draft,
             onDismiss = viewModel::dismissDialog,
             onRatingChange = viewModel::onRatingChange,
@@ -145,7 +140,14 @@ fun SymptomDiaryScreen(
             onStopVoiceInput = viewModel::stopVoiceInput,
             onSave = viewModel::saveLog,
         )
+        }
+    } else {
+        null
     }
+    ScreenOverlayHost(
+        overlay = stateOverlay,
+        onDismiss = viewModel::dismissDialog,
+    )
 }
 
 @Composable

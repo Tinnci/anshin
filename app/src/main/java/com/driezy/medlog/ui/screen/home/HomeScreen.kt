@@ -53,7 +53,14 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.DrugInteraction
 import com.driezy.medlog.data.model.InteractionSeverity
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.MedicationCard
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
+import com.driezy.medlog.ui.components.ScreenOverlay
+import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.util.displayName
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -74,12 +81,11 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
     val haptic = LocalHapticFeedback.current
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
-    var showQrDialog by remember { mutableStateOf(false) }
+    var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
     val importPreview by viewModel.importPreview.collectAsStateWithLifecycle()
     val importError by viewModel.importError.collectAsStateWithLifecycle()
     // 预捕获所有 snackbar 字符串，保证语言切换时内容同步更新
@@ -108,58 +114,67 @@ fun HomeScreen(
         uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
     }
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Column {
-                        Text(stringResource(R.string.home_title), style = MaterialTheme.emphasizedTypography.titleLarge)
-                        Text(
-                            todayDateString(),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                actions = {
-                    FilledTonalIconButton(onClick = { showQrDialog = true }) {
-                        MedLogIcon(MedLogIcons.QrCode2, contentDescription = stringResource(R.string.home_share_qr_cd))
-                    }
-                    IconButton(onClick = viewModel::toggleGroupBy) {
-                        MedLogIcon(
-                            icon = if (uiState.groupByTime) MedLogIcons.Category else MedLogIcons.AccessTime,
-                            contentDescription = if (uiState.groupByTime) stringResource(R.string.home_group_toggle_by_category) else stringResource(R.string.home_group_toggle_by_time),
-                        )
-                    }
-                    IconButton(onClick = onOpenSettings) {
-                        MedLogIcon(
-                            MedLogIcons.Settings,
-                            contentDescription = stringResource(R.string.settings_action_open),
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) },
-        floatingActionButton = {
-            if (uiState.items.isNotEmpty()) {
-                ExtendedFloatingActionButton(
-                    onClick = onAddMedication,
-                    icon = { MedLogIcon(MedLogIcons.Add, contentDescription = null) },
-                    text = { Text(stringResource(R.string.home_fab_add)) },
+    MedLogScreenScaffold(
+        title = {
+            Column {
+                Text(stringResource(R.string.home_title), style = MaterialTheme.emphasizedTypography.titleLarge)
+                Text(
+                    todayDateString(),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
             }
         },
+        actions = listOf(
+            TopBarAction(
+                id = "qr",
+                label = stringResource(R.string.home_share_qr_cd),
+                icon = MedLogIcons.QrCode2,
+                priority = TopBarActionPriority.Primary,
+                onClick = {
+                    overlay = ScreenOverlay.Custom(id = "home:qr") {
+                        MedicationQrDialog(
+                            items = uiState.items,
+                            onDismiss = { overlay = null },
+                            generateExportUri = viewModel::generateExportUri,
+                            onQrScanned = viewModel::onQrScanned,
+                        )
+                    }
+                },
+            ),
+            TopBarAction(
+                id = "group",
+                label = if (uiState.groupByTime) {
+                    stringResource(R.string.home_group_toggle_by_category)
+                } else {
+                    stringResource(R.string.home_group_toggle_by_time)
+                },
+                icon = if (uiState.groupByTime) MedLogIcons.Category else MedLogIcons.AccessTime,
+                priority = TopBarActionPriority.Secondary,
+                onClick = viewModel::toggleGroupBy,
+            ),
+            TopBarAction(
+                id = "settings",
+                label = stringResource(R.string.settings_action_open),
+                icon = MedLogIcons.Settings,
+                priority = TopBarActionPriority.Secondary,
+                onClick = onOpenSettings,
+            ),
+        ),
+        chromeState = ScreenChromeState(
+            isLoading = uiState.isLoading,
+            snackbarHostState = snackbarHostState,
+            fab = if (uiState.items.isNotEmpty()) {
+                ScreenFab(
+                    label = stringResource(R.string.home_fab_add),
+                    icon = MedLogIcons.Add,
+                    onClick = onAddMedication,
+                )
+            } else {
+                null
+            },
+        ),
     ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(
-                Modifier.fillMaxSize().padding(innerPadding),
-                contentAlignment = Alignment.Center,
-            ) { LoadingIndicator() }
-            return@Scaffold
-        }
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
@@ -415,36 +430,30 @@ fun HomeScreen(
             item { Spacer(Modifier.height(80.dp)) }
         }
     }
-    if (showQrDialog) {
-        MedicationQrDialog(
-            items = uiState.items,
-            onDismiss = { showQrDialog = false },
-            generateExportUri = viewModel::generateExportUri,
-            onQrScanned = viewModel::onQrScanned,
+    val importOverlay = when {
+        importPreview != null -> ScreenOverlay.Custom(id = "home:import-preview") {
+            ImportPreviewDialog(
+                plan = importPreview!!,
+                onMerge = { viewModel.confirmImport(com.driezy.medlog.domain.ImportMode.MERGE) },
+                onReplace = { viewModel.confirmImport(com.driezy.medlog.domain.ImportMode.REPLACE) },
+                onDismiss = viewModel::clearImportPreview,
+            )
+        }
+        importError != null -> ScreenOverlay.Confirm(
+            id = "home:import-error",
+            title = stringResource(R.string.qr_scan_title),
+            body = stringResource(R.string.qr_invalid),
+            confirmLabel = stringResource(R.string.home_close),
+            dismissLabel = stringResource(R.string.home_close),
+            onConfirm = viewModel::clearImportPreview,
         )
+        else -> null
     }
-
-    // ── 导入预览对话框 ─────────────────────────────────────────────────────────
-    if (importPreview != null) {
-        ImportPreviewDialog(
-            plan = importPreview!!,
-            onMerge = { viewModel.confirmImport(com.driezy.medlog.domain.ImportMode.MERGE) },
-            onReplace = { viewModel.confirmImport(com.driezy.medlog.domain.ImportMode.REPLACE) },
-            onDismiss = viewModel::clearImportPreview,
-        )
-    }
-
-    // ── 无效 QR 码提示 ─────────────────────────────────────────────────────────
-    if (importError != null) {
-        AlertDialog(
-            onDismissRequest = viewModel::clearImportPreview,
-            title = { Text(stringResource(R.string.qr_scan_title)) },
-            text = { Text(stringResource(R.string.qr_invalid)) },
-            confirmButton = {
-                TextButton(onClick = viewModel::clearImportPreview) {
-                    Text(stringResource(R.string.home_close))
-                }
-            },
-        )
-    }
+    ScreenOverlayHost(
+        overlay = overlay ?: importOverlay,
+        onDismiss = {
+            overlay = null
+            viewModel.clearImportPreview()
+        },
+    )
 }

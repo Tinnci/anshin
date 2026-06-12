@@ -44,6 +44,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
 import androidx.compose.ui.res.stringResource
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -96,8 +97,9 @@ fun WelcomeScreen(
         snapAnimationSpec = motionScheme.defaultSpatialSpec(),
     )
 
-    Scaffold(
-        containerColor = MaterialTheme.colorScheme.surface,
+    MedLogScreenScaffold(
+        title = {},
+        showTopBar = false,
     ) { innerPadding ->
         Column(
             modifier = Modifier

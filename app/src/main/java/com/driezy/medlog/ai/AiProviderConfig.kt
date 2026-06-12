@@ -39,6 +39,25 @@ object AiChatClientFactory {
         config: AiProviderConfig,
         transport: AiHttpTransport = UrlConnectionAiHttpTransport(),
     ): AiChatClient =
+        AdkAiChatClient(
+            model = ProtocolBackedAdkModel(
+                name = config.modelName,
+                delegate = createProtocolClient(config, transport),
+            ),
+        )
+
+    private val AiProviderConfig.modelName: String
+        get() = when (this) {
+            is AiProviderConfig.Mimo -> model
+            is AiProviderConfig.OpenAiCompatible -> model
+            is AiProviderConfig.Gemini -> model
+            is AiProviderConfig.Anthropic -> model
+        }
+
+    private fun createProtocolClient(
+        config: AiProviderConfig,
+        transport: AiHttpTransport,
+    ): AiChatClient =
         when (config) {
             is AiProviderConfig.Mimo ->
                 OpenAiCompatibleChatClient(

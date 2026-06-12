@@ -32,6 +32,11 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
+import com.driezy.medlog.ui.components.TopBarAction
+import com.driezy.medlog.ui.components.TopBarActionPriority
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
@@ -45,50 +50,38 @@ fun HistoryScreen(
     viewModel: HistoryViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
 
-    Scaffold(
-        modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
-        topBar = {
-            LargeTopAppBar(
-                title = {
-                    Column {
-                        Text(stringResource(R.string.history_title))
-                        if (!uiState.isLoading) {
-                            Text(
-                                stringResource(R.string.history_adherence_header, (uiState.overallAdherence * 100).toInt()),
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                        }
-                    }
-                },
-                actions = {
-                    IconButton(onClick = onOpenSettings) {
-                        MedLogIcon(
-                            MedLogIcons.Settings,
-                            contentDescription = stringResource(R.string.settings_action_open),
-                        )
-                    }
-                },
-                scrollBehavior = scrollBehavior,
-            )
-        },
-        floatingActionButton = {
-            ExtendedFloatingActionButton(
-                onClick = viewModel::navigateToToday,
-                icon = { MedLogIcon(MedLogIcons.Today, contentDescription = null) },
-                text = { Text(stringResource(R.string.history_today_button)) },
-            )
-        },
-    ) { innerPadding ->
-        if (uiState.isLoading) {
-            Box(Modifier.fillMaxSize().padding(innerPadding), contentAlignment = Alignment.Center) {
-                LoadingIndicator()
+    MedLogScreenScaffold(
+        title = {
+            Column {
+                Text(stringResource(R.string.history_title))
+                if (!uiState.isLoading) {
+                    Text(
+                        stringResource(R.string.history_adherence_header, (uiState.overallAdherence * 100).toInt()),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
-            return@Scaffold
-        }
-
+        },
+        actions = listOf(
+            TopBarAction(
+                id = "settings",
+                label = stringResource(R.string.settings_action_open),
+                icon = MedLogIcons.Settings,
+                priority = TopBarActionPriority.Secondary,
+                onClick = onOpenSettings,
+            ),
+        ),
+        chromeState = ScreenChromeState(
+            isLoading = uiState.isLoading,
+            fab = ScreenFab(
+                label = stringResource(R.string.history_today_button),
+                icon = MedLogIcons.Today,
+                onClick = viewModel::navigateToToday,
+            ),
+        ),
+    ) { innerPadding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
