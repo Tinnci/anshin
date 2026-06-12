@@ -217,6 +217,15 @@
     <string name="settings_home_action_data">数据与备份</string>
     <string name="settings_home_center_title">设置中心</string>
     <string name="settings_home_center_desc">按任务进入提醒、智能能力、小组件和数据管理</string>
+    <string name="settings_home_dashboard_title">设置中心</string>
+    <string name="settings_home_dashboard_desc">先看状态，再进入对应设置页；常用模块可在下方直接开关</string>
+    <string name="settings_home_tile_reminders_status">提醒、作息和权限</string>
+    <string name="settings_home_tile_ai_status">本地 OCR 与离线智能</string>
+    <string name="settings_home_tile_ai_status_cloud">云端增强已开启</string>
+    <string name="settings_home_tile_widgets_status">桌面快捷入口</string>
+    <plurals name="settings_home_tile_data_status">
+        <item quantity="other">%d 个归档药品</item>
+    </plurals>
     <string name="settings_destination_reminders">提醒与作息</string>
     <string name="settings_destination_reminders_desc">通知节奏、漏服再提醒、作息时段和旅行时区</string>
     <string name="settings_destination_intelligence">智能能力</string>
@@ -273,6 +282,7 @@
         <item quantity="other">在服药时间前 %d 分钟发送预告</item>
     </plurals>
     <string name="settings_early_reminder_body_off">关闭（仅在服药时间精确提醒）</string>
+    <string name="settings_on">开启</string>
     <string name="settings_off">关闭</string>
     <string name="settings_1hour">1 小时</string>
     <string name="settings_routine_mode_title">作息时段提醒模式</string>
@@ -988,11 +998,13 @@
     <string name="settings_ai_api_key_clear">清除</string>
     <string name="settings_ai_api_key_import_label">粘贴标准导入内容或 .env</string>
     <string name="settings_ai_api_key_import_hint">支持 anshin:key:v1:、NVIDIA_API_KEY、OPENAI_API_KEY/OPENAI_BASE_URL 等格式</string>
+    <string name="settings_ai_api_key_import_unsupported">无法识别此内容。请粘贴标准导入内容或 .env 格式。</string>
     <string name="settings_ai_api_key_import_preview">将导入 %1$s</string>
     <string name="settings_ai_api_key_import_preview_with_model">将导入 %1$s · %2$s</string>
     <string name="settings_ai_api_key_import_standard_chip">标准格式</string>
     <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">导入并保存</string>
+    <string name="settings_ai_api_key_import_scan">扫码导入 key</string>
     <string name="settings_ai_endpoint_section_title">端点配置</string>
     <string name="settings_ai_api_key_tab_manual">手动输入</string>
     <string name="settings_ai_api_key_tab_import">粘贴导入</string>

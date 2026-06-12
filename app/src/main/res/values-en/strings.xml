@@ -226,6 +226,16 @@
     <string name="settings_home_action_data">Data and backup</string>
     <string name="settings_home_center_title">Settings center</string>
     <string name="settings_home_center_desc">Open reminders, intelligence, widgets, and data management by task</string>
+    <string name="settings_home_dashboard_title">Settings center</string>
+    <string name="settings_home_dashboard_desc">Start with status, jump into the right settings page, and toggle common modules below</string>
+    <string name="settings_home_tile_reminders_status">Reminders, routine, permissions</string>
+    <string name="settings_home_tile_ai_status">Local OCR and offline intelligence</string>
+    <string name="settings_home_tile_ai_status_cloud">Cloud enhancement enabled</string>
+    <string name="settings_home_tile_widgets_status">Home screen shortcuts</string>
+    <plurals name="settings_home_tile_data_status">
+        <item quantity="one">%d archived medication</item>
+        <item quantity="other">%d archived medications</item>
+    </plurals>
     <string name="settings_destination_reminders">Reminders &amp; Routine</string>
     <string name="settings_destination_reminders_desc">Notification cadence, missed-dose follow-ups, routine periods, and travel timezone</string>
     <string name="settings_destination_intelligence">Intelligence</string>
@@ -284,6 +294,7 @@
         <item quantity="other">Sends a reminder %d minutes before scheduled time</item>
     </plurals>
     <string name="settings_early_reminder_body_off">Off (remind only at exact scheduled time)</string>
+    <string name="settings_on">On</string>
     <string name="settings_off">Off</string>
     <string name="settings_1hour">1 hr</string>
     <string name="settings_routine_mode_title">Routine Period Mode</string>
@@ -1020,11 +1031,13 @@ Path: Settings → Privacy → Permissions → Desktop shortcut → MedLog → A
     <string name="settings_ai_api_key_clear">Clear</string>
     <string name="settings_ai_api_key_import_label">Paste a standard import or .env block</string>
     <string name="settings_ai_api_key_import_hint">Supports anshin:key:v1:, NVIDIA_API_KEY, OPENAI_API_KEY/OPENAI_BASE_URL, and similar formats</string>
+    <string name="settings_ai_api_key_import_unsupported">This content is not recognized. Paste a standard import or .env block.</string>
     <string name="settings_ai_api_key_import_preview">Will import %1$s</string>
     <string name="settings_ai_api_key_import_preview_with_model">Will import %1$s · %2$s</string>
     <string name="settings_ai_api_key_import_standard_chip">Standard</string>
     <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">Import and save</string>
+    <string name="settings_ai_api_key_import_scan">Scan key QR</string>
     <string name="settings_ai_endpoint_section_title">Endpoint Configuration</string>
     <string name="settings_ai_api_key_tab_manual">Manual Input</string>
     <string name="settings_ai_api_key_tab_import">Paste Import</string>

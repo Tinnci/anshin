@@ -228,16 +228,36 @@ internal data class CloudAiSettingsPresentation(
     }
 }
 
+internal enum class CloudAiApiKeyImportVisualState {
+    EMPTY,
+    UNSUPPORTED,
+    READY,
+}
+
 internal data class CloudAiApiKeyImportPresentation(
+    val visualState: CloudAiApiKeyImportVisualState,
     val canImport: Boolean,
     val providerName: String?,
     val model: String?,
 ) {
     companion object {
         fun from(raw: String): CloudAiApiKeyImportPresentation {
+            if (raw.isBlank()) {
+                return CloudAiApiKeyImportPresentation(
+                    visualState = CloudAiApiKeyImportVisualState.EMPTY,
+                    canImport = false,
+                    providerName = null,
+                    model = null,
+                )
+            }
             val payload = UnifiedImportPayloadCodec.decode(raw)
             val key = (payload as? UnifiedImportPayload.CloudAiApiKey)?.key
             return CloudAiApiKeyImportPresentation(
+                visualState = if (key == null) {
+                    CloudAiApiKeyImportVisualState.UNSUPPORTED
+                } else {
+                    CloudAiApiKeyImportVisualState.READY
+                },
                 canImport = key != null,
                 providerName = key?.providerName ?: key?.provider?.providerName,
                 model = key?.model,

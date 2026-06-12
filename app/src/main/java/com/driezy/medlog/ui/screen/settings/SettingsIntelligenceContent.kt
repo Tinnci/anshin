@@ -13,7 +13,8 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +34,7 @@ import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.qr.QrScannerPage
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.ui.utils.OemWidgetHelper
@@ -50,6 +52,7 @@ internal fun SettingsIntelligenceContent(
     viewModel: SettingsViewModel,
 ) {
     val motionScheme = MaterialTheme.motionScheme
+    var showApiKeyScanner by rememberSaveable { mutableStateOf(false) }
     SettingsCard(
     title = stringResource(R.string.settings_group_intelligence),
     subtitle = stringResource(R.string.settings_group_intelligence_desc),
@@ -152,8 +155,26 @@ internal fun SettingsIntelligenceContent(
             onWifiOnlyChange = { viewModel.setCloudAiSettings(wifiOnly = it) },
             onApiKeySave = viewModel::setCurrentCloudAiApiKey,
             onApiKeyImport = viewModel::importCloudAiApiKey,
+            onApiKeyScan = { showApiKeyScanner = true },
             onApiKeyClear = viewModel::clearCurrentCloudAiApiKey,
         )
     }
+    }
+    if (showApiKeyScanner) {
+        androidx.compose.ui.window.Dialog(
+            onDismissRequest = { showApiKeyScanner = false },
+            properties = androidx.compose.ui.window.DialogProperties(
+                usePlatformDefaultWidth = false,
+                dismissOnBackPress = true,
+            ),
+        ) {
+            QrScannerPage(
+                onResult = { raw ->
+                    showApiKeyScanner = false
+                    viewModel.importCloudAiApiKey(raw)
+                },
+                onBack = { showApiKeyScanner = false },
+            )
+        }
     }
 }

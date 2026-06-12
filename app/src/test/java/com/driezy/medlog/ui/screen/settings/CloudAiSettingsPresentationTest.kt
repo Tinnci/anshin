@@ -243,5 +243,17 @@ class CloudAiSettingsPresentationTest {
         assertEquals(true, presentation.canImport)
         assertEquals("NVIDIA NIM APIs", presentation.providerName)
         assertEquals("meta/llama-3.1-8b-instruct", presentation.model)
+        assertEquals(CloudAiApiKeyImportVisualState.READY, presentation.visualState)
+    }
+
+    @Test
+    fun `api key import presentation separates empty and unsupported text`() {
+        val empty = CloudAiApiKeyImportPresentation.from("")
+        val unsupported = CloudAiApiKeyImportPresentation.from("hello world")
+
+        assertEquals(false, empty.canImport)
+        assertEquals(CloudAiApiKeyImportVisualState.EMPTY, empty.visualState)
+        assertEquals(false, unsupported.canImport)
+        assertEquals(CloudAiApiKeyImportVisualState.UNSUPPORTED, unsupported.visualState)
     }
 }
