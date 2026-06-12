@@ -3,8 +3,8 @@ package com.driezy.medlog.ui.screen.settings
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
@@ -58,8 +58,11 @@ internal fun ThemePaletteChip(
             .widthIn(min = 148.dp)
             .height(64.dp)
             .clip(RoundedCornerShape(18.dp))
-            .clickable(onClick = onClick)
-            .semantics { role = Role.RadioButton },
+            .selectable(
+                selected = selected,
+                role = Role.RadioButton,
+                onClick = onClick,
+            ),
         shape = RoundedCornerShape(18.dp),
         color = if (selected) scheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = if (selected) scheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,

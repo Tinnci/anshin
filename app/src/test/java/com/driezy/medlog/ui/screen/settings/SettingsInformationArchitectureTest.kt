@@ -140,6 +140,20 @@ class SettingsInformationArchitectureTest {
     }
 
     @Test
+    fun `settings entry controls bind role to the interaction modifier`() {
+        val dashboard = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsHomeDashboardContent.kt")
+        val rows = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsRowsComponents.kt")
+        val display = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsDisplayOptions.kt")
+
+        assertTrue("Dashboard tiles should bind button role on clickable.", dashboard.contains(".clickable(\n                role = Role.Button"))
+        assertFalse("Dashboard tiles should not split clickable and button semantics.", dashboard.contains(".clickable(onClick = onClick)\n            .semantics { role = Role.Button }"))
+        assertTrue("Navigation rows should bind button role on clickable.", rows.contains(".clickable(\n                role = Role.Button"))
+        assertFalse("Navigation rows should not split clickable and button semantics.", rows.contains(".clickable(onClick = onClick)\n            .semantics { role = Role.Button }"))
+        assertTrue("Palette chips should use selectable for radio behavior.", display.contains(".selectable("))
+        assertFalse("Palette chips should not split clickable and radio semantics.", display.contains(".clickable(onClick = onClick)\n            .semantics { role = Role.RadioButton }"))
+    }
+
+    @Test
     fun `settings deep sections have typed navigation routes`() {
         val destinations = source("app/src/main/java/com/driezy/medlog/ui/navigation/MedLogDestinations.kt")
         val app = source("app/src/main/java/com/driezy/medlog/ui/MedLogApp.kt")
