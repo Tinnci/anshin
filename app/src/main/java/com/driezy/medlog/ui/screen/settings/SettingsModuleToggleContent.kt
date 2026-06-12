@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -20,6 +21,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.stateDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
@@ -80,10 +84,26 @@ private fun SettingsModuleToggleCard(
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
 ) {
+    val statusText = stringResource(
+        if (checked) {
+            R.string.settings_on
+        } else {
+            R.string.settings_off
+        },
+    )
+
     Surface(
         modifier = Modifier
             .widthIn(min = 150.dp)
-            .heightIn(min = 138.dp),
+            .heightIn(min = 138.dp)
+            .toggleable(
+                value = checked,
+                role = Role.Switch,
+                onValueChange = onCheckedChange,
+            )
+            .semantics {
+                stateDescription = statusText
+            },
         shape = RoundedCornerShape(20.dp),
         color = if (checked) {
             MaterialTheme.colorScheme.secondaryContainer
@@ -118,7 +138,7 @@ private fun SettingsModuleToggleCard(
                 )
                 Switch(
                     checked = checked,
-                    onCheckedChange = onCheckedChange,
+                    onCheckedChange = null,
                 )
             }
             Text(
@@ -144,13 +164,7 @@ private fun SettingsModuleToggleCard(
                 },
             ) {
                 Text(
-                    text = stringResource(
-                        if (checked) {
-                            R.string.settings_on
-                        } else {
-                            R.string.settings_off
-                        },
-                    ),
+                    text = statusText,
                     style = MaterialTheme.typography.labelMedium,
                     modifier = Modifier.padding(horizontal = MedLogSpacing.Small, vertical = 6.dp),
                 )
