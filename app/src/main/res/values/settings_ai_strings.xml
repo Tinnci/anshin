@@ -43,6 +43,11 @@
     <string name="settings_ai_models_failed">连接失败：%s</string>
     <string name="settings_ai_model_chip_image">%s · 图片</string>
     <string name="settings_ai_model_chip_text">%s · 文本</string>
+    <string name="settings_ai_adk_title">ADK agent</string>
+    <string name="settings_ai_adk_body">用于本机 agent 或后端 agent。生产环境不要把云端 API key 写入客户端；需要云端模型时通过后端或 Firebase AI Logic 转发。</string>
+    <string name="settings_ai_adk_android_chip">Android runtime</string>
+    <string name="settings_ai_adk_ksp_chip">KSP tools</string>
+    <string name="settings_ai_adk_nano_chip">Gemini Nano</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
     <string name="settings_ai_base_url_hint">例如 https://api.example.com/v1</string>
     <string name="settings_ai_endpoint_label">API Endpoint</string>

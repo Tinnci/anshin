@@ -162,12 +162,14 @@ class SettingsInformationArchitectureTest {
         val keyIndex = panel.indexOf("ApiKeyManagementSection(")
         val endpointIndex = panel.indexOf("EndpointConfigSection(")
         val modelIndex = panel.indexOf("CloudAiModelSection(")
+        val agentIndex = panel.indexOf("AdkAgentSection(")
         val featureIndex = panel.indexOf("CloudAiFeatureToggles(")
 
         assertTrue("Service should be selected before credentials.", providerIndex >= 0 && providerIndex < keyIndex)
         assertTrue("API key should be configured before endpoint fields.", keyIndex < endpointIndex)
         assertTrue("Endpoint fields should come before model discovery.", endpointIndex < modelIndex)
-        assertTrue("Model discovery should come before upload feature switches.", modelIndex < featureIndex)
+        assertTrue("Model discovery should come before ADK agent guidance.", modelIndex < agentIndex)
+        assertTrue("ADK agent guidance should come before upload feature switches.", agentIndex < featureIndex)
         assertFalse("Provider and model should not be merged into one section.", panel.contains("ProviderAndModelSection("))
         assertTrue("Model check should be gated by API key state.", providerModel.contains("uiState.cloudAiProviderHasApiKey"))
     }

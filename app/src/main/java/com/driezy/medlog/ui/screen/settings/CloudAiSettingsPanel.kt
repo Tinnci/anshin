@@ -85,6 +85,8 @@ internal fun CloudAiSettingsPanel(
             onRefreshModels = onRefreshModels,
         )
 
+        AdkAgentSection()
+
         CloudAiFeatureToggles(
             uiState = uiState,
             onImageAnalysisChange = onImageAnalysisChange,
