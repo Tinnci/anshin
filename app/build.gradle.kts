@@ -139,7 +139,9 @@ dependencies {
     implementation(libs.androidx.photopicker.compose)
 
     // ADK Android agents
-    implementation(libs.google.adk.kotlin.core.android)
+    implementation(libs.google.adk.kotlin.core.android) {
+        exclude(group = "net.sf.kxml", module = "kxml2")
+    }
     ksp(libs.google.adk.kotlin.processor)
 
     // Room
