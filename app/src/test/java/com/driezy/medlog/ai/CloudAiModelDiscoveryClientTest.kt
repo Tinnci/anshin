@@ -49,6 +49,54 @@ class CloudAiModelDiscoveryClientTest {
     }
 
     @Test
+    fun `openai compatible discovery surfaces model capabilities context and description when provided`() = runTest {
+        val http = RecordingAiHttpTransport(
+            response = AiHttpResponse(
+                code = 200,
+                body = """
+                    {
+                      "data": [
+                        {
+                          "id": "gpt-4.1-mini",
+                          "display_name": "GPT-4.1 mini",
+                          "modalities": ["text", "image"],
+                          "capabilities": ["json", "tools"],
+                          "context_window": 128000,
+                          "description": "Fast multimodal model"
+                        },
+                        {
+                          "id": "text-embedding-3-small",
+                          "capabilities": ["embedding"],
+                          "max_context_length": 8191
+                        }
+                      ]
+                    }
+                """.trimIndent(),
+            ),
+        )
+        val client = CloudAiModelDiscoveryClient(http)
+
+        val result = client.fetch(
+            AiProviderConfig.OpenAiCompatible(
+                baseUrl = "https://api.example.com/v1",
+                model = "gpt-4.1-mini",
+                apiKey = "key",
+                authMode = OpenAiAuthMode.BEARER,
+                providerName = "ExampleAI",
+            ),
+        )
+
+        assertTrue(result.isConnected)
+        assertEquals(listOf("gpt-4.1-mini", "text-embedding-3-small"), result.models.map { it.id })
+        assertTrue(result.models[0].toString().contains("supportsJsonInstruction=true"))
+        assertTrue(result.models[0].toString().contains("contextWindow=128000"))
+        assertTrue(result.models[0].toString().contains("description=Fast multimodal model"))
+        assertFalse(result.models[1].supportsText)
+        assertFalse(result.models[1].supportsImageInput)
+        assertTrue(result.models[1].toString().contains("contextWindow=8191"))
+    }
+
+    @Test
     fun `nvidia nim discovery uses hosted v1 models endpoint and detects vl models`() = runTest {
         val http = RecordingAiHttpTransport(
             response = AiHttpResponse(

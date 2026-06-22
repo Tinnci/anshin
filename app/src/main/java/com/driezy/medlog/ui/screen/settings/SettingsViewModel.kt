@@ -248,11 +248,19 @@ class SettingsViewModel @Inject constructor(
                 openAiCompatibleAuthMode = openAiCompatibleAuthMode,
                 openAiCompatibleProviderName = openAiCompatibleProviderName,
             )
+            if (provider != null) {
+                cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState()
+            }
         }
     }
 
     fun setCloudAiApiKey(provider: CloudAiProvider, apiKey: String) {
-        safeLaunch { aiApiKeyStore.setApiKey(provider, apiKey) }
+        safeLaunch {
+            aiApiKeyStore.setApiKey(provider, apiKey.trim())
+            if (provider == prefsRepository.settingsFlow.first().cloudAiProvider) {
+                refreshCloudAiModelsForCurrentSettings()
+            }
+        }
     }
 
     fun setCurrentCloudAiApiKey(apiKey: String) {
@@ -281,39 +289,44 @@ class SettingsViewModel @Inject constructor(
                     key.provider == CloudAiProvider.OPENAI_COMPATIBLE
                 },
             )
+            refreshCloudAiModelsForCurrentSettings()
         }
     }
 
     fun refreshCloudAiModels() {
         safeLaunch {
-            cloudAiModelDiscovery.value = cloudAiModelDiscovery.value.copy(
-                inProgress = true,
-                connected = null,
-                error = null,
-            )
-            val settings = prefsRepository.settingsFlow.first()
-            val apiKey = aiApiKeyStore.getApiKey(settings.cloudAiProvider)
-            val config = settings.toDiscoveryConfig(apiKey)
-            if (config == null) {
-                cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
-                    connected = false,
-                    error = "API key or OpenAI-compatible Base URL is missing.",
-                )
-                return@safeLaunch
-            }
-
-            val result = modelDiscoveryClient.fetch(config)
-            val selected = result.selectBestModel(requireImageInput = true)
-                ?: result.selectBestModel(requireImageInput = false)
-            if (result.isConnected && selected != null) {
-                prefsRepository.updateCloudAiSettings(model = selected.id)
-            }
-            cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
-                connected = result.isConnected,
-                error = result.errorMessage,
-                models = result.models,
-            )
+            refreshCloudAiModelsForCurrentSettings()
         }
+    }
+
+    private suspend fun refreshCloudAiModelsForCurrentSettings() {
+        cloudAiModelDiscovery.value = cloudAiModelDiscovery.value.copy(
+            inProgress = true,
+            connected = null,
+            error = null,
+        )
+        val settings = prefsRepository.settingsFlow.first()
+        val apiKey = aiApiKeyStore.getApiKey(settings.cloudAiProvider)
+        val config = settings.toDiscoveryConfig(apiKey)
+        if (config == null) {
+            cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
+                connected = false,
+                error = "API key or OpenAI-compatible Base URL is missing.",
+            )
+            return
+        }
+
+        val result = modelDiscoveryClient.fetch(config)
+        val selected = result.selectBestModel(requireImageInput = true)
+            ?: result.selectBestModel(requireImageInput = false)
+        if (result.isConnected && selected != null) {
+            prefsRepository.updateCloudAiSettings(model = selected.id)
+        }
+        cloudAiModelDiscovery.value = CloudAiModelDiscoveryUiState(
+            connected = result.isConnected,
+            error = result.errorMessage,
+            models = result.models,
+        )
     }
 
     fun applyCloudAiEndpointPreset(preset: CloudAiEndpointPreset) {

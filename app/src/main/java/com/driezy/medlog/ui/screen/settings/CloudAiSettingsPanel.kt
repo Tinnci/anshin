@@ -55,7 +55,9 @@ internal fun CloudAiSettingsPanel(
     onApiKeyScan: () -> Unit,
     onApiKeyClear: () -> Unit,
 ) {
-    var showProviderDetails by rememberSaveable(uiState.cloudAiProvider) { mutableStateOf(false) }
+    var showProviderDetails by rememberSaveable(uiState.cloudAiProvider) {
+        mutableStateOf(uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE)
+    }
     val showConfiguredControls = uiState.cloudAiProviderHasApiKey
 
     LaunchedEffect(uiState.cloudAiModelDiscoveryConnected, showConfiguredControls) {
@@ -76,6 +78,33 @@ internal fun CloudAiSettingsPanel(
             onProviderChange = onProviderChange,
         )
 
+        AnimatedVisibility(
+            visible = uiState.cloudAiProvider.needsCustomEndpoint,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            ProviderDetailsDisclosureRow(
+                expanded = showProviderDetails,
+                onClick = { showProviderDetails = !showProviderDetails },
+            )
+        }
+
+        AnimatedVisibility(
+            visible = showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut(),
+        ) {
+            EndpointConfigSection(
+                uiState = uiState,
+                onMimoBaseUrlSave = onMimoBaseUrlSave,
+                onAnthropicBaseUrlSave = onAnthropicBaseUrlSave,
+                onOpenAiBaseUrlSave = onOpenAiBaseUrlSave,
+                onOpenAiAuthModeChange = onOpenAiAuthModeChange,
+                onOpenAiProviderNameSave = onOpenAiProviderNameSave,
+                onEndpointPresetSelect = onEndpointPresetSelect,
+            )
+        }
+
         ApiKeyManagementSection(
             uiState = uiState,
             onApiKeySave = onApiKeySave,
@@ -93,33 +122,6 @@ internal fun CloudAiSettingsPanel(
                 uiState = uiState,
                 onModelSave = onModelSave,
                 onRefreshModels = onRefreshModels,
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showConfiguredControls && uiState.cloudAiProvider.needsCustomEndpoint,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            ProviderDetailsDisclosureRow(
-                expanded = showProviderDetails,
-                onClick = { showProviderDetails = !showProviderDetails },
-            )
-        }
-
-        AnimatedVisibility(
-            visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
-        ) {
-            EndpointConfigSection(
-                uiState = uiState,
-                onMimoBaseUrlSave = onMimoBaseUrlSave,
-                onAnthropicBaseUrlSave = onAnthropicBaseUrlSave,
-                onOpenAiBaseUrlSave = onOpenAiBaseUrlSave,
-                onOpenAiAuthModeChange = onOpenAiAuthModeChange,
-                onOpenAiProviderNameSave = onOpenAiProviderNameSave,
-                onEndpointPresetSelect = onEndpointPresetSelect,
             )
         }
 

@@ -8,12 +8,14 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.RadioButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,9 +28,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ai.CloudAiDiscoveredModel
 import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
@@ -108,6 +112,11 @@ internal fun CloudAiModelSection(
                 style = MaterialTheme.typography.titleSmall,
                 fontWeight = FontWeight.SemiBold,
             )
+            Text(
+                text = stringResource(R.string.settings_ai_model_section_desc),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             OutlinedTextField(
                 value = modelDraft,
                 onValueChange = { modelDraft = it },
@@ -128,7 +137,7 @@ internal fun CloudAiModelSection(
                 canCheckModels = canCheckModels,
                 onRefreshModels = onRefreshModels,
             )
-            DiscoveredModelChips(
+            DiscoveredModelRows(
                 uiState = uiState,
                 onModelSelect = { model ->
                     modelDraft = model
@@ -190,42 +199,114 @@ private fun ModelDiscoveryStatusRow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DiscoveredModelChips(
+private fun DiscoveredModelRows(
     uiState: SettingsUiState,
     onModelSelect: (String) -> Unit,
 ) {
     if (uiState.cloudAiDiscoveredModels.isEmpty()) return
 
-    FlowRow(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
-    ) {
-        uiState.cloudAiDiscoveredModels.take(12).forEach { model ->
-            AssistChip(
-                onClick = { onModelSelect(model.id) },
-                label = {
-                    Text(
-                        text = if (model.supportsImageInput) {
-                            stringResource(R.string.settings_ai_model_chip_image, model.id)
-                        } else {
-                            stringResource(R.string.settings_ai_model_chip_text, model.id)
-                        },
-                        maxLines = 1,
+    Column(modifier = Modifier.fillMaxWidth()) {
+        uiState.cloudAiDiscoveredModels.forEachIndexed { index, model ->
+            val selected = model.id == uiState.cloudAiModel
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .selectable(
+                        selected = selected,
+                        role = Role.RadioButton,
+                        onClick = { onModelSelect(model.id) },
                     )
-                },
-                leadingIcon = if (model.supportsImageInput) {
-                    {
-                        MedLogIcon(
-                            MedLogIcons.DocumentScanner,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
+                    .padding(vertical = MedLogSpacing.Small),
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalAlignment = Alignment.Top,
+            ) {
+                RadioButton(
+                    selected = selected,
+                    onClick = { onModelSelect(model.id) },
+                )
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                ) {
+                    Text(
+                        text = model.displayName,
+                        style = MaterialTheme.typography.bodyLarge,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    if (model.displayName != model.id) {
+                        Text(
+                            text = model.id,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                } else {
-                    null
-                },
-            )
+                    ModelCapabilityTags(model)
+                    model.contextWindow?.let { contextWindow ->
+                        Text(
+                            text = stringResource(
+                                R.string.settings_ai_model_context_window,
+                                contextWindow.formatTokenCount(),
+                            ),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                    model.description?.takeIf { it.isNotBlank() }?.let { description ->
+                        Text(
+                            text = description,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                }
+            }
+            if (index != uiState.cloudAiDiscoveredModels.lastIndex) {
+                HorizontalDivider()
+            }
         }
     }
 }
+
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun ModelCapabilityTags(model: CloudAiDiscoveredModel) {
+    FlowRow(
+        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+    ) {
+        if (model.supportsText) {
+            ModelCapabilityTag(text = stringResource(R.string.settings_ai_model_capability_text))
+        }
+        if (model.supportsImageInput) {
+            ModelCapabilityTag(text = stringResource(R.string.settings_ai_model_capability_image))
+        }
+        if (model.supportsJsonInstruction) {
+            ModelCapabilityTag(text = stringResource(R.string.settings_ai_model_capability_json))
+        }
+        if (!model.supportsText && !model.supportsImageInput) {
+            ModelCapabilityTag(text = stringResource(R.string.settings_ai_model_capability_other))
+        }
+    }
+}
+
+@Composable
+private fun ModelCapabilityTag(text: String) {
+    Surface(
+        shape = RoundedCornerShape(8.dp),
+        color = MaterialTheme.colorScheme.secondaryContainer,
+        contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+    ) {
+        Text(
+            text = text,
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Small, vertical = 3.dp),
+            style = MaterialTheme.typography.labelSmall,
+        )
+    }
+}
+
+private fun Long.formatTokenCount(): String =
+    toString()
+        .reversed()
+        .chunked(3)
+        .joinToString(",")
+        .reversed()

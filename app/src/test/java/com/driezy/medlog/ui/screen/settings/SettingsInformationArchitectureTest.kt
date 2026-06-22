@@ -158,6 +158,7 @@ class SettingsInformationArchitectureTest {
     fun `cloud api settings follow configuration order`() {
         val panel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiSettingsPanel.kt")
         val providerModel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/CloudAiProviderModelSection.kt")
+        val viewModel = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsViewModel.kt")
         val providerIndex = panel.indexOf("CloudAiProviderSection(")
         val keyIndex = panel.indexOf("ApiKeyManagementSection(")
         val endpointIndex = panel.indexOf("EndpointConfigSection(")
@@ -166,13 +167,28 @@ class SettingsInformationArchitectureTest {
         val featureIndex = panel.indexOf("CloudAiFeatureToggles(")
 
         assertTrue("Service should be selected before credentials.", providerIndex >= 0 && providerIndex < keyIndex)
+        assertTrue("Provider detail disclosure should come before credentials for custom endpoints.", detailsIndex < keyIndex)
+        assertTrue("Endpoint fields should come before credentials when a provider needs them.", endpointIndex < keyIndex)
         assertTrue("API key should be configured before model discovery.", keyIndex < modelIndex)
-        assertTrue("Model discovery should come before provider detail disclosure.", modelIndex < detailsIndex)
-        assertTrue("Provider detail disclosure should come before endpoint fields.", detailsIndex < endpointIndex)
-        assertTrue("Provider detail disclosure should come before upload feature switches.", detailsIndex < featureIndex)
+        assertTrue("Model discovery should come before upload feature switches.", modelIndex < featureIndex)
         assertFalse("ADK implementation details should not be a primary setting.", panel.contains("AdkAgentSection()"))
         assertFalse("Provider and model should not be merged into one section.", panel.contains("ProviderAndModelSection("))
         assertTrue("Model check should be gated by API key state.", providerModel.contains("uiState.cloudAiProviderHasApiKey"))
+        val keySaveBody = viewModel.substringAfter("fun setCloudAiApiKey(").substringBefore("\n    fun setCurrentCloudAiApiKey")
+        assertTrue(
+            "Saving a manual API key should trigger model discovery.",
+            keySaveBody.contains("refreshCloudAiModelsForCurrentSettings()"),
+        )
+        val keyImportBody = viewModel.substringAfter("fun importCloudAiApiKey(").substringBefore("\n    fun refreshCloudAiModels")
+        assertTrue(
+            "Importing an API key should trigger model discovery.",
+            keyImportBody.contains("refreshCloudAiModelsForCurrentSettings()"),
+        )
+        assertTrue("The model selector should render detailed rows, not terse chips.", providerModel.contains("DiscoveredModelRows("))
+        assertFalse("Model selection should not compress discovered models into chips.", providerModel.contains("DiscoveredModelChips("))
+        assertTrue("Model rows should label model capability information.", providerModel.contains("settings_ai_model_capability_image"))
+        assertTrue("Model rows should label context-window information when available.", providerModel.contains("settings_ai_model_context_window"))
+        assertTrue("Model rows should surface provider descriptions when available.", providerModel.contains("model.description"))
     }
 
     @Test
@@ -182,8 +198,8 @@ class SettingsInformationArchitectureTest {
         assertTrue("Provider details should have local expanded state.", panel.contains("showProviderDetails"))
         assertTrue("Provider details should have a visible disclosure row.", panel.contains("ProviderDetailsDisclosureRow("))
         assertTrue(
-            "Endpoint controls should only render after provider details are opened.",
-            panel.contains("visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"),
+            "Endpoint controls should render after provider details are opened.",
+            panel.contains("visible = showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"),
         )
     }
 
@@ -193,8 +209,8 @@ class SettingsInformationArchitectureTest {
 
         assertTrue("Configured controls should be gated by saved key state.", panel.contains("val showConfiguredControls = uiState.cloudAiProviderHasApiKey"))
         assertTrue("Model controls should only appear after a key is saved.", panel.contains("visible = showConfiguredControls"))
-        assertTrue("Provider details should only appear after a key is saved.", panel.contains("visible = showConfiguredControls && uiState.cloudAiProvider.needsCustomEndpoint"))
-        assertTrue("Endpoint controls should stay behind the provider details disclosure.", panel.contains("visible = showConfiguredControls && showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"))
+        assertTrue("Provider details should appear before key entry when an endpoint is required.", panel.contains("visible = uiState.cloudAiProvider.needsCustomEndpoint"))
+        assertTrue("Endpoint controls should stay behind the provider details disclosure.", panel.contains("visible = showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint"))
         assertTrue("Connection failure should open provider details for recovery.", panel.contains("uiState.cloudAiModelDiscoveryConnected == false"))
     }
 

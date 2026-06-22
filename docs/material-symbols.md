@@ -30,7 +30,7 @@ offline rendering, so the maintained source is local VectorDrawable XML.
 Run:
 
 ```bash
-node scripts/update_material_symbols.mjs
+bun scripts/update_material_symbols.mjs
 ```
 
 The script fetches Material Symbols Rounded SVG paths from Google Fonts icon

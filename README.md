@@ -93,6 +93,24 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 
 ---
 
+## Maintained Docs
+
+- [UI design system](docs/ui-design-system.md): durable UI rules for Material 3
+  Expressive, color roles, icons, carousel usage, and editorial treatment.
+- [AI health intelligence plan](docs/ai-health-intelligence-plan.md): product
+  decisions, safety constraints, implementation review, and follow-up plan.
+- [Material Symbols usage](docs/material-symbols.md): local VectorDrawable
+  source, update workflow, and icon rules.
+- [OCR model evaluation](seven_segment_ocr/MODEL_EVALUATION.md): current OCR
+  candidates, benchmark schema, evaluator notes, and maintained conclusions.
+- [OCR pipeline design](seven_segment_ocr/PIPELINE_DESIGN.md): headless
+  pipeline, PySide6 console boundary, Kaggle packaging, and dataset rules.
+
+Project notes should be folded into these topic documents instead of adding
+root-level work logs or calendar-named Markdown files.
+
+---
+
 ## Architecture
 
 **Clean Architecture + MVVM + SSOT (Single Source of Truth)**

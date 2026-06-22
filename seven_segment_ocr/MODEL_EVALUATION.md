@@ -7,6 +7,28 @@ This project compares OCR recognizers through one result schema:
 - `metrics`: exact match, normalized exact match, character error rate, and digit accuracy.
 - `samples`: per-image truth, prediction, and latency.
 
+## Maintained Conclusions
+
+- The current mobile-side speed baseline remains `light_svtr_exported`: about
+  2.64 MB, 670k parameters, sub-4 ms desktop CPU mean latency, and 79.17% exact
+  match on the 120-sample synthetic benchmark.
+- The strongest current exact-match candidate in the integrated table is
+  `fastvit_t8_ctc` after structural reparameterization: 12.41 MB, 3.24M
+  parameters, 51.80 ms desktop CPU mean latency, 81.67% exact match, and 93.02%
+  digit accuracy.
+- General scene-text OCR models without seven-segment adaptation are weak
+  baselines on this benchmark. The PP-OCR/SVTR family tops out at 28.33% exact
+  match, PARSeq reaches 19.17%, and TrOCR reaches 10.83% while being much
+  heavier.
+- Closed SDK baselines such as Google ML Kit must be evaluated through their
+  official Android runtime and imported as prediction JSON. Do not reverse-map
+  extracted SDK assets into incomplete ONNX comparisons.
+- ONNX model size accounting must include sibling external-data files. PARSeq,
+  for example, exports `parseq.onnx` plus `parseq.onnx.data`.
+- A model is not ready for Android inclusion just because desktop ONNX Runtime
+  can execute it. Keep separate checks for Android ORT compatibility, app asset
+  size, initialization cost, and physical-device latency.
+
 ## Backends
 
 Use ONNX Runtime for models that have a faithful ONNX graph:
@@ -436,6 +458,24 @@ pixi run python run_candidate_evaluation.py \
   --output /tmp/medlog_bare_benchmark/candidate_results.json \
   --import-predictions mlkit:mlkit_predictions.json
 ```
+
+## Evaluator Notes
+
+- LightSVTR exports CTC logits as `[time, batch, class]`.
+- PaddleOCR exported recognizers produce CTC logits as `[batch, time, class]`
+  and should decode with the `inference.yml` character dictionary.
+- PaddleOCR preprocessing should use `RecResizeImg.image_shape` from
+  `inference.yml`; current converted candidates use `[3, 48, 320]`.
+- FastViT-T8 with `features_only=True` returns four stages on `128x256` input:
+  `[48,32,64]`, `[96,16,32]`, `[192,8,16]`, and `[384,4,8]` in `[B,C,H,W]`
+  shape. Multi-scale fusion keeps the 64-step OCR time resolution.
+- No official Google `SigLIP-Nano 15M` checkpoint has been selected. Keep
+  SigLIP out of executable candidate lists until a concrete repository ID is
+  chosen.
+- The Kaggle candidate fine-tune runner can train LightSVTR tiny/base/large and
+  FastViT-T8. PARSeq, PaddleOCR/RepSVTR/SVTRv2, TrOCR, ML Kit, and SigLIP-Nano
+  should stay as eval-only or blocked rows unless dedicated fine-tuning adapters
+  are added.
 
 ## Sources
 

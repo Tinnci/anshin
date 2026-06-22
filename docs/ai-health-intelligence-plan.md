@@ -1,7 +1,5 @@
 # AI Health Intelligence Review And Follow-Up Plan
 
-Last reviewed: 2026-05-30
-
 ## Confirmed Product Decisions
 
 - Cloud-first for health insights when the user enables intelligent analysis, has a configured API key, and the network policy allows it.

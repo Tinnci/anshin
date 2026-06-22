@@ -193,12 +193,12 @@ Base event:
 ```json
 {
   "schema_version": 1,
-  "run_id": "20260523_ocr_001",
+  "run_id": "ocr_pipeline_smoke",
   "task_id": "train_fastvit",
   "task_type": "train.fastvit_ctc",
   "phase": "train",
   "event": "metric",
-  "time": "2026-05-23T08:00:00Z",
+  "time": "<ISO-8601 timestamp>",
   "payload": {}
 }
 ```
@@ -397,6 +397,34 @@ data.yaml
 
 VOC device bboxes from BP/Oximeter should become detection datasets only for device-level tasks. They are not OCR text ground truth.
 
+## External Dataset Notes
+
+Third-party and generated data should stay out of Git history:
+
+- Raw third-party downloads: `seven_segment_ocr/external_datasets/`.
+- Generated recognition data: `seven_segment_ocr/dataset/`.
+- YOLO display detection data: `seven_segment_ocr/detection_data/`.
+- Model exports, candidate artifacts, and run outputs: ignored generated paths.
+
+Current acquisition conclusions:
+
+- Kaggle BP Monitor: whole-device Pascal/VOC boxes only. It has no screen box,
+  digit box, or SYS/DIA/PUL transcription.
+- Kaggle Oximeter: whole-device Pascal/VOC boxes only. It has no screen box,
+  digit box, or SpO2/PR transcription.
+- Kaggle seven-segment YOLOv5: digit/object detection labels across train,
+  validation, and test splits. The rare class name `66` should be surfaced as a
+  warning and manually audited before training.
+- Hugging Face `MiXaiLL76/7SEG_OCR`: synthetic image-to-text rows over
+  `-.0123456789`. Labels include unusual strings, so normalization policy must
+  be explicit before training or evaluation.
+- Roboflow, YUVA/Mendeley, Oxford, and PACMAN sources remain reference or
+  blocked sources until a stable direct download route is available.
+
+Use manifests and dataset profile artifacts to preserve what was downloaded and
+how it was normalized. Do not keep large raw archives or extracted datasets in
+the repository.
+
 ## Implementation Phases
 
 ### Phase 1: Headless Contract
@@ -441,13 +469,15 @@ VOC device bboxes from BP/Oximeter should become detection datasets only for dev
 - Use JSONL events instead of direct Qt signals from training code. This makes local GUI and Kaggle outputs share one protocol.
 - Use YAML/JSON task specs instead of hard-coded GUI forms. The GUI edits task specs; Kaggle consumes task specs.
 - Keep PySide6 out of the core and out of Kaggle kernels.
-- Keep each run immutable after completion. New parameters create a new run directory.
+- Keep each run immutable after completion. New parameters create a new stable
+  run name and directory; do not use calendar dates as the run name.
 - Treat BP/Oximeter data as device detection data, not OCR ground truth.
 
-## Immediate Next Steps
+## Maintenance Checklist
 
-1. Add pipeline schema/events tests.
-2. Implement `pipeline.cli inspect` for the four downloaded datasets.
-3. Add a recognition normalizer that converts HF `image_path,text` into `filename,label,split,source`.
-4. Wrap FastViT training with event emission.
-5. Create the PySide6 shell that can open an existing run and render `events.jsonl` plus artifacts.
+1. Keep pipeline core imports free of PySide6.
+2. Keep Kaggle entry scripts script-only and free of PySide6 imports.
+3. Keep dataset normalization rules explicit in task specs and run reports.
+4. Emit warnings instead of silently relabeling suspicious dataset classes.
+5. Prefer semantic run names such as `hf_7seg_fastvit_smoke` over date-derived
+   names.

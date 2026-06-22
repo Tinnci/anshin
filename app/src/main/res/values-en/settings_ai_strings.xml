@@ -22,6 +22,7 @@
     <string name="settings_ai_enable_subtitle">Uses configured cloud models while keeping on-device recognition available</string>
     <string name="settings_ai_provider_title">Service</string>
     <string name="settings_ai_model_section_title">Model selection</string>
+    <string name="settings_ai_model_section_desc">After you save an API key, the model list refreshes automatically. Choose a model that supports the feature you need.</string>
     <string name="settings_ai_status_off">Cloud analysis is off</string>
     <string name="settings_ai_status_off_body">Photo recognition and health suggestions continue locally without uploading data.</string>
     <string name="settings_ai_status_needs_key">One setup step left</string>
@@ -34,16 +35,19 @@
     <string name="settings_ai_model_hint">Default: %s</string>
     <string name="settings_ai_models_not_checked">API connectivity and model list have not been checked</string>
     <string name="settings_ai_models_key_required">Save an API key before checking models</string>
-    <string name="settings_ai_models_fetch">Check and select</string>
-    <string name="settings_ai_models_fetching">Checking API connectivity…</string>
+    <string name="settings_ai_models_fetch">Refresh models</string>
+    <string name="settings_ai_models_fetching">Refreshing model list…</string>
     <plurals name="settings_ai_models_connected">
         <item quantity="one">Connected, found %d model; selects image-capable models first</item>
         <item quantity="other">Connected, found %d models; selects image-capable models first</item>
     </plurals>
     <string name="settings_ai_models_empty">Connected, but the API returned no available models</string>
     <string name="settings_ai_models_failed">Connection failed: %s</string>
-    <string name="settings_ai_model_chip_image">%s · Image</string>
-    <string name="settings_ai_model_chip_text">%s · Text</string>
+    <string name="settings_ai_model_capability_text">Text</string>
+    <string name="settings_ai_model_capability_image">Image input</string>
+    <string name="settings_ai_model_capability_json">JSON/tools</string>
+    <string name="settings_ai_model_capability_other">Non-chat model</string>
+    <string name="settings_ai_model_context_window">Context: %s tokens</string>
     <string name="settings_ai_provider_details_title">Provider details</string>
     <string name="settings_ai_provider_details_desc">Endpoints, auth mode, provider name</string>
     <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>

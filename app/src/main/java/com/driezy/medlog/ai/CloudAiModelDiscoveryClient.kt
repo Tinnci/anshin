@@ -21,6 +21,9 @@ data class CloudAiDiscoveredModel(
     val displayName: String = id,
     val supportsText: Boolean = true,
     val supportsImageInput: Boolean = false,
+    val supportsJsonInstruction: Boolean = false,
+    val contextWindow: Long? = null,
+    val description: String? = null,
 )
 
 data class CloudAiModelDiscoveryResult(
@@ -164,9 +167,21 @@ class CloudAiModelDiscoveryClient(
                 "supported_modalities",
                 "supportedModalities",
             )
-            val supportsText = modalities.isEmpty() ||
-                modalities.any { it == "text" || it == "language" } ||
-                obj.findStringSet("supportedGenerationMethods", "supported_generation_methods").contains("generatecontent")
+            val capabilityTokens = obj.findStringSet(
+                "capabilities",
+                "capability",
+                "features",
+                "supportedGenerationMethods",
+                "supported_generation_methods",
+            ) + obj.booleanCapabilityKeys("capabilities") + obj.booleanCapabilityKeys("features")
+            val textOnlyOrNonChat = id.looksTextOnly() || capabilityTokens.any {
+                it == "embedding" || it == "embeddings" || it == "rerank" || it == "tts" || it == "audio"
+            }
+            val supportsText = !textOnlyOrNonChat && (
+                modalities.isEmpty() ||
+                    modalities.any { it == "text" || it == "language" } ||
+                    capabilityTokens.contains("generatecontent")
+                )
             val supportsImage = obj.hasImageCapability() ||
                 id.looksImageCapable() ||
                 (spec.defaultImageSupport && !id.looksTextOnly())
@@ -175,6 +190,20 @@ class CloudAiModelDiscoveryClient(
                 displayName = displayName,
                 supportsText = supportsText,
                 supportsImageInput = supportsImage,
+                supportsJsonInstruction = capabilityTokens.any {
+                    it == "json" || it == "json_schema" || it == "json_object" || it == "structured_outputs" || it == "tools"
+                },
+                contextWindow = obj.longValue(
+                    "context_window",
+                    "contextWindow",
+                    "max_context_length",
+                    "maxContextLength",
+                    "input_token_limit",
+                    "inputTokenLimit",
+                ),
+                description = obj.stringValue("description")
+                    ?: obj.stringValue("summary")
+                    ?: obj.stringValue("details"),
             )
         }
     }
@@ -236,10 +265,22 @@ class CloudAiModelDiscoveryClient(
     private fun JsonObject.stringValue(key: String): String? =
         this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
 
+    private fun JsonObject.longValue(vararg keys: String): Long? =
+        keys.firstNotNullOfOrNull { key ->
+            this[key]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+        }
+
     private fun JsonObject.findStringSet(vararg keys: String): Set<String> =
         keys.flatMap { key -> this[key].stringTokens() }
             .map { it.lowercase() }
             .toSet()
+
+    private fun JsonObject.booleanCapabilityKeys(key: String): Set<String> {
+        val capabilities = this[key] as? JsonObject ?: return emptySet()
+        return capabilities.mapNotNull { (capability, value) ->
+            capability.takeIf { value.booleanValueOrFalse() }?.lowercase()
+        }.toSet()
+    }
 
     private fun JsonElement?.stringTokens(): List<String> =
         when (this) {
