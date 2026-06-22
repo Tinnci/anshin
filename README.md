@@ -109,6 +109,34 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 Project notes should be folded into these topic documents instead of adding
 root-level work logs or calendar-named Markdown files.
 
+## Git Identity
+
+Local commits sync their author and committer identity from the active GitHub
+CLI account before each commit:
+
+```bash
+gh auth switch -u Tinnci
+git commit
+```
+
+The pre-commit hook runs `scripts/sync_git_identity_from_gh.sh`, maps known
+accounts to GitHub no-reply emails, and stores the result in this repository's
+local Git config. Unknown or unauthenticated accounts are rejected instead of
+falling back to a personal email.
+
+Known accounts:
+
+- `Tinnci` -> `23432137+Tinnci@users.noreply.github.com`
+- `shisoratsu` -> `277485761+shisoratsu@users.noreply.github.com`
+
+Set an account-specific commit message template at `~/.gitmessage-tinnci` or
+`~/.gitmessage-shisoratsu` if needed. To disable the sync for a local
+experiment:
+
+```bash
+git config hooks.medlogSyncGhIdentity false
+```
+
 ---
 
 ## Architecture

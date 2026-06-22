@@ -6,4 +6,5 @@ set -e
 git config core.hooksPath .githooks
 chmod +x .githooks/pre-commit
 chmod +x .githooks/pre-push
+chmod +x scripts/sync_git_identity_from_gh.sh
 echo "Git hooks 已配置完成。pre-commit 和 pre-push 将自动运行。"
