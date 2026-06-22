@@ -21,13 +21,13 @@ if ! command -v gh >/dev/null 2>&1; then
     exit 1
 fi
 
-ACTIVE_ACCOUNT="$(gh api user --jq .login 2>/dev/null || true)"
+ACTIVE_ACCOUNT="$(gh auth status 2>&1 | awk '
+    /Logged in to github.com account / { account = $7 }
+    /Active account: true/ { print account; exit }
+')"
 
 if [ -z "$ACTIVE_ACCOUNT" ]; then
-    ACTIVE_ACCOUNT="$(gh auth status 2>&1 | awk '
-        /Logged in to github.com account / { account = $7 }
-        /Active account: true/ { print account; exit }
-    ')"
+    ACTIVE_ACCOUNT="$(gh api user --jq .login 2>/dev/null || true)"
 fi
 
 case "$ACTIVE_ACCOUNT" in
