@@ -815,7 +815,6 @@
     <string name="health_ocr_hero_title">測定値を撮影して認識</string>
     <string name="health_ocr_hero_body">血圧計、血糖測定器、体温計の画面に向けて、抽出された値を確認して保存します。</string>
     <string name="health_ocr_hero_scan">バイタルをスキャン</string>
-    <string name="health_ocr_hero_manual">手動入力</string>
     <string name="health_metrics_section_title">健康指標</string>
     <string name="health_metrics_section_subtitle">バイタル種別ごとの最近値と7日間トレンド</string>
     <string name="health_recent_records_title">最近の記録</string>

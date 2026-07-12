@@ -10,16 +10,20 @@ plugins {
     alias(libs.plugins.ktlint)
 }
 
-// ── 签名属性读取：优先 env var（CI），回退到 local.properties（本地开发）──────────
+private val localProperties: Properties by lazy {
+    Properties().apply {
+        val file = rootProject.file("local.properties")
+        if (file.exists()) file.inputStream().use(::load)
+    }
+}
+
+// ── 签名属性读取：优先 env var（CI），回退到缓存的 local.properties ────────────
 private fun signingProp(key: String): String? {
     System.getenv(key)?.takeIf { it.isNotBlank() }?.let { return it }
-    val f = rootProject.file("local.properties")
-    if (f.exists()) {
-        val p = Properties().apply { load(f.inputStream()) }
-        p.getProperty(key)?.takeIf { it.isNotBlank() }?.let { return it }
-    }
-    return null
+    return localProperties.getProperty(key)?.takeIf { it.isNotBlank() }
 }
+
+val enableAbiSplits = providers.gradleProperty("enableAbiSplits").map(String::toBoolean).orElse(false)
 
 android {
     namespace = "com.driezy.medlog"
@@ -65,10 +69,10 @@ android {
         }
     }
 
-    // ── ABI Split：Release 构建按架构拆分 APK（ARM64 / ARMv7 / Universal）────
+    // ABI split 默认关闭，避免日常 Debug 同时打包三份大型 APK；发布流水线显式开启。
     splits {
         abi {
-            isEnable = true
+            isEnable = enableAbiSplits.get()
             reset()
             include("arm64-v8a", "armeabi-v7a")
             isUniversalApk = true
@@ -102,10 +106,6 @@ kotlin {
     compilerOptions {
         jvmTarget.set(JvmTarget.JVM_17)
     }
-}
-
-tasks.withType<org.gradle.api.tasks.testing.Test>().configureEach {
-    jvmArgs("-Xshare:off")
 }
 
 // Room schema 导出目录（用于 migration 自动化测试）

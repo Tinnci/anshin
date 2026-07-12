@@ -79,6 +79,10 @@ The approved MedLog editorial moment is Home's today-progress surface:
 - `EditorialTypography` provides the tokens.
 - `EditorialProgressMoment` shows the progress numeral while work is in
   progress and a localized completion word when all planned doses are done.
+- On standard phone widths, the editorial value shares the header row with the
+  title and supporting copy; narrow layouts stack it to preserve text reflow.
+- Supporting streak and next-dose metadata uses non-interactive pills. Do not
+  use clickable chips with empty callbacks for display-only information.
 - Motion uses the app motion scheme and color uses Material roles.
 
 ## Top-Level Screens
@@ -88,9 +92,14 @@ The approved MedLog editorial moment is Home's today-progress surface:
   icon is needed to identify the action.
 - The scanner capture button is an in-context camera control and may use the
   dedicated capture FAB styling instead of the page-level FAB pattern.
+- Health keeps scanning as the in-context OCR hero action, while the page-level
+  FAB is reserved for manual health-record entry. Avoid duplicating the same
+  action in both places.
 - Settings groups should stay consolidated around user concerns rather than
   presenting every setting as a peer card. Current primary containers are
   Appearance, Reminders, OCR & Health, Widgets, and Data & About.
+- The Settings home uses compact navigation rows for destinations. Avoid nested
+  destination tiles that duplicate the status overview and reduce text reflow.
 
 ## Verification
 

@@ -12,6 +12,7 @@ import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -31,8 +32,6 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LinearWavyProgressIndicator
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -40,6 +39,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -163,69 +163,6 @@ internal fun LowStockBanner(
     }
 }
 
-// ── 连续打卡 badge ────────────────────────────────────────────────────────────
-
-@Composable
-internal fun StreakBadgeRow(currentStreak: Int, longestStreak: Int) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        SuggestionChip(
-            onClick = {},
-            label = {
-                Text(
-                    pluralStringResource(R.plurals.home_streak_current, currentStreak, currentStreak),
-                    style = MaterialTheme.typography.labelMedium,
-                )
-            },
-            colors = SuggestionChipDefaults.suggestionChipColors(
-                containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
-            ),
-        )
-        if (longestStreak > currentStreak) {
-            SuggestionChip(
-                onClick = {},
-                label = {
-                    Text(
-                        pluralStringResource(R.plurals.home_streak_longest, longestStreak, longestStreak),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                },
-            )
-        }
-    }
-}
-
-// ── "下一服"智能提示 Chip ───────────────────────────────────────────────────
-
-@Composable
-internal fun NextUpChip(period: TimePeriod, time: String) {
-    SuggestionChip(
-        onClick = {},
-        icon = {
-            MedLogIcon(
-                period.icon,
-                contentDescription = null,
-                modifier = Modifier.size(16.dp),
-            )
-        },
-        label = {
-            Text(
-                stringResource(R.string.home_next_up, stringResource(period.labelRes), time),
-                style = MaterialTheme.typography.labelMedium,
-            )
-        },
-        colors = SuggestionChipDefaults.suggestionChipColors(
-            containerColor = MaterialTheme.colorScheme.secondaryContainer,
-            labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-            iconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-        ),
-    )
-}
-
 // ── 进度卡片（弹性动画进度条）────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class, ExperimentalLayoutApi::class)
@@ -258,48 +195,52 @@ internal fun AnimatedProgressCard(
 
     Card(
         modifier = modifier,
-        shape = RoundedCornerShape(28.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = containerColor),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(MedLogSpacing.XLarge),
+            modifier = Modifier.padding(MedLogSpacing.XMedium),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.Top,
-            ) {
-                Column(
-                    modifier = Modifier.weight(1f),
-                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
-                ) {
-                    Text(
-                        if (total == 0) stringResource(R.string.home_progress_no_plan) else stringResource(R.string.home_progress_title),
-                        style = MaterialTheme.emphasizedTypography.titleLarge,
-                        color = if (allDone) MaterialTheme.colorScheme.onTertiaryContainer else MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                    if (total > 0) {
-                        Text(
-                            if (allDone) stringResource(R.string.home_progress_all_done)
-                            else pluralStringResource(R.plurals.home_progress_remaining, total - taken, total - taken),
-                            style = MaterialTheme.typography.bodyMedium,
-                            color = if (allDone)
-                                MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.82f)
-                            else
-                                MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val stackProgress = maxWidth < 340.dp
+                if (stackProgress || total == 0) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
+                        ProgressHeroHeading(taken = taken, total = total, allDone = allDone)
+                        if (total > 0) {
+                            EditorialProgressMoment(
+                                taken = taken,
+                                total = total,
+                                allDone = allDone,
+                                motionScheme = motionScheme,
+                            )
+                        }
+                    }
+                } else {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        ProgressHeroHeading(
+                            taken = taken,
+                            total = total,
+                            allDone = allDone,
+                            modifier = Modifier.weight(1f),
+                        )
+                        EditorialProgressMoment(
+                            taken = taken,
+                            total = total,
+                            allDone = allDone,
+                            motionScheme = motionScheme,
                         )
                     }
                 }
             }
             if (total > 0) {
-                EditorialProgressMoment(
-                    taken = taken,
-                    total = total,
-                    allDone = allDone,
-                    motionScheme = motionScheme,
-                )
                 LinearWavyProgressIndicator(
                     progress = { progress },
                     modifier = Modifier.fillMaxWidth(),
@@ -313,56 +254,25 @@ internal fun AnimatedProgressCard(
                     verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                 ) {
                     if (currentStreak > 0) {
-                        SuggestionChip(
-                            onClick = {},
-                            label = {
-                                Text(
-                                    pluralStringResource(R.plurals.home_streak_current, currentStreak, currentStreak),
-                                    style = MaterialTheme.emphasizedTypography.labelMedium,
-                                )
-                            },
-                            colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
+                        HeroMetaPill(
+                            text = pluralStringResource(R.plurals.home_streak_current, currentStreak, currentStreak),
+                            containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     if (longestStreak > currentStreak) {
-                        SuggestionChip(
-                            onClick = {},
-                            label = {
-                                Text(
-                                    pluralStringResource(R.plurals.home_streak_longest, longestStreak, longestStreak),
-                                    style = MaterialTheme.typography.labelSmall,
-                                )
-                            },
-                            colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = MaterialTheme.colorScheme.surfaceContainer,
-                                labelColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                            ),
+                        HeroMetaPill(
+                            text = pluralStringResource(R.plurals.home_streak_longest, longestStreak, longestStreak),
+                            containerColor = MaterialTheme.colorScheme.surfaceContainer,
+                            contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
                     nextUp?.let { (period, time) ->
-                        SuggestionChip(
-                            onClick = {},
-                            icon = {
-                                MedLogIcon(
-                                    period.icon,
-                                    contentDescription = null,
-                                    modifier = Modifier.size(16.dp),
-                                )
-                            },
-                            label = {
-                                Text(
-                                    stringResource(R.string.home_next_up, stringResource(period.labelRes), time),
-                                    style = MaterialTheme.emphasizedTypography.labelMedium,
-                                )
-                            },
-                            colors = SuggestionChipDefaults.suggestionChipColors(
-                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                labelColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                                iconContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
-                            ),
+                        HeroMetaPill(
+                            text = stringResource(R.string.home_next_up, stringResource(period.labelRes), time),
+                            icon = period.icon,
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                            contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
                         )
                     }
                 }
@@ -392,16 +302,83 @@ internal fun AnimatedProgressCard(
 }
 
 @Composable
+private fun ProgressHeroHeading(
+    taken: Int,
+    total: Int,
+    allDone: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val contentColor = if (allDone) {
+        MaterialTheme.colorScheme.onTertiaryContainer
+    } else {
+        MaterialTheme.colorScheme.onPrimaryContainer
+    }
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+    ) {
+        Text(
+            if (total == 0) stringResource(R.string.home_progress_no_plan) else stringResource(R.string.home_progress_title),
+            style = MaterialTheme.emphasizedTypography.titleLarge,
+            color = contentColor,
+        )
+        if (total > 0) {
+            Text(
+                if (allDone) stringResource(R.string.home_progress_all_done)
+                else pluralStringResource(R.plurals.home_progress_remaining, total - taken, total - taken),
+                style = MaterialTheme.typography.bodyMedium,
+                color = contentColor.copy(alpha = 0.82f),
+            )
+        }
+    }
+}
+
+@Composable
+private fun HeroMetaPill(
+    text: String,
+    containerColor: Color,
+    contentColor: Color,
+    icon: Int? = null,
+) {
+    Surface(
+        shape = MaterialTheme.shapes.extraLarge,
+        color = containerColor,
+        contentColor = contentColor,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Small),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            icon?.let {
+                MedLogIcon(
+                    icon = it,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                )
+            }
+            Text(
+                text = text,
+                style = MaterialTheme.emphasizedTypography.labelMedium,
+            )
+        }
+    }
+}
+
+@Composable
 private fun EditorialProgressMoment(
     taken: Int,
     total: Int,
     allDone: Boolean,
     motionScheme: androidx.compose.material3.MotionScheme,
 ) {
-    val color = if (allDone) MaterialTheme.colorScheme.tertiary else MaterialTheme.colorScheme.primary
+    val color = if (allDone) {
+        MaterialTheme.colorScheme.onTertiaryContainer
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
 
     Row(
-        modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.Bottom,
     ) {
         AnimatedContent(

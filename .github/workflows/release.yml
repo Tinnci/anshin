@@ -75,7 +75,7 @@ jobs:
 
       # ── 5. 最终验证并构建 Release APK ─────────────────────────
       - name: Verify and build Release APK
-        run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease --build-cache --configuration-cache --stacktrace
+        run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease -PenableAbiSplits=true --build-cache --configuration-cache --stacktrace
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}

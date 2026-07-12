@@ -56,7 +56,6 @@ import java.util.Locale
 @Composable
 internal fun HealthOcrHeroCard(
     onScan: () -> Unit,
-    onManualRecord: () -> Unit,
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -66,7 +65,7 @@ internal fun HealthOcrHeroCard(
         ),
     ) {
         Column(
-            modifier = Modifier.padding(MedLogSpacing.XLarge),
+            modifier = Modifier.padding(MedLogSpacing.XMedium),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
         ) {
             Row(
@@ -97,27 +96,17 @@ internal fun HealthOcrHeroCard(
                     )
                 }
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            Button(
+                onClick = onScan,
+                modifier = Modifier.fillMaxWidth().height(52.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
-                Button(
-                    onClick = onScan,
-                    modifier = Modifier.weight(1.5f),
-                ) {
-                    MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
-                    Spacer(Modifier.width(MedLogSpacing.Small))
-                    Text(
-                        stringResource(R.string.health_ocr_hero_scan),
-                        style = MaterialTheme.emphasizedTypography.labelLarge,
-                    )
-                }
-                FilledTonalButton(
-                    onClick = onManualRecord,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.health_ocr_hero_manual))
-                }
+                MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.width(MedLogSpacing.Small))
+                Text(
+                    stringResource(R.string.health_ocr_hero_scan),
+                    style = MaterialTheme.emphasizedTypography.labelLarge,
+                )
             }
         }
     }

@@ -818,7 +818,6 @@
     <string name="health_ocr_hero_title">측정값 촬영 인식</string>
     <string name="health_ocr_hero_body">혈압계, 혈당계, 체온계 화면을 비춘 뒤 추출된 값을 확인하고 저장하세요.</string>
     <string name="health_ocr_hero_scan">건강 지표 스캔</string>
-    <string name="health_ocr_hero_manual">수동 입력</string>
     <string name="health_metrics_section_title">건강 지표</string>
     <string name="health_metrics_section_subtitle">건강 유형별 최근 값과 7일 추세</string>
     <string name="health_recent_records_title">최근 기록</string>
