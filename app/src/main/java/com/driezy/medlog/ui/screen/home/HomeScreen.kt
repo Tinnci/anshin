@@ -190,7 +190,7 @@ fun HomeScreen(
                     currentStreak = uiState.currentStreak,
                     longestStreak = uiState.longestStreak,
                     nextUp = uiState.nextUpPeriod?.takeIf {
-                        uiState.takenCount > 0 && uiState.takenCount < uiState.totalCount
+                        uiState.takenCount < uiState.totalCount
                     },
                     pendingCount = pendingItems.size,
                     onTakeAll = {

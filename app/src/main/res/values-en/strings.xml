@@ -712,7 +712,6 @@
     <string name="health_ocr_hero_title">Scan a device reading</string>
     <string name="health_ocr_hero_body">Point at a blood pressure monitor, glucose meter, or thermometer screen, then confirm the extracted values.</string>
     <string name="health_ocr_hero_scan">Scan vitals</string>
-    <string name="health_ocr_hero_manual">Manual entry</string>
     <string name="health_metrics_section_title">Health metrics</string>
     <string name="health_metrics_section_subtitle">Recent values and 7-day trends grouped by vital type</string>
     <string name="health_recent_records_title">Recent records</string>

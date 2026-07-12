@@ -139,13 +139,6 @@ fun HealthScreen(
         title = { Text(stringResource(R.string.health_screen_title)) },
         actions = listOf(
             TopBarAction(
-                id = "manual-record",
-                label = stringResource(R.string.health_screen_fab_cd),
-                icon = MedLogIcons.Add,
-                priority = TopBarActionPriority.Secondary,
-                onClick = viewModel::startAdd,
-            ),
-            TopBarAction(
                 id = "settings",
                 label = stringResource(R.string.settings_action_open),
                 icon = MedLogIcons.Settings,
@@ -156,9 +149,9 @@ fun HealthScreen(
         chromeState = ScreenChromeState(
             isLoading = uiState.isLoading,
             fab = ScreenFab(
-                label = stringResource(R.string.health_ocr_hero_scan),
-                icon = MedLogIcons.DocumentScanner,
-                onClick = ::showOcrScanner,
+                label = stringResource(R.string.health_screen_fab_cd),
+                icon = MedLogIcons.Add,
+                onClick = viewModel::startAdd,
             ),
         ),
     ) { innerPadding ->
@@ -171,7 +164,6 @@ fun HealthScreen(
                     item(key = "ocr_hero") {
                         HealthOcrHeroCard(
                             onScan = ::showOcrScanner,
-                            onManualRecord = viewModel::startAdd,
                         )
                     }
 

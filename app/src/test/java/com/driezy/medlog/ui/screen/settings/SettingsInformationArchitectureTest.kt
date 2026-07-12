@@ -56,20 +56,20 @@ class SettingsInformationArchitectureTest {
             "Settings home should render the dashboard before module controls.",
             home.indexOf("SettingsHomeDashboard(") < home.indexOf("settings_group_modules_meds"),
         )
-        assertTrue("Settings home should expose reminder settings as a tile.", screen.contains("onNavigateToReminderSettings"))
-        assertTrue("Settings home should expose intelligence settings as a tile.", screen.contains("onNavigateToIntelligenceSettings"))
-        assertTrue("Settings home should expose widget settings as a tile.", screen.contains("onNavigateToWidgetSettings"))
-        assertTrue("Settings home should expose data settings as a tile.", screen.contains("onNavigateToDataSettings"))
+        assertTrue("Settings home should expose reminder settings as a destination.", screen.contains("onNavigateToReminderSettings"))
+        assertTrue("Settings home should expose intelligence settings as a destination.", screen.contains("onNavigateToIntelligenceSettings"))
+        assertTrue("Settings home should expose widget settings as a destination.", screen.contains("onNavigateToWidgetSettings"))
+        assertTrue("Settings home should expose data settings as a destination.", screen.contains("onNavigateToDataSettings"))
     }
 
     @Test
-    fun `settings home uses dashboard tiles instead of only navigation rows`() {
-        val screen = settingsSources()
+    fun `settings home uses compact navigation rows instead of nested destination tiles`() {
+        val dashboard = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsHomeDashboardContent.kt")
 
-        assertTrue("Settings home should present destination tiles.", screen.contains("SettingsDestinationTile("))
-        assertTrue("Reminder tile should be represented on the dashboard.", screen.contains("settings_home_tile_reminders_status"))
-        assertTrue("Intelligence tile should be represented on the dashboard.", screen.contains("settings_home_tile_ai_status"))
-        assertTrue("Module controls should use compact module toggles.", screen.contains("SettingsModuleToggleCard("))
+        assertTrue("Settings home should present destinations as navigation rows.", dashboard.contains("SettingsNavigationRow("))
+        assertFalse("Settings home should not reintroduce nested destination tiles.", dashboard.contains("SettingsDestinationTile("))
+        assertTrue("Reminder state should be represented on the dashboard.", dashboard.contains("settings_home_tile_reminders_status"))
+        assertTrue("Intelligence state should be represented on the dashboard.", dashboard.contains("settings_home_tile_ai_status"))
     }
 
     @Test
@@ -142,12 +142,9 @@ class SettingsInformationArchitectureTest {
 
     @Test
     fun `settings entry controls bind role to the interaction modifier`() {
-        val dashboard = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsHomeDashboardContent.kt")
         val rows = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsRowsComponents.kt")
         val display = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsDisplayOptions.kt")
 
-        assertTrue("Dashboard tiles should bind button role on clickable.", dashboard.contains(".clickable(\n                role = Role.Button"))
-        assertFalse("Dashboard tiles should not split clickable and button semantics.", dashboard.contains(".clickable(onClick = onClick)\n            .semantics { role = Role.Button }"))
         assertTrue("Navigation rows should bind button role on clickable.", rows.contains(".clickable(\n                role = Role.Button"))
         assertFalse("Navigation rows should not split clickable and button semantics.", rows.contains(".clickable(onClick = onClick)\n            .semantics { role = Role.Button }"))
         assertTrue("Palette chips should use selectable for radio behavior.", display.contains(".selectable("))
@@ -252,7 +249,7 @@ class SettingsInformationArchitectureTest {
 
         assertTrue("OCR controls should live under Intelligence.", screen.indexOf("settings_ocr_model_card_title") > screen.indexOf("settings_group_intelligence"))
         assertTrue("AI controls should live under Intelligence.", screen.indexOf("settings_ai_section_title") > screen.indexOf("settings_group_intelligence"))
-        assertTrue("Feature controls should live under Modules and medications.", screen.indexOf("settings_card_features") > screen.indexOf("settings_group_modules_meds"))
+        assertTrue("Feature controls should live under Modules and medications.", screen.indexOf("SettingsModuleToggleCard(") > screen.indexOf("settings_group_modules_meds"))
         assertTrue("Archived medication controls should live under Modules and medications.", screen.indexOf("settings_card_meds") > screen.indexOf("settings_group_modules_meds"))
         assertFalse("The old mixed OCR and health group should not remain.", screen.contains("settings_group_ocr_health"))
     }

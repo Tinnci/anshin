@@ -684,7 +684,6 @@
     <string name="health_ocr_hero_title">拍照识别测量结果</string>
     <string name="health_ocr_hero_body">对准血压计、血糖仪或体温计屏幕，自动提取数值后再确认保存。</string>
     <string name="health_ocr_hero_scan">扫描体征</string>
-    <string name="health_ocr_hero_manual">手动记录</string>
     <string name="health_metrics_section_title">健康指标</string>
     <string name="health_metrics_section_subtitle">按体征类型查看最近一次结果和 7 日趋势</string>
     <string name="health_recent_records_title">最近记录</string>
