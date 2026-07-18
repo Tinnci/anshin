@@ -44,6 +44,7 @@ class SettingsInformationArchitectureTest {
             "settings_group_modules_meds_desc",
             "settings_destination_reminders",
             "settings_destination_intelligence",
+            "settings_destination_bpx1",
             "settings_destination_widgets",
             "settings_destination_data_about",
         )
@@ -58,6 +59,7 @@ class SettingsInformationArchitectureTest {
         )
         assertTrue("Settings home should expose reminder settings as a destination.", screen.contains("onNavigateToReminderSettings"))
         assertTrue("Settings home should expose intelligence settings as a destination.", screen.contains("onNavigateToIntelligenceSettings"))
+        assertTrue("Settings home should expose BPX1 settings as a destination.", screen.contains("onNavigateToBpx1Settings"))
         assertTrue("Settings home should expose widget settings as a destination.", screen.contains("onNavigateToWidgetSettings"))
         assertTrue("Settings home should expose data settings as a destination.", screen.contains("onNavigateToDataSettings"))
     }
@@ -70,6 +72,7 @@ class SettingsInformationArchitectureTest {
         assertFalse("Settings home should not reintroduce nested destination tiles.", dashboard.contains("SettingsDestinationTile("))
         assertTrue("Reminder state should be represented on the dashboard.", dashboard.contains("settings_home_tile_reminders_status"))
         assertTrue("Intelligence state should be represented on the dashboard.", dashboard.contains("settings_home_tile_ai_status"))
+        assertTrue("BPX1 maintenance should be represented on the dashboard.", dashboard.contains("settings_home_tile_bpx1_status"))
     }
 
     @Test

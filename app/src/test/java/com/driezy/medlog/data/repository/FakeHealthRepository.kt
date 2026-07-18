@@ -36,6 +36,9 @@ class FakeHealthRepository : HealthRepository {
                 .values.toList()
         }
 
+    override suspend fun hasSourceCacheKey(sourceCacheKey: String): Boolean =
+        records.value.any { it.sourceCacheKey == sourceCacheKey }
+
     override suspend fun addRecord(record: HealthRecord): Long {
         val id = nextId++
         val saved = record.copy(id = id)

@@ -23,6 +23,9 @@ class HealthRepositoryImpl @Inject constructor(
     override fun getLatestRecordPerType(): Flow<List<HealthRecord>> =
         dao.getLatestRecordPerType()
 
+    override suspend fun hasSourceCacheKey(sourceCacheKey: String): Boolean =
+        dao.hasSourceCacheKey(sourceCacheKey)
+
     override suspend fun addRecord(record: HealthRecord): Long = dao.insert(record)
 
     override suspend fun updateRecord(record: HealthRecord) = dao.update(record)

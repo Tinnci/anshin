@@ -48,4 +48,7 @@ interface HealthRecordDao {
 
     @Query("SELECT * FROM health_records WHERE id = :id")
     suspend fun getById(id: Long): HealthRecord?
+
+    @Query("SELECT EXISTS(SELECT 1 FROM health_records WHERE sourceCacheKey = :sourceCacheKey LIMIT 1)")
+    suspend fun hasSourceCacheKey(sourceCacheKey: String): Boolean
 }

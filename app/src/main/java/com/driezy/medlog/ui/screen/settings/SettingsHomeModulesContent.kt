@@ -16,6 +16,7 @@ internal fun SettingsHomeModulesContent(
     viewModel: SettingsViewModel,
     onNavigateToReminderSettings: () -> Unit,
     onNavigateToIntelligenceSettings: () -> Unit,
+    onNavigateToBpx1Settings: () -> Unit,
     onNavigateToWidgetSettings: () -> Unit,
     onNavigateToDataSettings: () -> Unit,
 ) {
@@ -23,6 +24,7 @@ internal fun SettingsHomeModulesContent(
         uiState = uiState,
         onNavigateToReminderSettings = onNavigateToReminderSettings,
         onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
+        onNavigateToBpx1Settings = onNavigateToBpx1Settings,
         onNavigateToWidgetSettings = onNavigateToWidgetSettings,
         onNavigateToDataSettings = onNavigateToDataSettings,
     )

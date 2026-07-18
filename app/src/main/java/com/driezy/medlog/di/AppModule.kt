@@ -27,6 +27,10 @@ import com.driezy.medlog.data.repository.MedicationRepositoryImpl
 import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
 import com.driezy.medlog.interaction.DrugAliasNormalizer
+import com.driezy.medlog.device.bpx1.AndroidBpx1BleClient
+import com.driezy.medlog.device.bpx1.AndroidKeystoreBpx1DeviceStore
+import com.driezy.medlog.device.bpx1.Bpx1BleClient
+import com.driezy.medlog.device.bpx1.Bpx1DeviceStore
 import com.driezy.medlog.widget.GlanceWidgetRefresher
 import com.driezy.medlog.widget.WidgetRefresher
 import com.driezy.medlog.voice.VoiceInputController
@@ -157,6 +161,18 @@ abstract class RepositoryModule {
     abstract fun bindAiApiKeyStore(
         impl: AndroidKeystoreAiApiKeyStore,
     ): AiApiKeyStore
+
+    @Binds
+    @Singleton
+    abstract fun bindBpx1DeviceStore(
+        impl: AndroidKeystoreBpx1DeviceStore,
+    ): Bpx1DeviceStore
+
+    @Binds
+    @Singleton
+    abstract fun bindBpx1BleClient(
+        impl: AndroidBpx1BleClient,
+    ): Bpx1BleClient
 
     @Binds
     @Singleton

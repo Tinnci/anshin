@@ -35,6 +35,7 @@ import com.driezy.medlog.ui.screen.history.HistoryScreen
 import com.driezy.medlog.ui.screen.home.HomeScreen
 import com.driezy.medlog.ui.screen.settings.DataSettingsScreen
 import com.driezy.medlog.ui.screen.settings.CloudApiSettingsScreen
+import com.driezy.medlog.ui.screen.settings.Bpx1DeviceSettingsScreen
 import com.driezy.medlog.ui.screen.settings.IntelligenceSettingsScreen
 import com.driezy.medlog.ui.screen.settings.ReminderSettingsScreen
 import com.driezy.medlog.ui.screen.settings.SettingsScreen
@@ -214,6 +215,7 @@ private fun MedLogNavHost(
                 },
                 onNavigateToReminderSettings = { navController.navigate(Route.SettingsReminders) },
                 onNavigateToIntelligenceSettings = { navController.navigate(Route.SettingsIntelligence) },
+                onNavigateToBpx1Settings = { navController.navigate(Route.SettingsBpx1) },
                 onNavigateToWidgetSettings = { navController.navigate(Route.SettingsWidgets) },
                 onNavigateToDataSettings = { navController.navigate(Route.SettingsData) },
             )
@@ -244,6 +246,14 @@ private fun MedLogNavHost(
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             CloudApiSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable<Route.SettingsBpx1>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            Bpx1DeviceSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable<Route.SettingsWidgets>(
             enterTransition = { materialSharedAxisX(forward = true) },

@@ -11,6 +11,7 @@ internal fun SettingsHomeDashboard(
     uiState: SettingsUiState,
     onNavigateToReminderSettings: () -> Unit,
     onNavigateToIntelligenceSettings: () -> Unit,
+    onNavigateToBpx1Settings: () -> Unit,
     onNavigateToWidgetSettings: () -> Unit,
     onNavigateToDataSettings: () -> Unit,
 ) {
@@ -36,6 +37,12 @@ internal fun SettingsHomeDashboard(
                 ),
                 icon = MedLogIcons.Memory,
                 onClick = onNavigateToIntelligenceSettings,
+            )
+        SettingsNavigationRow(
+                title = stringResource(R.string.settings_destination_bpx1),
+                subtitle = stringResource(R.string.settings_home_tile_bpx1_status),
+                icon = MedLogIcons.MonitorHeart,
+                onClick = onNavigateToBpx1Settings,
             )
         SettingsNavigationRow(
                 title = stringResource(R.string.settings_destination_widgets),

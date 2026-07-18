@@ -9,6 +9,7 @@ interface HealthRepository {
     fun getRecordsInRange(from: Long, to: Long): Flow<List<HealthRecord>>
     fun getRecordsByTypeInRange(type: String, from: Long, to: Long): Flow<List<HealthRecord>>
     fun getLatestRecordPerType(): Flow<List<HealthRecord>>
+    suspend fun hasSourceCacheKey(sourceCacheKey: String): Boolean
     suspend fun addRecord(record: HealthRecord): Long
     suspend fun updateRecord(record: HealthRecord)
     suspend fun deleteRecord(record: HealthRecord)
