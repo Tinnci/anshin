@@ -83,8 +83,6 @@
     <string name="settings_ai_api_key_import_unsupported">无法识别此内容。请粘贴导入内容或 .env 格式。</string>
     <string name="settings_ai_api_key_import_preview">将导入 %1$s</string>
     <string name="settings_ai_api_key_import_preview_with_model">将导入 %1$s · %2$s</string>
-    <string name="settings_ai_api_key_import_standard_chip">导入格式</string>
-    <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">导入并保存</string>
     <string name="settings_ai_api_key_import_scan">扫码导入 key</string>
     <string name="settings_ai_endpoint_section_title">端点配置</string>

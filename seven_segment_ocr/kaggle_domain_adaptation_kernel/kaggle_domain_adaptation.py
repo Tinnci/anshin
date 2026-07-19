@@ -296,7 +296,7 @@ except ModuleNotFoundError:
     module_dir.mkdir(parents=True, exist_ok=True)
     raw_base = os.getenv(
         "MEDLOG_RAW_BASE",
-        "https://raw.githubusercontent.com/Tinnci/anshin/master/seven_segment_ocr",
+        "https://raw.githubusercontent.com/Tinnci/anshin/main/seven_segment_ocr",
     )
     for module_name in ["generate_data.py", "light_svtr.py"]:
         target = module_dir / module_name

@@ -264,7 +264,12 @@ class SettingsInformationArchitectureTest {
 
         assertTrue("Settings should expose a cloud API screen mode.", settingsScreen.contains("CLOUD_API(R.string.settings_ai_config_title)"))
         assertTrue("Settings should expose a cloud API screen composable.", settingsScreen.contains("fun CloudApiSettingsScreen("))
-        assertTrue("Cloud API screen should render CloudAiSettingsPanel.", settingsScreen.contains("SettingsScreenMode.CLOUD_API -> CloudApiSettingsContent("))
+        val cloudApiModeIndex = settingsScreen.indexOf("SettingsScreenMode.CLOUD_API ->")
+        val cloudApiContentIndex = settingsScreen.indexOf("CloudApiSettingsContent(", startIndex = cloudApiModeIndex)
+        assertTrue(
+            "Cloud API screen should render CloudAiSettingsPanel.",
+            cloudApiModeIndex >= 0 && cloudApiContentIndex > cloudApiModeIndex,
+        )
         assertTrue("Intelligence screen should navigate to cloud API settings.", intelligence.contains("onNavigateToCloudApiSettings"))
         assertTrue("Intelligence screen should use a navigation row for cloud API settings.", intelligence.contains("settings_ai_config_title"))
         assertFalse("Intelligence screen should not render the cloud API form inline.", intelligence.contains("CloudAiSettingsPanel("))

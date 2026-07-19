@@ -37,6 +37,7 @@ import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import android.content.Intent
 import androidx.compose.foundation.Image
 import androidx.compose.runtime.produceState
@@ -56,9 +57,9 @@ import com.driezy.medlog.data.model.InteractionSeverity
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.MedicationCard
 import com.driezy.medlog.ui.components.ScreenChromeState
-import com.driezy.medlog.ui.components.ScreenFab
 import com.driezy.medlog.ui.components.ScreenOverlay
 import com.driezy.medlog.ui.components.ScreenOverlayHost
+import com.driezy.medlog.ui.components.ScreenTopBarSize
 import com.driezy.medlog.ui.components.TopBarAction
 import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.util.displayName
@@ -90,7 +91,6 @@ fun HomeScreen(
     val importError by viewModel.importError.collectAsStateWithLifecycle()
     // 预捕获所有 snackbar 字符串，保证语言切换时内容同步更新
     val undoLabel = stringResource(R.string.home_snackbar_undo)
-    val msgAllTaken = stringResource(R.string.home_snackbar_all_taken)
     val fmtUndoSkip = stringResource(R.string.home_snackbar_undo_skip)
     val fmtReset = stringResource(R.string.home_snackbar_reset)
     val fmtTaken = stringResource(R.string.home_snackbar_taken)
@@ -109,12 +109,65 @@ fun HomeScreen(
         }
     }
 
-    // Pending items for "take all" button (excluding PRN on-demand meds)
-    val pendingItems = remember(uiState.items) {
-        uiState.items.filter { !it.isTaken && !it.isSkipped && !it.medication.isPRN }
+    fun toggleDose(item: MedicationWithStatus) {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        if (item.isSkipped) {
+            viewModel.undoDose(item.doseKey)
+            scope.launch {
+                snackbarHostState.showSnackbar(
+                    fmtUndoSkip.format(item.medication.displayName()),
+                    duration = SnackbarDuration.Short,
+                )
+            }
+            return
+        }
+        val wasHandled = item.isTaken || item.isPartial
+        viewModel.toggleMedicationStatus(item)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoDose(item.doseKey)
+            }
+        }
+    }
+
+    fun skipDose(item: MedicationWithStatus) {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        viewModel.skipMedication(item)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                fmtSkipped.format(item.medication.displayName()),
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoDose(item.doseKey)
+            }
+        }
+    }
+
+    fun togglePrnDose(item: MedicationWithStatus) {
+        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        val wasTaken = item.isTaken
+        viewModel.toggleMedicationStatus(item)
+        scope.launch {
+            val result = snackbarHostState.showSnackbar(
+                message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.displayName()),
+                actionLabel = undoLabel,
+                duration = SnackbarDuration.Short,
+            )
+            if (result == SnackbarResult.ActionPerformed) {
+                viewModel.undoDose(item.doseKey)
+            }
+        }
     }
 
     MedLogScreenScaffold(
+        topBarSize = ScreenTopBarSize.Compact,
         title = {
             Column {
                 Text(stringResource(R.string.home_title), style = MaterialTheme.emphasizedTypography.titleLarge)
@@ -164,45 +217,24 @@ fun HomeScreen(
         chromeState = ScreenChromeState(
             isLoading = uiState.isLoading,
             snackbarHostState = snackbarHostState,
-            fab = if (uiState.items.isNotEmpty()) {
-                ScreenFab(
-                    label = stringResource(R.string.home_fab_add),
-                    icon = MedLogIcons.Add,
-                    onClick = onAddMedication,
-                )
-            } else {
-                null
-            },
         ),
     ) { innerPadding ->
 
         LazyColumn(
             modifier = Modifier.fillMaxSize().padding(innerPadding),
-            contentPadding = MedLogSpacing.ScreenContentWithFab,
+            contentPadding = MedLogSpacing.ScreenContentDefault,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
 
-            // ── 进度卡片 ──────────────────────────────────────
-            item {
-                AnimatedProgressCard(
-                    taken = uiState.takenCount,
-                    total = uiState.totalCount,
+            item(key = "homeHero", contentType = "homeHero") {
+                HomeHero(
+                    presentation = uiState.heroPresentation,
+                    style = uiState.homeHeroStyle,
                     currentStreak = uiState.currentStreak,
-                    longestStreak = uiState.longestStreak,
-                    nextUp = uiState.nextUpPeriod?.takeIf {
-                        uiState.takenCount < uiState.totalCount
-                    },
-                    pendingCount = pendingItems.size,
-                    onTakeAll = {
-                        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                        viewModel.takeAll()
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = msgAllTaken,
-                                duration = SnackbarDuration.Short,
-                            )
-                        }
-                    },
+                    onTakeNext = ::toggleDose,
+                    onSkipNext = ::skipDose,
+                    onViewDetails = { onMedicationClick(it.medication.id) },
+                    onAddMedication = onAddMedication,
                     modifier = Modifier.fillMaxWidth(),
                 )
             }
@@ -228,10 +260,61 @@ fun HomeScreen(
                     )
                 }
             }
-            // ── 空状态 ────────────────────────────────────────
-            if (uiState.items.isEmpty()) {
-                item {
-                    EmptyMedicationState(onAddMedication = onAddMedication)
+            if (uiState.heroPresentation.totalCount > 0) {
+                item(key = "todayPlanHeader", contentType = "header") {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Tiny),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = stringResource(R.string.home_hero_plan_title),
+                            style = MaterialTheme.emphasizedTypography.titleLarge,
+                        )
+                        Row(
+                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Text(
+                                text = pluralStringResource(
+                                    R.plurals.home_hero_plan_count,
+                                    uiState.heroPresentation.totalCount,
+                                    uiState.heroPresentation.totalCount,
+                                ),
+                                style = MaterialTheme.typography.labelLarge,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            )
+                            FilledTonalIconButton(
+                                onClick = onAddMedication,
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .testTag("homePlanAdd"),
+                            ) {
+                                MedLogIcon(
+                                    icon = MedLogIcons.Add,
+                                    contentDescription = stringResource(R.string.home_fab_add),
+                                    modifier = Modifier.size(20.dp),
+                                )
+                            }
+                        }
+                    }
+                }
+            }
+
+            val focusedPlanItem = uiState.heroPresentation.nextPendingItem
+            if (focusedPlanItem != null) {
+                item(
+                    key = "focused_plan_${focusedPlanItem.doseKey}",
+                    contentType = "compactPlanDose",
+                ) {
+                    CompactMedicationPlanRow(
+                        item = focusedPlanItem,
+                        onToggleTaken = { toggleDose(focusedPlanItem) },
+                        onClick = { onMedicationClick(focusedPlanItem.medication.id) },
+                        modifier = Modifier.animateItem(),
+                    )
                 }
             }
 
@@ -240,7 +323,9 @@ fun HomeScreen(
                 val taskGroups = listOf(
                     "now" to uiState.nowTaskItems,
                     "later" to uiState.laterTaskItems,
-                ).filter { (_, groupItems) -> groupItems.isNotEmpty() }
+                ).map { (key, groupItems) ->
+                    key to groupItems.filterNot { it.doseKey == focusedPlanItem?.doseKey }
+                }.filter { (_, groupItems) -> groupItems.isNotEmpty() }
                 taskGroups.forEach { (key, groupItems) ->
                     item(key = "task_group_$key", contentType = "taskGroup") {
                         val groupTitle = if (key == "now")
@@ -255,45 +340,8 @@ fun HomeScreen(
                                 stringResource(R.string.home_later_group_body),
                             icon = if (key == "now") MedLogIcons.CheckCircle else MedLogIcons.AccessTime,
                             items = groupItems,
-                            onToggleTaken = { item ->
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                if (item.isSkipped) {
-                                    viewModel.undoByMedicationId(item.medication.id)
-                                    scope.launch {
-                                        snackbarHostState.showSnackbar(
-                                            fmtUndoSkip.format(item.medication.displayName()),
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                    }
-                                } else {
-                                    val wasHandled = item.isTaken || item.isPartial
-                                    viewModel.toggleMedicationStatus(item)
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
-                                            actionLabel = undoLabel,
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            viewModel.undoByMedicationId(item.medication.id)
-                                        }
-                                    }
-                                }
-                            },
-                            onSkip = { item ->
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                viewModel.skipMedication(item)
-                                scope.launch {
-                                    val result = snackbarHostState.showSnackbar(
-                                        fmtSkipped.format(item.medication.displayName()),
-                                        actionLabel = undoLabel,
-                                        duration = SnackbarDuration.Short,
-                                    )
-                                    if (result == SnackbarResult.ActionPerformed) {
-                                        viewModel.undoByMedicationId(item.medication.id)
-                                    }
-                                }
-                            },
+                            onToggleTaken = ::toggleDose,
+                            onSkip = ::skipDose,
                             onPartialTake = { item, qty ->
                                 viewModel.markPartialDose(item, qty)
                             },
@@ -311,13 +359,15 @@ fun HomeScreen(
                             },
                             onClick = onMedicationClick,
                             modifier = Modifier.animateItem(),
+                            autoCollapse = uiState.autoCollapseCompletedGroups,
                         )
                     }
                 }
             } else {
                 // 分类分组：扁平卡片列表
                 uiState.groupedItems.forEach { (category, groupItems) ->
-                    if (category.isNotBlank()) {
+                    val visibleItems = groupItems.filterNot { it.doseKey == focusedPlanItem?.doseKey }
+                    if (category.isNotBlank() && visibleItems.isNotEmpty()) {
                         item(key = "header_$category", contentType = "header") {
                             Row(
                                 verticalAlignment = Alignment.CenterVertically,
@@ -336,12 +386,12 @@ fun HomeScreen(
                         }
                     }
                     itemsIndexed(
-                        groupItems,
-                        key = { _, it -> it.medication.id },
+                        visibleItems,
+                        key = { _, it -> it.doseKey },
                     ) { idx, item ->
                         val motionScheme = MaterialTheme.motionScheme
-                        var visible by remember(item.medication.id) { mutableStateOf(false) }
-                        LaunchedEffect(item.medication.id) {
+                        var visible by remember(item.doseKey) { mutableStateOf(false) }
+                        LaunchedEffect(item.doseKey) {
                             delay(idx * STAGGER_DELAY_MS)   // 基于组内索引，而非全局，避免底部首次出现延迟
                             visible = true
                         }
@@ -352,45 +402,8 @@ fun HomeScreen(
                         ) {
                             MedicationCard(
                                 item = item,
-                                onToggleTaken = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    if (item.isSkipped) {
-                                        viewModel.undoByMedicationId(item.medication.id)
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar(
-                                                fmtUndoSkip.format(item.medication.displayName()),
-                                                duration = SnackbarDuration.Short,
-                                            )
-                                        }
-                                    } else {
-                                        val wasHandled = item.isTaken || item.isPartial
-                                        viewModel.toggleMedicationStatus(item)
-                                        scope.launch {
-                                            val result = snackbarHostState.showSnackbar(
-                                                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
-                                                actionLabel = undoLabel,
-                                                duration = SnackbarDuration.Short,
-                                            )
-                                            if (result == SnackbarResult.ActionPerformed) {
-                                                viewModel.undoByMedicationId(item.medication.id)
-                                            }
-                                        }
-                                    }
-                                },
-                                onSkip = {
-                                    haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                                    viewModel.skipMedication(item)
-                                    scope.launch {
-                                        val result = snackbarHostState.showSnackbar(
-                                            fmtSkipped.format(item.medication.displayName()),
-                                            actionLabel = undoLabel,
-                                            duration = SnackbarDuration.Short,
-                                        )
-                                        if (result == SnackbarResult.ActionPerformed) {
-                                            viewModel.undoByMedicationId(item.medication.id)
-                                        }
-                                    }
-                                },
+                                onToggleTaken = { toggleDose(item) },
+                                onSkip = { skipDose(item) },
                                 onClick = { onMedicationClick(item.medication.id) },
                                 modifier = Modifier.animateItem(),
                                 onPartialTake = { qty -> viewModel.markPartialDose(item, qty) },
@@ -405,29 +418,13 @@ fun HomeScreen(
                 item(key = "prnSection", contentType = "prnSection") {
                     PRNSectionCard(
                         items = uiState.prnItems,
-                        onToggleTaken = { item ->
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
-                            val wasTaken = item.isTaken
-                            viewModel.toggleMedicationStatus(item)
-                            scope.launch {
-                                val result = snackbarHostState.showSnackbar(
-                                    message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.displayName()),
-                                    actionLabel = undoLabel,
-                                    duration = SnackbarDuration.Short,
-                                )
-                                if (result == SnackbarResult.ActionPerformed) {
-                                    viewModel.undoByMedicationId(item.medication.id)
-                                }
-                            }
-                        },
+                        onToggleTaken = ::togglePrnDose,
                         onClick = onMedicationClick,
                         modifier = Modifier.animateItem(),
                     )
                 }
             }
 
-            // ── 底部间距（FAB 避让）──────────────────────────
-            item { Spacer(Modifier.height(80.dp)) }
         }
     }
     val importOverlay = when {

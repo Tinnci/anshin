@@ -103,8 +103,6 @@
     <string name="home_share_chooser">오늘의 복약 계획 공유</string>
     <string name="home_group_toggle_by_category">카테고리별로 전환</string>
     <string name="home_group_toggle_by_time">시간대별로 전환</string>
-    <string name="home_take_all_btn">모두 복용 (%d)</string>
-    <string name="home_snackbar_all_taken">모두 복용 완료로 표시했습니다</string>
     <string name="home_snackbar_undo_skip">%s — 건너뜀 취소, 복용 전으로 복원</string>
     <string name="home_snackbar_reset">%s 복용 전으로 초기화</string>
     <string name="home_snackbar_taken">%s 복용 완료로 표시</string>
@@ -113,7 +111,6 @@
     <string name="home_snackbar_period_all_taken">%s 모두 복용 완료로 표시</string>
     <string name="home_snackbar_prn_undo">%s 취소됨</string>
     <string name="home_snackbar_prn_taken">%s 복용 기록됨</string>
-    <string name="home_period_all_done_chip">완료</string>
     <string name="home_period_collapse">접기</string>
     <string name="home_period_expand">펼치기</string>
     <string name="home_period_take_all_btn">모두 복용</string>
@@ -125,10 +122,6 @@
     <plurals name="home_streak_current">
         <item quantity="other">🔥 %d일 연속</item>
     </plurals>
-    <plurals name="home_streak_longest">
-        <item quantity="other">최장 %d일</item>
-    </plurals>
-    <string name="home_next_up">다음 복약: %1$s  %2$s</string>
     <string name="home_prn_title">필요시 복약</string>
     <string name="home_prn_body">고정 시간 없음 — 필요할 때 눌러서 복용 기록</string>
     <string name="home_prn_taken_with_max">오늘 복용 · 일 최대 용량 %1$s %2$s</string>
@@ -136,13 +129,25 @@
     <string name="home_prn_taken_once">오늘 복용 기록됨</string>
     <string name="home_prn_btn_taken">복용 완료</string>
     <string name="home_prn_btn_take">복용</string>
-    <string name="home_progress_no_plan">오늘 복약 일정 없음</string>
-    <string name="home_progress_title">오늘의 진행</string>
-    <string name="home_progress_all_done">완료! 오늘의 복약 계획을 모두 달성했습니다 🎉</string>
-    <string name="home_editorial_complete">완료</string>
-    <plurals name="home_progress_remaining">
-        <item quantity="other">%d개 남음</item>
-    </plurals>
+    <string name="home_hero_next_label">다음 할 일</string>
+    <string name="home_hero_today_count">오늘 %1$d/%2$d</string>
+    <string name="home_hero_schedule_and_dose">오늘 %1$s · %2$s %3$s</string>
+    <string name="home_hero_take_named">%s 복용</string>
+    <string name="home_hero_skip_dose">이번 복약 건너뛰기</string>
+    <string name="home_hero_today_progress">오늘의 진행</string>
+    <string name="home_hero_handled_label">처리됨</string>
+    <plurals name="home_hero_remaining_doses"><item quantity="other">%d회 남음</item></plurals>
+    <string name="home_hero_next_dose">다음 복약</string>
+    <string name="home_hero_take_next">다음 복약하기</string>
+    <string name="home_hero_view_details">상세 보기</string>
+    <string name="home_hero_name_and_dose">%1$s · %2$s %3$s</string>
+    <string name="home_hero_take_now">지금 복용</string>
+    <string name="home_hero_plan_title">오늘 계획</string>
+    <plurals name="home_hero_plan_count"><item quantity="other">%d회</item></plurals>
+    <string name="home_hero_completed_title">오늘 복약 완료</string>
+    <plurals name="home_hero_completed_doses"><item quantity="other">%d회 모두 복용함</item></plurals>
+    <string name="home_hero_exceptions_title">오늘 처리 완료</string>
+    <string name="home_hero_exceptions_body">복용 %1$d · 건너뜀 %2$d · 일부 %3$d</string>
     <string name="home_empty_title">오늘 예약된 복약 없음</string>
     <string name="home_empty_body">아래 버튼을 눌러 첫 번째 약품을 추가하세요</string>
     <string name="home_empty_add_btn">첫 약품 추가</string>
@@ -216,6 +221,11 @@
     <string name="settings_palette_desc_celadon">청자, 안개, 고요한 물빛</string>
     <string name="settings_palette_desc_aube">새벽의 따뜻한 첫빛</string>
     <string name="settings_card_today">오늘 화면</string>
+    <string name="settings_home_hero_style_title">홈 포커스 스타일</string>
+    <string name="settings_home_hero_style_subtitle">다음 복약을 강조할 방식을 선택합니다. 상태와 동작은 동일합니다</string>
+    <string name="settings_home_hero_style_action">행동</string>
+    <string name="settings_home_hero_style_progress">진행</string>
+    <string name="settings_home_hero_style_timeline">타임라인</string>
     <string name="settings_auto_collapse_title">완료된 그룹 기본 접기</string>
     <string name="settings_auto_collapse_subtitle">모든 복약 완료된 시간대는 자동으로 접힙니다</string>
     <string name="settings_persistent_title">실시간 진행상황 알림</string>
@@ -253,7 +263,6 @@
     <string name="settings_travel_title">홈 시간대 알림 유지</string>
     <string name="settings_travel_subtitle_on">기준: %s</string>
     <string name="settings_travel_subtitle_off">꺼짐 — 기기 시간대 사용</string>
-    <string name="settings_card_features">기능 설정</string>
     <string name="settings_features_hint">주요 기능은 항상 활성화. 선택적 모듈은 끔 시 탭이 숨겨짐.</string>
     <string name="settings_symptom_title">몸과 마음 기록</string>
     <string name="settings_symptom_subtitle">매일의 감정, 몸의 신호, 복약 반응, 메모 기록</string>
@@ -310,7 +319,6 @@
     <string name="detail_title">복약 상세</string>
     <string name="detail_back">뒤로</string>
     <string name="detail_edit_cd">편집</string>
-    <string name="detail_more_cd">더보기</string>
     <string name="detail_not_found">약품을 찾을 수 없습니다</string>
     <string name="detail_section_basic">기본 정보</string>
     <string name="detail_label_name">약품명</string>

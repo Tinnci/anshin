@@ -51,6 +51,9 @@ interface MedicationLogDao {
     @Query("DELETE FROM medication_logs WHERE medicationId = :medicationId AND scheduledTimeMs BETWEEN :startMs AND :endMs")
     suspend fun deleteLogsForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long)
 
+    @Query("DELETE FROM medication_logs WHERE medicationId = :medicationId AND scheduledTimeMs = :scheduledTimeMs")
+    suspend fun deleteLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long)
+
     @Query("SELECT COUNT(*) FROM medication_logs WHERE status = 'TAKEN' AND scheduledTimeMs BETWEEN :startMs AND :endMs")
     fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>
 

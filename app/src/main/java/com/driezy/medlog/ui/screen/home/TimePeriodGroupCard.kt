@@ -10,27 +10,29 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SuggestionChip
-import androidx.compose.material3.SuggestionChipDefaults
+import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -39,15 +41,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.util.icon
-import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.components.MedicationCard
+import com.driezy.medlog.ui.util.displayName
+import com.driezy.medlog.ui.util.formatDose
+import com.driezy.medlog.ui.util.labelRes
 import kotlinx.coroutines.delay
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -62,10 +67,15 @@ internal fun MedicationTaskGroupCard(
     onTakeAll: () -> Unit,
     onClick: (Long) -> Unit,
     modifier: Modifier = Modifier,
+    autoCollapse: Boolean = true,
     onPartialTake: ((MedicationWithStatus, Double) -> Unit)? = null,
 ) {
     val pendingCount = items.count { !it.isHandled }
+    val allDone = pendingCount == 0
     val motionScheme = MaterialTheme.motionScheme
+    var isExpanded by remember(allDone, autoCollapse) {
+        mutableStateOf(!allDone || !autoCollapse)
+    }
 
     Card(
         modifier = modifier.fillMaxWidth(),
@@ -119,187 +129,17 @@ internal fun MedicationTaskGroupCard(
                     )
                 }
             }
-        }
-
-        HorizontalDivider(
-            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
-            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
-        )
-        Column {
-            items.forEachIndexed { idx, item ->
-                var visible by remember(item.medication.id to item.timeSlotIndex) { mutableStateOf(false) }
-                LaunchedEffect(item.medication.id, item.timeSlotIndex) {
-                    delay(idx * STAGGER_DELAY_MS)
-                    visible = true
-                }
-                AnimatedVisibility(
-                    visible = visible,
-                    enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
-                ) {
-                    Column {
-                        MedicationCard(
-                            item = item,
-                            onToggleTaken = { onToggleTaken(item) },
-                            onSkip = { onSkip(item) },
-                            onClick = { onClick(item.medication.id) },
-                            modifier = Modifier,
-                            flatStyle = true,
-                            onPartialTake = if (onPartialTake != null) {
-                                { qty -> onPartialTake(item, qty) }
-                            } else null,
-                        )
-                        if (idx < items.lastIndex) {
-                            HorizontalDivider(
-                                modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
-                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
-                            )
-                        }
-                    }
-                }
-            }
-            Spacer(Modifier.height(MedLogSpacing.Tiny))
-        }
-    }
-}
-
-/**
- * 将同一服药时段的所有药品包裹在一张圆角卡片内。
- *
- * 卡片头部：时段图标 + 时段名 + 待服数 badge + 「一键服用本时段」按钮。
- * 卡片内容：每个药品一行，行间以 HorizontalDivider 分隔；进入动画逐项延迟。
- */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-internal fun TimePeriodGroupCard(
-    timePeriod: TimePeriod,
-    items: List<MedicationWithStatus>,
-    onToggleTaken: (MedicationWithStatus) -> Unit,
-    onSkip: (MedicationWithStatus) -> Unit,
-    onTakeAll: () -> Unit,
-    onClick: (Long) -> Unit,
-    modifier: Modifier = Modifier,
-    autoCollapse: Boolean = true,
-    onPartialTake: ((MedicationWithStatus, Double) -> Unit)? = null,
-) {
-    val pendingCount = items.count { !it.isHandled }
-    val allDone = pendingCount == 0
-    val motionScheme = MaterialTheme.motionScheme
-    // allDone 变化时重算展开状态：已全服且开启自动折叠时默认折叠
-    var isExpanded by remember(allDone) { mutableStateOf(!allDone || !autoCollapse) }
-
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (allDone)
-                MaterialTheme.colorScheme.surfaceContainerLow
-            else
-                MaterialTheme.colorScheme.surfaceContainerHigh,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        // ── 卡片头部 ──────────────────────────────────────────
-        // 对非精确时段，取首项的提醒时间作为代表性展示时间
-        val representativeTime = if (timePeriod.key != "exact") {
-            items.firstOrNull()?.medication
-                ?.let { "%02d:%02d".format(it.reminderHour, it.reminderMinute) }
-        } else null
-
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable { isExpanded = !isExpanded }
-                .padding(start = MedLogSpacing.Large, end = MedLogSpacing.Medium, top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-        ) {
-            MedLogIcon(
-                icon = timePeriod.icon,
-                contentDescription = null,
-                tint = if (allDone) MaterialTheme.colorScheme.outline
-                       else MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(18.dp),
-            )
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = stringResource(timePeriod.labelRes),
-                    style = MaterialTheme.typography.titleSmall,
-                    fontWeight = FontWeight.SemiBold,
-                    color = if (allDone) MaterialTheme.colorScheme.outline
-                            else MaterialTheme.colorScheme.primary,
-                )
-                if (representativeTime != null) {
-                    Text(
-                        text = representativeTime,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = if (allDone) MaterialTheme.colorScheme.outlineVariant
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
-            // 待服数量 Badge（allDone 时显示胶囊徽章）
-            if (allDone) {
-                SuggestionChip(
-                    onClick = { isExpanded = !isExpanded },
-                    icon = {
-                        MedLogIcon(
-                            MedLogIcons.DoneAll,
-                            contentDescription = null,
-                            modifier = Modifier.size(14.dp),
-                        )
-                    },
-                    label = {
-                        Text(
-                            stringResource(R.string.home_period_all_done_chip),
-                            style = MaterialTheme.typography.labelMedium,
-                            fontWeight = FontWeight.Medium,
-                        )
-                    },
-                    colors = SuggestionChipDefaults.suggestionChipColors(
-                        containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-                        labelColor = MaterialTheme.colorScheme.onTertiaryContainer,
-                        iconContentColor = MaterialTheme.colorScheme.tertiary,
-                    ),
-                    border = null,
-                    modifier = Modifier.height(28.dp),
-                )
-                // 展开/折叠指示箭头
+            IconButton(onClick = { isExpanded = !isExpanded }) {
                 MedLogIcon(
                     icon = if (isExpanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,
-                    contentDescription = if (isExpanded) stringResource(R.string.home_period_collapse) else stringResource(R.string.home_period_expand),
-                    tint = MaterialTheme.colorScheme.outline,
-                    modifier = Modifier.size(16.dp),
+                    contentDescription = stringResource(
+                        if (isExpanded) R.string.home_period_collapse else R.string.home_period_expand,
+                    ),
+                    modifier = Modifier.size(18.dp),
                 )
-            } else {
-                Badge(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-                ) { Text("$pendingCount") }
-                // 一键服用本时段 — pill 形，比单药按钮更大更显眼
-                if (pendingCount >= 1) {
-                    Button(
-                        onClick = onTakeAll,
-                        contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = 0.dp),
-                        modifier = Modifier.height(40.dp),
-                    ) {
-                        MedLogIcon(
-                            MedLogIcons.DoneAll,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp),
-                        )
-                        Spacer(Modifier.width(MedLogSpacing.Small))
-                        Text(
-                            stringResource(R.string.home_period_take_all_btn),
-                            style = MaterialTheme.typography.labelLarge,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
             }
         }
 
-        // ── 展开时才显示分隔线 + 药品列表 ──────────────────────────────
         AnimatedVisibility(
             visible = isExpanded,
             enter = expandVertically(motionScheme.defaultSpatialSpec()),
@@ -308,20 +148,18 @@ internal fun TimePeriodGroupCard(
             Column {
                 HorizontalDivider(
                     modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
-                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                 )
-
-                // ── 药品列表 ──────────────────────────────────────────
                 items.forEachIndexed { idx, item ->
-                    var visible by remember(item.medication.id) { mutableStateOf(false) }
-                    LaunchedEffect(item.medication.id) {
-                        delay(idx * STAGGER_DELAY_MS)   // 组内相邻延迟，避免全局累积延迟
+                    var visible by remember(item.doseKey) { mutableStateOf(false) }
+                    LaunchedEffect(item.doseKey) {
+                        delay(idx * STAGGER_DELAY_MS)
                         visible = true
                     }
                     AnimatedVisibility(
                         visible = visible,
                         enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
                     ) {
                         Column {
                             MedicationCard(
@@ -330,7 +168,6 @@ internal fun TimePeriodGroupCard(
                                 onSkip = { onSkip(item) },
                                 onClick = { onClick(item.medication.id) },
                                 modifier = Modifier,
-                                // 卡片内不需要外圆角（已在 ElevatedCard 内）
                                 flatStyle = true,
                                 onPartialTake = if (onPartialTake != null) {
                                     { qty -> onPartialTake(item, qty) }
@@ -339,15 +176,112 @@ internal fun TimePeriodGroupCard(
                             if (idx < items.lastIndex) {
                                 HorizontalDivider(
                                     modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
-                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                                    color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f),
                                 )
                             }
                         }
                     }
                 }
-
                 Spacer(Modifier.height(MedLogSpacing.Tiny))
-            } // Column
-        } // AnimatedVisibility
-    } // Card
+            }
+        }
+    }
+}
+
+@Composable
+internal fun CompactMedicationPlanRow(
+    item: MedicationWithStatus,
+    onToggleTaken: () -> Unit,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val medication = item.medication
+    val period = TimePeriod.fromKey(medication.timePeriod)
+    Surface(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 80.dp)
+            .testTag("homeCompactPlanRow")
+            .clickable(onClick = onClick),
+        shape = RoundedCornerShape(18.dp),
+        color = if (item.isHandled) {
+            MaterialTheme.colorScheme.surfaceContainerLow
+        } else {
+            MaterialTheme.colorScheme.surfaceContainerLowest
+        },
+        contentColor = MaterialTheme.colorScheme.onSurface,
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Surface(
+                modifier = Modifier.size(44.dp),
+                shape = RoundedCornerShape(15.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    MedLogIcon(
+                        icon = MedLogIcons.Schedule,
+                        contentDescription = null,
+                        modifier = Modifier.size(21.dp),
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier.width(54.dp),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+            ) {
+                Text(
+                    text = item.displayTime(),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                )
+                Text(
+                    text = stringResource(period.labelRes),
+                    style = MaterialTheme.typography.labelSmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            VerticalDivider(
+                modifier = Modifier.height(42.dp),
+                color = MaterialTheme.colorScheme.outlineVariant,
+            )
+            Column(
+                modifier = Modifier.weight(1f),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+            ) {
+                Text(
+                    text = medication.displayName(),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "${medication.doseQuantity.formatDose()} ${medication.doseUnit}",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                )
+            }
+            FilledTonalIconButton(
+                onClick = onToggleTaken,
+                modifier = Modifier
+                    .size(44.dp)
+                    .testTag("homeCompactPlanToggle"),
+            ) {
+                MedLogIcon(
+                    icon = if (item.isHandled) MedLogIcons.Undo else MedLogIcons.Check,
+                    contentDescription = stringResource(
+                        if (item.isHandled) R.string.home_snackbar_undo else R.string.med_card_btn_take,
+                    ),
+                    modifier = Modifier.size(20.dp),
+                )
+            }
+        }
+    }
 }

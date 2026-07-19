@@ -35,6 +35,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -177,30 +178,47 @@ data class AdaptiveItemCollectionSpec<T>(
         preferGridOnExpanded && widthClass == MainScreenWidthClass.Expanded
 }
 
+enum class ScreenTopBarSize {
+    Compact,
+    Large,
+}
+
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun MedLogScreenScaffold(
     title: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     showTopBar: Boolean = true,
+    topBarSize: ScreenTopBarSize = ScreenTopBarSize.Large,
     navigationIcon: (@Composable () -> Unit)? = null,
     actions: List<TopBarAction> = emptyList(),
     chromeState: ScreenChromeState = ScreenChromeState(),
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = when (topBarSize) {
+        ScreenTopBarSize.Compact -> TopAppBarDefaults.pinnedScrollBehavior()
+        ScreenTopBarSize.Large -> TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    }
     val snackbarHostState = chromeState.snackbarHostState ?: remember { SnackbarHostState() }
 
     Scaffold(
         modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         topBar = {
             if (showTopBar) {
-                LargeTopAppBar(
-                    title = title,
-                    navigationIcon = { navigationIcon?.invoke() },
-                    actions = { PriorityTopBarActions(actions = actions) },
-                    scrollBehavior = scrollBehavior,
-                )
+                when (topBarSize) {
+                    ScreenTopBarSize.Compact -> TopAppBar(
+                        title = title,
+                        navigationIcon = { navigationIcon?.invoke() },
+                        actions = { PriorityTopBarActions(actions = actions) },
+                        scrollBehavior = scrollBehavior,
+                    )
+                    ScreenTopBarSize.Large -> LargeTopAppBar(
+                        title = title,
+                        navigationIcon = { navigationIcon?.invoke() },
+                        actions = { PriorityTopBarActions(actions = actions) },
+                        scrollBehavior = scrollBehavior,
+                    )
+                }
             }
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

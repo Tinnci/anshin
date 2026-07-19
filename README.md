@@ -51,7 +51,7 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 | **Alarm Recovery** | All alarms re-scheduled after reboot via `BootReceiver` |
 | **Travel Mode** | Keep hometown-timezone reminders when traveling across time zones |
 | **Personalization** | Routine times, early reminder offset, persistent reminder, dark/light/auto theme, dynamic color |
-| **i18n** | Full Chinese / English / Japanese / Korean support (567 string resources) |
+| **i18n** | Full Chinese / English / Japanese / Korean support (800+ localized resources) |
 
 ---
 
@@ -75,7 +75,7 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 | Layer | Technology |
 |-------|-----------|
 | Language | Kotlin 2.3.21 |
-| Build | Gradle 9.3.1 · AGP 9.1.1 · KSP 2.3.8 |
+| Build | Gradle 9.4.1 · AGP 9.2.1 · KSP 2.3.8 |
 | UI | Jetpack Compose (BOM 2026.05.01) · Material 3 Expressive 1.5.0-alpha20 |
 | Adaptive Nav | `material3-adaptive-navigation-suite` 1.2.0 |
 | State | Kotlin Coroutines 1.11.0 · StateFlow · `collectAsStateWithLifecycle` |
@@ -87,7 +87,7 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 | Widgets | Glance 1.1.1 (Compose-based homescreen widgets) |
 | Camera / QR | CameraX 1.6.1 · ML Kit Barcode 17.3.0 · ZXing 3.5.4 |
 | Animation | `Animatable` · Spring/tween physics · `AnimatedVisibility` · `MotionScheme` |
-| Code Quality | ktlint 12.3.0 · Android Lint · EditorConfig |
+| Code Quality | ktlint Gradle 14.2.0 · Android Lint · EditorConfig |
 | Testing | JUnit 4 · Mockito-Kotlin 6.3.0 · Turbine 1.2.1 |
 | Min / Target SDK | 26 / 37 |
 
@@ -101,6 +101,8 @@ helping users track daily medication, manage inventory, and stay on schedule wit
   decisions, safety constraints, implementation review, and follow-up plan.
 - [Material Symbols usage](docs/material-symbols.md): local VectorDrawable
   source, update workflow, and icon rules.
+- [UI design and QA archive](docs/ui-qa/README.md): curated visual references,
+  final comparisons, decisions, and verification boundaries.
 - [OCR model evaluation](seven_segment_ocr/MODEL_EVALUATION.md): current OCR
   candidates, benchmark schema, evaluator notes, and maintained conclusions.
 - [OCR pipeline design](seven_segment_ocr/PIPELINE_DESIGN.md): headless
@@ -239,7 +241,7 @@ See [.github/SIGNING.md](.github/SIGNING.md) for full setup.
 **Quick summary:**
 - Local: `local.properties` with `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
 - CI: GitHub Secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`)
-- Missing keys: graceful fallback to unsigned APK
+- Local builds without keys: graceful fallback to unsigned APK; GitHub Releases require all signing Secrets
 
 ```bash
 # macOS one-liner (iCloud Drive + Keychain)
@@ -280,8 +282,8 @@ git config hooks.medlogPrePushLint true
 
 | Workflow | Trigger | Steps | Artifact |
 |----------|---------|-------|---------|
-| [CI Build](.github/workflows/build.yml) | push / PR to `master` | ktlint → test → lint → build | Debug APK |
-| [Release](.github/workflows/release.yml) | push `v*.*.*` tag | ktlint → test → lint → sign → build → release | Signed APK + GitHub Release |
+| [CI Build](.github/workflows/build.yml) | push / PR to `main` | ktlint → test → lint → build | Debug APK + reports |
+| [Release](.github/workflows/release.yml) | `main` commit tagged `v*.*.*` | validate → test → lint → sign → verify → release | Signed ABI APKs + SHA-256 checksums |
 
 **Release flow:**
 
@@ -294,9 +296,10 @@ The release workflow automatically:
 1. Extracts `versionName` / `versionCode` from the tag (`major×10000 + minor×100 + patch`)
 2. Decodes the Keystore from `KEYSTORE_BASE64` secret
 3. Runs ktlint, unit tests, and lint
-4. Builds a signed release APK (or unsigned if secrets missing)
-5. Generates changelog from commits since last tag
-6. Creates a GitHub Release with the APK attached
+4. Requires the complete release signing secret set and builds three signed ABI APKs
+5. Verifies every APK with `apksigner` and generates `SHA256SUMS`
+6. Generates changelog from commits since the previous reachable tag
+7. Creates a GitHub Release with the APKs and checksums attached
 
 Pre-release tags (`-rc`, `-beta`, `-alpha`) are automatically marked as GitHub pre-releases.
 
@@ -306,10 +309,10 @@ Pre-release tags (`-rc`, `-beta`, `-alpha`) are automatically marked as GitHub p
 
 | Locale | Status | Resource Count |
 |--------|--------|---------------|
-| 🇨🇳 Chinese (default) | ✅ Complete | 567 |
-| 🇬🇧 English | ✅ Complete | 567 |
-| 🇯🇵 Japanese | ✅ Complete | 566 |
-| 🇰🇷 Korean | ✅ Complete | 567 |
+| 🇨🇳 Chinese (default) | ✅ Complete | 802 |
+| 🇬🇧 English | ✅ Complete | 802 |
+| 🇯🇵 Japanese | ✅ Complete | 813 |
+| 🇰🇷 Korean | ✅ Complete | 813 |
 
 All Compose screens are fully extracted — zero hardcoded strings in UI files.
 Resources include `<string>`, `<plurals>`, and `<string-array>` entries.

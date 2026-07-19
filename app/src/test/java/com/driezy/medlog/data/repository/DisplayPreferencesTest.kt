@@ -11,6 +11,7 @@ class DisplayPreferencesTest {
         assertEquals(FontMode.SYSTEM, prefs.fontMode)
         assertEquals(AppTextScale.STANDARD, prefs.appTextScale)
         assertEquals(UiDensityScale.STANDARD, prefs.uiDensityScale)
+        assertEquals(HomeHeroStyle.ACTION, prefs.homeHeroStyle)
     }
 
     @Test
@@ -18,5 +19,6 @@ class DisplayPreferencesTest {
         assertEquals(FontMode.SYSTEM, FontMode.fromStoredName("missing"))
         assertEquals(AppTextScale.STANDARD, AppTextScale.fromStoredName("missing"))
         assertEquals(UiDensityScale.STANDARD, UiDensityScale.fromStoredName("missing"))
+        assertEquals(HomeHeroStyle.ACTION, HomeHeroStyle.fromStoredName("missing"))
     }
 }

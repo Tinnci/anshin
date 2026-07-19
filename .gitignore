@@ -6,6 +6,8 @@
 /build
 /app/build
 /captures
+/artifacts/
+/design-qa.md
 .externalNativeBuild
 .cxx
 local.properties

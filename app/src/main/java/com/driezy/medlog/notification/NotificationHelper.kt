@@ -220,6 +220,7 @@ class NotificationHelper @Inject constructor(
         medicationName: String,
         dose: String,
         timeIndex: Int = 0,
+        scheduledTimeMs: Long,
     ) {
         if (!notificationManager.areNotificationsEnabled()) return
         val notificationId = (medicationId * 100 + timeIndex).toInt()
@@ -228,12 +229,14 @@ class NotificationHelper @Inject constructor(
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
+            putExtra(EXTRA_SCHEDULED_MS, scheduledTimeMs)
         }
         val skipIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
             action = "ACTION_SKIP"
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
+            putExtra(EXTRA_SCHEDULED_MS, scheduledTimeMs)
         }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,
@@ -400,6 +403,7 @@ class NotificationHelper @Inject constructor(
         dose: String,
         timeIndex: Int,
         followUpCount: Int,
+        scheduledTimeMs: Long,
     ) {
         if (!notificationManager.areNotificationsEnabled()) return
         val notificationId = (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET
@@ -408,12 +412,14 @@ class NotificationHelper @Inject constructor(
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
+            putExtra(EXTRA_SCHEDULED_MS, scheduledTimeMs)
         }
         val skipIntent = Intent(context, MedLogAlarmReceiver::class.java).apply {
             action = "ACTION_SKIP"
             putExtra(EXTRA_MED_ID, medicationId)
             putExtra(EXTRA_MED_NAME, medicationName)
             putExtra(EXTRA_TIME_INDEX, timeIndex)
+            putExtra(EXTRA_SCHEDULED_MS, scheduledTimeMs)
         }
         val takenPendingIntent = PendingIntent.getBroadcast(
             context,

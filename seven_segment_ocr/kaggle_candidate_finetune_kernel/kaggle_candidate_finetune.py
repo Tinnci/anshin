@@ -26,7 +26,7 @@ if str(PROJECT_DIR) not in sys.path:
     sys.path.insert(0, str(PROJECT_DIR))
 
 REMOTE_MODULE_DIR = Path("/kaggle/working/medlog_ocr_modules")
-RAW_BASE = "https://raw.githubusercontent.com/Tinnci/anshin/master/seven_segment_ocr"
+RAW_BASE = "https://raw.githubusercontent.com/Tinnci/anshin/main/seven_segment_ocr"
 
 
 def ensure_remote_file(relative_path: str, target_name: str | None = None) -> Path:

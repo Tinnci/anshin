@@ -3,14 +3,16 @@ name: CI Build
 on:
   push:
     branches:
-      - master
       - main
       - "feature/**"
       - "fix/**"
   pull_request:
     branches:
-      - master
       - main
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -20,45 +22,52 @@ jobs:
   build:
     name: Build & Lint
     runs-on: ubuntu-latest
+    timeout-minutes: 45
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          persist-credentials: false
 
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
         with:
           java-version: "21"
           distribution: temurin
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
         with:
           cache-cleanup: on-success
-          cache-read-only: ${{ github.event_name == 'pull_request' || (github.ref != 'refs/heads/master' && github.ref != 'refs/heads/main') }}
+          cache-read-only: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
 
       - name: Verify and build Debug APK
         run: ./gradlew ktlintCheck testDebugUnitTest lintDebug assembleDebug --build-cache --configuration-cache --stacktrace
 
       - name: Upload unit test results
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-results-${{ github.run_number }}
           path: app/build/test-results/
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Upload Lint report
         if: always()
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: lint-report-${{ github.run_number }}
           path: app/build/reports/lint-results-debug.html
+          if-no-files-found: warn
           retention-days: 7
 
       - name: Upload Debug APK
-        uses: actions/upload-artifact@v7
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: debug-apk-${{ github.run_number }}
           path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          compression-level: 0
           retention-days: 7

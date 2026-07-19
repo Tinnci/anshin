@@ -58,6 +58,12 @@ class FakeLogRepository : LogRepository {
         }
     }
 
+    override suspend fun deleteLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long) {
+        _logs.value = _logs.value.filterNot { log ->
+            log.medicationId == medicationId && log.scheduledTimeMs == scheduledTimeMs
+        }
+    }
+
     override fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int> =
         _logs.map { list ->
             list.count { it.scheduledTimeMs in startMs..endMs && it.status == LogStatus.TAKEN }

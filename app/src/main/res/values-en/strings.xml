@@ -107,12 +107,10 @@
     <string name="home_share_chooser">Share today\'s medication plan</string>
     <string name="home_group_toggle_by_category">Switch to category grouping</string>
     <string name="home_group_toggle_by_time">Switch to time grouping</string>
-    <string name="home_take_all_btn">Take all (%d)</string>
     <string name="home_now_group_title">Now</string>
     <string name="home_now_group_body">Due or nearly due medication tasks</string>
     <string name="home_later_group_title">Later today</string>
     <string name="home_later_group_body">Upcoming doses and completed records</string>
-    <string name="home_snackbar_all_taken">All marked as taken</string>
     <string name="home_snackbar_undo_skip">%s — skip undone, restored to pending</string>
     <string name="home_snackbar_reset">%s reset to pending</string>
     <string name="home_snackbar_taken">%s marked as taken</string>
@@ -121,7 +119,6 @@
     <string name="home_snackbar_period_all_taken">%s — all marked as taken</string>
     <string name="home_snackbar_prn_undo">%s undone</string>
     <string name="home_snackbar_prn_taken">%s recorded</string>
-    <string name="home_period_all_done_chip">All done</string>
     <string name="home_period_collapse">Collapse</string>
     <string name="home_period_expand">Expand</string>
     <string name="home_period_take_all_btn">Take all</string>
@@ -135,11 +132,6 @@
         <item quantity="one">🔥 1 day streak</item>
         <item quantity="other">🔥 %d day streak</item>
     </plurals>
-    <plurals name="home_streak_longest">
-        <item quantity="one">Best: 1 day</item>
-        <item quantity="other">Best: %d days</item>
-    </plurals>
-    <string name="home_next_up">Next: %1$s  %2$s</string>
     <string name="home_prn_title">As Needed</string>
     <string name="home_prn_body">No fixed schedule — tap to log a dose when needed</string>
     <string name="home_prn_taken_with_max">Taken today · Max daily: %1$s %2$s</string>
@@ -147,14 +139,34 @@
     <string name="home_prn_taken_once">Dose recorded today</string>
     <string name="home_prn_btn_taken">Taken</string>
     <string name="home_prn_btn_take">Take</string>
-    <string name="home_progress_no_plan">No medications today</string>
-    <string name="home_progress_title">Today\'s Progress</string>
-    <string name="home_progress_all_done">All done! Today\'s plan complete 🎉</string>
-    <string name="home_editorial_complete">DONE</string>
-    <plurals name="home_progress_remaining">
-        <item quantity="one">1 medication remaining</item>
-        <item quantity="other">%d medications remaining</item>
+    <string name="home_hero_next_label">Up next</string>
+    <string name="home_hero_today_count">Today %1$d/%2$d</string>
+    <string name="home_hero_schedule_and_dose">Today %1$s · %2$s %3$s</string>
+    <string name="home_hero_take_named">Take %s</string>
+    <string name="home_hero_skip_dose">Skip this dose</string>
+    <string name="home_hero_today_progress">Today’s progress</string>
+    <string name="home_hero_handled_label">handled</string>
+    <plurals name="home_hero_remaining_doses">
+        <item quantity="one">1 dose remaining</item>
+        <item quantity="other">%d doses remaining</item>
     </plurals>
+    <string name="home_hero_next_dose">Next dose</string>
+    <string name="home_hero_take_next">Take next dose</string>
+    <string name="home_hero_view_details">View details</string>
+    <string name="home_hero_name_and_dose">%1$s · %2$s %3$s</string>
+    <string name="home_hero_take_now">Take now</string>
+    <string name="home_hero_plan_title">Today’s plan</string>
+    <plurals name="home_hero_plan_count">
+        <item quantity="one">1 dose</item>
+        <item quantity="other">%d doses</item>
+    </plurals>
+    <string name="home_hero_completed_title">Today complete</string>
+    <plurals name="home_hero_completed_doses">
+        <item quantity="one">1 dose taken</item>
+        <item quantity="other">All %d doses taken</item>
+    </plurals>
+    <string name="home_hero_exceptions_title">Today handled</string>
+    <string name="home_hero_exceptions_body">Taken %1$d · skipped %2$d · partial %3$d</string>
     <string name="home_empty_title">No medications scheduled today</string>
     <string name="home_empty_body">Tap the button below to add your first medication</string>
     <string name="home_empty_add_btn">Add First Medication</string>
@@ -203,9 +215,7 @@
     <string name="settings_group_data_about">Data &amp; About</string>
     <string name="settings_group_widgets_desc">Add home screen widgets and tune Today widget interaction</string>
     <string name="settings_group_data_about_desc">Backup, restore, local data safety, and app information</string>
-    <string name="settings_more_title">More settings</string>
     <string name="settings_action_open">Open settings</string>
-    <string name="settings_more_desc">Open settings that need more context</string>
     <string name="settings_home_status_title">Settings status</string>
     <string name="settings_home_status_all_good">Reminders, modules, and OCR are running</string>
     <plurals name="settings_home_status_attention">
@@ -224,8 +234,6 @@
     <string name="settings_home_action_reminders">Check reminders</string>
     <string name="settings_home_action_intelligence">Set up AI analysis</string>
     <string name="settings_home_action_data">Data and backup</string>
-    <string name="settings_home_center_title">Settings center</string>
-    <string name="settings_home_center_desc">Open reminders, AI and OCR, widgets, and data management by task</string>
     <string name="settings_home_dashboard_title">Settings center</string>
     <string name="settings_home_dashboard_desc">Start with status, open a settings page, and toggle modules below</string>
     <string name="settings_home_tile_reminders_status">Reminders, routine, permissions</string>
@@ -237,13 +245,9 @@
         <item quantity="other">%d archived medications</item>
     </plurals>
     <string name="settings_destination_reminders">Reminders &amp; Routine</string>
-    <string name="settings_destination_reminders_desc">Notification cadence, missed-dose follow-ups, routine periods, and travel timezone</string>
     <string name="settings_destination_intelligence">AI &amp; OCR</string>
-    <string name="settings_destination_intelligence_desc">OCR model, cloud analysis, and upload controls</string>
     <string name="settings_destination_widgets">Home screen widgets</string>
-    <string name="settings_destination_widgets_desc">Add widgets and tune Today widget interaction mode</string>
     <string name="settings_destination_data_about">Data &amp; About</string>
-    <string name="settings_destination_data_about_desc">Backup, restore, local data safety, version information, and onboarding reset</string>
     <string name="settings_theme_system">System</string>
     <string name="settings_theme_light">Day</string>
     <string name="settings_theme_dark">Night</string>
@@ -271,6 +275,11 @@
     <string name="settings_palette_desc_celadon">Celadon and water</string>
     <string name="settings_palette_desc_aube">Dawn</string>
     <string name="settings_card_today">Today View</string>
+    <string name="settings_home_hero_style_title">Home focus style</string>
+    <string name="settings_home_hero_style_subtitle">Choose how Today emphasizes your next dose; status and actions stay consistent</string>
+    <string name="settings_home_hero_style_action">Action</string>
+    <string name="settings_home_hero_style_progress">Progress</string>
+    <string name="settings_home_hero_style_timeline">Timeline</string>
     <string name="settings_auto_collapse_title">Collapse completed groups by default</string>
     <string name="settings_auto_collapse_subtitle">Time periods with all doses taken will auto-collapse to save screen space</string>
     <string name="settings_persistent_title">Live Progress Notification</string>
@@ -311,7 +320,6 @@
     <string name="settings_travel_title">Use Home Timezone for Reminders</string>
     <string name="settings_travel_subtitle_on">Based on: %s</string>
     <string name="settings_travel_subtitle_off">Off — follows device timezone</string>
-    <string name="settings_card_features">Features</string>
     <string name="settings_features_hint">Core features (Today, History, Settings) are always on. Optional modules below can be toggled; their tabs hide when off.</string>
     <string name="settings_symptom_title">Wellbeing Journal</string>
     <string name="settings_symptom_subtitle">Log daily feelings, body signals, medication responses, and notes</string>
@@ -369,7 +377,6 @@
     <string name="detail_title">Medication Detail</string>
     <string name="detail_back">Back</string>
     <string name="detail_edit_cd">Edit</string>
-    <string name="detail_more_cd">More</string>
     <string name="detail_not_found">Medication not found</string>
     <string name="detail_section_basic">Basic Info</string>
     <string name="detail_label_name">Name</string>

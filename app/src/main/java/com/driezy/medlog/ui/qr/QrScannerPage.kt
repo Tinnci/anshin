@@ -59,6 +59,7 @@ private const val TAG = "QrScannerPage"
  * @param onBack   用户按返回时回调
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalPhotoPickerComposeApi::class)
+@SuppressLint("NewApi") // Embedded picker calls are guarded by API 34 + U extension 15 below.
 @Composable
 fun QrScannerPage(
     onResult: (String) -> Unit,
@@ -78,7 +79,11 @@ fun QrScannerPage(
                 android.os.ext.SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
     }
 
-    val pickerState = rememberEmbeddedPhotoPickerState()
+    val pickerState = if (isSupported) {
+        rememberEmbeddedPhotoPickerState()
+    } else {
+        null
+    }
 
     val pickMediaLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia(),
@@ -124,9 +129,10 @@ fun QrScannerPage(
     )
 
     // Process URIs selected in the EmbeddedPhotoPicker
-    LaunchedEffect(pickerState.selectedMedia) {
-        if (pickerState.selectedMedia.isNotEmpty()) {
-            val uri = pickerState.selectedMedia.first()
+    LaunchedEffect(pickerState?.selectedMedia) {
+        val supportedPickerState = pickerState ?: return@LaunchedEffect
+        if (supportedPickerState.selectedMedia.isNotEmpty()) {
+            val uri = supportedPickerState.selectedMedia.first()
             runCatching {
                 val image = InputImage.fromFilePath(context, uri)
                 val options = BarcodeScannerOptions.Builder()
@@ -149,7 +155,7 @@ fun QrScannerPage(
                                 snackbarHostState.showSnackbar(errorMessage)
                             }
                             scope.launch {
-                                pickerState.deselectUri(uri)
+                                supportedPickerState.deselectUri(uri)
                             }
                         }
                     }
@@ -159,7 +165,7 @@ fun QrScannerPage(
                             snackbarHostState.showSnackbar(errorMessage)
                         }
                         scope.launch {
-                            pickerState.deselectUri(uri)
+                            supportedPickerState.deselectUri(uri)
                         }
                     }
             }.onFailure { e ->
@@ -168,7 +174,7 @@ fun QrScannerPage(
                     snackbarHostState.showSnackbar(errorMessage)
                 }
                 scope.launch {
-                    pickerState.deselectUri(uri)
+                    supportedPickerState.deselectUri(uri)
                 }
             }
         }
@@ -184,7 +190,7 @@ fun QrScannerPage(
         scaffoldState = scaffoldState,
         sheetPeekHeight = if (isSupported) 220.dp else 0.dp,
         sheetContent = {
-            if (isSupported) {
+            if (pickerState != null) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -389,4 +395,3 @@ private fun SafeEmbeddedPhotoPicker(
         modifier = modifier
     )
 }
-

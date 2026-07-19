@@ -58,6 +58,19 @@ enum class UiDensityScale(val factor: Float) {
     }
 }
 
+/** 首页焦点区域的视觉组织方式；三种样式共享同一状态和操作语义。 */
+enum class HomeHeroStyle {
+    ACTION,
+    PROGRESS,
+    TIMELINE,
+    ;
+
+    companion object {
+        fun fromStoredName(name: String?): HomeHeroStyle =
+            entries.firstOrNull { it.name == name } ?: ACTION
+    }
+}
+
 /** 小组件明暗主题。默认跟随系统/桌面环境，而不是跟随 App 内主题。 */
 enum class WidgetThemeMode {
     SYSTEM,
@@ -174,6 +187,8 @@ data class SettingsPreferences(
     // ── 今日页面显示偏好 ───────────────────────────────────────────────────────
     /** 已全部服用的时段默认折叠，节省屏幕空间 */
     val autoCollapseCompletedGroups: Boolean = true,
+    /** 今日页焦点区域样式；默认使用最直接的行动型。 */
+    val homeHeroStyle: HomeHeroStyle = HomeHeroStyle.ACTION,
     // ── 提醒弹性设置 ───────────────────────────────────────────
     /**
      * 提前 N 分钟发送预告提醒。
@@ -287,6 +302,7 @@ class UserPreferencesRepository @Inject constructor(
         val UI_DENSITY_SCALE   = stringPreferencesKey("ui_density_scale")
         // 今日页面显示偏好
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
+        val HOME_HERO_STYLE = stringPreferencesKey("home_hero_style")
         // 提前预告提醒
         val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
         // 小组件显示偏好
@@ -374,6 +390,7 @@ class UserPreferencesRepository @Inject constructor(
                 appTextScale = AppTextScale.fromStoredName(prefs[APP_TEXT_SCALE]),
                 uiDensityScale = UiDensityScale.fromStoredName(prefs[UI_DENSITY_SCALE]),
                 autoCollapseCompletedGroups = prefs[AUTO_COLLAPSE_DONE] ?: true,
+                homeHeroStyle = HomeHeroStyle.fromStoredName(prefs[HOME_HERO_STYLE]),
                 earlyReminderMinutes = prefs[EARLY_REMINDER_MINUTES] ?: 0,
                 widgetShowActions = prefs[WIDGET_SHOW_ACTIONS] ?: true,
                 widgetThemeMode = WidgetThemeMode.fromStoredName(prefs[WIDGET_THEME_MODE]),
@@ -492,6 +509,10 @@ class UserPreferencesRepository @Inject constructor(
     /** 更新「已完成分组默认折叠」开关 */
     suspend fun updateAutoCollapseCompletedGroups(enabled: Boolean) {
         dataStore.edit { it[AUTO_COLLAPSE_DONE] = enabled }
+    }
+
+    suspend fun updateHomeHeroStyle(style: HomeHeroStyle) {
+        dataStore.edit { it[HOME_HERO_STYLE] = style.name }
     }
 
     /** 更新提前预告提醒分钟数（0 = 关闭） */

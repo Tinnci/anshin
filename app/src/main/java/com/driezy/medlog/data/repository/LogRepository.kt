@@ -16,6 +16,7 @@ interface LogRepository {
     suspend fun updateLog(log: MedicationLog)
     suspend fun deleteLog(log: MedicationLog)
     suspend fun deleteLogsForDate(medicationId: Long, startMs: Long, endMs: Long)
+    suspend fun deleteLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long)
     fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>
     /** Widget / 一次性读取时间范围内的日志（非 Flow），用于 Glance Widget 刷新 */
     suspend fun getLogsForRangeOnce(startMs: Long, endMs: Long): List<MedicationLog>

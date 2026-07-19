@@ -31,9 +31,6 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     private val notificationHelper: NotificationHelper,
     private val widgetRefresher: WidgetRefresher,
 ) {
-    /** 某个时间槽上下文中日志匹配的时间窗口（4 小时） */
-    private val SLOT_WINDOW_MS = 4 * 3_600_000L
-
     /**
      * 标记为已服 — 写日志、扣库存、取消闹钟/通知、刷新 Widget。
      *
@@ -41,17 +38,24 @@ class ToggleMedicationDoseUseCase @Inject constructor(
      *
      * @param timeSlotIndex 提醒时间槽索引（0 为默认/单时间槽）
      */
-    suspend fun markTaken(med: Medication, existingLog: MedicationLog?, timeSlotIndex: Int = 0) {
-        val slotMs = scheduledMsForSlot(med, timeSlotIndex)
-        val windowStart = slotMs - SLOT_WINDOW_MS
-        val windowEnd = slotMs + SLOT_WINDOW_MS
+    suspend fun markTaken(
+        med: Medication,
+        existingLog: MedicationLog?,
+        timeSlotIndex: Int = 0,
+        scheduledTimeMs: Long? = null,
+    ) {
+        val slotMs = scheduledTimeMs ?: scheduledMsForSlot(med, timeSlotIndex)
+        val actualTakenTimeMs = System.currentTimeMillis()
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
+            existingLog
+                ?.takeIf { it.scheduledTimeMs != slotMs }
+                ?.let { logRepo.deleteLog(it) }
+            logRepo.deleteLogForScheduledTime(med.id, slotMs)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
                     scheduledTimeMs = slotMs,
-                    actualTakenTimeMs = System.currentTimeMillis(),
+                    actualTakenTimeMs = actualTakenTimeMs,
                     status = LogStatus.TAKEN,
                 ),
             )
@@ -59,8 +63,12 @@ class ToggleMedicationDoseUseCase @Inject constructor(
                 medicationRepo.updateStock(med.id, (stock - med.doseQuantity).coerceAtLeast(0.0))
             }
         }
-        alarmScheduler.cancelAllAlarms(med.id)
-        notificationHelper.cancelAllReminderNotifications(med.id)
+        completeDoseReminders(
+            med = med,
+            timeSlotIndex = timeSlotIndex,
+            scheduledTimeMs = slotMs,
+            actualTakenTimeMs = actualTakenTimeMs,
+        )
         widgetRefresher.refreshAll()
         checkAndNotifyLowStock(med)
     }
@@ -77,12 +85,18 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     }
 
     /** 标记为跳过 — 写日志、取消闹钟/通知、刷新 Widget */
-    suspend fun markSkipped(med: Medication, timeSlotIndex: Int = 0) {
-        val slotMs = scheduledMsForSlot(med, timeSlotIndex)
-        val windowStart = slotMs - SLOT_WINDOW_MS
-        val windowEnd = slotMs + SLOT_WINDOW_MS
+    suspend fun markSkipped(
+        med: Medication,
+        existingLog: MedicationLog? = null,
+        timeSlotIndex: Int = 0,
+        scheduledTimeMs: Long? = null,
+    ) {
+        val slotMs = scheduledTimeMs ?: scheduledMsForSlot(med, timeSlotIndex)
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
+            existingLog
+                ?.takeIf { it.scheduledTimeMs != slotMs }
+                ?.let { logRepo.deleteLog(it) }
+            logRepo.deleteLogForScheduledTime(med.id, slotMs)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
@@ -92,25 +106,24 @@ class ToggleMedicationDoseUseCase @Inject constructor(
                 ),
             )
         }
-        alarmScheduler.cancelAllAlarms(med.id)
-        notificationHelper.cancelAllReminderNotifications(med.id)
+        completeDoseReminders(med, timeSlotIndex, slotMs)
         widgetRefresher.refreshAll()
     }
 
     /** 撤销已服 — 删除日志、恢复库存、重设闹钟、刷新 Widget */
-    suspend fun undoTaken(med: Medication, log: MedicationLog) {
+    suspend fun undoTaken(med: Medication, log: MedicationLog, timeSlotIndex: Int = 0) {
         logRepo.deleteLog(log)
         med.stock?.let { stock ->
             medicationRepo.updateStock(med.id, stock + med.doseQuantity)
         }
-        alarmScheduler.scheduleAllReminders(med)
+        alarmScheduler.restoreReminderForDose(med, timeSlotIndex)
         widgetRefresher.refreshAll()
     }
 
     /** 撤销跳过 — 删除日志、重设闹钟、刷新 Widget */
-    suspend fun undoSkipped(med: Medication, log: MedicationLog) {
+    suspend fun undoSkipped(med: Medication, log: MedicationLog, timeSlotIndex: Int = 0) {
         logRepo.deleteLog(log)
-        alarmScheduler.scheduleAllReminders(med)
+        alarmScheduler.restoreReminderForDose(med, timeSlotIndex)
         widgetRefresher.refreshAll()
     }
 
@@ -122,15 +135,17 @@ class ToggleMedicationDoseUseCase @Inject constructor(
      */
     suspend fun markPartial(med: Medication, existingLog: MedicationLog?, actualQty: Double, timeSlotIndex: Int = 0) {
         val slotMs = scheduledMsForSlot(med, timeSlotIndex)
-        val windowStart = slotMs - SLOT_WINDOW_MS
-        val windowEnd = slotMs + SLOT_WINDOW_MS
+        val actualTakenTimeMs = System.currentTimeMillis()
         transactionRunner.withTransaction {
-            logRepo.deleteLogsForDate(med.id, windowStart, windowEnd)
+            existingLog
+                ?.takeIf { it.scheduledTimeMs != slotMs }
+                ?.let { logRepo.deleteLog(it) }
+            logRepo.deleteLogForScheduledTime(med.id, slotMs)
             logRepo.insertLog(
                 MedicationLog(
                     medicationId = med.id,
                     scheduledTimeMs = slotMs,
-                    actualTakenTimeMs = System.currentTimeMillis(),
+                    actualTakenTimeMs = actualTakenTimeMs,
                     status = LogStatus.PARTIAL,
                     actualDoseQuantity = actualQty,
                 ),
@@ -139,19 +154,23 @@ class ToggleMedicationDoseUseCase @Inject constructor(
                 medicationRepo.updateStock(med.id, (stock - actualQty).coerceAtLeast(0.0))
             }
         }
-        alarmScheduler.cancelAllAlarms(med.id)
-        notificationHelper.cancelAllReminderNotifications(med.id)
+        completeDoseReminders(
+            med = med,
+            timeSlotIndex = timeSlotIndex,
+            scheduledTimeMs = slotMs,
+            actualTakenTimeMs = actualTakenTimeMs,
+        )
         widgetRefresher.refreshAll()
         checkAndNotifyLowStock(med, actualQty)
     }
 
     /** 撤销部分服用 — 删除日志、按记录的实际剂量恢复库存、重设闹钟、刷新 Widget */
-    suspend fun undoPartial(med: Medication, log: MedicationLog) {
+    suspend fun undoPartial(med: Medication, log: MedicationLog, timeSlotIndex: Int = 0) {
         logRepo.deleteLog(log)
         med.stock?.let { stock ->
             medicationRepo.updateStock(med.id, stock + (log.actualDoseQuantity ?: 0.0))
         }
-        alarmScheduler.scheduleAllReminders(med)
+        alarmScheduler.restoreReminderForDose(med, timeSlotIndex)
         widgetRefresher.refreshAll()
     }
 
@@ -162,6 +181,24 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     suspend fun cancelAllReminders(medId: Long) {
         alarmScheduler.cancelAllAlarms(medId)
         notificationHelper.cancelAllReminderNotifications(medId)
+    }
+
+    private fun completeDoseReminders(
+        med: Medication,
+        timeSlotIndex: Int,
+        scheduledTimeMs: Long,
+        actualTakenTimeMs: Long? = null,
+    ) {
+        alarmScheduler.cancelAlarmSlot(med.id, timeSlotIndex)
+        notificationHelper.cancelReminderNotification(med.id, timeSlotIndex)
+        notificationHelper.cancelEarlyReminderNotification(med.id, timeSlotIndex)
+        notificationHelper.cancelFollowUpNotification(med.id, timeSlotIndex)
+        alarmScheduler.scheduleNextReminderAfterDose(
+            medication = med,
+            timeIndex = timeSlotIndex,
+            scheduledTimeMs = scheduledTimeMs,
+            actualTakenTimeMs = actualTakenTimeMs,
+        )
     }
 
     private fun scheduledMs(med: Medication): Long = scheduledMsForSlot(med, 0)

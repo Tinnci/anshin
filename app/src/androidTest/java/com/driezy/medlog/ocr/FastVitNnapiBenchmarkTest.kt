@@ -1,16 +1,16 @@
 package com.driezy.medlog.ocr
 
-import android.os.Bundle
-import android.util.Log
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import ai.onnxruntime.providers.NNAPIFlags
+import android.os.Bundle
+import android.util.Log
 import androidx.test.platform.app.InstrumentationRegistry
+import org.junit.Test
 import java.nio.FloatBuffer
 import java.util.EnumSet
 import kotlin.math.roundToLong
-import org.junit.Test
 
 class FastVitNnapiBenchmarkTest {
 
@@ -67,12 +67,7 @@ class FastVitNnapiBenchmarkTest {
         options.close()
     }
 
-    private fun runOnce(
-        environment: OrtEnvironment,
-        session: OrtSession,
-        input: FloatBuffer,
-        shape: LongArray,
-    ) {
+    private fun runOnce(environment: OrtEnvironment, session: OrtSession, input: FloatBuffer, shape: LongArray) {
         input.rewind()
         OnnxTensor.createTensor(environment, input, shape).use { tensor ->
             session.run(mapOf("input" to tensor)).use { result ->

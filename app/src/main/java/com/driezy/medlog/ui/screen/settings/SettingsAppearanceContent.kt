@@ -28,6 +28,7 @@ import com.driezy.medlog.BuildConfig
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.AppTextScale
 import com.driezy.medlog.data.repository.FontMode
+import com.driezy.medlog.data.repository.HomeHeroStyle
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UiDensityScale
@@ -228,6 +229,30 @@ internal fun SettingsHomeAppearanceContent(
         title = stringResource(R.string.settings_card_today),
         icon = MedLogIcons.ViewAgenda,
     )
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = MedLogSpacing.Large)
+            .padding(top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+    ) {
+        Text(
+            text = stringResource(R.string.settings_home_hero_style_subtitle),
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+        DisplayOptionGroup(
+            title = stringResource(R.string.settings_home_hero_style_title),
+            options = listOf(
+                HomeHeroStyle.ACTION to stringResource(R.string.settings_home_hero_style_action),
+                HomeHeroStyle.PROGRESS to stringResource(R.string.settings_home_hero_style_progress),
+                HomeHeroStyle.TIMELINE to stringResource(R.string.settings_home_hero_style_timeline),
+            ),
+            selected = uiState.homeHeroStyle,
+            onSelected = viewModel::setHomeHeroStyle,
+        )
+    }
+    HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
     SettingsSwitchRow(
         title = stringResource(R.string.settings_auto_collapse_title),
         subtitle = stringResource(R.string.settings_auto_collapse_subtitle),

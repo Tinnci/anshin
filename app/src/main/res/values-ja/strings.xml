@@ -103,8 +103,6 @@
     <string name="home_share_chooser">今日の服薬計画を共有</string>
     <string name="home_group_toggle_by_category">カテゴリ別に切替</string>
     <string name="home_group_toggle_by_time">時間帯別に切替</string>
-    <string name="home_take_all_btn">まとめて服用 (%d)</string>
-    <string name="home_snackbar_all_taken">すべて服用済みにしました</string>
     <string name="home_snackbar_undo_skip">%s のスキップを取り消し、未服用に戻しました</string>
     <string name="home_snackbar_reset">%s を未服用にリセットしました</string>
     <string name="home_snackbar_taken">%s を服用済みにしました</string>
@@ -113,7 +111,6 @@
     <string name="home_snackbar_period_all_taken">%s をすべて服用済みにしました</string>
     <string name="home_snackbar_prn_undo">%s を取り消しました</string>
     <string name="home_snackbar_prn_taken">%s の服用を記録しました</string>
-    <string name="home_period_all_done_chip">完了</string>
     <string name="home_period_collapse">折りたたむ</string>
     <string name="home_period_expand">展開</string>
     <string name="home_period_take_all_btn">まとめて服用</string>
@@ -125,10 +122,6 @@
     <plurals name="home_streak_current">
         <item quantity="other">🔥 %d 日連続</item>
     </plurals>
-    <plurals name="home_streak_longest">
-        <item quantity="other">最長 %d 日</item>
-    </plurals>
-    <string name="home_next_up">次回：%1$s  %2$s</string>
     <string name="home_prn_title">頓服</string>
     <string name="home_prn_body">固定時間なし — 必要なときにタップして服用を記録</string>
     <string name="home_prn_taken_with_max">本日服用 · 日最大量 %1$s %2$s</string>
@@ -136,13 +129,25 @@
     <string name="home_prn_taken_once">本日服用済み</string>
     <string name="home_prn_btn_taken">服用済み</string>
     <string name="home_prn_btn_take">服用</string>
-    <string name="home_progress_no_plan">今日の服薬予定なし</string>
-    <string name="home_progress_title">今日の進捗</string>
-    <string name="home_progress_all_done">完了！今日の服薬をすべて達成しました 🎉</string>
-    <string name="home_editorial_complete">完了</string>
-    <plurals name="home_progress_remaining">
-        <item quantity="other">残り %d 件</item>
-    </plurals>
+    <string name="home_hero_next_label">次にすること</string>
+    <string name="home_hero_today_count">今日 %1$d/%2$d</string>
+    <string name="home_hero_schedule_and_dose">今日 %1$s · %2$s %3$s</string>
+    <string name="home_hero_take_named">%sを服用</string>
+    <string name="home_hero_skip_dose">今回をスキップ</string>
+    <string name="home_hero_today_progress">今日の進捗</string>
+    <string name="home_hero_handled_label">対応済み</string>
+    <plurals name="home_hero_remaining_doses"><item quantity="other">残り%d回</item></plurals>
+    <string name="home_hero_next_dose">次の服薬</string>
+    <string name="home_hero_take_next">次の分を服用</string>
+    <string name="home_hero_view_details">詳細を見る</string>
+    <string name="home_hero_name_and_dose">%1$s · %2$s %3$s</string>
+    <string name="home_hero_take_now">今すぐ服用</string>
+    <string name="home_hero_plan_title">今日の予定</string>
+    <plurals name="home_hero_plan_count"><item quantity="other">%d回</item></plurals>
+    <string name="home_hero_completed_title">今日の服薬完了</string>
+    <plurals name="home_hero_completed_doses"><item quantity="other">%d回すべて服用済み</item></plurals>
+    <string name="home_hero_exceptions_title">今日の対応完了</string>
+    <string name="home_hero_exceptions_body">服用 %1$d · スキップ %2$d · 一部 %3$d</string>
     <string name="home_empty_title">今日の服薬予定はありません</string>
     <string name="home_empty_body">下のボタンをタップして最初の薬を追加しましょう</string>
     <string name="home_empty_add_btn">最初の薬を追加</string>
@@ -216,6 +221,11 @@
     <string name="settings_palette_desc_celadon">青磁、薄霧、静かな水面</string>
     <string name="settings_palette_desc_aube">夜明けのあたたかな光</string>
     <string name="settings_card_today">今日の画面</string>
+    <string name="settings_home_hero_style_title">ホームのフォーカス表示</string>
+    <string name="settings_home_hero_style_subtitle">次の服薬を強調する表示を選択します。状態と操作は共通です</string>
+    <string name="settings_home_hero_style_action">アクション</string>
+    <string name="settings_home_hero_style_progress">進捗</string>
+    <string name="settings_home_hero_style_timeline">タイムライン</string>
     <string name="settings_auto_collapse_title">完了済みグループをデフォルトで折りたたむ</string>
     <string name="settings_auto_collapse_subtitle">服薬完了の時間帯は自動で折りたたまれます</string>
     <string name="settings_persistent_title">ライブ進捗通知</string>
@@ -253,7 +263,6 @@
     <string name="settings_travel_title">ホーム時間帯でリマインダー維持</string>
     <string name="settings_travel_subtitle_on">基準：%s</string>
     <string name="settings_travel_subtitle_off">オフ — デバイスのタイムゾーンに従います</string>
-    <string name="settings_card_features">機能設定</string>
     <string name="settings_features_hint">主要機能は常時有効。オプションモジュールはオフにするとタブが非表示になります。</string>
     <string name="settings_symptom_title">心身の記録</string>
     <string name="settings_symptom_subtitle">毎日の気分、体のサイン、服薬後の反応、メモを記録</string>
@@ -310,7 +319,6 @@
     <string name="detail_title">服薬詳細</string>
     <string name="detail_back">戻る</string>
     <string name="detail_edit_cd">編集</string>
-    <string name="detail_more_cd">その他</string>
     <string name="detail_not_found">薬品が見つかりません</string>
     <string name="detail_section_basic">基本情報</string>
     <string name="detail_label_name">薬品名</string>

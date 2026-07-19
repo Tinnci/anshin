@@ -35,6 +35,9 @@ class LogRepositoryImpl @Inject constructor(
     override suspend fun deleteLogsForDate(medicationId: Long, startMs: Long, endMs: Long) =
         logDao.deleteLogsForMedicationAndDate(medicationId, startMs, endMs)
 
+    override suspend fun deleteLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long) =
+        logDao.deleteLogForScheduledTime(medicationId, scheduledTimeMs)
+
     override fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int> =
         logDao.getTakenCountForDateRange(startMs, endMs)
 

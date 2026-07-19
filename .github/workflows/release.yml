@@ -12,27 +12,47 @@ on:
 permissions:
   contents: write   # Required to create a GitHub Release
 
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
 jobs:
   release:
     name: Build & Release
     runs-on: ubuntu-latest
+    timeout-minutes: 90
 
     steps:
       # ── 1. 拉取完整历史（用于生成 CHANGELOG） ─────────────────
       - name: Checkout (full history)
-        uses: actions/checkout@v6
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
         with:
           fetch-depth: 0
+          persist-credentials: false
+
+      - name: Validate tag and main ancestry
+        shell: bash
+        run: |
+          if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)[0-9]+)?$ ]]; then
+            echo "::error::Unsupported release tag: $GITHUB_REF_NAME"
+            exit 1
+          fi
+
+          git fetch origin main --no-tags --depth=1
+          if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
+            echo "::error::Release tags must point to a commit contained in origin/main."
+            exit 1
+          fi
 
       # ── 2. 配置 JDK ───────────────────────────────────────────
       - name: Set up JDK 21
-        uses: actions/setup-java@v5
+        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
         with:
           java-version: "21"
           distribution: temurin
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v6
+        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
         with:
           cache-cleanup: on-success
           cache-read-only: true
@@ -57,21 +77,26 @@ jobs:
           echo "version_name : $TAG"
           echo "version_code : $VERSION_CODE"
 
-      # ── 4. 解码 Keystore（Secret 缺失时跳过，构建未签名 APK）────
-      - name: Decode keystore
-        id: keystore
+      # ── 4. 验证并解码 Release Keystore ─────────────────────────
+      - name: Validate and decode keystore
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
         run: |
-          if [ -n "$KEYSTORE_BASE64" ]; then
-            echo "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
-            echo "KEYSTORE_PATH=${{ github.workspace }}/keystore.jks" >> "$GITHUB_ENV"
-            echo "signed=true" >> "$GITHUB_OUTPUT"
-            echo "Keystore decoded. APK will be signed."
-          else
-            echo "signed=false" >> "$GITHUB_OUTPUT"
-            echo "No KEYSTORE_BASE64 secret found. APK will be unsigned."
+          missing=()
+          [ -n "$KEYSTORE_BASE64" ] || missing+=(KEYSTORE_BASE64)
+          [ -n "$KEYSTORE_PASSWORD" ] || missing+=(KEYSTORE_PASSWORD)
+          [ -n "$KEY_ALIAS" ] || missing+=(KEY_ALIAS)
+          [ -n "$KEY_PASSWORD" ] || missing+=(KEY_PASSWORD)
+          if [ "${#missing[@]}" -ne 0 ]; then
+            echo "::error::Missing release secrets: ${missing[*]}"
+            exit 1
           fi
+
+          printf '%s' "$KEYSTORE_BASE64" | base64 --decode > keystore.jks
+          echo "KEYSTORE_PATH=${{ github.workspace }}/keystore.jks" >> "$GITHUB_ENV"
 
       # ── 5. 最终验证并构建 Release APK ─────────────────────────
       - name: Verify and build Release APK
@@ -84,19 +109,19 @@ jobs:
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
-      # ── 7. 重命名 APK（按 ABI split 分别命名）─────────────────
+      # ── 6. 重命名 APK（按 ABI split 分别命名）─────────────────
       - name: Rename APKs
-        id: apk
         run: |
           APK_DIR="app/build/outputs/apk/release"
           VER="${{ steps.version.outputs.version_name }}"
-          SIGNED="${{ steps.keystore.outputs.signed }}"
-          SUFFIX=""
-          [ "$SIGNED" != "true" ] && SUFFIX="-unsigned"
+          shopt -s nullglob
+          APKS=("$APK_DIR"/*.apk)
+          if [ "${#APKS[@]}" -ne 3 ]; then
+            echo "::error::Expected three ABI APKs, found ${#APKS[@]}."
+            exit 1
+          fi
 
-          FILES=""
-          for apk in "$APK_DIR"/*.apk; do
-            [ -f "$apk" ] || continue
+          for apk in "${APKS[@]}"; do
             BASENAME=$(basename "$apk" .apk)
             # 识别 ABI：universal / arm64-v8a / armeabi-v7a
             case "$BASENAME" in
@@ -105,23 +130,35 @@ jobs:
               *armeabi*)   ABI="armeabi-v7a" ;;
               *)           ABI="universal" ;;
             esac
-            NEW_NAME="Anshin-v${VER}-${ABI}${SUFFIX}.apk"
+            NEW_NAME="Anshin-v${VER}-${ABI}.apk"
             mv "$apk" "$APK_DIR/$NEW_NAME"
-            FILES="${FILES:+$FILES\n}$APK_DIR/$NEW_NAME"
             echo "  → $NEW_NAME ($(du -h "$APK_DIR/$NEW_NAME" | cut -f1))"
           done
 
-          # 保存文件列表，用换行分隔
-          echo "apk_dir=$APK_DIR" >> "$GITHUB_OUTPUT"
-          echo "$FILES"
+      # ── 7. 验证签名并生成校验和 ────────────────────────────────
+      - name: Verify signatures and checksums
+        run: |
+          APK_DIR="app/build/outputs/apk/release"
+          APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
+          if [ ! -x "$APKSIGNER" ]; then
+            echo "::error::apksigner was not found in the Android SDK."
+            exit 1
+          fi
+
+          for apk in "$APK_DIR"/Anshin-*.apk; do
+            "$APKSIGNER" verify --verbose --print-certs "$apk"
+          done
+          (
+            cd "$APK_DIR"
+            sha256sum Anshin-*.apk > SHA256SUMS
+          )
 
       # ── 8. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
       - name: Generate changelog
         id: changelog
         run: |
-          PREV_TAG=$(git tag --sort=-creatordate \
-            | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+' \
-            | sed -n '2p')
+          PREV_TAG=$(git describe --tags --abbrev=0 "$GITHUB_SHA^" \
+            --match 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null || true)
           if [ -n "$PREV_TAG" ]; then
             LOG=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h)" --no-merges)
           else
@@ -135,7 +172,7 @@ jobs:
 
       # ── 9. 发布 GitHub Release，附带 APK ─────────────────────
       - name: Create GitHub Release
-        uses: softprops/action-gh-release@v3
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           name: "Anshin v${{ steps.version.outputs.version_name }}"
           body: |
@@ -159,6 +196,8 @@ jobs:
             | versionCode | `${{ steps.version.outputs.version_code }}` |
             | 构建号 | `#${{ github.run_number }}` |
             | Commit | ${{ github.sha }} |
-            | 签名状态 | ${{ steps.keystore.outputs.signed == 'true' && '✅ 已签名（Release Keystore）' || '⚠️ 未签名（KEYSTORE_BASE64 Secret 未配置）' }} |
-          files: app/build/outputs/apk/release/Anshin-*.apk
+            | 签名状态 | ✅ 已签名并通过 `apksigner` 验证 |
+          files: |
+            app/build/outputs/apk/release/Anshin-*.apk
+            app/build/outputs/apk/release/SHA256SUMS
           prerelease: ${{ contains(github.ref_name, '-rc') || contains(github.ref_name, '-beta') || contains(github.ref_name, '-alpha') }}

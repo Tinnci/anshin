@@ -8,8 +8,8 @@ import com.driezy.medlog.data.model.DrugInteraction
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
-import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.data.repository.LogRepository
+import com.driezy.medlog.data.repository.HomeHeroStyle
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.domain.NINETY_DAYS_MS
 import com.driezy.medlog.domain.StreakCalculator
@@ -57,21 +57,22 @@ data class MedicationWithStatus(
 
 data class HomeUiState(
     val items: List<MedicationWithStatus> = emptyList(),
-    val takenCount: Int = 0,
-    val totalCount: Int = 0,
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
     /** 当前连续服药天数 */
     val currentStreak: Int = 0,
-    /** 历史最长连续天数 */
-    val longestStreak: Int = 0,
     /** 检测到的药品相互作用列表 */
     val interactions: List<DrugInteraction> = emptyList(),
     /** true = 按服药时段分组；false = 按分类分组 */
     val groupByTime: Boolean = true,
     /** 已全部服用的时段默认折叠 */
     val autoCollapseCompletedGroups: Boolean = true,
+    /** 用户选择的首页焦点呈现方式。 */
+    val homeHeroStyle: HomeHeroStyle = HomeHeroStyle.ACTION,
 ) {
+    val heroPresentation: HomeHeroPresentation by lazy {
+        HomeHeroPresentation.from(items)
+    }
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
      * 当所有药品无分类时返回单个 "" -> all 分组（供卡片列表扁平化渲染）。
@@ -94,38 +95,6 @@ data class HomeUiState(
             .map { it.key to it.value }
     }
 
-    /**
-     * 按服药时段分组，组内按提醒小时排序。
-     * 同时暴露 [TimePeriod] 对象，供 UI 渲染图标及"一键服用本时段"。
-     */
-    val groupedByTime: List<Pair<String, List<MedicationWithStatus>>> by lazy {
-        groupedByTimePeriod.map { (tp, meds) -> tp.key to meds }
-    }
-
-    /** 带 [TimePeriod] key 的时段分组，UI 需要时段图标及 key 时使用。PRN 按需药品除外。 */
-    val groupedByTimePeriod: List<Pair<TimePeriod, List<MedicationWithStatus>>> by lazy {
-        val periodOrder = listOf(
-            "morning", "beforeBreakfast", "afterBreakfast",
-            "beforeLunch", "afterLunch", "afternoon",
-            "beforeDinner", "afterDinner", "evening", "bedtime", "exact",
-        )
-        fun orderOf(key: String) = periodOrder.indexOf(key).let { if (it < 0) 99 else it }
-        items
-            .filter { !it.medication.isPRN }
-            .sortedWith(
-                compareBy(
-                    { orderOf(it.medication.timePeriod) },
-                    { it.medication.reminderHour },
-                    { it.medication.reminderMinute },
-                    { it.medication.name },
-                ),
-            )
-            .groupBy { it.medication.timePeriod }
-            .entries
-            .sortedBy { (key, _) -> orderOf(key) }
-            .map { (key, meds) -> TimePeriod.fromKey(key) to meds }
-    }
-
     /** PRN 按需药品列表（单独渲染为"随时需要"区域） */
     val prnItems: List<MedicationWithStatus> by lazy {
         items.filter { it.medication.isPRN }
@@ -133,9 +102,9 @@ data class HomeUiState(
 
     /** 当前最需要处理的剂量：未完成，且计划时间已经到达或在未来 30 分钟内。 */
     val nowTaskItems: List<MedicationWithStatus> by lazy {
-        val cutoff = LocalTime.now().plusMinutes(30)
+        val cutoffMinutes = LocalTime.now().toSecondOfDay() / 60 + 30
         items.filter { item ->
-            !item.medication.isPRN && !item.isHandled && item.scheduledLocalTime() <= cutoff
+            !item.medication.isPRN && !item.isHandled && item.scheduledMinuteOfDay() <= cutoffMinutes
         }
     }
 
@@ -145,19 +114,6 @@ data class HomeUiState(
         items.filter { item ->
             !item.medication.isPRN && (item.medication.id to item.timeSlotIndex) !in nowIds
         }
-    }
-
-    /**
-     * 下一个仍有待服药品的时段（用于"下一服"提示 Chip）。
-     * 仅在 [takenCount] 大于 0 且未全部完成时有意义。
-     */
-    val nextUpPeriod: Pair<TimePeriod, String>? by lazy {
-        groupedByTimePeriod
-            .firstOrNull { (_, meds) -> meds.any { !it.isHandled } }
-            ?.let { (tp, meds) ->
-                val med = meds.first { !it.isHandled }
-                tp to "%02d:%02d".format(med.medication.reminderHour, med.medication.reminderMinute)
-            }
     }
 
     companion object {
@@ -173,17 +129,6 @@ private data class HomeObservation(
     val state: HomeUiState,
     val showProgressNotification: Boolean,
 )
-
-private fun MedicationWithStatus.scheduledLocalTime(): LocalTime {
-    val time = scheduledTime.ifBlank {
-        "%02d:%02d".format(medication.reminderHour, medication.reminderMinute)
-    }
-    val parts = time.split(":").mapNotNull { it.toIntOrNull() }
-    return LocalTime.of(
-        parts.getOrElse(0) { medication.reminderHour }.coerceIn(0, 23),
-        parts.getOrElse(1) { medication.reminderMinute }.coerceIn(0, 59),
-    )
-}
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -245,8 +190,7 @@ class HomeViewModel @Inject constructor(
                 val items = meds.flatMap { med ->
                     val medLogs = logs.filter { it.medicationId == med.id }
                     val times = med.reminderTimes.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                    if (times.size <= 1 || med.isPRN) {
-                        // 单时间槽或 PRN：与旧行为一致
+                    if (med.isPRN) {
                         listOf(MedicationWithStatus(
                             medication = med,
                             log = medLogs.firstOrNull(),
@@ -254,38 +198,37 @@ class HomeViewModel @Inject constructor(
                             scheduledTime = times.firstOrNull() ?: "",
                         ))
                     } else {
-                        // 多时间槽：每个提醒时间展开为独立条目
-                        times.mapIndexed { index, timeStr ->
+                        val scheduledTimes = times.ifEmpty {
+                            listOf("%02d:%02d".format(med.reminderHour, med.reminderMinute))
+                        }
+                        val slotTimesMs = scheduledTimes.map { timeStr ->
                             val parts = timeStr.split(":").mapNotNull { it.toIntOrNull() }
-                            val slotHour = parts.getOrElse(0) { 0 }
-                            val slotMinute = parts.getOrElse(1) { 0 }
-                            val slotMs = Calendar.getInstance().apply {
+                            Calendar.getInstance().apply {
+                                val slotHour = parts.getOrElse(0) { med.reminderHour }.coerceIn(0, 23)
+                                val slotMinute = parts.getOrElse(1) { med.reminderMinute }.coerceIn(0, 59)
                                 set(Calendar.HOUR_OF_DAY, slotHour)
                                 set(Calendar.MINUTE, slotMinute)
                                 set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
                             }.timeInMillis
-                            // 匹配最接近该时间槽的日志（±4 小时窗口以防跨时段冲突）
-                            val matchedLog = medLogs.filter { log ->
-                                kotlin.math.abs(log.scheduledTimeMs - slotMs) < 4 * 3_600_000L
-                            }.minByOrNull { kotlin.math.abs(it.scheduledTimeMs - slotMs) }
+                        }
+                        val matchedLogs = matchDoseLogsToSlots(slotTimesMs, medLogs)
+                        scheduledTimes.mapIndexed { index, timeStr ->
                             MedicationWithStatus(
                                 medication = med,
-                                log = matchedLog,
+                                log = matchedLogs[index],
                                 timeSlotIndex = index,
                                 scheduledTime = timeStr,
                             )
                         }
                     }
                 }
-                val scheduledItems = items.filter { !it.medication.isPRN }
                 HomeObservation(
                     state = HomeUiState(
                         items = items,
-                        takenCount = scheduledItems.count { it.isTaken },
-                        totalCount = scheduledItems.size,
                         isLoading = false,
                         interactions = interactions,
                         autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
+                        homeHeroStyle = prefs.homeHeroStyle,
                     ),
                     showProgressNotification = prefs.persistentReminder,
                 )
@@ -299,8 +242,9 @@ class HomeViewModel @Inject constructor(
                 // 保留用户的分组偏好，不被新状态覆盖
                 _uiState.value = state.copy(groupByTime = _uiState.value.groupByTime)
                 // 实时更新今日进度通知（去重：仅在 taken/total 真正变化时更新）
-                val taken = state.takenCount
-                val total = state.totalCount
+                val hero = state.heroPresentation
+                val taken = hero.handledCount
+                val total = hero.totalCount
                 if (!observation.showProgressNotification) {
                     if (lastProgressNotifState != (-1 to -1)) {
                         progressNotif.dismiss()
@@ -309,7 +253,7 @@ class HomeViewModel @Inject constructor(
                 } else if (taken != lastProgressNotifState.first || total != lastProgressNotifState.second) {
                     lastProgressNotifState = taken to total
                     val pending = state.items
-                        .filter { !it.isTaken && !it.isSkipped }
+                        .filter { !it.medication.isPRN && !it.isHandled }
                         .map { it.medication.name }
                     progressNotif(
                         taken        = taken,
@@ -324,8 +268,12 @@ class HomeViewModel @Inject constructor(
     fun toggleMedicationStatus(item: MedicationWithStatus) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
             when {
-                item.isTaken   -> item.log?.let { toggleDoseUseCase.undoTaken(item.medication, it) }
-                item.isPartial -> item.log?.let { toggleDoseUseCase.undoPartial(item.medication, it) }
+                item.isTaken -> item.log?.let {
+                    toggleDoseUseCase.undoTaken(item.medication, it, item.timeSlotIndex)
+                }
+                item.isPartial -> item.log?.let {
+                    toggleDoseUseCase.undoPartial(item.medication, it, item.timeSlotIndex)
+                }
                 else -> toggleDoseUseCase.markTaken(item.medication, item.log, item.timeSlotIndex)
             }
         }
@@ -333,7 +281,7 @@ class HomeViewModel @Inject constructor(
 
     fun skipMedication(item: MedicationWithStatus) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            toggleDoseUseCase.markSkipped(item.medication, item.timeSlotIndex)
+            toggleDoseUseCase.markSkipped(item.medication, item.log, item.timeSlotIndex)
         }
     }
 
@@ -344,31 +292,30 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    /** 撤销服药/跳过/部分服用操作，根据当前 state 内的最新记录进行回退 */
-    fun undoByMedicationId(medicationId: Long) {
+    /** 撤销指定剂量槽的操作，根据当前 state 内的最新记录进行回退。 */
+    fun undoDose(doseKey: MedicationDoseKey) {
         safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            val currentItem = _uiState.value.items.find { it.medication.id == medicationId }
+            val currentItem = _uiState.value.items.find { it.doseKey == doseKey }
                 ?: return@safeLaunch
             val log = currentItem.log ?: return@safeLaunch
             when {
-                currentItem.isTaken   -> toggleDoseUseCase.undoTaken(currentItem.medication, log)
-                currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(currentItem.medication, log)
-                currentItem.isPartial -> toggleDoseUseCase.undoPartial(currentItem.medication, log)
+                currentItem.isTaken -> toggleDoseUseCase.undoTaken(
+                    currentItem.medication,
+                    log,
+                    currentItem.timeSlotIndex,
+                )
+                currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(
+                    currentItem.medication,
+                    log,
+                    currentItem.timeSlotIndex,
+                )
+                currentItem.isPartial -> toggleDoseUseCase.undoPartial(
+                    currentItem.medication,
+                    log,
+                    currentItem.timeSlotIndex,
+                )
             }
         }
-    }
-
-    fun takeAll() {
-        _uiState.value.items
-            .filter { !it.isHandled }
-            .forEach { toggleMedicationStatus(it) }
-    }
-
-    /** 仅标记指定时段内的所有待服药品为已服 */
-    fun takeAllForPeriod(timePeriodKey: String) {
-        _uiState.value.items
-            .filter { it.medication.timePeriod == timePeriodKey && !it.isHandled }
-            .forEach { toggleMedicationStatus(it) }
     }
 
     /** 切换主页药品列表的分组方式（时间 ↔ 分类） */
@@ -455,11 +402,8 @@ class HomeViewModel @Inject constructor(
 
                     val today = LocalDate.now()
                     val current = StreakCalculator.currentStreak(daysWithTaken, today)
-                    val longest = StreakCalculator.longestStreak(daysWithTaken)
-
                     _uiState.value = _uiState.value.copy(
                         currentStreak = current,
-                        longestStreak = longest,
                     )
                 }
         }

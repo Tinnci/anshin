@@ -7,7 +7,7 @@
 | 密钥不进 Git | `.gitignore` 屏蔽 `*.jks`, `*.b64` 及 `local.properties` 签名字段 |
 | 跨 Mac 自动同步 | Keystore 存 **iCloud Drive**，密码存 **iCloud Keychain** |
 | CI 签名 | GitHub Secrets → 工作流解码 → 临时 keystore |
-| 无密钥时降级 | 检测不到签名配置时跳过，输出 unsigned APK |
+| 发布密钥校验 | Release 工作流缺少任一签名 Secret 时立即失败，禁止发布未签名 APK |
 
 ---
 
@@ -97,6 +97,6 @@ git tag v1.1.0-rc1 && git push origin v1.1.0-rc1
 
 ---
 
-## 无 Secrets 时的行为
+## Secrets 校验
 
-`KEYSTORE_PASSWORD` 在所有来源均为空时跳过签名，输出 **unsigned APK**（文件名含 `-unsigned`）。
+Release 工作流要求四个 Secret 全部存在。缺少任意一项时会在构建前失败；成功构建后还会使用 `apksigner` 验证每个 ABI APK，并随 Release 发布 `SHA256SUMS`。

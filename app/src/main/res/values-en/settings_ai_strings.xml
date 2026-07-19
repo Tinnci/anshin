@@ -84,8 +84,6 @@
     <string name="settings_ai_api_key_import_unsupported">This content is not recognized. Paste an import block or .env block.</string>
     <string name="settings_ai_api_key_import_preview">Will import %1$s</string>
     <string name="settings_ai_api_key_import_preview_with_model">Will import %1$s · %2$s</string>
-    <string name="settings_ai_api_key_import_standard_chip">Format</string>
-    <string name="settings_ai_api_key_import_env_chip">.env</string>
     <string name="settings_ai_api_key_import_save">Import and save</string>
     <string name="settings_ai_api_key_import_scan">Scan key QR</string>
     <string name="settings_ai_endpoint_section_title">Endpoint Configuration</string>

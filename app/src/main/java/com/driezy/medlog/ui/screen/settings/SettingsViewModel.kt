@@ -22,6 +22,7 @@ import com.driezy.medlog.data.repository.AiUsageSummaryRow
 import com.driezy.medlog.data.repository.AppTextScale
 import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.FontMode
+import com.driezy.medlog.data.repository.HomeHeroStyle
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
@@ -74,6 +75,7 @@ data class SettingsUiState(
     val appTextScale: AppTextScale = AppTextScale.STANDARD,
     val uiDensityScale: UiDensityScale = UiDensityScale.STANDARD,
     // ── 今日页面 ────────────────────────────────────────────────────────────
+    val homeHeroStyle: HomeHeroStyle = HomeHeroStyle.ACTION,
     val autoCollapseCompletedGroups: Boolean = true,
     // ── 提前预告提醒 ─────────────────────────────────────────────────────────
     /** 0=关闭 ; 15/30/60=提前对应分钟 */
@@ -161,6 +163,7 @@ class SettingsViewModel @Inject constructor(
             fontMode        = prefs.fontMode,
             appTextScale    = prefs.appTextScale,
             uiDensityScale  = prefs.uiDensityScale,
+            homeHeroStyle = prefs.homeHeroStyle,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
             widgetShowActions = prefs.widgetShowActions,
@@ -439,6 +442,10 @@ class SettingsViewModel @Inject constructor(
 
     fun setAutoCollapseCompletedGroups(enabled: Boolean) {
         safeLaunch { prefsRepository.updateAutoCollapseCompletedGroups(enabled) }
+    }
+
+    fun setHomeHeroStyle(style: HomeHeroStyle) {
+        safeLaunch { prefsRepository.updateHomeHeroStyle(style) }
     }
 
     fun setEarlyReminderMinutes(minutes: Int) {

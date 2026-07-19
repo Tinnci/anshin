@@ -13,9 +13,8 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
@@ -315,18 +314,20 @@ private fun SettingsScaffold(
             )
         },
     ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(innerPadding)
-                .padding(horizontal = MedLogSpacing.Large)
-                .padding(bottom = MedLogSpacing.XXLarge),
+        LazyColumn(
+            modifier = Modifier.fillMaxSize(),
+            contentPadding = PaddingValues(
+                start = MedLogSpacing.Large,
+                top = innerPadding.calculateTopPadding(),
+                end = MedLogSpacing.Large,
+                bottom = innerPadding.calculateBottomPadding() + MedLogSpacing.XXLarge,
+            ),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
 
             // ── Android 12+ 精确闹钟权限警告卡片 ────────────────────
-            AnimatedVisibility(
+            item(key = "exact-alarm-warning", contentType = "permission-warning") {
+                AnimatedVisibility(
                 visible = !canScheduleExactAlarms,
                 enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
                 exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
@@ -382,10 +383,12 @@ private fun SettingsScaffold(
                         }
                     }
                 }
+                }
             }
 
             // ── Android 13+ 通知权限警告卡片 ─────────────────────
-            AnimatedVisibility(
+            item(key = "notification-warning", contentType = "permission-warning") {
+                AnimatedVisibility(
                 visible = !canPostNotifications,
                 enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
                 exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
@@ -451,63 +454,80 @@ private fun SettingsScaffold(
                         }
                     }
                 }
+                }
             }
             when (mode) {
                 SettingsScreenMode.HOME -> {
-                    SettingsHomeOverviewPanel(
-                        uiState = uiState,
-                        canScheduleExactAlarms = canScheduleExactAlarms,
-                        canPostNotifications = canPostNotifications,
-                        onNavigateToReminderSettings = onNavigateToReminderSettings,
-                        onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
-                        onNavigateToDataSettings = onNavigateToDataSettings,
-                    )
-                    SettingsHomeAppearanceContent(
+                    item(key = "home-overview", contentType = "settings-section") {
+                        SettingsHomeOverviewPanel(
+                            uiState = uiState,
+                            canScheduleExactAlarms = canScheduleExactAlarms,
+                            canPostNotifications = canPostNotifications,
+                            onNavigateToReminderSettings = onNavigateToReminderSettings,
+                            onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
+                            onNavigateToDataSettings = onNavigateToDataSettings,
+                        )
+                    }
+                    item(key = "home-appearance", contentType = "settings-section") {
+                        SettingsHomeAppearanceContent(
+                            uiState = uiState,
+                            viewModel = viewModel,
+                            palettePreviewDark = palettePreviewDark,
+                        )
+                    }
+                    item(key = "home-modules", contentType = "settings-section") {
+                        SettingsHomeModulesContent(
+                            uiState = uiState,
+                            viewModel = viewModel,
+                            onNavigateToReminderSettings = onNavigateToReminderSettings,
+                            onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
+                            onNavigateToBpx1Settings = onNavigateToBpx1Settings,
+                            onNavigateToWidgetSettings = onNavigateToWidgetSettings,
+                            onNavigateToDataSettings = onNavigateToDataSettings,
+                        )
+                    }
+                }
+                SettingsScreenMode.REMINDERS -> item(key = "reminders", contentType = "settings-section") {
+                    SettingsReminderContent(
                         uiState = uiState,
                         viewModel = viewModel,
-                        palettePreviewDark = palettePreviewDark,
-                    )
-                    SettingsHomeModulesContent(
-                        uiState = uiState,
-                        viewModel = viewModel,
-                        onNavigateToReminderSettings = onNavigateToReminderSettings,
-                        onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
-                        onNavigateToBpx1Settings = onNavigateToBpx1Settings,
-                        onNavigateToWidgetSettings = onNavigateToWidgetSettings,
-                        onNavigateToDataSettings = onNavigateToDataSettings,
                     )
                 }
-                SettingsScreenMode.REMINDERS -> SettingsReminderContent(
-                    uiState = uiState,
-                    viewModel = viewModel,
-                )
-                SettingsScreenMode.INTELLIGENCE -> SettingsIntelligenceContent(
-                    uiState = uiState,
-                    viewModel = viewModel,
-                    onNavigateToCloudApiSettings = onNavigateToCloudApiSettings,
-                )
-                SettingsScreenMode.CLOUD_API -> CloudApiSettingsContent(
-                    uiState = uiState,
-                    viewModel = viewModel,
-                )
-                SettingsScreenMode.WIDGETS -> SettingsWidgetsContent(
-                    context = context,
-                    scope = scope,
-                    snackbarHostState = snackbarHostState,
-                    msgWidgetPinOem = msgWidgetPinOem,
-                    msgWidgetPinOk = msgWidgetPinOk,
-                    uiState = uiState,
-                    viewModel = viewModel,
-                )
-                SettingsScreenMode.DATA -> SettingsDataContent(
-                    backupInProgress = backupInProgress,
-                    onBackupClick = { backupLauncher.launch(it) },
-                    onRestoreClick = { restoreLauncher.launch(arrayOf("application/octet-stream", "*/*")) },
-                    onReplayWelcome = {
-                        viewModel.resetWelcome()
-                        onNavigateToWelcome()
-                    },
-                )
+                SettingsScreenMode.INTELLIGENCE -> item(key = "intelligence", contentType = "settings-section") {
+                    SettingsIntelligenceContent(
+                        uiState = uiState,
+                        viewModel = viewModel,
+                        onNavigateToCloudApiSettings = onNavigateToCloudApiSettings,
+                    )
+                }
+                SettingsScreenMode.CLOUD_API -> item(key = "cloud-api", contentType = "settings-section") {
+                    CloudApiSettingsContent(
+                        uiState = uiState,
+                        viewModel = viewModel,
+                    )
+                }
+                SettingsScreenMode.WIDGETS -> item(key = "widgets", contentType = "settings-section") {
+                    SettingsWidgetsContent(
+                        context = context,
+                        scope = scope,
+                        snackbarHostState = snackbarHostState,
+                        msgWidgetPinOem = msgWidgetPinOem,
+                        msgWidgetPinOk = msgWidgetPinOk,
+                        uiState = uiState,
+                        viewModel = viewModel,
+                    )
+                }
+                SettingsScreenMode.DATA -> item(key = "data", contentType = "settings-section") {
+                    SettingsDataContent(
+                        backupInProgress = backupInProgress,
+                        onBackupClick = { backupLauncher.launch(it) },
+                        onRestoreClick = { restoreLauncher.launch(arrayOf("application/octet-stream", "*/*")) },
+                        onReplayWelcome = {
+                            viewModel.resetWelcome()
+                            onNavigateToWelcome()
+                        },
+                    )
+                }
             }
 
         }

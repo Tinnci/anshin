@@ -14,6 +14,11 @@ import org.junit.Assert.*
 import org.junit.Before
 import org.junit.Test
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.never
+import org.mockito.kotlin.verify
+import java.util.Calendar
 
 /**
  * [ToggleMedicationDoseUseCase] 单元测试。
@@ -145,9 +150,82 @@ class ToggleMedicationDoseUseCaseTest {
         useCase.markTaken(medication, null)
 
         val logs = logRepo.getLogsForRangeOnce(0L, Long.MAX_VALUE)
-        // 因 markTaken 先 deleteLogsForDate 再 insertLog，最终应只有 1 条
+        // markTaken 先删除同一计划时间的日志再写入，最终应只有 1 条
         val takenLogs = logs.filter { it.status == LogStatus.TAKEN }
         assertEquals(1, takenLogs.size)
+    }
+
+    @Test
+    fun `markTaken only replaces the selected slot for multi-slot medication`() = runTest {
+        val medication = med().copy(reminderTimes = "08:00,12:00")
+        medicationRepo.addMedication(medication)
+        val morningMs = todayAt(8, 0)
+        val noonMs = todayAt(12, 0)
+        logRepo.setLogs(
+            listOf(
+                MedicationLog(
+                    id = 11L,
+                    medicationId = medication.id,
+                    scheduledTimeMs = morningMs,
+                    status = LogStatus.SKIPPED,
+                ),
+                MedicationLog(
+                    id = 12L,
+                    medicationId = medication.id,
+                    scheduledTimeMs = noonMs,
+                    status = LogStatus.TAKEN,
+                ),
+            ),
+        )
+
+        useCase.markTaken(medication, existingLog = null, timeSlotIndex = 0)
+
+        val logs = logRepo.currentLogs()
+        assertEquals(2, logs.size)
+        assertEquals(LogStatus.TAKEN, logs.single { it.scheduledTimeMs == morningMs }.status)
+        assertEquals(LogStatus.TAKEN, logs.single { it.scheduledTimeMs == noonMs }.status)
+    }
+
+    @Test
+    fun `markTaken only cancels reminders for the selected slot`() = runTest {
+        val medication = med(id = 9L).copy(reminderTimes = "08:00,12:00")
+        medicationRepo.addMedication(medication)
+
+        useCase.markTaken(medication, existingLog = null, timeSlotIndex = 1)
+
+        verify(alarmScheduler).cancelAlarmSlot(9L, 1)
+        verify(alarmScheduler, never()).cancelAllAlarms(9L)
+        verify(notificationHelper).cancelReminderNotification(9L, 1)
+        verify(notificationHelper).cancelEarlyReminderNotification(9L, 1)
+        verify(notificationHelper).cancelFollowUpNotification(9L, 1)
+        verify(notificationHelper, never()).cancelAllReminderNotifications(9L)
+        verify(alarmScheduler).scheduleNextReminderAfterDose(
+            eq(medication),
+            eq(1),
+            any(),
+            any(),
+        )
+    }
+
+    @Test
+    fun `markTaken replaces a legacy nearest-slot log with the exact planned timestamp`() = runTest {
+        val medication = med().copy(reminderTimes = "08:00,12:00")
+        medicationRepo.addMedication(medication)
+        val morningMs = todayAt(8, 0)
+        val legacyLog = MedicationLog(
+            id = 21L,
+            medicationId = medication.id,
+            scheduledTimeMs = morningMs + 10 * 60_000L,
+            status = LogStatus.SKIPPED,
+        )
+        logRepo.setLogs(listOf(legacyLog))
+
+        useCase.markTaken(medication, existingLog = legacyLog, timeSlotIndex = 0)
+
+        val logs = logRepo.currentLogs()
+        assertEquals(1, logs.size)
+        assertEquals(morningMs, logs.single().scheduledTimeMs)
+        assertEquals(LogStatus.TAKEN, logs.single().status)
     }
 
     // ── markSkipped ───────────────────────────────────────────────────────────
@@ -242,6 +320,20 @@ class ToggleMedicationDoseUseCaseTest {
         assertEquals(1, widgetRefresher.refreshCallCount)
     }
 
+    @Test
+    fun `undoTaken restores only the selected reminder slot`() = runTest {
+        val medication = med(id = 9L).copy(reminderTimes = "08:00,12:00")
+        medicationRepo.addMedication(medication)
+        val takenLog = log(medId = 9L, status = LogStatus.TAKEN)
+        logRepo.insertLog(takenLog)
+
+        val insertedLog = logRepo.getLogsForRangeOnce(0L, Long.MAX_VALUE).first()
+        useCase.undoTaken(medication, insertedLog, timeSlotIndex = 1)
+
+        verify(alarmScheduler).restoreReminderForDose(medication, 1)
+        verify(alarmScheduler, never()).scheduleAllReminders(medication)
+    }
+
     // ── undoSkipped ───────────────────────────────────────────────────────────
 
     @Test
@@ -270,4 +362,11 @@ class ToggleMedicationDoseUseCaseTest {
 
         assertEquals(1, widgetRefresher.refreshCallCount)
     }
+
+    private fun todayAt(hour: Int, minute: Int): Long = Calendar.getInstance().apply {
+        set(Calendar.HOUR_OF_DAY, hour)
+        set(Calendar.MINUTE, minute)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 }

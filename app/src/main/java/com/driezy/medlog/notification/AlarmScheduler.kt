@@ -106,13 +106,94 @@ class AlarmScheduler @Inject constructor(
                 putExtra(EXTRA_MED_ID,    medication.id)
                 putExtra(EXTRA_MED_NAME,  medication.name)
                 putExtra(EXTRA_TIME_INDEX, timeIndex)
+                putExtra(EXTRA_SCHEDULED_MS, triggerAtMs)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
         scheduleExact(intent, triggerAtMs)
     }
 
+    /**
+     * 完成一个剂量后，只推进该时间槽的下一轮提醒。
+     *
+     * 固定时钟计划以本次计划时间为下界，避免用户提前服药后又收到同一剂提醒；
+     * 间隔给药则从实际服药时间（若有）重新计算间隔。
+     */
+    fun scheduleNextReminderAfterDose(
+        medication: Medication,
+        timeIndex: Int,
+        scheduledTimeMs: Long,
+        actualTakenTimeMs: Long? = null,
+    ) {
+        if (medication.isPRN) return
+        val triggerMs = if (medication.intervalHours > 0) {
+            (actualTakenTimeMs ?: maxOf(scheduledTimeMs, System.currentTimeMillis())) +
+                medication.intervalHours * 3_600_000L
+        } else {
+            val timeStr = medication.reminderTimes
+                .split(",")
+                .map(String::trim)
+                .getOrNull(timeIndex)
+                ?: return
+            computeNextTriggerPure(
+                timeStr = timeStr,
+                frequencyType = medication.frequencyType,
+                frequencyInterval = medication.frequencyInterval,
+                frequencyDays = medication.frequencyDays,
+                endDateMs = medication.endDate,
+                tz = homeTimeZone,
+                nowMs = maxOf(scheduledTimeMs, System.currentTimeMillis()),
+            ) ?: return
+        }
+        scheduleAlarmSlot(medication, timeIndex, triggerMs)
+        scheduleEarlyReminderIfNeeded(medication, timeIndex, triggerMs)
+    }
+
+    /** 撤销一个剂量后，只恢复该时间槽当前仍可触发的下一次提醒。 */
+    fun restoreReminderForDose(medication: Medication, timeIndex: Int) {
+        if (medication.isPRN) return
+        val nowMs = System.currentTimeMillis()
+        val triggerMs = if (medication.intervalHours > 0) {
+            nowMs + medication.intervalHours * 3_600_000L
+        } else {
+            val timeStr = medication.reminderTimes
+                .split(",")
+                .map(String::trim)
+                .getOrNull(timeIndex)
+                ?: return
+            computeNextTriggerPure(
+                timeStr = timeStr,
+                frequencyType = medication.frequencyType,
+                frequencyInterval = medication.frequencyInterval,
+                frequencyDays = medication.frequencyDays,
+                endDateMs = medication.endDate,
+                tz = homeTimeZone,
+                nowMs = nowMs,
+            ) ?: return
+        }
+        scheduleAlarmSlot(medication, timeIndex, triggerMs)
+        scheduleEarlyReminderIfNeeded(medication, timeIndex, triggerMs)
+    }
+
     // ─── 取消 ──────────────────────────────────────────────────────────────
+
+    /** 取消指定药品的单个时间槽，以及该槽的提前预告和漏服再提醒。 */
+    fun cancelAlarmSlot(medicationId: Long, timeIndex: Int) {
+        cancelPendingAlarm((medicationId * 100 + timeIndex).toInt())
+        cancelPendingAlarm(
+            (medicationId * 100 + timeIndex).toInt() + EARLY_REMINDER_CODE_OFFSET,
+        )
+        cancelPendingAlarm(
+            (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET,
+        )
+    }
+
+    /** 只取消指定时间槽的漏服再提醒闹钟。 */
+    fun cancelFollowUpAlarm(medicationId: Long, timeIndex: Int) {
+        cancelPendingAlarm(
+            (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET,
+        )
+    }
 
     /**
      * 取消某药品的所有时间槽闹钟（不影响通知 UI）。
@@ -169,6 +250,17 @@ class AlarmScheduler @Inject constructor(
             alarmManager.cancel(intent)
             intent.cancel()
         }
+    }
+
+    private fun cancelPendingAlarm(requestCode: Int) {
+        val intent = PendingIntent.getBroadcast(
+            context,
+            requestCode,
+            Intent(context, MedLogAlarmReceiver::class.java),
+            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE,
+        ) ?: return
+        alarmManager.cancel(intent)
+        intent.cancel()
     }
 
     /**
