@@ -4,8 +4,8 @@
     <string name="settings_home_tile_bpx1_status">BPX1 connection, key, and measurement import</string>
     <string name="bpx1_settings_title">BPX1 monitor</string>
     <string name="bpx1_overview_title" tools:ignore="Typos">Mi Home BPX1</string>
-    <string name="bpx1_overview_body">Discover ihealth.bpm.bpx1 over Bluetooth, check its connection, and save measurements to Health.</string>
-    <string name="bpx1_status_configured">Device configuration saved</string>
+    <string name="bpx1_overview_body">Discover ihealth.bpm.bpx1 over Bluetooth first, then save its key and listen for new measurement broadcasts.</string>
+    <string name="bpx1_status_configured">Device and key saved</string>
     <string name="bpx1_status_not_configured">Choose a device and enter its bind key</string>
     <string name="bpx1_bluetooth_ready">Bluetooth ready</string>
     <string name="bpx1_bluetooth_disabled">Bluetooth is off</string>
@@ -22,18 +22,24 @@
     <string name="bpx1_bind_key_label">Bind key</string>
     <string name="bpx1_bind_key_hint">32 hexadecimal characters</string>
     <string name="bpx1_bind_key_saved">Key stored securely; leave blank to keep it</string>
+    <string name="bpx1_bind_key_new_device">The MAC changed; enter the bind key for the new device</string>
     <string name="bpx1_bind_key_invalid">Enter a 16-byte (32-character hexadecimal) bind key</string>
+    <string name="bpx1_bind_key_source">Export the bind key from local configuration for the already-bound device. It is not your Wi-Fi or Mi Home account password.</string>
+    <string name="bpx1_bind_key_show">Show bind key</string>
+    <string name="bpx1_bind_key_hide">Hide bind key</string>
     <string name="bpx1_save_config">Save configuration</string>
     <string name="bpx1_clear_config">Remove device</string>
-    <string name="bpx1_actions_title">Scan and connect</string>
-    <string name="bpx1_actions_desc">Keep the monitor awake and near the phone. Scanning listens for new measurements for 20 seconds.</string>
+    <string name="bpx1_clear_config_confirmation">This removes the configured device\'s MAC address and encrypted bind key from this phone and stops automatic import. Existing Health records stay in place.</string>
+    <string name="bpx1_actions_title">Discovery and Bluetooth check</string>
+    <string name="bpx1_actions_desc">Keep the monitor awake and near the phone. A 20-second scan discovers devices and listens for new measurement broadcasts.</string>
     <string name="bpx1_scan_start">Scan and listen</string>
     <string name="bpx1_scan_stop">Stop scanning</string>
-    <string name="bpx1_connection_check">Check connection</string>
-    <string name="bpx1_connecting">Connecting and discovering services…</string>
+    <string name="bpx1_connection_check">Check Bluetooth reachability</string>
+    <string name="bpx1_connecting">Checking Bluetooth services…</string>
     <string name="bpx1_scanning" tools:ignore="Typos">Looking for BPX1…</string>
     <string name="bpx1_no_devices">No device found yet. Turn on the monitor and try again.</string>
     <string name="bpx1_use_device">Use this device</string>
+    <string name="bpx1_device_selected">Selected</string>
     <string name="bpx1_device_signal">%1$d dBm · %2$s</string>
     <string name="bpx1_payload_none">Found; waiting for data</string>
     <string name="bpx1_payload_plaintext">Measurement broadcast readable</string>
@@ -41,7 +47,7 @@
     <string name="bpx1_payload_key_required">Bind key required</string>
     <string name="bpx1_payload_key_rejected">Bind key could not decrypt data</string>
     <string name="bpx1_payload_malformed">Incomplete data received</string>
-    <string name="bpx1_connection_connected">Connected; found %1$d GATT services</string>
+    <string name="bpx1_connection_connected">Device reachable; found %1$d GATT services</string>
     <string name="bpx1_connection_standard_bp">Standard Blood Pressure service available</string>
     <string name="bpx1_connection_miot">Xiaomi BLE service available</string>
     <string name="bpx1_connection_invalid_address">Invalid MAC address</string>
@@ -50,10 +56,13 @@
     <string name="bpx1_connection_failed">Could not establish a Bluetooth connection</string>
     <string name="bpx1_connection_service_failed">Connected, but service discovery failed</string>
     <string name="bpx1_connection_timeout">Connection timed out; keep the monitor awake</string>
+    <string name="bpx1_connection_reachability_only">This result confirms BLE/GATT reachability only; it does not verify the bind key. The key is usable after a scan reports “Bind key verified.”</string>
+    <string name="bpx1_connection_failure_help">Keep the monitor awake and near the phone, then scan again. If it was found, verify the selected MAC address.</string>
     <string name="bpx1_import_title">Measurement import</string>
     <string name="bpx1_import_desc">A complete measurement creates both blood pressure and heart-rate records. Repeated broadcasts are ignored.</string>
     <string name="bpx1_auto_import_title">Save measurements during scanning</string>
     <string name="bpx1_auto_import_subtitle">Only import the BPX1 matching the saved MAC address</string>
+    <string name="bpx1_auto_import_requires_config">Save a device and bind key to enable this</string>
     <string name="bpx1_last_measurement_none">No measurement imported in this session</string>
     <string name="bpx1_measurement_value">%1$d/%2$d mmHg · %3$d bpm</string>
     <plurals name="bpx1_import_count">

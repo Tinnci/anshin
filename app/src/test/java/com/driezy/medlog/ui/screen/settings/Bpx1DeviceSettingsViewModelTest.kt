@@ -92,9 +92,77 @@ class Bpx1DeviceSettingsViewModelTest {
         assertEquals(1, viewModel.uiState.value.importedMeasurementCount)
     }
 
-    private class FakeBleClient(
-        private vararg val events: Bpx1ScanEvent,
-    ) : Bpx1BleClient {
+    @Test
+    fun `empty discovery state is shown only after a scan attempt`() = runTest {
+        val viewModel = Bpx1DeviceSettingsViewModel(
+            InMemoryBpx1DeviceStore(),
+            FakeBleClient(),
+            FakeHealthRepository(),
+        )
+
+        assertEquals(false, viewModel.uiState.value.hasAttemptedScan)
+
+        viewModel.startScan()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.hasAttemptedScan)
+        assertEquals(false, viewModel.uiState.value.isScanning)
+    }
+
+    @Test
+    fun `changing device requires a new bind key`() = runTest {
+        val store = InMemoryBpx1DeviceStore(
+            initial = Bpx1DeviceConfiguration(macAddress = "AA:BB:CC:DD:EE:FF"),
+            bindKey = ByteArray(16),
+        )
+        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(), FakeHealthRepository())
+
+        viewModel.updateMacInput("11:22:33:44:55:66")
+        viewModel.saveConfiguration()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.bindKeyInputInvalid)
+        assertEquals("AA:BB:CC:DD:EE:FF", store.configuration.value.macAddress)
+    }
+
+    @Test
+    fun `saving the same device may retain its stored bind key`() = runTest {
+        val key = ByteArray(16) { it.toByte() }
+        val store = InMemoryBpx1DeviceStore(
+            initial = Bpx1DeviceConfiguration(macAddress = "AA:BB:CC:DD:EE:FF"),
+            bindKey = key,
+        )
+        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(), FakeHealthRepository())
+
+        viewModel.updateMacInput("aa-bb-cc-dd-ee-ff")
+        viewModel.saveConfiguration()
+        advanceUntilIdle()
+
+        assertEquals(false, viewModel.uiState.value.bindKeyInputInvalid)
+        assertEquals(Bpx1SettingsMessage.CONFIGURATION_SAVED, viewModel.uiState.value.message)
+        assertEquals("AA:BB:CC:DD:EE:FF", store.configuration.value.macAddress)
+        assertTrue(store.getBindKey()?.contentEquals(key) == true)
+    }
+
+    @Test
+    fun `scan failure completes the attempt and exposes an actionable message`() = runTest {
+        val viewModel = Bpx1DeviceSettingsViewModel(
+            InMemoryBpx1DeviceStore(),
+            FakeBleClient(Bpx1ScanEvent.Failure(errorCode = 2)),
+            FakeHealthRepository(),
+        )
+
+        viewModel.startScan()
+        advanceUntilIdle()
+
+        assertTrue(viewModel.uiState.value.hasAttemptedScan)
+        assertEquals(false, viewModel.uiState.value.isScanning)
+        assertEquals(Bpx1SettingsMessage.SCAN_FAILED, viewModel.uiState.value.message)
+    }
+
+    private class FakeBleClient(vararg events: Bpx1ScanEvent) : Bpx1BleClient {
+        private val events = events
+
         override fun availability() = Bpx1BluetoothAvailability.READY
 
         override fun scan(bindKey: ByteArray?): Flow<Bpx1ScanEvent> = flowOf(*events)

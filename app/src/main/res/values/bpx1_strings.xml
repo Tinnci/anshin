@@ -4,8 +4,8 @@
     <string name="settings_home_tile_bpx1_status" tools:ignore="Typos">BPX1 连接、密钥与测量导入</string>
     <string name="bpx1_settings_title" tools:ignore="Typos">BPX1 血压计</string>
     <string name="bpx1_overview_title">米家 BPX1</string>
-    <string name="bpx1_overview_body">通过蓝牙发现 ihealth.bpm.bpx1，检查连接，并将测量结果保存到健康记录。</string>
-    <string name="bpx1_status_configured">设备配置已保存</string>
+    <string name="bpx1_overview_body">先通过蓝牙发现 ihealth.bpm.bpx1，再保存设备密钥并监听新的测量广播。</string>
+    <string name="bpx1_status_configured">设备与密钥已保存</string>
     <string name="bpx1_status_not_configured">请先选择设备并输入绑定密钥</string>
     <string name="bpx1_bluetooth_ready">蓝牙可用</string>
     <string name="bpx1_bluetooth_disabled">蓝牙尚未开启</string>
@@ -22,18 +22,24 @@
     <string name="bpx1_bind_key_label">绑定密钥</string>
     <string name="bpx1_bind_key_hint">32 位十六进制字符</string>
     <string name="bpx1_bind_key_saved">密钥已安全保存；留空可保留当前密钥</string>
+    <string name="bpx1_bind_key_new_device">MAC 已更改，请输入新设备对应的绑定密钥</string>
     <string name="bpx1_bind_key_invalid">请输入 16 字节（32 位十六进制）绑定密钥</string>
+    <string name="bpx1_bind_key_source">绑定密钥需从已绑定设备的本地配置信息中导出；它不是 Wi-Fi 密码或米家账号密码。</string>
+    <string name="bpx1_bind_key_show">显示绑定密钥</string>
+    <string name="bpx1_bind_key_hide">隐藏绑定密钥</string>
     <string name="bpx1_save_config">保存配置</string>
     <string name="bpx1_clear_config">移除设备</string>
-    <string name="bpx1_actions_title">扫描与连接</string>
-    <string name="bpx1_actions_desc">让血压计保持开机并靠近手机。扫描会持续 20 秒，并监听新的测量广播。</string>
+    <string name="bpx1_clear_config_confirmation">将从此手机删除该 BPX1 的 MAC 地址和加密保存的绑定密钥，并停止自动导入。已写入的健康记录不会删除。</string>
+    <string name="bpx1_actions_title">发现与蓝牙检查</string>
+    <string name="bpx1_actions_desc">让血压计保持唤醒并靠近手机。扫描持续 20 秒，可发现设备并监听新的测量广播。</string>
     <string name="bpx1_scan_start">扫描并监听</string>
     <string name="bpx1_scan_stop">停止扫描</string>
-    <string name="bpx1_connection_check">检查连接</string>
-    <string name="bpx1_connecting">正在连接并发现服务…</string>
+    <string name="bpx1_connection_check">检查蓝牙可达性</string>
+    <string name="bpx1_connecting">正在检查蓝牙服务…</string>
     <string name="bpx1_scanning">正在搜索 BPX1…</string>
     <string name="bpx1_no_devices">尚未发现设备。请开启血压计后重试。</string>
     <string name="bpx1_use_device">使用此设备</string>
+    <string name="bpx1_device_selected">已选择</string>
     <string name="bpx1_device_signal">%1$d dBm · %2$s</string>
     <string name="bpx1_payload_none">已发现，等待数据</string>
     <string name="bpx1_payload_plaintext">测量广播可读取</string>
@@ -41,7 +47,7 @@
     <string name="bpx1_payload_key_required">需要绑定密钥</string>
     <string name="bpx1_payload_key_rejected">绑定密钥无法解密</string>
     <string name="bpx1_payload_malformed">收到的数据格式不完整</string>
-    <string name="bpx1_connection_connected">连接成功，发现 %1$d 个 GATT 服务</string>
+    <string name="bpx1_connection_connected">设备蓝牙可达，发现 %1$d 个 GATT 服务</string>
     <string name="bpx1_connection_standard_bp">设备提供标准血压服务</string>
     <string name="bpx1_connection_miot">设备提供小米 BLE 服务</string>
     <string name="bpx1_connection_invalid_address">MAC 地址无效</string>
@@ -50,10 +56,13 @@
     <string name="bpx1_connection_failed">无法建立蓝牙连接</string>
     <string name="bpx1_connection_service_failed">已连接，但服务发现失败</string>
     <string name="bpx1_connection_timeout">连接超时，请让血压计保持唤醒</string>
+    <string name="bpx1_connection_reachability_only">此结果只确认 BLE/GATT 可达，不验证绑定密钥。扫描到“绑定密钥已验证”的测量广播后，才表示密钥可用。</string>
+    <string name="bpx1_connection_failure_help">确认血压计已唤醒并靠近手机，然后重新扫描；若已发现设备，请核对所选 MAC 地址。</string>
     <string name="bpx1_import_title">测量导入</string>
     <string name="bpx1_import_desc">读取到完整测量后，会同时保存一条血压记录和一条心率记录，并自动忽略重复广播。</string>
     <string name="bpx1_auto_import_title">扫描期间自动保存</string>
     <string name="bpx1_auto_import_subtitle">仅导入与已保存 MAC 地址匹配的 BPX1</string>
+    <string name="bpx1_auto_import_requires_config">保存设备和绑定密钥后即可开启</string>
     <string name="bpx1_last_measurement_none">本次尚未导入测量</string>
     <string name="bpx1_measurement_value">%1$d/%2$d mmHg · %3$d bpm</string>
     <plurals name="bpx1_import_count">

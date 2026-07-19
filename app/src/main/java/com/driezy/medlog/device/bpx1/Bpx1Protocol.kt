@@ -16,17 +16,26 @@ object Bpx1Protocol {
     const val BIND_KEY_HEX_LENGTH = 32
 
     private val macRegex = Regex("^[0-9A-F]{2}(:[0-9A-F]{2}){5}$")
+    private val supportedSeparatorRegex = Regex("[:\\-\\s]")
+    private val unsupportedInputRegex = Regex("[^0-9A-Fa-f:\\-\\s]")
 
     fun normalizeMac(raw: String): String {
-        val compact = raw.trim().replace(Regex("[^0-9A-Fa-f]"), "").uppercase()
-        if (compact.length != 12) return raw.trim().uppercase()
+        val trimmed = raw.trim()
+        if (unsupportedInputRegex.containsMatchIn(trimmed)) return trimmed.uppercase()
+        val compact = trimmed.replace(supportedSeparatorRegex, "").uppercase()
+        if (compact.length != 12) return trimmed.uppercase()
         return compact.chunked(2).joinToString(":")
     }
 
     fun isValidMac(raw: String): Boolean = macRegex.matches(normalizeMac(raw))
 
-    fun normalizeBindKey(raw: String): String =
-        raw.trim().replace(Regex("[^0-9A-Fa-f]"), "").lowercase()
+    fun normalizeBindKey(raw: String): String = raw.trim().let { trimmed ->
+        if (unsupportedInputRegex.containsMatchIn(trimmed)) {
+            trimmed.lowercase()
+        } else {
+            trimmed.replace(supportedSeparatorRegex, "").lowercase()
+        }
+    }
 
     fun decodeBindKey(raw: String): ByteArray? {
         val normalized = normalizeBindKey(raw)
@@ -257,12 +266,7 @@ object Bpx1MiBeaconDecoder {
         return if (kotlin.math.abs(closest - receivedAtMillis) <= tenYearsMillis) closest else receivedAtMillis
     }
 
-    private fun malformed(
-        productId: Int,
-        counter: Int,
-        registered: Boolean,
-        encrypted: Boolean,
-    ) = Bpx1Advertisement(
+    private fun malformed(productId: Int, counter: Int, registered: Boolean, encrypted: Boolean) = Bpx1Advertisement(
         productId = productId,
         packetCounter = counter,
         registered = registered,
@@ -375,8 +379,7 @@ internal object AesCcm {
         }
     }
 
-    private fun fitsInBytes(value: Long, bytes: Int): Boolean =
-        bytes >= 8 || value < (1L shl (bytes * 8))
+    private fun fitsInBytes(value: Long, bytes: Int): Boolean = bytes >= 8 || value < (1L shl (bytes * 8))
 
     private fun roundToBlock(size: Int): Int = ((size + 15) / 16) * 16
 }

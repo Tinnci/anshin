@@ -6,6 +6,8 @@ import android.security.keystore.KeyProperties
 import android.util.Log
 import androidx.core.content.edit
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.security.KeyStore
 import java.security.SecureRandom
 import java.util.Base64
@@ -15,8 +17,6 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 data class Bpx1DeviceConfiguration(
     val macAddress: String = "",
@@ -36,9 +36,7 @@ interface Bpx1DeviceStore {
 }
 
 @Singleton
-class AndroidKeystoreBpx1DeviceStore @Inject constructor(
-    @ApplicationContext context: Context,
-) : Bpx1DeviceStore {
+class AndroidKeystoreBpx1DeviceStore @Inject constructor(@ApplicationContext context: Context) : Bpx1DeviceStore {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     private val _configuration = MutableStateFlow(loadConfiguration())
 
@@ -61,6 +59,9 @@ class AndroidKeystoreBpx1DeviceStore @Inject constructor(
         val normalizedMac = Bpx1Protocol.normalizeMac(macAddress)
         require(Bpx1Protocol.isValidMac(normalizedMac)) { "Invalid BPX1 MAC address." }
         require(bindKey == null || bindKey.size == 16) { "The BPX1 bind key must be 16 bytes." }
+        require(bindKey != null || canRetainBindKey(_configuration.value, normalizedMac)) {
+            "A new BPX1 requires its own bind key."
+        }
         preferences.edit {
             putString(KEY_MAC_ADDRESS, normalizedMac)
             if (bindKey != null) putString(KEY_BIND_KEY, encrypt(bindKey.toHex()))
@@ -161,9 +162,15 @@ class InMemoryBpx1DeviceStore(
     override suspend fun getBindKey(): ByteArray? = key?.copyOf()
 
     override suspend fun save(macAddress: String, bindKey: ByteArray?) {
+        val normalizedMac = Bpx1Protocol.normalizeMac(macAddress)
+        require(Bpx1Protocol.isValidMac(normalizedMac)) { "Invalid BPX1 MAC address." }
+        require(bindKey == null || bindKey.size == 16) { "The BPX1 bind key must be 16 bytes." }
+        require(bindKey != null || canRetainBindKey(_configuration.value, normalizedMac)) {
+            "A new BPX1 requires its own bind key."
+        }
         if (bindKey != null) key = bindKey.copyOf()
         _configuration.value = _configuration.value.copy(
-            macAddress = Bpx1Protocol.normalizeMac(macAddress),
+            macAddress = normalizedMac,
             hasBindKey = key != null,
         )
     }
@@ -177,5 +184,11 @@ class InMemoryBpx1DeviceStore(
         _configuration.value = _configuration.value.copy(macAddress = "", hasBindKey = false)
     }
 }
+
+internal fun canRetainBindKey(configuration: Bpx1DeviceConfiguration, candidateMacAddress: String): Boolean =
+    configuration.hasBindKey &&
+        Bpx1Protocol.isValidMac(candidateMacAddress) &&
+        Bpx1Protocol.normalizeMac(configuration.macAddress)
+            .equals(Bpx1Protocol.normalizeMac(candidateMacAddress), ignoreCase = true)
 
 private fun ByteArray.toHex(): String = joinToString("") { byte -> "%02x".format(byte.toInt() and 0xFF) }

@@ -16,8 +16,8 @@ import com.driezy.medlog.device.bpx1.Bpx1Measurement
 import com.driezy.medlog.device.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.device.bpx1.Bpx1Protocol
 import com.driezy.medlog.device.bpx1.Bpx1ScanEvent
+import com.driezy.medlog.device.bpx1.canRetainBindKey
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
+import javax.inject.Inject
 
 enum class Bpx1SettingsMessage {
     CONFIGURATION_SAVED,
@@ -42,13 +43,17 @@ data class Bpx1DeviceSettingsUiState(
     val bluetoothAvailability: Bpx1BluetoothAvailability = Bpx1BluetoothAvailability.READY,
     val isScanning: Boolean = false,
     val isConnecting: Boolean = false,
+    val hasAttemptedScan: Boolean = false,
     val discoveredDevices: List<Bpx1DiscoveredDevice> = emptyList(),
     val connectionResult: Bpx1ConnectionResult? = null,
     val configuredDevicePayloadStatus: Bpx1PayloadStatus? = null,
     val lastImportedMeasurement: Bpx1Measurement? = null,
     val importedMeasurementCount: Int = 0,
     val message: Bpx1SettingsMessage? = null,
-)
+) {
+    val isBusy: Boolean get() = isScanning || isConnecting
+    val canRetainStoredBindKey: Boolean get() = canRetainBindKey(configuration, macInput)
+}
 
 @HiltViewModel
 class Bpx1DeviceSettingsViewModel @Inject constructor(
@@ -65,6 +70,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     )
     val uiState: StateFlow<Bpx1DeviceSettingsUiState> = _uiState.asStateFlow()
     private var scanJob: Job? = null
+    private var connectionJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -105,7 +111,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
         val macInvalid = !Bpx1Protocol.isValidMac(normalizedMac)
         val bindKeyInvalid = when {
             state.bindKeyInput.isNotBlank() -> newBindKey == null
-            !state.configuration.hasBindKey -> true
+            !state.canRetainStoredBindKey -> true
             else -> false
         }
         if (macInvalid || bindKeyInvalid) {
@@ -137,6 +143,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
                     macInput = "",
                     bindKeyInput = "",
                     discoveredDevices = emptyList(),
+                    hasAttemptedScan = false,
                     connectionResult = null,
                     configuredDevicePayloadStatus = null,
                     message = Bpx1SettingsMessage.CONFIGURATION_CLEARED,
@@ -154,7 +161,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     }
 
     fun startScan() {
-        if (scanJob?.isActive == true) return
+        if (scanJob?.isActive == true || connectionJob?.isActive == true) return
         val availability = bleClient.availability()
         if (availability != Bpx1BluetoothAvailability.READY) {
             _uiState.update { it.copy(bluetoothAvailability = availability) }
@@ -166,7 +173,9 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
                 it.copy(
                     bluetoothAvailability = availability,
                     isScanning = true,
+                    hasAttemptedScan = true,
                     discoveredDevices = emptyList(),
+                    connectionResult = null,
                     message = null,
                 )
             }
@@ -196,11 +205,16 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
             _uiState.update { it.copy(macInputInvalid = true) }
             return
         }
-        if (_uiState.value.isConnecting) return
-        viewModelScope.launch {
+        if (connectionJob?.isActive == true) return
+        stopScan()
+        connectionJob = viewModelScope.launch {
             _uiState.update { it.copy(isConnecting = true, connectionResult = null) }
-            val result = bleClient.checkConnection(macAddress)
-            _uiState.update { it.copy(isConnecting = false, connectionResult = result) }
+            try {
+                val result = bleClient.checkConnection(macAddress)
+                _uiState.update { it.copy(connectionResult = result) }
+            } finally {
+                _uiState.update { it.copy(isConnecting = false) }
+            }
         }
     }
 
@@ -211,9 +225,12 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     private suspend fun handleScanDevice(event: Bpx1ScanEvent.Device) {
         val configuredMac = Bpx1Protocol.normalizeMac(deviceStore.configuration.value.macAddress)
         _uiState.update { state ->
-            val devices = (state.discoveredDevices.filterNot {
-                it.macAddress.equals(event.device.macAddress, ignoreCase = true)
-            } + event.device).sortedByDescending { it.rssi }
+            val devices = state.discoveredDevices
+                .filterNot {
+                    it.macAddress.equals(event.device.macAddress, ignoreCase = true)
+                }
+                .plus(event.device)
+                .sortedByDescending { it.rssi }
             state.copy(
                 discoveredDevices = devices,
                 configuredDevicePayloadStatus = if (configuredMac.equals(event.device.macAddress, ignoreCase = true)) {
@@ -292,6 +309,8 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
 
     override fun onCleared() {
         stopScan()
+        connectionJob?.cancel()
+        connectionJob = null
         super.onCleared()
     }
 

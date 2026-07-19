@@ -12,14 +12,18 @@ class Bpx1ProtocolTest {
     @Test
     fun `normalizes common MAC and bind-key formats`() {
         assertEquals("AA:BB:CC:DD:EE:FF", Bpx1Protocol.normalizeMac("aa-bb-cc-dd-ee-ff"))
+        assertEquals("AA:BB:CC:DD:EE:FF", Bpx1Protocol.normalizeMac("aa bb cc dd ee ff"))
         assertTrue(Bpx1Protocol.isValidMac("aabbccddeeff"))
         assertFalse(Bpx1Protocol.isValidMac("aabbcc"))
+        assertFalse(Bpx1Protocol.isValidMac("aa/bb/cc/dd/ee/ff"))
+        assertFalse(Bpx1Protocol.isValidMac("aaXbbXccXddXeeXff"))
         assertEquals(
             "00112233445566778899aabbccddeeff",
             Bpx1Protocol.normalizeBindKey("00:11:22:33:44:55:66:77:88:99:AA:BB:CC:DD:EE:FF"),
         )
         assertEquals(16, Bpx1Protocol.decodeBindKey("00112233445566778899aabbccddeeff")?.size)
         assertNull(Bpx1Protocol.decodeBindKey("0011"))
+        assertNull(Bpx1Protocol.decodeBindKey("00/11/22/33/44/55/66/77/88/99/aa/bb/cc/dd/ee/ff"))
     }
 
     @Test

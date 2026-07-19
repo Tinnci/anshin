@@ -1,3 +1,5 @@
+@file:Suppress("FunctionName")
+
 package com.driezy.medlog.ui.screen.settings
 
 import android.Manifest
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -30,7 +33,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
@@ -43,6 +45,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -59,9 +62,11 @@ import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -76,6 +81,7 @@ import com.driezy.medlog.device.bpx1.Bpx1ConnectionResult
 import com.driezy.medlog.device.bpx1.Bpx1DiscoveredDevice
 import com.driezy.medlog.device.bpx1.Bpx1Measurement
 import com.driezy.medlog.device.bpx1.Bpx1PayloadStatus
+import com.driezy.medlog.device.bpx1.Bpx1Protocol
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -84,14 +90,11 @@ private enum class Bpx1PendingAction { SCAN, CONNECT }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun Bpx1DeviceSettingsScreen(
-    onBack: () -> Unit,
-    viewModel: Bpx1DeviceSettingsViewModel = hiltViewModel(),
-) {
+fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
+    val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
     var pendingAction by remember { mutableStateOf<Bpx1PendingAction?>(null) }
     var permissionRefresh by remember { mutableIntStateOf(0) }
@@ -160,7 +163,7 @@ fun Bpx1DeviceSettingsScreen(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
         snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
-            LargeTopAppBar(
+            TopAppBar(
                 title = { Text(stringResource(R.string.bpx1_settings_title)) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
@@ -207,23 +210,25 @@ fun Bpx1DeviceSettingsScreen(
                 )
             }
 
+            Bpx1ActionsCard(
+                uiState = uiState,
+                onScan = {
+                    if (uiState.isScanning) {
+                        viewModel.stopScan()
+                    } else {
+                        requestOrRun(Bpx1PendingAction.SCAN)
+                    }
+                },
+                onConnect = { requestOrRun(Bpx1PendingAction.CONNECT) },
+                onChooseDevice = viewModel::chooseDevice,
+            )
+
             Bpx1ConfigurationCard(
                 uiState = uiState,
                 onMacChange = viewModel::updateMacInput,
                 onBindKeyChange = viewModel::updateBindKeyInput,
                 onSave = viewModel::saveConfiguration,
                 onClear = { showClearDialog = true },
-            )
-
-            Bpx1ActionsCard(
-                uiState = uiState,
-                permissionsGranted = missingPermissions.isEmpty(),
-                onScan = {
-                    if (uiState.isScanning) viewModel.stopScan()
-                    else requestOrRun(Bpx1PendingAction.SCAN)
-                },
-                onConnect = { requestOrRun(Bpx1PendingAction.CONNECT) },
-                onChooseDevice = viewModel::chooseDevice,
             )
 
             Bpx1ImportCard(
@@ -240,7 +245,7 @@ fun Bpx1DeviceSettingsScreen(
             onDismissRequest = { showClearDialog = false },
             icon = { MedLogIcon(MedLogIcons.Delete, contentDescription = null) },
             title = { Text(stringResource(R.string.bpx1_clear_config)) },
-            text = { Text(stringResource(R.string.bpx1_config_desc)) },
+            text = { Text(stringResource(R.string.bpx1_clear_config_confirmation)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -318,12 +323,7 @@ private fun Bpx1OverviewPanel(uiState: Bpx1DeviceSettingsUiState) {
 }
 
 @Composable
-private fun Bpx1AttentionCard(
-    title: String,
-    body: String,
-    actionLabel: String,
-    onAction: () -> Unit,
-) {
+private fun Bpx1AttentionCard(title: String, body: String, actionLabel: String, onAction: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer),
@@ -355,6 +355,7 @@ private fun Bpx1ConfigurationCard(
     onSave: () -> Unit,
     onClear: () -> Unit,
 ) {
+    var revealBindKey by remember { mutableStateOf(false) }
     SettingsCard(
         title = stringResource(R.string.bpx1_config_title),
         subtitle = stringResource(R.string.bpx1_config_desc),
@@ -388,7 +389,8 @@ private fun Bpx1ConfigurationCard(
                         stringResource(
                             when {
                                 uiState.bindKeyInputInvalid -> R.string.bpx1_bind_key_invalid
-                                uiState.configuration.hasBindKey -> R.string.bpx1_bind_key_saved
+                                uiState.canRetainStoredBindKey -> R.string.bpx1_bind_key_saved
+                                uiState.configuration.hasBindKey -> R.string.bpx1_bind_key_new_device
                                 else -> R.string.bpx1_bind_key_hint
                             },
                         ),
@@ -396,8 +398,31 @@ private fun Bpx1ConfigurationCard(
                 },
                 isError = uiState.bindKeyInputInvalid,
                 singleLine = true,
-                visualTransformation = PasswordVisualTransformation(),
+                visualTransformation = if (revealBindKey) {
+                    VisualTransformation.None
+                } else {
+                    PasswordVisualTransformation()
+                },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                trailingIcon = {
+                    IconButton(onClick = { revealBindKey = !revealBindKey }) {
+                        MedLogIcon(
+                            if (revealBindKey) MedLogIcons.VisibilityOff else MedLogIcons.Visibility,
+                            contentDescription = stringResource(
+                                if (revealBindKey) {
+                                    R.string.bpx1_bind_key_hide
+                                } else {
+                                    R.string.bpx1_bind_key_show
+                                },
+                            ),
+                        )
+                    }
+                },
+            )
+            Text(
+                stringResource(R.string.bpx1_bind_key_source),
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
             FlowRow(
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
@@ -421,7 +446,6 @@ private fun Bpx1ConfigurationCard(
 @Composable
 private fun Bpx1ActionsCard(
     uiState: Bpx1DeviceSettingsUiState,
-    permissionsGranted: Boolean,
     onScan: () -> Unit,
     onConnect: () -> Unit,
     onChooseDevice: (Bpx1DiscoveredDevice) -> Unit,
@@ -452,7 +476,8 @@ private fun Bpx1ActionsCard(
             ) {
                 Button(
                     onClick = onScan,
-                    enabled = uiState.bluetoothAvailability != Bpx1BluetoothAvailability.UNSUPPORTED,
+                    enabled = uiState.isScanning ||
+                        (uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY && !uiState.isConnecting),
                 ) {
                     MedLogIcon(
                         if (uiState.isScanning) MedLogIcons.Close else MedLogIcons.Search,
@@ -468,9 +493,9 @@ private fun Bpx1ActionsCard(
                 }
                 OutlinedButton(
                     onClick = onConnect,
-                    enabled = permissionsGranted &&
-                        uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY &&
-                        !uiState.isConnecting,
+                    enabled = uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY &&
+                        !uiState.isBusy &&
+                        Bpx1Protocol.isValidMac(uiState.macInput),
                 ) {
                     Text(stringResource(R.string.bpx1_connection_check))
                 }
@@ -486,18 +511,25 @@ private fun Bpx1ActionsCard(
                 )
             }
             uiState.connectionResult?.let { Bpx1ConnectionSummary(it) }
-            if (uiState.discoveredDevices.isEmpty() && !uiState.isScanning) {
+            if (uiState.discoveredDevices.isEmpty() &&
+                uiState.hasAttemptedScan &&
+                !uiState.isScanning &&
+                !uiState.isConnecting
+            ) {
                 Text(
                     stringResource(R.string.bpx1_no_devices),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
-            } else {
+            } else if (uiState.discoveredDevices.isNotEmpty()) {
                 uiState.discoveredDevices.forEachIndexed { index, device ->
                     if (index > 0) HorizontalDivider()
                     Bpx1DeviceRow(
                         device = device,
-                        isSelected = device.macAddress.equals(uiState.macInput, ignoreCase = true),
+                        isSelected = Bpx1Protocol.normalizeMac(device.macAddress).equals(
+                            Bpx1Protocol.normalizeMac(uiState.macInput),
+                            ignoreCase = true,
+                        ),
                         onChoose = { onChooseDevice(device) },
                     )
                 }
@@ -507,12 +539,15 @@ private fun Bpx1ActionsCard(
 }
 
 @Composable
-private fun Bpx1DeviceRow(
-    device: Bpx1DiscoveredDevice,
-    isSelected: Boolean,
-    onChoose: () -> Unit,
-) {
+private fun Bpx1DeviceRow(device: Bpx1DiscoveredDevice, isSelected: Boolean, onChoose: () -> Unit) {
     ListItem(
+        modifier = Modifier
+            .fillMaxWidth()
+            .selectable(
+                selected = isSelected,
+                onClick = onChoose,
+                role = Role.RadioButton,
+            ),
         headlineContent = { Text(device.name) },
         supportingContent = {
             Column {
@@ -524,11 +559,25 @@ private fun Bpx1DeviceRow(
             MedLogIcon(
                 if (isSelected) MedLogIcons.CheckCircle else MedLogIcons.MonitorHeart,
                 contentDescription = null,
-                tint = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
             )
         },
         trailingContent = {
-            TextButton(onClick = onChoose) { Text(stringResource(R.string.bpx1_use_device)) }
+            Text(
+                stringResource(
+                    if (isSelected) R.string.bpx1_device_selected else R.string.bpx1_use_device,
+                ),
+                style = MaterialTheme.typography.labelLarge,
+                color = if (isSelected) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                },
+            )
         },
         colors = ListItemDefaults.colors(containerColor = androidx.compose.ui.graphics.Color.Transparent),
     )
@@ -556,27 +605,39 @@ private fun Bpx1ConnectionSummary(result: Bpx1ConnectionResult) {
                         fontWeight = FontWeight.SemiBold,
                     )
                     if (result.hasStandardBloodPressureService) {
-                        Text(stringResource(R.string.bpx1_connection_standard_bp), style = MaterialTheme.typography.bodySmall)
+                        Text(
+                            stringResource(R.string.bpx1_connection_standard_bp),
+                            style = MaterialTheme.typography.bodySmall,
+                        )
                     }
                     if (result.hasMiBeaconService) {
                         Text(stringResource(R.string.bpx1_connection_miot), style = MaterialTheme.typography.bodySmall)
                     }
+                    Text(
+                        stringResource(R.string.bpx1_connection_reachability_only),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSecondaryContainer,
+                    )
                 }
-                is Bpx1ConnectionResult.Failed -> Text(
-                    stringResource(result.reason.stringRes()),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onErrorContainer,
-                )
+                is Bpx1ConnectionResult.Failed -> {
+                    Text(
+                        stringResource(result.reason.stringRes()),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                    Text(
+                        stringResource(R.string.bpx1_connection_failure_help),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun Bpx1ImportCard(
-    uiState: Bpx1DeviceSettingsUiState,
-    onAutoImportChange: (Boolean) -> Unit,
-) {
+private fun Bpx1ImportCard(uiState: Bpx1DeviceSettingsUiState, onAutoImportChange: (Boolean) -> Unit) {
     SettingsCard(
         title = stringResource(R.string.bpx1_import_title),
         subtitle = stringResource(R.string.bpx1_import_desc),
@@ -584,8 +645,14 @@ private fun Bpx1ImportCard(
     ) {
         SettingsSwitchRow(
             title = stringResource(R.string.bpx1_auto_import_title),
-            subtitle = stringResource(R.string.bpx1_auto_import_subtitle),
-            checked = uiState.configuration.autoImport,
+            subtitle = stringResource(
+                if (uiState.configuration.isConfigured) {
+                    R.string.bpx1_auto_import_subtitle
+                } else {
+                    R.string.bpx1_auto_import_requires_config
+                },
+            ),
+            checked = uiState.configuration.isConfigured && uiState.configuration.autoImport,
             onCheckedChange = onAutoImportChange,
             icon = MedLogIcons.MonitorHeart,
             enabled = uiState.configuration.isConfigured,
