@@ -1,6 +1,5 @@
 package com.driezy.medlog.data.local
 
-import java.io.File
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.jsonObject
@@ -9,6 +8,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class DrugAssetPackagingTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -30,7 +30,10 @@ class DrugAssetPackagingTest {
     @Test
     fun `drug normalization script reads raw inputs outside apk assets`() {
         val script = File(projectRoot, "scripts/analyze_drugs.py").readText()
-        val dataSource = File(projectRoot, "app/src/main/java/com/driezy/medlog/data/local/DrugDataSource.kt").readText()
+        val dataSource = File(
+            projectRoot,
+            "app/src/main/java/com/driezy/medlog/data/local/DrugDataSource.kt",
+        ).readText()
 
         assertTrue(script.contains("\"scripts\", \"data\""))
         assertTrue(script.contains("RAW_BASE"))
@@ -79,8 +82,15 @@ class DrugAssetPackagingTest {
         assertEquals(tcm.size.toString(), manifest.getValue("tcmDrugCount").jsonPrimitive.content)
         assertEquals(aliases.size.toString(), manifest.getValue("reviewedAliasCount").jsonPrimitive.content)
         assertEquals(initials.size.toString(), manifest.getValue("initialCount").jsonPrimitive.content)
-        assertTrue(manifest.getValue("sourceHashes").jsonObject.getValue("drugs.json").jsonPrimitive.content.length >= 64)
-        assertTrue(manifest.getValue("assetHashes").jsonObject.getValue("drug_initials_clean.json").jsonPrimitive.content.length >= 64)
+        assertTrue(
+            manifest.getValue("sourceHashes").jsonObject.getValue("drugs.json").jsonPrimitive.content.length >= 64,
+        )
+        assertTrue(
+            manifest.getValue(
+                "assetHashes",
+            ).jsonObject.getValue("drug_initials_clean.json").jsonPrimitive.content.length >=
+                64,
+        )
     }
 
     @Test
@@ -97,8 +107,7 @@ class DrugAssetPackagingTest {
         assertEquals("Z", initials.getValue("重组人促卵泡激素").jsonPrimitive.content)
     }
 
-    private fun readJsonObject(path: String) =
-        Json.parseToJsonElement(File(projectRoot, path).readText()).jsonObject
+    private fun readJsonObject(path: String) = Json.parseToJsonElement(File(projectRoot, path).readText()).jsonObject
 
     private fun kotlinx.serialization.json.JsonElement.firstPath(): String =
         (this as JsonArray).first().jsonPrimitive.content

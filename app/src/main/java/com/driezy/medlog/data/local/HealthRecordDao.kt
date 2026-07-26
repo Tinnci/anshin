@@ -34,7 +34,9 @@ interface HealthRecordDao {
     fun getRecordsInRange(from: Long, to: Long): Flow<List<HealthRecord>>
 
     /** 指定类型在指定时间范围内的记录，按时间正序 */
-    @Query("SELECT * FROM health_records WHERE type = :type AND timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC")
+    @Query(
+        "SELECT * FROM health_records WHERE type = :type AND timestamp >= :from AND timestamp <= :to ORDER BY timestamp ASC",
+    )
     fun getRecordsByTypeInRange(type: String, from: Long, to: Long): Flow<List<HealthRecord>>
 
     /** 每种类型的最新一条记录（用于主页快速展示） */

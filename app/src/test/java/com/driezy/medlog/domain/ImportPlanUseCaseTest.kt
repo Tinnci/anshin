@@ -101,7 +101,7 @@ class ImportPlanUseCaseTest {
     @Test
     fun `REPLACE imports all plan meds regardless of name overlap`() = runTest {
         addExisting("药品A")
-        val plan = planOf("药品A", "药品B")   // 同名也应被导入
+        val plan = planOf("药品A", "药品B") // 同名也应被导入
 
         useCase(plan, ImportMode.REPLACE)
 
@@ -146,7 +146,7 @@ class ImportPlanUseCaseTest {
 
     private suspend fun addExisting(name: String) {
         medicationRepo.addMedication(
-            com.driezy.medlog.data.model.Medication(name = name, dose = 1.0, doseUnit = "片")
+            com.driezy.medlog.data.model.Medication(name = name, dose = 1.0, doseUnit = "片"),
         )
     }
 

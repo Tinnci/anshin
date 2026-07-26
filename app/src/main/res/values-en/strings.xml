@@ -14,6 +14,7 @@
     <string name="common_expand">Expand</string>
     <string name="common_collapse">Collapse</string>
     <string name="common_back">Back</string>
+    <string name="common_more_actions">More actions</string>
     <string name="confirm">Confirm</string>
     <string name="medication_taken">Taken</string>
     <string name="medication_skipped">Skipped</string>
@@ -52,6 +53,7 @@
     <string name="welcome_btn_start">Get Started with Anshin</string>
     <string name="welcome_btn_next">Next</string>
     <string name="welcome_btn_skip">Skip</string>
+    <string name="welcome_progress">%1$d / %2$d</string>
 
     <!-- Welcome Page 0: Greeting -->
     <string name="welcome_p0_title">Welcome to Anshin</string>
@@ -204,6 +206,7 @@
     <string name="settings_notif_perm_title">Notification permission denied</string>
     <string name="settings_notif_perm_body">Unable to receive medication reminders. Enable notification permission in system settings</string>
     <string name="settings_notif_perm_btn">Go to Settings</string>
+    <string name="settings_reminder_permissions_desc">Complete these system permissions so medication reminders arrive on time</string>
     <string name="settings_group_appearance_home">Appearance &amp; Home</string>
     <string name="settings_group_appearance_home_desc">Theme palettes, dynamic color, and Today view display preferences</string>
     <string name="settings_group_reminders_routine">Reminders &amp; Routine</string>
@@ -231,11 +234,10 @@
         <item quantity="one">%d module on</item>
         <item quantity="other">%d modules on</item>
     </plurals>
-    <string name="settings_home_action_reminders">Check reminders</string>
-    <string name="settings_home_action_intelligence">Set up AI analysis</string>
-    <string name="settings_home_action_data">Data and backup</string>
     <string name="settings_home_dashboard_title">Settings center</string>
     <string name="settings_home_dashboard_desc">Start with status, open a settings page, and toggle modules below</string>
+    <string name="settings_home_frequent_group">Primary settings</string>
+    <string name="settings_home_more_group">More settings</string>
     <string name="settings_home_tile_reminders_status">Reminders, routine, permissions</string>
     <string name="settings_home_tile_ai_status">OCR and offline analysis</string>
     <string name="settings_home_tile_ai_status_cloud">Cloud analysis enabled</string>

@@ -1,44 +1,37 @@
 package com.driezy.medlog.ui.screen.history
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import com.driezy.medlog.ui.theme.MedLogSpacing
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.LogRevisionType
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.TextStyle
 import java.util.*
-
 
 @Composable
 internal fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifier) {
@@ -48,7 +41,7 @@ internal fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifi
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
             adherence >= 0.6f -> colorScheme.secondary
-            else              -> colorScheme.error
+            else -> colorScheme.error
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "adherenceColor",
@@ -85,8 +78,8 @@ internal fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifi
                     when {
                         adherence >= 0.9f -> stringResource(R.string.history_adherence_excellent)
                         adherence >= 0.75f -> stringResource(R.string.history_adherence_good)
-                        adherence >= 0.5f  -> stringResource(R.string.history_adherence_fair)
-                        else               -> stringResource(R.string.history_adherence_poor)
+                        adherence >= 0.5f -> stringResource(R.string.history_adherence_fair)
+                        else -> stringResource(R.string.history_adherence_poor)
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -153,8 +146,11 @@ internal fun MonthCalendarCard(
                         modifier = Modifier.weight(1f),
                         textAlign = TextAlign.Center,
                         style = MaterialTheme.typography.labelSmall,
-                        color = if (index == 6) MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
-                                else MaterialTheme.colorScheme.onSurfaceVariant,
+                        color = if (index == 6) {
+                            MaterialTheme.colorScheme.error.copy(alpha = 0.7f)
+                        } else {
+                            MaterialTheme.colorScheme.onSurfaceVariant
+                        },
                     )
                 }
             }
@@ -164,7 +160,7 @@ internal fun MonthCalendarCard(
             // 日历格（周一开始：Mon=0, ..., Sun=6）
             val firstDay = displayedMonth.atDay(1)
             // dayOfWeek: 1=Mon..7=Sun → 周一对应 col 0
-            val startOffset = firstDay.dayOfWeek.value - 1  // Mon=0, ..., Sun=6
+            val startOffset = firstDay.dayOfWeek.value - 1 // Mon=0, ..., Sun=6
             val daysInMonth = displayedMonth.lengthOfMonth()
             val totalCells = startOffset + daysInMonth
             val rows = (totalCells + 6) / 7
@@ -214,28 +210,32 @@ internal fun DayCell(
     val hasPending = adherenceDay != null && adherenceDay.pending > 0
     val bgColor by animateColorAsState(
         targetValue = when {
-            isSelected   -> colorScheme.primary
+            isSelected -> colorScheme.primary
             isFuture || adherenceDay == null -> Color.Transparent
             // 有待服药条目（PENDING）：显示轮廓色提示用户当日有计划
             adherenceDay.resolved == 0 && hasPending -> colorScheme.outlineVariant.copy(alpha = 0.25f)
-            adherenceDay.resolved == 0       -> Color.Transparent
-            adherenceDay.rate >= 1f          -> colorScheme.tertiaryContainer
-            adherenceDay.rate >= 0.5f        -> colorScheme.secondaryContainer
-            else                             -> colorScheme.errorContainer
+            adherenceDay.resolved == 0 -> Color.Transparent
+            adherenceDay.rate >= 1f -> colorScheme.tertiaryContainer
+            adherenceDay.rate >= 0.5f -> colorScheme.secondaryContainer
+            else -> colorScheme.errorContainer
         },
         animationSpec = motionScheme.fastEffectsSpec(),
         label = "dayCellBg",
     )
     val textColor by animateColorAsState(
         targetValue = when {
-            isSelected                          -> colorScheme.onPrimary
-            isFuture                            -> colorScheme.onSurface.copy(alpha = 0.35f)
-            adherenceDay != null && adherenceDay.resolved > 0 && adherenceDay.rate >= 1f -> colorScheme.onTertiaryContainer
-            adherenceDay != null && adherenceDay.resolved > 0 && adherenceDay.rate >= 0.5f -> colorScheme.onSecondaryContainer
+            isSelected -> colorScheme.onPrimary
+            isFuture -> colorScheme.onSurface.copy(alpha = 0.35f)
+            adherenceDay != null &&
+                adherenceDay.resolved > 0 &&
+                adherenceDay.rate >= 1f -> colorScheme.onTertiaryContainer
+            adherenceDay != null &&
+                adherenceDay.resolved > 0 &&
+                adherenceDay.rate >= 0.5f -> colorScheme.onSecondaryContainer
             adherenceDay != null && adherenceDay.resolved > 0 -> colorScheme.onErrorContainer
-            isToday                             -> colorScheme.primary
-            hasPending                          -> colorScheme.outline
-            else                                -> colorScheme.onSurface
+            isToday -> colorScheme.primary
+            hasPending -> colorScheme.outline
+            else -> colorScheme.onSurface
         },
         animationSpec = motionScheme.fastEffectsSpec(),
         label = "dayCellText",
@@ -248,9 +248,11 @@ internal fun DayCell(
             .clip(CircleShape)
             .background(bgColor)
             .then(
-                if (isToday && !isSelected)
+                if (isToday && !isSelected) {
                     Modifier.border(1.5.dp, colorScheme.primary, CircleShape)
-                else Modifier
+                } else {
+                    Modifier
+                },
             )
             .clickable(onClick = onClick),
         contentAlignment = Alignment.Center,
@@ -292,10 +294,13 @@ internal fun LegendItem(color: Color, label: String) {
             Modifier
                 .size(10.dp)
                 .clip(CircleShape)
-                .background(color)
+                .background(color),
         )
-        Text(label, style = MaterialTheme.typography.labelSmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            label,
+            style = MaterialTheme.typography.labelSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
     }
 }
 
@@ -325,8 +330,11 @@ internal fun DayDetailSection(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    stringResource(R.string.history_date_format, date.monthValue, date.dayOfMonth,
-                        date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.CHINESE)
+                    stringResource(
+                        R.string.history_date_format,
+                        date.monthValue,
+                        date.dayOfMonth,
+                        date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.CHINESE),
                     ),
                     style = MaterialTheme.emphasizedTypography.titleSmall,
                 )
@@ -354,8 +362,11 @@ internal fun DayDetailSection(
                 day.logs.forEach { (log, name) ->
                     DayLogRow(
                         log = log,
-                        medicationName = if (name == HistoryViewModel.UNKNOWN_MEDICATION_NAME)
-                            stringResource(R.string.unknown_medication) else name,
+                        medicationName = if (name == HistoryViewModel.UNKNOWN_MEDICATION_NAME) {
+                            stringResource(R.string.unknown_medication)
+                        } else {
+                            name
+                        },
                         onEditTakenTime = onEditTakenTime,
                     )
                 }
@@ -401,17 +412,17 @@ internal fun DayLogRow(
     ) {
         MedLogIcon(
             icon = when (log.status) {
-                LogStatus.TAKEN   -> MedLogIcons.CheckCircle
+                LogStatus.TAKEN -> MedLogIcons.CheckCircle
                 LogStatus.SKIPPED -> MedLogIcons.SkipNext
-                LogStatus.MISSED  -> MedLogIcons.Cancel
+                LogStatus.MISSED -> MedLogIcons.Cancel
                 LogStatus.PARTIAL -> MedLogIcons.Adjust
                 LogStatus.PENDING -> MedLogIcons.Schedule
             },
             contentDescription = null,
             tint = when (log.status) {
-                LogStatus.TAKEN   -> colorScheme.tertiary
+                LogStatus.TAKEN -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
-                LogStatus.MISSED  -> colorScheme.error
+                LogStatus.MISSED -> colorScheme.error
                 LogStatus.PARTIAL -> colorScheme.secondary
                 LogStatus.PENDING -> colorScheme.outline
             },
@@ -462,27 +473,33 @@ internal fun DayLogRow(
         }
         Text(
             when (log.status) {
-                LogStatus.TAKEN   -> log.actualTakenTimeMs?.let { stringResource(R.string.history_taken_time, timeFmt.format(Date(it))) } ?: takenLabel
+                LogStatus.TAKEN -> log.actualTakenTimeMs?.let {
+                    stringResource(R.string.history_taken_time, timeFmt.format(Date(it)))
+                }
+                    ?: takenLabel
                 LogStatus.SKIPPED -> skippedLabel
-                LogStatus.MISSED  -> missedLabel
+                LogStatus.MISSED -> missedLabel
                 LogStatus.PENDING -> pendingLabel
                 LogStatus.PARTIAL -> {
-                    val qtyStr = log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
+                    val qtyStr =
+                        log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
                     val timeStr = log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
                     if (timeStr != null) "$partialLabel $qtyStr @ $timeStr" else "$partialLabel $qtyStr"
                 }
             },
             style = MaterialTheme.typography.labelSmall,
             color = when (log.status) {
-                LogStatus.TAKEN   -> colorScheme.tertiary
+                LogStatus.TAKEN -> colorScheme.tertiary
                 LogStatus.SKIPPED -> colorScheme.outline
-                LogStatus.MISSED  -> colorScheme.error
+                LogStatus.MISSED -> colorScheme.error
                 LogStatus.PARTIAL -> colorScheme.secondary
                 LogStatus.PENDING -> colorScheme.outline
             },
-            modifier = if (log.status == LogStatus.TAKEN)
+            modifier = if (log.status == LogStatus.TAKEN) {
                 Modifier.clickable { showTimePicker = true }
-            else Modifier,
+            } else {
+                Modifier
+            },
         )
     }
 
@@ -494,7 +511,10 @@ internal fun DayLogRow(
             text = {
                 Column(horizontalAlignment = Alignment.CenterHorizontally) {
                     Text(
-                        stringResource(R.string.history_current_time_format, log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: unrecordedLabel),
+                        stringResource(
+                            R.string.history_current_time_format,
+                            log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: unrecordedLabel,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 12.dp),
@@ -526,11 +546,7 @@ internal fun DayLogRow(
 // ─── 连续打卡 Streak 卡片 ────────────────────────────────────────────────────
 
 @Composable
-internal fun StreakCard(
-    currentStreak: Int,
-    longestStreak: Int,
-    modifier: Modifier = Modifier,
-) {
+internal fun StreakCard(currentStreak: Int, longestStreak: Int, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(28.dp),

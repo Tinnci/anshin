@@ -89,11 +89,7 @@ enum class DoubaoFrameState(val protoValue: Int) {
     LAST(9),
 }
 
-data class DoubaoAudioPacket(
-    val data: ByteArray,
-    val frameState: DoubaoFrameState,
-    val timestampMs: Long,
-) {
+data class DoubaoAudioPacket(val data: ByteArray, val frameState: DoubaoFrameState, val timestampMs: Long) {
     override fun equals(other: Any?): Boolean {
         if (this === other) return true
         if (javaClass != other?.javaClass) return false

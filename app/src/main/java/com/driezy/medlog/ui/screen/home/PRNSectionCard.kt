@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -41,6 +38,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.displayName
 import kotlinx.coroutines.delay
@@ -69,7 +68,12 @@ internal fun PRNSectionCard(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = MedLogSpacing.Large, end = MedLogSpacing.Medium, top = MedLogSpacing.Medium, bottom = MedLogSpacing.Small),
+                .padding(
+                    start = MedLogSpacing.Large,
+                    end = MedLogSpacing.Medium,
+                    top = MedLogSpacing.Medium,
+                    bottom = MedLogSpacing.Small,
+                ),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
@@ -109,7 +113,7 @@ internal fun PRNSectionCard(
             AnimatedVisibility(
                 visible = visible,
                 enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                        slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+                    slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
             ) {
                 Column {
                     ListItem(
@@ -121,11 +125,25 @@ internal fun PRNSectionCard(
                             val maxDose = item.medication.maxDailyDose
                             if (maxDose != null) {
                                 Text(
-                                    if (item.isTaken) stringResource(R.string.home_prn_taken_with_max, maxDose.toString(), item.medication.doseUnit)
-                                    else stringResource(R.string.home_prn_max_dose, maxDose.toString(), item.medication.doseUnit),
+                                    if (item.isTaken) {
+                                        stringResource(
+                                            R.string.home_prn_taken_with_max,
+                                            maxDose.toString(),
+                                            item.medication.doseUnit,
+                                        )
+                                    } else {
+                                        stringResource(
+                                            R.string.home_prn_max_dose,
+                                            maxDose.toString(),
+                                            item.medication.doseUnit,
+                                        )
+                                    },
                                     style = MaterialTheme.typography.bodySmall,
-                                    color = if (item.isTaken) MaterialTheme.colorScheme.tertiary
-                                            else MaterialTheme.colorScheme.onSurfaceVariant,
+                                    color = if (item.isTaken) {
+                                        MaterialTheme.colorScheme.tertiary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
                                 )
                             } else if (item.isTaken) {
                                 Text(
@@ -137,11 +155,17 @@ internal fun PRNSectionCard(
                         },
                         leadingContent = {
                             MedLogIcon(
-                                if (item.medication.isTcm) MedLogIcons.LocalFlorist
-                                else MedLogIcons.Medication,
+                                if (item.medication.isTcm) {
+                                    MedLogIcons.LocalFlorist
+                                } else {
+                                    MedLogIcons.Medication
+                                },
                                 contentDescription = null,
-                                tint = if (item.isTaken) MaterialTheme.colorScheme.outline
-                                       else MaterialTheme.colorScheme.secondary,
+                                tint = if (item.isTaken) {
+                                    MaterialTheme.colorScheme.outline
+                                } else {
+                                    MaterialTheme.colorScheme.secondary
+                                },
                             )
                         },
                         trailingContent = {
@@ -150,14 +174,16 @@ internal fun PRNSectionCard(
                                 modifier = Modifier.height(36.dp),
                                 contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium),
                                 colors = ButtonDefaults.filledTonalButtonColors(
-                                    containerColor = if (item.isTaken)
+                                    containerColor = if (item.isTaken) {
                                         MaterialTheme.colorScheme.surfaceContainerHigh
-                                    else
-                                        MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = if (item.isTaken)
+                                    } else {
+                                        MaterialTheme.colorScheme.secondaryContainer
+                                    },
+                                    contentColor = if (item.isTaken) {
                                         MaterialTheme.colorScheme.onSurfaceVariant
-                                    else
-                                        MaterialTheme.colorScheme.onSecondaryContainer,
+                                    } else {
+                                        MaterialTheme.colorScheme.onSecondaryContainer
+                                    },
                                 ),
                             ) {
                                 MedLogIcon(
@@ -167,7 +193,13 @@ internal fun PRNSectionCard(
                                 )
                                 Spacer(Modifier.width(MedLogSpacing.Tiny))
                                 Text(
-                                    if (item.isTaken) stringResource(R.string.home_prn_btn_taken) else stringResource(R.string.home_prn_btn_take),
+                                    if (item.isTaken) {
+                                        stringResource(
+                                            R.string.home_prn_btn_taken,
+                                        )
+                                    } else {
+                                        stringResource(R.string.home_prn_btn_take)
+                                    },
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }

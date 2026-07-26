@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,11 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import java.text.SimpleDateFormat
@@ -36,16 +34,9 @@ import java.util.Locale
 
 private const val LOW_STOCK_VISIBLE_LIMIT = 3
 
-internal data class LowStockItemPresentation(
-    val name: String,
-    val stock: Double,
-    val unit: String,
-)
+internal data class LowStockItemPresentation(val name: String, val stock: Double, val unit: String)
 
-internal data class LowStockPresentation(
-    val visibleItems: List<LowStockItemPresentation>,
-    val hiddenCount: Int,
-) {
+internal data class LowStockPresentation(val visibleItems: List<LowStockItemPresentation>, val hiddenCount: Int) {
     companion object {
         fun from(
             medications: List<Pair<String, Pair<Double, String>>>,
@@ -71,10 +62,7 @@ internal data class LowStockPresentation(
 }
 
 @Composable
-internal fun LowStockBanner(
-    medications: List<Pair<String, Pair<Double, String>>>,
-    modifier: Modifier = Modifier,
-) {
+internal fun LowStockBanner(medications: List<Pair<String, Pair<Double, String>>>, modifier: Modifier = Modifier) {
     val presentation = remember(medications) { LowStockPresentation.from(medications) }
     Card(
         modifier = modifier.fillMaxWidth(),

@@ -158,7 +158,10 @@ class AiChatClientTest {
         val contents = body["contents"]!!.jsonArray
         assertEquals("user", contents[0].jsonObject["role"]!!.jsonPrimitive.content)
         assertEquals("model", contents[1].jsonObject["role"]!!.jsonPrimitive.content)
-        assertEquals("120/80", contents[2].jsonObject["parts"]!!.jsonArray[0].jsonObject["text"]!!.jsonPrimitive.content)
+        assertEquals(
+            "120/80",
+            contents[2].jsonObject["parts"]!!.jsonArray[0].jsonObject["text"]!!.jsonPrimitive.content,
+        )
         assertEquals("0.3", body["generationConfig"]!!.jsonObject["temperature"]!!.jsonPrimitive.content)
         assertEquals("128", body["generationConfig"]!!.jsonObject["maxOutputTokens"]!!.jsonPrimitive.content)
 
@@ -331,9 +334,7 @@ class AiChatClientTest {
         assertTrue(error!!.message!!.contains("non-text"))
     }
 
-    private class RecordingAiHttpTransport(
-        private val response: AiHttpResponse,
-    ) : AiHttpTransport {
+    private class RecordingAiHttpTransport(private val response: AiHttpResponse) : AiHttpTransport {
         var lastRequest: AiHttpRequest? = null
 
         override suspend fun post(request: AiHttpRequest): AiHttpResponse {

@@ -10,20 +10,17 @@ class FakeSymptomRepository : SymptomRepository {
     private val logs = MutableStateFlow<List<SymptomLog>>(emptyList())
     private var nextId = 1L
 
-    override fun getAllLogs(): Flow<List<SymptomLog>> =
-        logs.map { it.sortedByDescending { l -> l.recordedAt } }
+    override fun getAllLogs(): Flow<List<SymptomLog>> = logs.map { it.sortedByDescending { l -> l.recordedAt } }
 
-    override fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<SymptomLog>> =
-        logs.map { list ->
-            list.filter { it.recordedAt in startMs..endMs }
-                .sortedByDescending { it.recordedAt }
-        }
+    override fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<SymptomLog>> = logs.map { list ->
+        list.filter { it.recordedAt in startMs..endMs }
+            .sortedByDescending { it.recordedAt }
+    }
 
-    override fun getLogsForMedication(medId: Long): Flow<List<SymptomLog>> =
-        logs.map { list ->
-            list.filter { it.medicationId == medId }
-                .sortedByDescending { it.recordedAt }
-        }
+    override fun getLogsForMedication(medId: Long): Flow<List<SymptomLog>> = logs.map { list ->
+        list.filter { it.medicationId == medId }
+            .sortedByDescending { it.recordedAt }
+    }
 
     override suspend fun insert(log: SymptomLog): Long {
         val id = nextId++

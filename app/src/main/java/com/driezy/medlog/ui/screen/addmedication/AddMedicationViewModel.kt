@@ -1,9 +1,8 @@
 package com.driezy.medlog.ui.screen.addmedication
 
 import android.content.Context
-import com.driezy.medlog.ui.BaseViewModel
-import androidx.lifecycle.viewModelScope
 import androidx.annotation.StringRes
+import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Drug
 import com.driezy.medlog.data.model.Medication
@@ -12,10 +11,11 @@ import com.driezy.medlog.data.repository.DrugRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
-import com.driezy.medlog.util.ReminderTimeUtils
 import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.notification.AlarmScheduler
 import com.driezy.medlog.notification.NotificationHelper
+import com.driezy.medlog.ui.BaseViewModel
+import com.driezy.medlog.util.ReminderTimeUtils
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.VoiceInputEvent
 import com.driezy.medlog.voice.VoiceInputPhase
@@ -36,24 +36,24 @@ data class AddMedicationUiState(
     // ── 基础信息 ──────────────────────────────────────────────────
     val name: String = "",
     val category: String = "",
-    val form: String = "tablet",             // tablet/capsule/liquid/powder
+    val form: String = "tablet", // tablet/capsule/liquid/powder
     val isHighPriority: Boolean = false,
     val isCustomDrug: Boolean = false,
 
     // ── 剂量 ──────────────────────────────────────────────────────
-    val doseQuantity: Double = 1.0,          // 每次几片/粒/ml
-    val doseUnit: String = "",               // 由 ViewModel 初始化时从 R.string.default_dose_unit 填充
+    val doseQuantity: Double = 1.0, // 每次几片/粒/ml
+    val doseUnit: String = "", // 由 ViewModel 初始化时从 R.string.default_dose_unit 填充
 
     // ── 按需 / PRN ────────────────────────────────────────────────
     val isPRN: Boolean = false,
-    val maxDailyDose: String = "",           // 每日最大剂量（字符串，便于输入）
+    val maxDailyDose: String = "", // 每日最大剂量（字符串，便于输入）
 
     // ── 服药时段 & 提醒 ──────────────────────────────────────────
     val timePeriod: TimePeriod = TimePeriod.MORNING,
     val reminderTimes: List<String> = listOf("08:00"), // HH:mm 列表
 
     // ── 频率 ──────────────────────────────────────────────────────
-    val frequencyType: String = "daily",     // daily / interval / specific_days
+    val frequencyType: String = "daily", // daily / interval / specific_days
     val frequencyInterval: Int = 1,
     val frequencyDays: String = "1,2,3,4,5,6,7", // 逗号分隔的周天
 
@@ -104,7 +104,7 @@ class AddMedicationViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(
         AddMedicationUiState(
             doseUnit = appContext.getString(R.string.default_dose_unit),
-        )
+        ),
     )
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
 
@@ -186,30 +186,30 @@ class AddMedicationViewModel @Inject constructor(
         safeLaunch(onError = { e -> update { copy(error = e.message) } }) {
             val med = repository.getMedicationById(medicationId) ?: return@safeLaunch
             _uiState.value = AddMedicationUiState(
-                name            = med.name,
-                category        = med.category,
-                isTcm           = med.isTcm,
-                fullPath        = med.fullPath,
-                form            = med.form,
-                isHighPriority  = med.isHighPriority,
-                isCustomDrug    = med.isCustomDrug,
-                doseQuantity    = med.doseQuantity,
-                doseUnit        = med.doseUnit,
-                isPRN           = med.isPRN,
-                maxDailyDose    = med.maxDailyDose?.toString() ?: "",
-                timePeriod      = TimePeriod.fromKey(med.timePeriod),
-                reminderTimes   = med.reminderTimes.split(",").filter { it.isNotBlank() }
-                                      .ifEmpty { listOf("08:00") },
-                frequencyType   = med.frequencyType,
+                name = med.name,
+                category = med.category,
+                isTcm = med.isTcm,
+                fullPath = med.fullPath,
+                form = med.form,
+                isHighPriority = med.isHighPriority,
+                isCustomDrug = med.isCustomDrug,
+                doseQuantity = med.doseQuantity,
+                doseUnit = med.doseUnit,
+                isPRN = med.isPRN,
+                maxDailyDose = med.maxDailyDose?.toString() ?: "",
+                timePeriod = TimePeriod.fromKey(med.timePeriod),
+                reminderTimes = med.reminderTimes.split(",").filter { it.isNotBlank() }
+                    .ifEmpty { listOf("08:00") },
+                frequencyType = med.frequencyType,
                 frequencyInterval = med.frequencyInterval,
-                frequencyDays   = med.frequencyDays,
-                startDate       = med.startDate,
-                endDate         = med.endDate,
-                stock           = med.stock?.toString() ?: "",
+                frequencyDays = med.frequencyDays,
+                startDate = med.startDate,
+                endDate = med.endDate,
+                stock = med.stock?.toString() ?: "",
                 refillThreshold = med.refillThreshold?.toString() ?: "",
                 refillReminderDays = med.refillReminderDays,
-                notes           = med.notes,
-                intervalHours   = med.intervalHours,
+                notes = med.notes,
+                intervalHours = med.intervalHours,
             )
         }
     }
@@ -242,17 +242,17 @@ class AddMedicationViewModel @Inject constructor(
     /** 关闭建议下拉（用户点击外部时） */
     fun dismissDrugSuggestions() = update { copy(showDrugSuggestions = false) }
 
-    fun onCategoryChange(v: String)          = update { copy(category = v) }
-    fun onFormChange(v: String)              = update { copy(form = v) }
-    fun onHighPriorityChange(v: Boolean)     = update { copy(isHighPriority = v) }
-    fun onCustomDrugChange(v: Boolean)       = update { copy(isCustomDrug = v) }
+    fun onCategoryChange(v: String) = update { copy(category = v) }
+    fun onFormChange(v: String) = update { copy(form = v) }
+    fun onHighPriorityChange(v: Boolean) = update { copy(isHighPriority = v) }
+    fun onCustomDrugChange(v: Boolean) = update { copy(isCustomDrug = v) }
 
-    fun onDoseQuantityChange(v: Double)      = update { copy(doseQuantity = v) }
-    fun onDoseUnitChange(v: String)          = update { copy(doseUnit = v) }
+    fun onDoseQuantityChange(v: Double) = update { copy(doseQuantity = v) }
+    fun onDoseUnitChange(v: String) = update { copy(doseUnit = v) }
 
-    fun onIsPRNChange(v: Boolean)            = update { copy(isPRN = v) }
-    fun onMaxDailyDoseChange(v: String)      = update { copy(maxDailyDose = v) }
-    fun onIntervalHoursChange(v: Int)        = update { copy(intervalHours = v.coerceAtLeast(0)) }
+    fun onIsPRNChange(v: Boolean) = update { copy(isPRN = v) }
+    fun onMaxDailyDoseChange(v: String) = update { copy(maxDailyDose = v) }
+    fun onIntervalHoursChange(v: Int) = update { copy(intervalHours = v.coerceAtLeast(0)) }
 
     fun onTimePeriodChange(v: TimePeriod) {
         val autoTime = if (v == TimePeriod.EXACT) {
@@ -270,15 +270,18 @@ class AddMedicationViewModel @Inject constructor(
 
     fun addReminderTime(hhmm: String) {
         val existing = _uiState.value.reminderTimes.toMutableList()
-        if (!existing.contains(hhmm)) { existing += hhmm; existing.sort() }
+        if (!existing.contains(hhmm)) {
+            existing += hhmm
+            existing.sort()
+        }
         update { copy(reminderTimes = existing) }
     }
-    fun removeReminderTime(hhmm: String)     = update {
+    fun removeReminderTime(hhmm: String) = update {
         copy(reminderTimes = reminderTimes.filterNot { it == hhmm }.ifEmpty { listOf("08:00") })
     }
 
-    fun onFrequencyTypeChange(v: String)     = update { copy(frequencyType = v) }
-    fun onFrequencyIntervalChange(v: Int)    = update { copy(frequencyInterval = v.coerceIn(1, 90)) }
+    fun onFrequencyTypeChange(v: String) = update { copy(frequencyType = v) }
+    fun onFrequencyIntervalChange(v: Int) = update { copy(frequencyInterval = v.coerceIn(1, 90)) }
     fun toggleFrequencyDay(day: Int) {
         val current = _uiState.value.frequencyDays.split(",").filter { it.isNotBlank() }.toMutableList()
         val s = day.toString()
@@ -287,13 +290,13 @@ class AddMedicationViewModel @Inject constructor(
         update { copy(frequencyDays = sorted.ifBlank { "1" }) }
     }
 
-    fun onStartDateChange(v: Long)           = update { copy(startDate = v) }
-    fun onEndDateChange(v: Long?)            = update { copy(endDate = v) }
+    fun onStartDateChange(v: Long) = update { copy(startDate = v) }
+    fun onEndDateChange(v: Long?) = update { copy(endDate = v) }
 
-    fun onStockChange(v: String)             = update { copy(stock = v) }
-    fun onRefillThresholdChange(v: String)   = update { copy(refillThreshold = v) }
-    fun onRefillReminderDaysChange(v: Int)   = update { copy(refillReminderDays = v) }
-    fun onNotesChange(v: String)             = update { copy(notes = v) }
+    fun onStockChange(v: String) = update { copy(stock = v) }
+    fun onRefillThresholdChange(v: String) = update { copy(refillThreshold = v) }
+    fun onRefillReminderDaysChange(v: Int) = update { copy(refillReminderDays = v) }
+    fun onNotesChange(v: String) = update { copy(notes = v) }
 
     fun startVoiceInput() {
         acceptsVoiceInput = true
@@ -313,7 +316,8 @@ class AddMedicationViewModel @Inject constructor(
     fun save(existingId: Long?) {
         val state = _uiState.value
         if (state.name.isBlank()) {
-            update { copy(errorRes = R.string.error_name_required) }; return
+            update { copy(errorRes = R.string.error_name_required) }
+            return
         }
         safeLaunch(onError = { e -> update { copy(isSaving = false, error = e.message) } }) {
             stopVoiceInput()
@@ -324,33 +328,33 @@ class AddMedicationViewModel @Inject constructor(
                 (it.getOrNull(0)?.toIntOrNull() ?: 8) to (it.getOrNull(1)?.toIntOrNull() ?: 0)
             }
             val medication = Medication(
-                id              = existingId ?: 0,
-                name            = state.name.trim(),
-                category        = state.category.trim(),
-                isTcm           = state.isTcm,
-                fullPath        = state.fullPath.trim(),
-                form            = state.form,
-                isHighPriority  = state.isHighPriority,
-                isCustomDrug    = state.isCustomDrug,
-                dose            = state.doseQuantity,  // 兼容旧字段
-                doseUnit        = state.doseUnit,
-                doseQuantity    = state.doseQuantity,
-                isPRN           = state.isPRN,
-                maxDailyDose    = state.maxDailyDose.toDoubleOrNull(),
-                timePeriod      = state.timePeriod.key,
-                reminderTimes   = state.reminderTimes.joinToString(","),
-                reminderHour    = h,
-                reminderMinute  = m,
-                frequencyType   = state.frequencyType,
+                id = existingId ?: 0,
+                name = state.name.trim(),
+                category = state.category.trim(),
+                isTcm = state.isTcm,
+                fullPath = state.fullPath.trim(),
+                form = state.form,
+                isHighPriority = state.isHighPriority,
+                isCustomDrug = state.isCustomDrug,
+                dose = state.doseQuantity, // 兼容旧字段
+                doseUnit = state.doseUnit,
+                doseQuantity = state.doseQuantity,
+                isPRN = state.isPRN,
+                maxDailyDose = state.maxDailyDose.toDoubleOrNull(),
+                timePeriod = state.timePeriod.key,
+                reminderTimes = state.reminderTimes.joinToString(","),
+                reminderHour = h,
+                reminderMinute = m,
+                frequencyType = state.frequencyType,
                 frequencyInterval = state.frequencyInterval,
-                frequencyDays   = state.frequencyDays,
-                startDate       = state.startDate,
-                endDate         = state.endDate,
-                stock           = state.stock.toDoubleOrNull(),
+                frequencyDays = state.frequencyDays,
+                startDate = state.startDate,
+                endDate = state.endDate,
+                stock = state.stock.toDoubleOrNull(),
                 refillThreshold = state.refillThreshold.toDoubleOrNull(),
                 refillReminderDays = state.refillReminderDays,
-                notes           = state.notes,
-                intervalHours   = state.intervalHours,
+                notes = state.notes,
+                intervalHours = state.intervalHours,
             )
             if (existingId == null) {
                 val newId = repository.addMedication(medication)

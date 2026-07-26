@@ -1,65 +1,35 @@
 package com.driezy.medlog.ui.screen.health
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalDensity
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import com.driezy.medlog.ui.theme.MedLogSpacing
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.res.stringResource
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.domain.health.HealthInsight
-import com.driezy.medlog.domain.health.HealthInsightSeverity
-import com.driezy.medlog.domain.health.AiExecutionStatus
-import com.driezy.medlog.ui.components.AiInteractionStatusPill
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-
 @Composable
-internal fun BmiCard(
-    bmi: Double?,
-    bmiClassRes: Int?,
-    userHeightCm: Float,
-    onUpdateHeight: (Float) -> Unit,
-) {
+internal fun BmiCard(bmi: Double?, bmiClassRes: Int?, userHeightCm: Float, onUpdateHeight: (Float) -> Unit) {
     var showHeightDialog by remember { mutableStateOf(false) }
 
     Card(
@@ -82,7 +52,13 @@ internal fun BmiCard(
                 Spacer(Modifier.weight(1f))
                 TextButton(onClick = { showHeightDialog = true }) {
                     Text(
-                        if (userHeightCm > 0f) "${userHeightCm.toInt()} cm" else stringResource(R.string.health_height_label),
+                        if (userHeightCm >
+                            0f
+                        ) {
+                            "${userHeightCm.toInt()} cm"
+                        } else {
+                            stringResource(R.string.health_height_label)
+                        },
                         style = MaterialTheme.typography.labelMedium,
                     )
                 }
@@ -145,10 +121,7 @@ internal fun BmiCard(
 // ─── 趋势折线图 ──────────────────────────────────────────────────────────────
 
 @Composable
-internal fun HealthTrendChart(
-    type: HealthType,
-    points: List<HealthRecord>,
-) {
+internal fun HealthTrendChart(type: HealthType, points: List<HealthRecord>) {
     val lineColor = MaterialTheme.colorScheme.primary
     val secondaryLineColor = MaterialTheme.colorScheme.tertiary
     val normalBandColor = MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.35f)
@@ -215,8 +188,20 @@ internal fun HealthTrendChart(
 
                     // 正常范围虚线边界
                     val dashEffect = PathEffect.dashPathEffect(floatArrayOf(8f, 6f))
-                    drawLine(gridColor, Offset(leftPadding, normalTop), Offset(leftPadding + chartWidth, normalTop), strokeWidth = 1.dp.toPx(), pathEffect = dashEffect)
-                    drawLine(gridColor, Offset(leftPadding, normalBottom), Offset(leftPadding + chartWidth, normalBottom), strokeWidth = 1.dp.toPx(), pathEffect = dashEffect)
+                    drawLine(
+                        gridColor,
+                        Offset(leftPadding, normalTop),
+                        Offset(leftPadding + chartWidth, normalTop),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = dashEffect,
+                    )
+                    drawLine(
+                        gridColor,
+                        Offset(leftPadding, normalBottom),
+                        Offset(leftPadding + chartWidth, normalBottom),
+                        strokeWidth = 1.dp.toPx(),
+                        pathEffect = dashEffect,
+                    )
                 }
 
                 // Y 轴标签
@@ -229,10 +214,24 @@ internal fun HealthTrendChart(
                     val v = rangeMin + valueRange * i / 4.0
                     val y = yOf(v)
                     drawContext.canvas.nativeCanvas.drawText(
-                        if (type == HealthType.TEMPERATURE || type == HealthType.BLOOD_GLUCOSE || type == HealthType.BODY_FAT) "%.1f".format(v) else "${v.toInt()}",
-                        leftPadding - 6.dp.toPx(), y + 4.dp.toPx(), textPaint
+                        if (type == HealthType.TEMPERATURE ||
+                            type == HealthType.BLOOD_GLUCOSE ||
+                            type == HealthType.BODY_FAT
+                        ) {
+                            "%.1f".format(v)
+                        } else {
+                            "${v.toInt()}"
+                        },
+                        leftPadding - 6.dp.toPx(),
+                        y + 4.dp.toPx(),
+                        textPaint,
                     )
-                    drawLine(gridColor.copy(alpha = 0.3f), Offset(leftPadding, y), Offset(leftPadding + chartWidth, y), strokeWidth = 0.5.dp.toPx())
+                    drawLine(
+                        gridColor.copy(alpha = 0.3f),
+                        Offset(leftPadding, y),
+                        Offset(leftPadding + chartWidth, y),
+                        strokeWidth = 0.5.dp.toPx(),
+                    )
                 }
 
                 // X 轴日期标签
@@ -247,7 +246,9 @@ internal fun HealthTrendChart(
                     val x = xOf(sorted[idx].timestamp)
                     drawContext.canvas.nativeCanvas.drawText(
                         dateFormat.format(Date(sorted[idx].timestamp)),
-                        x, size.height - 4.dp.toPx(), xTextPaint
+                        x,
+                        size.height - 4.dp.toPx(),
+                        xTextPaint,
                     )
                 }
 
@@ -277,7 +278,11 @@ internal fun HealthTrendChart(
                     drawPath(secPath, secondaryLineColor, style = Stroke(width = 2.dp.toPx()))
                     sorted.forEach { rec ->
                         rec.secondaryValue?.let {
-                            drawCircle(secondaryLineColor, radius = 3.dp.toPx(), center = Offset(xOf(rec.timestamp), yOf(it)))
+                            drawCircle(
+                                secondaryLineColor,
+                                radius = 3.dp.toPx(),
+                                center = Offset(xOf(rec.timestamp), yOf(it)),
+                            )
                         }
                     }
                 }

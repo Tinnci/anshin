@@ -1,8 +1,8 @@
 package com.driezy.medlog.ai
 
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import java.io.File
 
 class CloudAiEndpointPresetCodecTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -45,10 +45,12 @@ class CloudAiEndpointPresetCodecTest {
 
         mapOf(
             "anthropic" to ExpectedPreset("https://api.anthropic.com", CloudAiEndpointProtocol.ANTHROPIC),
-            "github-copilot" to ExpectedPreset("https://api.githubcopilot.com", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "github-copilot" to
+                ExpectedPreset("https://api.githubcopilot.com", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "groq" to ExpectedPreset("https://api.groq.com/openai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "lmstudio" to ExpectedPreset("http://127.0.0.1:1234/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
-            "nvidia-nim" to ExpectedPreset("https://integrate.api.nvidia.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "nvidia-nim" to
+                ExpectedPreset("https://integrate.api.nvidia.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "ollama-local" to ExpectedPreset("http://127.0.0.1:11434/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "opencode" to ExpectedPreset("https://opencode.ai/zen/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "opencode-go" to ExpectedPreset("https://opencode.ai/zen/go/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
@@ -61,8 +63,5 @@ class CloudAiEndpointPresetCodecTest {
         }
     }
 
-    private data class ExpectedPreset(
-        val api: String,
-        val protocol: CloudAiEndpointProtocol,
-    )
+    private data class ExpectedPreset(val api: String, val protocol: CloudAiEndpointProtocol)
 }

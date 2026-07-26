@@ -16,13 +16,12 @@ object DoubaoAsrProtocol {
     private const val SERVICE_NAME = "ASR"
     private val json = Json { encodeDefaults = true }
 
-    fun buildStartTask(requestId: String, token: String): ByteArray =
-        ProtoWriter().apply {
-            writeString(2, token)
-            writeString(3, SERVICE_NAME)
-            writeString(5, "StartTask")
-            writeString(8, requestId)
-        }.toByteArray()
+    fun buildStartTask(requestId: String, token: String): ByteArray = ProtoWriter().apply {
+        writeString(2, token)
+        writeString(3, SERVICE_NAME)
+        writeString(5, "StartTask")
+        writeString(8, requestId)
+    }.toByteArray()
 
     fun buildStartSession(requestId: String, token: String, deviceId: String): ByteArray {
         val payload = json.encodeToString(DoubaoSessionConfig.serializer(), DoubaoSessionConfig(deviceId = deviceId))
@@ -35,23 +34,21 @@ object DoubaoAsrProtocol {
         }.toByteArray()
     }
 
-    fun buildTaskRequest(requestId: String, packet: DoubaoAudioPacket): ByteArray =
-        ProtoWriter().apply {
-            writeString(3, SERVICE_NAME)
-            writeString(5, "TaskRequest")
-            writeString(6, "{\"extra\":{},\"timestamp_ms\":${packet.timestampMs}}")
-            writeBytes(7, packet.data)
-            writeString(8, requestId)
-            writeInt32(9, packet.frameState.protoValue)
-        }.toByteArray()
+    fun buildTaskRequest(requestId: String, packet: DoubaoAudioPacket): ByteArray = ProtoWriter().apply {
+        writeString(3, SERVICE_NAME)
+        writeString(5, "TaskRequest")
+        writeString(6, "{\"extra\":{},\"timestamp_ms\":${packet.timestampMs}}")
+        writeBytes(7, packet.data)
+        writeString(8, requestId)
+        writeInt32(9, packet.frameState.protoValue)
+    }.toByteArray()
 
-    fun buildFinishSession(requestId: String, token: String): ByteArray =
-        ProtoWriter().apply {
-            writeString(2, token)
-            writeString(3, SERVICE_NAME)
-            writeString(5, "FinishSession")
-            writeString(8, requestId)
-        }.toByteArray()
+    fun buildFinishSession(requestId: String, token: String): ByteArray = ProtoWriter().apply {
+        writeString(2, token)
+        writeString(3, SERVICE_NAME)
+        writeString(5, "FinishSession")
+        writeString(8, requestId)
+    }.toByteArray()
 
     fun parseResponse(bytes: ByteArray): DoubaoAsrResponse {
         val fields = ProtoReader(bytes).readFields()
@@ -130,11 +127,7 @@ object DoubaoAsrProtocol {
         )
     }
 
-    private fun diagnosticMessage(
-        messageType: String,
-        statusMessage: String,
-        resultJson: String,
-    ): String = buildList {
+    private fun diagnosticMessage(messageType: String, statusMessage: String, resultJson: String): String = buildList {
         add("messageType=${messageType.ifBlank { "unknown" }}")
         statusMessage.takeIf { it.isNotBlank() }?.let { add("status=$it") }
         resultJson.takeIf { it.isNotBlank() }?.let { add("result=$it") }

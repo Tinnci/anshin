@@ -22,8 +22,8 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.ExtendedFloatingActionButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -45,10 +45,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.driezy.medlog.R
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -73,15 +75,9 @@ data class TopBarAction(
     val onClick: () -> Unit = {},
 )
 
-data class TopBarActionPlacement(
-    val visible: List<TopBarAction>,
-    val overflow: List<TopBarAction>,
-)
+data class TopBarActionPlacement(val visible: List<TopBarAction>, val overflow: List<TopBarAction>)
 
-fun placeTopBarActions(
-    actions: List<TopBarAction>,
-    widthClass: MainScreenWidthClass,
-): TopBarActionPlacement {
+fun placeTopBarActions(actions: List<TopBarAction>, widthClass: MainScreenWidthClass): TopBarActionPlacement {
     val visible = actions.filter { action ->
         action.priority == TopBarActionPriority.Primary ||
             (widthClass == MainScreenWidthClass.Expanded && action.priority == TopBarActionPriority.Secondary)
@@ -153,15 +149,9 @@ sealed interface ScreenOverlay {
         val content: @Composable () -> Unit,
     ) : ScreenOverlay
 
-    data class BottomSheet(
-        override val id: String,
-        val content: @Composable () -> Unit,
-    ) : ScreenOverlay
+    data class BottomSheet(override val id: String, val content: @Composable () -> Unit) : ScreenOverlay
 
-    data class Custom(
-        override val id: String,
-        val content: @Composable () -> Unit,
-    ) : ScreenOverlay
+    data class Custom(override val id: String, val content: @Composable () -> Unit) : ScreenOverlay
 }
 
 data class AdaptiveItemCollectionSpec<T>(
@@ -258,10 +248,7 @@ fun MedLogScreenScaffold(
 }
 
 @Composable
-fun PriorityTopBarActions(
-    actions: List<TopBarAction>,
-    modifier: Modifier = Modifier,
-) {
+fun PriorityTopBarActions(actions: List<TopBarAction>, modifier: Modifier = Modifier) {
     BoxWithConstraints(modifier = modifier) {
         val widthClass = if (maxWidth < 600.dp) MainScreenWidthClass.Compact else MainScreenWidthClass.Expanded
         val placement = placeTopBarActions(actions, widthClass)
@@ -278,7 +265,10 @@ fun PriorityTopBarActions(
                 var expanded by remember { mutableStateOf(false) }
                 Box {
                     IconButton(onClick = { expanded = true }) {
-                        MedLogIcon(MedLogIcons.MoreVert, contentDescription = null)
+                        MedLogIcon(
+                            MedLogIcons.MoreVert,
+                            contentDescription = stringResource(R.string.common_more_actions),
+                        )
                     }
                     DropdownMenu(
                         expanded = expanded,
@@ -323,10 +313,7 @@ fun PriorityTopBarActions(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ScreenOverlayHost(
-    overlay: ScreenOverlay?,
-    onDismiss: () -> Unit,
-) {
+fun ScreenOverlayHost(overlay: ScreenOverlay?, onDismiss: () -> Unit) {
     when (overlay) {
         null -> Unit
         is ScreenOverlay.Confirm -> {
@@ -454,10 +441,7 @@ fun <T> AdaptiveItemCollection(
 }
 
 @Composable
-private fun ScreenEmptyStateContent(
-    state: ScreenEmptyState,
-    modifier: Modifier = Modifier,
-) {
+private fun ScreenEmptyStateContent(state: ScreenEmptyState, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.padding(horizontal = MedLogSpacing.Large),
         contentAlignment = Alignment.Center,

@@ -3,19 +3,19 @@ package com.driezy.medlog.data.model
 // ─── 严重程度 ─────────────────────────────────────────────────────────────────
 
 enum class InteractionSeverity {
-    HIGH,       // 禁止/重大风险 → 红色
-    MODERATE,   // 需监测 → 橙色
-    LOW,        // 注意 → 黄色
+    HIGH, // 禁止/重大风险 → 红色
+    MODERATE, // 需监测 → 橙色
+    LOW, // 注意 → 黄色
 }
 
 // ─── 单条相互作用检测结果 ─────────────────────────────────────────────────────
 
 data class DrugInteraction(
-    val drugA: String,          // 药品 A 名称
-    val drugB: String,          // 药品 B 名称
+    val drugA: String, // 药品 A 名称
+    val drugB: String, // 药品 B 名称
     val severity: InteractionSeverity,
-    val description: String,    // 中文说明
-    val advice: String,         // 建议措施
+    val description: String, // 中文说明
+    val advice: String, // 建议措施
 )
 
 // ─── 匹配规则：通过路径关键词 或 药名关键词匹配一类药 ────────────────────────

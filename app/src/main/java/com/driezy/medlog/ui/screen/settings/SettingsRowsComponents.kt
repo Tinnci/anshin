@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.settings
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -11,8 +8,8 @@ import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,14 +18,16 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.displayName
 
 // ── 通用设置卡片组（24dp 扁平卡片，含组标题）────────────────────────────────
-
 
 @Composable
 internal fun SettingsSwitchRow(
@@ -43,20 +42,38 @@ internal fun SettingsSwitchRow(
         headlineContent = {
             Text(
                 text = title,
-                color = if (enabled) MaterialTheme.colorScheme.onSurface else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                color = if (enabled) {
+                    MaterialTheme.colorScheme.onSurface
+                } else {
+                    MaterialTheme.colorScheme.onSurface.copy(
+                        alpha = 0.38f,
+                    )
+                },
             )
         },
         supportingContent = {
             Text(
                 text = subtitle,
-                color = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                color = if (enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f,
+                    )
+                },
             )
         },
         leadingContent = {
             MedLogIcon(
                 icon,
                 null,
-                tint = if (enabled) MaterialTheme.colorScheme.onSurfaceVariant else MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f),
+                tint = if (enabled) {
+                    MaterialTheme.colorScheme.onSurfaceVariant
+                } else {
+                    MaterialTheme.colorScheme.onSurfaceVariant.copy(
+                        alpha = 0.38f,
+                    )
+                },
             )
         },
         trailingContent = {
@@ -67,15 +84,27 @@ internal fun SettingsSwitchRow(
 }
 
 @Composable
-internal fun SettingsNavigationRow(
-    title: String,
-    subtitle: String,
-    icon: Int,
-    onClick: () -> Unit,
-) {
+internal fun SettingsNavigationRow(title: String, subtitle: String, icon: Int, onClick: () -> Unit) {
+    val layoutProfile = rememberSettingsLayoutProfile()
     ListItem(
-        headlineContent = { Text(title) },
-        supportingContent = { Text(subtitle) },
+        headlineContent = {
+            Text(
+                text = title,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+            )
+        },
+        supportingContent = if (layoutProfile.showSupportingText) {
+            {
+                Text(
+                    text = subtitle,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+            }
+        } else {
+            null
+        },
         leadingContent = {
             Surface(
                 shape = RoundedCornerShape(14.dp),
@@ -100,7 +129,7 @@ internal fun SettingsNavigationRow(
         },
         modifier = Modifier
             .fillMaxWidth()
-            .heightIn(min = 72.dp)
+            .heightIn(min = if (layoutProfile.constrained) 56.dp else 68.dp)
             .clickable(
                 role = Role.Button,
                 onClick = onClick,
@@ -164,8 +193,16 @@ internal fun DataActionRow(
             .fillMaxWidth()
             .padding(horizontal = MedLogSpacing.Large),
         shape = RoundedCornerShape(18.dp),
-        color = if (destructive) MaterialTheme.colorScheme.errorContainer else MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = if (destructive) MaterialTheme.colorScheme.onErrorContainer else MaterialTheme.colorScheme.onSurface,
+        color = if (destructive) {
+            MaterialTheme.colorScheme.errorContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        },
+        contentColor = if (destructive) {
+            MaterialTheme.colorScheme.onErrorContainer
+        } else {
+            MaterialTheme.colorScheme.onSurface
+        },
     ) {
         Row(
             modifier = Modifier.padding(MedLogSpacing.Medium),
@@ -181,10 +218,11 @@ internal fun DataActionRow(
                 Text(
                     subtitle,
                     style = MaterialTheme.typography.bodySmall,
-                    color = if (destructive)
+                    color = if (destructive) {
                         MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.82f)
-                    else
-                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                 )
             }
             if (loading) {
@@ -210,87 +248,11 @@ internal fun DataActionRow(
     }
 }
 
-// ── 作息时间行（点击展开内联 TimeInput，无模态对话框）────────────────────────
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
-@Composable
-internal fun RoutineTimeRow(
-    label: String,
-    hour: Int,
-    minute: Int,
-    icon: Int,
-    onTimeSelected: (Int, Int) -> Unit,
-) {
-    val motionScheme = MaterialTheme.motionScheme
-    var expanded by remember { mutableStateOf(false) }
-    // 状态始终保持，不随 expanded 重置
-    val timeState = rememberTimePickerState(
-        initialHour = hour,
-        initialMinute = minute,
-        is24Hour = true,
-    )
-
-    Column {
-        ListItem(
-            headlineContent = { Text(label) },
-            supportingContent = {
-                Text(
-                    "%02d:%02d".format(hour, minute),
-                    color = if (expanded) MaterialTheme.colorScheme.primary
-                            else MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-            leadingContent = {
-                MedLogIcon(icon, null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            },
-            trailingContent = {
-                MedLogIcon(
-                    icon = if (expanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            },
-            modifier = Modifier.clickable { expanded = !expanded },
-            colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        )
-        AnimatedVisibility(
-            visible = expanded,
-            enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
-            exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = MedLogSpacing.Large)
-                    .padding(bottom = MedLogSpacing.Medium),
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                TimeInput(state = timeState)
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.End,
-                ) {
-                    TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
-                    Spacer(Modifier.width(MedLogSpacing.Small))
-                    FilledTonalButton(onClick = {
-                        onTimeSelected(timeState.hour, timeState.minute)
-                        expanded = false
-                    }) { Text(stringResource(R.string.confirm)) }
-                }
-            }
-        }
-    }
-}
-
 // ── 已归档药品可展开列表（替代 ModalBottomSheet）────────────────────────────
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun ArchivedMedicationsRow(
-    archived: List<Medication>,
-    onRestore: (Long) -> Unit,
-) {
+internal fun ArchivedMedicationsRow(archived: List<Medication>, onRestore: (Long) -> Unit) {
     val motionScheme = MaterialTheme.motionScheme
     var expanded by remember { mutableStateOf(false) }
     Column {
@@ -298,8 +260,11 @@ internal fun ArchivedMedicationsRow(
             headlineContent = { Text(stringResource(R.string.archived_medications)) },
             supportingContent = {
                 Text(
-                    if (archived.isEmpty()) stringResource(R.string.settings_archived_empty)
-                    else pluralStringResource(R.plurals.settings_archived_count, archived.size, archived.size),
+                    if (archived.isEmpty()) {
+                        stringResource(R.string.settings_archived_empty)
+                    } else {
+                        pluralStringResource(R.plurals.settings_archived_count, archived.size, archived.size)
+                    },
                 )
             },
             leadingContent = {
@@ -341,10 +306,11 @@ internal fun ArchivedMedicationsRow(
                             MedLogIcon(
                                 if (med.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
                                 null,
-                                tint = if (med.isTcm)
+                                tint = if (med.isTcm) {
                                     MaterialTheme.colorScheme.tertiary.copy(alpha = 0.6f)
-                                else
-                                    MaterialTheme.colorScheme.outlineVariant,
+                                } else {
+                                    MaterialTheme.colorScheme.outlineVariant
+                                },
                                 modifier = Modifier.size(18.dp),
                             )
                         },

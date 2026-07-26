@@ -8,10 +8,7 @@ interface AiApiKeyAvailability {
     fun hasApiKey(provider: CloudAiProvider): Boolean
 }
 
-data class AiCloudModelIdentity(
-    val provider: String,
-    val model: String,
-)
+data class AiCloudModelIdentity(val provider: String, val model: String)
 
 data class AiFeatureAvailability(
     val isAvailable: Boolean,
@@ -28,10 +25,7 @@ enum class AiFeatureUnavailableReason {
 }
 
 object AiCloudConfigResolver {
-    fun resolveImageAnalysis(
-        settings: SettingsPreferences,
-        keys: AiApiKeyAvailability,
-    ): AiFeatureAvailability =
+    fun resolveImageAnalysis(settings: SettingsPreferences, keys: AiApiKeyAvailability): AiFeatureAvailability =
         resolve(
             settings = settings,
             featureEnabled = settings.cloudAiImageAnalysisEnabled,
@@ -39,10 +33,7 @@ object AiCloudConfigResolver {
             keys = keys,
         )
 
-    fun resolveHealthInsights(
-        settings: SettingsPreferences,
-        keys: AiApiKeyAvailability,
-    ): AiFeatureAvailability =
+    fun resolveHealthInsights(settings: SettingsPreferences, keys: AiApiKeyAvailability): AiFeatureAvailability =
         resolve(
             settings = settings,
             featureEnabled = settings.cloudAiHealthInsightsEnabled,
@@ -87,12 +78,11 @@ object AiCloudConfigResolver {
                 )
         }
 
-    fun mimoBaseUrlFor(apiKey: String): String =
-        if (apiKey.trim().startsWith("tp-")) {
-            "https://token-plan-sgp.xiaomimimo.com/v1"
-        } else {
-            "https://api.xiaomimimo.com/v1"
-        }
+    fun mimoBaseUrlFor(apiKey: String): String = if (apiKey.trim().startsWith("tp-")) {
+        "https://token-plan-sgp.xiaomimimo.com/v1"
+    } else {
+        "https://api.xiaomimimo.com/v1"
+    }
 
     private fun resolve(
         settings: SettingsPreferences,

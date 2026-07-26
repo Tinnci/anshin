@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui.theme
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class SystemBarStyleGuardTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -20,7 +20,10 @@ class SystemBarStyleGuardTest {
             "WidgetSettingsActivity" to widgetSettings,
         ).forEach { (name, text) ->
             assertTrue("$name should reapply system bars from Compose theme state.", text.contains("SideEffect {"))
-            assertTrue("$name should pass resolved darkTheme to system bars.", text.contains("applyMedLogSystemBars(darkTheme)"))
+            assertTrue(
+                "$name should pass resolved darkTheme to system bars.",
+                text.contains("applyMedLogSystemBars(darkTheme)"),
+            )
         }
     }
 

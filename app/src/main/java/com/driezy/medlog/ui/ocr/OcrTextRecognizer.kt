@@ -183,10 +183,7 @@ private fun buildRecognitionOutput(
     return OcrRecognitionOutput(groups)
 }
 
-private fun MutableList<OcrResultGroup>.addResultGroup(
-    source: OcrResultSource,
-    texts: List<String>,
-) {
+private fun MutableList<OcrResultGroup>.addResultGroup(source: OcrResultSource, texts: List<String>) {
     val seen = mutableSetOf<String>()
     val cleaned = texts
         .map { it.trim() }

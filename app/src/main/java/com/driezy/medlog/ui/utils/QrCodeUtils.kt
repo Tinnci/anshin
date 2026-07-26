@@ -24,9 +24,9 @@ fun generateQrBitmap(
     lightColor: Int = Color.WHITE,
 ): Bitmap? = runCatching {
     val hints = mapOf(
-        EncodeHintType.CHARACTER_SET      to "UTF-8",
-        EncodeHintType.ERROR_CORRECTION   to ErrorCorrectionLevel.M,
-        EncodeHintType.MARGIN             to 2,
+        EncodeHintType.CHARACTER_SET to "UTF-8",
+        EncodeHintType.ERROR_CORRECTION to ErrorCorrectionLevel.M,
+        EncodeHintType.MARGIN to 2,
     )
     val matrix = QRCodeWriter().encode(content, BarcodeFormat.QR_CODE, size, size, hints)
     val bmp = createBitmap(size, size, Bitmap.Config.RGB_565)

@@ -94,9 +94,7 @@ class HealthCloudImageAnalysisUseCase @Inject constructor(
 }
 
 @Singleton
-class AiNetworkStatusProvider @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
+class AiNetworkStatusProvider @Inject constructor(@param:ApplicationContext private val context: Context) {
     fun currentNetworkType(): NetworkType {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? ConnectivityManager
             ?: return NetworkType.OFFLINE_UNKNOWN

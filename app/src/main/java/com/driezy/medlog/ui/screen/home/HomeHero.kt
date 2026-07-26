@@ -12,12 +12,12 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -55,10 +55,7 @@ import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formatDose
 
-private data class HomeHeroRenderTarget(
-    val style: HomeHeroStyle,
-    val presentation: HomeHeroPresentation,
-)
+private data class HomeHeroRenderTarget(val style: HomeHeroStyle, val presentation: HomeHeroPresentation)
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -80,10 +77,14 @@ internal fun HomeHero(
             .animateContentSize(motionScheme.defaultSpatialSpec())
             .testTag("homeHero"),
         transitionSpec = {
-            (fadeIn(motionScheme.defaultEffectsSpec()) +
-                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 10 }) togetherWith
-                (fadeOut(motionScheme.defaultEffectsSpec()) +
-                    slideOutVertically(motionScheme.defaultSpatialSpec()) { -it / 12 })
+            (
+                fadeIn(motionScheme.defaultEffectsSpec()) +
+                    slideInVertically(motionScheme.defaultSpatialSpec()) { it / 10 }
+                ) togetherWith
+                (
+                    fadeOut(motionScheme.defaultEffectsSpec()) +
+                        slideOutVertically(motionScheme.defaultSpatialSpec()) { -it / 12 }
+                    )
         },
         label = "homeHeroState",
     ) { target ->
@@ -275,11 +276,7 @@ private fun ProgressHomeHero(
 }
 
 @Composable
-private fun ProgressDial(
-    presentation: HomeHeroPresentation,
-    progress: Float,
-    modifier: Modifier = Modifier,
-) {
+private fun ProgressDial(presentation: HomeHeroPresentation, progress: Float, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center,
@@ -316,10 +313,7 @@ private fun ProgressDial(
 }
 
 @Composable
-private fun ProgressNextDose(
-    next: MedicationWithStatus,
-    modifier: Modifier = Modifier,
-) {
+private fun ProgressNextDose(next: MedicationWithStatus, modifier: Modifier = Modifier) {
     Surface(
         modifier = modifier
             .fillMaxWidth()
@@ -513,29 +507,29 @@ private fun DoseTimeline(presentation: HomeHeroPresentation) {
         presentation.scheduledItems
             .filterNot { it.displayTime() in HOME_TIMELINE_ANCHORS }
             .forEach { item ->
-            val isNext = item.doseKey == nextKey
-            val fraction = timelineFraction(item.scheduledMinuteOfDay())
-            Surface(
-                modifier = Modifier
-                    .offset(x = markerOffset(markerTrackWidth, fraction))
-                    .size(if (isNext) 14.dp else 12.dp),
-                shape = CircleShape,
-                color = when {
-                    item.isHandled -> MaterialTheme.colorScheme.tertiary
-                    isNext -> MaterialTheme.colorScheme.primary
-                    else -> MaterialTheme.colorScheme.surface
-                },
-                border = if (!item.isHandled && !isNext) {
-                    androidx.compose.foundation.BorderStroke(
-                        2.dp,
-                        MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.56f),
-                    )
-                } else {
-                    null
-                },
-                content = {},
-            )
-        }
+                val isNext = item.doseKey == nextKey
+                val fraction = timelineFraction(item.scheduledMinuteOfDay())
+                Surface(
+                    modifier = Modifier
+                        .offset(x = markerOffset(markerTrackWidth, fraction))
+                        .size(if (isNext) 14.dp else 12.dp),
+                    shape = CircleShape,
+                    color = when {
+                        item.isHandled -> MaterialTheme.colorScheme.tertiary
+                        isNext -> MaterialTheme.colorScheme.primary
+                        else -> MaterialTheme.colorScheme.surface
+                    },
+                    border = if (!item.isHandled && !isNext) {
+                        androidx.compose.foundation.BorderStroke(
+                            2.dp,
+                            MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.56f),
+                        )
+                    } else {
+                        null
+                    },
+                    content = {},
+                )
+            }
     }
 }
 
@@ -543,18 +537,16 @@ private val HOME_TIMELINE_ANCHORS = listOf("08:00", "12:00", "18:00", "22:00")
 private const val HOME_TIMELINE_START_MINUTES = 8 * 60
 private const val HOME_TIMELINE_END_MINUTES = 22 * 60
 
-internal fun timelineFraction(minutes: Int): Float =
-    ((minutes - HOME_TIMELINE_START_MINUTES).toFloat() /
-        (HOME_TIMELINE_END_MINUTES - HOME_TIMELINE_START_MINUTES))
-        .coerceIn(0f, 1f)
+internal fun timelineFraction(minutes: Int): Float = (
+    (minutes - HOME_TIMELINE_START_MINUTES).toFloat() /
+        (HOME_TIMELINE_END_MINUTES - HOME_TIMELINE_START_MINUTES)
+    )
+    .coerceIn(0f, 1f)
 
 private fun markerOffset(trackWidth: Dp, fraction: Float): Dp = trackWidth * fraction
 
 @Composable
-private fun CompletedHomeHero(
-    presentation: HomeHeroPresentation,
-    currentStreak: Int,
-) {
+private fun CompletedHomeHero(presentation: HomeHeroPresentation, currentStreak: Int) {
     val allTaken = presentation.status == HomeHeroStatus.ALL_TAKEN
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroCompleted"),
@@ -589,8 +581,11 @@ private fun CompletedHomeHero(
             ) {
                 Text(
                     text = stringResource(
-                        if (allTaken) R.string.home_hero_completed_title
-                        else R.string.home_hero_exceptions_title,
+                        if (allTaken) {
+                            R.string.home_hero_completed_title
+                        } else {
+                            R.string.home_hero_exceptions_title
+                        },
                     ),
                     style = MaterialTheme.emphasizedTypography.titleLarge,
                     color = MaterialTheme.colorScheme.onTertiaryContainer,

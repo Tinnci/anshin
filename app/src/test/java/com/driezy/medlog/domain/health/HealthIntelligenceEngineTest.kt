@@ -53,7 +53,12 @@ class HealthIntelligenceEngineTest {
         assertEquals(HealthInsightSeverity.URGENT, insights.first().severity)
         assertTrue(insights.first().title.contains("血压"))
         assertTrue(insights.first().body.contains("就医") || insights.first().body.contains("急诊"))
-        assertTrue(insights.any { it.relatedType == HealthType.BLOOD_GLUCOSE && it.severity == HealthInsightSeverity.WARNING })
+        assertTrue(
+            insights.any {
+                it.relatedType == HealthType.BLOOD_GLUCOSE &&
+                    it.severity == HealthInsightSeverity.WARNING
+            },
+        )
         assertTrue(insights.all { "诊断" !in it.body })
     }
 
@@ -181,16 +186,15 @@ class HealthIntelligenceEngineTest {
         notes: String = "",
         source: HealthRecordSource = HealthRecordSource.MANUAL,
         confidence: Float? = null,
-    ): HealthRecord =
-        HealthRecord(
-            type = type.name,
-            value = value,
-            secondaryValue = secondary,
-            timestamp = timestamp,
-            notes = notes,
-            source = source,
-            sourceConfidence = confidence,
-        )
+    ): HealthRecord = HealthRecord(
+        type = type.name,
+        value = value,
+        secondaryValue = secondary,
+        timestamp = timestamp,
+        notes = notes,
+        source = source,
+        sourceConfidence = confidence,
+    )
 
     private fun HealthInsightContext.metric(type: HealthType): HealthMetricInsight? =
         metrics.firstOrNull { it.type == type }

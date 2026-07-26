@@ -48,7 +48,8 @@ enum class ThemePalette(
         imagery = "first dawn light, warm amber, muted earth",
         lightSchemeProvider = { AubeLightColors },
         darkSchemeProvider = { AubeDarkColors },
-    );
+    ),
+    ;
 
     val lightColorScheme: ColorScheme
         get() = lightSchemeProvider()
@@ -56,12 +57,10 @@ enum class ThemePalette(
     val darkColorScheme: ColorScheme
         get() = darkSchemeProvider()
 
-    fun colorScheme(darkTheme: Boolean): ColorScheme =
-        if (darkTheme) darkColorScheme else lightColorScheme
+    fun colorScheme(darkTheme: Boolean): ColorScheme = if (darkTheme) darkColorScheme else lightColorScheme
 
     companion object {
-        fun fromStoredName(name: String?): ThemePalette =
-            entries.firstOrNull { it.name == name } ?: ANSHIN
+        fun fromStoredName(name: String?): ThemePalette = entries.firstOrNull { it.name == name } ?: ANSHIN
     }
 }
 

@@ -40,11 +40,19 @@ class HealthCloudInsightGenerationGateTest {
 
         assertEquals(
             HealthCloudInsightUnavailableReason.CLOUD_AI_DISABLED,
-            HealthCloudInsightGenerationGate.evaluate(base.copy(cloudAiEnabled = false), emptySet(), NetworkType.WIFI).reason,
+            HealthCloudInsightGenerationGate.evaluate(
+                base.copy(cloudAiEnabled = false),
+                emptySet(),
+                NetworkType.WIFI,
+            ).reason,
         )
         assertEquals(
             HealthCloudInsightUnavailableReason.HEALTH_INSIGHTS_DISABLED,
-            HealthCloudInsightGenerationGate.evaluate(base.copy(cloudAiHealthInsightsEnabled = false), emptySet(), NetworkType.WIFI).reason,
+            HealthCloudInsightGenerationGate.evaluate(
+                base.copy(cloudAiHealthInsightsEnabled = false),
+                emptySet(),
+                NetworkType.WIFI,
+            ).reason,
         )
         assertEquals(
             HealthCloudInsightUnavailableReason.API_KEY_MISSING,

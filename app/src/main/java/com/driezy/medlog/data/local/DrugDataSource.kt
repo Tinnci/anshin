@@ -19,10 +19,11 @@ import javax.inject.Singleton
  * 原始数据保留在 scripts/data/，避免进入 APK assets。
  */
 @Singleton
-class DrugDataSource @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
-    private val lenientJson = Json { ignoreUnknownKeys = true; isLenient = true }
+class DrugDataSource @Inject constructor(@param:ApplicationContext private val context: Context) {
+    private val lenientJson = Json {
+        ignoreUnknownKeys = true
+        isLenient = true
+    }
 
     suspend fun loadAllDrugs(): List<Drug> = withContext(Dispatchers.IO) {
         val aliases = parseDrugAliases("json/drug_aliases_clean.json")
@@ -45,8 +46,8 @@ class DrugDataSource @Inject constructor(
         root.entries.forEach { (name, value) ->
             val paths: List<String> = when (value) {
                 is JsonPrimitive -> listOf(value.content)
-                is JsonArray     -> value.map { it.jsonPrimitive.content }
-                else             -> emptyList()
+                is JsonArray -> value.map { it.jsonPrimitive.content }
+                else -> emptyList()
             }
             if (paths.isEmpty()) return@forEach
 
@@ -54,7 +55,8 @@ class DrugDataSource @Inject constructor(
             val parts = bestPath.split(" > ")
             val category = parts.firstOrNull() ?: bestPath
 
-            val isCompound = name.contains('/') || name.startsWith("复方") ||
+            val isCompound = name.contains('/') ||
+                name.startsWith("复方") ||
                 paths.any { it.contains("复方") && !it.contains("复方除外") }
 
             result += Drug(
@@ -77,7 +79,7 @@ class DrugDataSource @Inject constructor(
         val text = context.assets.open(assetPath).bufferedReader().use { it.readText() }
         DrugAliasAssetParser.parseAliases(text, lenientJson)
     } catch (e: Exception) {
-            emptyMap()
+        emptyMap()
     }
 
     private fun parseDrugInitials(assetPath: String): Map<String, String> = try {

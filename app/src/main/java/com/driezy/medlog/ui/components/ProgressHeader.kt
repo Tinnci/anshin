@@ -13,11 +13,7 @@ import com.driezy.medlog.R
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @Composable
-fun ProgressHeader(
-    taken: Int,
-    total: Int,
-    modifier: Modifier = Modifier,
-) {
+fun ProgressHeader(taken: Int, total: Int, modifier: Modifier = Modifier) {
     val progress = if (total == 0) 0f else taken.toFloat() / total.toFloat()
 
     Card(
@@ -38,7 +34,13 @@ fun ProgressHeader(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = if (total == 0) stringResource(R.string.common_no_plan_today) else stringResource(R.string.progress_header_title),
+                    text = if (total ==
+                        0
+                    ) {
+                        stringResource(R.string.common_no_plan_today)
+                    } else {
+                        stringResource(R.string.progress_header_title)
+                    },
                     style = MaterialTheme.typography.titleMedium,
                     color = MaterialTheme.colorScheme.onPrimaryContainer,
                 )
@@ -58,7 +60,17 @@ fun ProgressHeader(
                     trackColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.2f),
                 )
                 Text(
-                    text = if (taken == total) stringResource(R.string.progress_header_all_done) else pluralStringResource(R.plurals.progress_header_remaining, total - taken, total - taken),
+                    text = if (taken ==
+                        total
+                    ) {
+                        stringResource(R.string.progress_header_all_done)
+                    } else {
+                        pluralStringResource(
+                            R.plurals.progress_header_remaining,
+                            total - taken,
+                            total - taken,
+                        )
+                    },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                 )

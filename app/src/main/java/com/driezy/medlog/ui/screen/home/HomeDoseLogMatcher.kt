@@ -11,10 +11,7 @@ private const val LEGACY_DOSE_LOG_WINDOW_MS = 4 * 3_600_000L
  * New logs use the exact planned timestamp. The nearest-slot fallback keeps logs created by
  * earlier app versions visible without allowing one legacy log to mark two nearby slots handled.
  */
-internal fun matchDoseLogsToSlots(
-    scheduledTimeMs: List<Long>,
-    logs: List<MedicationLog>,
-): List<MedicationLog?> {
+internal fun matchDoseLogsToSlots(scheduledTimeMs: List<Long>, logs: List<MedicationLog>): List<MedicationLog?> {
     if (scheduledTimeMs.isEmpty()) return emptyList()
 
     val matches = MutableList<MedicationLog?>(scheduledTimeMs.size) { null }

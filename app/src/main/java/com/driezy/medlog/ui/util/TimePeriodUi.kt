@@ -1,11 +1,9 @@
 package com.driezy.medlog.ui.util
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.annotation.StringRes
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
+import com.driezy.medlog.ui.icons.MedLogIcons
 
 /** TimePeriod 的展示用图标（Compose Material Icon） */
 val TimePeriod.icon: Int

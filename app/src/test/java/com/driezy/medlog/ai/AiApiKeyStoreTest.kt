@@ -1,7 +1,7 @@
 package com.driezy.medlog.ai
 
-import com.driezy.medlog.data.repository.CloudAiProvider
 import app.cash.turbine.test
+import com.driezy.medlog.data.repository.CloudAiProvider
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse

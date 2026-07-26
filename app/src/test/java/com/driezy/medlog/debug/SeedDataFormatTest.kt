@@ -3,13 +3,13 @@ package com.driezy.medlog.debug
 import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.TimePeriod
-import java.time.Clock
-import java.time.Instant
-import java.time.ZoneId
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.time.Clock
+import java.time.Instant
+import java.time.ZoneId
 
 class SeedDataFormatTest {
 

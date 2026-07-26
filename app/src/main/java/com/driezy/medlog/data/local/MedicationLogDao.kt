@@ -12,7 +12,7 @@ interface MedicationLogDao {
         SELECT * FROM medication_logs
         WHERE scheduledTimeMs BETWEEN :startMs AND :endMs
         ORDER BY scheduledTimeMs ASC
-        """
+        """,
     )
     fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<MedicationLog>>
 
@@ -22,7 +22,7 @@ interface MedicationLogDao {
         WHERE medicationId = :medicationId
         ORDER BY scheduledTimeMs DESC
         LIMIT :limit
-        """
+        """,
     )
     fun getLogsForMedication(medicationId: Long, limit: Int = 60): Flow<List<MedicationLog>>
 
@@ -31,13 +31,9 @@ interface MedicationLogDao {
         SELECT * FROM medication_logs
         WHERE medicationId = :medicationId
           AND scheduledTimeMs BETWEEN :startMs AND :endMs
-        """
+        """,
     )
-    suspend fun getLogForMedicationAndDate(
-        medicationId: Long,
-        startMs: Long,
-        endMs: Long,
-    ): MedicationLog?
+    suspend fun getLogForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long): MedicationLog?
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertLog(log: MedicationLog): Long
@@ -48,13 +44,17 @@ interface MedicationLogDao {
     @Delete
     suspend fun deleteLog(log: MedicationLog)
 
-    @Query("DELETE FROM medication_logs WHERE medicationId = :medicationId AND scheduledTimeMs BETWEEN :startMs AND :endMs")
+    @Query(
+        "DELETE FROM medication_logs WHERE medicationId = :medicationId AND scheduledTimeMs BETWEEN :startMs AND :endMs",
+    )
     suspend fun deleteLogsForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long)
 
     @Query("DELETE FROM medication_logs WHERE medicationId = :medicationId AND scheduledTimeMs = :scheduledTimeMs")
     suspend fun deleteLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long)
 
-    @Query("SELECT COUNT(*) FROM medication_logs WHERE status = 'TAKEN' AND scheduledTimeMs BETWEEN :startMs AND :endMs")
+    @Query(
+        "SELECT COUNT(*) FROM medication_logs WHERE status = 'TAKEN' AND scheduledTimeMs BETWEEN :startMs AND :endMs",
+    )
     fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int>
 
     /** Widget 专用：一次性查询某天开始后的所有日志 */

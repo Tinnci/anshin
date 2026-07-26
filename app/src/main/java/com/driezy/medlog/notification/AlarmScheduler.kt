@@ -17,8 +17,10 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 private const val MAX_REMINDER_SLOTS = 20
+
 /** PendingIntent requestCode 偏移：提前预告闹钟用，避免与正式提醒冲突 */
 const val EARLY_REMINDER_CODE_OFFSET = 50_000
+
 /** PendingIntent requestCode 偏移：漏服再提醒闹钟 */
 const val FOLLOW_UP_CODE_OFFSET = 100_000
 
@@ -50,8 +52,11 @@ class AlarmScheduler @Inject constructor(
         scope.launch {
             prefsRepository.settingsFlow.collect { prefs ->
                 homeTimeZone = if (prefs.travelMode && prefs.homeTimeZoneId.isNotBlank()) {
-                    try { TimeZone.getTimeZone(prefs.homeTimeZoneId) }
-                    catch (_: Exception) { TimeZone.getDefault() }
+                    try {
+                        TimeZone.getTimeZone(prefs.homeTimeZoneId)
+                    } catch (_: Exception) {
+                        TimeZone.getDefault()
+                    }
                 } else {
                     TimeZone.getDefault()
                 }
@@ -70,10 +75,10 @@ class AlarmScheduler @Inject constructor(
      *   triggerMs = [lastTakenMs] ?: now + intervalHours * 3 600 000
      */
     fun scheduleAllReminders(medication: Medication, lastTakenMs: Long? = null) {
-        if (medication.isPRN) return  // 按需服用不设置闹钟
+        if (medication.isPRN) return // 按需服用不设置闹钟
         if (medication.intervalHours > 0) {
             val triggerMs = (lastTakenMs ?: System.currentTimeMillis()) +
-                    medication.intervalHours * 3_600_000L
+                medication.intervalHours * 3_600_000L
             scheduleAlarmSlot(medication, 0, triggerMs)
             scheduleEarlyReminderIfNeeded(medication, 0, triggerMs)
             return
@@ -81,11 +86,11 @@ class AlarmScheduler @Inject constructor(
         val times = medication.reminderTimes.split(",").map { it.trim() }
         times.forEachIndexed { index, timeStr ->
             val triggerMs = computeNextTrigger(
-                timeStr          = timeStr,
-                frequencyType    = medication.frequencyType,
+                timeStr = timeStr,
+                frequencyType = medication.frequencyType,
                 frequencyInterval = medication.frequencyInterval,
-                frequencyDays    = medication.frequencyDays,
-                endDateMs        = medication.endDate,
+                frequencyDays = medication.frequencyDays,
+                endDateMs = medication.endDate,
             ) ?: return@forEachIndexed
             scheduleAlarmSlot(medication, index, triggerMs)
             scheduleEarlyReminderIfNeeded(medication, index, triggerMs)
@@ -103,8 +108,8 @@ class AlarmScheduler @Inject constructor(
             context,
             requestCode,
             Intent(context, MedLogAlarmReceiver::class.java).apply {
-                putExtra(EXTRA_MED_ID,    medication.id)
-                putExtra(EXTRA_MED_NAME,  medication.name)
+                putExtra(EXTRA_MED_ID, medication.id)
+                putExtra(EXTRA_MED_NAME, medication.name)
                 putExtra(EXTRA_TIME_INDEX, timeIndex)
                 putExtra(EXTRA_SCHEDULED_MS, triggerAtMs)
             },
@@ -288,14 +293,14 @@ class AlarmScheduler @Inject constructor(
             context,
             requestCode,
             Intent(context, MedLogAlarmReceiver::class.java).apply {
-                putExtra(EXTRA_MED_ID,             medication.id)
-                putExtra(EXTRA_MED_NAME,            medication.name)
-                putExtra(EXTRA_TIME_INDEX,          timeIndex)
-                putExtra(EXTRA_IS_FOLLOW_UP,        true)
-                putExtra(EXTRA_FOLLOW_UP_COUNT,     followUpCount)
+                putExtra(EXTRA_MED_ID, medication.id)
+                putExtra(EXTRA_MED_NAME, medication.name)
+                putExtra(EXTRA_TIME_INDEX, timeIndex)
+                putExtra(EXTRA_IS_FOLLOW_UP, true)
+                putExtra(EXTRA_FOLLOW_UP_COUNT, followUpCount)
                 putExtra(EXTRA_FOLLOW_UP_MAX_COUNT, followUpMaxCount)
-                putExtra(EXTRA_FOLLOW_UP_DELAY_MS,  delayMs)
-                putExtra(EXTRA_SCHEDULED_MS,        scheduledMs)
+                putExtra(EXTRA_FOLLOW_UP_DELAY_MS, delayMs)
+                putExtra(EXTRA_SCHEDULED_MS, scheduledMs)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
         )
@@ -335,16 +340,16 @@ class AlarmScheduler @Inject constructor(
         val mins = earlyReminderMinutes
         if (mins <= 0) return
         val earlyTriggerMs = mainTriggerMs - mins * 60_000L
-        if (earlyTriggerMs <= System.currentTimeMillis() + 60_000L) return  // 时机已过
+        if (earlyTriggerMs <= System.currentTimeMillis() + 60_000L) return // 时机已过
         val requestCode = (medication.id * 100 + timeIndex).toInt() + EARLY_REMINDER_CODE_OFFSET
         val intent = PendingIntent.getBroadcast(
             context,
             requestCode,
             Intent(context, MedLogAlarmReceiver::class.java).apply {
-                putExtra(EXTRA_MED_ID,    medication.id)
-                putExtra(EXTRA_MED_NAME,  medication.name)
+                putExtra(EXTRA_MED_ID, medication.id)
+                putExtra(EXTRA_MED_NAME, medication.name)
                 putExtra(EXTRA_TIME_INDEX, timeIndex)
-                putExtra(EXTRA_IS_EARLY,  true)
+                putExtra(EXTRA_IS_EARLY, true)
                 putExtra("early_minutes", mins)
             },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
@@ -362,7 +367,6 @@ class AlarmScheduler @Inject constructor(
             alarmManager.setAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerAtMs, intent)
         }
     }
-
 }
 
 // ─── 纯函数（可独立单元测试） ──────────────────────────────────────────────
@@ -394,8 +398,8 @@ fun computeNextTriggerPure(
     val cal = Calendar.getInstance(tz).apply {
         timeInMillis = nowMs
         set(Calendar.HOUR_OF_DAY, hour)
-        set(Calendar.MINUTE,      minute)
-        set(Calendar.SECOND,      0)
+        set(Calendar.MINUTE, minute)
+        set(Calendar.SECOND, 0)
         set(Calendar.MILLISECOND, 0)
     }
     if (cal.timeInMillis <= nowMs) cal.add(Calendar.DAY_OF_YEAR, 1)
@@ -424,7 +428,7 @@ fun computeNextTriggerPure(
             if (frequencyInterval > 1) cal.add(Calendar.DAY_OF_YEAR, frequencyInterval - 1)
             cal.timeInMillis
         }
-        else -> cal.timeInMillis  // "daily"
+        else -> cal.timeInMillis // "daily"
     }
 
     if (endDateMs != null && triggerMs > endDateMs) return null

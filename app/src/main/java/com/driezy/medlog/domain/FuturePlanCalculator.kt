@@ -105,32 +105,25 @@ class FuturePlanCalculator @Inject constructor() {
     /**
      * 判断 [cal] 所在日期是否符合药品频率要求。
      */
-    private fun matchesFrequency(med: Medication, cal: Calendar): Boolean {
-        return when (med.frequencyType) {
-            "daily" -> true
-            "interval" -> {
-                val startDay = dayIndex(med.startDate, cal.timeZone)
-                val currentDay = dayIndex(cal.timeInMillis, cal.timeZone)
-                val diff = currentDay - startDay
-                diff >= 0 && diff % med.frequencyInterval == 0
-            }
-            "specific_days" -> {
-                val allowedDays = med.frequencyDays.split(",")
-                    .mapNotNull { it.trim().toIntOrNull() }
-                    .map { if (it == 7) Calendar.SUNDAY else it + 1 }
-                cal.get(Calendar.DAY_OF_WEEK) in allowedDays
-            }
-            else -> true
+    private fun matchesFrequency(med: Medication, cal: Calendar): Boolean = when (med.frequencyType) {
+        "daily" -> true
+        "interval" -> {
+            val startDay = dayIndex(med.startDate, cal.timeZone)
+            val currentDay = dayIndex(cal.timeInMillis, cal.timeZone)
+            val diff = currentDay - startDay
+            diff >= 0 && diff % med.frequencyInterval == 0
         }
+        "specific_days" -> {
+            val allowedDays = med.frequencyDays.split(",")
+                .mapNotNull { it.trim().toIntOrNull() }
+                .map { if (it == 7) Calendar.SUNDAY else it + 1 }
+            cal.get(Calendar.DAY_OF_WEEK) in allowedDays
+        }
+        else -> true
     }
 
     /** 展开间隔给药在 [days] 天范围内的条目。 */
-    private fun expandInterval(
-        med: Medication,
-        startOfRange: Long,
-        days: Int,
-        tz: TimeZone,
-    ): List<FuturePlanItem> {
+    private fun expandInterval(med: Medication, startOfRange: Long, days: Int, tz: TimeZone): List<FuturePlanItem> {
         val intervalMs = med.intervalHours * 3_600_000L
         if (intervalMs <= 0) return emptyList()
         val endOfRange = startOfRange + days.toLong() * ONE_DAY_MS
@@ -178,16 +171,14 @@ class FuturePlanCalculator @Inject constructor() {
     }
 
     /** 将毫秒时间戳截断为零点。 */
-    private fun startOfDay(ms: Long, tz: TimeZone): Long =
-        Calendar.getInstance(tz).apply {
-            timeInMillis = ms
-            set(Calendar.HOUR_OF_DAY, 0)
-            set(Calendar.MINUTE, 0)
-            set(Calendar.SECOND, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+    private fun startOfDay(ms: Long, tz: TimeZone): Long = Calendar.getInstance(tz).apply {
+        timeInMillis = ms
+        set(Calendar.HOUR_OF_DAY, 0)
+        set(Calendar.MINUTE, 0)
+        set(Calendar.SECOND, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 
     /** 以天为单位的索引（用于间隔给药天数差计算）。 */
-    private fun dayIndex(ms: Long, tz: TimeZone): Int =
-        (startOfDay(ms, tz) / ONE_DAY_MS).toInt()
+    private fun dayIndex(ms: Long, tz: TimeZone): Int = (startOfDay(ms, tz) / ONE_DAY_MS).toInt()
 }

@@ -16,11 +16,7 @@ import dagger.hilt.android.EntryPointAccessors
  */
 class MarkTakenAction : ActionCallback {
 
-    override suspend fun onAction(
-        context: Context,
-        glanceId: GlanceId,
-        parameters: ActionParameters,
-    ) {
+    override suspend fun onAction(context: Context, glanceId: GlanceId, parameters: ActionParameters) {
         val medId = parameters[medIdKey] ?: return
 
         val entryPoint = EntryPointAccessors.fromApplication(
@@ -36,4 +32,3 @@ class MarkTakenAction : ActionCallback {
             ActionParameters.Key("med_id")
     }
 }
-

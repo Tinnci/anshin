@@ -46,8 +46,11 @@ internal fun WidgetContainer(
             .fillMaxSize()
             .appWidgetBackground()
             .background(
-                if (prominent) GlanceTheme.colors.tertiaryContainer
-                else GlanceTheme.colors.widgetBackground,
+                if (prominent) {
+                    GlanceTheme.colors.tertiaryContainer
+                } else {
+                    GlanceTheme.colors.widgetBackground
+                },
             )
             .cornerRadius(outerRadius)
             .padding(sizing.dp(14)),

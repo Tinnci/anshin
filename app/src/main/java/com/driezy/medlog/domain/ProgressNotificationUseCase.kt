@@ -10,13 +10,11 @@ import javax.inject.Singleton
  * 不再直接依赖 NotificationHelper。
  */
 @Singleton
-class ProgressNotificationUseCase @Inject constructor(
-    private val notificationHelper: NotificationHelper,
-) {
+class ProgressNotificationUseCase @Inject constructor(private val notificationHelper: NotificationHelper) {
     operator fun invoke(taken: Int, total: Int, pendingNames: List<String>) {
         notificationHelper.showOrUpdateProgressNotification(
-            taken        = taken,
-            total        = total,
+            taken = taken,
+            total = total,
             pendingNames = pendingNames,
         )
     }

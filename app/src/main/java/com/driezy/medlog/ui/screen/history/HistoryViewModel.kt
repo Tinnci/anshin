@@ -1,25 +1,24 @@
 package com.driezy.medlog.ui.screen.history
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
-import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.LogRevisionType
+import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.domain.FuturePlanCalculator
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 import com.driezy.medlog.domain.NINETY_DAYS_MS
 import com.driezy.medlog.domain.StreakCalculator
 import com.driezy.medlog.domain.THIRTY_DAYS_MS
+import com.driezy.medlog.ui.BaseViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 import java.time.Instant
-import java.time.YearMonth
 import java.time.LocalDate
+import java.time.YearMonth
 import java.time.ZoneId
 import javax.inject.Inject
 
@@ -29,12 +28,14 @@ data class AdherenceDay(
     val taken: Int,
     val partial: Int,
     val total: Int,
-    val logs: List<Pair<MedicationLog, String>>,  // log + 药名
+    val logs: List<Pair<MedicationLog, String>>, // log + 药名
 ) {
     /** 待服药条目数（仅 PENDING） */
     val pending: Int get() = logs.count { (log, _) -> log.status == LogStatus.PENDING }
+
     /** 已决定状态的条目数（排除 PENDING）— 用于日历颜色计算 */
     val resolved: Int get() = logs.count { (log, _) -> log.status != LogStatus.PENDING }
+
     /** 将 partial 按 0.5 权重计入合规率；仅对已决定（resolved）条目计算，PENDING 不影响颜色 */
     val rate: Float get() = if (resolved == 0) 0f else (taken + partial * 0.5f) / resolved.toFloat()
 }
@@ -70,6 +71,7 @@ class HistoryViewModel @Inject constructor(
     companion object {
         /** 哨兵值：未知药品名，Compose UI 层用 stringResource 解析显示文本 */
         const val UNKNOWN_MEDICATION_NAME = "\u0000__unknown__"
+
         /** 日志与计划条目匹配的时间窗口（4 小时） */
         private const val SLOT_WINDOW_MS = 4 * 3_600_000L
     }
@@ -141,8 +143,11 @@ class HistoryViewModel @Inject constructor(
                     val resolvedTotal = recentDays.values.sumOf { it.resolved }
                     val takenLogs = recentDays.values.sumOf { it.taken } +
                         recentDays.values.sumOf { it.partial } * 0.5
-                    val overallAdherence = if (resolvedTotal == 0) 0f
-                        else (takenLogs / resolvedTotal.toDouble()).toFloat()
+                    val overallAdherence = if (resolvedTotal == 0) {
+                        0f
+                    } else {
+                        (takenLogs / resolvedTotal.toDouble()).toFloat()
+                    }
 
                     // 计算连续打卡 streak（每天 taken >= 1 或 partial >= 1 即视为完成）
                     val activeDays = calendarDays.entries

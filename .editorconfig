@@ -19,6 +19,7 @@ ij_kotlin_allow_trailing_comma_on_call_site = true
 # 关闭部分过于严格的规则
 ktlint_standard_no-wildcard-imports = disabled
 ktlint_standard_filename = disabled
+ktlint_function_naming_ignore_when_annotated_with = Composable
 
 [*.xml]
 indent_size = 4

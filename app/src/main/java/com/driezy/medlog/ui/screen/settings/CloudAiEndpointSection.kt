@@ -18,8 +18,8 @@ import androidx.compose.material3.ToggleButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -202,7 +202,9 @@ private fun OpenAiCompatibleEndpointFields(
                 Text(
                     text = when (mode) {
                         OpenAiCompatibleCloudAuthMode.BEARER -> stringResource(R.string.settings_ai_auth_bearer)
-                        OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> stringResource(R.string.settings_ai_auth_api_key)
+                        OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> stringResource(
+                            R.string.settings_ai_auth_api_key,
+                        )
                     },
                     style = MaterialTheme.typography.labelMedium,
                 )

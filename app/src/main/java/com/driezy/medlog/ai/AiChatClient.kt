@@ -12,16 +12,11 @@ data class AiChatRequest(
     val maxOutputTokens: Int? = null,
 ) {
     companion object {
-        fun user(content: String): AiChatRequest =
-            AiChatRequest(messages = listOf(AiChatMessage.user(content)))
+        fun user(content: String): AiChatRequest = AiChatRequest(messages = listOf(AiChatMessage.user(content)))
     }
 }
 
-data class AiChatMessage(
-    val role: AiChatRole,
-    val content: String = "",
-    val parts: List<AiChatContentPart>? = null,
-) {
+data class AiChatMessage(val role: AiChatRole, val content: String = "", val parts: List<AiChatContentPart>? = null) {
     companion object {
         fun system(content: String): AiChatMessage = AiChatMessage(AiChatRole.SYSTEM, content)
 
@@ -29,8 +24,7 @@ data class AiChatMessage(
 
         fun user(content: String): AiChatMessage = AiChatMessage(AiChatRole.USER, content)
 
-        fun user(parts: List<AiChatContentPart>): AiChatMessage =
-            AiChatMessage(AiChatRole.USER, parts = parts)
+        fun user(parts: List<AiChatContentPart>): AiChatMessage = AiChatMessage(AiChatRole.USER, parts = parts)
 
         fun assistant(content: String): AiChatMessage = AiChatMessage(AiChatRole.ASSISTANT, content)
     }
@@ -39,10 +33,7 @@ data class AiChatMessage(
 sealed interface AiChatContentPart {
     data class Text(val text: String) : AiChatContentPart
 
-    data class ImageBytes(
-        val bytes: ByteArray,
-        val mimeType: String,
-    ) : AiChatContentPart {
+    data class ImageBytes(val bytes: ByteArray, val mimeType: String) : AiChatContentPart {
         init {
             require(mimeType.startsWith("image/")) {
                 "Image content part requires an image/* MIME type."
@@ -85,17 +76,9 @@ enum class AiChatRole(val wireName: String) {
     TOOL("tool"),
 }
 
-data class AiChatResponse(
-    val text: String,
-    val finishReason: String? = null,
-    val usage: AiTokenUsage? = null,
-)
+data class AiChatResponse(val text: String, val finishReason: String? = null, val usage: AiTokenUsage? = null)
 
-data class AiTokenUsage(
-    val promptTokens: Int? = null,
-    val completionTokens: Int? = null,
-    val totalTokens: Int? = null,
-)
+data class AiTokenUsage(val promptTokens: Int? = null, val completionTokens: Int? = null, val totalTokens: Int? = null)
 
 class AiProviderException(
     val providerName: String,

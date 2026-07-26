@@ -1,21 +1,20 @@
 package com.driezy.medlog.ui.screen.health
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.ai.AiApiKeyStore
+import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthRecordSource
 import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.data.model.AiUsageFeature
+import com.driezy.medlog.data.model.ParsedHealthMetric
 import com.driezy.medlog.data.repository.HealthRepository
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.domain.SEVEN_DAYS_MS
+import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.domain.health.HealthInsight
 import com.driezy.medlog.domain.health.HealthInsightGenerationUseCase
-import com.driezy.medlog.domain.health.AiExecutionStatus
-import com.driezy.medlog.data.model.ParsedHealthMetric
+import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.VoiceInputEvent
@@ -26,7 +25,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.util.Calendar
 import javax.inject.Inject
 
 // ─── Draft 状态（新增 / 编辑底部表单） ───────────────────────────────────────
@@ -68,13 +66,13 @@ data class HealthTypeStat(
 // ─── 主 UI 状态 ──────────────────────────────────────────────────────────────
 
 data class HealthUiState(
-    val selectedType: HealthType? = null,    // null = 全部
+    val selectedType: HealthType? = null, // null = 全部
     val records: List<HealthRecord> = emptyList(),
     val stats: List<HealthTypeStat> = emptyList(),
     val showAddSheet: Boolean = false,
     val draft: HealthDraftState = HealthDraftState(),
     val isLoading: Boolean = true,
-    val deleteTarget: HealthRecord? = null,  // 待确认删除的记录
+    val deleteTarget: HealthRecord? = null, // 待确认删除的记录
     /** 图表数据点：按时间正序排列的 (timestamp, value, secondaryValue?) */
     val chartPoints: List<HealthRecord> = emptyList(),
     /** BMI（体重 + 身高可用时计算） */
@@ -163,8 +161,11 @@ class HealthViewModel @Inject constructor(
                 .map { it.selectedType }
                 .distinctUntilChanged()
                 .flatMapLatest { type ->
-                    if (type == null) repository.getAllRecords()
-                    else repository.getRecordsByType(type.name)
+                    if (type == null) {
+                        repository.getAllRecords()
+                    } else {
+                        repository.getRecordsByType(type.name)
+                    }
                 }
                 .catch { e -> Log.e("HealthVM", "Failed to collect health records", e) }
                 .collect { records ->
@@ -186,7 +187,9 @@ class HealthViewModel @Inject constructor(
                 val weightStat = stats.firstOrNull { it.type == HealthType.WEIGHT }
                 val bmi = if (weightStat != null && heightCm > 0f) {
                     HealthType.calculateBmi(weightStat.latestValue, heightCm.toDouble())
-                } else null
+                } else {
+                    null
+                }
                 Triple(stats, bmi, bmi?.let { HealthType.classifyBmi(it) })
             }
                 .catch { e -> Log.e("HealthVM", "Failed to collect health stats", e) }
@@ -210,11 +213,14 @@ class HealthViewModel @Inject constructor(
                 .map { it.selectedType }
                 .distinctUntilChanged()
                 .flatMapLatest { type ->
-                    if (type == null) flowOf(emptyList())
-                    else {
+                    if (type == null) {
+                        flowOf(emptyList())
+                    } else {
                         val thirtyDaysAgo = System.currentTimeMillis() - 30L * 24 * 60 * 60 * 1000
                         repository.getRecordsByTypeInRange(
-                            type.name, thirtyDaysAgo, System.currentTimeMillis()
+                            type.name,
+                            thirtyDaysAgo,
+                            System.currentTimeMillis(),
                         )
                     }
                 }
@@ -253,10 +259,7 @@ class HealthViewModel @Inject constructor(
         }
     }
 
-    private fun buildStats(
-        latest: List<HealthRecord>,
-        weekRecords: List<HealthRecord>,
-    ): List<HealthTypeStat> {
+    private fun buildStats(latest: List<HealthRecord>, weekRecords: List<HealthRecord>): List<HealthTypeStat> {
         val latestMap = latest.associateBy { HealthType.fromName(it.type) }
         val weekByType = weekRecords.groupBy { HealthType.fromName(it.type) }
 
@@ -281,7 +284,9 @@ class HealthViewModel @Inject constructor(
             // 血压分类
             val bpClass = if (type == HealthType.BLOOD_PRESSURE && rec.secondaryValue != null) {
                 HealthType.classifyBloodPressure(rec.value, rec.secondaryValue)
-            } else null
+            } else {
+                null
+            }
 
             HealthTypeStat(
                 type = type,
@@ -319,7 +324,9 @@ class HealthViewModel @Inject constructor(
     /** 从 OCR 解析结果自动填充草稿并打开表单 */
     fun applyOcrMetric(metric: ParsedHealthMetric) {
         // value == 0.0 表示用户选择了原始文本行（无数字可自动填充）
-        val valueStr = if (metric.value == 0.0) "" else {
+        val valueStr = if (metric.value == 0.0) {
+            ""
+        } else {
             if (metric.value == metric.value.toLong().toDouble()) {
                 metric.value.toLong().toString()
             } else {
@@ -402,26 +409,31 @@ class HealthViewModel @Inject constructor(
         val value = draft.value.toDoubleOrNull() ?: return
         val secondary = if (draft.type == HealthType.BLOOD_PRESSURE) {
             draft.secondaryValue.toDoubleOrNull()
-        } else null
+        } else {
+            null
+        }
         val record = HealthRecord(
-            id             = draft.editingId ?: 0,
-            type           = draft.type.name,
-            value          = value,
+            id = draft.editingId ?: 0,
+            type = draft.type.name,
+            value = value,
             secondaryValue = secondary,
-            timestamp      = draft.timestamp,
-            notes          = draft.notes,
-            source         = draft.source,
-            sourceFeature  = draft.sourceFeature,
+            timestamp = draft.timestamp,
+            notes = draft.notes,
+            source = draft.source,
+            sourceFeature = draft.sourceFeature,
             sourceProvider = draft.sourceProvider,
-            sourceModel    = draft.sourceModel,
+            sourceModel = draft.sourceModel,
             sourceConfidence = draft.sourceConfidence,
             sourceCacheKey = draft.sourceCacheKey,
-            confirmedAt    = draft.confirmedAt ?: System.currentTimeMillis(),
+            confirmedAt = draft.confirmedAt ?: System.currentTimeMillis(),
         )
         safeLaunch {
             stopVoiceInput()
-            if (draft.editingId == null) repository.addRecord(record)
-            else repository.updateRecord(record)
+            if (draft.editingId == null) {
+                repository.addRecord(record)
+            } else {
+                repository.updateRecord(record)
+            }
             _uiState.update { it.copy(showAddSheet = false) }
         }
     }

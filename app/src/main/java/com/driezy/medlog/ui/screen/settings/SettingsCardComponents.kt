@@ -1,33 +1,22 @@
 package com.driezy.medlog.ui.screen.settings
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.util.displayName
 
 // ── 通用设置卡片组（24dp 扁平卡片，含组标题）────────────────────────────────
-
 
 @Composable
 internal fun SettingsCard(
@@ -36,6 +25,7 @@ internal fun SettingsCard(
     subtitle: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val layoutProfile = rememberSettingsLayoutProfile()
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -45,7 +35,9 @@ internal fun SettingsCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         Column(
-            modifier = Modifier.padding(vertical = MedLogSpacing.Medium),
+            modifier = Modifier.padding(
+                vertical = if (layoutProfile.constrained) MedLogSpacing.Small else MedLogSpacing.Medium,
+            ),
         ) {
             Row(
                 modifier = Modifier
@@ -75,6 +67,8 @@ internal fun SettingsCard(
                     modifier = Modifier
                         .padding(horizontal = MedLogSpacing.Large)
                         .padding(bottom = MedLogSpacing.Small),
+                    maxLines = if (layoutProfile.constrained) 2 else Int.MAX_VALUE,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             content()
@@ -83,11 +77,27 @@ internal fun SettingsCard(
 }
 
 @Composable
-internal fun SettingsSectionDivider(
-    title: String,
-    icon: Int,
-    modifier: Modifier = Modifier,
-) {
+internal fun SettingsNavigationGroup(title: String, content: @Composable ColumnScope.() -> Unit) {
+    Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+        Text(
+            text = title,
+            style = MaterialTheme.typography.titleSmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            fontWeight = FontWeight.SemiBold,
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Small),
+        )
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+        ) {
+            Column(content = content)
+        }
+    }
+}
+
+@Composable
+internal fun SettingsSectionDivider(title: String, icon: Int, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
         Row(
@@ -120,10 +130,8 @@ internal fun SettingsHomeOverviewPanel(
     uiState: SettingsUiState,
     canScheduleExactAlarms: Boolean,
     canPostNotifications: Boolean,
-    onNavigateToReminderSettings: () -> Unit,
-    onNavigateToIntelligenceSettings: () -> Unit,
-    onNavigateToDataSettings: () -> Unit,
 ) {
+    val layoutProfile = rememberSettingsLayoutProfile()
     val presentation = SettingsHomeOverviewPresentation.from(
         uiState = uiState,
         canScheduleExactAlarms = canScheduleExactAlarms,
@@ -136,8 +144,10 @@ internal fun SettingsHomeOverviewPanel(
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     ) {
         Column(
-            modifier = Modifier.padding(MedLogSpacing.Large),
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            modifier = Modifier.padding(
+                if (layoutProfile.constrained) MedLogSpacing.Medium else MedLogSpacing.Large,
+            ),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -181,104 +191,6 @@ internal fun SettingsHomeOverviewPanel(
                     )
                 }
             }
-            FlowRow(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
-            ) {
-                SettingsHomeStatusChip(
-                    text = stringResource(
-                        if (presentation.reminderTone == SettingsHomeStatusTone.WARNING) {
-                            R.string.settings_home_reminders_warning
-                        } else {
-                            R.string.settings_home_reminders_ok
-                        },
-                    ),
-                    icon = MedLogIcons.Notifications,
-                    tone = presentation.reminderTone,
-                )
-                SettingsHomeStatusChip(
-                    text = stringResource(
-                        when (presentation.intelligenceTone) {
-                            SettingsHomeStatusTone.WARNING -> R.string.settings_home_ai_warning
-                            SettingsHomeStatusTone.OK -> R.string.settings_home_ai_ready
-                            SettingsHomeStatusTone.INFO -> R.string.settings_home_ai_local
-                        },
-                    ),
-                    icon = MedLogIcons.AutoAwesome,
-                    tone = presentation.intelligenceTone,
-                )
-                SettingsHomeStatusChip(
-                    text = pluralStringResource(
-                        R.plurals.settings_home_modules_enabled,
-                        presentation.enabledModuleCount,
-                        presentation.enabledModuleCount,
-                    ),
-                    icon = MedLogIcons.Tune,
-                    tone = SettingsHomeStatusTone.INFO,
-                )
-            }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-            ) {
-                FilledTonalButton(
-                    onClick = onNavigateToReminderSettings,
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(stringResource(R.string.settings_home_action_reminders))
-                }
-                FilledTonalButton(
-                    onClick = if (presentation.intelligenceTone == SettingsHomeStatusTone.WARNING) {
-                        onNavigateToIntelligenceSettings
-                    } else {
-                        onNavigateToDataSettings
-                    },
-                    modifier = Modifier.weight(1f),
-                ) {
-                    Text(
-                        stringResource(
-                            if (presentation.intelligenceTone == SettingsHomeStatusTone.WARNING) {
-                                R.string.settings_home_action_intelligence
-                            } else {
-                                R.string.settings_home_action_data
-                            },
-                        ),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun SettingsHomeStatusChip(
-    text: String,
-    icon: Int,
-    tone: SettingsHomeStatusTone,
-) {
-    val containerColor = when (tone) {
-        SettingsHomeStatusTone.OK -> MaterialTheme.colorScheme.secondaryContainer
-        SettingsHomeStatusTone.WARNING -> MaterialTheme.colorScheme.tertiaryContainer
-        SettingsHomeStatusTone.INFO -> MaterialTheme.colorScheme.surfaceContainerHigh
-    }
-    val contentColor = when (tone) {
-        SettingsHomeStatusTone.OK -> MaterialTheme.colorScheme.onSecondaryContainer
-        SettingsHomeStatusTone.WARNING -> MaterialTheme.colorScheme.onTertiaryContainer
-        SettingsHomeStatusTone.INFO -> MaterialTheme.colorScheme.onSurfaceVariant
-    }
-    Surface(
-        shape = RoundedCornerShape(14.dp),
-        color = containerColor,
-        contentColor = contentColor,
-    ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 10.dp, vertical = 7.dp),
-            horizontalArrangement = Arrangement.spacedBy(6.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(15.dp))
-            Text(text = text, style = MaterialTheme.typography.labelMedium)
         }
     }
 }
@@ -323,22 +235,31 @@ internal fun NotificationSettingsOverview(uiState: SettingsUiState) {
                 NotificationStatusChip(
                     selected = uiState.persistentReminder,
                     text = stringResource(
-                        if (uiState.persistentReminder) R.string.settings_notifications_live_on
-                        else R.string.settings_notifications_live_off,
+                        if (uiState.persistentReminder) {
+                            R.string.settings_notifications_live_on
+                        } else {
+                            R.string.settings_notifications_live_off
+                        },
                     ),
                 )
                 NotificationStatusChip(
                     selected = uiState.earlyReminderMinutes > 0,
                     text = stringResource(
-                        if (uiState.earlyReminderMinutes > 0) R.string.settings_notifications_pre_alert_on
-                        else R.string.settings_notifications_pre_alert_off,
+                        if (uiState.earlyReminderMinutes > 0) {
+                            R.string.settings_notifications_pre_alert_on
+                        } else {
+                            R.string.settings_notifications_pre_alert_off
+                        },
                     ),
                 )
                 NotificationStatusChip(
                     selected = uiState.followUpReminderEnabled,
                     text = stringResource(
-                        if (uiState.followUpReminderEnabled) R.string.settings_notifications_follow_up_on
-                        else R.string.settings_notifications_follow_up_off,
+                        if (uiState.followUpReminderEnabled) {
+                            R.string.settings_notifications_follow_up_on
+                        } else {
+                            R.string.settings_notifications_follow_up_off
+                        },
                     ),
                 )
             }
@@ -355,8 +276,16 @@ internal fun NotificationSettingsOverview(uiState: SettingsUiState) {
 private fun NotificationStatusChip(selected: Boolean, text: String) {
     Surface(
         shape = RoundedCornerShape(12.dp),
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = if (selected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        },
+        contentColor = if (selected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
     ) {
         Text(
             text = text,

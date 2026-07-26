@@ -12,10 +12,7 @@ private const val MAX_RECOGNITION_LONG_EDGE = 2400
 
 internal object OcrFrameInputPreprocessor {
 
-    fun prepare(
-        source: Bitmap,
-        recognitionRegion: OcrRecognitionRegion,
-    ): PreparedFrame {
+    fun prepare(source: Bitmap, recognitionRegion: OcrRecognitionRegion): PreparedFrame {
         val cropped = cropToRecognitionRegion(source, recognitionRegion)
         val normalized = normalizeSize(cropped)
         if (normalized !== cropped && cropped !== source) {
@@ -32,10 +29,7 @@ internal object OcrFrameInputPreprocessor {
         return PreparedFrame(bitmap = normalized, quality = quality)
     }
 
-    private fun cropToRecognitionRegion(
-        bitmap: Bitmap,
-        recognitionRegion: OcrRecognitionRegion,
-    ): Bitmap {
+    private fun cropToRecognitionRegion(bitmap: Bitmap, recognitionRegion: OcrRecognitionRegion): Bitmap {
         val bounds = recognitionRegion.cropBounds(bitmap.width, bitmap.height) ?: return bitmap
         if (bounds.x == 0 && bounds.y == 0 && bounds.width == bitmap.width && bounds.height == bitmap.height) {
             return bitmap
@@ -86,12 +80,6 @@ internal object OcrFrameInputPreprocessor {
     }
 }
 
-internal data class PreparedFrame(
-    val bitmap: Bitmap,
-    val quality: OcrFrameQuality,
-)
+internal data class PreparedFrame(val bitmap: Bitmap, val quality: OcrFrameQuality)
 
-internal data class OcrFrameQuality(
-    val meanLuminance: Double,
-    val contrast: Double,
-)
+internal data class OcrFrameQuality(val meanLuminance: Double, val contrast: Double)

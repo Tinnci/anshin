@@ -45,12 +45,11 @@ object CloudAiEndpointPresetCodec {
 }
 
 object CloudAiEndpointPresetLoader {
-    fun load(context: Context): List<CloudAiEndpointPreset> =
-        runCatching {
-            context.assets.open("json/opencode_ai_endpoints.json").use { input ->
-                CloudAiEndpointPresetCodec.decode(
-                    input.bufferedReader(Charsets.UTF_8).use { it.readText() },
-                )
-            }
-        }.getOrDefault(emptyList())
+    fun load(context: Context): List<CloudAiEndpointPreset> = runCatching {
+        context.assets.open("json/opencode_ai_endpoints.json").use { input ->
+            CloudAiEndpointPresetCodec.decode(
+                input.bufferedReader(Charsets.UTF_8).use { it.readText() },
+            )
+        }
+    }.getOrDefault(emptyList())
 }

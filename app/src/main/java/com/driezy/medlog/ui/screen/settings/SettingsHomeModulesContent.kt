@@ -11,24 +11,7 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @Composable
-internal fun SettingsHomeModulesContent(
-    uiState: SettingsUiState,
-    viewModel: SettingsViewModel,
-    onNavigateToReminderSettings: () -> Unit,
-    onNavigateToIntelligenceSettings: () -> Unit,
-    onNavigateToBpx1Settings: () -> Unit,
-    onNavigateToWidgetSettings: () -> Unit,
-    onNavigateToDataSettings: () -> Unit,
-) {
-    SettingsHomeDashboard(
-        uiState = uiState,
-        onNavigateToReminderSettings = onNavigateToReminderSettings,
-        onNavigateToIntelligenceSettings = onNavigateToIntelligenceSettings,
-        onNavigateToBpx1Settings = onNavigateToBpx1Settings,
-        onNavigateToWidgetSettings = onNavigateToWidgetSettings,
-        onNavigateToDataSettings = onNavigateToDataSettings,
-    )
-
+internal fun SettingsHomeModulesContent(uiState: SettingsUiState, viewModel: SettingsViewModel) {
     SettingsCard(
         title = stringResource(R.string.settings_group_modules_meds),
         subtitle = stringResource(R.string.settings_group_modules_meds_desc),
@@ -43,7 +26,7 @@ internal fun SettingsHomeModulesContent(
                 .padding(top = MedLogSpacing.Tiny)
                 .padding(bottom = MedLogSpacing.Small),
         )
-        ModuleToggleGrid(
+        ModuleToggleList(
             uiState = uiState,
             viewModel = viewModel,
         )

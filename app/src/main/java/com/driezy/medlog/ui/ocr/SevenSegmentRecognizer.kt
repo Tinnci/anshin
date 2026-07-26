@@ -1,17 +1,14 @@
 package com.driezy.medlog.ui.ocr
 
-import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Canvas
-import android.graphics.ColorMatrix
-import android.graphics.ColorMatrixColorFilter
-import android.graphics.Paint
-import android.util.Log
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.scale
 import ai.onnxruntime.OnnxTensor
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.Canvas
+import android.util.Log
+import androidx.core.graphics.createBitmap
+import androidx.core.graphics.scale
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import kotlinx.coroutines.CoroutineScope
@@ -45,9 +42,11 @@ internal class SevenSegmentRecognizer(
 
     private val ortEnvironment = OrtEnvironment.getEnvironment()
     private val sessionLock = Any()
+
     @Volatile private var session: OrtSession? = null
 
     private val scope = CoroutineScope(Dispatchers.Default + SupervisorJob())
+
     @Volatile private var currentModelType: OcrModelType? = null
 
     init {
@@ -189,9 +188,11 @@ internal class SevenSegmentRecognizer(
             var sumSq = 0L
             for (x in 0 until w) {
                 val px = pixels[x]
-                val gray = (((px shr 16) and 0xFF) * 30 +
-                    ((px shr 8) and 0xFF) * 59 +
-                    (px and 0xFF) * 11) / 100
+                val gray = (
+                    ((px shr 16) and 0xFF) * 30 +
+                        ((px shr 8) and 0xFF) * 59 +
+                        (px and 0xFF) * 11
+                    ) / 100
                 sum += gray
                 sumSq += gray.toLong() * gray
             }
@@ -207,7 +208,10 @@ internal class SevenSegmentRecognizer(
             var c = 0
             for (dy in -1..1) {
                 val yy = y + dy
-                if (yy in 0 until h) { s += rowStd[yy]; c++ }
+                if (yy in 0 until h) {
+                    s += rowStd[yy]
+                    c++
+                }
             }
             smoothed[y] = s / c
         }

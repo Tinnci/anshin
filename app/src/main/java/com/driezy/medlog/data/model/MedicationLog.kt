@@ -14,7 +14,7 @@ import androidx.room.PrimaryKey
             parentColumns = ["id"],
             childColumns = ["medicationId"],
             onDelete = ForeignKey.CASCADE,
-        )
+        ),
     ],
     indices = [
         Index("medicationId"),
@@ -27,10 +27,10 @@ data class MedicationLog(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val medicationId: Long,
-    val scheduledTimeMs: Long,              // 计划服药时间戳（ms）
-    val actualTakenTimeMs: Long? = null,    // 实际服药时间戳，null 表示未服
+    val scheduledTimeMs: Long, // 计划服药时间戳（ms）
+    val actualTakenTimeMs: Long? = null, // 实际服药时间戳，null 表示未服
     val status: LogStatus = LogStatus.TAKEN,
-    val notes: String = "",                 // 本次服药备注
+    val notes: String = "", // 本次服药备注
     val actualDoseQuantity: Double? = null, // 实际服用剂量（部分服用时 < 计划剂量）
     val createdAtMs: Long = System.currentTimeMillis(),
     val updatedAtMs: Long? = null,

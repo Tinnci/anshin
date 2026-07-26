@@ -110,8 +110,20 @@ class AiCacheRepositoryTest {
         usageDao.events += listOf(
             usageEvent(AiUsageFeature.HEALTH_INSIGHT, AiUsageResult.SUCCESS, cacheHit = false, timestamp = now),
             usageEvent(AiUsageFeature.HEALTH_INSIGHT, AiUsageResult.SUCCESS, cacheHit = true, timestamp = now + 1),
-            usageEvent(AiUsageFeature.HEALTH_INSIGHT, AiUsageResult.ERROR, cacheHit = false, timestamp = now + 2, error = "POLICY_VIOLATION"),
-            usageEvent(AiUsageFeature.IMAGE_OCR, AiUsageResult.ERROR, cacheHit = false, timestamp = now + 3, error = "JSON_INVALID"),
+            usageEvent(
+                AiUsageFeature.HEALTH_INSIGHT,
+                AiUsageResult.ERROR,
+                cacheHit = false,
+                timestamp = now + 2,
+                error = "POLICY_VIOLATION",
+            ),
+            usageEvent(
+                AiUsageFeature.IMAGE_OCR,
+                AiUsageResult.ERROR,
+                cacheHit = false,
+                timestamp = now + 3,
+                error = "JSON_INVALID",
+            ),
             usageEvent(AiUsageFeature.IMAGE_OCR, AiUsageResult.SUCCESS, cacheHit = true, timestamp = now - 10_000),
         )
 
@@ -203,26 +215,25 @@ class AiCacheRepositoryTest {
             events.add(event)
         }
 
-        override suspend fun summarySince(sinceMillis: Long): List<AiUsageSummaryRow> =
-            events
-                .filter { it.timestamp >= sinceMillis }
-                .groupBy { it.feature }
-                .map { (feature, featureEvents) ->
-                    AiUsageSummaryRow(
-                        feature = feature,
-                        totalCount = featureEvents.size,
-                        successCount = featureEvents.count { it.result == AiUsageResult.SUCCESS },
-                        fallbackCount = featureEvents.count { it.result == AiUsageResult.FALLBACK },
-                        errorCount = featureEvents.count { it.result == AiUsageResult.ERROR },
-                        cacheHitCount = featureEvents.count { it.cacheHit },
-                        lastUsedAt = featureEvents.maxOf { it.timestamp },
-                        lastErrorCategory = featureEvents
-                            .filter { it.errorCategory != null }
-                            .maxByOrNull { it.timestamp }
-                            ?.errorCategory,
-                    )
-                }
-                .sortedBy { it.feature.name }
+        override suspend fun summarySince(sinceMillis: Long): List<AiUsageSummaryRow> = events
+            .filter { it.timestamp >= sinceMillis }
+            .groupBy { it.feature }
+            .map { (feature, featureEvents) ->
+                AiUsageSummaryRow(
+                    feature = feature,
+                    totalCount = featureEvents.size,
+                    successCount = featureEvents.count { it.result == AiUsageResult.SUCCESS },
+                    fallbackCount = featureEvents.count { it.result == AiUsageResult.FALLBACK },
+                    errorCount = featureEvents.count { it.result == AiUsageResult.ERROR },
+                    cacheHitCount = featureEvents.count { it.cacheHit },
+                    lastUsedAt = featureEvents.maxOf { it.timestamp },
+                    lastErrorCategory = featureEvents
+                        .filter { it.errorCategory != null }
+                        .maxByOrNull { it.timestamp }
+                        ?.errorCategory,
+                )
+            }
+            .sortedBy { it.feature.name }
 
         override suspend fun deleteOlderThan(cutoffMillis: Long) {
             events.removeIf { it.timestamp < cutoffMillis }

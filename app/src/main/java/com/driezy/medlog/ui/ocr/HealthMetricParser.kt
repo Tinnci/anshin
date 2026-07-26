@@ -21,25 +21,30 @@ object HealthMetricParser {
         """(?:sys(?:tolic)?|收缩压|高压)\s*[:：]?\s*(\d{2,3})\s+(?:dia(?:stolic)?|舒张压|低压)\s*[:：]?\s*(\d{2,3})""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 两个 mmHg 值："120mmHg 80mmHg" / "120 毫米汞柱 80 毫米汞柱" */
     private val BP_MMHG_PAIR = Regex(
         """(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)\s*[,，/／\s]\s*(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)?""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 带血压关键词 + 空格分隔："血压 120 80" */
     private val BP_KEYWORD_SPACE = Regex(
         """(?:bp|血压|blood\s*pressure)\s*[:：]?\s*(\d{2,3})\s+(\d{2,3})""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 裸空格分隔（无关键词，需严格验证）："120 80" */
     private val BP_BARE_SPACE = Regex(
         """(?<![/／\d])(\d{2,3})\s+(\d{2,3})(?![/／\d])""",
     )
+
     /** 逗号分隔："120,80" / "120，80" */
     private val BP_COMMA = Regex(
         """(?:(?:bp|血压|blood\s*pressure)\s*[:：]?\s*)?(\d{2,3})\s*[,，]\s*(\d{2,3})\s*(?:mmHg|mmhg|毫米汞柱)?""",
         RegexOption.IGNORE_CASE,
     )
+
     /** kPa 单位血压："16.0/10.7 kPa" (1 kPa = 7.5 mmHg) */
     private val BP_KPA = Regex(
         """(\d{1,2}(?:\.\d{1,2})?)\s*[/／]\s*(\d{1,2}(?:\.\d{1,2})?)\s*kPa""",
@@ -55,6 +60,7 @@ object HealthMetricParser {
         """(\d{2,3})\s*bpm""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 中文单位："72次/分钟" */
     private val HR_CN_UNIT = Regex(
         """(\d{2,3})\s*次[/／每]分钟?""",
@@ -73,6 +79,7 @@ object HealthMetricParser {
         """(\d{2,3}(?:\.\d)?)\s*mg[/／]dL""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 中文单位："5.6毫摩尔/升" */
     private val GLU_CN = Regex(
         """(\d{1,2}(?:\.\d{1,2})?)\s*毫摩尔[/／每]升""",
@@ -90,6 +97,7 @@ object HealthMetricParser {
         """(\d{2,3}\.\d{1,2})\s*[°℉]?F""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 中文单位："36.5摄氏度" */
     private val TEMP_CN = Regex(
         """(\d{2}\.\d{1,2})\s*摄氏度""",
@@ -108,10 +116,12 @@ object HealthMetricParser {
         """(\d{2,3}(?:\.\d{1,2})?)\s*lbs?""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 中文单位："65千克" / "65公斤" */
     private val WEIGHT_CN = Regex(
         """(\d{2,3}(?:\.\d{1,2})?)\s*(?:千克|公斤)""",
     )
+
     /** 中文斤→千克："130斤" (1斤=0.5kg) */
     private val WEIGHT_JIN = Regex(
         """(\d{2,3}(?:\.\d{1,2})?)\s*斤""",
@@ -128,6 +138,7 @@ object HealthMetricParser {
         """(?:(?:sp\s*o\s*2|spo₂|血氧|oxygen\s*saturation)\s*[:：]?\s*)(\d{2,3})\s*%?""",
         RegexOption.IGNORE_CASE,
     )
+
     /** 纯百分比在血氧范围内："98%" */
     private val SPO2_PERCENT = Regex(
         """(\d{2,3})\s*%""",
@@ -142,22 +153,26 @@ object HealthMetricParser {
     /** OCR 常见误识别字符：字母→数字 */
     private val LETTER_TO_DIGIT = Regex("""(?<=\d)[OoQD](?=[\d/／.%])|(?<=\d)[OoQD](?=\s|$)|(?<=[/／])[OoQD](?=\d)""")
     private val LETTER_L_TO_1 = Regex("""(?<=\d)[lI|](?=[\d/／.%])|(?<=\d)[lI|](?=\s|$)|(?<=[/／])[lI|](?=\d)""")
+
     /** 七段数码管常见误识别：段缺失导致的字符混淆 */
     private val SEVEN_SEG_FIXES = listOf(
         // 字母被识别为数字或反过来
-        Regex("""(?<=\d)[Bb](?=[\d/／\s]|$)""") to "8",     // B→8
-        Regex("""(?<=\d)[Gg](?=[\d/／\s]|$)""") to "9",     // G→9
+        Regex("""(?<=\d)[Bb](?=[\d/／\s]|$)""") to "8", // B→8
+        Regex("""(?<=\d)[Gg](?=[\d/／\s]|$)""") to "9", // G→9
         Regex("""(?<=[\d/／])[Ss](?=[\d/／\s]|$)""") to "5", // S→5
-        Regex("""(?<=\d)[Zz](?=[\d/／\s]|$)""") to "2",   // Z→2
+        Regex("""(?<=\d)[Zz](?=[\d/／\s]|$)""") to "2", // Z→2
         // 七段管特有的符号误识别
-        Regex("""(?<=\d)[_\-](?=\d)""") to "",             // 段间杂划去除
-        Regex("""\[""") to "1",                            // [ → 1（七段管 1 有时像 [）
-        Regex("""\]""") to "1",                            // ] → 1
+        Regex("""(?<=\d)[_\-](?=\d)""") to "", // 段间杂划去除
+        Regex("""\[""") to "1", // [ → 1（七段管 1 有时像 [）
+        Regex("""\]""") to "1", // ] → 1
     )
+
     /** OCR 单字符数字前缀合并："1 20" → "120"（不合并 "120 80" 这类多位数对） */
     private val SPACE_MERGE_PREFIX = Regex("""(?<!\d)(\d)\s+(\d)""")
+
     /** OCR 单字符数字后缀合并："12 0" → "120" */
     private val SPACE_MERGE_SUFFIX = Regex("""(\d)\s+(\d)(?!\d)""")
+
     /** 日期时间模式（排除提取） */
     private val DATE_TIME = Regex(
         """\d{4}[-/]\d{1,2}[-/]\d{1,2}|\d{1,2}[-/]\d{1,2}[-/]\d{2,4}|\d{1,2}:\d{2}(:\d{2})?""",
@@ -167,8 +182,7 @@ object HealthMetricParser {
      * 从 OCR 文本行列表中提取健康体征指标。
      * 返回去重后的结果（相同类型仅保留第一条匹配）。
      */
-    fun parse(texts: List<String>): List<ParsedHealthMetric> =
-        parseAll(texts).metrics
+    fun parse(texts: List<String>): List<ParsedHealthMetric> = parseAll(texts).metrics
 
     /**
      * OCR 文本预清洗：修正常见 OCR 误识别字符。
@@ -208,37 +222,44 @@ object HealthMetricParser {
         for (text in cleaned + listOf(joined)) {
             if (HealthType.BLOOD_PRESSURE !in foundTypes) {
                 findBloodPressure(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.BLOOD_PRESSURE)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.BLOOD_PRESSURE)
                 }
             }
             if (HealthType.HEART_RATE !in foundTypes) {
                 findHeartRate(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.HEART_RATE)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.HEART_RATE)
                 }
             }
             if (HealthType.BLOOD_GLUCOSE !in foundTypes) {
                 findBloodGlucose(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.BLOOD_GLUCOSE)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.BLOOD_GLUCOSE)
                 }
             }
             if (HealthType.TEMPERATURE !in foundTypes) {
                 findTemperature(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.TEMPERATURE)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.TEMPERATURE)
                 }
             }
             if (HealthType.WEIGHT !in foundTypes) {
                 findWeight(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.WEIGHT)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.WEIGHT)
                 }
             }
             if (HealthType.BODY_FAT !in foundTypes) {
                 findBodyFat(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.BODY_FAT)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.BODY_FAT)
                 }
             }
             if (HealthType.SPO2 !in foundTypes) {
                 findSpO2(text)?.let {
-                    metrics.add(it); foundTypes.add(HealthType.SPO2)
+                    metrics.add(it)
+                    foundTypes.add(HealthType.SPO2)
                 }
             }
         }
@@ -302,12 +323,12 @@ object HealthMetricParser {
      */
     fun isValuePlausible(value: Double, type: HealthType): Boolean = when (type) {
         HealthType.BLOOD_PRESSURE -> value in 50.0..300.0
-        HealthType.HEART_RATE     -> value in 20.0..250.0
-        HealthType.BLOOD_GLUCOSE  -> value in 1.0..40.0
-        HealthType.TEMPERATURE    -> value in 30.0..45.0
-        HealthType.WEIGHT         -> value in 10.0..500.0
-        HealthType.BODY_FAT       -> value in 3.0..70.0
-        HealthType.SPO2           -> value in 50.0..100.0
+        HealthType.HEART_RATE -> value in 20.0..250.0
+        HealthType.BLOOD_GLUCOSE -> value in 1.0..40.0
+        HealthType.TEMPERATURE -> value in 30.0..45.0
+        HealthType.WEIGHT -> value in 10.0..500.0
+        HealthType.BODY_FAT -> value in 3.0..70.0
+        HealthType.SPO2 -> value in 50.0..100.0
     }
 
     /**
@@ -329,36 +350,36 @@ object HealthMetricParser {
     private fun plausibilityScore(value: Double, type: HealthType, hasDecimal: Boolean): Double {
         val baseScore = when (type) {
             // 范围越窄，基础分越高
-            HealthType.TEMPERATURE    -> 100.0
-            HealthType.SPO2           -> 90.0
-            HealthType.BLOOD_GLUCOSE  -> 80.0
-            HealthType.BODY_FAT       -> 70.0
-            HealthType.HEART_RATE     -> 50.0
+            HealthType.TEMPERATURE -> 100.0
+            HealthType.SPO2 -> 90.0
+            HealthType.BLOOD_GLUCOSE -> 80.0
+            HealthType.BODY_FAT -> 70.0
+            HealthType.HEART_RATE -> 50.0
             HealthType.BLOOD_PRESSURE -> 40.0
-            HealthType.WEIGHT         -> 30.0
+            HealthType.WEIGHT -> 30.0
         }
         var score = baseScore
 
         // 小数点值更可能是体温或血糖
         if (hasDecimal) {
             when (type) {
-                HealthType.TEMPERATURE   -> score += 50.0
+                HealthType.TEMPERATURE -> score += 50.0
                 HealthType.BLOOD_GLUCOSE -> score += 40.0
-                HealthType.BODY_FAT      -> score += 25.0
-                HealthType.WEIGHT        -> score += 20.0
+                HealthType.BODY_FAT -> score += 25.0
+                HealthType.WEIGHT -> score += 20.0
                 else -> {}
             }
         }
 
         // 值在该类型"典型"范围内加分
         score += when (type) {
-            HealthType.TEMPERATURE    -> if (value in 35.0..42.0) 30.0 else 0.0
-            HealthType.SPO2           -> if (value in 90.0..100.0) 30.0 else 0.0
-            HealthType.BLOOD_GLUCOSE  -> if (value in 3.0..20.0) 20.0 else 0.0
-            HealthType.BODY_FAT       -> if (value in 8.0..45.0) 18.0 else 0.0
-            HealthType.HEART_RATE     -> if (value in 50.0..120.0) 15.0 else 0.0
+            HealthType.TEMPERATURE -> if (value in 35.0..42.0) 30.0 else 0.0
+            HealthType.SPO2 -> if (value in 90.0..100.0) 30.0 else 0.0
+            HealthType.BLOOD_GLUCOSE -> if (value in 3.0..20.0) 20.0 else 0.0
+            HealthType.BODY_FAT -> if (value in 8.0..45.0) 18.0 else 0.0
+            HealthType.HEART_RATE -> if (value in 50.0..120.0) 15.0 else 0.0
             HealthType.BLOOD_PRESSURE -> if (value in 80.0..180.0) 10.0 else 0.0
-            HealthType.WEIGHT         -> if (value in 30.0..150.0) 5.0 else 0.0
+            HealthType.WEIGHT -> if (value in 30.0..150.0) 5.0 else 0.0
         }
 
         return score
@@ -371,7 +392,7 @@ object HealthMetricParser {
     fun findPotentialBpPairs(candidates: List<ExtractedNumber>): List<Pair<Int, Int>> {
         val pairs = mutableListOf<Triple<Int, Int, Double>>()
         for (i in candidates.indices) {
-            if (candidates[i].pairedValue != null) continue  // 已配对的跳过
+            if (candidates[i].pairedValue != null) continue // 已配对的跳过
             val sys = candidates[i].value
             if (sys !in 70.0..250.0) continue
             for (j in candidates.indices) {
@@ -420,7 +441,13 @@ object HealthMetricParser {
             val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
             if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
-                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value, 0.90f + bpTypicalBonus(sys, dia))
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_PRESSURE,
+                    sys,
+                    dia,
+                    m.value,
+                    0.90f + bpTypicalBonus(sys, dia),
+                )
             }
         }
         // 优先级 3：SYS/DIA 标签
@@ -428,7 +455,13 @@ object HealthMetricParser {
             val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
             if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
-                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value, 0.95f + bpTypicalBonus(sys, dia))
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_PRESSURE,
+                    sys,
+                    dia,
+                    m.value,
+                    0.95f + bpTypicalBonus(sys, dia),
+                )
             }
         }
         // 优先级 4：关键词 + 空格分隔 "血压 120 80"
@@ -436,7 +469,13 @@ object HealthMetricParser {
             val sys = m.groupValues[1].toDoubleOrNull() ?: return@let
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
             if (sys in 50.0..300.0 && dia in 20.0..200.0 && sys > dia) {
-                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value, 0.85f + bpTypicalBonus(sys, dia))
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_PRESSURE,
+                    sys,
+                    dia,
+                    m.value,
+                    0.85f + bpTypicalBonus(sys, dia),
+                )
             }
         }
         // 优先级 5：逗号分隔 "120,80"
@@ -471,7 +510,13 @@ object HealthMetricParser {
             val dia = m.groupValues[2].toDoubleOrNull() ?: return@let
             val pulsePressure = sys - dia
             if (sys in 70.0..250.0 && dia in 30.0..150.0 && sys > dia && pulsePressure in 15.0..120.0) {
-                return ParsedHealthMetric(HealthType.BLOOD_PRESSURE, sys, dia, m.value, 0.50f + bpTypicalBonus(sys, dia))
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_PRESSURE,
+                    sys,
+                    dia,
+                    m.value,
+                    0.50f + bpTypicalBonus(sys, dia),
+                )
             }
         }
         return null
@@ -491,15 +536,45 @@ object HealthMetricParser {
     private fun findHeartRate(text: String): ParsedHealthMetric? {
         HR.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 20.0..250.0) return ParsedHealthMetric(HealthType.HEART_RATE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.HEART_RATE))
+            if (v in
+                20.0..250.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.HEART_RATE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.HEART_RATE),
+                )
+            }
         }
         HR_BPM.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 20.0..250.0) return ParsedHealthMetric(HealthType.HEART_RATE, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.HEART_RATE))
+            if (v in
+                20.0..250.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.HEART_RATE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.85f + typicalBonus(v, HealthType.HEART_RATE),
+                )
+            }
         }
         HR_CN_UNIT.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 20.0..250.0) return ParsedHealthMetric(HealthType.HEART_RATE, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.HEART_RATE))
+            if (v in
+                20.0..250.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.HEART_RATE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.85f + typicalBonus(v, HealthType.HEART_RATE),
+                )
+            }
         }
         return null
     }
@@ -507,15 +582,45 @@ object HealthMetricParser {
     private fun findBloodGlucose(text: String): ParsedHealthMetric? {
         GLU.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE))
+            if (v in
+                1.0..40.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_GLUCOSE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE),
+                )
+            }
         }
         GLU_MMOL.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE))
+            if (v in
+                1.0..40.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_GLUCOSE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE),
+                )
+            }
         }
         GLU_CN.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 1.0..40.0) return ParsedHealthMetric(HealthType.BLOOD_GLUCOSE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE))
+            if (v in
+                1.0..40.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.BLOOD_GLUCOSE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.BLOOD_GLUCOSE),
+                )
+            }
         }
         // mg/dL → mmol/L 转换
         GLU_MGDL.find(text)?.let { m ->
@@ -537,11 +642,31 @@ object HealthMetricParser {
         // 优先匹配摄氏度
         TEMP_C.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 30.0..45.0) return ParsedHealthMetric(HealthType.TEMPERATURE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.TEMPERATURE))
+            if (v in
+                30.0..45.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.TEMPERATURE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.TEMPERATURE),
+                )
+            }
         }
         TEMP_CN.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 30.0..45.0) return ParsedHealthMetric(HealthType.TEMPERATURE, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.TEMPERATURE))
+            if (v in
+                30.0..45.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.TEMPERATURE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.TEMPERATURE),
+                )
+            }
         }
         // 华氏度 → 摄氏度
         TEMP_F.find(text)?.let { m ->
@@ -558,7 +683,17 @@ object HealthMetricParser {
         }
         TEMP.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 30.0..45.0) return ParsedHealthMetric(HealthType.TEMPERATURE, v, rawText = m.value, confidence = 0.70f + typicalBonus(v, HealthType.TEMPERATURE))
+            if (v in
+                30.0..45.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.TEMPERATURE,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.70f + typicalBonus(v, HealthType.TEMPERATURE),
+                )
+            }
         }
         return null
     }
@@ -566,11 +701,31 @@ object HealthMetricParser {
     private fun findWeight(text: String): ParsedHealthMetric? {
         WEIGHT_KG.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.WEIGHT))
+            if (v in
+                10.0..500.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.WEIGHT,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.85f + typicalBonus(v, HealthType.WEIGHT),
+                )
+            }
         }
         WEIGHT_CN.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.WEIGHT))
+            if (v in
+                10.0..500.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.WEIGHT,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.85f + typicalBonus(v, HealthType.WEIGHT),
+                )
+            }
         }
         // 斤 → kg 转换（1斤 = 0.5kg）
         WEIGHT_JIN.find(text)?.let { m ->
@@ -600,7 +755,17 @@ object HealthMetricParser {
         }
         WEIGHT.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 10.0..500.0) return ParsedHealthMetric(HealthType.WEIGHT, v, rawText = m.value, confidence = 0.70f + typicalBonus(v, HealthType.WEIGHT))
+            if (v in
+                10.0..500.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.WEIGHT,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.70f + typicalBonus(v, HealthType.WEIGHT),
+                )
+            }
         }
         return null
     }
@@ -608,7 +773,17 @@ object HealthMetricParser {
     private fun findBodyFat(text: String): ParsedHealthMetric? {
         BODY_FAT.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 3.0..70.0) return ParsedHealthMetric(HealthType.BODY_FAT, v, rawText = m.value, confidence = 0.85f + typicalBonus(v, HealthType.BODY_FAT))
+            if (v in
+                3.0..70.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.BODY_FAT,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.85f + typicalBonus(v, HealthType.BODY_FAT),
+                )
+            }
         }
         return null
     }
@@ -616,12 +791,32 @@ object HealthMetricParser {
     private fun findSpO2(text: String): ParsedHealthMetric? {
         SPO2.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 50.0..100.0) return ParsedHealthMetric(HealthType.SPO2, v, rawText = m.value, confidence = 0.90f + typicalBonus(v, HealthType.SPO2))
+            if (v in
+                50.0..100.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.SPO2,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.90f + typicalBonus(v, HealthType.SPO2),
+                )
+            }
         }
         // 纯百分比（无关键词）在 SpO2 合理范围内
         SPO2_PERCENT.find(text)?.let { m ->
             val v = m.groupValues[1].toDoubleOrNull() ?: return@let
-            if (v in 80.0..100.0) return ParsedHealthMetric(HealthType.SPO2, v, rawText = m.value, confidence = 0.60f + typicalBonus(v, HealthType.SPO2))
+            if (v in
+                80.0..100.0
+            ) {
+                return ParsedHealthMetric(
+                    HealthType.SPO2,
+                    v,
+                    rawText = m.value,
+                    confidence =
+                    0.60f + typicalBonus(v, HealthType.SPO2),
+                )
+            }
         }
         return null
     }

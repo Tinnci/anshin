@@ -1,8 +1,5 @@
 package com.driezy.medlog.widget
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import android.app.Activity
 import android.appwidget.AppWidgetManager
 import android.content.Intent
@@ -20,21 +17,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import dagger.hilt.android.AndroidEntryPoint
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.WidgetColorSource
 import com.driezy.medlog.data.repository.WidgetDensityScale
 import com.driezy.medlog.data.repository.WidgetTextScale
 import com.driezy.medlog.data.repository.WidgetThemeMode
-import com.driezy.medlog.ui.theme.applyMedLogSystemBars
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.screen.settings.SettingsViewModel
 import com.driezy.medlog.ui.theme.MedLogTheme
 import com.driezy.medlog.ui.theme.ThemePalette
+import com.driezy.medlog.ui.theme.applyMedLogSystemBars
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 /**
@@ -75,8 +74,8 @@ class WidgetSettingsActivity : ComponentActivity() {
 
             val systemDark = isSystemInDarkTheme()
             val darkTheme = when (uiState.themeMode) {
-                ThemeMode.LIGHT  -> false
-                ThemeMode.DARK   -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
                 ThemeMode.SYSTEM -> systemDark
             }
 
@@ -177,10 +176,11 @@ private fun WidgetSettingsScreen(
             TopAppBar(
                 title = {
                     Text(
-                        if (isConfigureMode)
+                        if (isConfigureMode) {
                             stringResource(R.string.widget_settings_configure_title)
-                        else
+                        } else {
                             stringResource(R.string.widget_settings_title)
+                        },
                     )
                 },
                 navigationIcon = {
@@ -188,7 +188,7 @@ private fun WidgetSettingsScreen(
                         MedLogIcon(
                             if (isConfigureMode) MedLogIcons.Close else MedLogIcons.ArrowBack,
                             contentDescription = stringResource(
-                                if (isConfigureMode) R.string.common_action_cancel else R.string.detail_back
+                                if (isConfigureMode) R.string.common_action_cancel else R.string.detail_back,
                             ),
                         )
                     }
@@ -202,7 +202,7 @@ private fun WidgetSettingsScreen(
                             )
                         }
                     }
-                }
+                },
             )
         },
     ) { innerPadding ->
@@ -265,10 +265,11 @@ private fun WidgetSettingsScreen(
                 headlineContent = { Text(stringResource(R.string.widget_settings_show_actions)) },
                 supportingContent = {
                     Text(
-                        if (widgetShowActions)
+                        if (widgetShowActions) {
                             stringResource(R.string.widget_settings_show_actions_body)
-                        else
-                            stringResource(R.string.widget_settings_status_body),
+                        } else {
+                            stringResource(R.string.widget_settings_status_body)
+                        },
                     )
                 },
                 leadingContent = {

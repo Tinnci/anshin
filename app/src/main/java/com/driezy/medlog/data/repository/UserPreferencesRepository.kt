@@ -10,6 +10,9 @@ import androidx.datastore.preferences.core.floatPreferencesKey
 import androidx.datastore.preferences.core.intPreferencesKey
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.driezy.medlog.data.local.settingsDataStore
+import com.driezy.medlog.data.model.RoutineSchedule
+import com.driezy.medlog.data.model.RoutineTime
+import com.driezy.medlog.data.model.RoutineTimeSlot
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
@@ -28,8 +31,7 @@ enum class FontMode {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): FontMode =
-            entries.firstOrNull { it.name == name } ?: SYSTEM
+        fun fromStoredName(name: String?): FontMode = entries.firstOrNull { it.name == name } ?: SYSTEM
     }
 }
 
@@ -41,8 +43,7 @@ enum class AppTextScale(val factor: Float) {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): AppTextScale =
-            entries.firstOrNull { it.name == name } ?: STANDARD
+        fun fromStoredName(name: String?): AppTextScale = entries.firstOrNull { it.name == name } ?: STANDARD
     }
 }
 
@@ -53,8 +54,7 @@ enum class UiDensityScale(val factor: Float) {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): UiDensityScale =
-            entries.firstOrNull { it.name == name } ?: STANDARD
+        fun fromStoredName(name: String?): UiDensityScale = entries.firstOrNull { it.name == name } ?: STANDARD
     }
 }
 
@@ -66,8 +66,7 @@ enum class HomeHeroStyle {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): HomeHeroStyle =
-            entries.firstOrNull { it.name == name } ?: ACTION
+        fun fromStoredName(name: String?): HomeHeroStyle = entries.firstOrNull { it.name == name } ?: ACTION
     }
 }
 
@@ -80,8 +79,7 @@ enum class WidgetThemeMode {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): WidgetThemeMode =
-            entries.firstOrNull { it.name == name } ?: SYSTEM
+        fun fromStoredName(name: String?): WidgetThemeMode = entries.firstOrNull { it.name == name } ?: SYSTEM
     }
 }
 
@@ -93,8 +91,7 @@ enum class WidgetColorSource {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): WidgetColorSource =
-            entries.firstOrNull { it.name == name } ?: SYSTEM_DYNAMIC
+        fun fromStoredName(name: String?): WidgetColorSource = entries.firstOrNull { it.name == name } ?: SYSTEM_DYNAMIC
     }
 }
 
@@ -105,8 +102,7 @@ enum class WidgetDensityScale(val factor: Float) {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): WidgetDensityScale =
-            entries.firstOrNull { it.name == name } ?: STANDARD
+        fun fromStoredName(name: String?): WidgetDensityScale = entries.firstOrNull { it.name == name } ?: STANDARD
     }
 }
 
@@ -116,8 +112,7 @@ enum class WidgetTextScale(val factor: Float) {
     ;
 
     companion object {
-        fun fromStoredName(name: String?): WidgetTextScale =
-            entries.firstOrNull { it.name == name } ?: STANDARD
+        fun fromStoredName(name: String?): WidgetTextScale = entries.firstOrNull { it.name == name } ?: STANDARD
     }
 }
 
@@ -144,11 +139,16 @@ enum class OpenAiCompatibleCloudAuthMode {
 data class SettingsPreferences(
     val persistentReminder: Boolean = false,
     val persistentIntervalMinutes: Int = 5,
-    val wakeHour: Int = 7,    val wakeMinute: Int = 0,
-    val breakfastHour: Int = 8,  val breakfastMinute: Int = 0,
-    val lunchHour: Int = 12,  val lunchMinute: Int = 0,
-    val dinnerHour: Int = 18, val dinnerMinute: Int = 0,
-    val bedHour: Int = 22,   val bedMinute: Int = 0,
+    val wakeHour: Int = 7,
+    val wakeMinute: Int = 0,
+    val breakfastHour: Int = 8,
+    val breakfastMinute: Int = 0,
+    val lunchHour: Int = 12,
+    val lunchMinute: Int = 0,
+    val dinnerHour: Int = 18,
+    val dinnerMinute: Int = 0,
+    val bedHour: Int = 22,
+    val bedMinute: Int = 0,
     /** 是否已完成欢迎引导（首次启动标志） */
     val hasSeenWelcome: Boolean = false,
     /**
@@ -242,13 +242,12 @@ data class SettingsPreferences(
     val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
     val openAiCompatibleProviderName: String = "OpenAI-compatible",
 ) {
-    fun cloudAiModelFor(provider: CloudAiProvider): String =
-        when (provider) {
-            CloudAiProvider.MIMO -> mimoCloudAiModel.ifBlank { provider.defaultModel }
-            CloudAiProvider.GEMINI -> geminiCloudAiModel.ifBlank { provider.defaultModel }
-            CloudAiProvider.ANTHROPIC -> anthropicCloudAiModel.ifBlank { provider.defaultModel }
-            CloudAiProvider.OPENAI_COMPATIBLE -> openAiCompatibleCloudAiModel.ifBlank { provider.defaultModel }
-        }
+    fun cloudAiModelFor(provider: CloudAiProvider): String = when (provider) {
+        CloudAiProvider.MIMO -> mimoCloudAiModel.ifBlank { provider.defaultModel }
+        CloudAiProvider.GEMINI -> geminiCloudAiModel.ifBlank { provider.defaultModel }
+        CloudAiProvider.ANTHROPIC -> anthropicCloudAiModel.ifBlank { provider.defaultModel }
+        CloudAiProvider.OPENAI_COMPATIBLE -> openAiCompatibleCloudAiModel.ifBlank { provider.defaultModel }
+    }
 
     fun activeCloudAiModel(): String {
         val providerModel = cloudAiModelFor(cloudAiProvider)
@@ -265,46 +264,57 @@ data class SettingsPreferences(
     }
 }
 
+internal fun SettingsPreferences.routineSchedule(): RoutineSchedule = RoutineSchedule(
+    wake = RoutineTime(wakeHour, wakeMinute),
+    breakfast = RoutineTime(breakfastHour, breakfastMinute),
+    lunch = RoutineTime(lunchHour, lunchMinute),
+    dinner = RoutineTime(dinnerHour, dinnerMinute),
+    bed = RoutineTime(bedHour, bedMinute),
+)
+
 @Singleton
-class UserPreferencesRepository @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) {
+class UserPreferencesRepository @Inject constructor(@param:ApplicationContext private val context: Context) {
     private val dataStore: DataStore<Preferences> = context.settingsDataStore
 
     companion object Keys {
-        val PERSISTENT_REMINDER          = booleanPreferencesKey("persistent_reminder")
-        val PERSISTENT_INTERVAL_MINUTES  = intPreferencesKey("persistent_interval_minutes")
-        val WAKE_HOUR      = intPreferencesKey("wake_hour")
-        val WAKE_MINUTE    = intPreferencesKey("wake_minute")
+        val PERSISTENT_REMINDER = booleanPreferencesKey("persistent_reminder")
+        val PERSISTENT_INTERVAL_MINUTES = intPreferencesKey("persistent_interval_minutes")
+        val WAKE_HOUR = intPreferencesKey("wake_hour")
+        val WAKE_MINUTE = intPreferencesKey("wake_minute")
         val BREAKFAST_HOUR = intPreferencesKey("breakfast_hour")
-        val BREAKFAST_MIN  = intPreferencesKey("breakfast_minute")
-        val LUNCH_HOUR     = intPreferencesKey("lunch_hour")
-        val LUNCH_MIN      = intPreferencesKey("lunch_minute")
-        val DINNER_HOUR    = intPreferencesKey("dinner_hour")
-        val DINNER_MIN     = intPreferencesKey("dinner_minute")
-        val BED_HOUR       = intPreferencesKey("bed_hour")
-        val BED_MIN        = intPreferencesKey("bed_minute")
+        val BREAKFAST_MIN = intPreferencesKey("breakfast_minute")
+        val LUNCH_HOUR = intPreferencesKey("lunch_hour")
+        val LUNCH_MIN = intPreferencesKey("lunch_minute")
+        val DINNER_HOUR = intPreferencesKey("dinner_hour")
+        val DINNER_MIN = intPreferencesKey("dinner_minute")
+        val BED_HOUR = intPreferencesKey("bed_hour")
+        val BED_MIN = intPreferencesKey("bed_minute")
         val HAS_SEEN_WELCOME = booleanPreferencesKey("has_seen_welcome")
-        val TRAVEL_MODE       = booleanPreferencesKey("travel_mode")
-        val HOME_TIMEZONE_ID  = stringPreferencesKey("home_timezone_id")
+        val TRAVEL_MODE = booleanPreferencesKey("travel_mode")
+        val HOME_TIMEZONE_ID = stringPreferencesKey("home_timezone_id")
+
         // 可选功能开关
-        val ENABLE_SYMPTOM_DIARY         = booleanPreferencesKey("enable_symptom_diary")
-        val ENABLE_DRUG_INTERACTION      = booleanPreferencesKey("enable_drug_interaction")
-        val ENABLE_DRUG_DATABASE         = booleanPreferencesKey("enable_drug_database")
-        val ENABLE_HEALTH_MODULE         = booleanPreferencesKey("enable_health_module")
-        val ENABLE_TIME_PERIOD_MODE      = booleanPreferencesKey("enable_time_period_mode")
+        val ENABLE_SYMPTOM_DIARY = booleanPreferencesKey("enable_symptom_diary")
+        val ENABLE_DRUG_INTERACTION = booleanPreferencesKey("enable_drug_interaction")
+        val ENABLE_DRUG_DATABASE = booleanPreferencesKey("enable_drug_database")
+        val ENABLE_HEALTH_MODULE = booleanPreferencesKey("enable_health_module")
+        val ENABLE_TIME_PERIOD_MODE = booleanPreferencesKey("enable_time_period_mode")
+
         // 外观
-        val THEME_MODE         = stringPreferencesKey("theme_mode")
-        val USE_DYNAMIC_COLOR  = booleanPreferencesKey("use_dynamic_color")
-        val THEME_PALETTE      = stringPreferencesKey("theme_palette")
-        val FONT_MODE          = stringPreferencesKey("font_mode")
-        val APP_TEXT_SCALE     = stringPreferencesKey("app_text_scale")
-        val UI_DENSITY_SCALE   = stringPreferencesKey("ui_density_scale")
+        val THEME_MODE = stringPreferencesKey("theme_mode")
+        val USE_DYNAMIC_COLOR = booleanPreferencesKey("use_dynamic_color")
+        val THEME_PALETTE = stringPreferencesKey("theme_palette")
+        val FONT_MODE = stringPreferencesKey("font_mode")
+        val APP_TEXT_SCALE = stringPreferencesKey("app_text_scale")
+        val UI_DENSITY_SCALE = stringPreferencesKey("ui_density_scale")
+
         // 今日页面显示偏好
         val AUTO_COLLAPSE_DONE = booleanPreferencesKey("auto_collapse_completed_groups")
         val HOME_HERO_STYLE = stringPreferencesKey("home_hero_style")
+
         // 提前预告提醒
         val EARLY_REMINDER_MINUTES = intPreferencesKey("early_reminder_minutes")
+
         // 小组件显示偏好
         val WIDGET_SHOW_ACTIONS = booleanPreferencesKey("widget_show_actions")
         val WIDGET_THEME_MODE = stringPreferencesKey("widget_theme_mode")
@@ -312,14 +322,18 @@ class UserPreferencesRepository @Inject constructor(
         val WIDGET_PALETTE = stringPreferencesKey("widget_palette")
         val WIDGET_DENSITY_SCALE = stringPreferencesKey("widget_density_scale")
         val WIDGET_TEXT_SCALE = stringPreferencesKey("widget_text_scale")
+
         // 漏服再提醒
-        val FOLLOW_UP_ENABLED       = booleanPreferencesKey("follow_up_reminder_enabled")
+        val FOLLOW_UP_ENABLED = booleanPreferencesKey("follow_up_reminder_enabled")
         val FOLLOW_UP_DELAY_MINUTES = intPreferencesKey("follow_up_delay_minutes")
-        val FOLLOW_UP_MAX_COUNT     = intPreferencesKey("follow_up_max_count")
+        val FOLLOW_UP_MAX_COUNT = intPreferencesKey("follow_up_max_count")
+
         // 健康模块
         val USER_HEIGHT_CM = floatPreferencesKey("user_height_cm")
+
         // OCR 识别设置
         val OCR_MODEL_TYPE = stringPreferencesKey("ocr_model_type")
+
         // 云端 AI 设置
         val CLOUD_AI_ENABLED = booleanPreferencesKey("cloud_ai_enabled")
         val CLOUD_AI_IMAGE_ANALYSIS_ENABLED = booleanPreferencesKey("cloud_ai_image_analysis_enabled")
@@ -337,25 +351,53 @@ class UserPreferencesRepository @Inject constructor(
         val OPENAI_COMPATIBLE_AUTH_MODE = stringPreferencesKey("openai_compatible_auth_mode")
         val OPENAI_COMPATIBLE_PROVIDER_NAME = stringPreferencesKey("openai_compatible_provider_name")
 
-        private fun cloudAiModelKey(provider: CloudAiProvider): Preferences.Key<String> =
-            when (provider) {
-                CloudAiProvider.MIMO -> CLOUD_AI_MIMO_MODEL
-                CloudAiProvider.GEMINI -> CLOUD_AI_GEMINI_MODEL
-                CloudAiProvider.ANTHROPIC -> CLOUD_AI_ANTHROPIC_MODEL
-                CloudAiProvider.OPENAI_COMPATIBLE -> CLOUD_AI_OPENAI_COMPATIBLE_MODEL
-            }
+        private fun cloudAiModelKey(provider: CloudAiProvider): Preferences.Key<String> = when (provider) {
+            CloudAiProvider.MIMO -> CLOUD_AI_MIMO_MODEL
+            CloudAiProvider.GEMINI -> CLOUD_AI_GEMINI_MODEL
+            CloudAiProvider.ANTHROPIC -> CLOUD_AI_ANTHROPIC_MODEL
+            CloudAiProvider.OPENAI_COMPATIBLE -> CLOUD_AI_OPENAI_COMPATIBLE_MODEL
+        }
     }
 
     /** 持续输出最新设置（Flow，app 生命周期内可观察） */
     val settingsFlow: Flow<SettingsPreferences> = dataStore.data
         .catch { e ->
-            if (e is IOException) emit(emptyPreferences())
-            else throw e
+            if (e is IOException) {
+                emit(emptyPreferences())
+            } else {
+                throw e
+            }
         }
         .map { prefs ->
             val cloudAiProvider = prefs[CLOUD_AI_PROVIDER]?.let {
                 runCatching { CloudAiProvider.valueOf(it) }.getOrNull()
             } ?: CloudAiProvider.MIMO
+            val defaultRoutine = RoutineSchedule()
+            val wakeTime = RoutineTime.fromStoredOrDefault(
+                prefs[WAKE_HOUR],
+                prefs[WAKE_MINUTE],
+                defaultRoutine.wake,
+            )
+            val breakfastTime = RoutineTime.fromStoredOrDefault(
+                prefs[BREAKFAST_HOUR],
+                prefs[BREAKFAST_MIN],
+                defaultRoutine.breakfast,
+            )
+            val lunchTime = RoutineTime.fromStoredOrDefault(
+                prefs[LUNCH_HOUR],
+                prefs[LUNCH_MIN],
+                defaultRoutine.lunch,
+            )
+            val dinnerTime = RoutineTime.fromStoredOrDefault(
+                prefs[DINNER_HOUR],
+                prefs[DINNER_MIN],
+                defaultRoutine.dinner,
+            )
+            val bedTime = RoutineTime.fromStoredOrDefault(
+                prefs[BED_HOUR],
+                prefs[BED_MIN],
+                defaultRoutine.bed,
+            )
             val legacyCloudAiModel = prefs[CLOUD_AI_MODEL]
             fun storedModel(provider: CloudAiProvider): String {
                 val legacyForSelectedProvider = if (cloudAiProvider == provider) legacyCloudAiModel else null
@@ -367,23 +409,23 @@ class UserPreferencesRepository @Inject constructor(
             val openAiCompatibleCloudAiModel = storedModel(CloudAiProvider.OPENAI_COMPATIBLE)
 
             SettingsPreferences(
-                persistentReminder         = prefs[PERSISTENT_REMINDER] ?: false,
-                persistentIntervalMinutes  = prefs[PERSISTENT_INTERVAL_MINUTES] ?: 5,
-                wakeHour      = prefs[WAKE_HOUR]      ?: 7,  wakeMinute    = prefs[WAKE_MINUTE]    ?: 0,
-                breakfastHour = prefs[BREAKFAST_HOUR] ?: 8,  breakfastMinute = prefs[BREAKFAST_MIN] ?: 0,
-                lunchHour     = prefs[LUNCH_HOUR]     ?: 12, lunchMinute   = prefs[LUNCH_MIN]      ?: 0,
-                dinnerHour    = prefs[DINNER_HOUR]    ?: 18, dinnerMinute  = prefs[DINNER_MIN]     ?: 0,
-                bedHour       = prefs[BED_HOUR]       ?: 22, bedMinute     = prefs[BED_MIN]        ?: 0,
+                persistentReminder = prefs[PERSISTENT_REMINDER] ?: false,
+                persistentIntervalMinutes = prefs[PERSISTENT_INTERVAL_MINUTES] ?: 5,
+                wakeHour = wakeTime.hour, wakeMinute = wakeTime.minute,
+                breakfastHour = breakfastTime.hour, breakfastMinute = breakfastTime.minute,
+                lunchHour = lunchTime.hour, lunchMinute = lunchTime.minute,
+                dinnerHour = dinnerTime.hour, dinnerMinute = dinnerTime.minute,
+                bedHour = bedTime.hour, bedMinute = bedTime.minute,
                 hasSeenWelcome = prefs[HAS_SEEN_WELCOME] ?: false,
-                travelMode    = prefs[TRAVEL_MODE]      ?: false,
-                homeTimeZoneId = prefs[HOME_TIMEZONE_ID]  ?: "",
-                enableSymptomDiary        = prefs[ENABLE_SYMPTOM_DIARY]    ?: true,
+                travelMode = prefs[TRAVEL_MODE] ?: false,
+                homeTimeZoneId = prefs[HOME_TIMEZONE_ID] ?: "",
+                enableSymptomDiary = prefs[ENABLE_SYMPTOM_DIARY] ?: true,
                 enableDrugInteractionCheck = prefs[ENABLE_DRUG_INTERACTION] ?: true,
-                enableDrugDatabase        = prefs[ENABLE_DRUG_DATABASE]     ?: true,
-                enableHealthModule        = prefs[ENABLE_HEALTH_MODULE]     ?: true,
-                enableTimePeriodMode     = prefs[ENABLE_TIME_PERIOD_MODE]  ?: true,
-                themeMode       = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
-                                    ?: ThemeMode.SYSTEM,
+                enableDrugDatabase = prefs[ENABLE_DRUG_DATABASE] ?: true,
+                enableHealthModule = prefs[ENABLE_HEALTH_MODULE] ?: true,
+                enableTimePeriodMode = prefs[ENABLE_TIME_PERIOD_MODE] ?: true,
+                themeMode = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
+                    ?: ThemeMode.SYSTEM,
                 useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
                 themePaletteName = prefs[THEME_PALETTE] ?: "ANSHIN",
                 fontMode = FontMode.fromStoredName(prefs[FONT_MODE]),
@@ -399,11 +441,12 @@ class UserPreferencesRepository @Inject constructor(
                 widgetDensityScale = WidgetDensityScale.fromStoredName(prefs[WIDGET_DENSITY_SCALE]),
                 widgetTextScale = WidgetTextScale.fromStoredName(prefs[WIDGET_TEXT_SCALE]),
                 followUpReminderEnabled = prefs[FOLLOW_UP_ENABLED] ?: false,
-                followUpDelayMinutes    = prefs[FOLLOW_UP_DELAY_MINUTES] ?: 15,
-                followUpMaxCount        = prefs[FOLLOW_UP_MAX_COUNT] ?: 1,
-                userHeightCm            = prefs[USER_HEIGHT_CM] ?: 0f,
-                ocrModelType            = prefs[OCR_MODEL_TYPE]?.let { runCatching { OcrModelType.valueOf(it) }.getOrNull() }
-                                            ?: OcrModelType.LIGHT_SVTR,
+                followUpDelayMinutes = prefs[FOLLOW_UP_DELAY_MINUTES] ?: 15,
+                followUpMaxCount = prefs[FOLLOW_UP_MAX_COUNT] ?: 1,
+                userHeightCm = prefs[USER_HEIGHT_CM] ?: 0f,
+                ocrModelType =
+                prefs[OCR_MODEL_TYPE]?.let { runCatching { OcrModelType.valueOf(it) }.getOrNull() }
+                    ?: OcrModelType.LIGHT_SVTR,
                 cloudAiEnabled = prefs[CLOUD_AI_ENABLED] ?: false,
                 cloudAiImageAnalysisEnabled = prefs[CLOUD_AI_IMAGE_ANALYSIS_ENABLED] ?: false,
                 cloudAiHealthInsightsEnabled = prefs[CLOUD_AI_HEALTH_INSIGHTS_ENABLED] ?: false,
@@ -437,15 +480,45 @@ class UserPreferencesRepository @Inject constructor(
         dataStore.edit { it[PERSISTENT_INTERVAL_MINUTES] = minutes }
     }
 
-    suspend fun updateRoutineTime(field: String, hour: Int, minute: Int) {
+    suspend fun updateRoutineTime(slot: RoutineTimeSlot, time: RoutineTime) {
         dataStore.edit { prefs ->
-            when (field) {
-                "wake"      -> { prefs[WAKE_HOUR] = hour;      prefs[WAKE_MINUTE]    = minute }
-                "breakfast" -> { prefs[BREAKFAST_HOUR] = hour; prefs[BREAKFAST_MIN]  = minute }
-                "lunch"     -> { prefs[LUNCH_HOUR] = hour;     prefs[LUNCH_MIN]      = minute }
-                "dinner"    -> { prefs[DINNER_HOUR] = hour;    prefs[DINNER_MIN]     = minute }
-                "bed"       -> { prefs[BED_HOUR] = hour;       prefs[BED_MIN]        = minute }
+            when (slot) {
+                RoutineTimeSlot.WAKE -> {
+                    prefs[WAKE_HOUR] = time.hour
+                    prefs[WAKE_MINUTE] = time.minute
+                }
+                RoutineTimeSlot.BREAKFAST -> {
+                    prefs[BREAKFAST_HOUR] = time.hour
+                    prefs[BREAKFAST_MIN] = time.minute
+                }
+                RoutineTimeSlot.LUNCH -> {
+                    prefs[LUNCH_HOUR] = time.hour
+                    prefs[LUNCH_MIN] = time.minute
+                }
+                RoutineTimeSlot.DINNER -> {
+                    prefs[DINNER_HOUR] = time.hour
+                    prefs[DINNER_MIN] = time.minute
+                }
+                RoutineTimeSlot.BED -> {
+                    prefs[BED_HOUR] = time.hour
+                    prefs[BED_MIN] = time.minute
+                }
             }
+        }
+    }
+
+    suspend fun updateRoutineSchedule(schedule: RoutineSchedule) {
+        dataStore.edit { prefs ->
+            prefs[WAKE_HOUR] = schedule.wake.hour
+            prefs[WAKE_MINUTE] = schedule.wake.minute
+            prefs[BREAKFAST_HOUR] = schedule.breakfast.hour
+            prefs[BREAKFAST_MIN] = schedule.breakfast.minute
+            prefs[LUNCH_HOUR] = schedule.lunch.hour
+            prefs[LUNCH_MIN] = schedule.lunch.minute
+            prefs[DINNER_HOUR] = schedule.dinner.hour
+            prefs[DINNER_MIN] = schedule.dinner.minute
+            prefs[BED_HOUR] = schedule.bed.hour
+            prefs[BED_MIN] = schedule.bed.minute
         }
     }
 
@@ -542,15 +615,11 @@ class UserPreferencesRepository @Inject constructor(
     }
 
     /** 更新漏服再提醒设置 */
-    suspend fun updateFollowUpSettings(
-        enabled: Boolean? = null,
-        delayMinutes: Int? = null,
-        maxCount: Int? = null,
-    ) {
+    suspend fun updateFollowUpSettings(enabled: Boolean? = null, delayMinutes: Int? = null, maxCount: Int? = null) {
         dataStore.edit { prefs ->
-            if (enabled != null)      prefs[FOLLOW_UP_ENABLED]       = enabled
+            if (enabled != null) prefs[FOLLOW_UP_ENABLED] = enabled
             if (delayMinutes != null) prefs[FOLLOW_UP_DELAY_MINUTES] = delayMinutes
-            if (maxCount != null)     prefs[FOLLOW_UP_MAX_COUNT]     = maxCount
+            if (maxCount != null) prefs[FOLLOW_UP_MAX_COUNT] = maxCount
         }
     }
 

@@ -19,7 +19,11 @@ class DoubaoAudioFrameChunkerTest {
             input.copyOfRange(DoubaoAudioFrameChunker.PCM_FRAME_BYTES, DoubaoAudioFrameChunker.PCM_FRAME_BYTES * 2),
             frames[1],
         )
-        assertTrue(chunker.flushRemainder().contentEquals(input.copyOfRange(DoubaoAudioFrameChunker.PCM_FRAME_BYTES * 2, input.size)))
+        assertTrue(
+            chunker.flushRemainder().contentEquals(
+                input.copyOfRange(DoubaoAudioFrameChunker.PCM_FRAME_BYTES * 2, input.size),
+            ),
+        )
     }
 
     @Test

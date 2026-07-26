@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -23,13 +20,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
@@ -48,8 +45,10 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.components.MedicationCard
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.labelRes
@@ -81,10 +80,11 @@ internal fun MedicationTaskGroupCard(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (pendingCount > 0)
+            containerColor = if (pendingCount > 0) {
                 MaterialTheme.colorScheme.surfaceContainerHigh
-            else
-                MaterialTheme.colorScheme.surfaceContainerLow,
+            } else {
+                MaterialTheme.colorScheme.surfaceContainerLow
+            },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -171,7 +171,9 @@ internal fun MedicationTaskGroupCard(
                                 flatStyle = true,
                                 onPartialTake = if (onPartialTake != null) {
                                     { qty -> onPartialTake(item, qty) }
-                                } else null,
+                                } else {
+                                    null
+                                },
                             )
                             if (idx < items.lastIndex) {
                                 HorizontalDivider(

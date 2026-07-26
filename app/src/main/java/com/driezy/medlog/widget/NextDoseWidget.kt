@@ -34,8 +34,8 @@ import com.driezy.medlog.domain.todayEnd
 import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
-import java.util.Calendar
 import kotlinx.coroutines.flow.first
+import java.util.Calendar
 
 /**
  * 下次服药桌面小组件（Jetpack Glance M3）
@@ -51,19 +51,19 @@ class NextDoseWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(
-            DpSize(80.dp, 80.dp),   // 2×2
-            DpSize(180.dp, 80.dp),  // 4×2
+            DpSize(80.dp, 80.dp), // 2×2
+            DpSize(180.dp, 80.dp), // 4×2
         ),
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val ep          = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        val ep = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
         val medications = ep.medicationRepository().getActiveOnce()
-        val logs        = ep.logRepository().getLogsForRangeOnce(todayStart(), todayEnd())
+        val logs = ep.logRepository().getLogsForRangeOnce(todayStart(), todayEnd())
 
-        val takenIds  = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
-        val total     = medications.size
-        val allDone   = total > 0 && takenIds.size >= total
+        val takenIds = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
+        val total = medications.size
+        val allDone = total > 0 && takenIds.size >= total
 
         val cal = Calendar.getInstance()
         val nowMinutes = cal.get(Calendar.HOUR_OF_DAY) * 60 + cal.get(Calendar.MINUTE)
@@ -94,12 +94,12 @@ class NextDoseWidget : GlanceAppWidget() {
         provideContent {
             MedLogGlanceTheme(appearance = appearance) {
                 NextDoseContent(
-                    total        = total,
-                    allDone      = allDone,
-                    nextMinutes  = nextGroup?.key,
+                    total = total,
+                    allDone = allDone,
+                    nextMinutes = nextGroup?.key,
                     nextMedPairs = nextGroup?.value ?: emptyList(),
-                    nowMinutes   = nowMinutes,
-                    sizing       = appearance.sizing,
+                    nowMinutes = nowMinutes,
+                    sizing = appearance.sizing,
                 )
             }
         }
@@ -117,22 +117,22 @@ private fun NextDoseContent(
     nowMinutes: Int,
     sizing: WidgetSizing,
 ) {
-    val size      = LocalSize.current
+    val size = LocalSize.current
     val isCompact = size.width < 160.dp
     val ctx = LocalContext.current
 
-    val hour   = (nextMinutes ?: 0) / 60
+    val hour = (nextMinutes ?: 0) / 60
     val minute = (nextMinutes ?: 0) % 60
     val timeStr = "%02d:%02d".format(hour, minute)
 
     // 倒计时文字
     val diff = (nextMinutes ?: 0) - nowMinutes
     val countdownText = when {
-        nextMinutes == null    -> ""
-        diff <= 0              -> ctx.getString(R.string.widget_next_dose_now)
-        diff < 60              -> ctx.getString(R.string.widget_next_dose_min_fmt, diff)
-        diff < 120             -> ctx.getString(R.string.widget_next_dose_1h_min_fmt, diff % 60)
-        else                   -> ctx.getString(R.string.widget_next_dose_h_fmt, diff / 60)
+        nextMinutes == null -> ""
+        diff <= 0 -> ctx.getString(R.string.widget_next_dose_now)
+        diff < 60 -> ctx.getString(R.string.widget_next_dose_min_fmt, diff)
+        diff < 120 -> ctx.getString(R.string.widget_next_dose_1h_min_fmt, diff % 60)
+        else -> ctx.getString(R.string.widget_next_dose_h_fmt, diff / 60)
     }
 
     WidgetContainer(
@@ -140,7 +140,7 @@ private fun NextDoseContent(
         modifier = GlanceModifier
             .clickable(actionStartActivity<MainActivity>()),
         sizing = sizing,
-        verticalAlignment   = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
+        verticalAlignment = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
     ) {
         when {
@@ -172,9 +172,21 @@ private fun NextDoseContent(
             allDone -> {
                 // 全部完成
                 if (isCompact) {
-                    WidgetIconBadge(icon = R.drawable.ic_symbol_check_circle, prominent = true, size = sizing.dp(44), iconSize = sizing.dp(26))
+                    WidgetIconBadge(
+                        icon = R.drawable.ic_symbol_check_circle,
+                        prominent = true,
+                        size = sizing.dp(44),
+                        iconSize = sizing.dp(26),
+                    )
                     Spacer(GlanceModifier.height(sizing.dp(6)))
-                    Text(ctx.getString(R.string.widget_today_done_label), style = TextStyle(fontSize = sizing.sp(10), fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onTertiaryContainer))
+                    Text(
+                        ctx.getString(R.string.widget_today_done_label),
+                        style = TextStyle(
+                            fontSize = sizing.sp(10),
+                            fontWeight = FontWeight.Medium,
+                            color = GlanceTheme.colors.onTertiaryContainer,
+                        ),
+                    )
                 } else {
                     WidgetHeader(
                         icon = R.drawable.ic_symbol_check_circle,
@@ -194,10 +206,16 @@ private fun NextDoseContent(
             nextMinutes == null -> {
                 // 有药但没有未来时间（不应发生）
                 if (!isCompact) {
-                    Text(ctx.getString(R.string.widget_next_dose_title), style = TextStyle(fontSize = sizing.sp(12), color = GlanceTheme.colors.onSurfaceVariant))
+                    Text(
+                        ctx.getString(R.string.widget_next_dose_title),
+                        style = TextStyle(fontSize = sizing.sp(12), color = GlanceTheme.colors.onSurfaceVariant),
+                    )
                     Spacer(GlanceModifier.height(sizing.dp(8)))
                 }
-                Text(ctx.getString(R.string.widget_next_dose_no_pending), style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurfaceVariant))
+                Text(
+                    ctx.getString(R.string.widget_next_dose_no_pending),
+                    style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurfaceVariant),
+                )
             }
             isCompact -> {
                 // 2×2：大号时间 + 第一个药品名（仅 1 种）或薯品总数（多种）
@@ -205,14 +223,23 @@ private fun NextDoseContent(
                 Spacer(GlanceModifier.height(sizing.dp(6)))
                 Text(
                     timeStr,
-                    style = TextStyle(fontSize = sizing.sp(22), fontWeight = FontWeight.Bold, color = GlanceTheme.colors.primary),
+                    style = TextStyle(
+                        fontSize = sizing.sp(22),
+                        fontWeight = FontWeight.Bold,
+                        color = GlanceTheme.colors.primary,
+                    ),
                 )
                 Spacer(GlanceModifier.height(sizing.dp(2)))
                 Text(
-                    if (nextMedPairs.size == 1)
+                    if (nextMedPairs.size == 1) {
                         nextMedPairs.first().second
-                    else
-                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_count_fmt, nextMedPairs.size, nextMedPairs.size),
+                    } else {
+                        ctx.resources.getQuantityString(
+                            R.plurals.widget_next_dose_count_fmt,
+                            nextMedPairs.size,
+                            nextMedPairs.size,
+                        )
+                    },
                     style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurface),
                 )
             }
@@ -229,7 +256,11 @@ private fun NextDoseContent(
                 // 倒计时（次要信息）
                 Text(
                     countdownText,
-                    style = TextStyle(fontSize = sizing.sp(12), fontWeight = FontWeight.Medium, color = GlanceTheme.colors.onSurface),
+                    style = TextStyle(
+                        fontSize = sizing.sp(12),
+                        fontWeight = FontWeight.Medium,
+                        color = GlanceTheme.colors.onSurface,
+                    ),
                 )
                 Spacer(GlanceModifier.height(sizing.dp(6)))
                 // 药品列表 + ✓ 打卡按钮（行之间插入细分隔线）
@@ -243,14 +274,14 @@ private fun NextDoseContent(
                         )
                     }
                     Row(
-                        modifier          = GlanceModifier
+                        modifier = GlanceModifier
                             .fillMaxWidth()
                             .padding(vertical = sizing.dp(3)),
                         verticalAlignment = Alignment.Vertical.CenterVertically,
                     ) {
                         Text(
                             "· $name",
-                            style    = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurface),
+                            style = TextStyle(fontSize = sizing.sp(11), color = GlanceTheme.colors.onSurface),
                             modifier = GlanceModifier.defaultWeight(),
                         )
                         WidgetActionButton(
@@ -264,7 +295,11 @@ private fun NextDoseContent(
                 }
                 if (nextMedPairs.size > 1) {
                     Text(
-                        ctx.resources.getQuantityString(R.plurals.widget_next_dose_remaining_fmt, nextMedPairs.size - 1, nextMedPairs.size - 1),
+                        ctx.resources.getQuantityString(
+                            R.plurals.widget_next_dose_remaining_fmt,
+                            nextMedPairs.size - 1,
+                            nextMedPairs.size - 1,
+                        ),
                         style = TextStyle(fontSize = sizing.sp(10), color = GlanceTheme.colors.onSurfaceVariant),
                     )
                 }

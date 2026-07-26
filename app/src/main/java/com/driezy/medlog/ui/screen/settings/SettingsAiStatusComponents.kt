@@ -1,53 +1,25 @@
 package com.driezy.medlog.ui.screen.settings
 
-import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
-import com.driezy.medlog.R
-import com.driezy.medlog.ai.CloudAiEndpointPreset
-import com.driezy.medlog.ai.CloudAiEndpointProtocol
-import com.driezy.medlog.data.repository.AiUsageSummaryRow
-import com.driezy.medlog.data.repository.AppTextScale
-import com.driezy.medlog.data.repository.CloudAiProvider
-import com.driezy.medlog.data.repository.FontMode
-import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
-import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.theme.ThemePalette
-
 
 @Composable
-internal fun CloudAiStatusSummary(
-    uiState: SettingsUiState,
-    modifier: Modifier = Modifier,
-) {
+internal fun CloudAiStatusSummary(uiState: SettingsUiState, modifier: Modifier = Modifier) {
     val presentation = CloudAiSettingsPresentation.from(
         enabled = uiState.cloudAiEnabled,
         hasApiKey = uiState.cloudAiProviderHasApiKey,
@@ -164,7 +136,11 @@ internal fun OcrModelOptionCard(
                         text = title,
                         style = MaterialTheme.typography.titleSmall,
                         fontWeight = FontWeight.Bold,
-                        color = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface,
+                        color = if (selected) {
+                            MaterialTheme.colorScheme.primary
+                        } else {
+                            MaterialTheme.colorScheme.onSurface
+                        },
                     )
                     Surface(
                         shape = RoundedCornerShape(6.dp),
@@ -206,19 +182,19 @@ private fun SpecBadge(icon: Int, text: String) {
         Row(
             modifier = Modifier.padding(horizontal = 6.dp, vertical = 3.dp),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(4.dp)
+            horizontalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             MedLogIcon(
                 icon = icon,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.size(12.dp)
+                modifier = Modifier.size(12.dp),
             )
             Text(
                 text = text,
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
-                fontWeight = FontWeight.Medium
+                fontWeight = FontWeight.Medium,
             )
         }
     }

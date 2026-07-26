@@ -190,7 +190,9 @@ object HealthIntelligenceEngine {
         val insights = buildList {
             context.metrics.firstOrNull { it.type == HealthType.BLOOD_PRESSURE }?.let { addAll(bpInsights(it)) }
             context.metrics.firstOrNull { it.type == HealthType.BLOOD_GLUCOSE }?.let { addAll(glucoseInsights(it)) }
-            context.metrics.firstOrNull { it.type == HealthType.WEIGHT }?.let { addAll(weightInsights(it, context.bmi)) }
+            context.metrics.firstOrNull {
+                it.type == HealthType.WEIGHT
+            }?.let { addAll(weightInsights(it, context.bmi)) }
             context.metrics.firstOrNull { it.type == HealthType.BODY_FAT }?.let { addAll(bodyFatInsights(it)) }
             context.metrics.firstOrNull { it.type == HealthType.HEART_RATE }?.let { addAll(heartRateInsights(it)) }
             context.metrics.firstOrNull { it.type == HealthType.TEMPERATURE }?.let { addAll(temperatureInsights(it)) }
@@ -263,178 +265,172 @@ object HealthIntelligenceEngine {
         }
     }
 
-    private fun glucoseInsights(metric: HealthMetricInsight): List<HealthInsight> =
-        when {
-            metric.latestValue >= 13.9 -> listOf(
+    private fun glucoseInsights(metric: HealthMetricInsight): List<HealthInsight> = when {
+        metric.latestValue >= 13.9 -> listOf(
+            HealthInsight(
+                id = "glucose-high",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "血糖读数偏高",
+                body = "请标记空腹或餐后状态；若多次明显偏高、出现不适，或医生给过个体化阈值，请按医嘱处理。",
+                relatedType = HealthType.BLOOD_GLUCOSE,
+            ),
+        )
+        metric.latestValue < 3.9 -> listOf(
+            HealthInsight(
+                id = "glucose-low",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "血糖读数偏低",
+                body = "如有心慌、出汗、手抖等低血糖表现，请按医生建议及时处理，并记录诱因。",
+                relatedType = HealthType.BLOOD_GLUCOSE,
+            ),
+        )
+        metric.trend == HealthTrend.RISING -> listOf(
+            HealthInsight(
+                id = "glucose-rising",
+                kind = HealthInsightKind.TREND,
+                severity = HealthInsightSeverity.INFO,
+                title = "血糖最近有上升趋势",
+                body = "建议区分空腹、餐后和运动后记录，避免把不同场景混在同一趋势里解读。",
+                relatedType = HealthType.BLOOD_GLUCOSE,
+            ),
+        )
+        else -> emptyList()
+    }
+
+    private fun weightInsights(metric: HealthMetricInsight, bmi: Double?): List<HealthInsight> = buildList {
+        if (metric.trend == HealthTrend.RISING) {
+            add(
                 HealthInsight(
-                    id = "glucose-high",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "血糖读数偏高",
-                    body = "请标记空腹或餐后状态；若多次明显偏高、出现不适，或医生给过个体化阈值，请按医嘱处理。",
-                    relatedType = HealthType.BLOOD_GLUCOSE,
-                ),
-            )
-            metric.latestValue < 3.9 -> listOf(
-                HealthInsight(
-                    id = "glucose-low",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "血糖读数偏低",
-                    body = "如有心慌、出汗、手抖等低血糖表现，请按医生建议及时处理，并记录诱因。",
-                    relatedType = HealthType.BLOOD_GLUCOSE,
-                ),
-            )
-            metric.trend == HealthTrend.RISING -> listOf(
-                HealthInsight(
-                    id = "glucose-rising",
+                    id = "weight-rising",
                     kind = HealthInsightKind.TREND,
                     severity = HealthInsightSeverity.INFO,
-                    title = "血糖最近有上升趋势",
-                    body = "建议区分空腹、餐后和运动后记录，避免把不同场景混在同一趋势里解读。",
-                    relatedType = HealthType.BLOOD_GLUCOSE,
+                    title = "体重最近有上升趋势",
+                    body = "优先确认测量时间是否一致；如果晨起体重持续上升，可结合饮食、运动和水肿情况观察。",
+                    relatedType = HealthType.WEIGHT,
                 ),
             )
-            else -> emptyList()
         }
-
-    private fun weightInsights(metric: HealthMetricInsight, bmi: Double?): List<HealthInsight> =
-        buildList {
-            if (metric.trend == HealthTrend.RISING) {
-                add(
-                    HealthInsight(
-                        id = "weight-rising",
-                        kind = HealthInsightKind.TREND,
-                        severity = HealthInsightSeverity.INFO,
-                        title = "体重最近有上升趋势",
-                        body = "优先确认测量时间是否一致；如果晨起体重持续上升，可结合饮食、运动和水肿情况观察。",
-                        relatedType = HealthType.WEIGHT,
-                    ),
-                )
-            }
-            if (bmi != null && bmi >= 24.0) {
-                add(
-                    HealthInsight(
-                        id = "bmi-attention",
-                        kind = HealthInsightKind.ROUTINE,
-                        severity = HealthInsightSeverity.INFO,
-                        title = "BMI 需要留意",
-                        body = "当前 BMI 约 ${bmi.fmt()}。它适合做长期趋势参考，建议结合腰围、体脂率和医生建议判断。",
-                        relatedType = HealthType.WEIGHT,
-                    ),
-                )
-            }
-        }
-
-    private fun bodyFatInsights(metric: HealthMetricInsight): List<HealthInsight> =
-        when {
-            metric.latestValue >= 28.0 -> listOf(
+        if (bmi != null && bmi >= 24.0) {
+            add(
                 HealthInsight(
-                    id = "body-fat-high",
+                    id = "bmi-attention",
                     kind = HealthInsightKind.ROUTINE,
                     severity = HealthInsightSeverity.INFO,
-                    title = "体脂率可结合体重一起看",
-                    body = "体脂率偏高时，不建议只看体重变化；持续记录体脂、腰围和运动情况更有参考价值。",
-                    relatedType = HealthType.BODY_FAT,
+                    title = "BMI 需要留意",
+                    body = "当前 BMI 约 ${bmi.fmt()}。它适合做长期趋势参考，建议结合腰围、体脂率和医生建议判断。",
+                    relatedType = HealthType.WEIGHT,
                 ),
             )
-            metric.trend == HealthTrend.RISING -> listOf(
-                HealthInsight(
-                    id = "body-fat-rising",
-                    kind = HealthInsightKind.TREND,
-                    severity = HealthInsightSeverity.INFO,
-                    title = "体脂率最近有上升趋势",
-                    body = "尽量使用同一设备、同一时间段测量；短期波动可能受饮水和运动影响。",
-                    relatedType = HealthType.BODY_FAT,
-                ),
-            )
-            else -> emptyList()
         }
+    }
 
-    private fun heartRateInsights(metric: HealthMetricInsight): List<HealthInsight> =
-        when {
-            metric.latestValue >= 110.0 -> listOf(
-                HealthInsight(
-                    id = "heart-rate-high",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "心率读数偏快",
-                    body = "先在安静状态下复测；若持续偏快，或伴随胸闷、气短、头晕，请及时咨询医生。",
-                    relatedType = HealthType.HEART_RATE,
-                ),
-            )
-            metric.latestValue < 50.0 -> listOf(
-                HealthInsight(
-                    id = "heart-rate-low",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "心率读数偏慢",
-                    body = "如果不是运动员或睡眠状态读数，且伴随乏力、头晕或不适，建议尽快咨询医生。",
-                    relatedType = HealthType.HEART_RATE,
-                ),
-            )
-            metric.trend == HealthTrend.RISING -> listOf(
-                HealthInsight(
-                    id = "heart-rate-rising",
-                    kind = HealthInsightKind.TREND,
-                    severity = HealthInsightSeverity.INFO,
-                    title = "心率最近有上升趋势",
-                    body = "留意咖啡因、睡眠、压力、发热和运动时间；尽量在静息状态记录便于比较。",
-                    relatedType = HealthType.HEART_RATE,
-                ),
-            )
-            else -> emptyList()
-        }
+    private fun bodyFatInsights(metric: HealthMetricInsight): List<HealthInsight> = when {
+        metric.latestValue >= 28.0 -> listOf(
+            HealthInsight(
+                id = "body-fat-high",
+                kind = HealthInsightKind.ROUTINE,
+                severity = HealthInsightSeverity.INFO,
+                title = "体脂率可结合体重一起看",
+                body = "体脂率偏高时，不建议只看体重变化；持续记录体脂、腰围和运动情况更有参考价值。",
+                relatedType = HealthType.BODY_FAT,
+            ),
+        )
+        metric.trend == HealthTrend.RISING -> listOf(
+            HealthInsight(
+                id = "body-fat-rising",
+                kind = HealthInsightKind.TREND,
+                severity = HealthInsightSeverity.INFO,
+                title = "体脂率最近有上升趋势",
+                body = "尽量使用同一设备、同一时间段测量；短期波动可能受饮水和运动影响。",
+                relatedType = HealthType.BODY_FAT,
+            ),
+        )
+        else -> emptyList()
+    }
 
-    private fun temperatureInsights(metric: HealthMetricInsight): List<HealthInsight> =
-        when {
-            metric.latestValue >= 38.0 -> listOf(
-                HealthInsight(
-                    id = "temperature-fever",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "体温提示发热",
-                    body = "建议间隔一段时间复测并记录症状；若高热不退、呼吸困难或精神状态差，请及时就医。",
-                    relatedType = HealthType.TEMPERATURE,
-                ),
-            )
-            metric.latestValue < 35.5 -> listOf(
-                HealthInsight(
-                    id = "temperature-low",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "体温读数偏低",
-                    body = "先确认测量方式和设备；若复测仍低且伴随寒战、意识不清或明显不适，请及时就医。",
-                    relatedType = HealthType.TEMPERATURE,
-                ),
-            )
-            else -> emptyList()
-        }
+    private fun heartRateInsights(metric: HealthMetricInsight): List<HealthInsight> = when {
+        metric.latestValue >= 110.0 -> listOf(
+            HealthInsight(
+                id = "heart-rate-high",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "心率读数偏快",
+                body = "先在安静状态下复测；若持续偏快，或伴随胸闷、气短、头晕，请及时咨询医生。",
+                relatedType = HealthType.HEART_RATE,
+            ),
+        )
+        metric.latestValue < 50.0 -> listOf(
+            HealthInsight(
+                id = "heart-rate-low",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "心率读数偏慢",
+                body = "如果不是运动员或睡眠状态读数，且伴随乏力、头晕或不适，建议尽快咨询医生。",
+                relatedType = HealthType.HEART_RATE,
+            ),
+        )
+        metric.trend == HealthTrend.RISING -> listOf(
+            HealthInsight(
+                id = "heart-rate-rising",
+                kind = HealthInsightKind.TREND,
+                severity = HealthInsightSeverity.INFO,
+                title = "心率最近有上升趋势",
+                body = "留意咖啡因、睡眠、压力、发热和运动时间；尽量在静息状态记录便于比较。",
+                relatedType = HealthType.HEART_RATE,
+            ),
+        )
+        else -> emptyList()
+    }
 
-    private fun spO2Insights(metric: HealthMetricInsight): List<HealthInsight> =
-        when {
-            metric.latestValue < 90.0 -> listOf(
-                HealthInsight(
-                    id = "spo2-urgent-low",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.URGENT,
-                    title = "血氧读数明显偏低",
-                    body = "请确认手指温暖、设备夹好后复测；若仍低于 90% 或有气促、胸闷，请立即就医。",
-                    relatedType = HealthType.SPO2,
-                ),
-            )
-            metric.latestValue < 95.0 -> listOf(
-                HealthInsight(
-                    id = "spo2-low",
-                    kind = HealthInsightKind.SAFETY,
-                    severity = HealthInsightSeverity.WARNING,
-                    title = "血氧读数偏低",
-                    body = "建议静息复测并记录症状；若持续低于平时水平，或伴随呼吸不适，请咨询医生。",
-                    relatedType = HealthType.SPO2,
-                ),
-            )
-            else -> emptyList()
-        }
+    private fun temperatureInsights(metric: HealthMetricInsight): List<HealthInsight> = when {
+        metric.latestValue >= 38.0 -> listOf(
+            HealthInsight(
+                id = "temperature-fever",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "体温提示发热",
+                body = "建议间隔一段时间复测并记录症状；若高热不退、呼吸困难或精神状态差，请及时就医。",
+                relatedType = HealthType.TEMPERATURE,
+            ),
+        )
+        metric.latestValue < 35.5 -> listOf(
+            HealthInsight(
+                id = "temperature-low",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "体温读数偏低",
+                body = "先确认测量方式和设备；若复测仍低且伴随寒战、意识不清或明显不适，请及时就医。",
+                relatedType = HealthType.TEMPERATURE,
+            ),
+        )
+        else -> emptyList()
+    }
+
+    private fun spO2Insights(metric: HealthMetricInsight): List<HealthInsight> = when {
+        metric.latestValue < 90.0 -> listOf(
+            HealthInsight(
+                id = "spo2-urgent-low",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.URGENT,
+                title = "血氧读数明显偏低",
+                body = "请确认手指温暖、设备夹好后复测；若仍低于 90% 或有气促、胸闷，请立即就医。",
+                relatedType = HealthType.SPO2,
+            ),
+        )
+        metric.latestValue < 95.0 -> listOf(
+            HealthInsight(
+                id = "spo2-low",
+                kind = HealthInsightKind.SAFETY,
+                severity = HealthInsightSeverity.WARNING,
+                title = "血氧读数偏低",
+                body = "建议静息复测并记录症状；若持续低于平时水平，或伴随呼吸不适，请咨询医生。",
+                relatedType = HealthType.SPO2,
+            ),
+        )
+        else -> emptyList()
+    }
 
     private fun calculateTrend(type: HealthType, records: List<HealthRecord>): HealthTrend {
         if (records.size < 3) return HealthTrend.INSUFFICIENT
@@ -469,13 +465,12 @@ object HealthIntelligenceEngine {
         }
     }
 
-    private fun isAbnormal(type: HealthType, value: Double, secondaryValue: Double?): Boolean =
-        when (type) {
-            HealthType.BLOOD_PRESSURE ->
-                secondaryValue?.let { value !in type.normalMin..type.normalMax || it !in 60.0..80.0 } ?: true
-            HealthType.WEIGHT -> false
-            else -> !type.isNormal(value)
-        }
+    private fun isAbnormal(type: HealthType, value: Double, secondaryValue: Double?): Boolean = when (type) {
+        HealthType.BLOOD_PRESSURE ->
+            secondaryValue?.let { value !in type.normalMin..type.normalMax || it !in 60.0..80.0 } ?: true
+        HealthType.WEIGHT -> false
+        else -> !type.isNormal(value)
+    }
 
     private val HealthInsightSeverity.rank: Int
         get() = when (this) {
@@ -489,14 +484,13 @@ object HealthInsightPromptBuilder {
     fun buildRequest(
         context: HealthInsightContext,
         profile: HealthPromptProfile = HealthPromptProfile(),
-    ): AiChatRequest =
-        AiChatRequest(
-            messages = listOf(
-                AiChatMessage.system(
-                    "你不是医生，不能诊断、开药或替代专业医疗建议。你只能基于用户记录的健康数据生成低风险、简短、可执行的观察建议。遇到危险读数必须建议复测并就医。",
-                ),
-                AiChatMessage.developer(
-                    """
+    ): AiChatRequest = AiChatRequest(
+        messages = listOf(
+            AiChatMessage.system(
+                "你不是医生，不能诊断、开药或替代专业医疗建议。你只能基于用户记录的健康数据生成低风险、简短、可执行的观察建议。遇到危险读数必须建议复测并就医。",
+            ),
+            AiChatMessage.developer(
+                """
                     Locale: ${profile.locale}
                     Tone: ${profile.tone}
                     Return JSON only. Shape:
@@ -507,13 +501,13 @@ object HealthInsightPromptBuilder {
                     - hide implementation details and never ask the user to chat
                     - do not mention diagnosis
                     - do not infer facts not present in context
-                    """.trimIndent(),
-                ),
-                AiChatMessage.user(context.toPromptContext()),
+                """.trimIndent(),
             ),
-            temperature = 0.2,
-            maxOutputTokens = 700,
-        )
+            AiChatMessage.user(context.toPromptContext()),
+        ),
+        temperature = 0.2,
+        maxOutputTokens = 700,
+    )
 }
 
 private fun Double.fmt(): String = String.format(Locale.US, "%.1f", this)

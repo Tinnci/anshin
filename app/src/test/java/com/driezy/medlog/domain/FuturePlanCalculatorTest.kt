@@ -13,11 +13,10 @@ class FuturePlanCalculatorTest {
     private val tz = TimeZone.getTimeZone("Asia/Tokyo")
 
     // 辅助：创建某天零点的毫秒戳
-    private fun dayMs(year: Int, month: Int, day: Int): Long =
-        Calendar.getInstance(tz).apply {
-            set(year, month - 1, day, 0, 0, 0)
-            set(Calendar.MILLISECOND, 0)
-        }.timeInMillis
+    private fun dayMs(year: Int, month: Int, day: Int): Long = Calendar.getInstance(tz).apply {
+        set(year, month - 1, day, 0, 0, 0)
+        set(Calendar.MILLISECOND, 0)
+    }.timeInMillis
 
     private fun baseMed(
         name: String = "TestMed",

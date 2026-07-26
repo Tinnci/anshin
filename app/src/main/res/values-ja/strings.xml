@@ -10,6 +10,7 @@
     <string name="restore">元に戻す</string>
     <string name="cancel">キャンセル</string>
     <string name="common_save">保存</string>
+    <string name="common_more_actions">その他の操作</string>
     <string name="confirm">確認</string>
     <string name="medication_taken">服用済み</string>
     <string name="medication_skipped">スキップ</string>
@@ -48,6 +49,7 @@
     <string name="welcome_btn_start">Anshin をはじめる</string>
     <string name="welcome_btn_next">次へ</string>
     <string name="welcome_btn_skip">スキップ</string>
+    <string name="welcome_progress">%1$d / %2$d</string>
 
     <!-- Welcome Page 0: Greeting -->
     <string name="welcome_p0_title">Anshin へようこそ</string>
@@ -183,6 +185,7 @@
     <string name="settings_notif_perm_title">通知権限がオフです</string>
     <string name="settings_notif_perm_body">服薬リマインダーを受信できません。システム設定で通知権限をオンにしてください</string>
     <string name="settings_notif_perm_btn">設定へ移動</string>
+    <string name="settings_reminder_permissions_desc">服薬リマインダーを時間どおりに受け取るため、次のシステム権限を許可してください</string>
     <string name="settings_group_appearance_home">外観とホーム</string>
     <string name="settings_group_appearance_home_desc">テーマ配色、ダイナミックカラー、今日画面の表示設定</string>
     <string name="settings_group_reminders_routine">リマインダーと生活リズム</string>
@@ -193,6 +196,8 @@
     <string name="settings_group_modules_meds_desc">ナビゲーション項目、薬品データベース、アーカイブ薬品管理</string>
     <string name="settings_group_widgets_desc">ホーム画面ウィジェットの追加と今日ウィジェットの操作設定</string>
     <string name="settings_group_data_about_desc">バックアップ、復元、ローカルデータ安全性、アプリ情報</string>
+    <string name="settings_home_frequent_group">主要設定</string>
+    <string name="settings_home_more_group">その他の設定</string>
     <string name="settings_theme_system">システム</string>
     <string name="settings_theme_light">ライト</string>
     <string name="settings_theme_dark">ダーク</string>

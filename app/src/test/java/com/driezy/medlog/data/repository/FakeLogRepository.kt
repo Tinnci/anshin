@@ -1,7 +1,7 @@
 package com.driezy.medlog.data.repository
 
-import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.model.LogStatus
+import com.driezy.medlog.data.model.MedicationLog
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -24,19 +24,16 @@ class FakeLogRepository : LogRepository {
     fun currentLogs(): List<MedicationLog> = _logs.value
 
     override fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<MedicationLog>> =
-        _logs  // Fake: return all logs; test data is already scoped to relevant dates
+        _logs // Fake: return all logs; test data is already scoped to relevant dates
 
     override fun getLogsForMedication(medicationId: Long, limit: Int): Flow<List<MedicationLog>> =
         _logs.map { list -> list.filter { it.medicationId == medicationId }.takeLast(limit) }
 
-    override suspend fun getLogForMedicationAndDate(
-        medicationId: Long,
-        startMs: Long,
-        endMs: Long,
-    ): MedicationLog? = _logs.value.find {
-        it.medicationId == medicationId &&
-            it.scheduledTimeMs in startMs..endMs
-    }
+    override suspend fun getLogForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long): MedicationLog? =
+        _logs.value.find {
+            it.medicationId == medicationId &&
+                it.scheduledTimeMs in startMs..endMs
+        }
 
     override suspend fun insertLog(log: MedicationLog): Long {
         val id = nextId++
@@ -64,10 +61,9 @@ class FakeLogRepository : LogRepository {
         }
     }
 
-    override fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int> =
-        _logs.map { list ->
-            list.count { it.scheduledTimeMs in startMs..endMs && it.status == LogStatus.TAKEN }
-        }
+    override fun getTakenCountForDateRange(startMs: Long, endMs: Long): Flow<Int> = _logs.map { list ->
+        list.count { it.scheduledTimeMs in startMs..endMs && it.status == LogStatus.TAKEN }
+    }
 
     override suspend fun getLogsForRangeOnce(startMs: Long, endMs: Long): List<MedicationLog> =
         _logs.value.filter { it.scheduledTimeMs in startMs..endMs }

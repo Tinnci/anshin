@@ -1,8 +1,6 @@
 package com.driezy.medlog.ui.ocr
 
-data class OcrRecognitionOutput(
-    val groups: List<OcrResultGroup> = emptyList(),
-) {
+data class OcrRecognitionOutput(val groups: List<OcrResultGroup> = emptyList()) {
     val mergedTexts: List<String> = mergeGroups(groups)
 
     companion object {
@@ -19,10 +17,7 @@ data class OcrRecognitionOutput(
     }
 }
 
-data class OcrResultGroup(
-    val source: OcrResultSource,
-    val texts: List<String>,
-)
+data class OcrResultGroup(val source: OcrResultSource, val texts: List<String>)
 
 enum class OcrResultSource {
     ML_KIT_ORIGINAL,

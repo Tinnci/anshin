@@ -22,8 +22,7 @@ class FakeMedicationRepository : MedicationRepository {
 
     override fun getAllMedications(): Flow<List<Medication>> = _medications
 
-    override suspend fun getMedicationById(id: Long): Medication? =
-        _medications.value.find { it.id == id }
+    override suspend fun getMedicationById(id: Long): Medication? = _medications.value.find { it.id == id }
 
     override suspend fun addMedication(medication: Medication): Long {
         val id = nextId++
@@ -59,6 +58,5 @@ class FakeMedicationRepository : MedicationRepository {
         }
     }
 
-    override suspend fun getActiveOnce(): List<Medication> =
-        _medications.value.filter { !it.isArchived }
+    override suspend fun getActiveOnce(): List<Medication> = _medications.value.filter { !it.isArchived }
 }

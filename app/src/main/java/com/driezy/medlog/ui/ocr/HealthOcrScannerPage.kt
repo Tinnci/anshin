@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.ocr
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
@@ -27,13 +24,10 @@ import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextRange
-import com.driezy.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.driezy.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
@@ -45,10 +39,14 @@ import com.driezy.medlog.domain.health.AiExecutionStatus
 import com.driezy.medlog.domain.health.AiFallbackReason
 import com.driezy.medlog.ui.components.AiInteractionStatusPill
 import com.driezy.medlog.ui.components.AnimatedListItem
-import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraGuidancePill
+import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraReadinessPanel
 import com.driezy.medlog.ui.components.ProcessingOverlay
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
 private const val HEALTH_OCR_FRAME_WIDTH = 0.86f
@@ -111,8 +109,10 @@ fun HealthOcrScannerPage(
                 AnimatedContent(
                     targetState = state.showResults,
                     transitionSpec = {
-                        (fadeIn(motionScheme.defaultEffectsSpec()) +
-                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 8 })
+                        (
+                            fadeIn(motionScheme.defaultEffectsSpec()) +
+                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 8 }
+                            )
                             .togetherWith(
                                 fadeOut(motionScheme.fastEffectsSpec()) +
                                     slideOutVertically(motionScheme.fastSpatialSpec()) { -it / 8 },
@@ -250,7 +250,11 @@ private fun HealthMetricResultList(
                                 if (isCloudAnalyzing) {
                                     LoadingIndicator(modifier = Modifier.size(18.dp))
                                 } else {
-                                    MedLogIcon(MedLogIcons.CloudUpload, contentDescription = null, modifier = Modifier.size(18.dp))
+                                    MedLogIcon(
+                                        MedLogIcons.CloudUpload,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(18.dp),
+                                    )
                                 }
                                 Spacer(Modifier.width(MedLogSpacing.Small))
                                 Text(
@@ -274,8 +278,11 @@ private fun HealthMetricResultList(
 
         // 预计算血压配对建议（在 LazyColumn 外的 @Composable 作用域中）
         val bpPairs = remember(result.candidates) {
-            if (hasCandidates) HealthMetricParser.findPotentialBpPairs(result.candidates)
-            else emptyList()
+            if (hasCandidates) {
+                HealthMetricParser.findPotentialBpPairs(result.candidates)
+            } else {
+                emptyList()
+            }
         }
 
         LazyColumn(
@@ -486,11 +493,7 @@ private fun OcrResultSource.labelRes(): Int = when (this) {
 // ── 血压配对建议卡片 ─────────────────────────────────────────────────────────
 
 @Composable
-private fun BpMergeSuggestionCard(
-    systolic: ExtractedNumber,
-    diastolic: ExtractedNumber,
-    onAccept: () -> Unit,
-) {
+private fun BpMergeSuggestionCard(systolic: ExtractedNumber, diastolic: ExtractedNumber, onAccept: () -> Unit) {
     Card(
         onClick = onAccept,
         modifier = Modifier.fillMaxWidth(),
@@ -712,22 +715,21 @@ private fun ConfidenceBadge(confidence: Float) {
 
 // ── 工具函数 ─────────────────────────────────────────────────────────────────
 
-internal fun AiExecutionStatus.cloudAnalysisMessageRes(): Int =
-    when (reason) {
-        AiFallbackReason.API_KEY_MISSING -> R.string.ocr_cloud_analysis_needs_key
-        AiFallbackReason.WIFI_REQUIRED -> R.string.ocr_cloud_analysis_wifi_required
-        AiFallbackReason.IMAGE_INPUT_UNSUPPORTED -> R.string.ocr_cloud_analysis_image_unsupported
-        AiFallbackReason.OPENAI_COMPATIBLE_BASE_URL_MISSING -> R.string.ocr_cloud_analysis_base_url_missing
-        AiFallbackReason.CLOUD_AI_DISABLED,
-        AiFallbackReason.FEATURE_DISABLED,
-        -> R.string.ocr_cloud_analysis_disabled
-        AiFallbackReason.PROVIDER_ERROR -> R.string.ocr_cloud_analysis_provider_error
-        AiFallbackReason.RESPONSE_FORMAT_INVALID -> R.string.ocr_cloud_analysis_format_error
-        AiFallbackReason.NO_HEALTH_CONTEXT,
-        AiFallbackReason.UNKNOWN_ERROR,
-        AiFallbackReason.NONE,
-        -> R.string.ocr_cloud_analysis_failed
-    }
+internal fun AiExecutionStatus.cloudAnalysisMessageRes(): Int = when (reason) {
+    AiFallbackReason.API_KEY_MISSING -> R.string.ocr_cloud_analysis_needs_key
+    AiFallbackReason.WIFI_REQUIRED -> R.string.ocr_cloud_analysis_wifi_required
+    AiFallbackReason.IMAGE_INPUT_UNSUPPORTED -> R.string.ocr_cloud_analysis_image_unsupported
+    AiFallbackReason.OPENAI_COMPATIBLE_BASE_URL_MISSING -> R.string.ocr_cloud_analysis_base_url_missing
+    AiFallbackReason.CLOUD_AI_DISABLED,
+    AiFallbackReason.FEATURE_DISABLED,
+    -> R.string.ocr_cloud_analysis_disabled
+    AiFallbackReason.PROVIDER_ERROR -> R.string.ocr_cloud_analysis_provider_error
+    AiFallbackReason.RESPONSE_FORMAT_INVALID -> R.string.ocr_cloud_analysis_format_error
+    AiFallbackReason.NO_HEALTH_CONTEXT,
+    AiFallbackReason.UNKNOWN_ERROR,
+    AiFallbackReason.NONE,
+    -> R.string.ocr_cloud_analysis_failed
+}
 
 internal enum class HealthOcrCloudStatusPlacement {
     BELOW_PRIMARY_ACTION,
@@ -742,27 +744,26 @@ internal data class HealthOcrCloudActionPresentation(
             canRunCloudAnalysis: Boolean,
             isCloudAnalyzing: Boolean,
             cloudAnalysisFailed: Boolean,
-        ): HealthOcrCloudActionPresentation =
-            HealthOcrCloudActionPresentation(
-                showPanel = canRunCloudAnalysis || isCloudAnalyzing || cloudAnalysisFailed,
-            )
+        ): HealthOcrCloudActionPresentation = HealthOcrCloudActionPresentation(
+            showPanel = canRunCloudAnalysis || isCloudAnalyzing || cloudAnalysisFailed,
+        )
     }
 }
 
 /** 体征类型对应的图标 */
 private fun healthMetricIcon(type: HealthType): Int = when (type) {
     HealthType.BLOOD_PRESSURE -> MedLogIcons.Bloodtype
-    HealthType.BLOOD_GLUCOSE  -> MedLogIcons.WaterDrop
-    HealthType.WEIGHT         -> MedLogIcons.FitnessCenter
-    HealthType.BODY_FAT       -> MedLogIcons.MonitorWeight
-    HealthType.HEART_RATE     -> MedLogIcons.Favorite
-    HealthType.TEMPERATURE    -> MedLogIcons.Thermostat
-    HealthType.SPO2           -> MedLogIcons.AirlineStops
+    HealthType.BLOOD_GLUCOSE -> MedLogIcons.WaterDrop
+    HealthType.WEIGHT -> MedLogIcons.FitnessCenter
+    HealthType.BODY_FAT -> MedLogIcons.MonitorWeight
+    HealthType.HEART_RATE -> MedLogIcons.Favorite
+    HealthType.TEMPERATURE -> MedLogIcons.Thermostat
+    HealthType.SPO2 -> MedLogIcons.AirlineStops
 }
 
 /** 格式化体征值（血压 sys/dia，其他值+单位） */
-private fun formatMetricValue(metric: ParsedHealthMetric): String {
-    return if (metric.type == HealthType.BLOOD_PRESSURE && metric.secondaryValue != null) {
+private fun formatMetricValue(metric: ParsedHealthMetric): String =
+    if (metric.type == HealthType.BLOOD_PRESSURE && metric.secondaryValue != null) {
         "${metric.value.toInt()}/${metric.secondaryValue.toInt()} ${metric.type.unit}"
     } else {
         val v = if (metric.value == metric.value.toLong().toDouble()) {
@@ -772,4 +773,3 @@ private fun formatMetricValue(metric: ParsedHealthMetric): String {
         }
         "$v ${metric.type.unit}"
     }
-}

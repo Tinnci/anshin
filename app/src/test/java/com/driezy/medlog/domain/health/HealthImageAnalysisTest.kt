@@ -131,9 +131,7 @@ class HealthImageAnalysisTest {
         assertEquals(HealthType.SPO2, result.metrics.first().type)
     }
 
-    private class RecordingAiChatClient(
-        private val response: AiChatResponse,
-    ) : AiChatClient {
+    private class RecordingAiChatClient(private val response: AiChatResponse) : AiChatClient {
         var lastRequest: AiChatRequest? = null
 
         override suspend fun generate(request: AiChatRequest): AiChatResponse {

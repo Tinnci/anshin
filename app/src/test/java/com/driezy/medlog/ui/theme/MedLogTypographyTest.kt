@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui.theme
 
 import com.driezy.medlog.data.repository.FontMode
-import org.junit.Assert.assertSame
 import org.junit.Assert.assertNull
+import org.junit.Assert.assertSame
 import org.junit.Test
 
 class MedLogTypographyTest {

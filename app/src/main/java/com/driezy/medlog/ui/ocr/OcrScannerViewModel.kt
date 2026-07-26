@@ -18,9 +18,7 @@ data class OcrScannerUiState(
 )
 
 @HiltViewModel
-class OcrScannerViewModel @Inject constructor(
-    @param:MlKitOcr private val pipeline: OcrPipeline,
-) : BaseViewModel() {
+class OcrScannerViewModel @Inject constructor(@param:MlKitOcr private val pipeline: OcrPipeline) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(OcrScannerUiState())
     val uiState: StateFlow<OcrScannerUiState> = _uiState.asStateFlow()

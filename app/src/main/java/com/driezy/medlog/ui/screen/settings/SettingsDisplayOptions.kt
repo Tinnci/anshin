@@ -1,62 +1,38 @@
 package com.driezy.medlog.ui.screen.settings
 
 import androidx.annotation.StringRes
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
-import androidx.compose.material3.carousel.HorizontalCenteredHeroCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
-import com.driezy.medlog.ai.CloudAiEndpointPreset
-import com.driezy.medlog.ai.CloudAiEndpointProtocol
-import com.driezy.medlog.data.repository.AiUsageSummaryRow
-import com.driezy.medlog.data.repository.AppTextScale
-import com.driezy.medlog.data.repository.CloudAiProvider
-import com.driezy.medlog.data.repository.FontMode
-import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
-import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.domain.UnifiedImportPayload
 import com.driezy.medlog.domain.UnifiedImportPayloadCodec
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.ThemePalette
 
-
 @Composable
-internal fun ThemePaletteChip(
-    palette: ThemePalette,
-    selected: Boolean,
-    darkTheme: Boolean,
-    onClick: () -> Unit,
-) {
+internal fun ThemePaletteChip(palette: ThemePalette, selected: Boolean, darkTheme: Boolean, onClick: () -> Unit) {
     val scheme = palette.colorScheme(darkTheme)
     Surface(
         modifier = Modifier
             .widthIn(min = 148.dp)
-            .height(64.dp)
+            .heightIn(min = 64.dp)
             .clip(RoundedCornerShape(18.dp))
             .selectable(
                 selected = selected,
@@ -99,8 +75,11 @@ internal fun ThemePaletteChip(
                 Text(
                     text = stringResource(palette.descriptionRes),
                     style = MaterialTheme.typography.labelSmall,
-                    color = if (selected) scheme.onPrimaryContainer.copy(alpha = 0.78f)
-                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = if (selected) {
+                        scheme.onPrimaryContainer.copy(alpha = 0.78f)
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                     maxLines = 1,
                 )
             }
@@ -122,23 +101,22 @@ internal fun <T> DisplayOptionGroup(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Row(
+        LazyRow(
             modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            options.forEachIndexed { index, (value, label) ->
-                ToggleButton(
-                    checked = selected == value,
-                    onCheckedChange = { onSelected(value) },
-                    modifier = Modifier.weight(1f).semantics { role = Role.RadioButton },
-                    shapes = when (index) {
-                        0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                        options.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                        else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+            items(options) { (value, label) ->
+                FilterChip(
+                    selected = selected == value,
+                    onClick = { onSelected(value) },
+                    label = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.labelMedium,
+                        )
                     },
-                ) {
-                    Text(label, style = MaterialTheme.typography.labelSmall)
-                }
+                    modifier = Modifier.semantics { role = Role.RadioButton },
+                )
             }
         }
     }
@@ -202,32 +180,29 @@ internal data class CloudAiSettingsPresentation(
     @param:StringRes val bodyRes: Int,
 ) {
     companion object {
-        fun from(
-            enabled: Boolean,
-            hasApiKey: Boolean,
-            supportsImageInput: Boolean,
-        ): CloudAiSettingsPresentation = when {
-            !enabled -> CloudAiSettingsPresentation(
-                visualState = CloudAiSettingsVisualState.OFF,
-                labelRes = R.string.settings_ai_status_off,
-                bodyRes = R.string.settings_ai_status_off_body,
-            )
-            !hasApiKey -> CloudAiSettingsPresentation(
-                visualState = CloudAiSettingsVisualState.NEEDS_KEY,
-                labelRes = R.string.settings_ai_status_needs_key,
-                bodyRes = R.string.settings_ai_status_needs_key_body,
-            )
-            supportsImageInput -> CloudAiSettingsPresentation(
-                visualState = CloudAiSettingsVisualState.READY,
-                labelRes = R.string.settings_ai_status_ready,
-                bodyRes = R.string.settings_ai_status_ready_body,
-            )
-            else -> CloudAiSettingsPresentation(
-                visualState = CloudAiSettingsVisualState.TEXT_ONLY,
-                labelRes = R.string.settings_ai_status_text_only,
-                bodyRes = R.string.settings_ai_status_text_only_body,
-            )
-        }
+        fun from(enabled: Boolean, hasApiKey: Boolean, supportsImageInput: Boolean): CloudAiSettingsPresentation =
+            when {
+                !enabled -> CloudAiSettingsPresentation(
+                    visualState = CloudAiSettingsVisualState.OFF,
+                    labelRes = R.string.settings_ai_status_off,
+                    bodyRes = R.string.settings_ai_status_off_body,
+                )
+                !hasApiKey -> CloudAiSettingsPresentation(
+                    visualState = CloudAiSettingsVisualState.NEEDS_KEY,
+                    labelRes = R.string.settings_ai_status_needs_key,
+                    bodyRes = R.string.settings_ai_status_needs_key_body,
+                )
+                supportsImageInput -> CloudAiSettingsPresentation(
+                    visualState = CloudAiSettingsVisualState.READY,
+                    labelRes = R.string.settings_ai_status_ready,
+                    bodyRes = R.string.settings_ai_status_ready_body,
+                )
+                else -> CloudAiSettingsPresentation(
+                    visualState = CloudAiSettingsVisualState.TEXT_ONLY,
+                    labelRes = R.string.settings_ai_status_text_only,
+                    bodyRes = R.string.settings_ai_status_text_only_body,
+                )
+            }
     }
 }
 

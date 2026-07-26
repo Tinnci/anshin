@@ -149,10 +149,7 @@ internal fun CloudAiSettingsPanel(
 }
 
 @Composable
-private fun ProviderDetailsDisclosureRow(
-    expanded: Boolean,
-    onClick: () -> Unit,
-) {
+private fun ProviderDetailsDisclosureRow(expanded: Boolean, onClick: () -> Unit) {
     ListItem(
         headlineContent = { Text(stringResource(R.string.settings_ai_provider_details_title)) },
         supportingContent = { Text(stringResource(R.string.settings_ai_provider_details_desc)) },

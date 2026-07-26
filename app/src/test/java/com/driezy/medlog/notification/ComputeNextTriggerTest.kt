@@ -13,6 +13,7 @@ import java.util.TimeZone
 class ComputeNextTriggerTest {
 
     private val tz = TimeZone.getTimeZone("Asia/Tokyo") // UTC+9
+
     // 固定 "现在" = 2025-06-15 10:30:00 JST（周日）
     private val nowMs: Long = Calendar.getInstance(tz).apply {
         set(2025, Calendar.JUNE, 15, 10, 30, 0)

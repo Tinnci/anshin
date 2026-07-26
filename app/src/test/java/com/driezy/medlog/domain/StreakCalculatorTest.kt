@@ -74,7 +74,7 @@ class StreakCalculatorTest {
         val base = LocalDate.of(2024, 6, 1)
         // run of 3, gap, run of 5
         val days = (0..2).map { base.plusDays(it.toLong()) } +
-                   (10..14).map { base.plusDays(it.toLong()) }
+            (10..14).map { base.plusDays(it.toLong()) }
         assertEquals(5, StreakCalculator.longestStreak(days))
     }
 

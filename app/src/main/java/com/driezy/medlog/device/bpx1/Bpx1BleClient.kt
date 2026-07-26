@@ -15,6 +15,11 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.ParcelUuid
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withTimeoutOrNull
 import java.util.Locale
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
@@ -22,11 +27,6 @@ import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.coroutines.resume
-import kotlinx.coroutines.channels.awaitClose
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.callbackFlow
-import kotlinx.coroutines.suspendCancellableCoroutine
-import kotlinx.coroutines.withTimeoutOrNull
 
 enum class Bpx1BluetoothAvailability {
     READY,
@@ -44,10 +44,7 @@ data class Bpx1DiscoveredDevice(
 )
 
 sealed interface Bpx1ScanEvent {
-    data class Device(
-        val device: Bpx1DiscoveredDevice,
-        val measurement: Bpx1Measurement?,
-    ) : Bpx1ScanEvent
+    data class Device(val device: Bpx1DiscoveredDevice, val measurement: Bpx1Measurement?) : Bpx1ScanEvent
 
     data class Failure(val errorCode: Int) : Bpx1ScanEvent
 }
@@ -78,9 +75,8 @@ interface Bpx1BleClient {
 }
 
 @Singleton
-class AndroidBpx1BleClient @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) : Bpx1BleClient {
+class AndroidBpx1BleClient @Inject constructor(@param:ApplicationContext private val context: Context) :
+    Bpx1BleClient {
     private val bluetoothManager: BluetoothManager? by lazy {
         context.getSystemService(BluetoothManager::class.java)
     }
@@ -176,62 +172,60 @@ class AndroidBpx1BleClient @Inject constructor(
     }
 
     @SuppressLint("MissingPermission")
-    private suspend fun discoverServices(
-        adapter: BluetoothAdapter,
-        macAddress: String,
-    ): Bpx1ConnectionResult = suspendCancellableCoroutine { continuation ->
-        val completed = AtomicBoolean(false)
-        val gattReference = AtomicReference<BluetoothGatt?>()
+    private suspend fun discoverServices(adapter: BluetoothAdapter, macAddress: String): Bpx1ConnectionResult =
+        suspendCancellableCoroutine { continuation ->
+            val completed = AtomicBoolean(false)
+            val gattReference = AtomicReference<BluetoothGatt?>()
 
-        fun finish(result: Bpx1ConnectionResult) {
-            if (!completed.compareAndSet(false, true)) return
-            val gatt = gattReference.getAndSet(null)
-            runCatching { gatt?.disconnect() }
-            runCatching { gatt?.close() }
-            if (continuation.isActive) continuation.resume(result)
-        }
+            fun finish(result: Bpx1ConnectionResult) {
+                if (!completed.compareAndSet(false, true)) return
+                val gatt = gattReference.getAndSet(null)
+                runCatching { gatt?.disconnect() }
+                runCatching { gatt?.close() }
+                if (continuation.isActive) continuation.resume(result)
+            }
 
-        val callback = object : BluetoothGattCallback() {
-            override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
-                if (status != BluetoothGatt.GATT_SUCCESS) {
-                    finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
-                    return
-                }
-                when (newState) {
-                    BluetoothProfile.STATE_CONNECTED -> {
-                        if (!gatt.discoverServices()) {
-                            finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.SERVICE_DISCOVERY_FAILED))
+            val callback = object : BluetoothGattCallback() {
+                override fun onConnectionStateChange(gatt: BluetoothGatt, status: Int, newState: Int) {
+                    if (status != BluetoothGatt.GATT_SUCCESS) {
+                        finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
+                        return
+                    }
+                    when (newState) {
+                        BluetoothProfile.STATE_CONNECTED -> {
+                            if (!gatt.discoverServices()) {
+                                finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.SERVICE_DISCOVERY_FAILED))
+                            }
+                        }
+                        BluetoothProfile.STATE_DISCONNECTED -> {
+                            finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
                         }
                     }
-                    BluetoothProfile.STATE_DISCONNECTED -> {
-                        finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
+                }
+
+                override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
+                    if (status != BluetoothGatt.GATT_SUCCESS) {
+                        finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.SERVICE_DISCOVERY_FAILED))
+                        return
                     }
+                    finish(gatt.services.toConnectionResult())
                 }
             }
 
-            override fun onServicesDiscovered(gatt: BluetoothGatt, status: Int) {
-                if (status != BluetoothGatt.GATT_SUCCESS) {
-                    finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.SERVICE_DISCOVERY_FAILED))
-                    return
-                }
-                finish(gatt.services.toConnectionResult())
+            continuation.invokeOnCancellation {
+                completed.set(true)
+                val gatt = gattReference.getAndSet(null)
+                runCatching { gatt?.disconnect() }
+                runCatching { gatt?.close() }
+            }
+
+            val device = adapter.getRemoteDevice(macAddress)
+            val gatt = device.connectGatt(context, false, callback, android.bluetooth.BluetoothDevice.TRANSPORT_LE)
+            gattReference.set(gatt)
+            if (gatt == null) {
+                finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
             }
         }
-
-        continuation.invokeOnCancellation {
-            completed.set(true)
-            val gatt = gattReference.getAndSet(null)
-            runCatching { gatt?.disconnect() }
-            runCatching { gatt?.close() }
-        }
-
-        val device = adapter.getRemoteDevice(macAddress)
-        val gatt = device.connectGatt(context, false, callback, android.bluetooth.BluetoothDevice.TRANSPORT_LE)
-        gattReference.set(gatt)
-        if (gatt == null) {
-            finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))
-        }
-    }
 
     private fun List<BluetoothGattService>.toConnectionResult(): Bpx1ConnectionResult.Connected {
         val normalizedUuids = map { it.uuid.toString().lowercase(Locale.ROOT) }.toSet()

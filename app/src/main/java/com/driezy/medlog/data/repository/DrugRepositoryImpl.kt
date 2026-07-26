@@ -8,18 +8,15 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class DrugRepositoryImpl @Inject constructor(
-    private val dataSource: DrugDataSource,
-) : DrugRepository {
+class DrugRepositoryImpl @Inject constructor(private val dataSource: DrugDataSource) : DrugRepository {
 
     /** 内存缓存，应用生命周期内只加载一次 */
     @Volatile private var cache: List<Drug>? = null
     private val cacheMutex = Mutex()
 
-    override suspend fun getAllDrugs(): List<Drug> =
-        cache ?: cacheMutex.withLock {
-            cache ?: dataSource.loadAllDrugs().also { cache = it }
-        }
+    override suspend fun getAllDrugs(): List<Drug> = cache ?: cacheMutex.withLock {
+        cache ?: dataSource.loadAllDrugs().also { cache = it }
+    }
 
     override suspend fun searchDrugsRanked(query: String): List<Drug> {
         val all = getAllDrugs()
@@ -31,10 +28,9 @@ class DrugRepositoryImpl @Inject constructor(
             .map { (drug, _) -> drug }
     }
 
-    override suspend fun getCategories(isTcm: Boolean?): List<String> =
-        getAllDrugs()
-            .let { list -> if (isTcm != null) list.filter { it.isTcm == isTcm } else list }
-            .map { it.category }
-            .distinct()
-            .sorted()
+    override suspend fun getCategories(isTcm: Boolean?): List<String> = getAllDrugs()
+        .let { list -> if (isTcm != null) list.filter { it.isTcm == isTcm } else list }
+        .map { it.category }
+        .distinct()
+        .sorted()
 }

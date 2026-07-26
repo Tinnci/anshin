@@ -18,8 +18,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -80,10 +80,7 @@ internal fun ApiKeyManagementSection(
 }
 
 @Composable
-private fun ApiKeyStatusHeader(
-    uiState: SettingsUiState,
-    onApiKeyClear: () -> Unit,
-) {
+private fun ApiKeyStatusHeader(uiState: SettingsUiState, onApiKeyClear: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -114,11 +111,7 @@ private fun ApiKeyStatusHeader(
 }
 
 @Composable
-private fun ManualApiKeyInput(
-    draft: String,
-    onDraftChange: (String) -> Unit,
-    onSave: () -> Unit,
-) {
+private fun ManualApiKeyInput(draft: String, onDraftChange: (String) -> Unit, onSave: () -> Unit) {
     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
         OutlinedTextField(
             value = draft,
@@ -185,9 +178,7 @@ private fun ApiKeyImportInput(
 }
 
 @Composable
-private fun ApiKeyImportSupportingText(
-    presentation: CloudAiApiKeyImportPresentation,
-) {
+private fun ApiKeyImportSupportingText(presentation: CloudAiApiKeyImportPresentation) {
     when (presentation.visualState) {
         CloudAiApiKeyImportVisualState.EMPTY ->
             Text(stringResource(R.string.settings_ai_api_key_import_hint))

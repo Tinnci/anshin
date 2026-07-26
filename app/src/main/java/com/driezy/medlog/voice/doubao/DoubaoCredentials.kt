@@ -28,9 +28,7 @@ data class DoubaoDeviceCredentials(
 }
 
 @Singleton
-class DoubaoCredentialStore @Inject constructor(
-    @ApplicationContext context: Context,
-) {
+class DoubaoCredentialStore @Inject constructor(@ApplicationContext context: Context) {
     private val prefs = context.getSharedPreferences("doubao_asr_credentials", Context.MODE_PRIVATE)
 
     fun load(): DoubaoDeviceCredentials? {

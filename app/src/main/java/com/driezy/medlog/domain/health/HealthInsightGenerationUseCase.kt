@@ -17,10 +17,7 @@ import javax.inject.Singleton
 
 private const val TAG = "HealthInsightGeneration"
 
-data class HealthInsightGenerationResult(
-    val insights: List<HealthInsight>,
-    val executionStatus: AiExecutionStatus,
-)
+data class HealthInsightGenerationResult(val insights: List<HealthInsight>, val executionStatus: AiExecutionStatus)
 
 @Singleton
 class HealthInsightGenerationUseCase @Inject constructor(
@@ -33,8 +30,7 @@ class HealthInsightGenerationUseCase @Inject constructor(
         records: List<HealthRecord>,
         userHeightCm: Float,
         locale: String = Locale.getDefault().toLanguageTag(),
-    ): List<HealthInsight> =
-        generateWithStatus(records, userHeightCm, locale).insights
+    ): List<HealthInsight> = generateWithStatus(records, userHeightCm, locale).insights
 
     suspend fun generateWithStatus(
         records: List<HealthRecord>,

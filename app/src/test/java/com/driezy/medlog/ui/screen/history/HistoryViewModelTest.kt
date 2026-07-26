@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui.screen.history
 
 import app.cash.turbine.test
-import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.LogRevisionType
+import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.MedicationLog
 import com.driezy.medlog.data.repository.FakeLogRepository
 import com.driezy.medlog.data.repository.FakeMedicationRepository
@@ -20,7 +20,6 @@ import org.junit.Before
 import org.junit.Test
 import java.time.LocalDate
 import java.time.ZoneId
-import java.time.YearMonth
 
 /**
  * HistoryViewModel 单元测试（JVM，无 Android 依赖）。
@@ -107,11 +106,13 @@ class HistoryViewModelTest {
     @Test
     fun `streak=3 when today and previous two days have taken logs`() = runTest {
         val today = LocalDate.now()
-        logRepo.setLogs(listOf(
-            takenLogAt(today),
-            takenLogAt(today.minusDays(1)),
-            takenLogAt(today.minusDays(2)),
-        ))
+        logRepo.setLogs(
+            listOf(
+                takenLogAt(today),
+                takenLogAt(today.minusDays(1)),
+                takenLogAt(today.minusDays(2)),
+            ),
+        )
         val vm = buildViewModel()
 
         vm.uiState.test {
@@ -127,10 +128,12 @@ class HistoryViewModelTest {
     fun `currentStreak resets at gap`() = runTest {
         val today = LocalDate.now()
         // today is present, yesterday is missing → streak = 1
-        logRepo.setLogs(listOf(
-            takenLogAt(today),
-            takenLogAt(today.minusDays(2)),  // gap on yesterday
-        ))
+        logRepo.setLogs(
+            listOf(
+                takenLogAt(today),
+                takenLogAt(today.minusDays(2)), // gap on yesterday
+            ),
+        )
         val vm = buildViewModel()
 
         vm.uiState.test {
@@ -163,11 +166,13 @@ class HistoryViewModelTest {
     @Test
     fun `skipped logs do not count in streak`() = runTest {
         val today = LocalDate.now()
-        logRepo.setLogs(listOf(
-            takenLogAt(today),
-            skippedLogAt(today.minusDays(1)),  // skipped → does not extend streak
-            takenLogAt(today.minusDays(2)),
-        ))
+        logRepo.setLogs(
+            listOf(
+                takenLogAt(today),
+                skippedLogAt(today.minusDays(1)), // skipped → does not extend streak
+                takenLogAt(today.minusDays(2)),
+            ),
+        )
         val vm = buildViewModel()
 
         vm.uiState.test {
@@ -184,11 +189,13 @@ class HistoryViewModelTest {
     @Test
     fun `overallAdherence is 1f when all logs are taken`() = runTest {
         val today = LocalDate.now()
-        logRepo.setLogs((0..6).flatMap { offset ->
-            listOf(
-                takenLogAt(today.minusDays(offset.toLong())),
-            )
-        })
+        logRepo.setLogs(
+            (0..6).flatMap { offset ->
+                listOf(
+                    takenLogAt(today.minusDays(offset.toLong())),
+                )
+            },
+        )
         val vm = buildViewModel()
 
         vm.uiState.test {
@@ -203,10 +210,12 @@ class HistoryViewModelTest {
     @Test
     fun `overallAdherence is 0_5 when half logs are taken`() = runTest {
         val today = LocalDate.now()
-        logRepo.setLogs(listOf(
-            takenLogAt(today),
-            skippedLogAt(today),
-        ))
+        logRepo.setLogs(
+            listOf(
+                takenLogAt(today),
+                skippedLogAt(today),
+            ),
+        )
         val vm = buildViewModel()
 
         vm.uiState.test {
@@ -255,11 +264,11 @@ class HistoryViewModelTest {
 
         // Navigate to January of the current year, then back one month → should be December of previous year
         val currentMonth = vm.uiState.value.displayedMonth
-        val monthsToJan = currentMonth.monthValue - 1  // e.g. Feb → 1 step back
-        vm.navigateMonthBy(-monthsToJan)               // now at January
+        val monthsToJan = currentMonth.monthValue - 1 // e.g. Feb → 1 step back
+        vm.navigateMonthBy(-monthsToJan) // now at January
         assertEquals(1, vm.uiState.value.displayedMonth.monthValue)
 
-        vm.navigateMonthBy(-1)                         // one more step back → December
+        vm.navigateMonthBy(-1) // one more step back → December
         assertEquals(12, vm.uiState.value.displayedMonth.monthValue)
         assertEquals(currentMonth.year - 1, vm.uiState.value.displayedMonth.year)
     }

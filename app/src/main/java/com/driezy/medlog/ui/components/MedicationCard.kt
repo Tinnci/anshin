@@ -1,12 +1,8 @@
 package com.driezy.medlog.ui.components
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -14,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,17 +24,17 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.util.icon
-import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.screen.home.MedicationWithStatus
-import java.text.SimpleDateFormat
-import java.util.*
-
-/** 根据药品剂型返回与添加界面一致的 Material Icon */
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDose
-import com.driezy.medlog.ui.util.displayName
+import com.driezy.medlog.ui.util.icon
+import com.driezy.medlog.ui.util.labelRes
+import java.text.SimpleDateFormat
+import java.util.*
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -63,10 +60,10 @@ fun MedicationCard(
     // 卡片底色：未服 → primaryContainer（需要行动，视觉突出），已服 → surfaceContainerLowest（弱化），跳过 → surfaceContainerHigh，部分 → secondaryContainer
     val containerColor by animateColorAsState(
         targetValue = when {
-            item.isTaken   -> MaterialTheme.colorScheme.surfaceContainerLowest
+            item.isTaken -> MaterialTheme.colorScheme.surfaceContainerLowest
             item.isSkipped -> MaterialTheme.colorScheme.surfaceContainerHigh
             item.isPartial -> MaterialTheme.colorScheme.secondaryContainer
-            else           -> MaterialTheme.colorScheme.primaryContainer
+            else -> MaterialTheme.colorScheme.primaryContainer
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "cardColor",
@@ -83,8 +80,8 @@ fun MedicationCard(
     val stripColor by animateColorAsState(
         targetValue = when {
             item.isTaken || item.isSkipped -> MaterialTheme.colorScheme.outlineVariant
-            item.isPartial                 -> MaterialTheme.colorScheme.secondary
-            else                           -> MaterialTheme.colorScheme.primary
+            item.isPartial -> MaterialTheme.colorScheme.secondary
+            else -> MaterialTheme.colorScheme.primary
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "strip",
@@ -92,9 +89,11 @@ fun MedicationCard(
 
     val cardShape = if (flatStyle) RoundedCornerShape(0.dp) else RoundedCornerShape(24.dp)
     // 高优先级且未完成：error 色描边，在 primaryContainer 背景上清晰可见
-    val borderMod = if (med.isHighPriority && !item.isHandled && !flatStyle)
+    val borderMod = if (med.isHighPriority && !item.isHandled && !flatStyle) {
         Modifier.border(2.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.55f), cardShape)
-    else Modifier
+    } else {
+        Modifier
+    }
 
     // 扁平卡片（elevation = 0），flatStyle 下背景透明继承父卡片
     Card(
@@ -141,17 +140,21 @@ fun MedicationCard(
                             icon = formIcon(med.form),
                             contentDescription = med.form,
                             modifier = Modifier.size(16.dp),
-                            tint = if (item.isTaken || item.isSkipped)
+                            tint = if (item.isTaken || item.isSkipped) {
                                 MaterialTheme.colorScheme.outlineVariant
-                            else
-                                MaterialTheme.colorScheme.primary,
+                            } else {
+                                MaterialTheme.colorScheme.primary
+                            },
                         )
                         Text(
                             text = medDisplayName,
                             modifier = Modifier.weight(1f, fill = false),
                             style = MaterialTheme.typography.titleMedium.copy(
-                                textDecoration = if (item.isTaken) TextDecoration.LineThrough
-                                                 else TextDecoration.None,
+                                textDecoration = if (item.isTaken) {
+                                    TextDecoration.LineThrough
+                                } else {
+                                    TextDecoration.None
+                                },
                             ),
                             maxLines = 3,
                             overflow = TextOverflow.Clip,
@@ -225,14 +228,17 @@ fun MedicationCard(
                     ) {
                         val period = TimePeriod.fromKey(med.timePeriod)
                         MedLogIcon(
-                            period.icon, null,
+                            period.icon,
+                            null,
                             Modifier.size(14.dp),
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                         val timeText = if (med.timePeriod == "exact") {
                             med.reminderTimes.split(",").firstOrNull()
                                 ?: "%02d:%02d".format(med.reminderHour, med.reminderMinute)
-                        } else stringResource(period.labelRes)
+                        } else {
+                            stringResource(period.labelRes)
+                        }
                         val doseDisplay = "${med.doseQuantity.formatDose()} ${med.doseUnit}"
                         Text(
                             text = "$doseDisplay  ·  $timeText",
@@ -243,8 +249,10 @@ fun MedicationCard(
                     if (item.isTaken && item.log?.actualTakenTimeMs != null) {
                         val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
                         Text(
-                            text = stringResource(R.string.med_card_taken_at,
-                                timeFmt.format(Date(item.log.actualTakenTimeMs))),
+                            text = stringResource(
+                                R.string.med_card_taken_at,
+                                timeFmt.format(Date(item.log.actualTakenTimeMs)),
+                            ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )
@@ -289,7 +297,11 @@ fun MedicationCard(
                                     modifier = Modifier.size(14.dp),
                                 )
                                 Text(
-                                    stringResource(R.string.med_card_low_stock, med.stock.toInt().toString(), med.doseUnit),
+                                    stringResource(
+                                        R.string.med_card_low_stock,
+                                        med.stock.toInt().toString(),
+                                        med.doseUnit,
+                                    ),
                                     style = MaterialTheme.typography.labelMedium,
                                 )
                             }
@@ -308,26 +320,27 @@ fun MedicationCard(
                         onClick = onToggleTaken,
                         colors = ButtonDefaults.filledTonalButtonColors(
                             containerColor = when {
-                                item.isTaken   -> MaterialTheme.colorScheme.tertiaryContainer
+                                item.isTaken -> MaterialTheme.colorScheme.tertiaryContainer
                                 item.isSkipped -> MaterialTheme.colorScheme.secondaryContainer
                                 item.isPartial -> MaterialTheme.colorScheme.secondaryContainer
-                                else           -> MaterialTheme.colorScheme.primaryContainer
+                                else -> MaterialTheme.colorScheme.primaryContainer
                             },
                             contentColor = when {
-                                item.isTaken   -> MaterialTheme.colorScheme.onTertiaryContainer
+                                item.isTaken -> MaterialTheme.colorScheme.onTertiaryContainer
                                 item.isSkipped -> MaterialTheme.colorScheme.onSecondaryContainer
                                 item.isPartial -> MaterialTheme.colorScheme.onSecondaryContainer
-                                else           -> MaterialTheme.colorScheme.onPrimaryContainer
+                                else -> MaterialTheme.colorScheme.onPrimaryContainer
                             },
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
                         modifier = Modifier.heightIn(min = 36.dp),
                     ) {
                         MedLogIcon(
-                            icon = if (item.isHandled)
+                            icon = if (item.isHandled) {
                                 MedLogIcons.Undo
-                            else
-                                MedLogIcons.Check,
+                            } else {
+                                MedLogIcons.Check
+                            },
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                         )
@@ -335,7 +348,7 @@ fun MedicationCard(
                         Text(
                             text = when {
                                 item.isHandled -> stringResource(R.string.home_snackbar_undo)
-                                else           -> stringResource(R.string.med_card_btn_take)
+                                else -> stringResource(R.string.med_card_btn_take)
                             },
                             style = MaterialTheme.typography.labelLarge,
                         )
@@ -350,7 +363,10 @@ fun MedicationCard(
                         ) {
                             MedLogIcon(MedLogIcons.SkipNext, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
-                                Text(stringResource(R.string.notif_action_skip), style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                stringResource(R.string.notif_action_skip),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
                         }
                     }
 
@@ -366,7 +382,10 @@ fun MedicationCard(
                         ) {
                             MedLogIcon(MedLogIcons.Adjust, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
-                            Text(stringResource(R.string.med_card_btn_partial), style = MaterialTheme.typography.labelSmall)
+                            Text(
+                                stringResource(R.string.med_card_btn_partial),
+                                style = MaterialTheme.typography.labelSmall,
+                            )
                         }
                     }
                 }
@@ -382,8 +401,11 @@ fun MedicationCard(
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                     Text(
-                        text = stringResource(R.string.med_card_partial_input_hint,
-                            med.doseQuantity.formatDose(), med.doseUnit),
+                        text = stringResource(
+                            R.string.med_card_partial_input_hint,
+                            med.doseQuantity.formatDose(),
+                            med.doseUnit,
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
@@ -406,7 +428,7 @@ fun MedicationCard(
                             onPartialTake(qty.coerceAtMost(med.doseQuantity))
                             showPartialDialog = false
                         }
-                    }
+                    },
                 ) { Text(stringResource(R.string.confirm)) }
             },
             dismissButton = {
@@ -417,6 +439,7 @@ fun MedicationCard(
         )
     }
 }
+
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial: Boolean = false) {
@@ -433,10 +456,10 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial
     }
     val bgColor by animateColorAsState(
         targetValue = when {
-            isTaken   -> MaterialTheme.colorScheme.primary
+            isTaken -> MaterialTheme.colorScheme.primary
             isPartial -> MaterialTheme.colorScheme.secondary
             isSkipped -> MaterialTheme.colorScheme.outlineVariant
-            else      -> MaterialTheme.colorScheme.primaryContainer
+            else -> MaterialTheme.colorScheme.primaryContainer
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "circleBg",
@@ -450,18 +473,21 @@ private fun AnimatedStatusCircle(isTaken: Boolean, isSkipped: Boolean, isPartial
         contentAlignment = Alignment.Center,
     ) {
         when {
-            isTaken   -> MedLogIcon(
-                MedLogIcons.Check, null,
+            isTaken -> MedLogIcon(
+                MedLogIcons.Check,
+                null,
                 tint = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.size(20.dp),
             )
             isPartial -> MedLogIcon(
-                MedLogIcons.Adjust, null,
+                MedLogIcons.Adjust,
+                null,
                 tint = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.size(20.dp),
             )
             isSkipped -> MedLogIcon(
-                MedLogIcons.Remove, null,
+                MedLogIcons.Remove,
+                null,
                 tint = MaterialTheme.colorScheme.outline,
                 modifier = Modifier.size(20.dp),
             )

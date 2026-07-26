@@ -1,62 +1,25 @@
 package com.driezy.medlog.ui.screen.health
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import com.driezy.medlog.ui.theme.MedLogSpacing
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.HealthRecord
-import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.domain.health.HealthInsight
-import com.driezy.medlog.domain.health.HealthInsightSeverity
-import com.driezy.medlog.domain.health.AiExecutionStatus
-import com.driezy.medlog.ui.components.AiInteractionStatusPill
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Date
 import java.util.Locale
 
-
 @Composable
-internal fun HealthOcrHeroCard(
-    onScan: () -> Unit,
-) {
+internal fun HealthOcrHeroCard(onScan: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -144,7 +107,6 @@ internal fun HealthMetricsSection(stats: List<HealthTypeStat>) {
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-
 @Composable
 internal fun SectionHeader(title: String, subtitle: String? = null) {
     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
@@ -164,15 +126,13 @@ internal fun SectionHeader(title: String, subtitle: String? = null) {
 }
 
 @Composable
-private fun HealthStatCard(
-    stat: HealthTypeStat,
-    modifier: Modifier = Modifier,
-) {
+private fun HealthStatCard(stat: HealthTypeStat, modifier: Modifier = Modifier) {
     val dateFormat = remember { SimpleDateFormat("MM-dd", Locale.getDefault()) }
-    val containerColor = if (stat.isAbnormal)
+    val containerColor = if (stat.isAbnormal) {
         MaterialTheme.colorScheme.errorContainer
-    else
+    } else {
         MaterialTheme.colorScheme.secondaryContainer
+    }
 
     Card(
         modifier = modifier.width(168.dp),
@@ -189,30 +149,40 @@ private fun HealthStatCard(
                     healthTypeIcon(stat.type),
                     contentDescription = null,
                     modifier = Modifier.size(16.dp),
-                    tint = if (stat.isAbnormal) MaterialTheme.colorScheme.error
-                           else MaterialTheme.colorScheme.secondary,
+                    tint = if (stat.isAbnormal) {
+                        MaterialTheme.colorScheme.error
+                    } else {
+                        MaterialTheme.colorScheme.secondary
+                    },
                 )
                 Spacer(Modifier.width(4.dp))
                 Text(
                     stringResource(stat.type.labelRes),
                     style = MaterialTheme.typography.labelMedium,
-                    color = if (stat.isAbnormal) MaterialTheme.colorScheme.onErrorContainer
-                            else MaterialTheme.colorScheme.onSecondaryContainer,
+                    color = if (stat.isAbnormal) {
+                        MaterialTheme.colorScheme.onErrorContainer
+                    } else {
+                        MaterialTheme.colorScheme.onSecondaryContainer
+                    },
                 )
             }
             Text(
                 stat.type.formatMetricValue(stat.latestValue, stat.latestSecondary),
                 style = MaterialTheme.emphasizedTypography.headlineSmall,
-                color = if (stat.isAbnormal) MaterialTheme.colorScheme.onErrorContainer
-                else MaterialTheme.colorScheme.onSecondaryContainer,
+                color = if (stat.isAbnormal) {
+                    MaterialTheme.colorScheme.onErrorContainer
+                } else {
+                    MaterialTheme.colorScheme.onSecondaryContainer
+                },
             )
             Text(
                 stat.type.unit,
                 style = MaterialTheme.typography.labelMedium,
-                color = if (stat.isAbnormal)
+                color = if (stat.isAbnormal) {
                     MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.75f)
-                else
-                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.75f),
+                } else {
+                    MaterialTheme.colorScheme.onSecondaryContainer.copy(alpha = 0.75f)
+                },
             )
 
             // ── 血压分类标签 ──────────────────────────────────────
@@ -246,9 +216,9 @@ private fun HealthStatCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
                     val trendArrow = when (stat.trend) {
-                        1  -> "↑"
+                        1 -> "↑"
                         -1 -> "↓"
-                        0  -> "→"
+                        0 -> "→"
                         else -> ""
                     }
                     if (trendArrow.isNotEmpty()) {
@@ -256,7 +226,7 @@ private fun HealthStatCard(
                             trendArrow,
                             style = MaterialTheme.typography.bodySmall,
                             color = when (stat.trend) {
-                                1  -> MaterialTheme.colorScheme.error
+                                1 -> MaterialTheme.colorScheme.error
                                 -1 -> MaterialTheme.colorScheme.primary
                                 else -> MaterialTheme.colorScheme.onSurfaceVariant
                             },
@@ -299,9 +269,9 @@ private fun buildInterpretation(stat: HealthTypeStat): String? {
     }
     // 趋势
     when (stat.trend) {
-        1  -> parts += stringResource(R.string.health_interp_trend_rising)
+        1 -> parts += stringResource(R.string.health_interp_trend_rising)
         -1 -> parts += stringResource(R.string.health_interp_trend_falling)
-        0  -> if (!stat.isAbnormal) parts += stringResource(R.string.health_interp_normal)
+        0 -> if (!stat.isAbnormal) parts += stringResource(R.string.health_interp_normal)
     }
     return parts.joinToString("；").ifEmpty { null }
 }

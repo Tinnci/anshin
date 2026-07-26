@@ -1,47 +1,26 @@
 package com.driezy.medlog.ui.screen.addmedication
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.util.icon
-import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.formatDosePrecise
-import java.text.SimpleDateFormat
+import com.driezy.medlog.ui.util.icon
 import java.util.*
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -77,14 +56,20 @@ internal fun MedicationBasicInfoSection(
                     Row {
                         if (uiState.name.isNotBlank()) {
                             IconButton(onClick = { viewModel.onNameChange("") }) {
-                                MedLogIcon(MedLogIcons.Close, contentDescription = stringResource(R.string.add_clear_cd))
+                                MedLogIcon(
+                                    MedLogIcons.Close,
+                                    contentDescription = stringResource(R.string.add_clear_cd),
+                                )
                             }
                         }
                         FilledTonalIconButton(
                             onClick = onOpenOcrScanner,
                             modifier = Modifier.size(40.dp),
                         ) {
-                            MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = stringResource(R.string.ocr_scan_title))
+                            MedLogIcon(
+                                MedLogIcons.DocumentScanner,
+                                contentDescription = stringResource(R.string.ocr_scan_title),
+                            )
                         }
                     }
                 },
@@ -104,7 +89,9 @@ internal fun MedicationBasicInfoSection(
                                         style = MaterialTheme.typography.bodyMedium,
                                     )
                                     Text(
-                                        text = drug.category + if (drug.isTcm) stringResource(R.string.add_tcm_suffix) else "",
+                                        text =
+                                        drug.category +
+                                            if (drug.isTcm) stringResource(R.string.add_tcm_suffix) else "",
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -139,11 +126,18 @@ internal fun MedicationBasicInfoSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            ) {
                 MedLogIcon(MedLogIcons.PriorityHigh, null, tint = MaterialTheme.colorScheme.error)
                 Column {
                     Text(stringResource(R.string.add_high_priority), style = MaterialTheme.typography.bodyMedium)
-                    Text(stringResource(R.string.add_high_priority_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        stringResource(R.string.add_high_priority_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
             Switch(
@@ -152,7 +146,6 @@ internal fun MedicationBasicInfoSection(
             )
         }
     }
-
 }
 
 @Composable
@@ -178,10 +171,11 @@ internal fun MedicationFormChoiceSection(
                     onClick = { viewModel.onFormChange(option.key) },
                     shape = RoundedCornerShape(16.dp),
                     colors = CardDefaults.cardColors(
-                        containerColor = if (isSelected)
+                        containerColor = if (isSelected) {
                             MaterialTheme.colorScheme.primaryContainer
-                        else
-                            MaterialTheme.colorScheme.surfaceContainerLow,
+                        } else {
+                            MaterialTheme.colorScheme.surfaceContainerLow
+                        },
                     ),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
@@ -195,21 +189,26 @@ internal fun MedicationFormChoiceSection(
                         MedLogIcon(
                             option.icon,
                             contentDescription = null,
-                            tint = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
-                                   else MaterialTheme.colorScheme.onSurfaceVariant,
+                            tint = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                         )
                         Text(
                             option.label,
                             style = MaterialTheme.typography.labelMedium,
-                            color = if (isSelected) MaterialTheme.colorScheme.onPrimaryContainer
-                                    else MaterialTheme.colorScheme.onSurfaceVariant,
+                            color = if (isSelected) {
+                                MaterialTheme.colorScheme.onPrimaryContainer
+                            } else {
+                                MaterialTheme.colorScheme.onSurfaceVariant
+                            },
                         )
                     }
                 }
             }
         }
     }
-
 }
 
 @Composable
@@ -259,7 +258,11 @@ internal fun MedicationDoseSection(
             )
         }
         Spacer(Modifier.height(MedLogSpacing.Tiny))
-        Text(stringResource(R.string.add_unit_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(R.string.add_unit_label),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
@@ -273,5 +276,4 @@ internal fun MedicationDoseSection(
             }
         }
     }
-
 }

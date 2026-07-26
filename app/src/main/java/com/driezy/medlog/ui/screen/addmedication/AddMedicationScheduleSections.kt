@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.addmedication
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -10,47 +7,30 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
-import com.driezy.medlog.ui.theme.emphasizedTypography
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
-import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.data.model.TimePeriod
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
-import com.driezy.medlog.ui.util.formatDosePrecise
-import java.text.SimpleDateFormat
 import java.util.*
-
-
-
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun MedicationUsageFrequencySection(
-    uiState: AddMedicationUiState,
-    viewModel: AddMedicationViewModel,
-) {
+internal fun MedicationUsageFrequencySection(uiState: AddMedicationUiState, viewModel: AddMedicationViewModel) {
     val motionScheme = MaterialTheme.motionScheme
     // ── 按需用药 ─────────────────────────────────────────
     FormSection(title = stringResource(R.string.add_section_usage), icon = MedLogIcons.EventRepeat) {
@@ -59,11 +39,18 @@ internal fun MedicationUsageFrequencySection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            ) {
                 MedLogIcon(MedLogIcons.HourglassBottom, null, tint = MaterialTheme.colorScheme.secondary)
                 Column {
                     Text(stringResource(R.string.add_prn_label), style = MaterialTheme.typography.bodyMedium)
-                    Text(stringResource(R.string.add_prn_subtitle), style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Text(
+                        stringResource(R.string.add_prn_subtitle),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
             Switch(checked = uiState.isPRN, onCheckedChange = viewModel::onIsPRNChange)
@@ -92,8 +79,16 @@ internal fun MedicationUsageFrequencySection(
         ) {
             Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
                 HorizontalDivider(Modifier.padding(vertical = MedLogSpacing.Tiny))
-                Text(stringResource(R.string.add_freq_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                val freqOptions = listOf("daily" to stringResource(R.string.add_freq_daily), "interval" to stringResource(R.string.add_freq_interval), "specific_days" to stringResource(R.string.add_freq_specific))
+                Text(
+                    stringResource(R.string.add_freq_label),
+                    style = MaterialTheme.typography.labelMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                val freqOptions = listOf(
+                    "daily" to stringResource(R.string.add_freq_daily),
+                    "interval" to stringResource(R.string.add_freq_interval),
+                    "specific_days" to stringResource(R.string.add_freq_specific),
+                )
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
@@ -115,10 +110,14 @@ internal fun MedicationUsageFrequencySection(
                 }
                 AnimatedVisibility(
                     visible = uiState.frequencyType == "interval",
-                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    enter =
+                    expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
                     exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                    ) {
                         Text(stringResource(R.string.add_freq_every_n), style = MaterialTheme.typography.bodyMedium)
                         OutlinedTextField(
                             value = uiState.frequencyInterval.toString(),
@@ -127,12 +126,16 @@ internal fun MedicationUsageFrequencySection(
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             singleLine = true,
                         )
-                        Text(stringResource(R.string.add_freq_interval_suffix), style = MaterialTheme.typography.bodyMedium)
+                        Text(
+                            stringResource(R.string.add_freq_interval_suffix),
+                            style = MaterialTheme.typography.bodyMedium,
+                        )
                     }
                 }
                 AnimatedVisibility(
                     visible = uiState.frequencyType == "specific_days",
-                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    enter =
+                    expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
                     exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     val days = uiState.frequencyDays.split(",").filter { it.isNotBlank() }
@@ -162,7 +165,6 @@ internal fun MedicationUsageFrequencySection(
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -175,14 +177,21 @@ internal fun MedicationReminderScheduleSection(
     val motionScheme = MaterialTheme.motionScheme
     // ── 服药时段 & 提醒（PRN 时作为可选提醒时间）─────────────────
     FormSection(
-        title = if (uiState.isPRN) stringResource(R.string.add_section_reminder_optional) else stringResource(R.string.add_section_time_period),
+        title = if (uiState.isPRN) {
+            stringResource(
+                R.string.add_section_reminder_optional,
+            )
+        } else {
+            stringResource(R.string.add_section_time_period)
+        },
         icon = MedLogIcons.Schedule,
     ) {
         Text(
-            text = if (uiState.isPRN)
+            text = if (uiState.isPRN) {
                 stringResource(R.string.add_prn_reminder_hint)
-            else
-                stringResource(R.string.add_select_reminder_mode),
+            } else {
+                stringResource(R.string.add_select_reminder_mode)
+            },
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
@@ -250,7 +259,10 @@ internal fun MedicationReminderScheduleSection(
                     onClick = {},
                     label = {
                         Text(
-                            stringResource(R.string.add_reminder_hint_format, uiState.reminderTimes.firstOrNull().orEmpty()),
+                            stringResource(
+                                R.string.add_reminder_hint_format,
+                                uiState.reminderTimes.firstOrNull().orEmpty(),
+                            ),
                             style = MaterialTheme.typography.labelMedium,
                         )
                     },
@@ -297,7 +309,10 @@ internal fun MedicationReminderScheduleSection(
                             tint = MaterialTheme.colorScheme.primary,
                         )
                         Column {
-                            Text(stringResource(R.string.add_interval_dosing), style = MaterialTheme.typography.bodyMedium)
+                            Text(
+                                stringResource(R.string.add_interval_dosing),
+                                style = MaterialTheme.typography.bodyMedium,
+                            )
                             Text(
                                 stringResource(R.string.add_interval_dosing_subtitle),
                                 style = MaterialTheme.typography.bodySmall,
@@ -314,7 +329,8 @@ internal fun MedicationReminderScheduleSection(
                 }
                 AnimatedVisibility(
                     visible = uiState.intervalHours > 0,
-                    enter = expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
+                    enter =
+                    expandVertically(motionScheme.defaultSpatialSpec()) + fadeIn(motionScheme.defaultEffectsSpec()),
                     exit = shrinkVertically(motionScheme.fastSpatialSpec()) + fadeOut(motionScheme.fastEffectsSpec()),
                 ) {
                     OutlinedTextField(
@@ -331,5 +347,4 @@ internal fun MedicationReminderScheduleSection(
             }
         }
     }
-
 }

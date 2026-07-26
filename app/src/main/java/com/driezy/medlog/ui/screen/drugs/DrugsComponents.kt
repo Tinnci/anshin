@@ -1,48 +1,36 @@
 package com.driezy.medlog.ui.screen.drugs
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.Drug
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
-
 @Composable
-internal fun SubcategoryGrid(
-    subcategories: List<Pair<String, Int>>,
-    onSubcategoryClick: (String) -> Unit,
-) {
+internal fun SubcategoryGrid(subcategories: List<Pair<String, Int>>, onSubcategoryClick: (String) -> Unit) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(MedLogSpacing.Medium),
@@ -98,7 +86,10 @@ internal fun DrugCategoryBrowser(
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
     var selectedTab by remember { mutableIntStateOf(0) }
-    val tabs = listOf(stringResource(R.string.drugs_tab_western_br) to MedLogIcons.Medication, stringResource(R.string.drugs_tab_tcm) to MedLogIcons.LocalFlorist)
+    val tabs = listOf(
+        stringResource(R.string.drugs_tab_western_br) to MedLogIcons.Medication,
+        stringResource(R.string.drugs_tab_tcm) to MedLogIcons.LocalFlorist,
+    )
     val motionScheme = MaterialTheme.motionScheme
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
@@ -154,12 +145,7 @@ internal fun DrugCategoryBrowser(
 }
 
 @Composable
-internal fun CategoryGridCard(
-    category: String,
-    count: Int,
-    isTcm: Boolean,
-    onClick: () -> Unit,
-) {
+internal fun CategoryGridCard(category: String, count: Int, isTcm: Boolean, onClick: () -> Unit) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
         onClick = onClick,
@@ -168,10 +154,11 @@ internal fun CategoryGridCard(
             .height(96.dp),
         shape = RoundedCornerShape(20.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isTcm)
+            containerColor = if (isTcm) {
                 colorScheme.tertiaryContainer.copy(alpha = 0.6f)
-            else
-                colorScheme.secondaryContainer.copy(alpha = 0.6f),
+            } else {
+                colorScheme.secondaryContainer.copy(alpha = 0.6f)
+            },
         ),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -242,18 +229,14 @@ internal fun DrugGroupedList(
 // ─── 平铺列表（搜索结果） ─────────────────────────────────────
 
 @Composable
-internal fun DrugFlatList(
-    drugs: List<Drug>,
-    query: String,
-    onDrugSelect: (Drug) -> Unit,
-) {
+internal fun DrugFlatList(drugs: List<Drug>, query: String, onDrugSelect: (Drug) -> Unit) {
     LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
-            items(drugs, key = { it.name + it.fullPath }) { drug ->
-                Column(modifier = Modifier.animateItem()) {
-                    DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
-                    HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
-                }
+        items(drugs, key = { it.name + it.fullPath }) { drug ->
+            Column(modifier = Modifier.animateItem()) {
+                DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
+                HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
             }
+        }
     }
 }
 
@@ -264,7 +247,9 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
     // 别名匹配提示：当名称不包含 query 但别名匹配时显示
     val aliasMatchHint = if (query.isNotBlank() && !drug.nameLower.contains(query.lowercase())) {
         drug.aliases.firstOrNull { it.lowercase().contains(query.lowercase()) }
-    } else null
+    } else {
+        null
+    }
 
     // 多路径药品：提取所有唯一的一级分类作为 badge 列表
     val extraCategories = if (drug.allPaths.size > 1) {
@@ -272,7 +257,9 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             .mapNotNull { it.split(" > ").firstOrNull()?.trim() }
             .distinct()
             .filter { it != drug.category }
-    } else emptyList()
+    } else {
+        emptyList()
+    }
 
     val tcmBadge = stringResource(R.string.drugs_tcm_badge)
     ListItem(
@@ -282,10 +269,11 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                 icon = if (drug.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
                 contentDescription = null,
                 modifier = androidx.compose.ui.Modifier.size(20.dp),
-                tint = if (drug.isTcm)
+                tint = if (drug.isTcm) {
                     MaterialTheme.colorScheme.tertiary
-                else
-                    MaterialTheme.colorScheme.secondary,
+                } else {
+                    MaterialTheme.colorScheme.secondary
+                },
             )
         },
         supportingContent = {
@@ -336,7 +324,9 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             if (drug.isCompound) {
                 SuggestionChip(
                     onClick = {},
-                    label = { Text(stringResource(R.string.drugs_compound), style = MaterialTheme.typography.labelSmall) },
+                    label = {
+                        Text(stringResource(R.string.drugs_compound), style = MaterialTheme.typography.labelSmall)
+                    },
                 )
             }
         },

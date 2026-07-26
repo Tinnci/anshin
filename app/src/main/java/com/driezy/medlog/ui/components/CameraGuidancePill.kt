@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import com.driezy.medlog.ui.icons.MedLogIcon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -15,15 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun CameraGuidancePill(
-    text: String,
-    icon: Int,
-    modifier: Modifier = Modifier,
-) {
+fun CameraGuidancePill(text: String, icon: Int, modifier: Modifier = Modifier) {
     CameraGuidancePill(
         text = text,
         modifier = modifier,
@@ -34,17 +30,13 @@ fun CameraGuidancePill(
                 modifier = Modifier.size(18.dp),
                 tint = MaterialTheme.colorScheme.primary,
             )
-        }
+        },
     )
 }
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun CameraGuidancePill(
-    text: String,
-    modifier: Modifier = Modifier,
-    iconContent: @Composable () -> Unit,
-) {
+fun CameraGuidancePill(text: String, modifier: Modifier = Modifier, iconContent: @Composable () -> Unit) {
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(18.dp),

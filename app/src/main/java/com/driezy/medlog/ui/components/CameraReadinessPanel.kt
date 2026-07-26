@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.components
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
@@ -16,6 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -46,10 +45,7 @@ fun CameraReadinessPanel(
 }
 
 @Composable
-private fun ReadinessChip(
-    icon: Int,
-    text: String,
-) {
+private fun ReadinessChip(icon: Int, text: String) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
         verticalAlignment = Alignment.CenterVertically,

@@ -25,9 +25,7 @@ private const val TAG = "AlarmReceiver"
  *
  * 使用 [SupervisorJob] 确保单个子任务失败不影响其他任务。
  */
-fun BroadcastReceiver.goAsyncSafe(
-    block: suspend CoroutineScope.() -> Unit,
-) {
+fun BroadcastReceiver.goAsyncSafe(block: suspend CoroutineScope.() -> Unit) {
     val pendingResult = goAsync()
     CoroutineScope(SupervisorJob() + Dispatchers.IO).launch {
         try {
@@ -130,44 +128,49 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                         )
                     }
                     return
-                }                // 漏服再提醒闹钟触发
+                } // 漏服再提醒闹钟触发
                 if (isFollowUp) {
-                    val followUpCount    = intent.getIntExtra(EXTRA_FOLLOW_UP_COUNT, 1)
+                    val followUpCount = intent.getIntExtra(EXTRA_FOLLOW_UP_COUNT, 1)
                     val followUpMaxCount = intent.getIntExtra(EXTRA_FOLLOW_UP_MAX_COUNT, 1)
-                    val followUpDelayMs  = intent.getLongExtra(EXTRA_FOLLOW_UP_DELAY_MS, 15 * 60_000L)
+                    val followUpDelayMs = intent.getLongExtra(EXTRA_FOLLOW_UP_DELAY_MS, 15 * 60_000L)
                     goAsyncSafe {
                         val med = medicationRepo.getMedicationById(medId) ?: return@goAsyncSafe
                         // 检查用户是否已在原时间前后窗口内服药或跳过该药
-                        val windowMs   = 30 * 60_000L
+                        val windowMs = 30 * 60_000L
                         val existingLog = logRepo.getLogForMedicationAndDate(
                             medicationId = medId,
                             startMs = scheduledMs - windowMs,
-                            endMs   = scheduledMs + followUpDelayMs * followUpCount + windowMs,
+                            endMs = scheduledMs + followUpDelayMs * followUpCount + windowMs,
                         )
                         if (existingLog != null &&
                             existingLog.status != LogStatus.MISSED
-                        ) return@goAsyncSafe  // 已服药或跳过，不显示再提醒
+                        ) {
+                            return@goAsyncSafe // 已服药或跳过，不显示再提醒
+                        }
                         // 显示漏服再提醒通知
                         notificationHelper.showFollowUpNotification(
-                            medId, medName,
+                            medId,
+                            medName,
                             "${med.doseQuantity} ${med.doseUnit}",
-                            timeIndex, followUpCount, scheduledMs,
+                            timeIndex,
+                            followUpCount,
+                            scheduledMs,
                         )
                         // 若还没到最大次数，继续调度下一次
                         if (followUpCount < followUpMaxCount) {
                             alarmScheduler.scheduleFollowUpAlarm(
-                                medication       = med,
-                                timeIndex        = timeIndex,
-                                scheduledMs      = scheduledMs,
-                                followUpCount    = followUpCount + 1,
+                                medication = med,
+                                timeIndex = timeIndex,
+                                scheduledMs = scheduledMs,
+                                followUpCount = followUpCount + 1,
                                 followUpMaxCount = followUpMaxCount,
-                                delayMs          = followUpDelayMs,
-                                triggerAtMs      = nowMs + followUpDelayMs,
+                                delayMs = followUpDelayMs,
+                                triggerAtMs = nowMs + followUpDelayMs,
                             )
                         }
                     }
                     return
-                }                // 正式服药时间到：显示通知，并调度下一次闹钟
+                } // 正式服药时间到：显示通知，并调度下一次闹钟
                 goAsyncSafe {
                     val med = medicationRepo.getMedicationById(medId) ?: return@goAsyncSafe
                     notificationHelper.showReminderNotification(
@@ -191,18 +194,17 @@ class MedLogAlarmReceiver : BroadcastReceiver() {
                     if (prefs.followUpReminderEnabled && prefs.followUpMaxCount > 0) {
                         val delayMs = prefs.followUpDelayMinutes * 60_000L
                         alarmScheduler.scheduleFollowUpAlarm(
-                            medication       = med,
-                            timeIndex        = timeIndex,
-                            scheduledMs      = scheduledMs,
-                            followUpCount    = 1,
+                            medication = med,
+                            timeIndex = timeIndex,
+                            scheduledMs = scheduledMs,
+                            followUpCount = 1,
                             followUpMaxCount = prefs.followUpMaxCount,
-                            delayMs          = delayMs,
-                            triggerAtMs      = nowMs + delayMs,
+                            delayMs = delayMs,
+                            triggerAtMs = nowMs + delayMs,
                         )
                     }
                 }
             }
         }
     }
-
 }

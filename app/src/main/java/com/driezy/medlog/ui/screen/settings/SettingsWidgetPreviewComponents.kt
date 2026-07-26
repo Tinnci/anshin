@@ -1,34 +1,23 @@
 package com.driezy.medlog.ui.screen.settings
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.util.displayName
 
 // ── 通用设置卡片组（24dp 扁平卡片，含组标题）────────────────────────────────
 
-
+@OptIn(ExperimentalLayoutApi::class)
 @Composable
 internal fun WidgetPickerCard(
     previewType: WidgetPreviewType,
@@ -60,19 +49,26 @@ internal fun WidgetPickerCard(
             modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Medium),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
         ) {
-            Row(
+            Text(
+                text = name,
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.SemiBold,
+            )
+            FlowRow(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
             ) {
-                Text(name, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
-                // 尺寸徽章
-                Row(horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny)) {
-                    sizes.forEach { size ->
-                        SuggestionChip(
-                            onClick = {},
-                            label = { Text(size, style = MaterialTheme.typography.labelSmall) },
-                            modifier = Modifier.height(24.dp),
+                sizes.forEach { size ->
+                    Surface(
+                        shape = MaterialTheme.shapes.small,
+                        color = MaterialTheme.colorScheme.surfaceContainerHighest,
+                        contentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                    ) {
+                        Text(
+                            text = size,
+                            style = MaterialTheme.typography.labelSmall,
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
                         )
                     }
                 }
@@ -92,7 +88,13 @@ internal fun WidgetPickerCard(
                 MedLogIcon(MedLogIcons.AddToHomeScreen, null, Modifier.size(16.dp))
                 Spacer(Modifier.width(MedLogSpacing.Small))
                 Text(
-                    if (canPin) stringResource(R.string.settings_widget_add_btn) else stringResource(R.string.settings_widget_grant_btn),
+                    if (canPin) {
+                        stringResource(
+                            R.string.settings_widget_add_btn,
+                        )
+                    } else {
+                        stringResource(R.string.settings_widget_grant_btn)
+                    },
                     fontWeight = FontWeight.Medium,
                 )
             }
@@ -121,8 +123,8 @@ private fun WidgetPreviewSurface(
         shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
     ) {
         Column(
-            modifier = Modifier.padding(MedLogSpacing.Large),
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            modifier = Modifier.padding(MedLogSpacing.Medium),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -132,10 +134,11 @@ private fun WidgetPreviewSurface(
                 Text(
                     text = name,
                     style = MaterialTheme.typography.labelLarge,
-                    color = if (type == WidgetPreviewType.STREAK)
+                    color = if (type == WidgetPreviewType.STREAK) {
                         MaterialTheme.colorScheme.onTertiaryContainer
-                    else
-                        MaterialTheme.colorScheme.onSurfaceVariant,
+                    } else {
+                        MaterialTheme.colorScheme.onSurfaceVariant
+                    },
                 )
                 sizesForPreview(type).forEach { size ->
                     Surface(
@@ -176,7 +179,9 @@ private fun TodayWidgetPreview(spec: WidgetPreviewSpec) {
     )
     LinearProgressIndicator(
         progress = { spec.progress ?: 0f },
-        modifier = Modifier.fillMaxWidth().height(6.dp),
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(6.dp),
     )
     Row(
         modifier = Modifier.fillMaxWidth(),
@@ -233,7 +238,11 @@ private fun NextDoseWidgetPreview(spec: WidgetPreviewSpec) {
 @Composable
 private fun StreakWidgetPreview(spec: WidgetPreviewSpec) {
     Text(
-        text = pluralStringResource(R.plurals.widget_streak_days_fmt, spec.primaryText.toInt(), spec.primaryText.toInt()),
+        text = pluralStringResource(
+            R.plurals.widget_streak_days_fmt,
+            spec.primaryText.toInt(),
+            spec.primaryText.toInt(),
+        ),
         style = MaterialTheme.typography.headlineSmall,
         color = MaterialTheme.colorScheme.tertiary,
         fontWeight = FontWeight.SemiBold,
@@ -272,12 +281,20 @@ private fun StreakWidgetPreview(spec: WidgetPreviewSpec) {
 private fun PreviewPill(text: String, selected: Boolean) {
     Surface(
         shape = RoundedCornerShape(10.dp),
-        color = if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainer,
-        contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
+        color = if (selected) {
+            MaterialTheme.colorScheme.primaryContainer
+        } else {
+            MaterialTheme.colorScheme.surfaceContainer
+        },
+        contentColor = if (selected) {
+            MaterialTheme.colorScheme.onPrimaryContainer
+        } else {
+            MaterialTheme.colorScheme.onSurfaceVariant
+        },
     ) {
         Text(
             text = text,
-            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+            modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
             style = MaterialTheme.typography.labelSmall,
             fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Medium,
         )

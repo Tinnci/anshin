@@ -10,18 +10,15 @@ class FakeHealthRepository : HealthRepository {
     private val records = MutableStateFlow<List<HealthRecord>>(emptyList())
     private var nextId = 1L
 
-    override fun getAllRecords(): Flow<List<HealthRecord>> =
-        records.map { it.sortedByDescending { r -> r.timestamp } }
+    override fun getAllRecords(): Flow<List<HealthRecord>> = records.map { it.sortedByDescending { r -> r.timestamp } }
 
-    override fun getRecordsByType(type: String): Flow<List<HealthRecord>> =
-        records.map { list ->
-            list.filter { it.type == type }.sortedByDescending { it.timestamp }
-        }
+    override fun getRecordsByType(type: String): Flow<List<HealthRecord>> = records.map { list ->
+        list.filter { it.type == type }.sortedByDescending { it.timestamp }
+    }
 
-    override fun getRecordsInRange(from: Long, to: Long): Flow<List<HealthRecord>> =
-        records.map { list ->
-            list.filter { it.timestamp in from..to }.sortedByDescending { it.timestamp }
-        }
+    override fun getRecordsInRange(from: Long, to: Long): Flow<List<HealthRecord>> = records.map { list ->
+        list.filter { it.timestamp in from..to }.sortedByDescending { it.timestamp }
+    }
 
     override fun getRecordsByTypeInRange(type: String, from: Long, to: Long): Flow<List<HealthRecord>> =
         records.map { list ->
@@ -29,12 +26,11 @@ class FakeHealthRepository : HealthRepository {
                 .sortedByDescending { it.timestamp }
         }
 
-    override fun getLatestRecordPerType(): Flow<List<HealthRecord>> =
-        records.map { list ->
-            list.groupBy { it.type }
-                .mapValues { (_, recs) -> recs.maxByOrNull { it.timestamp }!! }
-                .values.toList()
-        }
+    override fun getLatestRecordPerType(): Flow<List<HealthRecord>> = records.map { list ->
+        list.groupBy { it.type }
+            .mapValues { (_, recs) -> recs.maxByOrNull { it.timestamp }!! }
+            .values.toList()
+    }
 
     override suspend fun hasSourceCacheKey(sourceCacheKey: String): Boolean =
         records.value.any { it.sourceCacheKey == sourceCacheKey }

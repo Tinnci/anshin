@@ -14,7 +14,8 @@ import javax.inject.Inject
 class HealthOcrPipeline @Inject constructor(
     @ApplicationContext context: Context,
     prefsRepository: UserPreferencesRepository,
-) : OcrPipeline, AutoCloseable {
+) : OcrPipeline,
+    AutoCloseable {
 
     private val sevenSegRecognizer = SevenSegmentRecognizer(context, prefsRepository)
     private val lcdDetector = LcdDisplayDetector(context)

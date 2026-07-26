@@ -13,6 +13,7 @@
     <string name="common_expand">展开</string>
     <string name="common_collapse">收起</string>
     <string name="common_back">返回</string>
+    <string name="common_more_actions">更多操作</string>
     <string name="confirm">确认</string>
     <string name="medication_taken">已服用</string>
     <string name="medication_skipped">已跳过</string>
@@ -51,6 +52,7 @@
     <string name="welcome_btn_start">开始使用 Anshin</string>
     <string name="welcome_btn_next">下一步</string>
     <string name="welcome_btn_skip">跳过</string>
+    <string name="welcome_progress">%1$d / %2$d</string>
 
     <!-- Welcome Page 0: Greeting -->
     <string name="welcome_p0_title">欢迎使用 Anshin</string>
@@ -196,6 +198,7 @@
     <string name="settings_notif_perm_title">通知权限未开启</string>
     <string name="settings_notif_perm_body">无法收到服药提醒。在系统设置中开启通知权限</string>
     <string name="settings_notif_perm_btn">前往设置</string>
+    <string name="settings_reminder_permissions_desc">完成以下系统授权，确保服药提醒按时送达</string>
     <string name="settings_group_appearance_home">外观与首页</string>
     <string name="settings_group_appearance_home_desc">主题配色、动态颜色与今日页面显示偏好</string>
     <string name="settings_group_reminders_routine">提醒与作息</string>
@@ -221,11 +224,10 @@
     <plurals name="settings_home_modules_enabled">
         <item quantity="other">%d 个模块开启</item>
     </plurals>
-    <string name="settings_home_action_reminders">检查提醒</string>
-    <string name="settings_home_action_intelligence">配置 AI 分析</string>
-    <string name="settings_home_action_data">数据与备份</string>
     <string name="settings_home_dashboard_title">设置中心</string>
     <string name="settings_home_dashboard_desc">先看状态，再进入设置页；模块可在下方开关</string>
+    <string name="settings_home_frequent_group">主要设置</string>
+    <string name="settings_home_more_group">更多设置</string>
     <string name="settings_home_tile_reminders_status">提醒、作息和权限</string>
     <string name="settings_home_tile_ai_status">OCR 与离线分析</string>
     <string name="settings_home_tile_ai_status_cloud">云端分析已开启</string>

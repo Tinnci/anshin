@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.addmedication
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -10,35 +7,21 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.data.model.TimePeriod
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.icon
-import com.driezy.medlog.ui.util.labelRes
-import com.driezy.medlog.ui.util.formatDosePrecise
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -94,11 +77,7 @@ internal fun AddMedicationFormContent(
 // ── 辅助组件 ─────────────────────────────────────────────────────────────────
 
 @Composable
-internal fun FormSection(
-    title: String,
-    icon: Int,
-    content: @Composable ColumnScope.() -> Unit,
-) {
+internal fun FormSection(title: String, icon: Int, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
@@ -115,7 +94,12 @@ internal fun FormSection(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
-                MedLogIcon(icon, contentDescription = null, tint = MaterialTheme.colorScheme.primary, modifier = Modifier.size(18.dp))
+                MedLogIcon(
+                    icon,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(18.dp),
+                )
                 Text(
                     title,
                     style = MaterialTheme.emphasizedTypography.titleSmall,
@@ -129,11 +113,7 @@ internal fun FormSection(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun ReminderTimesRow(
-    times: List<String>,
-    onAdd: (String) -> Unit,
-    onRemove: (String) -> Unit,
-) {
+internal fun ReminderTimesRow(times: List<String>, onAdd: (String) -> Unit, onRemove: (String) -> Unit) {
     val motionScheme = MaterialTheme.motionScheme
     var showPicker by remember { mutableStateOf(false) }
     val cal = remember { Calendar.getInstance() }
@@ -144,7 +124,11 @@ internal fun ReminderTimesRow(
     )
 
     Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
-        Text(stringResource(R.string.add_reminder_time_label), style = MaterialTheme.typography.labelMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            stringResource(R.string.add_reminder_time_label),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Row(
             modifier = Modifier.horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
@@ -164,7 +148,17 @@ internal fun ReminderTimesRow(
             }
             AssistChip(
                 onClick = { showPicker = !showPicker },
-                label = { Text(if (showPicker) stringResource(R.string.add_reminder_collapse) else stringResource(R.string.add_reminder_add_btn)) },
+                label = {
+                    Text(
+                        if (showPicker) {
+                            stringResource(
+                                R.string.add_reminder_collapse,
+                            )
+                        } else {
+                            stringResource(R.string.add_reminder_add_btn)
+                        },
+                    )
+                },
                 leadingIcon = {
                     MedLogIcon(
                         if (showPicker) MedLogIcons.ExpandLess else MedLogIcons.Add,
@@ -238,9 +232,20 @@ internal fun DatePickerField(
                     .padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Medium),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Column(modifier = Modifier.weight(1f), verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline)) {
-                    Text(label, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    Text(displayText, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+                ) {
+                    Text(
+                        label,
+                        style = MaterialTheme.typography.labelSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Text(
+                        displayText,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
                 }
                 MedLogIcon(
                     icon = if (expanded) MedLogIcons.ExpandLess else MedLogIcons.ExpandMore,

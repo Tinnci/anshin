@@ -9,9 +9,9 @@ import com.driezy.medlog.ai.AiStructuredResponseStatus
 import com.driezy.medlog.data.model.AiAnalysisCacheEntry
 import com.driezy.medlog.data.model.AiAnalysisKind
 import com.driezy.medlog.data.model.AiUsageEvent
+import com.driezy.medlog.data.model.AiUsageResult
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.data.model.AiUsageResult
 import com.driezy.medlog.data.repository.AiCacheKeyBuilder
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
@@ -375,27 +375,21 @@ class HealthAiPipelineCacheTest {
         assertEquals(AiStructuredResponseErrorKind.SCHEMA_INVALID.name, cache.usageEvents.single().errorCategory)
     }
 
-    private fun entry(
-        cacheKey: String,
-        kind: AiAnalysisKind,
-        inputHash: String,
-        responseJson: String,
-    ) = AiAnalysisCacheEntry(
-        cacheKey = cacheKey,
-        kind = kind,
-        provider = identity.provider,
-        model = identity.model,
-        promptVersion = 1,
-        inputHash = inputHash,
-        locale = "zh-CN",
-        responseJson = responseJson,
-        createdAt = now,
-        expiresAt = now + 1_000,
-    )
+    private fun entry(cacheKey: String, kind: AiAnalysisKind, inputHash: String, responseJson: String) =
+        AiAnalysisCacheEntry(
+            cacheKey = cacheKey,
+            kind = kind,
+            provider = identity.provider,
+            model = identity.model,
+            promptVersion = 1,
+            inputHash = inputHash,
+            locale = "zh-CN",
+            responseJson = responseJson,
+            createdAt = now,
+            expiresAt = now + 1_000,
+        )
 
-    private class RecordingAiChatClient(
-        private val response: AiChatResponse,
-    ) : AiChatClient {
+    private class RecordingAiChatClient(private val response: AiChatResponse) : AiChatClient {
         val requests = mutableListOf<AiChatRequest>()
 
         override suspend fun generate(request: AiChatRequest): AiChatResponse {
@@ -419,8 +413,7 @@ class HealthAiPipelineCacheTest {
             usageEvents.add(event)
         }
 
-        override suspend fun usageSummary(sinceMillis: Long): List<AiUsageSummaryRow> =
-            emptyList()
+        override suspend fun usageSummary(sinceMillis: Long): List<AiUsageSummaryRow> = emptyList()
 
         override suspend fun clearAll() {
             entries.clear()

@@ -32,11 +32,11 @@ object OemWidgetHelper {
 
     /** 当前设备的 OEM 类型（通过 Build.MANUFACTURER 识别） */
     val oemType: OemType = when {
-        Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)   -> OemType.XIAOMI
-        Build.MANUFACTURER.equals("OPPO",   ignoreCase = true)   -> OemType.OPPO
-        Build.MANUFACTURER.equals("vivo",   ignoreCase = true)   -> OemType.VIVO
-        Build.MANUFACTURER.equals("samsung", ignoreCase = true)  -> OemType.SAMSUNG
-        Build.MANUFACTURER.equals("Google",  ignoreCase = true)  -> OemType.GOOGLE
+        Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true) -> OemType.XIAOMI
+        Build.MANUFACTURER.equals("OPPO", ignoreCase = true) -> OemType.OPPO
+        Build.MANUFACTURER.equals("vivo", ignoreCase = true) -> OemType.VIVO
+        Build.MANUFACTURER.equals("samsung", ignoreCase = true) -> OemType.SAMSUNG
+        Build.MANUFACTURER.equals("Google", ignoreCase = true) -> OemType.GOOGLE
         else -> OemType.OTHER
     }
 
@@ -54,9 +54,9 @@ object OemWidgetHelper {
      */
     fun permissionNote(context: Context): String = when (oemType) {
         OemType.XIAOMI -> context.getString(R.string.oem_miui_pin_guide)
-        OemType.OPPO   -> context.getString(R.string.oem_coloros_pin_guide)
-        OemType.VIVO   -> context.getString(R.string.oem_originos_pin_guide)
-        else           -> ""
+        OemType.OPPO -> context.getString(R.string.oem_coloros_pin_guide)
+        OemType.VIVO -> context.getString(R.string.oem_originos_pin_guide)
+        else -> ""
     }
 
     /**
@@ -99,19 +99,16 @@ object OemWidgetHelper {
      * 针对 Samsung / Pixel 等不需要额外权限的设备，在无法使用 requestPinAppWidget 时
      * 返回一段通用的手动添加引导文字。
      */
-    fun manualAddGuidance(context: Context): String =
-        context.getString(R.string.oem_manual_add_guide)
+    fun manualAddGuidance(context: Context): String = context.getString(R.string.oem_manual_add_guide)
 
     // ── 私有工具 ───────────────────────────────────────────────────────────────
 
-    private fun tryStart(context: Context, intent: Intent): Boolean {
-        return try {
-            context.startActivity(intent)
-            true
-        } catch (_: ActivityNotFoundException) {
-            false
-        } catch (_: SecurityException) {
-            false
-        }
+    private fun tryStart(context: Context, intent: Intent): Boolean = try {
+        context.startActivity(intent)
+        true
+    } catch (_: ActivityNotFoundException) {
+        false
+    } catch (_: SecurityException) {
+        false
     }
 }

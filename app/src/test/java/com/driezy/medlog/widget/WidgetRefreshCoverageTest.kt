@@ -1,8 +1,8 @@
 package com.driezy.medlog.widget
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class WidgetRefreshCoverageTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -12,7 +12,8 @@ class WidgetRefreshCoverageTest {
 
     @Test
     fun `medication plan mutations trigger immediate widget refresh`() {
-        val addMedication = source("app/src/main/java/com/driezy/medlog/ui/screen/addmedication/AddMedicationViewModel.kt")
+        val addMedication =
+            source("app/src/main/java/com/driezy/medlog/ui/screen/addmedication/AddMedicationViewModel.kt")
         val detail = source("app/src/main/java/com/driezy/medlog/ui/screen/detail/MedicationDetailViewModel.kt")
         val settings = source("app/src/main/java/com/driezy/medlog/ui/screen/settings/SettingsViewModel.kt")
 

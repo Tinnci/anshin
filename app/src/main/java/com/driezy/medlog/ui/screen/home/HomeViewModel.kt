@@ -1,29 +1,28 @@
 package com.driezy.medlog.ui.screen.home
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.DrugInteraction
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
-import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.HomeHeroStyle
+import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.MedicationRepository
-import com.driezy.medlog.domain.NINETY_DAYS_MS
-import com.driezy.medlog.domain.StreakCalculator
 import com.driezy.medlog.data.repository.UserPreferencesRepository
-import com.driezy.medlog.domain.ToggleMedicationDoseUseCase
-import com.driezy.medlog.domain.ImportPlanUseCase
 import com.driezy.medlog.domain.ImportMode
+import com.driezy.medlog.domain.ImportPlanUseCase
+import com.driezy.medlog.domain.NINETY_DAYS_MS
 import com.driezy.medlog.domain.PlanExport
 import com.driezy.medlog.domain.PlanExportCodec
 import com.driezy.medlog.domain.PlanExportDecodeResult
+import com.driezy.medlog.domain.ProgressNotificationUseCase
+import com.driezy.medlog.domain.StreakCalculator
+import com.driezy.medlog.domain.ToggleMedicationDoseUseCase
 import com.driezy.medlog.domain.todayRange
 import com.driezy.medlog.interaction.InteractionRuleEngine
-import com.driezy.medlog.domain.ProgressNotificationUseCase
 import com.driezy.medlog.notification.NotificationHelper
+import com.driezy.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -51,6 +50,7 @@ data class MedicationWithStatus(
     val isTaken get() = log?.status == LogStatus.TAKEN
     val isSkipped get() = log?.status == LogStatus.SKIPPED
     val isPartial get() = log?.status == LogStatus.PARTIAL
+
     /** 今日已有操作（已服、已跳过、部分服用），不再需要服药提醒 */
     val isHandled get() = isTaken || isSkipped || isPartial
 }
@@ -73,6 +73,7 @@ data class HomeUiState(
     val heroPresentation: HomeHeroPresentation by lazy {
         HomeHeroPresentation.from(items)
     }
+
     /**
      * 药品按分类分组（分类为空的归入"其他"组，统一展示）。
      * 当所有药品无分类时返回单个 "" -> all 分组（供卡片列表扁平化渲染）。
@@ -90,7 +91,7 @@ data class HomeUiState(
                 compareBy(
                     { if (it.key.contains("中成药") || TCM_CATEGORY_KEYWORDS.any { kw -> it.key.contains(kw) }) 0 else 1 },
                     { it.key },
-                )
+                ),
             )
             .map { it.key to it.value }
     }
@@ -125,10 +126,7 @@ data class HomeUiState(
     }
 }
 
-private data class HomeObservation(
-    val state: HomeUiState,
-    val showProgressNotification: Boolean,
-)
+private data class HomeObservation(val state: HomeUiState, val showProgressNotification: Boolean)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -162,7 +160,7 @@ class HomeViewModel @Inject constructor(
      * 药品相互作用列表 — 仅在 getActiveMedications 或 enableDrugInteractionCheck 实际变化时重新计算，
      * 避免每次服药日志更新都触发 O(n²) 的 interactionEngine.check()。
      */
-    private val _interactions: StateFlow<List<DrugInteraction>> = combine(
+    private val interactionsFlow: StateFlow<List<DrugInteraction>> = combine(
         medicationRepo.getActiveMedications().distinctUntilChanged(),
         prefsRepository.settingsFlow.map { it.enableDrugInteractionCheck }.distinctUntilChanged(),
     ) { meds, enableCheck ->
@@ -185,18 +183,20 @@ class HomeViewModel @Inject constructor(
                 medicationRepo.getActiveMedications(),
                 logRepo.getLogsForDateRange(today.first, today.second),
                 prefsRepository.settingsFlow,
-                _interactions,
+                interactionsFlow,
             ) { meds, logs, prefs, interactions ->
                 val items = meds.flatMap { med ->
                     val medLogs = logs.filter { it.medicationId == med.id }
                     val times = med.reminderTimes.split(",").map { it.trim() }.filter { it.isNotBlank() }
                     if (med.isPRN) {
-                        listOf(MedicationWithStatus(
-                            medication = med,
-                            log = medLogs.firstOrNull(),
-                            timeSlotIndex = 0,
-                            scheduledTime = times.firstOrNull() ?: "",
-                        ))
+                        listOf(
+                            MedicationWithStatus(
+                                medication = med,
+                                log = medLogs.firstOrNull(),
+                                timeSlotIndex = 0,
+                                scheduledTime = times.firstOrNull() ?: "",
+                            ),
+                        )
                     } else {
                         val scheduledTimes = times.ifEmpty {
                             listOf("%02d:%02d".format(med.reminderHour, med.reminderMinute))
@@ -208,7 +208,8 @@ class HomeViewModel @Inject constructor(
                                 val slotMinute = parts.getOrElse(1) { med.reminderMinute }.coerceIn(0, 59)
                                 set(Calendar.HOUR_OF_DAY, slotHour)
                                 set(Calendar.MINUTE, slotMinute)
-                                set(Calendar.SECOND, 0); set(Calendar.MILLISECOND, 0)
+                                set(Calendar.SECOND, 0)
+                                set(Calendar.MILLISECOND, 0)
                             }.timeInMillis
                         }
                         val matchedLogs = matchDoseLogsToSlots(slotTimesMs, medLogs)
@@ -256,8 +257,8 @@ class HomeViewModel @Inject constructor(
                         .filter { !it.medication.isPRN && !it.isHandled }
                         .map { it.medication.name }
                     progressNotif(
-                        taken        = taken,
-                        total        = total,
+                        taken = taken,
+                        total = total,
                         pendingNames = pending,
                     )
                 }
@@ -447,7 +448,5 @@ class HomeViewModel @Inject constructor(
     }
 
     /** 生成当前活跃药品的导出 URI；若列表为空返回 null */
-    fun generateExportUri(): String? =
-        PlanExportCodec.encode(uiState.value.items.map { it.medication })
-
+    fun generateExportUri(): String? = PlanExportCodec.encode(uiState.value.items.map { it.medication })
 }

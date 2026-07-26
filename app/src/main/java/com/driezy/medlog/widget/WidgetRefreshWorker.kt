@@ -19,10 +19,7 @@ import java.util.concurrent.TimeUnit
  * 应用内用户操作（服药、撤销等）触发的即时刷新由 [WidgetRefresher] 直接调用
  * Glance updateAll()，无需经过 WorkManager 调度（延迟更低）。
  */
-class WidgetRefreshWorker(
-    private val context: Context,
-    params: WorkerParameters,
-) : CoroutineWorker(context, params) {
+class WidgetRefreshWorker(private val context: Context, params: WorkerParameters) : CoroutineWorker(context, params) {
 
     override suspend fun doWork(): Result {
         MedLogWidget().updateAll(context)
@@ -40,7 +37,8 @@ class WidgetRefreshWorker(
          */
         fun schedulePeriodic(context: Context) {
             val request = PeriodicWorkRequestBuilder<WidgetRefreshWorker>(
-                15, TimeUnit.MINUTES,
+                15,
+                TimeUnit.MINUTES,
             ).build()
             WorkManager.getInstance(context).enqueueUniquePeriodicWork(
                 PERIODIC_WORK_NAME,

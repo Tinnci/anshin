@@ -3,10 +3,10 @@ package com.driezy.medlog.domain
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
-import java.util.Base64
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.util.Base64
 
 class UnifiedImportPayloadCodecTest {
     @Test
@@ -103,7 +103,6 @@ class UnifiedImportPayloadCodecTest {
         assertTrue(payload is UnifiedImportPayload.Unknown)
     }
 
-    private fun apiKeyPayload(json: String): String =
-        UnifiedImportPayloadCodec.API_KEY_SCHEME +
-            Base64.getUrlEncoder().withoutPadding().encodeToString(json.toByteArray(Charsets.UTF_8))
+    private fun apiKeyPayload(json: String): String = UnifiedImportPayloadCodec.API_KEY_SCHEME +
+        Base64.getUrlEncoder().withoutPadding().encodeToString(json.toByteArray(Charsets.UTF_8))
 }

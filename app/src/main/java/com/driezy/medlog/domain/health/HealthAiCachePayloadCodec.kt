@@ -15,15 +15,14 @@ object HealthAiCachePayloadCodec {
     private const val IMAGE_OCR_KIND = "IMAGE_OCR"
     private const val HEALTH_INSIGHT_KIND = "HEALTH_INSIGHT"
 
-    fun encodeImageOcr(result: OcrParseResult): String =
-        encodeImageOcrStructured(
-            AiStructuredResponse(
-                rawText = "",
-                parsed = result,
-                status = AiStructuredResponseStatus.SUCCESS,
-                schemaVersion = HealthAiPromptVersions.IMAGE_OCR,
-            ),
-        )
+    fun encodeImageOcr(result: OcrParseResult): String = encodeImageOcrStructured(
+        AiStructuredResponse(
+            rawText = "",
+            parsed = result,
+            status = AiStructuredResponseStatus.SUCCESS,
+            schemaVersion = HealthAiPromptVersions.IMAGE_OCR,
+        ),
+    )
 
     fun encodeImageOcrStructured(response: AiStructuredResponse<OcrParseResult>): String {
         val result = response.parsed ?: OcrParseResult(emptyList(), emptyList(), emptyList())
@@ -39,36 +38,33 @@ object HealthAiCachePayloadCodec {
         )
     }
 
-    fun decodeMetadata(payloadJson: String): AiCachePayloadMetadata? =
-        runCatching {
-            val payload = json.decodeFromString<PayloadMetadataDto>(payloadJson)
-            AiCachePayloadMetadata(
-                status = payload.responseStatus,
-                errorKind = payload.responseErrorKind,
-                warnings = payload.responseWarnings,
-            )
-        }.getOrNull()
-
-    fun decodeImageOcr(payloadJson: String): OcrParseResult? =
-        runCatching {
-            val payload = json.decodeFromString<ImageOcrPayload>(payloadJson)
-            if (payload.schemaVersion != SCHEMA_VERSION || payload.kind != IMAGE_OCR_KIND) return null
-            OcrParseResult(
-                metrics = payload.metrics.mapNotNull { it.toMetricOrNull() },
-                candidates = payload.candidates.map { it.toCandidate() },
-                rawTexts = payload.rawTexts,
-            )
-        }.getOrNull()
-
-    fun encodeHealthInsights(insights: List<HealthInsight>): String =
-        encodeHealthInsightsStructured(
-            AiStructuredResponse(
-                rawText = "",
-                parsed = insights,
-                status = AiStructuredResponseStatus.SUCCESS,
-                schemaVersion = HealthAiPromptVersions.HEALTH_INSIGHT,
-            ),
+    fun decodeMetadata(payloadJson: String): AiCachePayloadMetadata? = runCatching {
+        val payload = json.decodeFromString<PayloadMetadataDto>(payloadJson)
+        AiCachePayloadMetadata(
+            status = payload.responseStatus,
+            errorKind = payload.responseErrorKind,
+            warnings = payload.responseWarnings,
         )
+    }.getOrNull()
+
+    fun decodeImageOcr(payloadJson: String): OcrParseResult? = runCatching {
+        val payload = json.decodeFromString<ImageOcrPayload>(payloadJson)
+        if (payload.schemaVersion != SCHEMA_VERSION || payload.kind != IMAGE_OCR_KIND) return null
+        OcrParseResult(
+            metrics = payload.metrics.mapNotNull { it.toMetricOrNull() },
+            candidates = payload.candidates.map { it.toCandidate() },
+            rawTexts = payload.rawTexts,
+        )
+    }.getOrNull()
+
+    fun encodeHealthInsights(insights: List<HealthInsight>): String = encodeHealthInsightsStructured(
+        AiStructuredResponse(
+            rawText = "",
+            parsed = insights,
+            status = AiStructuredResponseStatus.SUCCESS,
+            schemaVersion = HealthAiPromptVersions.HEALTH_INSIGHT,
+        ),
+    )
 
     fun encodeHealthInsightsStructured(response: AiStructuredResponse<List<HealthInsight>>): String =
         json.encodeToString(
@@ -80,21 +76,19 @@ object HealthAiCachePayloadCodec {
             ),
         )
 
-    fun decodeHealthInsights(payloadJson: String): List<HealthInsight>? =
-        runCatching {
-            val payload = json.decodeFromString<HealthInsightPayload>(payloadJson)
-            if (payload.schemaVersion != SCHEMA_VERSION || payload.kind != HEALTH_INSIGHT_KIND) return null
-            payload.insights.mapNotNull { it.toInsightOrNull() }
-        }.getOrNull()
+    fun decodeHealthInsights(payloadJson: String): List<HealthInsight>? = runCatching {
+        val payload = json.decodeFromString<HealthInsightPayload>(payloadJson)
+        if (payload.schemaVersion != SCHEMA_VERSION || payload.kind != HEALTH_INSIGHT_KIND) return null
+        payload.insights.mapNotNull { it.toInsightOrNull() }
+    }.getOrNull()
 
-    private fun ParsedHealthMetric.toDto(): MetricDto =
-        MetricDto(
-            type = type.name,
-            value = value,
-            secondaryValue = secondaryValue,
-            rawText = rawText,
-            confidence = confidence,
-        )
+    private fun ParsedHealthMetric.toDto(): MetricDto = MetricDto(
+        type = type.name,
+        value = value,
+        secondaryValue = secondaryValue,
+        rawText = rawText,
+        confidence = confidence,
+    )
 
     private fun MetricDto.toMetricOrNull(): ParsedHealthMetric? {
         val healthType = HealthType.entries.firstOrNull { it.name == type } ?: return null
@@ -107,31 +101,28 @@ object HealthAiCachePayloadCodec {
         )
     }
 
-    private fun ExtractedNumber.toDto(): CandidateDto =
-        CandidateDto(
-            value = value,
-            pairedValue = pairedValue,
-            rawText = rawText,
-            confidence = confidence,
-        )
+    private fun ExtractedNumber.toDto(): CandidateDto = CandidateDto(
+        value = value,
+        pairedValue = pairedValue,
+        rawText = rawText,
+        confidence = confidence,
+    )
 
-    private fun CandidateDto.toCandidate(): ExtractedNumber =
-        ExtractedNumber(
-            value = value,
-            pairedValue = pairedValue,
-            rawText = rawText,
-            confidence = confidence,
-        )
+    private fun CandidateDto.toCandidate(): ExtractedNumber = ExtractedNumber(
+        value = value,
+        pairedValue = pairedValue,
+        rawText = rawText,
+        confidence = confidence,
+    )
 
-    private fun HealthInsight.toDto(): InsightDto =
-        InsightDto(
-            id = id,
-            kind = kind.name,
-            severity = severity.name,
-            title = title,
-            body = body,
-            relatedType = relatedType?.name,
-        )
+    private fun HealthInsight.toDto(): InsightDto = InsightDto(
+        id = id,
+        kind = kind.name,
+        severity = severity.name,
+        title = title,
+        body = body,
+        relatedType = relatedType?.name,
+    )
 
     private fun InsightDto.toInsightOrNull(): HealthInsight? {
         val insightKind = HealthInsightKind.entries.firstOrNull { it.name == kind } ?: return null

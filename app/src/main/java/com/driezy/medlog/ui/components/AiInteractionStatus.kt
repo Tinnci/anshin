@@ -13,10 +13,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -46,10 +46,7 @@ data class AiInteractionPresentation(
     @param:StringRes val labelRes: Int,
 ) {
     companion object {
-        fun from(
-            status: AiExecutionStatus,
-            isRunning: Boolean = false,
-        ): AiInteractionPresentation {
+        fun from(status: AiExecutionStatus, isRunning: Boolean = false): AiInteractionPresentation {
             if (isRunning) {
                 return AiInteractionPresentation(
                     visualState = AiInteractionVisualState.RUNNING,
@@ -82,11 +79,7 @@ data class AiInteractionPresentation(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun AiInteractionStatusPill(
-    status: AiExecutionStatus,
-    isRunning: Boolean,
-    modifier: Modifier = Modifier,
-) {
+fun AiInteractionStatusPill(status: AiExecutionStatus, isRunning: Boolean, modifier: Modifier = Modifier) {
     val presentation = AiInteractionPresentation.from(status, isRunning)
     val targetContainer = when (presentation.visualState) {
         AiInteractionVisualState.RUNNING -> MaterialTheme.colorScheme.primaryContainer

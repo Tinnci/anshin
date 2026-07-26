@@ -7,17 +7,14 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
-class SymptomRepositoryImpl @Inject constructor(
-    private val dao: SymptomLogDao,
-) : SymptomRepository {
+class SymptomRepositoryImpl @Inject constructor(private val dao: SymptomLogDao) : SymptomRepository {
 
     override fun getAllLogs(): Flow<List<SymptomLog>> = dao.getAllLogs()
 
     override fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<SymptomLog>> =
         dao.getLogsForDateRange(startMs, endMs)
 
-    override fun getLogsForMedication(medId: Long): Flow<List<SymptomLog>> =
-        dao.getLogsForMedication(medId)
+    override fun getLogsForMedication(medId: Long): Flow<List<SymptomLog>> = dao.getLogsForMedication(medId)
 
     override suspend fun insert(log: SymptomLog): Long = dao.insert(log)
 

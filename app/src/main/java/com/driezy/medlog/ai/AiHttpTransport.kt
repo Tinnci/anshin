@@ -5,16 +5,9 @@ import kotlinx.coroutines.withContext
 import java.net.HttpURLConnection
 import java.net.URL
 
-data class AiHttpRequest(
-    val url: String,
-    val headers: Map<String, String>,
-    val body: String = "",
-)
+data class AiHttpRequest(val url: String, val headers: Map<String, String>, val body: String = "")
 
-data class AiHttpResponse(
-    val code: Int,
-    val body: String,
-)
+data class AiHttpResponse(val code: Int, val body: String)
 
 interface AiHttpTransport {
     suspend fun post(request: AiHttpRequest): AiHttpResponse
@@ -34,11 +27,7 @@ class UrlConnectionAiHttpTransport(
     override suspend fun get(request: AiHttpRequest): AiHttpResponse =
         execute(request = request, method = "GET", writeBody = false)
 
-    private suspend fun execute(
-        request: AiHttpRequest,
-        method: String,
-        writeBody: Boolean,
-    ): AiHttpResponse =
+    private suspend fun execute(request: AiHttpRequest, method: String, writeBody: Boolean): AiHttpResponse =
         withContext(Dispatchers.IO) {
             val connection = (URL(request.url).openConnection() as HttpURLConnection).apply {
                 requestMethod = method

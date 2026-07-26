@@ -1,59 +1,27 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.painter.BitmapPainter
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.ui.graphics.Color
-import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.util.labelRes
 import androidx.compose.material3.*
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
-import android.content.Intent
-import androidx.compose.foundation.Image
-import androidx.compose.runtime.produceState
-import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.text.style.TextAlign
-import com.driezy.medlog.ui.utils.generateQrBitmap
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import com.driezy.medlog.ui.theme.MedLogSpacing
+import androidx.compose.ui.res.pluralStringResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.DrugInteraction
-import com.driezy.medlog.data.model.InteractionSeverity
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.MedicationCard
 import com.driezy.medlog.ui.components.ScreenChromeState
@@ -62,12 +30,13 @@ import com.driezy.medlog.ui.components.ScreenOverlayHost
 import com.driezy.medlog.ui.components.ScreenTopBarSize
 import com.driezy.medlog.ui.components.TopBarAction
 import com.driezy.medlog.ui.components.TopBarActionPriority
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.displayName
-import androidx.compose.ui.res.pluralStringResource
-import androidx.compose.ui.res.stringResource
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.text.SimpleDateFormat
 import java.util.*
 
 /** 列表项交错入场动画的逐项延迟（毫秒） */
@@ -225,7 +194,6 @@ fun HomeScreen(
             contentPadding = MedLogSpacing.ScreenContentDefault,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-
             item(key = "homeHero", contentType = "homeHero") {
                 HomeHero(
                     presentation = uiState.heroPresentation,
@@ -248,7 +216,10 @@ fun HomeScreen(
             if (lowStockItems.isNotEmpty()) {
                 item {
                     LowStockBanner(
-                        medications = lowStockItems.map { it.medication.displayName() to ((it.medication.stock ?: 0.0) to it.medication.doseUnit) },
+                        medications = lowStockItems.map {
+                            it.medication.displayName() to
+                                ((it.medication.stock ?: 0.0) to it.medication.doseUnit)
+                        },
                     )
                 }
             }
@@ -328,16 +299,18 @@ fun HomeScreen(
                 }.filter { (_, groupItems) -> groupItems.isNotEmpty() }
                 taskGroups.forEach { (key, groupItems) ->
                     item(key = "task_group_$key", contentType = "taskGroup") {
-                        val groupTitle = if (key == "now")
+                        val groupTitle = if (key == "now") {
                             stringResource(R.string.home_now_group_title)
-                        else
+                        } else {
                             stringResource(R.string.home_later_group_title)
+                        }
                         MedicationTaskGroupCard(
                             title = groupTitle,
-                            subtitle = if (key == "now")
+                            subtitle = if (key == "now") {
                                 stringResource(R.string.home_now_group_body)
-                            else
-                                stringResource(R.string.home_later_group_body),
+                            } else {
+                                stringResource(R.string.home_later_group_body)
+                            },
                             icon = if (key == "now") MedLogIcons.CheckCircle else MedLogIcons.AccessTime,
                             items = groupItems,
                             onToggleTaken = ::toggleDose,
@@ -377,8 +350,11 @@ fun HomeScreen(
                                     .padding(top = 8.dp, bottom = 2.dp),
                             ) {
                                 Text(
-                                    text = if (category == HomeUiState.UNCATEGORIZED_KEY)
-                                        stringResource(R.string.category_other) else category,
+                                    text = if (category == HomeUiState.UNCATEGORIZED_KEY) {
+                                        stringResource(R.string.category_other)
+                                    } else {
+                                        category
+                                    },
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                 )
@@ -392,13 +368,13 @@ fun HomeScreen(
                         val motionScheme = MaterialTheme.motionScheme
                         var visible by remember(item.doseKey) { mutableStateOf(false) }
                         LaunchedEffect(item.doseKey) {
-                            delay(idx * STAGGER_DELAY_MS)   // 基于组内索引，而非全局，避免底部首次出现延迟
+                            delay(idx * STAGGER_DELAY_MS) // 基于组内索引，而非全局，避免底部首次出现延迟
                             visible = true
                         }
                         AnimatedVisibility(
                             visible = visible,
                             enter = fadeIn(motionScheme.defaultEffectsSpec()) +
-                                    slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
+                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 4 },
                         ) {
                             MedicationCard(
                                 item = item,
@@ -424,7 +400,6 @@ fun HomeScreen(
                     )
                 }
             }
-
         }
     }
     val importOverlay = when {

@@ -20,15 +20,15 @@ import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 @Singleton
-class DoubaoAsrWebSocketClient @Inject constructor(
-    private val okHttpClient: OkHttpClient,
-) {
+class DoubaoAsrWebSocketClient @Inject constructor(private val okHttpClient: OkHttpClient) {
     suspend fun connect(credentials: DoubaoDeviceCredentials): DoubaoAsrSocket =
         suspendCancellableCoroutine { continuation ->
             val responseChannel = Channel<DoubaoAsrResponse>(Channel.BUFFERED)
             val requestId = UUID.randomUUID().toString()
             val request = Request.Builder()
-                .url("${DoubaoAsrConstants.WEBSOCKET_URL}?aid=${DoubaoAsrConstants.AID}&device_id=${credentials.deviceId}")
+                .url(
+                    "${DoubaoAsrConstants.WEBSOCKET_URL}?aid=${DoubaoAsrConstants.AID}&device_id=${credentials.deviceId}",
+                )
                 .header("User-Agent", DoubaoAsrConstants.USER_AGENT)
                 .header("proto-version", "v2")
                 .header("x-custom-keepalive", "true")
@@ -99,8 +99,7 @@ class DoubaoAsrSocket internal constructor(
     private val webSocket: WebSocket,
     val responses: ReceiveChannel<DoubaoAsrResponse>,
 ) {
-    fun sendStartTask(): Boolean =
-        webSocket.send(DoubaoAsrProtocol.buildStartTask(requestId, token).toByteString())
+    fun sendStartTask(): Boolean = webSocket.send(DoubaoAsrProtocol.buildStartTask(requestId, token).toByteString())
 
     fun sendStartSession(deviceId: String): Boolean =
         webSocket.send(DoubaoAsrProtocol.buildStartSession(requestId, token, deviceId).toByteString())
@@ -108,8 +107,7 @@ class DoubaoAsrSocket internal constructor(
     fun sendAudio(packet: DoubaoAudioPacket): Boolean =
         webSocket.send(DoubaoAsrProtocol.buildTaskRequest(requestId, packet).toByteString())
 
-    fun finish(): Boolean =
-        webSocket.send(DoubaoAsrProtocol.buildFinishSession(requestId, token).toByteString())
+    fun finish(): Boolean = webSocket.send(DoubaoAsrProtocol.buildFinishSession(requestId, token).toByteString())
 
     fun close() {
         webSocket.close(1000, "voice input stopped")

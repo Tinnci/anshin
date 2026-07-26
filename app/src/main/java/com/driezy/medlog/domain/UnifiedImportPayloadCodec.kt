@@ -2,11 +2,11 @@ package com.driezy.medlog.domain
 
 import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
-import java.util.Base64
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import java.util.Base64
 
 sealed interface UnifiedImportPayload {
     data class MedicationPlan(val plan: PlanExport) : UnifiedImportPayload
@@ -170,29 +170,27 @@ object UnifiedImportPayloadCodec {
         )
     }
 
-    private fun parseKeyValueLines(input: String): Map<String, String> =
-        input.lineSequence()
-            .mapNotNull { line ->
-                val trimmed = line.trim()
-                if (trimmed.isBlank() || trimmed.startsWith("#")) return@mapNotNull null
-                val normalizedLine = trimmed.removePrefix("export ").trim()
-                val equalsIndex = normalizedLine.indexOf('=')
-                if (equalsIndex <= 0) return@mapNotNull null
-                val key = normalizedLine.substring(0, equalsIndex).trim().uppercase()
-                val value = normalizedLine.substring(equalsIndex + 1)
-                    .substringBefore(" #")
-                    .trim()
-                    .trimMatchingQuotes()
-                key to value
-            }
-            .filter { (_, value) -> value.isNotBlank() }
-            .toMap()
+    private fun parseKeyValueLines(input: String): Map<String, String> = input.lineSequence()
+        .mapNotNull { line ->
+            val trimmed = line.trim()
+            if (trimmed.isBlank() || trimmed.startsWith("#")) return@mapNotNull null
+            val normalizedLine = trimmed.removePrefix("export ").trim()
+            val equalsIndex = normalizedLine.indexOf('=')
+            if (equalsIndex <= 0) return@mapNotNull null
+            val key = normalizedLine.substring(0, equalsIndex).trim().uppercase()
+            val value = normalizedLine.substring(equalsIndex + 1)
+                .substringBefore(" #")
+                .trim()
+                .trimMatchingQuotes()
+            key to value
+        }
+        .filter { (_, value) -> value.isNotBlank() }
+        .toMap()
 
-    private fun String?.normalizeToken(): String =
-        this?.trim()
-            ?.lowercase()
-            ?.replace('_', '-')
-            ?: ""
+    private fun String?.normalizeToken(): String = this?.trim()
+        ?.lowercase()
+        ?.replace('_', '-')
+        ?: ""
 
     private fun String.trimMatchingQuotes(): String {
         if (length < 2) return this

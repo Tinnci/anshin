@@ -1,10 +1,7 @@
 package com.driezy.medlog.ui.screen.home
 
 /** Stable identity for one scheduled dose, including multi-slot medications. */
-data class MedicationDoseKey(
-    val medicationId: Long,
-    val timeSlotIndex: Int,
-)
+data class MedicationDoseKey(val medicationId: Long, val timeSlotIndex: Int)
 
 val MedicationWithStatus.doseKey: MedicationDoseKey
     get() = MedicationDoseKey(
@@ -98,6 +95,4 @@ internal fun MedicationWithStatus.scheduledMinuteOfDay(): Int {
     return hour * 60 + minute
 }
 
-private fun MedicationWithStatus.scheduledMinutes(): Int {
-    return scheduledMinuteOfDay()
-}
+private fun MedicationWithStatus.scheduledMinutes(): Int = scheduledMinuteOfDay()

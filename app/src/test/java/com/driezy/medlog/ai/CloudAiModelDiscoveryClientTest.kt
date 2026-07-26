@@ -215,9 +215,7 @@ class CloudAiModelDiscoveryClientTest {
         assertTrue(result.models.single().supportsImageInput)
     }
 
-    private class RecordingAiHttpTransport(
-        private val response: AiHttpResponse,
-    ) : AiHttpTransport {
+    private class RecordingAiHttpTransport(private val response: AiHttpResponse) : AiHttpTransport {
         var lastRequest: AiHttpRequest? = null
 
         override suspend fun post(request: AiHttpRequest): AiHttpResponse {

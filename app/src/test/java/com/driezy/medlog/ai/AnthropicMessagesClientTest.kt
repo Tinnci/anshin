@@ -132,7 +132,10 @@ class AnthropicMessagesClientTest {
     @Test
     fun `anthropic client keeps provider error status and body`() = runTest {
         val http = RecordingAiHttpTransport(
-            AiHttpResponse(code = 400, body = """{"type":"error","error":{"type":"invalid_request_error","message":"bad"}}"""),
+            AiHttpResponse(
+                code = 400,
+                body = """{"type":"error","error":{"type":"invalid_request_error","message":"bad"}}""",
+            ),
         )
         val client = AiChatClientFactory.create(AiProviderConfig.Anthropic(apiKey = "bad"), http)
 
@@ -183,9 +186,7 @@ class AnthropicMessagesClientTest {
         assertEquals("https://example.com/anthropic/v1/messages", http.lastRequest!!.url)
     }
 
-    private class RecordingAiHttpTransport(
-        private val response: AiHttpResponse,
-    ) : AiHttpTransport {
+    private class RecordingAiHttpTransport(private val response: AiHttpResponse) : AiHttpTransport {
         var lastRequest: AiHttpRequest? = null
 
         override suspend fun post(request: AiHttpRequest): AiHttpResponse {

@@ -1,8 +1,6 @@
 package com.driezy.medlog.ui.screen.detail
 
 import android.util.Log
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
@@ -11,12 +9,11 @@ import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.domain.THIRTY_DAYS_MS
 import com.driezy.medlog.domain.ToggleMedicationDoseUseCase
+import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.widget.WidgetRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import java.time.Instant
-import java.time.ZoneId
 import javax.inject.Inject
 
 data class DetailUiState(

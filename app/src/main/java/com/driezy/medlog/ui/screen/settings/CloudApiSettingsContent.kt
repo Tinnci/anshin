@@ -15,7 +15,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.qr.QrScannerPage
@@ -23,10 +22,7 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun CloudApiSettingsContent(
-    uiState: SettingsUiState,
-    viewModel: SettingsViewModel,
-) {
+internal fun CloudApiSettingsContent(uiState: SettingsUiState, viewModel: SettingsViewModel) {
     val motionScheme = MaterialTheme.motionScheme
     var showApiKeyScanner by rememberSaveable { mutableStateOf(false) }
 

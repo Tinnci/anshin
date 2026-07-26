@@ -4,10 +4,10 @@ import com.driezy.medlog.ai.AiChatClient
 import com.driezy.medlog.ai.AiChatContentPart
 import com.driezy.medlog.ai.AiChatMessage
 import com.driezy.medlog.ai.AiChatRequest
-import com.driezy.medlog.ai.AiTokenUsage
 import com.driezy.medlog.ai.AiStructuredResponse
 import com.driezy.medlog.ai.AiStructuredResponseErrorKind
 import com.driezy.medlog.ai.AiStructuredResponseStatus
+import com.driezy.medlog.ai.AiTokenUsage
 import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.data.model.OcrParseResult
 import com.driezy.medlog.data.model.ParsedHealthMetric
@@ -20,15 +20,9 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
 import kotlinx.serialization.json.doubleOrNull
 import kotlinx.serialization.json.floatOrNull
-import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
-import kotlinx.serialization.json.jsonPrimitive
 
-data class HealthImageAnalysisRequest(
-    val imageBytes: ByteArray,
-    val mimeType: String,
-    val locale: String = "zh-CN",
-) {
+data class HealthImageAnalysisRequest(val imageBytes: ByteArray, val mimeType: String, val locale: String = "zh-CN") {
     init {
         require(mimeType.startsWith("image/")) {
             "Health image analysis requires an image/* MIME type."
@@ -36,12 +30,9 @@ data class HealthImageAnalysisRequest(
     }
 }
 
-class HealthImageAnalyzer(
-    private val aiChatClient: AiChatClient,
-) {
-    suspend fun analyze(request: HealthImageAnalysisRequest): OcrParseResult {
-        return analyzeStructured(request).parsed ?: emptyOcrParseResult()
-    }
+class HealthImageAnalyzer(private val aiChatClient: AiChatClient) {
+    suspend fun analyze(request: HealthImageAnalysisRequest): OcrParseResult =
+        analyzeStructured(request).parsed ?: emptyOcrParseResult()
 
     suspend fun analyzeStructured(request: HealthImageAnalysisRequest): AiStructuredResponse<OcrParseResult> {
         val response = aiChatClient.generate(request.toAiRequest())
@@ -52,22 +43,21 @@ class HealthImageAnalyzer(
         )
     }
 
-    private fun HealthImageAnalysisRequest.toAiRequest(): AiChatRequest =
-        AiChatRequest(
-            messages = listOf(
-                AiChatMessage.system(
-                    "你是健康设备屏幕识别器，只提取图中的读数，不做诊断或医疗建议。",
-                ),
-                AiChatMessage.user(
-                    parts = listOf(
-                        AiChatContentPart.text(prompt(locale)),
-                        AiChatContentPart.imageBytes(imageBytes, mimeType),
-                    ),
+    private fun HealthImageAnalysisRequest.toAiRequest(): AiChatRequest = AiChatRequest(
+        messages = listOf(
+            AiChatMessage.system(
+                "你是健康设备屏幕识别器，只提取图中的读数，不做诊断或医疗建议。",
+            ),
+            AiChatMessage.user(
+                parts = listOf(
+                    AiChatContentPart.text(prompt(locale)),
+                    AiChatContentPart.imageBytes(imageBytes, mimeType),
                 ),
             ),
-            temperature = 0.0,
-            maxOutputTokens = 900,
-        )
+        ),
+        temperature = 0.0,
+        maxOutputTokens = 900,
+    )
 
     private fun prompt(locale: String): String =
         """
@@ -92,9 +82,7 @@ class HealthImageAnalyzer(
 }
 
 object HealthImageAnalysisParser {
-    fun parse(text: String): OcrParseResult {
-        return parseStructured(text).parsed ?: emptyOcrParseResult()
-    }
+    fun parse(text: String): OcrParseResult = parseStructured(text).parsed ?: emptyOcrParseResult()
 
     fun parseStructured(
         text: String,
@@ -151,23 +139,22 @@ object HealthImageAnalysisParser {
         )
     }
 
-    private fun parseJsonResult(jsonText: String): OcrParseResult? =
-        runCatching {
-            val root = json.parseToJsonElement(jsonText).jsonObject
-            val rawTexts = root.arrayOrNull("texts")
-                ?.mapNotNull { it.asStringOrNull() }
-                .orEmpty()
-            val metrics = (root.arrayOrNull("metrics") ?: root.arrayOrNull("readings"))
-                ?.mapNotNull { it.toMetricOrNull() }
-                .orEmpty()
-                .distinctBy { it.type to it.rawText }
-            val texts = rawTexts.ifEmpty { metrics.map { it.rawText }.filter { it.isNotBlank() } }
-            OcrParseResult(
-                metrics = metrics,
-                candidates = HealthMetricParser.extractNumbers(texts),
-                rawTexts = texts,
-            )
-        }.getOrNull()
+    private fun parseJsonResult(jsonText: String): OcrParseResult? = runCatching {
+        val root = json.parseToJsonElement(jsonText).jsonObject
+        val rawTexts = root.arrayOrNull("texts")
+            ?.mapNotNull { it.asStringOrNull() }
+            .orEmpty()
+        val metrics = (root.arrayOrNull("metrics") ?: root.arrayOrNull("readings"))
+            ?.mapNotNull { it.toMetricOrNull() }
+            .orEmpty()
+            .distinctBy { it.type to it.rawText }
+        val texts = rawTexts.ifEmpty { metrics.map { it.rawText }.filter { it.isNotBlank() } }
+        OcrParseResult(
+            metrics = metrics,
+            candidates = HealthMetricParser.extractNumbers(texts),
+            rawTexts = texts,
+        )
+    }.getOrNull()
 
     private fun JsonElement.toMetricOrNull(): ParsedHealthMetric? {
         val obj = this as? JsonObject ?: return null
@@ -175,7 +162,12 @@ object HealthImageAnalysisParser {
         val value = obj.numberOrNull("value") ?: obj.valueStringNumberOrNull() ?: return null
         val secondary = obj.numberOrNull("secondaryValue") ?: obj.numberOrNull("secondary")
         if (!HealthMetricParser.isValuePlausible(value, type)) return null
-        if (type == HealthType.BLOOD_PRESSURE && secondary != null && !HealthMetricParser.isValuePlausible(secondary, type)) return null
+        if (type == HealthType.BLOOD_PRESSURE &&
+            secondary != null &&
+            !HealthMetricParser.isValuePlausible(secondary, type)
+        ) {
+            return null
+        }
         return ParsedHealthMetric(
             type = type,
             value = value,
@@ -216,23 +208,18 @@ object HealthImageAnalysisParser {
         }
     }
 
-    private fun JsonObject.valueStringNumberOrNull(): Double? =
-        stringOrNull("value")
-            ?.let { NUMBER.find(it)?.value?.toDoubleOrNull() }
+    private fun JsonObject.valueStringNumberOrNull(): Double? = stringOrNull("value")
+        ?.let { NUMBER.find(it)?.value?.toDoubleOrNull() }
 
     private fun JsonObject.arrayOrNull(key: String): JsonArray? = this[key] as? JsonArray
 
-    private fun JsonObject.stringOrNull(key: String): String? =
-        (this[key] as? JsonPrimitive)?.contentOrNull
+    private fun JsonObject.stringOrNull(key: String): String? = (this[key] as? JsonPrimitive)?.contentOrNull
 
-    private fun JsonObject.numberOrNull(key: String): Double? =
-        (this[key] as? JsonPrimitive)?.doubleOrNull
+    private fun JsonObject.numberOrNull(key: String): Double? = (this[key] as? JsonPrimitive)?.doubleOrNull
 
-    private fun JsonObject.floatOrNull(key: String): Float? =
-        (this[key] as? JsonPrimitive)?.floatOrNull
+    private fun JsonObject.floatOrNull(key: String): Float? = (this[key] as? JsonPrimitive)?.floatOrNull
 
-    private fun JsonElement.asStringOrNull(): String? =
-        (this as? JsonPrimitive)?.contentOrNull
+    private fun JsonElement.asStringOrNull(): String? = (this as? JsonPrimitive)?.contentOrNull
 
     private fun extractJsonObject(text: String): String? {
         FENCED_JSON.find(text)?.let { return it.groupValues[1] }

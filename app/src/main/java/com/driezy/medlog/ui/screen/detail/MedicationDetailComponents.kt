@@ -1,13 +1,8 @@
 package com.driezy.medlog.ui.screen.detail
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
@@ -17,27 +12,19 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.unit.dp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.driezy.medlog.data.model.LogStatus
-import com.driezy.medlog.data.model.MedicationLog
-import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.util.labelRes
-import com.driezy.medlog.ui.util.formatDose
-import com.driezy.medlog.ui.util.formatDosePrecise
-import com.driezy.medlog.ui.util.displayName
-import com.driezy.medlog.ui.theme.MedLogSpacing
-import java.text.SimpleDateFormat
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.data.model.LogStatus
+import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.formatDose
+import java.text.SimpleDateFormat
 import java.util.*
-
-/** 剂型 key → Material Icon（与添加界面保持一致） */
-import com.driezy.medlog.ui.util.formIcon
 
 /** 剂型 key → 本地化标签 */
 
@@ -49,7 +36,7 @@ internal fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
         targetValue = when {
             adherence >= 0.9f -> colorScheme.tertiary
             adherence >= 0.6f -> colorScheme.secondary
-            else              -> colorScheme.error
+            else -> colorScheme.error
         },
         animationSpec = motionScheme.defaultEffectsSpec(),
         label = "adhColor",
@@ -98,7 +85,14 @@ internal fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
                         icon = MedLogIcons.Cancel,
                         tint = colorScheme.error,
                         label = stringResource(R.string.detail_missed_skipped),
-                        value = pluralStringResource(R.plurals.detail_count_times, (total - taken).coerceAtLeast(0), (total - taken).coerceAtLeast(0)),
+                        value = pluralStringResource(
+                            R.plurals.detail_count_times,
+                            (total - taken).coerceAtLeast(0),
+                            (
+                                total -
+                                    taken
+                                ).coerceAtLeast(0),
+                        ),
                     )
                     StatRow(
                         icon = MedLogIcons.DateRange,
@@ -113,19 +107,17 @@ internal fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
 }
 
 @Composable
-internal fun StatRow(
-    icon: Int,
-    tint: Color,
-    label: String,
-    value: String,
-) {
+internal fun StatRow(icon: Int, tint: Color, label: String, value: String) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         MedLogIcon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
-        Text(label, style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Text(
+            label,
+            style = MaterialTheme.typography.bodySmall,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
         Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
     }
 }
@@ -172,7 +164,11 @@ internal fun StockCard(
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     MedLogIcon(MedLogIcons.Inventory, null, tint = stockColor, modifier = Modifier.size(18.dp))
-                    Text(stringResource(R.string.detail_stock_title), style = MaterialTheme.typography.labelLarge, color = colorScheme.primary)
+                    Text(
+                        stringResource(R.string.detail_stock_title),
+                        style = MaterialTheme.typography.labelLarge,
+                        color = colorScheme.primary,
+                    )
                 }
                 Text(
                     "$stockDisplay $unit",
@@ -186,11 +182,16 @@ internal fun StockCard(
             if (refillThreshold != null) {
                 Surface(
                     shape = RoundedCornerShape(8.dp),
-                    color = (if (isLow) colorScheme.errorContainer else colorScheme.tertiaryContainer).copy(alpha = 0.7f),
+                    color = (if (isLow) colorScheme.errorContainer else colorScheme.tertiaryContainer).copy(
+                        alpha = 0.7f,
+                    ),
                 ) {
                     Text(
-                        if (isLow) stringResource(R.string.detail_stock_low_warning, refillThreshold.toString(), unit)
-                        else stringResource(R.string.detail_stock_ok, refillThreshold.toString(), unit),
+                        if (isLow) {
+                            stringResource(R.string.detail_stock_low_warning, refillThreshold.toString(), unit)
+                        } else {
+                            stringResource(R.string.detail_stock_ok, refillThreshold.toString(), unit)
+                        },
                         style = MaterialTheme.typography.bodySmall,
                         color = if (isLow) colorScheme.onErrorContainer else colorScheme.onTertiaryContainer,
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -217,7 +218,11 @@ internal fun StockCard(
                         onClick = { onAdjustStock(-doseQuantity) },
                         modifier = Modifier.size(36.dp),
                     ) {
-                        MedLogIcon(MedLogIcons.Remove, stringResource(R.string.detail_stock_decrease_cd), Modifier.size(18.dp))
+                        MedLogIcon(
+                            MedLogIcons.Remove,
+                            stringResource(R.string.detail_stock_decrease_cd),
+                            Modifier.size(18.dp),
+                        )
                     }
                     FilledIconButton(
                         onClick = { onAdjustStock(+doseQuantity) },
@@ -227,7 +232,11 @@ internal fun StockCard(
                             contentColor = colorScheme.onPrimaryContainer,
                         ),
                     ) {
-                        MedLogIcon(MedLogIcons.Add, stringResource(R.string.detail_stock_increase_cd), Modifier.size(18.dp))
+                        MedLogIcon(
+                            MedLogIcons.Add,
+                            stringResource(R.string.detail_stock_increase_cd),
+                            Modifier.size(18.dp),
+                        )
                     }
                 }
             }
@@ -264,9 +273,9 @@ internal fun DetailLogRow(log: MedicationLog) {
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = when (log.status) {
-        LogStatus.TAKEN   -> colorScheme.tertiary
+        LogStatus.TAKEN -> colorScheme.tertiary
         LogStatus.SKIPPED -> colorScheme.outline
-        LogStatus.MISSED  -> colorScheme.error
+        LogStatus.MISSED -> colorScheme.error
         LogStatus.PARTIAL -> colorScheme.secondary
         LogStatus.PENDING -> colorScheme.outline
     }
@@ -282,7 +291,7 @@ internal fun DetailLogRow(log: MedicationLog) {
             Modifier
                 .size(8.dp)
                 .clip(CircleShape)
-                .background(statusColor)
+                .background(statusColor),
         )
         Column(Modifier.weight(1f)) {
             Text(
@@ -312,9 +321,9 @@ internal fun DetailLogRow(log: MedicationLog) {
         ) {
             Text(
                 text = when (log.status) {
-                    LogStatus.TAKEN   -> stringResource(R.string.medication_taken)
+                    LogStatus.TAKEN -> stringResource(R.string.medication_taken)
                     LogStatus.SKIPPED -> stringResource(R.string.medication_skipped)
-                    LogStatus.MISSED  -> stringResource(R.string.medication_missed)
+                    LogStatus.MISSED -> stringResource(R.string.medication_missed)
                     LogStatus.PARTIAL -> stringResource(R.string.history_legend_partial)
                     LogStatus.PENDING -> stringResource(R.string.history_pending)
                 },

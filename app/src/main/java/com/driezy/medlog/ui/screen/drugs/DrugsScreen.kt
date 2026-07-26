@@ -1,36 +1,22 @@
 package com.driezy.medlog.ui.screen.drugs
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.togetherWith
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
@@ -40,6 +26,8 @@ import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
 import com.driezy.medlog.ui.components.TopBarAction
 import com.driezy.medlog.ui.components.TopBarActionPriority
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
@@ -91,10 +79,16 @@ fun DrugsScreen(
                         trailingIcon = {
                             if (uiState.isSearchActive) {
                                 IconButton(onClick = {
-                                    if (uiState.query.isNotEmpty()) viewModel.onQueryChange("")
-                                    else viewModel.onSearchActiveChange(false)
+                                    if (uiState.query.isNotEmpty()) {
+                                        viewModel.onQueryChange("")
+                                    } else {
+                                        viewModel.onSearchActiveChange(false)
+                                    }
                                 }) {
-                                    MedLogIcon(MedLogIcons.Close, contentDescription = stringResource(R.string.drugs_close_search_cd))
+                                    MedLogIcon(
+                                        MedLogIcons.Close,
+                                        contentDescription = stringResource(R.string.drugs_close_search_cd),
+                                    )
                                 }
                             }
                         },
@@ -114,21 +108,30 @@ fun DrugsScreen(
                     item {
                         FilterChip(
                             selected = uiState.showTcm == null && uiState.selectedCategory == null,
-                            onClick = { viewModel.onToggleTcm(null); viewModel.onCategorySelect(null) },
+                            onClick = {
+                                viewModel.onToggleTcm(null)
+                                viewModel.onCategorySelect(null)
+                            },
                             label = { Text(stringResource(R.string.drugs_tab_all)) },
                         )
                     }
                     item {
                         FilterChip(
                             selected = uiState.showTcm == false,
-                            onClick = { viewModel.onToggleTcm(false); viewModel.onCategorySelect(null) },
+                            onClick = {
+                                viewModel.onToggleTcm(false)
+                                viewModel.onCategorySelect(null)
+                            },
                             label = { Text(stringResource(R.string.drugs_tab_western)) },
                         )
                     }
                     item {
                         FilterChip(
                             selected = uiState.showTcm == true,
-                            onClick = { viewModel.onToggleTcm(true); viewModel.onCategorySelect(null) },
+                            onClick = {
+                                viewModel.onToggleTcm(true)
+                                viewModel.onCategorySelect(null)
+                            },
                             label = { Text(stringResource(R.string.drugs_tab_tcm)) },
                         )
                     }
@@ -170,7 +173,11 @@ fun DrugsScreen(
                         horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     ) {
                         Text(
-                            text = pluralStringResource(R.plurals.drugs_results_count, uiState.drugs.size, uiState.drugs.size),
+                            text = pluralStringResource(
+                                R.plurals.drugs_results_count,
+                                uiState.drugs.size,
+                                uiState.drugs.size,
+                            ),
                             style = MaterialTheme.typography.labelMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
@@ -255,14 +262,17 @@ fun DrugsScreen(
                             Column(horizontalAlignment = Alignment.CenterHorizontally) {
                                 LoadingIndicator()
                                 Spacer(Modifier.height(MedLogSpacing.Small))
-                                Text(stringResource(R.string.drugs_loading), style = MaterialTheme.typography.bodyMedium)
+                                Text(
+                                    stringResource(R.string.drugs_loading),
+                                    style = MaterialTheme.typography.bodyMedium,
+                                )
                             }
                         }
                     }
                     // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
                     uiState.selectedCategory != null -> {
                         val selectedCat = uiState.selectedCategory ?: ""
-                        val selectedSub = uiState.selectedSubcategory  // 本地 val 避免 smart cast 问题
+                        val selectedSub = uiState.selectedSubcategory // 本地 val 避免 smart cast 问题
                         Column(modifier = Modifier.fillMaxSize()) {
                             // 面包屑标题行
                             Row(
@@ -272,10 +282,14 @@ fun DrugsScreen(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
-                                val catIcon = if (uiState.showTcm == true)
-                                    MedLogIcons.LocalFlorist else MedLogIcons.Medication
+                                val catIcon = if (uiState.showTcm == true) {
+                                    MedLogIcons.LocalFlorist
+                                } else {
+                                    MedLogIcons.Medication
+                                }
                                 MedLogIcon(
-                                    catIcon, null,
+                                    catIcon,
+                                    null,
                                     Modifier.size(16.dp),
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
@@ -345,7 +359,6 @@ fun DrugsScreen(
                     )
                 }
             }
-
         }
     }
 }

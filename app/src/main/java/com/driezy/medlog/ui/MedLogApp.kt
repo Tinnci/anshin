@@ -4,16 +4,16 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -33,10 +33,12 @@ import com.driezy.medlog.ui.screen.drugs.DrugsScreen
 import com.driezy.medlog.ui.screen.health.HealthScreen
 import com.driezy.medlog.ui.screen.history.HistoryScreen
 import com.driezy.medlog.ui.screen.home.HomeScreen
-import com.driezy.medlog.ui.screen.settings.DataSettingsScreen
-import com.driezy.medlog.ui.screen.settings.CloudApiSettingsScreen
+import com.driezy.medlog.ui.screen.settings.AppearanceSettingsScreen
 import com.driezy.medlog.ui.screen.settings.Bpx1DeviceSettingsScreen
+import com.driezy.medlog.ui.screen.settings.CloudApiSettingsScreen
+import com.driezy.medlog.ui.screen.settings.DataSettingsScreen
 import com.driezy.medlog.ui.screen.settings.IntelligenceSettingsScreen
+import com.driezy.medlog.ui.screen.settings.ModuleSettingsScreen
 import com.driezy.medlog.ui.screen.settings.ReminderSettingsScreen
 import com.driezy.medlog.ui.screen.settings.SettingsScreen
 import com.driezy.medlog.ui.screen.settings.WidgetSettingsScreen
@@ -84,18 +86,21 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     val enabledDestinations = remember(featureFlags) {
         TOP_LEVEL_DESTINATIONS.filter { dest ->
             when (dest.route) {
-                Route.Diary     -> featureFlags.enableSymptomDiary
-                Route.Drugs     -> featureFlags.enableDrugDatabase
-                Route.Health    -> featureFlags.enableHealthModule
-                else            -> true  // Home / History / Settings 始终可见
+                Route.Diary -> featureFlags.enableSymptomDiary
+                Route.Drugs -> featureFlags.enableDrugDatabase
+                Route.Health -> featureFlags.enableHealthModule
+                else -> true // Home / History / Settings 始终可见
             }
         }
     }
     // Decide whether to show the main navigation wrapper
     // Welcome 屏不展示导航栏
     val isOnWelcome = currentDestination?.hasRoute(Route.Welcome::class) == true
-    val showMainNav = !isOnWelcome && (currentDestination == null ||
-        TOP_LEVEL_DESTINATIONS.any { currentDestination.hasRoute(it.route::class) })
+    val showMainNav = !isOnWelcome &&
+        (
+            currentDestination == null ||
+                TOP_LEVEL_DESTINATIONS.any { currentDestination.hasRoute(it.route::class) }
+            )
 
     if (showMainNav) {
         MedLogNavigationWrapper(
@@ -112,10 +117,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun MedLogNavHost(
-    navController: androidx.navigation.NavHostController,
-    startDest: Route,
-) {
+private fun MedLogNavHost(navController: androidx.navigation.NavHostController, startDest: Route) {
     val motionScheme = MaterialTheme.motionScheme
     val navFadeIn = fadeIn(animationSpec = motionScheme.fastEffectsSpec())
     val navFadeOut = fadeOut(animationSpec = motionScheme.fastEffectsSpec())
@@ -145,7 +147,7 @@ private fun MedLogNavHost(
         // ── 欢迎引导（首次启动）───────────────────────────
         composable<Route.Welcome>(
             enterTransition = { navFadeIn },
-            exitTransition  = { navFadeOut },
+            exitTransition = { navFadeOut },
         ) {
             WelcomeScreen(
                 onFinished = {
@@ -184,7 +186,7 @@ private fun MedLogNavHost(
                         Route.AddMedication(
                             drugName = drug.name,
                             drugCategory = drug.category,
-                        )
+                        ),
                     )
                 },
             )
@@ -213,12 +215,22 @@ private fun MedLogNavHost(
                         }
                     }
                 },
+                onNavigateToAppearanceSettings = { navController.navigate(Route.SettingsAppearance) },
                 onNavigateToReminderSettings = { navController.navigate(Route.SettingsReminders) },
+                onNavigateToModuleSettings = { navController.navigate(Route.SettingsModules) },
                 onNavigateToIntelligenceSettings = { navController.navigate(Route.SettingsIntelligence) },
                 onNavigateToBpx1Settings = { navController.navigate(Route.SettingsBpx1) },
                 onNavigateToWidgetSettings = { navController.navigate(Route.SettingsWidgets) },
                 onNavigateToDataSettings = { navController.navigate(Route.SettingsData) },
             )
+        }
+        composable<Route.SettingsAppearance>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            AppearanceSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable<Route.SettingsReminders>(
             enterTransition = { materialSharedAxisX(forward = true) },
@@ -227,6 +239,14 @@ private fun MedLogNavHost(
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             ReminderSettingsScreen(onBack = { navController.popBackStack() })
+        }
+        composable<Route.SettingsModules>(
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
+            popEnterTransition = { navFadeIn },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
+        ) {
+            ModuleSettingsScreen(onBack = { navController.popBackStack() })
         }
         composable<Route.SettingsIntelligence>(
             enterTransition = { materialSharedAxisX(forward = true) },
@@ -281,10 +301,10 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.MedDetail>(
-            enterTransition    = { materialSharedAxisX(forward = true) },
-            exitTransition     = { navFadeOut },
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
             popEnterTransition = { navFadeIn },
-            popExitTransition  = { materialSharedAxisXOut(forward = true) },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.MedDetail = backStackEntry.toRoute()
             MedicationDetailScreen(
@@ -294,10 +314,10 @@ private fun MedLogNavHost(
             )
         }
         composable<Route.AddMedication>(
-            enterTransition    = { materialSharedAxisX(forward = true) },
-            exitTransition     = { navFadeOut },
+            enterTransition = { materialSharedAxisX(forward = true) },
+            exitTransition = { navFadeOut },
             popEnterTransition = { navFadeIn },
-            popExitTransition  = { materialSharedAxisXOut(forward = true) },
+            popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.AddMedication = backStackEntry.toRoute()
             AddMedicationScreen(

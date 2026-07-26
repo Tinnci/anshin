@@ -12,11 +12,8 @@ class FakeSymptomRepositoryTest {
 
     private lateinit var repo: FakeSymptomRepository
 
-    private fun log(
-        medicationId: Long = 1L,
-        symptoms: String = "头痛",
-        recordedAt: Long = System.currentTimeMillis(),
-    ) = SymptomLog(medicationId = medicationId, symptoms = symptoms, recordedAt = recordedAt)
+    private fun log(medicationId: Long = 1L, symptoms: String = "头痛", recordedAt: Long = System.currentTimeMillis()) =
+        SymptomLog(medicationId = medicationId, symptoms = symptoms, recordedAt = recordedAt)
 
     @Before
     fun setUp() {

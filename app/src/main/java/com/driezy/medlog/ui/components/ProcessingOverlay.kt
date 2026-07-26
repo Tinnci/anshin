@@ -32,11 +32,7 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
  */
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun ProcessingOverlay(
-    visible: Boolean,
-    text: String,
-    elevated: Boolean = true,
-) {
+fun ProcessingOverlay(visible: Boolean, text: String, elevated: Boolean = true) {
     val motionScheme = MaterialTheme.motionScheme
 
     AnimatedVisibility(

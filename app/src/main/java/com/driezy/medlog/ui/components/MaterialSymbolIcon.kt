@@ -29,7 +29,7 @@ fun MaterialSymbolIcon(
     weight: Float = 400f,
     fill: Float = 0f,
     color: Color = Color.Unspecified,
-    size: TextUnit = TextUnit.Unspecified
+    size: TextUnit = TextUnit.Unspecified,
 ) {
     val fontFamily = remember(weight, fill) {
         FontFamily(
@@ -37,9 +37,9 @@ fun MaterialSymbolIcon(
                 resId = R.font.material_symbols_rounded,
                 variationSettings = FontVariation.Settings(
                     FontVariation.Setting("wght", weight),
-                    FontVariation.Setting("FILL", fill)
-                )
-            )
+                    FontVariation.Setting("FILL", fill),
+                ),
+            ),
         )
     }
 
@@ -53,6 +53,6 @@ fun MaterialSymbolIcon(
         fontFamily = fontFamily,
         color = color,
         fontSize = size,
-        modifier = modifier
+        modifier = modifier,
     )
 }

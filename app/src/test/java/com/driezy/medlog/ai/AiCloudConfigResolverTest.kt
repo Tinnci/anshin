@@ -250,12 +250,9 @@ class AiCloudConfigResolverTest {
         )
     }
 
-    private class FakeKeys(
-        vararg entries: Pair<CloudAiProvider, Boolean>,
-    ) : AiApiKeyAvailability {
+    private class FakeKeys(vararg entries: Pair<CloudAiProvider, Boolean>) : AiApiKeyAvailability {
         private val available = entries.toMap()
 
-        override fun hasApiKey(provider: CloudAiProvider): Boolean =
-            available[provider] == true
+        override fun hasApiKey(provider: CloudAiProvider): Boolean = available[provider] == true
     }
 }

@@ -32,26 +32,22 @@ internal data class CloudAiUsageSummaryPresentation(
     val latestErrorCategory: String?,
 ) {
     companion object {
-        fun from(rows: List<AiUsageSummaryRow>): CloudAiUsageSummaryPresentation =
-            CloudAiUsageSummaryPresentation(
-                isEmpty = rows.isEmpty(),
-                totalCount = rows.sumOf { it.totalCount },
-                successCount = rows.sumOf { it.successCount },
-                errorCount = rows.sumOf { it.errorCount },
-                cacheHitCount = rows.sumOf { it.cacheHitCount },
-                latestErrorCategory = rows
-                    .filter { it.lastErrorCategory != null }
-                    .maxByOrNull { it.lastUsedAt }
-                    ?.lastErrorCategory,
-            )
+        fun from(rows: List<AiUsageSummaryRow>): CloudAiUsageSummaryPresentation = CloudAiUsageSummaryPresentation(
+            isEmpty = rows.isEmpty(),
+            totalCount = rows.sumOf { it.totalCount },
+            successCount = rows.sumOf { it.successCount },
+            errorCount = rows.sumOf { it.errorCount },
+            cacheHitCount = rows.sumOf { it.cacheHitCount },
+            latestErrorCategory = rows
+                .filter { it.lastErrorCategory != null }
+                .maxByOrNull { it.lastUsedAt }
+                ?.lastErrorCategory,
+        )
     }
 }
 
 @Composable
-internal fun CloudAiUsageSummaryCard(
-    summary: List<AiUsageSummaryRow>,
-    modifier: Modifier = Modifier,
-) {
+internal fun CloudAiUsageSummaryCard(summary: List<AiUsageSummaryRow>, modifier: Modifier = Modifier) {
     val presentation = CloudAiUsageSummaryPresentation.from(summary)
     if (presentation.isEmpty) return
 

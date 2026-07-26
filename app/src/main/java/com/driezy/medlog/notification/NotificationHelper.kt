@@ -16,30 +16,32 @@ import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.ui.theme.MedLogDarkColorScheme
 import com.driezy.medlog.ui.theme.MedLogLightColorScheme
 import dagger.hilt.android.qualifiers.ApplicationContext
-import javax.inject.Inject
-import javax.inject.Singleton
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
+import javax.inject.Singleton
 
-const val CHANNEL_REMINDER       = "med_reminder"
-const val CHANNEL_LOW_STOCK      = "low_stock"
-const val CHANNEL_PROGRESS       = "med_progress"    // 持久性今日进度通知
-const val CHANNEL_EARLY_REMINDER = "early_reminder"  // 提前预告提醒
-const val CHANNEL_FOLLOW_UP      = "follow_up"       // 漏服再提醒
+const val CHANNEL_REMINDER = "med_reminder"
+const val CHANNEL_LOW_STOCK = "low_stock"
+const val CHANNEL_PROGRESS = "med_progress" // 持久性今日进度通知
+const val CHANNEL_EARLY_REMINDER = "early_reminder" // 提前预告提醒
+const val CHANNEL_FOLLOW_UP = "follow_up" // 漏服再提醒
 private const val NOTIF_ID_PROGRESS = 9999
-const val EXTRA_MED_ID    = "med_id"
-const val EXTRA_MED_NAME  = "med_name"
-const val EXTRA_TIME_INDEX = "time_index"  // 提醒时间在列表中的索引
-const val EXTRA_IS_EARLY  = "is_early"    // 是否为提前预告通知
+const val EXTRA_MED_ID = "med_id"
+const val EXTRA_MED_NAME = "med_name"
+const val EXTRA_TIME_INDEX = "time_index" // 提醒时间在列表中的索引
+const val EXTRA_IS_EARLY = "is_early" // 是否为提前预告通知
+
 // 漏服再提醒相关 extras
-const val EXTRA_IS_FOLLOW_UP        = "is_follow_up"
-const val EXTRA_FOLLOW_UP_COUNT     = "follow_up_count"
+const val EXTRA_IS_FOLLOW_UP = "is_follow_up"
+const val EXTRA_FOLLOW_UP_COUNT = "follow_up_count"
 const val EXTRA_FOLLOW_UP_MAX_COUNT = "follow_up_max_count"
-const val EXTRA_FOLLOW_UP_DELAY_MS  = "follow_up_delay_ms"
-const val EXTRA_SCHEDULED_MS        = "scheduled_ms"
+const val EXTRA_FOLLOW_UP_DELAY_MS = "follow_up_delay_ms"
+const val EXTRA_SCHEDULED_MS = "scheduled_ms"
 
 /** 提醒通知分组键 */
 private const val GROUP_REMINDERS = "com.driezy.medlog.REMINDERS"
+
 /** 打开主界面的 PendingIntent requestCode */
 private const val REQUEST_OPEN_APP = 10001
 
@@ -77,8 +79,11 @@ class NotificationHelper @Inject constructor(
             return when {
                 (prefs?.useDynamicColor ?: true) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                     context.getColor(
-                        if (darkTheme) android.R.color.system_accent1_200
-                        else android.R.color.system_accent1_600,
+                        if (darkTheme) {
+                            android.R.color.system_accent1_200
+                        } else {
+                            android.R.color.system_accent1_600
+                        },
                     )
                 }
                 darkTheme -> MedLogDarkColorScheme.primary.toArgb()
@@ -114,7 +119,7 @@ class NotificationHelper @Inject constructor(
         ).apply {
             description = context.getString(R.string.notif_ch_reminder_desc)
             enableVibration(true)
-            vibrationPattern = longArrayOf(0, 250, 100, 250)   // 双击模式
+            vibrationPattern = longArrayOf(0, 250, 100, 250) // 双击模式
             enableLights(true)
             lightColor = notificationColor
         }
@@ -125,12 +130,12 @@ class NotificationHelper @Inject constructor(
         ).apply {
             description = context.getString(R.string.notif_ch_stock_desc)
             enableVibration(true)
-            vibrationPattern = longArrayOf(0, 400, 150, 300)   // 库存警告震动
+            vibrationPattern = longArrayOf(0, 400, 150, 300) // 库存警告震动
         }
         val progressChannel = NotificationChannel(
             CHANNEL_PROGRESS,
             context.getString(R.string.notif_ch_progress_name),
-            NotificationManager.IMPORTANCE_LOW,    // 不打断用户操作
+            NotificationManager.IMPORTANCE_LOW, // 不打断用户操作
         ).apply {
             description = context.getString(R.string.notif_ch_progress_desc)
             setShowBadge(false)
@@ -142,7 +147,7 @@ class NotificationHelper @Inject constructor(
         ).apply {
             description = context.getString(R.string.notif_ch_early_desc)
             enableVibration(true)
-            vibrationPattern = longArrayOf(0, 300)             // 单次轻震
+            vibrationPattern = longArrayOf(0, 300) // 单次轻震
         }
         val followUpChannel = NotificationChannel(
             CHANNEL_FOLLOW_UP,
@@ -151,9 +156,11 @@ class NotificationHelper @Inject constructor(
         ).apply {
             description = context.getString(R.string.notif_ch_follow_up_desc)
             enableVibration(true)
-            vibrationPattern = longArrayOf(0, 300, 150, 300, 150, 300)  // 三连震第警示
+            vibrationPattern = longArrayOf(0, 300, 150, 300, 150, 300) // 三连震第警示
         }
-        notificationManager.createNotificationChannels(listOf(reminderChannel, stockChannel, progressChannel, earlyChannel, followUpChannel))
+        notificationManager.createNotificationChannels(
+            listOf(reminderChannel, stockChannel, progressChannel, earlyChannel, followUpChannel),
+        )
     }
     // ─── 今日进度持久性通知（Live Activity 风格）─────────────────────────────
 
@@ -162,20 +169,20 @@ class NotificationHelper @Inject constructor(
      * - taken == total 时自动取消固定状态，用户可手动关闭。
      * - total == 0 时移除通知。
      */
-    fun showOrUpdateProgressNotification(
-        taken: Int,
-        total: Int,
-        pendingNames: List<String>,
-    ) {
+    fun showOrUpdateProgressNotification(taken: Int, total: Int, pendingNames: List<String>) {
         if (!notificationManager.areNotificationsEnabled()) return
-        if (total == 0) { dismissProgressNotification(); return }
+        if (total == 0) {
+            dismissProgressNotification()
+            return
+        }
 
         val allDone = taken == total
         val percent = (taken * 100) / total
-        val title = if (allDone)
+        val title = if (allDone) {
             context.getString(R.string.notif_progress_done_title)
-        else
+        } else {
             context.getString(R.string.notif_progress_title, taken, total)
+        }
         val bigText = when {
             allDone -> context.getString(R.string.notif_progress_done_body)
             pendingNames.isNotEmpty() -> pendingNames.joinToString("、")
@@ -189,21 +196,31 @@ class NotificationHelper @Inject constructor(
             .setSubText(context.getString(R.string.notif_progress_today))
             .apply {
                 if (bigText.isNotEmpty()) setContentText(bigText)
-                if (!allDone) setStyle(
-                    NotificationCompat.BigTextStyle()
-                        .bigText(context.getString(R.string.notif_progress_pending_prefix, bigText))
-                        .setSummaryText(context.getString(R.string.notif_progress_percent_summary, percent))
-                )
+                if (!allDone) {
+                    setStyle(
+                        NotificationCompat.BigTextStyle()
+                            .bigText(context.getString(R.string.notif_progress_pending_prefix, bigText))
+                            .setSummaryText(context.getString(R.string.notif_progress_percent_summary, percent)),
+                    )
+                }
             }
             .setProgress(total, taken, false)
             .setContentIntent(openAppPendingIntent)
-            .setOnlyAlertOnce(true)         // 更新进度时不再发出声音
-            .setOngoing(!allDone)           // 未完成时固定在通知栏
+            .setOnlyAlertOnce(true) // 更新进度时不再发出声音
+            .setOngoing(!allDone) // 未完成时固定在通知栏
             .setAutoCancel(allDone)
-            .setLocalOnly(true)             // 进度通知仅显示在手机，不同步到可穿戴设备
+            .setLocalOnly(true) // 进度通知仅显示在手机，不同步到可穿戴设备
             .setCategory(NotificationCompat.CATEGORY_STATUS)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .setTicker(if (allDone) context.getString(R.string.notif_progress_ticker_done) else context.getString(R.string.notif_progress_ticker_update))
+            .setTicker(
+                if (allDone) {
+                    context.getString(
+                        R.string.notif_progress_ticker_done,
+                    )
+                } else {
+                    context.getString(R.string.notif_progress_ticker_update)
+                },
+            )
             .build()
 
         notificationManager.notify(NOTIF_ID_PROGRESS, notification)
@@ -265,8 +282,9 @@ class NotificationHelper @Inject constructor(
             .setContentTitle(context.getString(R.string.notif_reminder_title, medicationName))
             .setContentText(context.getString(R.string.notif_reminder_dose_label, dose))
             .setSubText(context.getString(R.string.notif_reminder_subtext))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notif_reminder_big_text, dose, medicationName))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(context.getString(R.string.notif_reminder_big_text, dose, medicationName)),
             )
             .addAction(0, context.getString(R.string.medication_taken), takenPendingIntent)
             .addAction(0, context.getString(R.string.notif_action_skip), skipPendingIntent)
@@ -277,7 +295,7 @@ class NotificationHelper @Inject constructor(
             .setPublicVersion(publicVersion)
             .setGroup(GROUP_REMINDERS)
             .setAutoCancel(false)
-            .setTimeoutAfter(2 * 60 * 60 * 1000L)   // 2小时后自动清除
+            .setTimeoutAfter(2 * 60 * 60 * 1000L) // 2小时后自动清除
             .setTicker(context.getString(R.string.notif_reminder_ticker, medicationName))
             .asMedicationLiveUpdate(context.getString(R.string.notif_live_short_take))
             .build()
@@ -318,8 +336,9 @@ class NotificationHelper @Inject constructor(
             .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_stock_title, medicationName))
             .setContentText(context.getString(R.string.notif_stock_body, stockStr, unit))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notif_stock_big_text, medicationName, stockStr, unit))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(context.getString(R.string.notif_stock_big_text, medicationName, stockStr, unit)),
             )
             .addAction(openAction)
             .setCategory(NotificationCompat.CATEGORY_STATUS)
@@ -340,10 +359,19 @@ class NotificationHelper @Inject constructor(
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(notificationColor)
             .setContentTitle(context.getString(R.string.notif_refill_title, medicationName))
-            .setContentText(context.resources.getQuantityString(R.plurals.notif_refill_body, daysRemaining, daysRemaining))
+            .setContentText(
+                context.resources.getQuantityString(R.plurals.notif_refill_body, daysRemaining, daysRemaining),
+            )
             .setStyle(
                 NotificationCompat.BigTextStyle()
-                    .bigText(context.resources.getQuantityString(R.plurals.notif_refill_big_text, daysRemaining, medicationName, daysRemaining)),
+                    .bigText(
+                        context.resources.getQuantityString(
+                            R.plurals.notif_refill_big_text,
+                            daysRemaining,
+                            medicationName,
+                            daysRemaining,
+                        ),
+                    ),
             )
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
@@ -370,17 +398,28 @@ class NotificationHelper @Inject constructor(
         val notification = NotificationCompat.Builder(context, CHANNEL_EARLY_REMINDER)
             .setSmallIcon(R.drawable.ic_notification)
             .setColor(notificationColor)
-            .setContentTitle(context.resources.getQuantityString(R.plurals.notif_early_title, minutesBefore, minutesBefore))
+            .setContentTitle(
+                context.resources.getQuantityString(R.plurals.notif_early_title, minutesBefore, minutesBefore),
+            )
             .setContentText(context.getString(R.string.notif_early_body, medicationName, dose))
             .setSubText(context.getString(R.string.notif_early_subtext))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.resources.getQuantityString(R.plurals.notif_early_big_text, minutesBefore, minutesBefore, dose, medicationName))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(
+                        context.resources.getQuantityString(
+                            R.plurals.notif_early_big_text,
+                            minutesBefore,
+                            minutesBefore,
+                            dose,
+                            medicationName,
+                        ),
+                    ),
             )
             .setContentIntent(openAppPendingIntent)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(true)
-            .setTimeoutAfter(minutesBefore * 60_000L + 5 * 60_000L)  // 超时 = 预告时间 + 5 分钟
+            .setTimeoutAfter(minutesBefore * 60_000L + 5 * 60_000L) // 超时 = 预告时间 + 5 分钟
             .setTicker(context.resources.getQuantityString(R.plurals.notif_early_ticker, minutesBefore, minutesBefore))
             .build()
         notificationManager.notify(notificationId, notification)
@@ -439,8 +478,9 @@ class NotificationHelper @Inject constructor(
             .setContentTitle(context.getString(R.string.notif_follow_up_title, medicationName))
             .setContentText(context.getString(R.string.notif_follow_up_body, dose))
             .setSubText(context.getString(R.string.notif_follow_up_subtext, followUpCount))
-            .setStyle(NotificationCompat.BigTextStyle()
-                .bigText(context.getString(R.string.notif_follow_up_big_text, medicationName, dose))
+            .setStyle(
+                NotificationCompat.BigTextStyle()
+                    .bigText(context.getString(R.string.notif_follow_up_big_text, medicationName, dose)),
             )
             .addAction(0, context.getString(R.string.medication_taken), takenPendingIntent)
             .addAction(0, context.getString(R.string.notif_action_skip), skipPendingIntent)
@@ -448,7 +488,7 @@ class NotificationHelper @Inject constructor(
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setCategory(NotificationCompat.CATEGORY_REMINDER)
             .setAutoCancel(false)
-            .setTimeoutAfter(60 * 60 * 1000L)  // 1 小时后自动清除
+            .setTimeoutAfter(60 * 60 * 1000L) // 1 小时后自动清除
             .setTicker(context.getString(R.string.notif_follow_up_ticker, medicationName))
             .asMedicationLiveUpdate(context.getString(R.string.notif_live_short_follow_up))
             .build()

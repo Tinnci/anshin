@@ -4,12 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -17,32 +12,25 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.SymptomLog
 import com.driezy.medlog.ui.components.messageText
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
 import java.util.*
 
-
 @Composable
-internal fun SymptomLogCard(
-    log: SymptomLog,
-    dateFormat: SimpleDateFormat,
-    onEdit: () -> Unit,
-    onDelete: () -> Unit,
-) {
+internal fun SymptomLogCard(log: SymptomLog, dateFormat: SimpleDateFormat, onEdit: () -> Unit, onDelete: () -> Unit) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Card(
@@ -171,7 +159,9 @@ internal fun SymptomLogCard(
                 ) { Text(stringResource(R.string.common_action_delete)) }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteConfirm = false }) { Text(stringResource(R.string.common_action_cancel)) }
+                TextButton(onClick = {
+                    showDeleteConfirm = false
+                }) { Text(stringResource(R.string.common_action_cancel)) }
             },
         )
     }
@@ -237,7 +227,13 @@ internal fun AddEditDiarySheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                if (draft.editingId == null) stringResource(R.string.symptom_dialog_add_title) else stringResource(R.string.symptom_dialog_edit_title),
+                if (draft.editingId ==
+                    null
+                ) {
+                    stringResource(R.string.symptom_dialog_add_title)
+                } else {
+                    stringResource(R.string.symptom_dialog_edit_title)
+                },
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold,
             )
@@ -267,10 +263,11 @@ internal fun AddEditDiarySheet(
                         Text(
                             ratingLabel(r),
                             style = MaterialTheme.typography.labelSmall,
-                            color = if (draft.rating == r)
+                            color = if (draft.rating == r) {
                                 MaterialTheme.colorScheme.primary
-                            else
-                                MaterialTheme.colorScheme.outline,
+                            } else {
+                                MaterialTheme.colorScheme.outline
+                            },
                         )
                     }
                 }

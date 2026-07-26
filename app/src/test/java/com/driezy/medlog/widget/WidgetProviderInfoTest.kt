@@ -1,9 +1,9 @@
 package com.driezy.medlog.widget
 
-import java.io.File
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class WidgetProviderInfoTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -73,6 +73,9 @@ class WidgetProviderInfoTest {
         }
 
         val chrome = File(projectRoot, "app/src/main/java/com/driezy/medlog/widget/WidgetChrome.kt").readText()
-        assertTrue("Shared widget action should meet 48dp touch target guidance.", chrome.contains(".size(sizing.dp(48))"))
+        assertTrue(
+            "Shared widget action should meet 48dp touch target guidance.",
+            chrome.contains(".size(sizing.dp(48))"),
+        )
     }
 }

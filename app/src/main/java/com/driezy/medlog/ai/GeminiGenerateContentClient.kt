@@ -72,18 +72,17 @@ class GeminiGenerateContentClient(
         )
     }
 
-    private fun AiChatMessage.toGeminiParts(): List<GeminiPart> =
-        parts?.map { part ->
-            when (part) {
-                is AiChatContentPart.Text -> GeminiPart(text = part.text)
-                is AiChatContentPart.ImageBytes -> GeminiPart(
-                    inlineData = GeminiInlineData(
-                        mimeType = part.mimeType,
-                        data = part.base64,
-                    ),
-                )
-            }
-        } ?: listOf(GeminiPart(text = content))
+    private fun AiChatMessage.toGeminiParts(): List<GeminiPart> = parts?.map { part ->
+        when (part) {
+            is AiChatContentPart.Text -> GeminiPart(text = part.text)
+            is AiChatContentPart.ImageBytes -> GeminiPart(
+                inlineData = GeminiInlineData(
+                    mimeType = part.mimeType,
+                    data = part.base64,
+                ),
+            )
+        }
+    } ?: listOf(GeminiPart(text = content))
 
     private fun parseResponse(body: String): AiChatResponse {
         val parsed = runCatching { json.decodeFromString<GeminiResponse>(body) }
@@ -99,7 +98,9 @@ class GeminiGenerateContentClient(
             ?: throw AiProviderException(
                 providerName = PROVIDER_NAME,
                 statusCode = null,
-                message = "$PROVIDER_NAME returned no candidates. promptFeedback=${parsed.promptFeedback?.blockReason ?: "unknown"}",
+                message =
+                "$PROVIDER_NAME returned no candidates. " +
+                    "promptFeedback=${parsed.promptFeedback?.blockReason ?: "unknown"}",
             )
         val text = candidate.content
             ?.parts
@@ -110,7 +111,9 @@ class GeminiGenerateContentClient(
             throw AiProviderException(
                 providerName = PROVIDER_NAME,
                 statusCode = null,
-                message = "$PROVIDER_NAME returned a non-text or empty response. finishReason=${candidate.finishReason}",
+                message =
+                "$PROVIDER_NAME returned a non-text or empty response. " +
+                    "finishReason=${candidate.finishReason}",
             )
         }
         return AiChatResponse(
@@ -128,15 +131,10 @@ class GeminiGenerateContentClient(
     )
 
     @Serializable
-    private data class GeminiContent(
-        val role: String? = null,
-        val parts: List<GeminiPart> = emptyList(),
-    )
+    private data class GeminiContent(val role: String? = null, val parts: List<GeminiPart> = emptyList())
 
     @Serializable
-    private data class GeminiSystemInstruction(
-        val parts: List<GeminiPart>,
-    )
+    private data class GeminiSystemInstruction(val parts: List<GeminiPart>)
 
     @Serializable
     private data class GeminiPart(
@@ -146,16 +144,10 @@ class GeminiGenerateContentClient(
     )
 
     @Serializable
-    private data class GeminiInlineData(
-        val mimeType: String,
-        val data: String,
-    )
+    private data class GeminiInlineData(val mimeType: String, val data: String)
 
     @Serializable
-    private data class GeminiGenerationConfig(
-        val temperature: Double? = null,
-        val maxOutputTokens: Int? = null,
-    )
+    private data class GeminiGenerationConfig(val temperature: Double? = null, val maxOutputTokens: Int? = null)
 
     @Serializable
     private data class GeminiResponse(
@@ -165,20 +157,13 @@ class GeminiGenerateContentClient(
     )
 
     @Serializable
-    private data class GeminiCandidate(
-        val content: GeminiContent? = null,
-        val finishReason: String? = null,
-    )
+    private data class GeminiCandidate(val content: GeminiContent? = null, val finishReason: String? = null)
 
     @Serializable
-    private data class GeminiFunctionCall(
-        val name: String? = null,
-    )
+    private data class GeminiFunctionCall(val name: String? = null)
 
     @Serializable
-    private data class GeminiPromptFeedback(
-        val blockReason: String? = null,
-    )
+    private data class GeminiPromptFeedback(val blockReason: String? = null)
 
     @Serializable
     private data class GeminiUsage(
@@ -186,12 +171,11 @@ class GeminiGenerateContentClient(
         val candidatesTokenCount: Int? = null,
         val totalTokenCount: Int? = null,
     ) {
-        fun toUsage(): AiTokenUsage =
-            AiTokenUsage(
-                promptTokens = promptTokenCount,
-                completionTokens = candidatesTokenCount,
-                totalTokens = totalTokenCount,
-            )
+        fun toUsage(): AiTokenUsage = AiTokenUsage(
+            promptTokens = promptTokenCount,
+            completionTokens = candidatesTokenCount,
+            totalTokens = totalTokenCount,
+        )
     }
 
     private companion object {

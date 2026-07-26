@@ -1,10 +1,10 @@
 package com.driezy.medlog.ui.navigation
 
-import java.io.File
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class NavigationHierarchyTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -33,7 +33,10 @@ class NavigationHierarchyTest {
             val screen = source("app/src/main/java/com/driezy/medlog/ui/screen/$relativePath")
             assertTrue("$relativePath should accept a settings action.", screen.contains("onOpenSettings: () -> Unit"))
             assertTrue("$relativePath should render the settings action.", screen.contains("settings_action_open"))
-            assertTrue("MedLogApp should wire settings navigation for $call.", app.contains("$call") && app.contains("onOpenSettings = { navController.navigate(Route.Settings) }"))
+            assertTrue(
+                "MedLogApp should wire settings navigation for $call.",
+                app.contains("$call") && app.contains("onOpenSettings = { navController.navigate(Route.Settings) }"),
+            )
         }
     }
 }

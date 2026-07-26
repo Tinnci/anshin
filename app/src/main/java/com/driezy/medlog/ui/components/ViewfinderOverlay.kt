@@ -9,7 +9,6 @@ import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.geometry.RoundRect
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.ClipOp
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
@@ -24,11 +23,7 @@ import androidx.compose.ui.unit.dp
  * @param aspectRatio   取景框宽高比 (width / height)
  */
 @Composable
-fun ViewfinderOverlay(
-    modifier: Modifier = Modifier,
-    widthFraction: Float = 0.82f,
-    aspectRatio: Float = 1.5f,
-) {
+fun ViewfinderOverlay(modifier: Modifier = Modifier, widthFraction: Float = 0.82f, aspectRatio: Float = 1.5f) {
     val cornerColor = MaterialTheme.colorScheme.primary
     val scrimColor = MaterialTheme.colorScheme.scrim.copy(alpha = 0.45f)
 
@@ -56,10 +51,10 @@ fun ViewfinderOverlay(
 
         // 四角角标
         val corners = listOf(
-            Offset(left, top),                                           // 左上
-            Offset(left + frameWidth, top),                              // 右上
-            Offset(left, top + frameHeight),                             // 左下
-            Offset(left + frameWidth, top + frameHeight),                // 右下
+            Offset(left, top), // 左上
+            Offset(left + frameWidth, top), // 右上
+            Offset(left, top + frameHeight), // 左下
+            Offset(left + frameWidth, top + frameHeight), // 右下
         )
         val stroke = Stroke(width = strokeWidth, cap = StrokeCap.Round)
 

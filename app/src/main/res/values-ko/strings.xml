@@ -10,6 +10,7 @@
     <string name="restore">복원</string>
     <string name="cancel">취소</string>
     <string name="common_save">저장</string>
+    <string name="common_more_actions">추가 작업</string>
     <string name="confirm">확인</string>
     <string name="medication_taken">복용 완료</string>
     <string name="medication_skipped">건너뜀</string>
@@ -48,6 +49,7 @@
     <string name="welcome_btn_start">Anshin 시작하기</string>
     <string name="welcome_btn_next">다음</string>
     <string name="welcome_btn_skip">건너뛰기</string>
+    <string name="welcome_progress">%1$d / %2$d</string>
 
     <!-- Welcome Page 0: Greeting -->
     <string name="welcome_p0_title">Anshin에 오신 것을 환영합니다</string>
@@ -183,6 +185,7 @@
     <string name="settings_notif_perm_title">알림 권한 꺼짐</string>
     <string name="settings_notif_perm_body">복약 알림을 받을 수 없습니다. 시스템 설정에서 알림 권한을 활성화하세요</string>
     <string name="settings_notif_perm_btn">설정으로 이동</string>
+    <string name="settings_reminder_permissions_desc">복약 알림을 제시간에 받으려면 다음 시스템 권한을 허용하세요</string>
     <string name="settings_group_appearance_home">외관 및 홈</string>
     <string name="settings_group_appearance_home_desc">테마 팔레트, 다이나믹 컬러, 오늘 화면 표시 설정</string>
     <string name="settings_group_reminders_routine">알림 및 생활 리듬</string>
@@ -193,6 +196,8 @@
     <string name="settings_group_modules_meds_desc">탐색 모듈, 약품 데이터베이스, 보관된 약품 관리</string>
     <string name="settings_group_widgets_desc">홈 화면 위젯 추가 및 오늘 위젯 상호작용 조정</string>
     <string name="settings_group_data_about_desc">백업, 복원, 로컬 데이터 안전, 앱 정보</string>
+    <string name="settings_home_frequent_group">주요 설정</string>
+    <string name="settings_home_more_group">기타 설정</string>
     <string name="settings_theme_system">시스템</string>
     <string name="settings_theme_light">라이트</string>
     <string name="settings_theme_dark">다크</string>

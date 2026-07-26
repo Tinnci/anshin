@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui.screen.health
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class HealthInsightsAiConnectionCoverageTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }

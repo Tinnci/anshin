@@ -13,12 +13,12 @@ import androidx.compose.runtime.getValue
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import dagger.hilt.android.AndroidEntryPoint
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
-import com.driezy.medlog.ui.theme.applyMedLogSystemBars
 import com.driezy.medlog.ui.theme.MedLogTheme
 import com.driezy.medlog.ui.theme.ThemePalette
+import com.driezy.medlog.ui.theme.applyMedLogSystemBars
+import dagger.hilt.android.AndroidEntryPoint
 
 /** 从快捷方式 / 通知触发"立即添加"流程时使用的 intent action */
 const val ACTION_ADD_MEDICATION = "com.driezy.medlog.ADD_MEDICATION"
@@ -47,8 +47,8 @@ class MainActivity : ComponentActivity() {
 
             val systemDark = isSystemInDarkTheme()
             val darkTheme = when (prefs.themeMode) {
-                ThemeMode.LIGHT  -> false
-                ThemeMode.DARK   -> true
+                ThemeMode.LIGHT -> false
+                ThemeMode.DARK -> true
                 ThemeMode.SYSTEM -> systemDark
             }
 
@@ -93,7 +93,7 @@ class MainActivity : ComponentActivity() {
                 android.content.Intent(this, MainActivity::class.java).apply {
                     action = android.content.Intent.ACTION_VIEW
                     putExtra("navigate_to", "history")
-                }
+                },
             )
             .build()
 

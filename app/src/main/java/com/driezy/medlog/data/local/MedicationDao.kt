@@ -7,11 +7,13 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface MedicationDao {
 
-    @Query("""
+    @Query(
+        """
         SELECT * FROM medications
         WHERE isArchived = 0
         ORDER BY isHighPriority DESC, reminderHour, reminderMinute
-    """)
+    """,
+    )
     fun getActiveMedications(): Flow<List<Medication>>
 
     @Query("SELECT * FROM medications ORDER BY isHighPriority DESC, name")

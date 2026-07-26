@@ -42,12 +42,12 @@ class ResyncRemindersUseCase @Inject constructor(
             if (period == TimePeriod.EXACT) return@forEach
 
             val newTime = ReminderTimeUtils.timePeriodToReminderTime(period, prefs)
-            if (newTime.isBlank()) return@forEach          // 防御性检查
+            if (newTime.isBlank()) return@forEach // 防御性检查
             if (newTime == med.reminderTimes) return@forEach // 没有变化，跳过
 
             val updatedMed = med.copy(
                 reminderTimes = newTime,
-                reminderHour  = newTime.substringBefore(":").toIntOrNull() ?: med.reminderHour,
+                reminderHour = newTime.substringBefore(":").toIntOrNull() ?: med.reminderHour,
                 reminderMinute = newTime.substringAfter(":").toIntOrNull() ?: med.reminderMinute,
             )
             medicationRepository.updateMedication(updatedMed)

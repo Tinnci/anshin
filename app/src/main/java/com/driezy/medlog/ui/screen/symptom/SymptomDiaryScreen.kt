@@ -1,32 +1,20 @@
 package com.driezy.medlog.ui.screen.symptom
 
-import android.Manifest
-import android.content.pm.PackageManager
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.res.stringArrayResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.SymptomLog
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
@@ -37,9 +25,6 @@ import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.voice.VoiceInputError
-import com.driezy.medlog.voice.VoiceInputPhase
-import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -66,10 +51,7 @@ internal fun ratingLabel(rating: Int): String = when (rating) {
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun SymptomDiaryScreen(
-    onOpenSettings: () -> Unit,
-    viewModel: SymptomDiaryViewModel = hiltViewModel(),
-) {
+fun SymptomDiaryScreen(onOpenSettings: () -> Unit, viewModel: SymptomDiaryViewModel = hiltViewModel()) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
 
@@ -125,21 +107,21 @@ fun SymptomDiaryScreen(
     val stateOverlay = if (uiState.showDialog) {
         ScreenOverlay.Custom(id = "diary:edit-sheet") {
             AddEditDiarySheet(
-            draft = uiState.draft,
-            onDismiss = viewModel::dismissDialog,
-            onRatingChange = viewModel::onRatingChange,
-            onToggleSymptom = viewModel::onToggleSymptom,
-            onCustomSymptomChange = viewModel::onCustomSymptomChange,
-            onAddCustomSymptom = viewModel::onAddCustomSymptom,
-            onToggleSideEffect = viewModel::onToggleSideEffect,
-            onCustomSideEffectChange = viewModel::onCustomSideEffectChange,
-            onAddCustomSideEffect = viewModel::onAddCustomSideEffect,
-            onNoteChange = viewModel::onNoteChange,
-            voiceInput = uiState.voiceInput,
-            onStartVoiceInput = viewModel::startVoiceInput,
-            onStopVoiceInput = viewModel::stopVoiceInput,
-            onSave = viewModel::saveLog,
-        )
+                draft = uiState.draft,
+                onDismiss = viewModel::dismissDialog,
+                onRatingChange = viewModel::onRatingChange,
+                onToggleSymptom = viewModel::onToggleSymptom,
+                onCustomSymptomChange = viewModel::onCustomSymptomChange,
+                onAddCustomSymptom = viewModel::onAddCustomSymptom,
+                onToggleSideEffect = viewModel::onToggleSideEffect,
+                onCustomSideEffectChange = viewModel::onCustomSideEffectChange,
+                onAddCustomSideEffect = viewModel::onAddCustomSideEffect,
+                onNoteChange = viewModel::onNoteChange,
+                voiceInput = uiState.voiceInput,
+                onStartVoiceInput = viewModel::startVoiceInput,
+                onStopVoiceInput = viewModel::stopVoiceInput,
+                onSave = viewModel::saveLog,
+            )
         }
     } else {
         null
@@ -151,10 +133,7 @@ fun SymptomDiaryScreen(
 }
 
 @Composable
-private fun SymptomEmptyState(
-    onCreate: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun SymptomEmptyState(onCreate: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.padding(horizontal = MedLogSpacing.Large),
         contentAlignment = Alignment.Center,

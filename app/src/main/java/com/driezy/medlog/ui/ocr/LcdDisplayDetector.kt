@@ -1,5 +1,8 @@
 package com.driezy.medlog.ui.ocr
 
+import ai.onnxruntime.OnnxTensor
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -7,9 +10,6 @@ import android.graphics.RectF
 import android.util.Log
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
-import ai.onnxruntime.OnnxTensor
-import ai.onnxruntime.OrtEnvironment
-import ai.onnxruntime.OrtSession
 import java.nio.FloatBuffer
 
 /**
@@ -27,6 +27,7 @@ import java.nio.FloatBuffer
 internal class LcdDisplayDetector(context: Context) {
 
     private val ortEnvironment = OrtEnvironment.getEnvironment()
+
     @Volatile private var session: OrtSession? = null
 
     init {
@@ -54,7 +55,8 @@ internal class LcdDisplayDetector(context: Context) {
         return try {
             val (input, scaleX, scaleY, padX, padY) = preprocessBitmap(bitmap)
             val tensor = OnnxTensor.createTensor(
-                ortEnvironment, input,
+                ortEnvironment,
+                input,
                 longArrayOf(1, 3, INPUT_SIZE, INPUT_SIZE),
             )
             val output = sess.run(mapOf("images" to tensor))
@@ -65,8 +67,12 @@ internal class LcdDisplayDetector(context: Context) {
             @Suppress("UNCHECKED_CAST")
             val results = postprocess(
                 rawOutput as Array<Array<FloatArray>>,
-                bitmap.width, bitmap.height,
-                scaleX, scaleY, padX, padY,
+                bitmap.width,
+                bitmap.height,
+                scaleX,
+                scaleY,
+                padX,
+                padY,
                 confThreshold,
             )
             results
@@ -121,8 +127,8 @@ internal class LcdDisplayDetector(context: Context) {
                     val pixel = pixels[x]
                     val value = when (c) {
                         0 -> (pixel shr 16) and 0xFF // R
-                        1 -> (pixel shr 8) and 0xFF  // G
-                        else -> pixel and 0xFF        // B
+                        1 -> (pixel shr 8) and 0xFF // G
+                        else -> pixel and 0xFF // B
                     }
                     buffer.put(value / 255f)
                 }

@@ -61,7 +61,7 @@ abstract class MedLogDatabase : RoomDatabase() {
                         timestamp INTEGER NOT NULL,
                         notes TEXT NOT NULL
                     )
-                    """.trimIndent()
+                    """.trimIndent(),
                 )
             }
         }
@@ -70,7 +70,7 @@ abstract class MedLogDatabase : RoomDatabase() {
         val MIGRATION_8_9 = object : Migration(8, 9) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    "CREATE INDEX IF NOT EXISTS index_medications_isArchived ON medications (isArchived)"
+                    "CREATE INDEX IF NOT EXISTS index_medications_isArchived ON medications (isArchived)",
                 )
             }
         }
@@ -96,7 +96,7 @@ abstract class MedLogDatabase : RoomDatabase() {
         val MIGRATION_11_12 = object : Migration(11, 12) {
             override fun migrate(db: SupportSQLiteDatabase) {
                 db.execSQL(
-                    "CREATE INDEX IF NOT EXISTS index_medication_logs_medicationId_scheduledTimeMs ON medication_logs (medicationId, scheduledTimeMs)"
+                    "CREATE INDEX IF NOT EXISTS index_medication_logs_medicationId_scheduledTimeMs ON medication_logs (medicationId, scheduledTimeMs)",
                 )
             }
         }
@@ -121,8 +121,12 @@ abstract class MedLogDatabase : RoomDatabase() {
                     """.trimIndent(),
                 )
                 db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_kind ON ai_analysis_cache (kind)")
-                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_expiresAt ON ai_analysis_cache (expiresAt)")
-                db.execSQL("CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_kind_createdAt ON ai_analysis_cache (kind, createdAt)")
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_expiresAt ON ai_analysis_cache (expiresAt)",
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_ai_analysis_cache_kind_createdAt ON ai_analysis_cache (kind, createdAt)",
+                )
                 db.execSQL(
                     """
                     CREATE TABLE IF NOT EXISTS ai_usage_events (
@@ -166,7 +170,9 @@ abstract class MedLogDatabase : RoomDatabase() {
                 db.execSQL("ALTER TABLE medication_logs ADD COLUMN createdAtMs INTEGER NOT NULL DEFAULT 0")
                 db.execSQL("ALTER TABLE medication_logs ADD COLUMN updatedAtMs INTEGER")
                 db.execSQL("ALTER TABLE medication_logs ADD COLUMN revisionType TEXT NOT NULL DEFAULT 'ORIGINAL'")
-                db.execSQL("CREATE INDEX IF NOT EXISTS index_medication_logs_revisionType ON medication_logs (revisionType)")
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_medication_logs_revisionType ON medication_logs (revisionType)",
+                )
             }
         }
     }

@@ -7,6 +7,8 @@ import android.util.Log
 import androidx.core.content.edit
 import com.driezy.medlog.data.repository.CloudAiProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import java.security.KeyStore
 import java.security.SecureRandom
 import java.util.Base64
@@ -16,13 +18,9 @@ import javax.crypto.SecretKey
 import javax.crypto.spec.GCMParameterSpec
 import javax.inject.Inject
 import javax.inject.Singleton
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 
 @Singleton
-class AndroidKeystoreAiApiKeyStore @Inject constructor(
-    @ApplicationContext context: Context,
-) : AiApiKeyStore {
+class AndroidKeystoreAiApiKeyStore @Inject constructor(@ApplicationContext context: Context) : AiApiKeyStore {
     private val preferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE)
     private val _availableProviders = MutableStateFlow(loadAvailableProviders())
 
@@ -99,13 +97,11 @@ class AndroidKeystoreAiApiKeyStore @Inject constructor(
         return keyGenerator.generateKey()
     }
 
-    private fun CloudAiProvider.preferenceKey(): String =
-        "api_key_${name.lowercase()}"
+    private fun CloudAiProvider.preferenceKey(): String = "api_key_${name.lowercase()}"
 
-    private fun loadAvailableProviders(): Set<CloudAiProvider> =
-        CloudAiProvider.entries
-            .filter { hasApiKey(it) }
-            .toSet()
+    private fun loadAvailableProviders(): Set<CloudAiProvider> = CloudAiProvider.entries
+        .filter { hasApiKey(it) }
+        .toSet()
 
     private fun publishAvailability() {
         _availableProviders.value = loadAvailableProviders()

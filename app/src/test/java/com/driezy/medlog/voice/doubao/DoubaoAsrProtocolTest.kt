@@ -133,11 +133,7 @@ class DoubaoAsrProtocolTest {
         error("Truncated varint")
     }
 
-    private fun encodeResponse(
-        messageType: String,
-        statusMessage: String = "",
-        resultJson: String = "",
-    ): ByteArray {
+    private fun encodeResponse(messageType: String, statusMessage: String = "", resultJson: String = ""): ByteArray {
         val writer = ProtoWriter()
         writer.writeString(4, messageType)
         writer.writeInt32(5, if (messageType.endsWith("Failed")) 500 else 0)

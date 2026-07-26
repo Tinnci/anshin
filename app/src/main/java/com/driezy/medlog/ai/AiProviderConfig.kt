@@ -35,10 +35,7 @@ enum class OpenAiAuthMode {
 }
 
 object AiChatClientFactory {
-    fun create(
-        config: AiProviderConfig,
-        transport: AiHttpTransport = UrlConnectionAiHttpTransport(),
-    ): AiChatClient =
+    fun create(config: AiProviderConfig, transport: AiHttpTransport = UrlConnectionAiHttpTransport()): AiChatClient =
         when (config) {
             is AiProviderConfig.Mimo ->
                 OpenAiCompatibleChatClient(

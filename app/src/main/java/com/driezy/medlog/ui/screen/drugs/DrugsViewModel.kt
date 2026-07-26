@@ -1,10 +1,9 @@
 package com.driezy.medlog.ui.screen.drugs
 
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.Drug
 import com.driezy.medlog.data.repository.DrugRepository
+import com.driezy.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
@@ -20,7 +19,7 @@ data class DrugsUiState(
     val query: String = "",
     val isLoading: Boolean = true,
     val selectedCategory: String? = null,
-    val showTcm: Boolean? = null,   // null = 全部, true = 仅中药, false = 仅西药
+    val showTcm: Boolean? = null, // null = 全部, true = 仅中药, false = 仅西药
     /** 所有可用分类列表 */
     val categories: List<String> = emptyList(),
     /** 是否包含模糊/语义匹配结果（query 非空时有效） */
@@ -41,27 +40,26 @@ data class DrugsUiState(
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
-class DrugsViewModel @Inject constructor(
-    private val drugRepository: DrugRepository,
-) : BaseViewModel() {
+class DrugsViewModel @Inject constructor(private val drugRepository: DrugRepository) : BaseViewModel() {
 
-    private val _query = MutableStateFlow("")
-    private val _selectedCategory = MutableStateFlow<String?>(null)
-    private val _selectedSubcategory = MutableStateFlow<String?>(null)
+    private val queryFlow = MutableStateFlow("")
+    private val selectedCategoryFlow = MutableStateFlow<String?>(null)
+    private val selectedSubcategoryFlow = MutableStateFlow<String?>(null)
     private val _showTcm = MutableStateFlow<Boolean?>(null)
     private val _isLoading = MutableStateFlow(true)
     private val _categories = MutableStateFlow<List<String>>(emptyList())
     private val _isSearchActive = MutableStateFlow(false)
     private val _westernCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
     private val _tcmCategories = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
+
     /** 所有药品缓存（init 后填充，用于计算子分类） */
     private var allDrugsCache: List<Drug> = emptyList()
 
     // ── 中间合并：将"过滤参数"收敛成一个 Flow，确保子分类变更也能触发重算 ──────────
     private val filterParams = combine(
-        _query.debounce(200),
-        _selectedCategory,
-        _selectedSubcategory,
+        queryFlow.debounce(200),
+        selectedCategoryFlow,
+        selectedSubcategoryFlow,
         _showTcm,
     ) { q, cat, sub, tcm -> arrayOf<Any?>(q, cat, sub, tcm) }
 
@@ -71,10 +69,10 @@ class DrugsViewModel @Inject constructor(
         _isSearchActive,
         combine(_westernCategories, _tcmCategories) { w, t -> w to t },
     ) { fp, (loading, cats), active, (western, tcm) ->
-        val query    = fp[0] as String
+        val query = fp[0] as String
         val category = fp[1] as String?
-        val subcat   = fp[2] as String?
-        val showTcm  = fp[3] as Boolean?
+        val subcat = fp[2] as String?
+        val showTcm = fp[3] as Boolean?
 
         val (filtered, exactCount) = rankedDrugs(query, category, showTcm, subcat)
         // 计算二级子分类列表（仅当选了一级分类、未选二级时显示）
@@ -95,7 +93,9 @@ class DrugsViewModel @Inject constructor(
                 .entries
                 .sortedByDescending { it.value }
                 .map { it.key to it.value }
-        } else emptyList()
+        } else {
+            emptyList()
+        }
 
         DrugsUiState(
             query = query,
@@ -113,7 +113,9 @@ class DrugsViewModel @Inject constructor(
                     }
                     if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
                 }.toSortedMap()
-            } else emptyMap(),
+            } else {
+                emptyMap()
+            },
             categories = cats,
             westernCategories = western,
             tcmCategories = tcm,
@@ -145,19 +147,25 @@ class DrugsViewModel @Inject constructor(
         }
     }
 
-    fun onQueryChange(q: String) { _query.value = q }
-    fun onCategorySelect(cat: String?) {
-        _selectedCategory.value = cat
-        _selectedSubcategory.value = null  // 切换一级时清空二级
+    fun onQueryChange(q: String) {
+        queryFlow.value = q
     }
-    fun onSubcategorySelect(subcat: String?) { _selectedSubcategory.value = subcat }
-    fun onToggleTcm(tcm: Boolean?) { _showTcm.value = tcm }
+    fun onCategorySelect(cat: String?) {
+        selectedCategoryFlow.value = cat
+        selectedSubcategoryFlow.value = null // 切换一级时清空二级
+    }
+    fun onSubcategorySelect(subcat: String?) {
+        selectedSubcategoryFlow.value = subcat
+    }
+    fun onToggleTcm(tcm: Boolean?) {
+        _showTcm.value = tcm
+    }
     fun onSearchActiveChange(active: Boolean) {
         _isSearchActive.value = active
         if (!active) {
-            _query.value = ""
-            _selectedCategory.value = null
-            _selectedSubcategory.value = null
+            queryFlow.value = ""
+            selectedCategoryFlow.value = null
+            selectedSubcategoryFlow.value = null
             _showTcm.value = null
         }
     }
@@ -183,10 +191,11 @@ class DrugsViewModel @Inject constructor(
                 }
             }
         }
-        val exact = if (query.isNotBlank())
+        val exact = if (query.isNotBlank()) {
             result.count { it.nameLower.contains(query.lowercase()) || it.categoryLower.contains(query.lowercase()) }
-        else result.size
+        } else {
+            result.size
+        }
         return result to exact
     }
 }
-

@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -10,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
@@ -29,7 +27,6 @@ import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.material3.PrimaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.Text
@@ -54,11 +51,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
-import com.driezy.medlog.ui.theme.MedLogSpacing
-import com.driezy.medlog.ui.util.labelRes
-import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.domain.PlanExport
 import com.driezy.medlog.domain.PlanExportCodec
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.formatDose
+import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.utils.generateQrBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -93,12 +92,17 @@ internal fun MedicationQrDialog(
     // ── Tab 0：今日打卡文本 ────────────────────────────────────────────────────
     val todayQrText = remember(items, periodStrings) {
         buildString {
-            appendLine("Anshin ${SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(Date())} [$takenCount/$totalCount]")
+            appendLine(
+                "Anshin ${SimpleDateFormat(
+                    "yyyy-MM-dd",
+                    Locale.getDefault(),
+                ).format(Date())} [$takenCount/$totalCount]",
+            )
             items.forEach { item ->
                 val status = when {
-                    item.isTaken   -> "✓"
+                    item.isTaken -> "✓"
                     item.isSkipped -> "-"
-                    else           -> "○"
+                    else -> "○"
                 }
                 val med = item.medication
                 val dose = "${med.doseQuantity.formatDose()}${med.doseUnit}"
@@ -306,12 +310,7 @@ internal fun QrImageBox(bitmap: android.graphics.Bitmap?) {
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-internal fun ImportPreviewDialog(
-    plan: PlanExport,
-    onMerge: () -> Unit,
-    onReplace: () -> Unit,
-    onDismiss: () -> Unit,
-) {
+internal fun ImportPreviewDialog(plan: PlanExport, onMerge: () -> Unit, onReplace: () -> Unit, onDismiss: () -> Unit) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(stringResource(R.string.qr_import_preview_title)) },
@@ -341,13 +340,19 @@ internal fun ImportPreviewDialog(
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
             ) {
                 Button(
-                    onClick = { onMerge(); onDismiss() },
+                    onClick = {
+                        onMerge()
+                        onDismiss()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                 ) {
                     Text(stringResource(R.string.qr_import_mode_merge))
                 }
                 OutlinedButton(
-                    onClick = { onReplace(); onDismiss() },
+                    onClick = {
+                        onReplace()
+                        onDismiss()
+                    },
                     modifier = Modifier.fillMaxWidth(),
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,

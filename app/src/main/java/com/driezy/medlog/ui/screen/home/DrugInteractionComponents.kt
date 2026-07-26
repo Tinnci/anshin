@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.screen.home
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -34,16 +31,15 @@ import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.DrugInteraction
 import com.driezy.medlog.data.model.InteractionSeverity
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 
 // ── 药品相互作用横幅 ──────────────────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InteractionBannerCard(
-    interactions: List<DrugInteraction>,
-    modifier: Modifier = Modifier,
-) {
+internal fun InteractionBannerCard(interactions: List<DrugInteraction>, modifier: Modifier = Modifier) {
     var showSheet by remember { mutableStateOf(false) }
 
     val highCount = interactions.count { it.severity == InteractionSeverity.HIGH }
@@ -79,7 +75,17 @@ internal fun InteractionBannerCard(
             )
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    text = if (highCount > 0) pluralStringResource(R.plurals.home_interaction_high_risk, highCount, highCount) else pluralStringResource(R.plurals.home_interaction_normal, interactions.size, interactions.size),
+                    text = if (highCount >
+                        0
+                    ) {
+                        pluralStringResource(R.plurals.home_interaction_high_risk, highCount, highCount)
+                    } else {
+                        pluralStringResource(
+                            R.plurals.home_interaction_normal,
+                            interactions.size,
+                            interactions.size,
+                        )
+                    },
                     style = MaterialTheme.typography.labelMedium,
                     fontWeight = FontWeight.SemiBold,
                     color = contentColor,
@@ -111,10 +117,7 @@ internal fun InteractionBannerCard(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-internal fun InteractionDetailSheet(
-    interactions: List<DrugInteraction>,
-    onDismiss: () -> Unit,
-) {
+internal fun InteractionDetailSheet(interactions: List<DrugInteraction>, onDismiss: () -> Unit) {
     ModalBottomSheet(onDismissRequest = onDismiss) {
         Column(
             modifier = Modifier

@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.ocr
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -25,14 +22,16 @@ import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.driezy.medlog.ui.theme.MedLogSpacing
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
-import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraGuidancePill
+import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraReadinessPanel
 import com.driezy.medlog.ui.components.ProcessingOverlay
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 
 private const val MEDICATION_OCR_FRAME_WIDTH = 0.88f
@@ -48,11 +47,7 @@ private const val MEDICATION_OCR_FRAME_ASPECT = 2.8f
  */
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun OcrScannerPage(
-    onResult: (String) -> Unit,
-    onBack: () -> Unit,
-    viewModel: OcrScannerViewModel = hiltViewModel(),
-) {
+fun OcrScannerPage(onResult: (String) -> Unit, onBack: () -> Unit, viewModel: OcrScannerViewModel = hiltViewModel()) {
     val motionScheme = MaterialTheme.motionScheme
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     val view = LocalView.current
@@ -82,8 +77,10 @@ fun OcrScannerPage(
                 AnimatedContent(
                     targetState = state.showResults,
                     transitionSpec = {
-                        (fadeIn(motionScheme.defaultEffectsSpec()) +
-                            slideInVertically(motionScheme.defaultSpatialSpec()) { it / 8 })
+                        (
+                            fadeIn(motionScheme.defaultEffectsSpec()) +
+                                slideInVertically(motionScheme.defaultSpatialSpec()) { it / 8 }
+                            )
                             .togetherWith(
                                 fadeOut(motionScheme.fastEffectsSpec()) +
                                     slideOutVertically(motionScheme.fastSpatialSpec()) { -it / 8 },
@@ -149,11 +146,7 @@ fun OcrScannerPage(
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun OcrResultList(
-    output: OcrRecognitionOutput,
-    onSelect: (String) -> Unit,
-    onRetry: () -> Unit,
-) {
+private fun OcrResultList(output: OcrRecognitionOutput, onSelect: (String) -> Unit, onRetry: () -> Unit) {
     val motionScheme = MaterialTheme.motionScheme
     val texts = output.mergedTexts
 
@@ -210,60 +203,60 @@ private fun OcrResultList(
                         )
                     }
                     itemsIndexed(group.texts, key = { index, text -> "${group.source}_$index:$text" }) { index, text ->
-                    val animatedAlpha = remember { Animatable(0f) }
-                    val animatedOffset = remember { Animatable(24f) }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
-                        animatedAlpha.animateTo(
-                            1f,
-                            animationSpec = motionScheme.defaultEffectsSpec(),
-                        )
-                    }
-                    LaunchedEffect(Unit) {
-                        kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
-                        animatedOffset.animateTo(
-                            0f,
-                            animationSpec = motionScheme.defaultEffectsSpec(),
-                        )
-                    }
+                        val animatedAlpha = remember { Animatable(0f) }
+                        val animatedOffset = remember { Animatable(24f) }
+                        LaunchedEffect(Unit) {
+                            kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
+                            animatedAlpha.animateTo(
+                                1f,
+                                animationSpec = motionScheme.defaultEffectsSpec(),
+                            )
+                        }
+                        LaunchedEffect(Unit) {
+                            kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
+                            animatedOffset.animateTo(
+                                0f,
+                                animationSpec = motionScheme.defaultEffectsSpec(),
+                            )
+                        }
 
-                    Card(
-                        onClick = { onSelect(text) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .graphicsLayer {
-                                alpha = animatedAlpha.value
-                                translationY = animatedOffset.value
-                            },
-                        shape = RoundedCornerShape(16.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
-                        ),
-                    ) {
-                        ListItem(
-                            headlineContent = {
-                                Text(
-                                    text = text,
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
-                            },
-                            leadingContent = {
-                                Surface(
-                                    shape = CircleShape,
-                                    color = MaterialTheme.colorScheme.primaryContainer,
-                                    modifier = Modifier.size(28.dp),
-                                ) {
-                                    Box(contentAlignment = Alignment.Center) {
-                                        Text(
-                                            text = "${index + 1}",
-                                            style = MaterialTheme.typography.labelSmall,
-                                            color = MaterialTheme.colorScheme.onPrimaryContainer,
-                                        )
+                        Card(
+                            onClick = { onSelect(text) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .graphicsLayer {
+                                    alpha = animatedAlpha.value
+                                    translationY = animatedOffset.value
+                                },
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            ),
+                        ) {
+                            ListItem(
+                                headlineContent = {
+                                    Text(
+                                        text = text,
+                                        style = MaterialTheme.typography.bodyLarge,
+                                    )
+                                },
+                                leadingContent = {
+                                    Surface(
+                                        shape = CircleShape,
+                                        color = MaterialTheme.colorScheme.primaryContainer,
+                                        modifier = Modifier.size(28.dp),
+                                    ) {
+                                        Box(contentAlignment = Alignment.Center) {
+                                            Text(
+                                                text = "${index + 1}",
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onPrimaryContainer,
+                                            )
+                                        }
                                     }
-                                }
-                            },
-                        )
-                    }
+                                },
+                            )
+                        }
                     }
                 }
             }
@@ -287,11 +280,7 @@ private fun OcrResultList(
 }
 
 @Composable
-private fun OcrSourceHeader(
-    source: OcrResultSource,
-    count: Int,
-    modifier: Modifier = Modifier,
-) {
+private fun OcrSourceHeader(source: OcrResultSource, count: Int, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,

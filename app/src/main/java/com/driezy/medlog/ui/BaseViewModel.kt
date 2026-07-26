@@ -30,19 +30,17 @@ abstract class BaseViewModel : ViewModel() {
      * 安全协程启动：在 [viewModelScope] 中运行 [block]，
      * 非取消异常通过 [onError] 返回给调用方。
      */
-    protected fun safeLaunch(
-        onError: (Throwable) -> Unit = {},
-        block: suspend CoroutineScope.() -> Unit,
-    ): Job = viewModelScope.launch {
-        try {
-            block()
-        } catch (e: CancellationException) {
-            throw e          // 协程取消不可吞没，必须重新抛出
-        } catch (e: Throwable) {
-            Log.e(TAG, "Unhandled ViewModel coroutine failure", e)
-            onError(e)
+    protected fun safeLaunch(onError: (Throwable) -> Unit = {}, block: suspend CoroutineScope.() -> Unit): Job =
+        viewModelScope.launch {
+            try {
+                block()
+            } catch (e: CancellationException) {
+                throw e // 协程取消不可吞没，必须重新抛出
+            } catch (e: Throwable) {
+                Log.e(TAG, "Unhandled ViewModel coroutine failure", e)
+                onError(e)
+            }
         }
-    }
 
     private companion object {
         const val TAG = "BaseViewModel"

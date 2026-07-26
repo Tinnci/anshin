@@ -1,9 +1,9 @@
 package com.driezy.medlog.ui.screen
 
-import java.io.File
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class MainScreenArchitectureTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }
@@ -55,5 +55,18 @@ class MainScreenArchitectureTest {
                 source.contains("ScreenOverlayHost("),
             )
         }
+    }
+
+    @Test
+    fun overflowMenuHasAnAccessibleLabel() {
+        val chrome = File(
+            projectRoot,
+            "app/src/main/java/com/driezy/medlog/ui/components/MainScreenChrome.kt",
+        ).readText()
+
+        assertTrue(
+            "The overflow icon must announce its purpose to assistive technology.",
+            chrome.contains("contentDescription = stringResource(R.string.common_more_actions)"),
+        )
     }
 }

@@ -1,8 +1,6 @@
 package com.driezy.medlog.voice
 
-class VoiceTranscriptAppender(
-    initialText: String,
-) {
+class VoiceTranscriptAppender(initialText: String) {
     private var committedText = initialText
 
     fun preview(interimText: String, insertSeparator: Boolean = false): String =

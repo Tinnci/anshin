@@ -40,10 +40,7 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-internal fun CloudAiProviderSection(
-    uiState: SettingsUiState,
-    onProviderChange: (CloudAiProvider) -> Unit,
-) {
+internal fun CloudAiProviderSection(uiState: SettingsUiState, onProviderChange: (CloudAiProvider) -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(18.dp),
@@ -149,11 +146,7 @@ internal fun CloudAiModelSection(
 }
 
 @Composable
-private fun ModelDiscoveryStatusRow(
-    uiState: SettingsUiState,
-    canCheckModels: Boolean,
-    onRefreshModels: () -> Unit,
-) {
+private fun ModelDiscoveryStatusRow(uiState: SettingsUiState, canCheckModels: Boolean, onRefreshModels: () -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -199,10 +192,7 @@ private fun ModelDiscoveryStatusRow(
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
-private fun DiscoveredModelRows(
-    uiState: SettingsUiState,
-    onModelSelect: (String) -> Unit,
-) {
+private fun DiscoveredModelRows(uiState: SettingsUiState, onModelSelect: (String) -> Unit) {
     if (uiState.cloudAiDiscoveredModels.isEmpty()) return
 
     Column(modifier = Modifier.fillMaxWidth()) {
@@ -304,9 +294,8 @@ private fun ModelCapabilityTag(text: String) {
     }
 }
 
-private fun Long.formatTokenCount(): String =
-    toString()
-        .reversed()
-        .chunked(3)
-        .joinToString(",")
-        .reversed()
+private fun Long.formatTokenCount(): String = toString()
+    .reversed()
+    .chunked(3)
+    .joinToString(",")
+    .reversed()

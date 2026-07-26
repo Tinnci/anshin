@@ -219,7 +219,7 @@ class HealthMetricParserTest {
         val result = HealthMetricParser.parse(listOf("126 mg/dL"))
         assertEquals(1, result.size)
         assertEquals(HealthType.BLOOD_GLUCOSE, result[0].type)
-        assertEquals(7.0, result[0].value, 0.1)  // 126/18 = 7.0
+        assertEquals(7.0, result[0].value, 0.1) // 126/18 = 7.0
     }
 
     // ── 华氏度体温 ──────────────────────────────────────────────
@@ -229,7 +229,7 @@ class HealthMetricParserTest {
         val result = HealthMetricParser.parse(listOf("98.6°F"))
         assertEquals(1, result.size)
         assertEquals(HealthType.TEMPERATURE, result[0].type)
-        assertEquals(37.0, result[0].value, 0.1)  // (98.6-32)*5/9 ≈ 37.0
+        assertEquals(37.0, result[0].value, 0.1) // (98.6-32)*5/9 ≈ 37.0
     }
 
     // ── lbs 体重 ────────────────────────────────────────────────
@@ -239,7 +239,7 @@ class HealthMetricParserTest {
         val result = HealthMetricParser.parse(listOf("154 lbs"))
         assertEquals(1, result.size)
         assertEquals(HealthType.WEIGHT, result[0].type)
-        assertEquals(69.8, result[0].value, 0.5)  // 154*0.453592 ≈ 69.8
+        assertEquals(69.8, result[0].value, 0.5) // 154*0.453592 ≈ 69.8
     }
 
     // ── parseAll 三层结果 ──────────────────────────────────────
@@ -439,8 +439,8 @@ class HealthMetricParserTest {
         val result = HealthMetricParser.parse(listOf("16.0/10.7 kPa"))
         assertEquals(1, result.size)
         assertEquals(HealthType.BLOOD_PRESSURE, result[0].type)
-        assertEquals(120.0, result[0].value, 0.5)  // 16.0 * 7.5 = 120
-        assertEquals(80.2, result[0].secondaryValue!!, 0.5)  // 10.7 * 7.5 ≈ 80.2
+        assertEquals(120.0, result[0].value, 0.5) // 16.0 * 7.5 = 120
+        assertEquals(80.2, result[0].secondaryValue!!, 0.5) // 10.7 * 7.5 ≈ 80.2
     }
 
     @Test

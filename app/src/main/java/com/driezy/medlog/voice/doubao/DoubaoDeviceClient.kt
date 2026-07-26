@@ -18,7 +18,10 @@ class DoubaoDeviceClient @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val store: DoubaoCredentialStore,
 ) {
-    private val json = Json { ignoreUnknownKeys = true; encodeDefaults = true }
+    private val json = Json {
+        ignoreUnknownKeys = true
+        encodeDefaults = true
+    }
 
     suspend fun ensureCredentials(): Result<DoubaoDeviceCredentials> = withContext(Dispatchers.IO) {
         runCatching {
@@ -190,11 +193,7 @@ private data class SettingsResponse(val data: SettingsData)
 private data class SettingsData(val settings: Settings)
 
 @Serializable
-private data class Settings(
-    @SerialName("asr_config") val asrConfig: AsrConfig,
-)
+private data class Settings(@SerialName("asr_config") val asrConfig: AsrConfig)
 
 @Serializable
-private data class AsrConfig(
-    @SerialName("app_key") val appKey: String = "",
-)
+private data class AsrConfig(@SerialName("app_key") val appKey: String = "")

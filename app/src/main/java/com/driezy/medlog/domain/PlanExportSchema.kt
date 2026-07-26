@@ -3,9 +3,9 @@ package com.driezy.medlog.domain
 import com.driezy.medlog.data.model.Medication
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.text.SimpleDateFormat
@@ -30,9 +30,9 @@ import java.util.zip.GZIPOutputStream
 /** 单个药品导出条目（字段名为短别名以节省体积） */
 @Serializable
 data class MedExportEntry(
-    @SerialName("n")  val name: String,
-    @SerialName("d")  val dose: Double,              // 兼容旧 dose 字段 = doseQuantity
-    @SerialName("u")  val doseUnit: String,
+    @SerialName("n") val name: String,
+    @SerialName("d") val dose: Double, // 兼容旧 dose 字段 = doseQuantity
+    @SerialName("u") val doseUnit: String,
     @SerialName("tp") val timePeriod: String,
     @SerialName("rt") val reminderTimes: String,
     @SerialName("rh") val reminderHour: Int,
@@ -42,23 +42,23 @@ data class MedExportEntry(
     @SerialName("cat") val category: String = "",
     @SerialName("form") val form: String = "tablet",
     @SerialName("prn") val isPRN: Boolean = false,
-    @SerialName("hp")  val isHighPriority: Boolean = false,
-    @SerialName("fi")  val frequencyInterval: Int = 1,
-    @SerialName("fd")  val frequencyDays: String = "1,2,3,4,5,6,7",
-    @SerialName("sd")  val startDate: String = "",   // "YYYY-MM-DD"
-    @SerialName("ed")  val endDate: String? = null,  // "YYYY-MM-DD" or null
+    @SerialName("hp") val isHighPriority: Boolean = false,
+    @SerialName("fi") val frequencyInterval: Int = 1,
+    @SerialName("fd") val frequencyDays: String = "1,2,3,4,5,6,7",
+    @SerialName("sd") val startDate: String = "", // "YYYY-MM-DD"
+    @SerialName("ed") val endDate: String? = null, // "YYYY-MM-DD" or null
     @SerialName("stk") val stock: Double? = null,
     @SerialName("rt2") val refillThreshold: Double? = null,
     @SerialName("rrd") val refillReminderDays: Int = 0,
     @SerialName("notes") val notes: String = "",
     @SerialName("mdx") val maxDailyDose: Double? = null,
-    @SerialName("ih")  val intervalHours: Int = 0,
+    @SerialName("ih") val intervalHours: Int = 0,
 )
 
 /** 导出包顶层结构 */
 @Serializable
 data class PlanExport(
-    @SerialName("v")   val version: Int = 1,
+    @SerialName("v") val version: Int = 1,
     @SerialName("app") val app: String = "anshin",
     @SerialName("meds") val meds: List<MedExportEntry>,
 )
@@ -79,9 +79,9 @@ object PlanExportCodec {
 
     private val jsonSerializer = Json {
         ignoreUnknownKeys = true
-        encodeDefaults = false      // 省略默认值以减小体积
+        encodeDefaults = false // 省略默认值以减小体积
         prettyPrint = false
-        explicitNulls = false       // 省略 null 字段
+        explicitNulls = false // 省略 null 字段
     }
 
     const val SCHEME = "anshin:v1:"
@@ -128,56 +128,56 @@ object PlanExportCodec {
     // ── 内部转换 ──────────────────────────────────────────────────────────────
 
     private fun Medication.toEntry() = MedExportEntry(
-        name           = name,
-        dose           = doseQuantity,          // 兼容旧字段
-        doseUnit       = doseUnit,
-        timePeriod     = timePeriod,
-        reminderTimes  = reminderTimes,
-        reminderHour   = reminderHour,
+        name = name,
+        dose = doseQuantity, // 兼容旧字段
+        doseUnit = doseUnit,
+        timePeriod = timePeriod,
+        reminderTimes = reminderTimes,
+        reminderHour = reminderHour,
         reminderMinute = reminderMinute,
-        doseQuantity   = doseQuantity,
-        frequencyType  = frequencyType,
-        category       = category,
-        form           = form,
-        isPRN          = isPRN,
+        doseQuantity = doseQuantity,
+        frequencyType = frequencyType,
+        category = category,
+        form = form,
+        isPRN = isPRN,
         isHighPriority = isHighPriority,
         frequencyInterval = frequencyInterval,
-        frequencyDays  = frequencyDays,
-        startDate      = sdf.format(Date(startDate)),
-        endDate        = endDate?.let { sdf.format(Date(it)) },
-        stock          = stock,
+        frequencyDays = frequencyDays,
+        startDate = sdf.format(Date(startDate)),
+        endDate = endDate?.let { sdf.format(Date(it)) },
+        stock = stock,
         refillThreshold = refillThreshold,
         refillReminderDays = refillReminderDays,
-        notes          = notes,
-        maxDailyDose   = maxDailyDose,
-        intervalHours  = intervalHours,
+        notes = notes,
+        maxDailyDose = maxDailyDose,
+        intervalHours = intervalHours,
     )
 
     fun MedExportEntry.toMedication(): Medication = Medication(
-        name           = name,
-        dose           = dose,
-        doseUnit       = doseUnit,
-        timePeriod     = timePeriod,
-        reminderTimes  = reminderTimes,
-        reminderHour   = reminderHour,
+        name = name,
+        dose = dose,
+        doseUnit = doseUnit,
+        timePeriod = timePeriod,
+        reminderTimes = reminderTimes,
+        reminderHour = reminderHour,
         reminderMinute = reminderMinute,
-        doseQuantity   = doseQuantity,
-        frequencyType  = frequencyType,
-        category       = category,
-        form           = form,
-        isPRN          = isPRN,
+        doseQuantity = doseQuantity,
+        frequencyType = frequencyType,
+        category = category,
+        form = form,
+        isPRN = isPRN,
         isHighPriority = isHighPriority,
         frequencyInterval = frequencyInterval,
-        frequencyDays  = frequencyDays,
-        startDate      = runCatching { sdf.parse(startDate)?.time ?: System.currentTimeMillis() }
-                            .getOrDefault(System.currentTimeMillis()),
-        endDate        = endDate?.let { runCatching { sdf.parse(it)?.time }.getOrNull() },
-        stock          = stock,
+        frequencyDays = frequencyDays,
+        startDate = runCatching { sdf.parse(startDate)?.time ?: System.currentTimeMillis() }
+            .getOrDefault(System.currentTimeMillis()),
+        endDate = endDate?.let { runCatching { sdf.parse(it)?.time }.getOrNull() },
+        stock = stock,
         refillThreshold = refillThreshold,
         refillReminderDays = refillReminderDays,
-        notes          = notes,
-        maxDailyDose   = maxDailyDose,
-        intervalHours  = intervalHours,
+        notes = notes,
+        maxDailyDose = maxDailyDose,
+        intervalHours = intervalHours,
     )
 
     // ── 压缩工具 ──────────────────────────────────────────────────────────────
@@ -188,8 +188,7 @@ object PlanExportCodec {
         return bos.toByteArray()
     }
 
-    private fun gunzip(data: ByteArray): ByteArray =
-        GZIPInputStream(ByteArrayInputStream(data)).use { it.readBytes() }
+    private fun gunzip(data: ByteArray): ByteArray = GZIPInputStream(ByteArrayInputStream(data)).use { it.readBytes() }
 }
 
 sealed interface PlanExportDecodeResult {

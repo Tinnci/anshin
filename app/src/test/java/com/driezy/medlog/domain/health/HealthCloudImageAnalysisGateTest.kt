@@ -42,11 +42,19 @@ class HealthCloudImageAnalysisGateTest {
 
         assertEquals(
             HealthCloudImageAnalysisUnavailableReason.CLOUD_AI_DISABLED,
-            HealthCloudImageAnalysisGate.evaluate(base.copy(cloudAiEnabled = false), emptySet(), NetworkType.WIFI).reason,
+            HealthCloudImageAnalysisGate.evaluate(
+                base.copy(cloudAiEnabled = false),
+                emptySet(),
+                NetworkType.WIFI,
+            ).reason,
         )
         assertEquals(
             HealthCloudImageAnalysisUnavailableReason.IMAGE_ANALYSIS_DISABLED,
-            HealthCloudImageAnalysisGate.evaluate(base.copy(cloudAiImageAnalysisEnabled = false), emptySet(), NetworkType.WIFI).reason,
+            HealthCloudImageAnalysisGate.evaluate(
+                base.copy(cloudAiImageAnalysisEnabled = false),
+                emptySet(),
+                NetworkType.WIFI,
+            ).reason,
         )
         assertEquals(
             HealthCloudImageAnalysisUnavailableReason.API_KEY_MISSING,

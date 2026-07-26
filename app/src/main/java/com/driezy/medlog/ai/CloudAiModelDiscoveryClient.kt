@@ -7,14 +7,12 @@ import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.add
+import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.booleanOrNull
 import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.put
-import kotlinx.serialization.json.jsonArray
-import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 data class CloudAiDiscoveredModel(
     val id: String,
@@ -66,7 +64,8 @@ class CloudAiModelDiscoveryClient(
                     isConnected = false,
                     providerName = spec.providerName,
                     statusCode = response.code,
-                    errorMessage = "${spec.providerName} model discovery failed with HTTP ${response.code}: ${response.body}",
+                    errorMessage =
+                    "${spec.providerName} model discovery failed with HTTP ${response.code}: ${response.body}",
                 )
             } else {
                 CloudAiModelDiscoveryResult(
@@ -80,62 +79,62 @@ class CloudAiModelDiscoveryClient(
             CloudAiModelDiscoveryResult(
                 isConnected = false,
                 providerName = spec.providerName,
-                errorMessage = "${spec.providerName} model discovery failed: ${error.message ?: error::class.java.simpleName}",
+                errorMessage =
+                "${spec.providerName} model discovery failed: ${error.message ?: error::class.java.simpleName}",
             )
         }
     }
 
-    private suspend fun fetchMimo(config: AiProviderConfig.Mimo): CloudAiModelDiscoveryResult =
-        runCatching {
-            val response = transport.post(
-                AiHttpRequest(
-                    url = config.baseUrl.trimEnd('/') + "/chat/completions",
-                    headers = mapOf(
-                        "Accept" to "application/json",
-                        "Content-Type" to "application/json",
-                        "api-key" to config.apiKey,
-                    ),
-                    body = buildJsonObject {
-                        put("model", config.model)
-                        put(
-                            "messages",
-                            buildJsonArray {
-                                add(
-                                    buildJsonObject {
-                                        put("role", "user")
-                                        put("content", "ping")
-                                    },
-                                )
-                            },
-                        )
-                        put("temperature", 0.0)
-                        put("max_completion_tokens", 1)
-                        put("stream", false)
-                    }.toString(),
+    private suspend fun fetchMimo(config: AiProviderConfig.Mimo): CloudAiModelDiscoveryResult = runCatching {
+        val response = transport.post(
+            AiHttpRequest(
+                url = config.baseUrl.trimEnd('/') + "/chat/completions",
+                headers = mapOf(
+                    "Accept" to "application/json",
+                    "Content-Type" to "application/json",
+                    "api-key" to config.apiKey,
                 ),
-            )
-            if (response.code !in 200..299) {
-                CloudAiModelDiscoveryResult(
-                    isConnected = false,
-                    providerName = "MiMo",
-                    statusCode = response.code,
-                    errorMessage = "MiMo connectivity check failed with HTTP ${response.code}: ${response.body}",
-                )
-            } else {
-                CloudAiModelDiscoveryResult(
-                    isConnected = true,
-                    providerName = "MiMo",
-                    models = mimoModels,
-                    statusCode = response.code,
-                )
-            }
-        }.getOrElse { error ->
+                body = buildJsonObject {
+                    put("model", config.model)
+                    put(
+                        "messages",
+                        buildJsonArray {
+                            add(
+                                buildJsonObject {
+                                    put("role", "user")
+                                    put("content", "ping")
+                                },
+                            )
+                        },
+                    )
+                    put("temperature", 0.0)
+                    put("max_completion_tokens", 1)
+                    put("stream", false)
+                }.toString(),
+            ),
+        )
+        if (response.code !in 200..299) {
             CloudAiModelDiscoveryResult(
                 isConnected = false,
                 providerName = "MiMo",
-                errorMessage = "MiMo connectivity check failed: ${error.message ?: error::class.java.simpleName}",
+                statusCode = response.code,
+                errorMessage = "MiMo connectivity check failed with HTTP ${response.code}: ${response.body}",
+            )
+        } else {
+            CloudAiModelDiscoveryResult(
+                isConnected = true,
+                providerName = "MiMo",
+                models = mimoModels,
+                statusCode = response.code,
             )
         }
+    }.getOrElse { error ->
+        CloudAiModelDiscoveryResult(
+            isConnected = false,
+            providerName = "MiMo",
+            errorMessage = "MiMo connectivity check failed: ${error.message ?: error::class.java.simpleName}",
+        )
+    }
 
     private fun parseModels(body: String, spec: ModelEndpointSpec): List<CloudAiDiscoveredModel> {
         val root = json.parseToJsonElement(body)
@@ -174,14 +173,16 @@ class CloudAiModelDiscoveryClient(
                 "supportedGenerationMethods",
                 "supported_generation_methods",
             ) + obj.booleanCapabilityKeys("capabilities") + obj.booleanCapabilityKeys("features")
-            val textOnlyOrNonChat = id.looksTextOnly() || capabilityTokens.any {
-                it == "embedding" || it == "embeddings" || it == "rerank" || it == "tts" || it == "audio"
-            }
-            val supportsText = !textOnlyOrNonChat && (
-                modalities.isEmpty() ||
-                    modalities.any { it == "text" || it == "language" } ||
-                    capabilityTokens.contains("generatecontent")
-                )
+            val textOnlyOrNonChat = id.looksTextOnly() ||
+                capabilityTokens.any {
+                    it == "embedding" || it == "embeddings" || it == "rerank" || it == "tts" || it == "audio"
+                }
+            val supportsText = !textOnlyOrNonChat &&
+                (
+                    modalities.isEmpty() ||
+                        modalities.any { it == "text" || it == "language" } ||
+                        capabilityTokens.contains("generatecontent")
+                    )
             val supportsImage = obj.hasImageCapability() ||
                 id.looksImageCapable() ||
                 (spec.defaultImageSupport && !id.looksTextOnly())
@@ -191,7 +192,11 @@ class CloudAiModelDiscoveryClient(
                 supportsText = supportsText,
                 supportsImageInput = supportsImage,
                 supportsJsonInstruction = capabilityTokens.any {
-                    it == "json" || it == "json_schema" || it == "json_object" || it == "structured_outputs" || it == "tools"
+                    it == "json" ||
+                        it == "json_schema" ||
+                        it == "json_object" ||
+                        it == "structured_outputs" ||
+                        it == "tools"
                 },
                 contextWindow = obj.longValue(
                     "context_window",
@@ -208,45 +213,44 @@ class CloudAiModelDiscoveryClient(
         }
     }
 
-    private fun AiProviderConfig.toModelEndpointSpec(): ModelEndpointSpec =
-        when (this) {
-            is AiProviderConfig.Mimo -> error("MiMo discovery uses a chat completions probe.")
+    private fun AiProviderConfig.toModelEndpointSpec(): ModelEndpointSpec = when (this) {
+        is AiProviderConfig.Mimo -> error("MiMo discovery uses a chat completions probe.")
 
-            is AiProviderConfig.OpenAiCompatible -> ModelEndpointSpec(
-                providerName = providerName,
-                url = baseUrl.modelsUrl(),
-                headers = buildMap {
-                    put("Accept", "application/json")
-                    apiKey?.takeIf { it.isNotBlank() }?.let { key ->
-                        when (authMode) {
-                            OpenAiAuthMode.API_KEY_HEADER -> put("api-key", key)
-                            OpenAiAuthMode.BEARER -> put("Authorization", "Bearer $key")
-                        }
+        is AiProviderConfig.OpenAiCompatible -> ModelEndpointSpec(
+            providerName = providerName,
+            url = baseUrl.modelsUrl(),
+            headers = buildMap {
+                put("Accept", "application/json")
+                apiKey?.takeIf { it.isNotBlank() }?.let { key ->
+                    when (authMode) {
+                        OpenAiAuthMode.API_KEY_HEADER -> put("api-key", key)
+                        OpenAiAuthMode.BEARER -> put("Authorization", "Bearer $key")
                     }
-                },
-            )
+                }
+            },
+        )
 
-            is AiProviderConfig.Gemini -> ModelEndpointSpec(
-                providerName = "Gemini",
-                url = baseUrl.modelsUrl(),
-                headers = mapOf(
-                    "Accept" to "application/json",
-                    "x-goog-api-key" to apiKey,
-                ),
-                defaultImageSupport = true,
-            )
+        is AiProviderConfig.Gemini -> ModelEndpointSpec(
+            providerName = "Gemini",
+            url = baseUrl.modelsUrl(),
+            headers = mapOf(
+                "Accept" to "application/json",
+                "x-goog-api-key" to apiKey,
+            ),
+            defaultImageSupport = true,
+        )
 
-            is AiProviderConfig.Anthropic -> ModelEndpointSpec(
-                providerName = "Anthropic",
-                url = baseUrl.anthropicModelsUrl(),
-                headers = mapOf(
-                    "Accept" to "application/json",
-                    "x-api-key" to apiKey,
-                    "anthropic-version" to anthropicVersion,
-                ),
-                defaultImageSupport = true,
-            )
-        }
+        is AiProviderConfig.Anthropic -> ModelEndpointSpec(
+            providerName = "Anthropic",
+            url = baseUrl.anthropicModelsUrl(),
+            headers = mapOf(
+                "Accept" to "application/json",
+                "x-api-key" to apiKey,
+                "anthropic-version" to anthropicVersion,
+            ),
+            defaultImageSupport = true,
+        )
+    }
 
     private fun String.modelsUrl(): String {
         val normalized = trimEnd('/')
@@ -265,10 +269,9 @@ class CloudAiModelDiscoveryClient(
     private fun JsonObject.stringValue(key: String): String? =
         this[key]?.jsonPrimitive?.contentOrNull?.takeIf { it.isNotBlank() }
 
-    private fun JsonObject.longValue(vararg keys: String): Long? =
-        keys.firstNotNullOfOrNull { key ->
-            this[key]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
-        }
+    private fun JsonObject.longValue(vararg keys: String): Long? = keys.firstNotNullOfOrNull { key ->
+        this[key]?.jsonPrimitive?.contentOrNull?.toLongOrNull()
+    }
 
     private fun JsonObject.findStringSet(vararg keys: String): Set<String> =
         keys.flatMap { key -> this[key].stringTokens() }
@@ -282,16 +285,16 @@ class CloudAiModelDiscoveryClient(
         }.toSet()
     }
 
-    private fun JsonElement?.stringTokens(): List<String> =
-        when (this) {
-            is JsonArray -> mapNotNull { it.jsonPrimitive.contentOrNull }
-            is JsonPrimitive -> contentOrNull
+    private fun JsonElement?.stringTokens(): List<String> = when (this) {
+        is JsonArray -> mapNotNull { it.jsonPrimitive.contentOrNull }
+        is JsonPrimitive ->
+            contentOrNull
                 ?.split(',', ' ', ';')
                 ?.map { it.trim() }
                 ?.filter { it.isNotBlank() }
                 .orEmpty()
-            else -> emptyList()
-        }
+        else -> emptyList()
+    }
 
     private fun JsonObject.hasImageCapability(): Boolean {
         val modalityTokens = findStringSet(
@@ -319,12 +322,11 @@ class CloudAiModelDiscoveryClient(
         return false
     }
 
-    private fun JsonElement.booleanValueOrFalse(): Boolean =
-        when (this) {
-            is JsonPrimitive -> booleanOrNull ?: contentOrNull.equals("true", ignoreCase = true)
-            is JsonNull -> false
-            else -> false
-        }
+    private fun JsonElement.booleanValueOrFalse(): Boolean = when (this) {
+        is JsonPrimitive -> booleanOrNull ?: contentOrNull.equals("true", ignoreCase = true)
+        is JsonNull -> false
+        else -> false
+    }
 
     private fun String.looksImageCapable(): Boolean {
         val normalized = lowercase()
@@ -335,7 +337,8 @@ class CloudAiModelDiscoveryClient(
             normalized.startsWith("claude-3") ||
             normalized.startsWith("claude-sonnet") ||
             normalized.startsWith("claude-opus") ||
-            normalized.startsWith("gemini") && "embedding" !in normalized ||
+            normalized.startsWith("gemini") &&
+            "embedding" !in normalized ||
             normalized.startsWith("mimo") ||
             "vision" in normalized ||
             "image" in normalized ||

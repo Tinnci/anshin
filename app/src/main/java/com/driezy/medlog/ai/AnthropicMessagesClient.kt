@@ -77,42 +77,40 @@ class AnthropicMessagesClient(
         )
     }
 
-    private fun AiChatMessage.toAnthropicContent(): AnthropicMessageContent =
-        parts?.let { contentParts ->
-            AnthropicMessageContent(
-                buildJsonArray {
-                    contentParts.forEach { part ->
-                        when (part) {
-                            is AiChatContentPart.Text -> add(
-                                buildJsonObject {
-                                    put("type", "text")
-                                    put("text", part.text)
-                                },
-                            )
-                            is AiChatContentPart.ImageBytes -> add(
-                                buildJsonObject {
-                                    put("type", "image")
-                                    put(
-                                        "source",
-                                        buildJsonObject {
-                                            put("type", "base64")
-                                            put("media_type", part.mimeType)
-                                            put("data", part.base64)
-                                        },
-                                    )
-                                },
-                            )
-                        }
+    private fun AiChatMessage.toAnthropicContent(): AnthropicMessageContent = parts?.let { contentParts ->
+        AnthropicMessageContent(
+            buildJsonArray {
+                contentParts.forEach { part ->
+                    when (part) {
+                        is AiChatContentPart.Text -> add(
+                            buildJsonObject {
+                                put("type", "text")
+                                put("text", part.text)
+                            },
+                        )
+                        is AiChatContentPart.ImageBytes -> add(
+                            buildJsonObject {
+                                put("type", "image")
+                                put(
+                                    "source",
+                                    buildJsonObject {
+                                        put("type", "base64")
+                                        put("media_type", part.mimeType)
+                                        put("data", part.base64)
+                                    },
+                                )
+                            },
+                        )
                     }
-                },
-            )
-        } ?: AnthropicMessageContent(JsonPrimitive(content))
+                }
+            },
+        )
+    } ?: AnthropicMessageContent(JsonPrimitive(content))
 
-    private fun AiChatMessage.partsText(): String =
-        parts
-            ?.filterIsInstance<AiChatContentPart.Text>()
-            ?.joinToString(separator = "\n") { it.text }
-            .orEmpty()
+    private fun AiChatMessage.partsText(): String = parts
+        ?.filterIsInstance<AiChatContentPart.Text>()
+        ?.joinToString(separator = "\n") { it.text }
+        .orEmpty()
 
     private fun parseResponse(body: String): AiChatResponse {
         val parsed = runCatching { json.decodeFromString<AnthropicResponse>(body) }
@@ -154,10 +152,7 @@ class AnthropicMessagesClient(
     )
 
     @Serializable
-    private data class AnthropicMessage(
-        val role: String,
-        val content: AnthropicMessageContent,
-    )
+    private data class AnthropicMessage(val role: String, val content: AnthropicMessageContent)
 
     @Serializable
     @JvmInline
@@ -175,18 +170,12 @@ class AnthropicMessagesClient(
     private sealed interface AnthropicResponseContent {
         @Serializable
         @SerialName("text")
-        data class Text(
-            val text: String,
-            val type: String = "text",
-        ) : AnthropicResponseContent
+        data class Text(val text: String, val type: String = "text") : AnthropicResponseContent
 
         @Serializable
         @SerialName("tool_use")
-        data class ToolUse(
-            val id: String? = null,
-            val name: String? = null,
-            val type: String = "tool_use",
-        ) : AnthropicResponseContent
+        data class ToolUse(val id: String? = null, val name: String? = null, val type: String = "tool_use") :
+            AnthropicResponseContent
     }
 
     @Serializable
@@ -196,12 +185,11 @@ class AnthropicMessagesClient(
         @SerialName("output_tokens")
         val outputTokens: Int? = null,
     ) {
-        fun toUsage(): AiTokenUsage =
-            AiTokenUsage(
-                promptTokens = inputTokens,
-                completionTokens = outputTokens,
-                totalTokens = listOfNotNull(inputTokens, outputTokens).takeIf { it.isNotEmpty() }?.sum(),
-            )
+        fun toUsage(): AiTokenUsage = AiTokenUsage(
+            promptTokens = inputTokens,
+            completionTokens = outputTokens,
+            totalTokens = listOfNotNull(inputTokens, outputTokens).takeIf { it.isNotEmpty() }?.sum(),
+        )
     }
 
     private companion object {

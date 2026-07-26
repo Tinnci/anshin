@@ -37,10 +37,10 @@ import com.driezy.medlog.domain.daysAgoStart
 import com.driezy.medlog.domain.todayEnd
 import com.driezy.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
+import kotlinx.coroutines.flow.first
 import java.time.DayOfWeek
 import java.time.Instant
 import java.time.ZoneId
-import kotlinx.coroutines.flow.first
 
 /**
  * 连续打卡桌面小组件（Jetpack Glance M3）
@@ -55,33 +55,33 @@ class StreakWidget : GlanceAppWidget() {
 
     override val sizeMode: SizeMode = SizeMode.Responsive(
         setOf(
-            DpSize(80.dp, 80.dp),   // 2×2
-            DpSize(180.dp, 80.dp),  // 4×2
+            DpSize(80.dp, 80.dp), // 2×2
+            DpSize(180.dp, 80.dp), // 4×2
         ),
     )
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val ep            = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        val medications   = ep.medicationRepository().getActiveOnce()
+        val ep = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
+        val medications = ep.medicationRepository().getActiveOnce()
         // PRN（按需）药品无固定服药计划，不计入每日完成判断
         val scheduledMeds = medications.filter { !it.isPRN }
-        val total         = scheduledMeds.size
-        val scheduledIds  = scheduledMeds.map { it.id }.toSet()
+        val total = scheduledMeds.size
+        val scheduledIds = scheduledMeds.map { it.id }.toSet()
 
         // 查询最近 30 天的所有日志（用于 Streak 计算）
         val rangeStart = daysAgoStart(29)
-        val rangeEnd   = todayEnd()
-        val allLogs    = ep.logRepository().getLogsForRangeOnce(rangeStart, rangeEnd)
-        val zone       = ZoneId.systemDefault()
+        val rangeEnd = todayEnd()
+        val allLogs = ep.logRepository().getLogsForRangeOnce(rangeStart, rangeEnd)
+        val zone = ZoneId.systemDefault()
 
         // 判断某天是否完成（所有计划药品均已标记 TAKEN）
         fun dayComplete(dayStartMs: Long): Boolean {
             if (total == 0) return false
             val dayEndMs = dayStartMs + 86_400_000L - 1
-            val taken    = allLogs.count {
+            val taken = allLogs.count {
                 it.scheduledTimeMs in dayStartMs..dayEndMs &&
-                it.status == LogStatus.TAKEN &&
-                it.medicationId in scheduledIds
+                    it.status == LogStatus.TAKEN &&
+                    it.medicationId in scheduledIds
             }
             return taken >= total
         }
@@ -89,8 +89,11 @@ class StreakWidget : GlanceAppWidget() {
         // SSOT：使用 domain/StreakCalculator 计算连续天数
         val daysWithActivity = (0..29).mapNotNullTo(mutableSetOf()) { daysBack ->
             val dayStart = daysAgoStart(daysBack)
-            if (dayComplete(dayStart)) Instant.ofEpochMilli(dayStart).atZone(zone).toLocalDate()
-            else null
+            if (dayComplete(dayStart)) {
+                Instant.ofEpochMilli(dayStart).atZone(zone).toLocalDate()
+            } else {
+                null
+            }
         }
         val streak = StreakCalculator.currentStreak(daysWithActivity)
 
@@ -98,16 +101,16 @@ class StreakWidget : GlanceAppWidget() {
         // 注意：(6 downTo 0)映射得 daysBack=6在 index 0，daysBack=0在 index 6，与 isToday = (index == size-1) 匹配
         val dayData = (6 downTo 0).map { daysBack ->
             val dayStartMs = daysAgoStart(daysBack)
-            val localDate  = Instant.ofEpochMilli(dayStartMs).atZone(zone).toLocalDate()
+            val localDate = Instant.ofEpochMilli(dayStartMs).atZone(zone).toLocalDate()
             val label = when (localDate.dayOfWeek) {
-                DayOfWeek.SUNDAY    -> context.getString(R.string.widget_weekday_sun)
-                DayOfWeek.MONDAY    -> context.getString(R.string.widget_weekday_mon)
-                DayOfWeek.TUESDAY   -> context.getString(R.string.widget_weekday_tue)
+                DayOfWeek.SUNDAY -> context.getString(R.string.widget_weekday_sun)
+                DayOfWeek.MONDAY -> context.getString(R.string.widget_weekday_mon)
+                DayOfWeek.TUESDAY -> context.getString(R.string.widget_weekday_tue)
                 DayOfWeek.WEDNESDAY -> context.getString(R.string.widget_weekday_wed)
-                DayOfWeek.THURSDAY  -> context.getString(R.string.widget_weekday_thu)
-                DayOfWeek.FRIDAY    -> context.getString(R.string.widget_weekday_fri)
-                DayOfWeek.SATURDAY  -> context.getString(R.string.widget_weekday_sat)
-                else                -> "?"
+                DayOfWeek.THURSDAY -> context.getString(R.string.widget_weekday_thu)
+                DayOfWeek.FRIDAY -> context.getString(R.string.widget_weekday_fri)
+                DayOfWeek.SATURDAY -> context.getString(R.string.widget_weekday_sat)
+                else -> "?"
             }
             Pair(dayComplete(dayStartMs), label)
         }
@@ -132,13 +135,8 @@ class StreakWidget : GlanceAppWidget() {
 private const val TAG = "StreakWidget"
 
 @Composable
-private fun StreakContent(
-    total: Int,
-    streak: Int,
-    dayData: List<Pair<Boolean, String>>,
-    sizing: WidgetSizing,
-) {
-    val size      = LocalSize.current
+private fun StreakContent(total: Int, streak: Int, dayData: List<Pair<Boolean, String>>, sizing: WidgetSizing) {
+    val size = LocalSize.current
     val isCompact = size.width < 160.dp
     val ctx = LocalContext.current
 
@@ -148,7 +146,7 @@ private fun StreakContent(
         modifier = GlanceModifier
             .clickable(actionStartActivity<MainActivity>()),
         sizing = sizing,
-        verticalAlignment   = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
+        verticalAlignment = if (isCompact) Alignment.Vertical.CenterVertically else Alignment.Vertical.Top,
         horizontalAlignment = if (isCompact) Alignment.Horizontal.CenterHorizontally else Alignment.Horizontal.Start,
     ) {
         if (total == 0) {
@@ -190,9 +188,9 @@ private fun StreakContent(
             Text(
                 "$streak",
                 style = TextStyle(
-                    fontSize   = sizing.sp(26),
+                    fontSize = sizing.sp(26),
                     fontWeight = FontWeight.Bold,
-                    color      = if (streak >= 7) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
+                    color = if (streak >= 7) GlanceTheme.colors.tertiary else GlanceTheme.colors.primary,
                 ),
             )
             Text(
@@ -220,7 +218,7 @@ private fun StreakContent(
                 horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
             ) {
                 dayData.forEachIndexed { index, (isComplete, label) ->
-                    val isToday  = index == dayData.size - 1
+                    val isToday = index == dayData.size - 1
                     Column(
                         horizontalAlignment = Alignment.Horizontal.CenterHorizontally,
                     ) {
@@ -232,8 +230,8 @@ private fun StreakContent(
                                 .background(
                                     when {
                                         isComplete && isToday -> GlanceTheme.colors.tertiary
-                                        isComplete            -> GlanceTheme.colors.primary
-                                        else                  -> GlanceTheme.colors.outline
+                                        isComplete -> GlanceTheme.colors.primary
+                                        else -> GlanceTheme.colors.outline
                                     },
                                 ),
                             contentAlignment = Alignment.Center,
@@ -242,9 +240,13 @@ private fun StreakContent(
                                 Text(
                                     "✓",
                                     style = TextStyle(
-                                        fontSize   = sizing.sp(10),
+                                        fontSize = sizing.sp(10),
                                         fontWeight = FontWeight.Bold,
-                                        color      = if (isToday) GlanceTheme.colors.onTertiary else GlanceTheme.colors.onPrimary,
+                                        color = if (isToday) {
+                                            GlanceTheme.colors.onTertiary
+                                        } else {
+                                            GlanceTheme.colors.onPrimary
+                                        },
                                     ),
                                 )
                             }
@@ -255,7 +257,11 @@ private fun StreakContent(
                             label,
                             style = TextStyle(
                                 fontSize = sizing.sp(9),
-                                color    = if (isToday) GlanceTheme.colors.primary else GlanceTheme.colors.onSurfaceVariant,
+                                color = if (isToday) {
+                                    GlanceTheme.colors.primary
+                                } else {
+                                    GlanceTheme.colors.onSurfaceVariant
+                                },
                                 fontWeight = if (isToday) FontWeight.Medium else FontWeight.Normal,
                             ),
                         )

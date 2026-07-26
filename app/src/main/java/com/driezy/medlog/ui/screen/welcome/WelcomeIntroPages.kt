@@ -1,166 +1,182 @@
 package com.driezy.medlog.ui.screen.welcome
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import android.Manifest
-import android.content.pm.PackageManager
-import android.os.Build
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.pager.HorizontalPager
-import androidx.compose.foundation.pager.PagerDefaults
-import androidx.compose.foundation.pager.rememberPagerState
-import androidx.compose.foundation.horizontalScroll
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.semantics.role
-import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.res.stringResource
-import androidx.core.content.ContextCompat
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
-import com.driezy.medlog.data.repository.ThemeMode
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 
 @Composable
 internal fun WelcomePage0(isCurrentPage: Boolean) {
-    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.3f, 0L)
-    val (titleY, titleAlpha)   = rememberSlideEntry(isCurrentPage,  24f, 150L)
-    val (subY,   subAlpha)     = rememberSlideEntry(isCurrentPage,  24f, 250L)
+    val profile = rememberWelcomeLayoutProfile()
+    val iconDelay = welcomeEntryDelayMs(0, profile.constrained, profile.motionEnabled)
+    val titleDelay = welcomeEntryDelayMs(1, profile.constrained, profile.motionEnabled)
+    val bodyDelay = welcomeEntryDelayMs(2, profile.constrained, profile.motionEnabled)
+    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.88f, iconDelay)
+    val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 16f, titleDelay)
+    val (bodyY, bodyAlpha) = rememberSlideEntry(isCurrentPage, 16f, bodyDelay)
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(32.dp),
+    WelcomePageScaffold(
+        modifier = Modifier.padding(welcomePagePadding(profile)),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center,
     ) {
-        Surface(
-            shape = RoundedCornerShape(28.dp),
-            color = MaterialTheme.colorScheme.primaryContainer,
-            modifier = Modifier
-                .size(96.dp)
-                .graphicsLayer { scaleX = iconScale; scaleY = iconScale; alpha = iconAlpha },
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                MedLogIcon(
-                    MedLogIcons.Medication,
-                    contentDescription = null,
-                    modifier = Modifier.size(52.dp),
-                    tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                )
+        Spacer(Modifier.height(if (profile.constrained) 8.dp else 56.dp))
+        if (profile.showIllustration) {
+            Surface(
+                shape = RoundedCornerShape(28.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier
+                    .size(88.dp)
+                    .graphicsLayer {
+                        scaleX = iconScale
+                        scaleY = iconScale
+                        alpha = iconAlpha
+                    },
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    MedLogIcon(
+                        MedLogIcons.Medication,
+                        contentDescription = null,
+                        modifier = Modifier.size(46.dp),
+                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
+                    )
+                }
             }
+            Spacer(Modifier.height(12.dp))
         }
-        Spacer(Modifier.height(32.dp))
         Text(
             stringResource(R.string.welcome_p0_title),
             style = MaterialTheme.typography.headlineMedium,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer { translationY = titleY; alpha = titleAlpha },
+            modifier = Modifier.graphicsLayer {
+                translationY = titleY
+                alpha = titleAlpha
+            },
         )
-        Spacer(Modifier.height(12.dp))
         Text(
             stringResource(R.string.welcome_p0_body),
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
-            modifier = Modifier.graphicsLayer { translationY = subY; alpha = subAlpha },
+            modifier = Modifier.graphicsLayer {
+                translationY = bodyY
+                alpha = bodyAlpha
+            },
         )
     }
 }
 
-// ── 第1页：核心功能（错落进场） ────────────────────────────────────────────
-
-private data class Feature(val icon: Int, val title: String, val desc: String)
+private data class Feature(val icon: Int, val title: String, val description: String)
 
 @Composable
 internal fun WelcomePage1(isCurrentPage: Boolean) {
+    val profile = rememberWelcomeLayoutProfile()
     val features = listOf(
-        Feature(MedLogIcons.NotificationsActive, stringResource(R.string.welcome_p1_feat1_title), stringResource(R.string.welcome_p1_feat1_desc)),
-        Feature(MedLogIcons.Inventory2,          stringResource(R.string.welcome_p1_feat2_title), stringResource(R.string.welcome_p1_feat2_desc)),
-        Feature(MedLogIcons.History,             stringResource(R.string.welcome_p1_feat3_title), stringResource(R.string.welcome_p1_feat3_desc)),
+        Feature(
+            MedLogIcons.NotificationsActive,
+            stringResource(R.string.welcome_p1_feat1_title),
+            stringResource(R.string.welcome_p1_feat1_desc),
+        ),
+        Feature(
+            MedLogIcons.Inventory2,
+            stringResource(R.string.welcome_p1_feat2_title),
+            stringResource(R.string.welcome_p1_feat2_desc),
+        ),
+        Feature(
+            MedLogIcons.History,
+            stringResource(R.string.welcome_p1_feat3_title),
+            stringResource(R.string.welcome_p1_feat3_desc),
+        ),
     )
-    val (titleY, titleAlpha) = rememberSlideEntry(isCurrentPage, 20f, 0L)
+    val (titleY, titleAlpha) = rememberSlideEntry(
+        isCurrentPage,
+        16f,
+        welcomeEntryDelayMs(0, profile.constrained, profile.motionEnabled),
+    )
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(horizontal = 24.dp, vertical = 32.dp),
-        verticalArrangement = Arrangement.Center,
-    ) {
+    WelcomePageScaffold(modifier = Modifier.padding(welcomePagePadding(profile))) {
         Text(
             stringResource(R.string.welcome_p1_title),
             style = MaterialTheme.typography.headlineSmall,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
-                .padding(bottom = 24.dp)
-                .graphicsLayer { translationY = titleY; alpha = titleAlpha },
+                .padding(bottom = if (profile.constrained) 4.dp else 12.dp)
+                .graphicsLayer {
+                    translationY = titleY
+                    alpha = titleAlpha
+                },
         )
         features.forEachIndexed { index, feature ->
-            AnimatedFeatureRow(feature, isCurrentPage, delayMs = 100L + index * 90L)
-            Spacer(Modifier.height(20.dp))
+            FeatureRow(
+                feature = feature,
+                isCurrentPage = isCurrentPage,
+                delayMs = welcomeEntryDelayMs(index + 1, profile.constrained, profile.motionEnabled),
+                showDescription = profile.showSupportingText,
+            )
         }
     }
 }
 
 @Composable
-private fun AnimatedFeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long) {
-    val (offsetY, rowAlpha)    = rememberSlideEntry(isCurrentPage, 36f, delayMs)
-    val (iconScale, iconAlpha) = rememberSpringEntry(isCurrentPage, 0.6f, delayMs)
+private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long, showDescription: Boolean) {
+    val (offsetY, alpha) = rememberSlideEntry(isCurrentPage, 20f, delayMs)
     Row(
         verticalAlignment = Alignment.Top,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = Modifier.graphicsLayer { translationY = offsetY; this.alpha = rowAlpha },
+        modifier = Modifier
+            .fillMaxWidth()
+            .graphicsLayer {
+                translationY = offsetY
+                this.alpha = alpha
+            },
     ) {
         Surface(
-            shape = RoundedCornerShape(16.dp),
+            shape = RoundedCornerShape(14.dp),
             color = MaterialTheme.colorScheme.secondaryContainer,
-            modifier = Modifier
-                .size(48.dp)
-                .graphicsLayer { scaleX = iconScale; scaleY = iconScale; this.alpha = iconAlpha },
+            modifier = Modifier.size(44.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 MedLogIcon(
                     feature.icon,
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(24.dp),
+                    modifier = Modifier.size(22.dp),
                 )
             }
         }
-        Column {
-            Text(feature.title, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.SemiBold)
-            Spacer(Modifier.height(4.dp))
-            Text(feature.desc, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+        Spacer(Modifier.width(14.dp))
+        androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
+            Text(
+                feature.title,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.SemiBold,
+            )
+            if (showDescription) {
+                Spacer(Modifier.height(2.dp))
+                Text(
+                    feature.description,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
         }
     }
 }
-
-// ── 第2页：作息时间设置（错落进场） ────────────────────────────────────────

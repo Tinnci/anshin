@@ -4,19 +4,20 @@ import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.glance.appwidget.GlanceAppWidgetManager
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.ai.AiApiKeyStore
 import com.driezy.medlog.ai.AiCloudConfigResolver
 import com.driezy.medlog.ai.AiProviderConfig
+import com.driezy.medlog.ai.CloudAiDiscoveredModel
 import com.driezy.medlog.ai.CloudAiEndpointPreset
 import com.driezy.medlog.ai.CloudAiEndpointPresetLoader
 import com.driezy.medlog.ai.CloudAiEndpointProtocol
-import com.driezy.medlog.ai.CloudAiDiscoveredModel
 import com.driezy.medlog.ai.CloudAiModelDiscoveryClient
 import com.driezy.medlog.ai.OpenAiAuthMode
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.model.RoutineSchedule
+import com.driezy.medlog.data.model.RoutineTime
+import com.driezy.medlog.data.model.RoutineTimeSlot
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.AiUsageSummaryRow
 import com.driezy.medlog.data.repository.AppTextScale
@@ -24,19 +25,21 @@ import com.driezy.medlog.data.repository.CloudAiProvider
 import com.driezy.medlog.data.repository.FontMode
 import com.driezy.medlog.data.repository.HomeHeroStyle
 import com.driezy.medlog.data.repository.MedicationRepository
+import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.OpenAiCompatibleCloudAuthMode
 import com.driezy.medlog.data.repository.ThemeMode
-import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UiDensityScale
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.data.repository.WidgetColorSource
 import com.driezy.medlog.data.repository.WidgetDensityScale
 import com.driezy.medlog.data.repository.WidgetTextScale
 import com.driezy.medlog.data.repository.WidgetThemeMode
+import com.driezy.medlog.data.repository.routineSchedule
 import com.driezy.medlog.domain.BackupRestoreUseCase
 import com.driezy.medlog.domain.ResyncRemindersUseCase
 import com.driezy.medlog.domain.UnifiedImportPayload
 import com.driezy.medlog.domain.UnifiedImportPayloadCodec
+import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.ui.theme.ThemePalette
 import com.driezy.medlog.widget.MedLogWidget
 import com.driezy.medlog.widget.NextDoseWidget
@@ -45,19 +48,14 @@ import com.driezy.medlog.widget.WidgetRefresher
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 import java.util.TimeZone
+import javax.inject.Inject
 
 data class SettingsUiState(
     val archivedMedications: List<Medication> = emptyList(),
     val persistentReminder: Boolean = false,
     val persistentIntervalMinutes: Int = 5,
-    val wakeHour: Int = 7, val wakeMinute: Int = 0,
-    val breakfastHour: Int = 8, val breakfastMinute: Int = 0,
-    val lunchHour: Int = 12, val lunchMinute: Int = 0,
-    val dinnerHour: Int = 18, val dinnerMinute: Int = 0,
-    val bedHour: Int = 22, val bedMinute: Int = 0,
+    val routineSchedule: RoutineSchedule = RoutineSchedule(),
     val travelMode: Boolean = false,
     val homeTimeZoneId: String = "",
     // ── 可选功能开关 ───────────────────────────────────────────────────────────
@@ -82,7 +80,7 @@ data class SettingsUiState(
     val earlyReminderMinutes: Int = 0,
     // ── 小组件显示偏好 ──────────────────────────────────────────────────────────
     /** true = 显示交互服药按钮；false = 仅显示状态指示 */
-    val widgetShowActions: Boolean = true,    // ── 漏服再提醒 ──────────────────────────────────────────────────
+    val widgetShowActions: Boolean = true, // ── 漏服再提醒 ──────────────────────────────────────────────────
     val widgetThemeMode: WidgetThemeMode = WidgetThemeMode.SYSTEM,
     val widgetColorSource: WidgetColorSource = WidgetColorSource.SYSTEM_DYNAMIC,
     val widgetPalette: ThemePalette = ThemePalette.ANSHIN,
@@ -134,7 +132,10 @@ class SettingsViewModel @Inject constructor(
     private val endpointPresets = CloudAiEndpointPresetLoader.load(appContext)
 
     val uiState: StateFlow<SettingsUiState> = combine(
-        repository.getArchivedMedications().catch { e -> Log.e("SettingsVM", "Failed to load archived meds", e); emit(emptyList()) },
+        repository.getArchivedMedications().catch { e ->
+            Log.e("SettingsVM", "Failed to load archived meds", e)
+            emit(emptyList())
+        },
         prefsRepository.settingsFlow,
         aiApiKeyStore.availableProviders,
         aiUsageSummary,
@@ -142,27 +143,23 @@ class SettingsViewModel @Inject constructor(
     ) { archived, prefs, availableProviders, usageSummary, modelDiscovery ->
         val cloudAiCapabilities = AiCloudConfigResolver.resolveCapabilities(prefs)
         SettingsUiState(
-            archivedMedications     = archived,
-            persistentReminder      = prefs.persistentReminder,
+            archivedMedications = archived,
+            persistentReminder = prefs.persistentReminder,
             persistentIntervalMinutes = prefs.persistentIntervalMinutes,
-            wakeHour      = prefs.wakeHour,      wakeMinute      = prefs.wakeMinute,
-            breakfastHour = prefs.breakfastHour, breakfastMinute = prefs.breakfastMinute,
-            lunchHour     = prefs.lunchHour,     lunchMinute     = prefs.lunchMinute,
-            dinnerHour    = prefs.dinnerHour,    dinnerMinute    = prefs.dinnerMinute,
-            bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
-            travelMode    = prefs.travelMode,
+            routineSchedule = prefs.routineSchedule(),
+            travelMode = prefs.travelMode,
             homeTimeZoneId = prefs.homeTimeZoneId,
-            enableSymptomDiary         = prefs.enableSymptomDiary,
+            enableSymptomDiary = prefs.enableSymptomDiary,
             enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
-            enableDrugDatabase         = prefs.enableDrugDatabase,
-            enableHealthModule         = prefs.enableHealthModule,
-            enableTimePeriodMode       = prefs.enableTimePeriodMode,
-            themeMode       = prefs.themeMode,
+            enableDrugDatabase = prefs.enableDrugDatabase,
+            enableHealthModule = prefs.enableHealthModule,
+            enableTimePeriodMode = prefs.enableTimePeriodMode,
+            themeMode = prefs.themeMode,
             useDynamicColor = prefs.useDynamicColor,
-            themePalette    = ThemePalette.fromStoredName(prefs.themePaletteName),
-            fontMode        = prefs.fontMode,
-            appTextScale    = prefs.appTextScale,
-            uiDensityScale  = prefs.uiDensityScale,
+            themePalette = ThemePalette.fromStoredName(prefs.themePaletteName),
+            fontMode = prefs.fontMode,
+            appTextScale = prefs.appTextScale,
+            uiDensityScale = prefs.uiDensityScale,
             homeHeroStyle = prefs.homeHeroStyle,
             autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
             earlyReminderMinutes = prefs.earlyReminderMinutes,
@@ -173,9 +170,9 @@ class SettingsViewModel @Inject constructor(
             widgetDensityScale = prefs.widgetDensityScale,
             widgetTextScale = prefs.widgetTextScale,
             followUpReminderEnabled = prefs.followUpReminderEnabled,
-            followUpDelayMinutes    = prefs.followUpDelayMinutes,
-            followUpMaxCount        = prefs.followUpMaxCount,
-            ocrModelType            = prefs.ocrModelType,
+            followUpDelayMinutes = prefs.followUpDelayMinutes,
+            followUpMaxCount = prefs.followUpMaxCount,
+            ocrModelType = prefs.ocrModelType,
             cloudAiEnabled = prefs.cloudAiEnabled,
             cloudAiImageAnalysisEnabled = prefs.cloudAiImageAnalysisEnabled,
             cloudAiHealthInsightsEnabled = prefs.cloudAiHealthInsightsEnabled,
@@ -365,9 +362,9 @@ class SettingsViewModel @Inject constructor(
         }
     }
 
-    fun updateRoutineTime(field: String, hour: Int, minute: Int) {
+    fun updateRoutineTime(slot: RoutineTimeSlot, time: RoutineTime) {
         safeLaunch {
-            prefsRepository.updateRoutineTime(field, hour, minute)
+            prefsRepository.updateRoutineTime(slot, time)
             // 作息时间已更新，重新计算所有药品的提醒时间并重调度闹钟
             val newPrefs = prefsRepository.settingsFlow.first()
             resyncReminders(newPrefs)
@@ -511,6 +508,7 @@ class SettingsViewModel @Inject constructor(
     sealed interface BackupEvent {
         data class Success(val message: String) : BackupEvent
         data class Error(val message: String) : BackupEvent
+
         /** 恢复成功，UI 层应重启进程 */
         data object RestoreSuccess : BackupEvent
     }
@@ -526,7 +524,9 @@ class SettingsViewModel @Inject constructor(
             _backupInProgress.value = true
             try {
                 backupRestore.backup(uri)
-                _backupEvent.emit(BackupEvent.Success(appContext.getString(com.driezy.medlog.R.string.settings_backup_success)))
+                _backupEvent.emit(
+                    BackupEvent.Success(appContext.getString(com.driezy.medlog.R.string.settings_backup_success)),
+                )
             } catch (e: Exception) {
                 Log.e("SettingsVM", "Backup failed", e)
                 _backupEvent.emit(BackupEvent.Error(e.localizedMessage ?: "Unknown error"))
@@ -546,7 +546,9 @@ class SettingsViewModel @Inject constructor(
             } catch (e: Exception) {
                 Log.e("SettingsVM", "Restore failed", e)
                 val msg = when (e) {
-                    is IllegalArgumentException -> appContext.getString(com.driezy.medlog.R.string.settings_backup_invalid_file)
+                    is IllegalArgumentException -> appContext.getString(
+                        com.driezy.medlog.R.string.settings_backup_invalid_file,
+                    )
                     else -> e.localizedMessage ?: "Unknown error"
                 }
                 _backupEvent.emit(BackupEvent.Error(msg))
@@ -565,42 +567,41 @@ private data class CloudAiModelDiscoveryUiState(
 
 private fun com.driezy.medlog.data.repository.SettingsPreferences.toDiscoveryConfig(
     apiKey: String?,
-): AiProviderConfig? =
-    when (cloudAiProvider) {
-        CloudAiProvider.MIMO -> apiKey?.let {
-            AiProviderConfig.Mimo(
-                apiKey = it,
-                model = activeCloudAiModel(),
-                baseUrl = mimoCloudAiBaseUrl.ifBlank { AiCloudConfigResolver.mimoBaseUrlFor(it) },
-            )
-        }
-
-        CloudAiProvider.GEMINI -> apiKey?.let {
-            AiProviderConfig.Gemini(
-                apiKey = it,
-                model = activeCloudAiModel(),
-            )
-        }
-
-        CloudAiProvider.ANTHROPIC -> apiKey?.let {
-            AiProviderConfig.Anthropic(
-                apiKey = it,
-                model = activeCloudAiModel(),
-                baseUrl = anthropicCloudAiBaseUrl.ifBlank { "https://api.anthropic.com" },
-            )
-        }
-
-        CloudAiProvider.OPENAI_COMPATIBLE -> {
-            val baseUrl = openAiCompatibleBaseUrl.takeIf { it.isNotBlank() } ?: return null
-            AiProviderConfig.OpenAiCompatible(
-                baseUrl = baseUrl,
-                model = activeCloudAiModel(),
-                apiKey = apiKey,
-                authMode = when (openAiCompatibleAuthMode) {
-                    OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> OpenAiAuthMode.API_KEY_HEADER
-                    OpenAiCompatibleCloudAuthMode.BEARER -> OpenAiAuthMode.BEARER
-                },
-                providerName = openAiCompatibleProviderName.ifBlank { CloudAiProvider.OPENAI_COMPATIBLE.providerName },
-            )
-        }
+): AiProviderConfig? = when (cloudAiProvider) {
+    CloudAiProvider.MIMO -> apiKey?.let {
+        AiProviderConfig.Mimo(
+            apiKey = it,
+            model = activeCloudAiModel(),
+            baseUrl = mimoCloudAiBaseUrl.ifBlank { AiCloudConfigResolver.mimoBaseUrlFor(it) },
+        )
     }
+
+    CloudAiProvider.GEMINI -> apiKey?.let {
+        AiProviderConfig.Gemini(
+            apiKey = it,
+            model = activeCloudAiModel(),
+        )
+    }
+
+    CloudAiProvider.ANTHROPIC -> apiKey?.let {
+        AiProviderConfig.Anthropic(
+            apiKey = it,
+            model = activeCloudAiModel(),
+            baseUrl = anthropicCloudAiBaseUrl.ifBlank { "https://api.anthropic.com" },
+        )
+    }
+
+    CloudAiProvider.OPENAI_COMPATIBLE -> {
+        val baseUrl = openAiCompatibleBaseUrl.takeIf { it.isNotBlank() } ?: return null
+        AiProviderConfig.OpenAiCompatible(
+            baseUrl = baseUrl,
+            model = activeCloudAiModel(),
+            apiKey = apiKey,
+            authMode = when (openAiCompatibleAuthMode) {
+                OpenAiCompatibleCloudAuthMode.API_KEY_HEADER -> OpenAiAuthMode.API_KEY_HEADER
+                OpenAiCompatibleCloudAuthMode.BEARER -> OpenAiAuthMode.BEARER
+            },
+            providerName = openAiCompatibleProviderName.ifBlank { CloudAiProvider.OPENAI_COMPATIBLE.providerName },
+        )
+    }
+}

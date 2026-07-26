@@ -26,15 +26,15 @@ import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.MedicationRepositoryImpl
 import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
-import com.driezy.medlog.interaction.DrugAliasNormalizer
 import com.driezy.medlog.device.bpx1.AndroidBpx1BleClient
 import com.driezy.medlog.device.bpx1.AndroidKeystoreBpx1DeviceStore
 import com.driezy.medlog.device.bpx1.Bpx1BleClient
 import com.driezy.medlog.device.bpx1.Bpx1DeviceStore
-import com.driezy.medlog.widget.GlanceWidgetRefresher
-import com.driezy.medlog.widget.WidgetRefresher
+import com.driezy.medlog.interaction.DrugAliasNormalizer
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.doubao.DoubaoVoiceInputController
+import com.driezy.medlog.widget.GlanceWidgetRefresher
+import com.driezy.medlog.widget.WidgetRefresher
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -56,25 +56,24 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): MedLogDatabase =
-        Room.databaseBuilder(
-            context,
-            MedLogDatabase::class.java,
-            "medlog.db",
+    fun provideDatabase(@ApplicationContext context: Context): MedLogDatabase = Room.databaseBuilder(
+        context,
+        MedLogDatabase::class.java,
+        "medlog.db",
+    )
+        .addMigrations(
+            MedLogDatabase.MIGRATION_5_6,
+            MedLogDatabase.MIGRATION_6_7,
+            MedLogDatabase.MIGRATION_7_8,
+            MedLogDatabase.MIGRATION_8_9,
+            MedLogDatabase.MIGRATION_9_10,
+            MedLogDatabase.MIGRATION_10_11,
+            MedLogDatabase.MIGRATION_11_12,
+            MedLogDatabase.MIGRATION_12_13,
+            MedLogDatabase.MIGRATION_13_14,
+            MedLogDatabase.MIGRATION_14_15,
         )
-            .addMigrations(
-                MedLogDatabase.MIGRATION_5_6,
-                MedLogDatabase.MIGRATION_6_7,
-                MedLogDatabase.MIGRATION_7_8,
-                MedLogDatabase.MIGRATION_8_9,
-                MedLogDatabase.MIGRATION_9_10,
-                MedLogDatabase.MIGRATION_10_11,
-                MedLogDatabase.MIGRATION_11_12,
-                MedLogDatabase.MIGRATION_12_13,
-                MedLogDatabase.MIGRATION_13_14,
-                MedLogDatabase.MIGRATION_14_15,
-            )
-            .build()
+        .build()
 
     @Provides
     fun provideMedicationDao(db: MedLogDatabase): MedicationDao = db.medicationDao()
@@ -97,7 +96,10 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDrugAliasNormalizer(@ApplicationContext context: Context): DrugAliasNormalizer {
-        val json = Json { ignoreUnknownKeys = true; isLenient = true }
+        val json = Json {
+            ignoreUnknownKeys = true
+            isLenient = true
+        }
         val aliasMap = runCatching {
             val text = context.assets.open("json/drug_aliases_clean.json").bufferedReader().use { it.readText() }
             DrugAliasAssetParser.parseAliasToCanonical(text, json)
@@ -108,18 +110,16 @@ object DatabaseModule {
     @Provides
     @Singleton
     @ApplicationScope
-    fun provideApplicationScope(): CoroutineScope =
-        CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(): OkHttpClient =
-        OkHttpClient.Builder()
-            .protocols(listOf(Protocol.HTTP_1_1))
-            .connectTimeout(15, TimeUnit.SECONDS)
-            .readTimeout(15, TimeUnit.SECONDS)
-            .writeTimeout(15, TimeUnit.SECONDS)
-            .build()
+    fun provideOkHttpClient(): OkHttpClient = OkHttpClient.Builder()
+        .protocols(listOf(Protocol.HTTP_1_1))
+        .connectTimeout(15, TimeUnit.SECONDS)
+        .readTimeout(15, TimeUnit.SECONDS)
+        .writeTimeout(15, TimeUnit.SECONDS)
+        .build()
 }
 
 @Module
@@ -128,76 +128,52 @@ abstract class RepositoryModule {
 
     @Binds
     @Singleton
-    abstract fun bindMedicationRepository(
-        impl: MedicationRepositoryImpl,
-    ): MedicationRepository
+    abstract fun bindMedicationRepository(impl: MedicationRepositoryImpl): MedicationRepository
 
     @Binds
     @Singleton
-    abstract fun bindLogRepository(
-        impl: LogRepositoryImpl,
-    ): LogRepository
+    abstract fun bindLogRepository(impl: LogRepositoryImpl): LogRepository
 
     @Binds
     @Singleton
-    abstract fun bindDrugRepository(
-        impl: DrugRepositoryImpl,
-    ): DrugRepository
+    abstract fun bindDrugRepository(impl: DrugRepositoryImpl): DrugRepository
 
     @Binds
     @Singleton
-    abstract fun bindSymptomRepository(
-        impl: SymptomRepositoryImpl,
-    ): SymptomRepository
+    abstract fun bindSymptomRepository(impl: SymptomRepositoryImpl): SymptomRepository
 
     @Binds
     @Singleton
-    abstract fun bindHealthRepository(
-        impl: HealthRepositoryImpl,
-    ): HealthRepository
+    abstract fun bindHealthRepository(impl: HealthRepositoryImpl): HealthRepository
 
     @Binds
     @Singleton
-    abstract fun bindAiApiKeyStore(
-        impl: AndroidKeystoreAiApiKeyStore,
-    ): AiApiKeyStore
+    abstract fun bindAiApiKeyStore(impl: AndroidKeystoreAiApiKeyStore): AiApiKeyStore
 
     @Binds
     @Singleton
-    abstract fun bindBpx1DeviceStore(
-        impl: AndroidKeystoreBpx1DeviceStore,
-    ): Bpx1DeviceStore
+    abstract fun bindBpx1DeviceStore(impl: AndroidKeystoreBpx1DeviceStore): Bpx1DeviceStore
 
     @Binds
     @Singleton
-    abstract fun bindBpx1BleClient(
-        impl: AndroidBpx1BleClient,
-    ): Bpx1BleClient
+    abstract fun bindBpx1BleClient(impl: AndroidBpx1BleClient): Bpx1BleClient
 
     @Binds
     @Singleton
-    abstract fun bindWidgetRefresher(
-        impl: GlanceWidgetRefresher,
-    ): WidgetRefresher
+    abstract fun bindWidgetRefresher(impl: GlanceWidgetRefresher): WidgetRefresher
 
     @Binds
     @Singleton
-    abstract fun bindTransactionRunner(
-        impl: RoomTransactionRunner,
-    ): TransactionRunner
+    abstract fun bindTransactionRunner(impl: RoomTransactionRunner): TransactionRunner
 
     @Binds
     @Singleton
-    abstract fun bindVoiceInputController(
-        impl: DoubaoVoiceInputController,
-    ): VoiceInputController
+    abstract fun bindVoiceInputController(impl: DoubaoVoiceInputController): VoiceInputController
 
     companion object {
         @Provides
         @Singleton
-        fun provideAiCacheRepository(
-            cacheDao: AiAnalysisCacheDao,
-            usageEventDao: AiUsageEventDao,
-        ): AiCacheRepository = AiCacheRepositoryImpl(cacheDao, usageEventDao)
+        fun provideAiCacheRepository(cacheDao: AiAnalysisCacheDao, usageEventDao: AiUsageEventDao): AiCacheRepository =
+            AiCacheRepositoryImpl(cacheDao, usageEventDao)
     }
 }

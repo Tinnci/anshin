@@ -18,9 +18,11 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("华法林", "warfarin"),
-        groupB = listOf("阿司匹林", "aspirin", "布洛芬", "ibuprofen",
+        groupB = listOf(
+            "阿司匹林", "aspirin", "布洛芬", "ibuprofen",
             "萘普生", "naproxen", "双氯芬酸", "diclofenac",
-            "抗炎和抗风湿", "非甾体"),
+            "抗炎和抗风湿", "非甾体",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "华法林（抗凝药）",
         labelB = "NSAIDs / 阿司匹林",
@@ -30,9 +32,11 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("华法林", "warfarin"),
-        groupB = listOf("阿奇霉素", "azithromycin", "克拉霉素", "clarithromycin",
+        groupB = listOf(
+            "阿奇霉素", "azithromycin", "克拉霉素", "clarithromycin",
             "甲硝唑", "metronidazole", "氟康唑", "fluconazole",
-            "环丙沙星", "ciprofloxacin"),
+            "环丙沙星", "ciprofloxacin",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "华法林（抗凝药）",
         labelB = "某些抗感染药（大环内酯/唑类/喹诺酮）",
@@ -41,11 +45,19 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("单胺氧化酶抑制", "司来吉兰", "selegiline",
-            "苯乙肼", "phenelzine", "tranylcypromine"),
-        groupB = listOf("曲马多", "tramadol", "哌替啶", "pethidine",
+        groupA = listOf(
+            "单胺氧化酶抑制",
+            "司来吉兰",
+            "selegiline",
+            "苯乙肼",
+            "phenelzine",
+            "tranylcypromine",
+        ),
+        groupB = listOf(
+            "曲马多", "tramadol", "哌替啶", "pethidine",
             "芬太尼", "fentanyl", "右美沙芬", "dextromethorphan",
-            "镇痛药"),
+            "镇痛药",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "MAO 抑制剂",
         labelB = "阿片类 / 中枢镇痛药",
@@ -54,12 +66,19 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("单胺氧化酶抑制", "司来吉兰", "selegiline",
-            "苯乙肼", "phenelzine"),
-        groupB = listOf("氟西汀", "fluoxetine", "帕罗西汀", "paroxetine",
+        groupA = listOf(
+            "单胺氧化酶抑制",
+            "司来吉兰",
+            "selegiline",
+            "苯乙肼",
+            "phenelzine",
+        ),
+        groupB = listOf(
+            "氟西汀", "fluoxetine", "帕罗西汀", "paroxetine",
             "舍曲林", "sertraline", "文拉法辛", "venlafaxine",
             "度洛西汀", "duloxetine", "西酞普兰", "citalopram",
-            "抗抑郁"),
+            "抗抑郁",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "MAO 抑制剂",
         labelB = "抗抑郁药（SSRI/SNRI）",
@@ -68,10 +87,23 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("氯吡格雷", "clopidogrel", "替格瑞洛", "ticagrelor",
-            "普拉格雷", "prasugrel"),
-        groupB = listOf("奥美拉唑", "omeprazole", "埃索美拉唑", "esomeprazole",
-            "质子泵", "ppi", "治疗与胃酸分泌相关"),
+        groupA = listOf(
+            "氯吡格雷",
+            "clopidogrel",
+            "替格瑞洛",
+            "ticagrelor",
+            "普拉格雷",
+            "prasugrel",
+        ),
+        groupB = listOf(
+            "奥美拉唑",
+            "omeprazole",
+            "埃索美拉唑",
+            "esomeprazole",
+            "质子泵",
+            "ppi",
+            "治疗与胃酸分泌相关",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "P2Y12 抗血小板药",
         labelB = "质子泵抑制剂（PPI）",
@@ -81,9 +113,11 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("地高辛", "digoxin"),
-        groupB = listOf("阿奇霉素", "azithromycin", "克拉霉素", "clarithromycin",
+        groupB = listOf(
+            "阿奇霉素", "azithromycin", "克拉霉素", "clarithromycin",
             "红霉素", "erythromycin", "胺碘酮", "amiodarone",
-            "维拉帕米", "verapamil", "地尔硫", "diltiazem"),
+            "维拉帕米", "verapamil", "地尔硫", "diltiazem",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "地高辛",
         labelB = "大环内酯类 / 抗心律失常药",
@@ -93,9 +127,11 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("锂盐", "碳酸锂", "lithium"),
-        groupB = listOf("布洛芬", "ibuprofen", "萘普生", "naproxen",
+        groupB = listOf(
+            "布洛芬", "ibuprofen", "萘普生", "naproxen",
             "双氯芬酸", "diclofenac", "吲哚美辛", "indomethacin",
-            "抗炎和抗风湿", "非甾体"),
+            "抗炎和抗风湿", "非甾体",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "锂盐",
         labelB = "NSAIDs",
@@ -105,9 +141,11 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("甲氨蝶呤", "methotrexate"),
-        groupB = listOf("布洛芬", "ibuprofen", "萘普生", "naproxen",
+        groupB = listOf(
+            "布洛芬", "ibuprofen", "萘普生", "naproxen",
             "双氯芬酸", "diclofenac", "阿司匹林", "aspirin",
-            "抗炎和抗风湿", "非甾体"),
+            "抗炎和抗风湿", "非甾体",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "甲氨蝶呤",
         labelB = "NSAIDs",
@@ -116,10 +154,20 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("硝酸甘油", "单硝酸异山梨酯", "硝酸异山梨酯", "异山梨酯",
-            "nitroglycerin", "isosorbide", "硝酸酯", "抗心绞痛"),
-        groupB = listOf("西地那非", "sildenafil", "他达拉非", "tadalafil",
-            "伐地那非", "vardenafil", "阿伐那非", "avanafil", "pde5"),
+        groupA = listOf(
+            "硝酸甘油",
+            "单硝酸异山梨酯",
+            "硝酸异山梨酯",
+            "异山梨酯",
+            "nitroglycerin",
+            "isosorbide",
+            "硝酸酯",
+            "抗心绞痛",
+        ),
+        groupB = listOf(
+            "西地那非", "sildenafil", "他达拉非", "tadalafil",
+            "伐地那非", "vardenafil", "阿伐那非", "avanafil", "pde5",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "硝酸酯类",
         labelB = "PDE5 抑制剂",
@@ -129,10 +177,12 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("利奈唑胺", "linezolid"),
-        groupB = listOf("氟西汀", "fluoxetine", "帕罗西汀", "paroxetine",
+        groupB = listOf(
+            "氟西汀", "fluoxetine", "帕罗西汀", "paroxetine",
             "舍曲林", "sertraline", "文拉法辛", "venlafaxine",
             "度洛西汀", "duloxetine", "西酞普兰", "citalopram",
-            "抗抑郁"),
+            "抗抑郁",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "利奈唑胺",
         labelB = "SSRI / SNRI 抗抑郁药",
@@ -151,12 +201,16 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("阿片", "吗啡", "morphine", "羟考酮", "oxycodone",
+        groupA = listOf(
+            "阿片", "吗啡", "morphine", "羟考酮", "oxycodone",
             "芬太尼", "fentanyl", "曲马多", "tramadol", "可待因", "codeine",
-            "镇痛药"),
-        groupB = listOf("苯二氮", "地西泮", "diazepam", "劳拉西泮", "lorazepam",
+            "镇痛药",
+        ),
+        groupB = listOf(
+            "苯二氮", "地西泮", "diazepam", "劳拉西泮", "lorazepam",
             "阿普唑仑", "alprazolam", "艾司唑仑", "estazolam",
-            "唑吡坦", "zolpidem", "佐匹克隆", "zopiclone", "镇静催眠"),
+            "唑吡坦", "zolpidem", "佐匹克隆", "zopiclone", "镇静催眠",
+        ),
         severity = InteractionSeverity.HIGH,
         labelA = "阿片类镇痛药",
         labelB = "苯二氮䓬 / Z-drug 镇静催眠药",
@@ -167,11 +221,15 @@ private val RULES: List<InteractionRule> = listOf(
     // ── MODERATE ──────────────────────────────────────────────────────────────
 
     InteractionRule(
-        groupA = listOf("acei", "血管紧张素转换酶抑制", "卡托普利", "captopril",
+        groupA = listOf(
+            "acei", "血管紧张素转换酶抑制", "卡托普利", "captopril",
             "依那普利", "enalapril", "赖诺普利", "lisinopril",
-            "培哚普利", "perindopril"),
-        groupB = listOf("arb", "血管紧张素受体拮抗", "缬沙坦", "valsartan",
-            "厄贝沙坦", "irbesartan", "氯沙坦", "losartan", "坎地沙坦", "candesartan"),
+            "培哚普利", "perindopril",
+        ),
+        groupB = listOf(
+            "arb", "血管紧张素受体拮抗", "缬沙坦", "valsartan",
+            "厄贝沙坦", "irbesartan", "氯沙坦", "losartan", "坎地沙坦", "candesartan",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "ACEI",
         labelB = "ARB",
@@ -180,10 +238,14 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("acei", "arb", "血管紧张素转换酶抑制", "血管紧张素受体拮抗",
-            "卡托普利", "依那普利", "赖诺普利", "缬沙坦", "厄贝沙坦", "氯沙坦"),
-        groupB = listOf("氯化钾", "potassium chloride", "补钾", "钾片", "枸橼酸钾",
-            "保钾利尿", "螺内酯", "spironolactone", "阿米洛利", "amiloride"),
+        groupA = listOf(
+            "acei", "arb", "血管紧张素转换酶抑制", "血管紧张素受体拮抗",
+            "卡托普利", "依那普利", "赖诺普利", "缬沙坦", "厄贝沙坦", "氯沙坦",
+        ),
+        groupB = listOf(
+            "氯化钾", "potassium chloride", "补钾", "钾片", "枸橼酸钾",
+            "保钾利尿", "螺内酯", "spironolactone", "阿米洛利", "amiloride",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "ACEI/ARB",
         labelB = "补钾或保钾药",
@@ -192,13 +254,17 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("他汀", "statin", "辛伐他汀", "simvastatin",
+        groupA = listOf(
+            "他汀", "statin", "辛伐他汀", "simvastatin",
             "阿托伐他汀", "atorvastatin", "洛伐他汀", "lovastatin",
-            "血脂修正药"),
-        groupB = listOf("克拉霉素", "clarithromycin", "红霉素", "erythromycin",
+            "血脂修正药",
+        ),
+        groupB = listOf(
+            "克拉霉素", "clarithromycin", "红霉素", "erythromycin",
             "伊曲康唑", "itraconazole", "酮康唑", "ketoconazole",
             "氟康唑", "fluconazole", "胺碘酮", "amiodarone",
-            "环孢素", "cyclosporine"),
+            "环孢素", "cyclosporine",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "他汀类（调脂药）",
         labelB = "CYP3A4 强抑制剂",
@@ -207,11 +273,20 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("acei", "血管紧张素转换酶抑制", "卡托普利", "captopril",
+        groupA = listOf(
+            "acei", "血管紧张素转换酶抑制", "卡托普利", "captopril",
             "依那普利", "enalapril", "赖诺普利", "lisinopril",
-            "培哚普利", "perindopril"),
-        groupB = listOf("保钾利尿", "螺内酯", "spironolactone",
-            "阿米洛利", "amiloride", "氨苯蝶啶", "triamterene"),
+            "培哚普利", "perindopril",
+        ),
+        groupB = listOf(
+            "保钾利尿",
+            "螺内酯",
+            "spironolactone",
+            "阿米洛利",
+            "amiloride",
+            "氨苯蝶啶",
+            "triamterene",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "ACEI（降压药）",
         labelB = "保钾利尿剂",
@@ -220,12 +295,16 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("acei", "arb", "血管紧张素转换酶抑制", "血管紧张素受体拮抗",
+        groupA = listOf(
+            "acei", "arb", "血管紧张素转换酶抑制", "血管紧张素受体拮抗",
             "缬沙坦", "valsartan", "厄贝沙坦", "irbesartan",
-            "氯沙坦", "losartan", "坎地沙坦", "candesartan"),
-        groupB = listOf("布洛芬", "ibuprofen", "萘普生", "naproxen",
+            "氯沙坦", "losartan", "坎地沙坦", "candesartan",
+        ),
+        groupB = listOf(
+            "布洛芬", "ibuprofen", "萘普生", "naproxen",
             "双氯芬酸", "diclofenac", "吲哚美辛", "indomethacin",
-            "非甾体", "抗炎和抗风湿"),
+            "非甾体", "抗炎和抗风湿",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "ACEI/ARB（降压药）",
         labelB = "NSAIDs",
@@ -234,11 +313,15 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("氟喹诺酮", "左氧氟沙星", "levofloxacin",
+        groupA = listOf(
+            "氟喹诺酮", "左氧氟沙星", "levofloxacin",
             "环丙沙星", "ciprofloxacin", "莫西沙星", "moxifloxacin",
-            "诺氟沙星", "norfloxacin"),
-        groupB = listOf("钙", "钙剂", "铁", "铁剂", "镁", "铝",
-            "铝碳酸镁", "碳酸钙", "矿物质补充", "antacid", "碳酸镁"),
+            "诺氟沙星", "norfloxacin",
+        ),
+        groupB = listOf(
+            "钙", "钙剂", "铁", "铁剂", "镁", "铝",
+            "铝碳酸镁", "碳酸钙", "矿物质补充", "antacid", "碳酸镁",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "氟喹诺酮类抗生素",
         labelB = "钙/铁/镁等矿物质补充剂",
@@ -247,10 +330,18 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("四环素", "tetracycline", "多西环素", "doxycycline",
-            "米诺环素", "minocycline"),
-        groupB = listOf("钙", "钙剂", "铁", "铁剂", "镁", "铝",
-            "碳酸钙", "矿物质补充", "antacid"),
+        groupA = listOf(
+            "四环素",
+            "tetracycline",
+            "多西环素",
+            "doxycycline",
+            "米诺环素",
+            "minocycline",
+        ),
+        groupB = listOf(
+            "钙", "钙剂", "铁", "铁剂", "镁", "铝",
+            "碳酸钙", "矿物质补充", "antacid",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "四环素类抗生素",
         labelB = "钙/铁/镁等矿物质补充剂",
@@ -260,10 +351,12 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("胺碘酮", "amiodarone"),
-        groupB = listOf("β受体阻滞", "美托洛尔", "metoprolol", "阿替洛尔", "atenolol",
+        groupB = listOf(
+            "β受体阻滞", "美托洛尔", "metoprolol", "阿替洛尔", "atenolol",
             "比索洛尔", "bisoprolol", "普萘洛尔", "propranolol",
             "维拉帕米", "verapamil", "地尔硫", "diltiazem",
-            "心脏病治疗"),
+            "心脏病治疗",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "胺碘酮",
         labelB = "β 阻滞剂 / 非二氢吡啶 CCB",
@@ -282,10 +375,22 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("左甲状腺素", "levothyroxine", "优甲乐",
-            "甲状腺", "thyroid"),
-        groupB = listOf("钙", "钙剂", "铁", "铁剂", "铝",
-            "碳酸钙", "矿物质补充"),
+        groupA = listOf(
+            "左甲状腺素",
+            "levothyroxine",
+            "优甲乐",
+            "甲状腺",
+            "thyroid",
+        ),
+        groupB = listOf(
+            "钙",
+            "钙剂",
+            "铁",
+            "铁剂",
+            "铝",
+            "碳酸钙",
+            "矿物质补充",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "左甲状腺素",
         labelB = "钙/铁等矿物质补充剂",
@@ -295,8 +400,13 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("二甲双胍", "metformin", "糖尿病用药", "降糖"),
-        groupB = listOf("碘造影剂", "碘克沙醇", "碘普罗胺", "iodinated contrast",
-            "造影"),
+        groupB = listOf(
+            "碘造影剂",
+            "碘克沙醇",
+            "碘普罗胺",
+            "iodinated contrast",
+            "造影",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "二甲双胍",
         labelB = "含碘造影剂",
@@ -305,11 +415,21 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("磺脲类", "格列本脲", "glibenclamide",
+        groupA = listOf(
+            "磺脲类", "格列本脲", "glibenclamide",
             "格列美脲", "glimepiride", "格列吡嗪", "glipizide",
-            "格列齐特", "gliclazide"),
-        groupB = listOf("氟康唑", "fluconazole", "伏立康唑", "voriconazole",
-            "克拉霉素", "clarithromycin", "环丙沙星", "ciprofloxacin"),
+            "格列齐特", "gliclazide",
+        ),
+        groupB = listOf(
+            "氟康唑",
+            "fluconazole",
+            "伏立康唑",
+            "voriconazole",
+            "克拉霉素",
+            "clarithromycin",
+            "环丙沙星",
+            "ciprofloxacin",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "磺脲类降糖药",
         labelB = "某些抗感染药（唑类/大环内酯/喹诺酮）",
@@ -319,8 +439,14 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("茶碱", "theophylline", "氨茶碱", "aminophylline"),
-        groupB = listOf("环丙沙星", "ciprofloxacin", "依诺沙星", "enoxacin",
-            "氟伏沙明", "fluvoxamine"),
+        groupB = listOf(
+            "环丙沙星",
+            "ciprofloxacin",
+            "依诺沙星",
+            "enoxacin",
+            "氟伏沙明",
+            "fluvoxamine",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "茶碱类",
         labelB = "CYP1A2 抑制剂",
@@ -329,11 +455,20 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("卡马西平", "carbamazepine", "苯妥英", "phenytoin",
-            "利福平", "rifampicin", "rifampin"),
-        groupB = listOf("利伐沙班", "rivaroxaban", "阿哌沙班", "apixaban",
+        groupA = listOf(
+            "卡马西平",
+            "carbamazepine",
+            "苯妥英",
+            "phenytoin",
+            "利福平",
+            "rifampicin",
+            "rifampin",
+        ),
+        groupB = listOf(
+            "利伐沙班", "rivaroxaban", "阿哌沙班", "apixaban",
             "达比加群", "dabigatran", "依度沙班", "edoxaban",
-            "口服避孕", "炔雌醇", "ethinylestradiol"),
+            "口服避孕", "炔雌醇", "ethinylestradiol",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "强酶诱导剂",
         labelB = "DOAC / 口服避孕药",
@@ -343,8 +478,10 @@ private val RULES: List<InteractionRule> = listOf(
 
     InteractionRule(
         groupA = listOf("左旋多巴", "levodopa", "多巴丝肼", "卡左双多巴"),
-        groupB = listOf("氟哌啶醇", "haloperidol", "利培酮", "risperidone",
-            "奥氮平", "olanzapine", "喹硫平", "quetiapine", "抗精神病"),
+        groupB = listOf(
+            "氟哌啶醇", "haloperidol", "利培酮", "risperidone",
+            "奥氮平", "olanzapine", "喹硫平", "quetiapine", "抗精神病",
+        ),
         severity = InteractionSeverity.MODERATE,
         labelA = "左旋多巴类",
         labelB = "抗精神病药",
@@ -355,11 +492,19 @@ private val RULES: List<InteractionRule> = listOf(
     // ── LOW ───────────────────────────────────────────────────────────────────
 
     InteractionRule(
-        groupA = listOf("质子泵", "奥美拉唑", "omeprazole",
+        groupA = listOf(
+            "质子泵", "奥美拉唑", "omeprazole",
             "埃索美拉唑", "esomeprazole", "兰索拉唑", "lansoprazole",
-            "泮托拉唑", "pantoprazole", "治疗与胃酸分泌相关"),
-        groupB = listOf("铁", "铁剂", "硫酸亚铁", "ferrous sulfate",
-            "琥珀酸亚铁", "富马酸亚铁"),
+            "泮托拉唑", "pantoprazole", "治疗与胃酸分泌相关",
+        ),
+        groupB = listOf(
+            "铁",
+            "铁剂",
+            "硫酸亚铁",
+            "ferrous sulfate",
+            "琥珀酸亚铁",
+            "富马酸亚铁",
+        ),
         severity = InteractionSeverity.LOW,
         labelA = "质子泵抑制剂（PPI）",
         labelB = "铁剂",
@@ -378,8 +523,14 @@ private val RULES: List<InteractionRule> = listOf(
     ),
 
     InteractionRule(
-        groupA = listOf("辛伐他汀", "simvastatin", "阿托伐他汀", "atorvastatin",
-            "洛伐他汀", "lovastatin"),
+        groupA = listOf(
+            "辛伐他汀",
+            "simvastatin",
+            "阿托伐他汀",
+            "atorvastatin",
+            "洛伐他汀",
+            "lovastatin",
+        ),
         groupB = listOf("葡萄柚", "西柚", "grapefruit"),
         severity = InteractionSeverity.LOW,
         labelA = "部分他汀类",
@@ -402,9 +553,7 @@ private val RULES: List<InteractionRule> = listOf(
 // ─── 引擎 ─────────────────────────────────────────────────────────────────────
 
 @Singleton
-class InteractionRuleEngine @Inject constructor(
-    private val aliasNormalizer: DrugAliasNormalizer,
-) {
+class InteractionRuleEngine @Inject constructor(private val aliasNormalizer: DrugAliasNormalizer) {
 
     /**
      * 检测活跃药品列表中存在的相互作用。

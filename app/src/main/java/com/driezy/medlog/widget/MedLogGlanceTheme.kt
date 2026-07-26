@@ -31,19 +31,13 @@ internal data class MedLogWidgetAppearance(
     val sizing: WidgetSizing,
 )
 
-internal data class WidgetSizing(
-    val densityFactor: Float,
-    val textFactor: Float,
-) {
+internal data class WidgetSizing(val densityFactor: Float, val textFactor: Float) {
     fun dp(value: Int): Dp = (value * densityFactor).dp
     fun sp(value: Int): TextUnit = (value * textFactor).sp
 }
 
 @Composable
-internal fun MedLogGlanceTheme(
-    appearance: MedLogWidgetAppearance,
-    content: @Composable () -> Unit,
-) {
+internal fun MedLogGlanceTheme(appearance: MedLogWidgetAppearance, content: @Composable () -> Unit) {
     val context = LocalContext.current
     val systemDarkTheme = context.isSystemInNightMode()
     val darkTheme = when (appearance.themeMode) {
@@ -52,13 +46,21 @@ internal fun MedLogGlanceTheme(
         ThemeMode.SYSTEM -> systemDarkTheme
     }
     val colors = when {
-        appearance.themePalette.allowsDynamicColor && appearance.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && appearance.themeMode == ThemeMode.SYSTEM -> {
+        appearance.themePalette.allowsDynamicColor &&
+            appearance.useDynamicColor &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            appearance.themeMode == ThemeMode.SYSTEM -> {
             ColorProviders(dynamicLightColorScheme(context), dynamicDarkColorScheme(context))
         }
-        appearance.themePalette.allowsDynamicColor && appearance.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S && darkTheme -> {
+        appearance.themePalette.allowsDynamicColor &&
+            appearance.useDynamicColor &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S &&
+            darkTheme -> {
             ColorProviders(dynamicDarkColorScheme(context))
         }
-        appearance.themePalette.allowsDynamicColor && appearance.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+        appearance.themePalette.allowsDynamicColor &&
+            appearance.useDynamicColor &&
+            Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
             ColorProviders(dynamicLightColorScheme(context))
         }
         appearance.themeMode == ThemeMode.SYSTEM && appearance.themePalette == ThemePalette.ANSHIN -> {
@@ -79,13 +81,11 @@ internal fun MedLogGlanceTheme(
 private fun Context.isSystemInNightMode(): Boolean =
     resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK == Configuration.UI_MODE_NIGHT_YES
 
-internal fun Preferences.medLogThemeMode(): ThemeMode =
-    this[UserPreferencesRepository.THEME_MODE]
-        ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
-        ?: ThemeMode.SYSTEM
+internal fun Preferences.medLogThemeMode(): ThemeMode = this[UserPreferencesRepository.THEME_MODE]
+    ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
+    ?: ThemeMode.SYSTEM
 
-internal fun Preferences.medLogUseDynamicColor(): Boolean =
-    this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: true
+internal fun Preferences.medLogUseDynamicColor(): Boolean = this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: true
 
 internal fun Preferences.medLogThemePalette(): ThemePalette =
     ThemePalette.fromStoredName(this[UserPreferencesRepository.THEME_PALETTE])

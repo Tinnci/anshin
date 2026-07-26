@@ -25,8 +25,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -237,21 +237,19 @@ internal data class CloudAiEndpointPresetListPresentation(
     }
 }
 
-private fun String.normalizedEndpointUrl(): String =
-    trim().trimEnd('/').lowercase()
+private fun String.normalizedEndpointUrl(): String = trim().trimEnd('/').lowercase()
 
-private fun CloudAiEndpointProtocol.featuredPresetRanks(): Map<String, Int> =
-    when (this) {
-        CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> listOf(
-            "nvidia-nim",
-            "openai",
-            "openrouter",
-            "groq",
-            "lmstudio",
-            "ollama-local",
-        )
-        CloudAiEndpointProtocol.ANTHROPIC -> listOf("anthropic")
-    }.withIndex().associate { (index, id) -> id to index }
+private fun CloudAiEndpointProtocol.featuredPresetRanks(): Map<String, Int> = when (this) {
+    CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> listOf(
+        "nvidia-nim",
+        "openai",
+        "openrouter",
+        "groq",
+        "lmstudio",
+        "ollama-local",
+    )
+    CloudAiEndpointProtocol.ANTHROPIC -> listOf("anthropic")
+}.withIndex().associate { (index, id) -> id to index }
 
 private fun CloudAiEndpointPreset.toRow(normalizedCurrentBaseUrl: String): CloudAiEndpointPresetRowPresentation =
     CloudAiEndpointPresetRowPresentation(
@@ -264,10 +262,7 @@ private fun CloudAiEndpointPreset.toRow(normalizedCurrentBaseUrl: String): Cloud
     )
 
 @Composable
-private fun EndpointPresetRow(
-    row: CloudAiEndpointPresetRowPresentation,
-    onClick: () -> Unit,
-) {
+private fun EndpointPresetRow(row: CloudAiEndpointPresetRowPresentation, onClick: () -> Unit) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()

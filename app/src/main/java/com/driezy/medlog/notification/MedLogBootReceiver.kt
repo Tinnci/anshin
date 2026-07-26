@@ -23,7 +23,9 @@ class MedLogBootReceiver : BroadcastReceiver() {
                 Intent.ACTION_BOOT_COMPLETED,
                 AlarmManager.ACTION_SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED,
             )
-        ) return
+        ) {
+            return
+        }
         goAsyncSafe {
             // 设备重启或精确闹钟权限恢复后，重新为所有活跃药品调度多时间段提醒。
             val medications = repository.getActiveMedications().first()

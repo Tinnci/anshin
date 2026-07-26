@@ -1,10 +1,9 @@
 package com.driezy.medlog.ui
 
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.ui.navigation.Route
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -18,9 +17,7 @@ import javax.inject.Inject
  * 职责（SRP）：确定 NavHost 的初始目的地 + 全局功能开关。
  */
 @HiltViewModel
-class MedLogAppViewModel @Inject constructor(
-    prefsRepository: UserPreferencesRepository,
-) : BaseViewModel() {
+class MedLogAppViewModel @Inject constructor(prefsRepository: UserPreferencesRepository) : BaseViewModel() {
 
     val startDestination: StateFlow<Route?> = prefsRepository.settingsFlow
         .map { prefs -> if (prefs.hasSeenWelcome) Route.Home else Route.Welcome }

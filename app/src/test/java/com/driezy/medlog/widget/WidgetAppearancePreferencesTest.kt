@@ -1,8 +1,8 @@
 package com.driezy.medlog.widget
 
-import java.io.File
 import org.junit.Assert.assertTrue
 import org.junit.Test
+import java.io.File
 
 class WidgetAppearancePreferencesTest {
     private val projectRoot = generateSequence(File("").absoluteFile) { it.parentFile }

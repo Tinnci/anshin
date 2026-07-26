@@ -2,11 +2,7 @@ package com.driezy.medlog.ui.ocr
 
 import kotlin.math.roundToInt
 
-data class OcrRecognitionRegion(
-    val enabled: Boolean,
-    val widthFraction: Float,
-    val aspectRatio: Float,
-) {
+data class OcrRecognitionRegion(val enabled: Boolean, val widthFraction: Float, val aspectRatio: Float) {
     fun cropBounds(imageWidth: Int, imageHeight: Int): OcrCropBounds? {
         if (!enabled || imageWidth <= 0 || imageHeight <= 0) return null
 
@@ -39,9 +35,4 @@ data class OcrRecognitionRegion(
     }
 }
 
-data class OcrCropBounds(
-    val x: Int,
-    val y: Int,
-    val width: Int,
-    val height: Int,
-)
+data class OcrCropBounds(val x: Int, val y: Int, val width: Int, val height: Int)

@@ -49,6 +49,5 @@ class ErrorDetailPreservationGuardTest {
         assertTrue(webSocket.contains("onClosed(webSocket: WebSocket, code: Int, reason: String)"))
     }
 
-    private fun source(relativePath: String): String =
-        File("src/main/java/com/driezy/medlog/$relativePath").readText()
+    private fun source(relativePath: String): String = File("src/main/java/com/driezy/medlog/$relativePath").readText()
 }

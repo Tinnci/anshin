@@ -33,9 +33,8 @@ interface WidgetRefresher {
  * - [StreakWidget]   连续打卡天数
  */
 @Singleton
-class GlanceWidgetRefresher @Inject constructor(
-    @param:ApplicationContext private val context: Context,
-) : WidgetRefresher {
+class GlanceWidgetRefresher @Inject constructor(@param:ApplicationContext private val context: Context) :
+    WidgetRefresher {
     override suspend fun refreshAll() {
         runCatching { MedLogWidget().updateAll(context) }
             .onFailure { Log.w(TAG, "Failed to update MedLogWidget", it) }

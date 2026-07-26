@@ -1,8 +1,5 @@
 package com.driezy.medlog.ui.ocr
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.camera.core.Camera
@@ -51,6 +48,8 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.ViewfinderOverlay
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 import java.util.concurrent.Executors
 

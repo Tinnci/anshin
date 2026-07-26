@@ -12,9 +12,6 @@ interface TransactionRunner {
 }
 
 @Singleton
-class RoomTransactionRunner @Inject constructor(
-    private val db: MedLogDatabase,
-) : TransactionRunner {
-    override suspend fun <R> withTransaction(block: suspend () -> R): R =
-        db.withTransaction(block)
+class RoomTransactionRunner @Inject constructor(private val db: MedLogDatabase) : TransactionRunner {
+    override suspend fun <R> withTransaction(block: suspend () -> R): R = db.withTransaction(block)
 }

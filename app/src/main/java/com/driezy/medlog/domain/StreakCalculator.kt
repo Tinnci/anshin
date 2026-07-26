@@ -12,10 +12,7 @@ object StreakCalculator {
      * 计算以 [today] 结尾的当前 streak 天数。
      * 若今天不在 [daysWithActivity] 中，则从昨天开始向前计数（兼容"昨天已完成今天未服药"场景）。
      */
-    fun currentStreak(
-        daysWithActivity: Set<LocalDate>,
-        today: LocalDate = LocalDate.now(),
-    ): Int {
+    fun currentStreak(daysWithActivity: Set<LocalDate>, today: LocalDate = LocalDate.now()): Int {
         val startDay = if (today in daysWithActivity) today else today.minusDays(1)
         var count = 0
         var cursor = startDay

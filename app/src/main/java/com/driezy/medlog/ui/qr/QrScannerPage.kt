@@ -1,22 +1,14 @@
 package com.driezy.medlog.ui.qr
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
 import android.annotation.SuppressLint
-import androidx.activity.compose.rememberLauncherForActivityResult
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.result.PickVisualMediaRequest
-import kotlinx.coroutines.launch
 import android.os.Build
+import android.util.Log
+import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.annotation.RequiresExtension
-import androidx.photopicker.compose.EmbeddedPhotoPicker
-import androidx.photopicker.compose.EmbeddedPhotoPickerState
-import androidx.photopicker.compose.rememberEmbeddedPhotoPickerState
-import androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi
-import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
-import android.util.Log
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageAnalysis
 import androidx.camera.core.Preview
@@ -32,22 +24,28 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.hapticfeedback.HapticFeedbackType
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalContext
-import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.photopicker.compose.EmbeddedPhotoPicker
+import androidx.photopicker.compose.EmbeddedPhotoPickerState
+import androidx.photopicker.compose.ExperimentalPhotoPickerComposeApi
+import androidx.photopicker.compose.rememberEmbeddedPhotoPickerState
 import com.driezy.medlog.R
-import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.CameraGuidancePill
+import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.ViewfinderOverlay
-import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
 import com.google.mlkit.vision.common.InputImage
+import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
 private const val TAG = "QrScannerPage"
@@ -58,7 +56,11 @@ private const val TAG = "QrScannerPage"
  * @param onResult 成功扫描到有效二维码内容后回调（只触发一次）
  * @param onBack   用户按返回时回调
  */
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalPhotoPickerComposeApi::class)
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3ExpressiveApi::class,
+    ExperimentalPhotoPickerComposeApi::class,
+)
 @SuppressLint("NewApi") // Embedded picker calls are guarded by API 34 + U extension 15 below.
 @Composable
 fun QrScannerPage(
@@ -76,7 +78,7 @@ fun QrScannerPage(
 
     val isSupported = remember {
         Build.VERSION.SDK_INT >= Build.VERSION_CODES.UPSIDE_DOWN_CAKE &&
-                android.os.ext.SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
+            android.os.ext.SdkExtensions.getExtensionVersion(Build.VERSION_CODES.UPSIDE_DOWN_CAKE) >= 15
     }
 
     val pickerState = if (isSupported) {
@@ -125,7 +127,7 @@ fun QrScannerPage(
                     }
                 }
             }
-        }
+        },
     )
 
     // Process URIs selected in the EmbeddedPhotoPicker
@@ -182,8 +184,8 @@ fun QrScannerPage(
 
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = rememberBottomSheetState(
-            initialValue = SheetValue.PartiallyExpanded
-        )
+            initialValue = SheetValue.PartiallyExpanded,
+        ),
     )
 
     BottomSheetScaffold(
@@ -199,7 +201,7 @@ fun QrScannerPage(
                 ) {
                     SafeEmbeddedPhotoPicker(
                         state = pickerState,
-                        modifier = Modifier.fillMaxSize()
+                        modifier = Modifier.fillMaxSize(),
                     )
                 }
             } else {
@@ -218,13 +220,13 @@ fun QrScannerPage(
                     TextButton(
                         onClick = {
                             pickMediaLauncher.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly),
                             )
-                        }
+                        },
                     ) {
                         Text(stringResource(R.string.qr_scan_from_gallery))
                     }
-                }
+                },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -266,17 +268,17 @@ fun QrScannerPage(
                 val weight by animateFloatAsState(
                     targetValue = if (isScanned) 600f else 300f,
                     animationSpec = tween(durationMillis = 400),
-                    label = "weightAnim"
+                    label = "weightAnim",
                 )
                 val fill by animateFloatAsState(
                     targetValue = if (isScanned) 1f else 0f,
                     animationSpec = tween(durationMillis = 400),
-                    label = "fillAnim"
+                    label = "fillAnim",
                 )
                 val iconColor by animateColorAsState(
                     targetValue = if (isScanned) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
                     animationSpec = tween(durationMillis = 400),
-                    label = "colorAnim"
+                    label = "colorAnim",
                 )
 
                 CameraGuidancePill(
@@ -290,9 +292,9 @@ fun QrScannerPage(
                             weight = weight,
                             fill = fill,
                             color = iconColor,
-                            size = 18.sp
+                            size = 18.sp,
                         )
-                    }
+                    },
                 )
             }
         }
@@ -301,15 +303,11 @@ fun QrScannerPage(
 
 @SuppressLint("UnsafeOptInUsageError")
 @Composable
-private fun CameraPreview(
-    isScanned: Boolean,
-    modifier: Modifier = Modifier,
-    onQrScanned: (String) -> Unit,
-) {
-    val context        = LocalContext.current
+private fun CameraPreview(isScanned: Boolean, modifier: Modifier = Modifier, onQrScanned: (String) -> Unit) {
+    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
-    val executor       = remember { Executors.newSingleThreadExecutor() }
-    
+    val executor = remember { Executors.newSingleThreadExecutor() }
+
     // Using rememberUpdatedState to read the latest isScanned safely in the analyzer background thread.
     val currentIsScanned by rememberUpdatedState(isScanned)
 
@@ -323,7 +321,7 @@ private fun CameraPreview(
 
     LaunchedEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
-        val cameraProvider       = cameraProviderFuture.get()
+        val cameraProvider = cameraProviderFuture.get()
 
         val preview = Preview.Builder().build().also {
             it.surfaceProvider = previewView.surfaceProvider
@@ -379,10 +377,7 @@ private fun CameraPreview(
 @RequiresExtension(extension = Build.VERSION_CODES.UPSIDE_DOWN_CAKE, version = 15)
 @OptIn(ExperimentalPhotoPickerComposeApi::class)
 @Composable
-private fun SafeEmbeddedPhotoPicker(
-    state: EmbeddedPhotoPickerState,
-    modifier: Modifier
-) {
+private fun SafeEmbeddedPhotoPicker(state: EmbeddedPhotoPickerState, modifier: Modifier) {
     val featureInfo = remember {
         EmbeddedPhotoPickerFeatureInfo.Builder()
             .setAccentColor(0xFF4CAF50L) // Green scanning line color
@@ -392,6 +387,6 @@ private fun SafeEmbeddedPhotoPicker(
     EmbeddedPhotoPicker(
         state = state,
         embeddedPhotoPickerFeatureInfo = featureInfo,
-        modifier = modifier
+        modifier = modifier,
     )
 }

@@ -69,15 +69,14 @@ object AiCacheKeyBuilder {
         promptVersion: Int,
         inputHash: String,
         locale: String,
-    ): String =
-        listOf(
-            "kind=${kind.name}",
-            "provider=$provider",
-            "model=$model",
-            "promptVersion=$promptVersion",
-            "inputHash=$inputHash",
-            "locale=$locale",
-        ).joinToString("|")
+    ): String = listOf(
+        "kind=${kind.name}",
+        "provider=$provider",
+        "model=$model",
+        "promptVersion=$promptVersion",
+        "inputHash=$inputHash",
+        "locale=$locale",
+    ).joinToString("|")
 
     fun sha256(bytes: ByteArray): String {
         val digest = MessageDigest.getInstance("SHA-256").digest(bytes)

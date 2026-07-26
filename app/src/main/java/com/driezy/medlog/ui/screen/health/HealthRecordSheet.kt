@@ -1,61 +1,29 @@
 package com.driezy.medlog.ui.screen.health
 
-import com.driezy.medlog.ui.icons.MedLogIcon
-import com.driezy.medlog.ui.icons.MedLogIcons
-
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
-import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
-import androidx.compose.ui.graphics.drawscope.Stroke
-import androidx.compose.ui.graphics.nativeCanvas
-import androidx.compose.ui.graphics.toArgb
-import androidx.compose.ui.input.nestedscroll.nestedScroll
-import androidx.compose.ui.platform.LocalDensity
-import com.driezy.medlog.ui.theme.emphasizedTypography
-import com.driezy.medlog.ui.theme.MedLogSpacing
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.compose.ui.res.stringResource
 import com.driezy.medlog.R
-import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.domain.health.HealthInsight
-import com.driezy.medlog.domain.health.HealthInsightSeverity
-import com.driezy.medlog.domain.health.AiExecutionStatus
-import com.driezy.medlog.ui.components.AiInteractionStatusPill
 import com.driezy.medlog.ui.components.VoiceInputTrailingIcon
 import com.driezy.medlog.ui.components.messageText
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Date
 import java.util.Locale
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -89,7 +57,13 @@ internal fun AddEditHealthSheet(
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
             Text(
-                if (draft.editingId == null) stringResource(R.string.health_sheet_add_title) else stringResource(R.string.health_sheet_edit_title),
+                if (draft.editingId ==
+                    null
+                ) {
+                    stringResource(R.string.health_sheet_add_title)
+                } else {
+                    stringResource(R.string.health_sheet_edit_title)
+                },
                 style = MaterialTheme.emphasizedTypography.titleLarge,
             )
 
@@ -100,17 +74,20 @@ internal fun AddEditHealthSheet(
             )
 
             // ── 类型选择器 ─────────────────────────────────────────────
-            Text(stringResource(R.string.health_type_selector_label), style = MaterialTheme.typography.labelMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(
+                stringResource(R.string.health_type_selector_label),
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
             Row(
                 modifier = Modifier.horizontalScroll(rememberScrollState()),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 HealthType.entries.forEach { type ->
                     FilterChip(
-                        selected    = draft.type == type,
-                        onClick     = { onTypeChange(type) },
-                        label       = { Text(stringResource(type.labelRes)) },
+                        selected = draft.type == type,
+                        onClick = { onTypeChange(type) },
+                        label = { Text(stringResource(type.labelRes)) },
                         leadingIcon = {
                             MedLogIcon(healthTypeIcon(type), null, Modifier.size(16.dp))
                         },
@@ -155,7 +132,14 @@ internal fun AddEditHealthSheet(
                     supportingText = {
                         val type = draft.type
                         if (type != HealthType.WEIGHT) {
-                            Text(stringResource(R.string.health_normal_range, type.normalMin.toString(), type.normalMax.toString(), type.unit))
+                            Text(
+                                stringResource(
+                                    R.string.health_normal_range,
+                                    type.normalMin.toString(),
+                                    type.normalMax.toString(),
+                                    type.unit,
+                                ),
+                            )
                         }
                     },
                 )
@@ -201,8 +185,8 @@ internal fun AddEditHealthSheet(
                 val isValid = draft.value.toDoubleOrNull() != null &&
                     (draft.type != HealthType.BLOOD_PRESSURE || draft.secondaryValue.toDoubleOrNull() != null)
                 Button(
-                    onClick  = onSave,
-                    enabled  = isValid,
+                    onClick = onSave,
+                    enabled = isValid,
                     modifier = Modifier.weight(2f),
                 ) { Text(stringResource(R.string.common_action_save)) }
             }
@@ -214,10 +198,7 @@ internal fun AddEditHealthSheet(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun HealthTimePicker(
-    timestampMs: Long,
-    onTimeChange: (Long) -> Unit,
-) {
+private fun HealthTimePicker(timestampMs: Long, onTimeChange: (Long) -> Unit) {
     val cal = remember(timestampMs) { Calendar.getInstance().apply { timeInMillis = timestampMs } }
     val dateFmt = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
     val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }

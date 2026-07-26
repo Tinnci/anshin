@@ -1,10 +1,13 @@
 package com.driezy.medlog.ui.screen.welcome
 
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.data.model.RoutineSchedule
+import com.driezy.medlog.data.model.RoutineTime
+import com.driezy.medlog.data.model.RoutineTimeSlot
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.data.repository.routineSchedule
+import com.driezy.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -15,11 +18,7 @@ import javax.inject.Inject
 
 data class WelcomeUiState(
     // 作息时间（用于第3页快速设置）
-    val wakeHour: Int = 7,      val wakeMinute: Int = 0,
-    val breakfastHour: Int = 8, val breakfastMinute: Int = 0,
-    val lunchHour: Int = 12,    val lunchMinute: Int = 0,
-    val dinnerHour: Int = 18,   val dinnerMinute: Int = 0,
-    val bedHour: Int = 22,      val bedMinute: Int = 0,
+    val routineSchedule: RoutineSchedule = RoutineSchedule(),
     // 功能开关（第5页选择）
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
@@ -34,9 +33,7 @@ data class WelcomeUiState(
 )
 
 @HiltViewModel
-class WelcomeViewModel @Inject constructor(
-    private val prefsRepository: UserPreferencesRepository,
-) : BaseViewModel() {
+class WelcomeViewModel @Inject constructor(private val prefsRepository: UserPreferencesRepository) : BaseViewModel() {
 
     private val _uiState = MutableStateFlow(WelcomeUiState())
     val uiState: StateFlow<WelcomeUiState> = _uiState.asStateFlow()
@@ -46,30 +43,21 @@ class WelcomeViewModel @Inject constructor(
         viewModelScope.launch {
             val prefs = prefsRepository.settingsFlow.first()
             _uiState.value = WelcomeUiState(
-                wakeHour      = prefs.wakeHour,      wakeMinute      = prefs.wakeMinute,
-                breakfastHour = prefs.breakfastHour, breakfastMinute = prefs.breakfastMinute,
-                lunchHour     = prefs.lunchHour,     lunchMinute     = prefs.lunchMinute,
-                dinnerHour    = prefs.dinnerHour,    dinnerMinute    = prefs.dinnerMinute,
-                bedHour       = prefs.bedHour,       bedMinute       = prefs.bedMinute,
-                enableSymptomDiary         = prefs.enableSymptomDiary,
+                routineSchedule = prefs.routineSchedule(),
+                enableSymptomDiary = prefs.enableSymptomDiary,
                 enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
-                enableDrugDatabase         = prefs.enableDrugDatabase,
-                enableHealthModule         = prefs.enableHealthModule,
-                enableTimePeriodMode      = prefs.enableTimePeriodMode,
-                themeMode                  = prefs.themeMode,
+                enableDrugDatabase = prefs.enableDrugDatabase,
+                enableHealthModule = prefs.enableHealthModule,
+                enableTimePeriodMode = prefs.enableTimePeriodMode,
+                themeMode = prefs.themeMode,
             )
         }
     }
 
-    fun onTimeChange(field: String, hour: Int, minute: Int) {
-        _uiState.value = when (field) {
-            "wake"      -> _uiState.value.copy(wakeHour = hour,      wakeMinute = minute)
-            "breakfast" -> _uiState.value.copy(breakfastHour = hour, breakfastMinute = minute)
-            "lunch"     -> _uiState.value.copy(lunchHour = hour,     lunchMinute = minute)
-            "dinner"    -> _uiState.value.copy(dinnerHour = hour,    dinnerMinute = minute)
-            "bed"       -> _uiState.value.copy(bedHour = hour,       bedMinute = minute)
-            else        -> _uiState.value
-        }
+    fun onTimeChange(slot: RoutineTimeSlot, time: RoutineTime) {
+        _uiState.value = _uiState.value.copy(
+            routineSchedule = _uiState.value.routineSchedule.withTime(slot, time),
+        )
     }
 
     fun onToggleSymptomDiary(enabled: Boolean) {
@@ -100,16 +88,12 @@ class WelcomeViewModel @Inject constructor(
     fun finishWelcome() {
         viewModelScope.launch {
             val s = _uiState.value
-            prefsRepository.updateRoutineTime("wake",      s.wakeHour,      s.wakeMinute)
-            prefsRepository.updateRoutineTime("breakfast", s.breakfastHour, s.breakfastMinute)
-            prefsRepository.updateRoutineTime("lunch",     s.lunchHour,     s.lunchMinute)
-            prefsRepository.updateRoutineTime("dinner",    s.dinnerHour,    s.dinnerMinute)
-            prefsRepository.updateRoutineTime("bed",       s.bedHour,       s.bedMinute)
+            prefsRepository.updateRoutineSchedule(s.routineSchedule)
             prefsRepository.updateFeatureFlags(
-                enableSymptomDiary   = s.enableSymptomDiary,
+                enableSymptomDiary = s.enableSymptomDiary,
                 enableDrugInteraction = s.enableDrugInteractionCheck,
-                enableDrugDatabase   = s.enableDrugDatabase,
-                enableHealthModule   = s.enableHealthModule,
+                enableDrugDatabase = s.enableDrugDatabase,
+                enableHealthModule = s.enableHealthModule,
                 enableTimePeriodMode = s.enableTimePeriodMode,
             )
             prefsRepository.updateThemeMode(s.themeMode)

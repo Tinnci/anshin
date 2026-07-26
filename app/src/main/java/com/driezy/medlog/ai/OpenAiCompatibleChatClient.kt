@@ -3,16 +3,16 @@ package com.driezy.medlog.ai
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.add
 import kotlinx.serialization.json.buildJsonArray
 import kotlinx.serialization.json.buildJsonObject
-import kotlinx.serialization.json.add
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
 
 class OpenAiCompatibleChatClient(
@@ -45,16 +45,15 @@ class OpenAiCompatibleChatClient(
         return parseResponse(response.body)
     }
 
-    private fun headers(): Map<String, String> =
-        buildMap {
-            put("Content-Type", "application/json")
-            apiKey?.takeIf { it.isNotBlank() }?.let { key ->
-                when (authMode) {
-                    OpenAiAuthMode.API_KEY_HEADER -> put("api-key", key)
-                    OpenAiAuthMode.BEARER -> put("Authorization", "Bearer $key")
-                }
+    private fun headers(): Map<String, String> = buildMap {
+        put("Content-Type", "application/json")
+        apiKey?.takeIf { it.isNotBlank() }?.let { key ->
+            when (authMode) {
+                OpenAiAuthMode.API_KEY_HEADER -> put("api-key", key)
+                OpenAiAuthMode.BEARER -> put("Authorization", "Bearer $key")
             }
         }
+    }
 
     private fun endpointUrl(): String {
         val normalized = baseUrl.trimEnd('/')
@@ -65,50 +64,48 @@ class OpenAiCompatibleChatClient(
         }
     }
 
-    private fun AiChatRequest.toOpenAiRequest(): OpenAiChatRequest =
-        OpenAiChatRequest(
-            model = model,
-            messages = messages.map {
-                OpenAiChatMessage(
-                    role = it.role.wireName,
-                    content = it.toOpenAiContent(),
-                )
-            },
-            temperature = temperature,
-            maxTokens = maxOutputTokens.takeIf {
-                maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_TOKENS
-            },
-            maxCompletionTokens = maxOutputTokens.takeIf {
-                maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_COMPLETION_TOKENS
-            },
-        )
+    private fun AiChatRequest.toOpenAiRequest(): OpenAiChatRequest = OpenAiChatRequest(
+        model = model,
+        messages = messages.map {
+            OpenAiChatMessage(
+                role = it.role.wireName,
+                content = it.toOpenAiContent(),
+            )
+        },
+        temperature = temperature,
+        maxTokens = maxOutputTokens.takeIf {
+            maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_TOKENS
+        },
+        maxCompletionTokens = maxOutputTokens.takeIf {
+            maxOutputTokensParameter == OpenAiMaxOutputTokensParameter.MAX_COMPLETION_TOKENS
+        },
+    )
 
-    private fun AiChatMessage.toOpenAiContent(): JsonElement =
-        parts?.let { contentParts ->
-            buildJsonArray {
-                contentParts.forEach { part ->
-                    when (part) {
-                        is AiChatContentPart.Text -> add(
-                            buildJsonObject {
-                                put("type", "text")
-                                put("text", part.text)
-                            },
-                        )
-                        is AiChatContentPart.ImageBytes -> add(
-                            buildJsonObject {
-                                put("type", "image_url")
-                                put(
-                                    "image_url",
-                                    buildJsonObject {
-                                        put("url", part.dataUrl)
-                                    },
-                                )
-                            },
-                        )
-                    }
+    private fun AiChatMessage.toOpenAiContent(): JsonElement = parts?.let { contentParts ->
+        buildJsonArray {
+            contentParts.forEach { part ->
+                when (part) {
+                    is AiChatContentPart.Text -> add(
+                        buildJsonObject {
+                            put("type", "text")
+                            put("text", part.text)
+                        },
+                    )
+                    is AiChatContentPart.ImageBytes -> add(
+                        buildJsonObject {
+                            put("type", "image_url")
+                            put(
+                                "image_url",
+                                buildJsonObject {
+                                    put("url", part.dataUrl)
+                                },
+                            )
+                        },
+                    )
                 }
             }
-        } ?: JsonPrimitive(content)
+        }
+    } ?: JsonPrimitive(content)
 
     private fun parseResponse(body: String): AiChatResponse {
         val parsed = runCatching { json.decodeFromString<OpenAiChatResponse>(body) }
@@ -141,20 +138,19 @@ class OpenAiCompatibleChatClient(
         )
     }
 
-    private fun OpenAiResponseMessage.extractText(): String =
-        when (val value = content) {
-            JsonNull -> ""
-            is JsonPrimitive -> value.content
-            is JsonArray -> value.joinToString(separator = "") { part ->
-                val obj = part as? JsonObject ?: return@joinToString ""
-                when ((obj["type"] as? JsonPrimitive)?.content) {
-                    "text" -> obj["text"]?.jsonPrimitive?.content.orEmpty()
-                    "refusal" -> obj["refusal"]?.jsonPrimitive?.content.orEmpty()
-                    else -> ""
-                }
+    private fun OpenAiResponseMessage.extractText(): String = when (val value = content) {
+        JsonNull -> ""
+        is JsonPrimitive -> value.content
+        is JsonArray -> value.joinToString(separator = "") { part ->
+            val obj = part as? JsonObject ?: return@joinToString ""
+            when ((obj["type"] as? JsonPrimitive)?.content) {
+                "text" -> obj["text"]?.jsonPrimitive?.content.orEmpty()
+                "refusal" -> obj["refusal"]?.jsonPrimitive?.content.orEmpty()
+                else -> ""
             }
-            else -> ""
         }
+        else -> ""
+    }
 
     @Serializable
     private data class OpenAiChatRequest(
@@ -168,10 +164,7 @@ class OpenAiCompatibleChatClient(
     )
 
     @Serializable
-    private data class OpenAiChatMessage(
-        val role: String,
-        val content: JsonElement,
-    )
+    private data class OpenAiChatMessage(val role: String, val content: JsonElement)
 
     @Serializable
     private data class OpenAiChatResponse(
@@ -205,12 +198,11 @@ class OpenAiCompatibleChatClient(
         @SerialName("total_tokens")
         val totalTokens: Int? = null,
     ) {
-        fun toUsage(): AiTokenUsage =
-            AiTokenUsage(
-                promptTokens = promptTokens,
-                completionTokens = completionTokens,
-                totalTokens = totalTokens,
-            )
+        fun toUsage(): AiTokenUsage = AiTokenUsage(
+            promptTokens = promptTokens,
+            completionTokens = completionTokens,
+            totalTokens = totalTokens,
+        )
     }
 
     private companion object {

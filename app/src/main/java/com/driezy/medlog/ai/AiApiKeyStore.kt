@@ -17,11 +17,9 @@ class InMemoryAiApiKeyStore : AiApiKeyStore {
 
     override val availableProviders: StateFlow<Set<CloudAiProvider>> = _availableProviders
 
-    override fun hasApiKey(provider: CloudAiProvider): Boolean =
-        !keys[provider].isNullOrBlank()
+    override fun hasApiKey(provider: CloudAiProvider): Boolean = !keys[provider].isNullOrBlank()
 
-    override suspend fun getApiKey(provider: CloudAiProvider): String? =
-        keys[provider]?.takeIf { it.isNotBlank() }
+    override suspend fun getApiKey(provider: CloudAiProvider): String? = keys[provider]?.takeIf { it.isNotBlank() }
 
     override suspend fun setApiKey(provider: CloudAiProvider, apiKey: String) {
         val trimmed = apiKey.trim()

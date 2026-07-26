@@ -1,10 +1,9 @@
 package com.driezy.medlog.ui.screen.symptom
 
-import androidx.lifecycle.ViewModel
-import com.driezy.medlog.ui.BaseViewModel
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.SymptomLog
 import com.driezy.medlog.data.repository.SymptomRepository
+import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.VoiceInputEvent
 import com.driezy.medlog.voice.VoiceInputPhase
@@ -26,8 +25,8 @@ import javax.inject.Inject
 // ─── Dialog 草稿状态 ───────────────────────────────────────────────────────────
 
 data class DiaryDraftState(
-    val editingId: Long? = null,           // null = 新建；非 null = 编辑
-    val rating: Int = 3,                   // 1–5
+    val editingId: Long? = null, // null = 新建；非 null = 编辑
+    val rating: Int = 3, // 1–5
     val symptoms: Set<String> = emptySet(),
     val customSymptom: String = "",
     val sideEffects: Set<String> = emptySet(),
@@ -55,15 +54,15 @@ class SymptomDiaryViewModel @Inject constructor(
     private val voiceInputController: VoiceInputController,
 ) : BaseViewModel() {
 
-    private val _dialogState = MutableStateFlow<Pair<Boolean, DiaryDraftState>>(false to DiaryDraftState())
-    private val _voiceInputState = MutableStateFlow(VoiceInputUiState())
+    private val dialogStateFlow = MutableStateFlow<Pair<Boolean, DiaryDraftState>>(false to DiaryDraftState())
+    private val voiceInputStateFlow = MutableStateFlow(VoiceInputUiState())
     private var acceptsVoiceInput = false
     private var transcriptAppender: VoiceTranscriptAppender? = null
 
     val uiState = combine(
         repo.getAllLogs(),
-        _dialogState,
-        _voiceInputState,
+        dialogStateFlow,
+        voiceInputStateFlow,
     ) { logs, (showDialog, draft), voiceInput ->
         SymptomDiaryUiState(
             logs = logs,
@@ -83,21 +82,23 @@ class SymptomDiaryViewModel @Inject constructor(
             voiceInputController.events.collect { event ->
                 if (!acceptsVoiceInput) return@collect
                 when (event) {
-                    VoiceInputEvent.Connecting -> _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.CONNECTING)
+                    VoiceInputEvent.Connecting ->
+                        voiceInputStateFlow.value =
+                            VoiceInputUiState(VoiceInputPhase.CONNECTING)
                     VoiceInputEvent.Listening -> {
-                        transcriptAppender = VoiceTranscriptAppender(_dialogState.value.second.note)
-                        _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.LISTENING)
+                        transcriptAppender = VoiceTranscriptAppender(dialogStateFlow.value.second.note)
+                        voiceInputStateFlow.value = VoiceInputUiState(VoiceInputPhase.LISTENING)
                     }
                     VoiceInputEvent.Stopped -> {
                         acceptsVoiceInput = false
                         transcriptAppender = null
-                        _voiceInputState.value = VoiceInputUiState()
+                        voiceInputStateFlow.value = VoiceInputUiState()
                     }
                     is VoiceInputEvent.Transcript -> applyVoiceTranscript(event)
                     is VoiceInputEvent.Failed -> {
                         acceptsVoiceInput = false
                         transcriptAppender = null
-                        _voiceInputState.value = VoiceInputUiState(
+                        voiceInputStateFlow.value = VoiceInputUiState(
                             phase = VoiceInputPhase.ERROR,
                             error = event.error,
                             detail = event.detail,
@@ -111,13 +112,13 @@ class SymptomDiaryViewModel @Inject constructor(
     // ── 打开新建 Dialog ──────────────────────────────────────────────────────
 
     fun startAdd() {
-        _dialogState.update { _ -> true to DiaryDraftState() }
+        dialogStateFlow.update { _ -> true to DiaryDraftState() }
     }
 
     // ── 打开编辑 Dialog ──────────────────────────────────────────────────────
 
     fun startEdit(log: SymptomLog) {
-        _dialogState.update { _ ->
+        dialogStateFlow.update { _ ->
             true to DiaryDraftState(
                 editingId = log.id,
                 rating = log.overallRating,
@@ -135,7 +136,7 @@ class SymptomDiaryViewModel @Inject constructor(
     fun dismissDialog() {
         voiceInputController.stop()
         acceptsVoiceInput = false
-        _dialogState.update { (_, draft) -> false to draft }
+        dialogStateFlow.update { (_, draft) -> false to draft }
     }
 
     // ── 草稿字段更新 ─────────────────────────────────────────────────────────
@@ -174,7 +175,7 @@ class SymptomDiaryViewModel @Inject constructor(
 
     fun startVoiceInput() {
         acceptsVoiceInput = true
-        _voiceInputState.value = VoiceInputUiState(VoiceInputPhase.CONNECTING)
+        voiceInputStateFlow.value = VoiceInputUiState(VoiceInputPhase.CONNECTING)
         voiceInputController.start()
     }
 
@@ -186,7 +187,7 @@ class SymptomDiaryViewModel @Inject constructor(
     // ── 保存 ─────────────────────────────────────────────────────────────────
 
     fun saveLog() {
-        val draft = _dialogState.value.second
+        val draft = dialogStateFlow.value.second
         safeLaunch {
             voiceInputController.stop()
             if (draft.editingId == null) {
@@ -228,17 +229,17 @@ class SymptomDiaryViewModel @Inject constructor(
     // ── 私有帮助函数 ─────────────────────────────────────────────────────────
 
     private fun updateDraft(transform: (DiaryDraftState) -> DiaryDraftState) {
-        _dialogState.update { (show, draft) -> show to transform(draft) }
+        dialogStateFlow.update { (show, draft) -> show to transform(draft) }
     }
 
     private fun applyVoiceTranscript(event: VoiceInputEvent.Transcript) {
-        val appender = transcriptAppender ?: VoiceTranscriptAppender(_dialogState.value.second.note).also {
+        val appender = transcriptAppender ?: VoiceTranscriptAppender(dialogStateFlow.value.second.note).also {
             transcriptAppender = it
         }
         val nextNote = if (event.isFinal) {
-            appender.commit(event.text, insertSeparator = _dialogState.value.second.note.isNotBlank())
+            appender.commit(event.text, insertSeparator = dialogStateFlow.value.second.note.isNotBlank())
         } else {
-            appender.preview(event.text, insertSeparator = _dialogState.value.second.note.isNotBlank())
+            appender.preview(event.text, insertSeparator = dialogStateFlow.value.second.note.isNotBlank())
         }
         updateDraft { it.copy(note = nextNote) }
     }

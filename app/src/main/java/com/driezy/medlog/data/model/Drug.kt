@@ -5,11 +5,11 @@ package com.driezy.medlog.data.model
  */
 data class Drug(
     val name: String,
-    val category: String,           // 顶级分类，如"消化道及代谢"
-    val fullPath: String = "",      // 主分类路径（第一条路径）
+    val category: String, // 顶级分类，如"消化道及代谢"
+    val fullPath: String = "", // 主分类路径（第一条路径）
     val allPaths: List<String> = emptyList(), // 全部分类路径（复方/多效药可能有多条）
     val isTcm: Boolean = false,
-    val initial: String = "#",      // 拼音首字母 (A-Z or #)
+    val initial: String = "#", // 拼音首字母 (A-Z or #)
     val aliases: List<String> = emptyList(),
     val semanticTags: List<String> = emptyList(),
     val isCompound: Boolean = false,
@@ -26,11 +26,11 @@ data class Drug(
         if (query.isEmpty()) return true
         val q = query.lowercase()
         return nameLower.contains(q) ||
-               categoryLower.contains(q) ||
-               fullPath.lowercase().contains(q) ||
-               allPathsLower.any { it.contains(q) } ||
-               aliasesLower.any { it.contains(q) } ||
-               semanticTagsLower.any { it.contains(q) }
+            categoryLower.contains(q) ||
+            fullPath.lowercase().contains(q) ||
+            allPathsLower.any { it.contains(q) } ||
+            aliasesLower.any { it.contains(q) } ||
+            semanticTagsLower.any { it.contains(q) }
     }
 
     /**
@@ -84,7 +84,7 @@ data class Drug(
  */
 private fun bigramSimilarity(a: String, b: String): Float {
     if (a.isEmpty() || b.isEmpty()) return 0f
-    val n = if (a.any { it.code > 0x00FF }) 1 else 2   // 中文用 unigram，英文用 bigram
+    val n = if (a.any { it.code > 0x00FF }) 1 else 2 // 中文用 unigram，英文用 bigram
     val aSet = a.windowed(n, 1, partialWindows = false).toSet().ifEmpty { setOf(a) }
     val bSet = b.windowed(n, 1, partialWindows = false).toSet().ifEmpty { setOf(b) }
     val intersection = aSet.intersect(bSet).size

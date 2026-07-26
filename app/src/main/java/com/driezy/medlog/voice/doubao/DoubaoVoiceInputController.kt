@@ -25,7 +25,6 @@ import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -154,7 +153,10 @@ class DoubaoVoiceInputController @Inject constructor(
         } finally {
             val elapsed = System.currentTimeMillis() - startedAt
             if (sequencer.sentFrameCount > 0) {
-                encoder.encode(ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES), endOfStream = true)?.let { opusFrame ->
+                encoder.encode(
+                    ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES),
+                    endOfStream = true,
+                )?.let { opusFrame ->
                     socket.sendAudio(sequencer.last(opusFrame, elapsed))
                 }
                 finishSocket(socket)
@@ -199,7 +201,8 @@ class DoubaoVoiceInputController @Inject constructor(
     }
 
     private fun hasMicrophonePermission(): Boolean =
-        ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) == PackageManager.PERMISSION_GRANTED
+        ContextCompat.checkSelfPermission(context, Manifest.permission.RECORD_AUDIO) ==
+            PackageManager.PERMISSION_GRANTED
 
     private fun hasNetwork(): Boolean {
         val manager = ContextCompat.getSystemService(context, ConnectivityManager::class.java) ?: return true
