@@ -42,6 +42,9 @@ jobs:
           cache-cleanup: on-success
           cache-read-only: ${{ github.event_name == 'pull_request' || github.ref != 'refs/heads/main' }}
 
+      - name: Verify generated Room schemas are committed
+        run: bash scripts/verify-room-schema.sh
+
       - name: Verify and build Debug APK
         run: ./gradlew ktlintCheck testDebugUnitTest lintDebug assembleDebug --build-cache --configuration-cache --stacktrace
 

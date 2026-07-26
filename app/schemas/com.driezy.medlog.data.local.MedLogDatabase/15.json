@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 15,
-    "identityHash": "9d4317174e33514342816d367e3bb2d6",
+    "identityHash": "1518366b3974772a890bdde2af95ac91",
     "entities": [
       {
         "tableName": "medications",
@@ -719,7 +719,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '9d4317174e33514342816d367e3bb2d6')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '1518366b3974772a890bdde2af95ac91')"
     ]
   }
 }

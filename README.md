@@ -99,6 +99,9 @@ helping users track daily medication, manage inventory, and stay on schedule wit
   Expressive, color roles, icons, carousel usage, and editorial treatment.
 - [AI health intelligence plan](docs/ai-health-intelligence-plan.md): product
   decisions, safety constraints, implementation review, and follow-up plan.
+- [Architecture governance](docs/architecture-governance.md): ranked
+  deepening candidates, reproduced failures, product invariants, and
+  verification gates.
 - [Material Symbols usage](docs/material-symbols.md): local VectorDrawable
   source, update workflow, and icon rules.
 - [UI design and QA archive](docs/ui-qa/README.md): curated visual references,

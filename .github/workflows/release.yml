@@ -99,6 +99,9 @@ jobs:
           echo "KEYSTORE_PATH=${{ github.workspace }}/keystore.jks" >> "$GITHUB_ENV"
 
       # ── 5. 最终验证并构建 Release APK ─────────────────────────
+      - name: Verify generated Room schemas are committed
+        run: bash scripts/verify-room-schema.sh
+
       - name: Verify and build Release APK
         run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease -PenableAbiSplits=true --build-cache --configuration-cache --stacktrace
         env:
