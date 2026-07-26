@@ -30,6 +30,33 @@ An architecture change must make a module deeper: callers receive a smaller
 interface while more policy moves behind it. Package moves, forwarding
 repositories, and one-method wrappers do not count.
 
+## Documentation maintenance standard
+
+The attainable standard is **current enough to act on, traceable enough to
+challenge, and small enough to maintain**:
+
+1. Keep one authoritative home for each durable fact. Other documents link to
+   it instead of copying tables, commands, generated output, or policy.
+2. Separate invariants and decisions from dated evidence. Evidence records its
+   verification date and the file, command, test, release, or primary source
+   that can reproduce it.
+3. Prefer generated artifacts and deterministic verification over hand-copied
+   snapshots. Commit generated compatibility artifacts only when review or
+   runtime compatibility requires them.
+4. A code change updates affected durable documentation in the same commit, or
+   confirms that no documented invariant, interface, procedure, or evidence
+   changed. Historical measurements remain dated; they are not presented as
+   current state.
+5. Delete superseded instructions and duplicate explanations when replacing
+   them. Git history is the archive; the maintained tree describes the current
+   contract and explicitly retained history.
+6. Review the ranked backlog after each resolved item and refresh this
+   document's `Snapshot` when its evidence or ordering changes. “Resolved”
+   requires named verification and removal of redundant code or knowledge.
+
+This standard intentionally does not require prose churn on every commit.
+Documentation changes when a reader's next decision would otherwise be wrong.
+
 ## Ranked backlog
 
 | ID | Priority | State | Capability | Confirmed evidence | Next gate |
@@ -278,6 +305,24 @@ remain in `:app` until their seams are proven.
   ordering, range, conflict, validation, or recovery policy.
 - Exit: real Room adapters and fast fakes pass the same semantic contract;
   entity CRUD mirrors and caller-owned transactions are deleted.
+
+## Resolved reductions
+
+### AI-ADK-1 — redundant request/response round trip
+
+Resolved 2026-07-26.
+
+- Evidence: `AdkAiChatClient` converted each local request to ADK types, while
+  `ProtocolBackedAdkModel` immediately converted it back to the original local
+  interface before calling the real protocol Adapter. Responses made the same
+  round trip. No Agent runner, session, tool, memory, or model Adapter used the
+  ADK runtime.
+- Resolution: delete the shallow Module, its unused dependency tree, packaging
+  workarounds, and three source-shape tests.
+- Verification: all AI protocol tests pass. A clean APK has 66,460 fewer
+  defined DEX methods and 5,527,421 fewer DEX bytes. The transitive trust-all
+  certificate utility had no APK call site; it and both lint warnings are now
+  absent rather than suppressed.
 
 ## Room migration governance
 

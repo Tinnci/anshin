@@ -87,12 +87,6 @@ android {
         compose = true
         buildConfig = true
     }
-    packaging {
-        resources {
-            excludes += "/META-INF/INDEX.LIST"
-            excludes += "/META-INF/DEPENDENCIES"
-        }
-    }
     lint {
         lintConfig = file("lint.xml")
         baseline = file("lint-baseline.xml")
@@ -137,12 +131,6 @@ dependencies {
     implementation(libs.androidx.splashscreen)
     implementation(libs.okhttp)
     implementation(libs.androidx.photopicker.compose)
-
-    // ADK Android agents
-    implementation(libs.google.adk.kotlin.core.android) {
-        exclude(group = "net.sf.kxml", module = "kxml2")
-    }
-    ksp(libs.google.adk.kotlin.processor)
 
     // Room
     implementation(libs.androidx.room.runtime)

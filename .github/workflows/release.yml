@@ -10,7 +10,9 @@ on:
       - "v*.*.*"
 
 permissions:
-  contents: write   # Required to create a GitHub Release
+  contents: write
+  id-token: write
+  attestations: write
 
 concurrency:
   group: release-${{ github.ref }}
@@ -30,17 +32,17 @@ jobs:
           fetch-depth: 0
           persist-credentials: false
 
-      - name: Validate tag and main ancestry
+      - name: Validate tag and main ancestry / 验证标签与 main 祖先关系
         shell: bash
         run: |
           if [[ ! "$GITHUB_REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-(alpha|beta|rc)[0-9]+)?$ ]]; then
-            echo "::error::Unsupported release tag: $GITHUB_REF_NAME"
+            echo "::error::Unsupported release tag / 不支持的发布标签: $GITHUB_REF_NAME"
             exit 1
           fi
 
           git fetch origin main --no-tags --depth=1
           if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
-            echo "::error::Release tags must point to a commit contained in origin/main."
+            echo "::error::Release tags must point to a commit contained in origin/main. / 发布标签必须指向 origin/main 中的提交。"
             exit 1
           fi
 
@@ -58,27 +60,76 @@ jobs:
           cache-read-only: true
 
       # ── 3. 从 tag 解析版本号 ──────────────────────────────────
-      - name: Extract version from tag
+      - name: Extract version from tag / 从标签提取版本
         id: version
+        shell: bash
         run: |
-          # Remove leading 'v': v1.2.3 → 1.2.3, v1.2.3-rc1 → 1.2.3-rc1
           TAG="${GITHUB_REF_NAME#v}"
           echo "version_name=$TAG" >> "$GITHUB_OUTPUT"
 
-          # Compute versionCode from base version (strip pre-release suffix):
-          # major*10000 + minor*100 + patch
-          # e.g.  1.2.3  →  10203   |   2.0.0  →  20000
-          BASE="${TAG%%-*}"  # "1.2.3-rc1" → "1.2.3"
-          IFS='.' read -r MAJOR MINOR PATCH <<< "$BASE"
-          MAJOR=${MAJOR:-0}; MINOR=${MINOR:-0}; PATCH=${PATCH:-0}
-          VERSION_CODE=$(( MAJOR * 10000 + MINOR * 100 + PATCH ))
-          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          if [[ ! "$TAG" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)(-(alpha|beta|rc)([0-9]+))?$ ]]; then
+            echo "::error::Cannot parse release version / 无法解析发布版本: $TAG"
+            exit 1
+          fi
 
-          echo "version_name : $TAG"
-          echo "version_code : $VERSION_CODE"
+          MAJOR=$((10#${BASH_REMATCH[1]}))
+          MINOR=$((10#${BASH_REMATCH[2]}))
+          PATCH=$((10#${BASH_REMATCH[3]}))
+          CHANNEL="${BASH_REMATCH[5]:-stable}"
+          COUNTER="${BASH_REMATCH[6]:-0}"
+
+          if (( MAJOR > 209 || MINOR > 99 || PATCH > 999 )); then
+            echo "::error::Version exceeds supported range (major <= 209, minor <= 99, patch <= 999). / 版本超出支持范围。"
+            exit 1
+          fi
+
+          case "$CHANNEL" in
+            stable)
+              STAGE=99
+              ;;
+            alpha)
+              COUNTER=$((10#$COUNTER))
+              (( COUNTER >= 1 && COUNTER <= 19 )) || {
+                echo "::error::Pre-release counter must be 1..19. / 预发布序号必须为 1..19。"
+                exit 1
+              }
+              STAGE=$COUNTER
+              ;;
+            beta)
+              COUNTER=$((10#$COUNTER))
+              (( COUNTER >= 1 && COUNTER <= 19 )) || {
+                echo "::error::Pre-release counter must be 1..19. / 预发布序号必须为 1..19。"
+                exit 1
+              }
+              STAGE=$((20 + COUNTER))
+              ;;
+            rc)
+              COUNTER=$((10#$COUNTER))
+              (( COUNTER >= 1 && COUNTER <= 19 )) || {
+                echo "::error::Pre-release counter must be 1..19. / 预发布序号必须为 1..19。"
+                exit 1
+              }
+              STAGE=$((40 + COUNTER))
+              ;;
+          esac
+
+          # Monotonic across alpha → beta → rc → stable and the next patch.
+          VERSION_CODE=$((MAJOR * 10000000 + MINOR * 100000 + PATCH * 100 + STAGE))
+          echo "version_code=$VERSION_CODE" >> "$GITHUB_OUTPUT"
+          echo "channel=$CHANNEL" >> "$GITHUB_OUTPUT"
+
+          {
+            echo "## Release version / 发布版本"
+            echo
+            echo "| Field / 字段 | Value / 值 |"
+            echo "|---|---|"
+            echo "| versionName | \`$TAG\` |"
+            echo "| versionCode | \`$VERSION_CODE\` |"
+            echo "| Channel / 渠道 | \`$CHANNEL\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
 
       # ── 4. 验证并解码 Release Keystore ─────────────────────────
-      - name: Validate and decode keystore
+      - name: Validate and decode keystore / 验证并解码密钥库
         env:
           KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
@@ -91,7 +142,7 @@ jobs:
           [ -n "$KEY_ALIAS" ] || missing+=(KEY_ALIAS)
           [ -n "$KEY_PASSWORD" ] || missing+=(KEY_PASSWORD)
           if [ "${#missing[@]}" -ne 0 ]; then
-            echo "::error::Missing release secrets: ${missing[*]}"
+            echo "::error::Missing release secrets / 缺少发布密钥: ${missing[*]}"
             exit 1
           fi
 
@@ -99,10 +150,10 @@ jobs:
           echo "KEYSTORE_PATH=${{ github.workspace }}/keystore.jks" >> "$GITHUB_ENV"
 
       # ── 5. 最终验证并构建 Release APK ─────────────────────────
-      - name: Verify generated Room schemas are committed
+      - name: Verify generated Room schemas / 验证 Room 生成结构
         run: bash scripts/verify-room-schema.sh
 
-      - name: Verify and build Release APK
+      - name: Verify and build Release APK / 验证并构建发布 APK
         run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease -PenableAbiSplits=true --build-cache --configuration-cache --stacktrace
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
@@ -113,14 +164,14 @@ jobs:
           KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
 
       # ── 6. 重命名 APK（按 ABI split 分别命名）─────────────────
-      - name: Rename APKs
+      - name: Rename APKs / 重命名 APK
         run: |
           APK_DIR="app/build/outputs/apk/release"
           VER="${{ steps.version.outputs.version_name }}"
           shopt -s nullglob
           APKS=("$APK_DIR"/*.apk)
           if [ "${#APKS[@]}" -ne 3 ]; then
-            echo "::error::Expected three ABI APKs, found ${#APKS[@]}."
+            echo "::error::Expected three ABI APKs, found ${#APKS[@]}. / 应生成三个 ABI APK。"
             exit 1
           fi
 
@@ -131,7 +182,10 @@ jobs:
               *universal*) ABI="universal" ;;
               *arm64*)     ABI="arm64-v8a" ;;
               *armeabi*)   ABI="armeabi-v7a" ;;
-              *)           ABI="universal" ;;
+              *)
+                echo "::error::Unknown APK variant / 未知 APK 变体: $BASENAME"
+                exit 1
+                ;;
             esac
             NEW_NAME="Anshin-v${VER}-${ABI}.apk"
             mv "$apk" "$APK_DIR/$NEW_NAME"
@@ -139,12 +193,12 @@ jobs:
           done
 
       # ── 7. 验证签名并生成校验和 ────────────────────────────────
-      - name: Verify signatures and checksums
+      - name: Verify signatures and checksums / 验证签名与校验和
         run: |
           APK_DIR="app/build/outputs/apk/release"
           APKSIGNER=$(find "$ANDROID_SDK_ROOT/build-tools" -type f -name apksigner | sort -V | tail -n 1)
           if [ ! -x "$APKSIGNER" ]; then
-            echo "::error::apksigner was not found in the Android SDK."
+            echo "::error::apksigner was not found in the Android SDK. / Android SDK 中未找到 apksigner。"
             exit 1
           fi
 
@@ -156,9 +210,15 @@ jobs:
             sha256sum Anshin-*.apk > SHA256SUMS
           )
 
+      - name: Attest release APK provenance / 证明发布 APK 构建来源
+        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        with:
+          subject-path: "app/build/outputs/apk/release/Anshin-*.apk"
+
       # ── 8. 生成 CHANGELOG（自上一个 tag 以来的提交） ─────────
-      - name: Generate changelog
+      - name: Generate changelog / 生成变更记录
         id: changelog
+        shell: bash
         run: |
           PREV_TAG=$(git describe --tags --abbrev=0 "$GITHUB_SHA^" \
             --match 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null || true)
@@ -167,6 +227,9 @@ jobs:
           else
             LOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
           fi
+          if [ -z "$LOG" ]; then
+            LOG="- Maintenance release / 维护版本"
+          fi
           {
             echo "changelog<<EOF"
             echo "$LOG"
@@ -174,32 +237,42 @@ jobs:
           } >> "$GITHUB_OUTPUT"
 
       # ── 9. 发布 GitHub Release，附带 APK ─────────────────────
-      - name: Create GitHub Release
+      - name: Create GitHub Release / 创建 GitHub Release
         uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
         with:
           name: "Anshin v${{ steps.version.outputs.version_name }}"
           body: |
-            ## 更新内容
+            ## 更新内容 / What's changed
 
             ${{ steps.changelog.outputs.changelog }}
 
             ---
-            **下载说明**
-            | APK 变体 | 适用设备 | 说明 |
-            |----------|---------|------|
-            | `arm64-v8a` | 绝大多数现代手机 (推荐) | 体积最小 |
-            | `armeabi-v7a` | 旧款 32 位 ARM 设备 | 兼容性回退 |
-            | `universal` | 所有 ARM 设备 | 包含全部架构，体积较大 |
+            ## 下载 / Downloads
+
+            | APK 变体 / Variant | 适用设备 / Devices | 说明 / Notes |
+            |---|---|---|
+            | `arm64-v8a` | 绝大多数现代手机 / Most modern phones | 推荐，体积最小 / Recommended, smallest |
+            | `armeabi-v7a` | 旧款 32 位 ARM 设备 / Older 32-bit ARM devices | 兼容性回退 / Compatibility fallback |
+            | `universal` | 所有 ARM 设备 / All ARM devices | 包含全部架构 / Includes all ABIs |
 
             ---
-            **版本信息**
-            | 项目 | 值 |
-            |------|-----|
+            ## 构建信息 / Build information
+
+            | 项目 / Field | 值 / Value |
+            |---|---|
             | versionName | `${{ steps.version.outputs.version_name }}` |
             | versionCode | `${{ steps.version.outputs.version_code }}` |
-            | 构建号 | `#${{ github.run_number }}` |
+            | 渠道 / Channel | `${{ steps.version.outputs.channel }}` |
+            | 构建号 / Run | `#${{ github.run_number }}` |
             | Commit | ${{ github.sha }} |
-            | 签名状态 | ✅ 已签名并通过 `apksigner` 验证 |
+            | 签名 / Signature | ✅ 已签名并通过 `apksigner` 验证 / Signed and verified |
+
+            每个 APK 均列入 `SHA256SUMS`，并具有 GitHub 构建来源证明。可使用
+            `gh attestation verify <apk> --repo Tinnci/anshin` 验证。
+
+            Every APK is listed in `SHA256SUMS` and has a GitHub build provenance
+            attestation. Verify it with
+            `gh attestation verify <apk> --repo Tinnci/anshin`.
           files: |
             app/build/outputs/apk/release/Anshin-*.apk
             app/build/outputs/apk/release/SHA256SUMS
