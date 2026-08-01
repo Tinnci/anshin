@@ -4,6 +4,17 @@ These proposals are visual references for the Compose implementation. They are
 not pixel-perfect specifications; Material semantics, localization, touch
 targets, and accessible reflow take precedence.
 
+## Anshin brand foundation
+
+- The adaptive launcher icon is the canonical source for brand color and shape.
+- Brand teal is `#0B5F63`; brand cream is `#F7EBD8`.
+- First launch uses the Anshin palette. Material You remains available as an
+  explicit preference instead of replacing the brand before the user chooses it.
+- Splash, launcher, app shortcuts, onboarding brand mark, palette preview, and
+  primary icon containers reuse these tokens or their accessible Material roles.
+- Decorative icon containers use `primaryContainer` with `primary` content;
+  semantic success, warning, and error states retain their distinct roles.
+
 ## Shared routine editor
 
 ![Shared routine editor](routine-schedule-shared-editor.png)

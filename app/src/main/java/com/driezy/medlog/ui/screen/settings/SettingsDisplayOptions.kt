@@ -53,7 +53,7 @@ internal fun ThemePaletteChip(palette: ThemePalette, selected: Boolean, darkThem
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             Row(horizontalArrangement = Arrangement.spacedBy(3.dp)) {
-                listOf(scheme.primary, scheme.secondary, scheme.tertiary).forEach { swatchColor ->
+                palette.previewColors(darkTheme).forEach { swatchColor ->
                     Surface(
                         modifier = Modifier.size(width = 8.dp, height = 34.dp),
                         shape = RoundedCornerShape(4.dp),

@@ -50,11 +50,7 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
         if (profile.showIllustration) {
             Surface(
                 shape = RoundedCornerShape(24.dp),
-                color = if (notifGranted) {
-                    MaterialTheme.colorScheme.tertiaryContainer
-                } else {
-                    MaterialTheme.colorScheme.secondaryContainer
-                },
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier
                     .size(80.dp)
                     .graphicsLayer {
@@ -68,11 +64,7 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
                         if (notifGranted) MedLogIcons.NotificationsActive else MedLogIcons.Notifications,
                         contentDescription = null,
                         modifier = Modifier.size(40.dp),
-                        tint = if (notifGranted) {
-                            MaterialTheme.colorScheme.onTertiaryContainer
-                        } else {
-                            MaterialTheme.colorScheme.onSecondaryContainer
-                        },
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }

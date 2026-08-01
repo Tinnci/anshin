@@ -220,7 +220,7 @@
     <string name="settings_ui_density_comfortable">여유</string>
     <string name="settings_palette_title">문학적 팔레트</string>
     <string name="settings_palette_subtitle">분위기 있는 색상 세트를 선택합니다. Anshin 외 팔레트는 다이나믹 컬러보다 우선합니다</string>
-    <string name="settings_palette_desc_anshin">깨끗한 의료 블루그린</string>
+    <string name="settings_palette_desc_anshin">안심 청록과 따뜻한 크림</string>
     <string name="settings_palette_desc_meadow">부드러운 풀밭과 아침 이슬</string>
     <string name="settings_palette_desc_wakakusa">와카쿠사의 옅은 봄 초록</string>
     <string name="settings_palette_desc_celadon">청자, 안개, 고요한 물빛</string>

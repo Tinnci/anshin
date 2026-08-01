@@ -156,8 +156,8 @@ internal fun SettingsHomeOverviewPanel(
             ) {
                 Surface(
                     shape = RoundedCornerShape(16.dp),
-                    color = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.primary,
                 ) {
                     MedLogIcon(
                         MedLogIcons.Settings,

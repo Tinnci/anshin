@@ -260,7 +260,7 @@
     <string name="settings_ui_density_comfortable">115%</string>
     <string name="settings_palette_title">色板</string>
     <string name="settings_palette_subtitle">选择应用色板；非 Anshin 色板会优先于 Material You 配色</string>
-    <string name="settings_palette_desc_anshin">医疗蓝绿</string>
+    <string name="settings_palette_desc_anshin">安心青与暖米</string>
     <string name="settings_palette_desc_meadow">草地与晨露</string>
     <string name="settings_palette_desc_wakakusa">若草</string>
     <string name="settings_palette_desc_celadon">青瓷与水</string>

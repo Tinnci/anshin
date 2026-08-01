@@ -58,7 +58,7 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
         if (profile.showIllustration) {
             Surface(
                 shape = CircleShape,
-                color = MaterialTheme.colorScheme.tertiaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
                 modifier = Modifier
                     .size(72.dp)
                     .graphicsLayer {
@@ -72,7 +72,7 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
                         MedLogIcons.CheckCircleDisplay48,
                         contentDescription = null,
                         modifier = Modifier.size(40.dp),
-                        tint = MaterialTheme.colorScheme.onTertiaryContainer,
+                        tint = MaterialTheme.colorScheme.primary,
                     )
                 }
             }

@@ -5,10 +5,10 @@
     android:viewportHeight="108">
     <!-- 圆形背景 -->
     <path
-        android:fillColor="#3B6939"
+        android:fillColor="@color/brand_icon_foreground"
         android:pathData="M54,54m-54,0a54,54 0,1 1,108 0a54,54 0,1 1,-108 0" />
     <!-- "+" 图标 -->
     <path
-        android:fillColor="#FFFFFF"
+        android:fillColor="@color/brand_icon_background"
         android:pathData="M50,32 L58,32 L58,50 L76,50 L76,58 L58,58 L58,76 L50,76 L50,58 L32,58 L32,50 L50,50 Z" />
 </vector>

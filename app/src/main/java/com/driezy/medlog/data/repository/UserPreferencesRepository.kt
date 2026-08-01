@@ -174,7 +174,7 @@ data class SettingsPreferences(
     /** 深色/浅色/跟随系统 */
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
     /** 是否使用 Material You 动态颜色（Android 12+ 才生效） */
-    val useDynamicColor: Boolean = true,
+    val useDynamicColor: Boolean = false,
     /** 主题配色方案名称。实际色板定义在 UI theme 层。 */
     val themePaletteName: String = "ANSHIN",
     /** 字体模式。默认 SYSTEM，尊重系统字体设置。 */
@@ -426,7 +426,7 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
                 enableTimePeriodMode = prefs[ENABLE_TIME_PERIOD_MODE] ?: true,
                 themeMode = prefs[THEME_MODE]?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
                     ?: ThemeMode.SYSTEM,
-                useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: true,
+                useDynamicColor = prefs[USE_DYNAMIC_COLOR] ?: false,
                 themePaletteName = prefs[THEME_PALETTE] ?: "ANSHIN",
                 fontMode = FontMode.fromStoredName(prefs[FONT_MODE]),
                 appTextScale = AppTextScale.fromStoredName(prefs[APP_TEXT_SCALE]),

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="splash_background">#FFF7EBD8</color>
+    <color name="brand_icon_background">#F7EBD8</color>
+    <color name="brand_icon_foreground">#0B5F63</color>
+    <color name="brand_icon_accent">#9FD0D1</color>
+    <color name="splash_background">@color/brand_icon_background</color>
 </resources>

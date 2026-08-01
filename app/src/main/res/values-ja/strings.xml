@@ -220,7 +220,7 @@
     <string name="settings_ui_density_comfortable">ゆったり</string>
     <string name="settings_palette_title">詩的な配色</string>
     <string name="settings_palette_subtitle">雰囲気のある色板を選択。Anshin 以外はダイナミックカラーより優先されます</string>
-    <string name="settings_palette_desc_anshin">清潔感のある医療ブルーグリーン</string>
+    <string name="settings_palette_desc_anshin">安心の青緑と暖かなクリーム</string>
     <string name="settings_palette_desc_meadow">やわらかな草地と朝露</string>
     <string name="settings_palette_desc_wakakusa">若草の淡い春の緑</string>
     <string name="settings_palette_desc_celadon">青磁、薄霧、静かな水面</string>

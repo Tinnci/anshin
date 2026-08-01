@@ -271,7 +271,7 @@
     <string name="settings_ui_density_comfortable">115%</string>
     <string name="settings_palette_title">Palettes</string>
     <string name="settings_palette_subtitle">Choose an app palette; non-Anshin palettes take priority over Material You color</string>
-    <string name="settings_palette_desc_anshin">Medical blue-green</string>
+    <string name="settings_palette_desc_anshin">Anshin teal &amp; warm cream</string>
     <string name="settings_palette_desc_meadow">Grass and morning dew</string>
     <string name="settings_palette_desc_wakakusa">Wakakusa</string>
     <string name="settings_palette_desc_celadon">Celadon and water</string>

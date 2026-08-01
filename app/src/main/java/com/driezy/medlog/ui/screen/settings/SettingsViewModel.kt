@@ -67,7 +67,7 @@ data class SettingsUiState(
     val enableTimePeriodMode: Boolean = true,
     // ── 外观 ──────────────────────────────────────────────────────
     val themeMode: ThemeMode = ThemeMode.SYSTEM,
-    val useDynamicColor: Boolean = true,
+    val useDynamicColor: Boolean = false,
     val themePalette: ThemePalette = ThemePalette.ANSHIN,
     val fontMode: FontMode = FontMode.SYSTEM,
     val appTextScale: AppTextScale = AppTextScale.STANDARD,

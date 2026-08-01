@@ -16,7 +16,7 @@ enum class ThemePalette(
     ANSHIN(
         displayName = "Anshin",
         descriptionRes = R.string.settings_palette_desc_anshin,
-        imagery = "medical blue, clean green, clear daylight",
+        imagery = "deep Anshin teal, warm cream, calm daylight",
         allowsDynamicColor = true,
         lightSchemeProvider = { MedLogLightColorScheme },
         darkSchemeProvider = { MedLogDarkColorScheme },
@@ -58,6 +58,15 @@ enum class ThemePalette(
         get() = darkSchemeProvider()
 
     fun colorScheme(darkTheme: Boolean): ColorScheme = if (darkTheme) darkColorScheme else lightColorScheme
+
+    fun previewColors(darkTheme: Boolean): List<Color> {
+        val scheme = colorScheme(darkTheme)
+        return if (this == ANSHIN) {
+            listOf(AnshinBrandTeal, AnshinBrandCream, scheme.primaryContainer)
+        } else {
+            listOf(scheme.primary, scheme.secondary, scheme.tertiary)
+        }
+    }
 
     companion object {
         fun fromStoredName(name: String?): ThemePalette = entries.firstOrNull { it.name == name } ?: ANSHIN

@@ -126,7 +126,7 @@ val MedLogDarkColorScheme = darkColorScheme(
 @Composable
 fun MedLogTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
-    dynamicColor: Boolean = true, // Material You — Android 12+
+    dynamicColor: Boolean = false, // Opt-in so first launch matches the Anshin icon.
     palette: ThemePalette = ThemePalette.ANSHIN,
     fontMode: FontMode = FontMode.SYSTEM,
     appTextScale: AppTextScale = AppTextScale.STANDARD,

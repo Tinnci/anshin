@@ -178,7 +178,7 @@ private fun FeatureToggleRow(
             MedLogIcon(
                 icon,
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(22.dp),
             )
         },

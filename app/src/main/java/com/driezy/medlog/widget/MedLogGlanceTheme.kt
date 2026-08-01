@@ -85,7 +85,7 @@ internal fun Preferences.medLogThemeMode(): ThemeMode = this[UserPreferencesRepo
     ?.let { runCatching { ThemeMode.valueOf(it) }.getOrNull() }
     ?: ThemeMode.SYSTEM
 
-internal fun Preferences.medLogUseDynamicColor(): Boolean = this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: true
+internal fun Preferences.medLogUseDynamicColor(): Boolean = this[UserPreferencesRepository.USE_DYNAMIC_COLOR] ?: false
 
 internal fun Preferences.medLogThemePalette(): ThemePalette =
     ThemePalette.fromStoredName(this[UserPreferencesRepository.THEME_PALETTE])

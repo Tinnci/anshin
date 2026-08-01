@@ -21,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.components.AnshinBrandMark
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 
@@ -40,9 +41,7 @@ internal fun WelcomePage0(isCurrentPage: Boolean) {
     ) {
         Spacer(Modifier.height(if (profile.constrained) 8.dp else 56.dp))
         if (profile.showIllustration) {
-            Surface(
-                shape = RoundedCornerShape(28.dp),
-                color = MaterialTheme.colorScheme.primaryContainer,
+            AnshinBrandMark(
                 modifier = Modifier
                     .size(88.dp)
                     .graphicsLayer {
@@ -50,16 +49,7 @@ internal fun WelcomePage0(isCurrentPage: Boolean) {
                         scaleY = iconScale
                         alpha = iconAlpha
                     },
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    MedLogIcon(
-                        MedLogIcons.Medication,
-                        contentDescription = null,
-                        modifier = Modifier.size(46.dp),
-                        tint = MaterialTheme.colorScheme.onPrimaryContainer,
-                    )
-                }
-            }
+            )
             Spacer(Modifier.height(12.dp))
         }
         Text(
@@ -150,14 +140,14 @@ private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long, 
     ) {
         Surface(
             shape = RoundedCornerShape(14.dp),
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.size(44.dp),
         ) {
             Box(contentAlignment = Alignment.Center) {
                 MedLogIcon(
                     feature.icon,
                     contentDescription = null,
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                    tint = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.size(22.dp),
                 )
             }

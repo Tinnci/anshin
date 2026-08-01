@@ -140,8 +140,8 @@ private fun RoutineTimeEditorRow(
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = RoundedCornerShape(14.dp),
-                color = MaterialTheme.colorScheme.secondaryContainer,
-                contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                color = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.primary,
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     MedLogIcon(
