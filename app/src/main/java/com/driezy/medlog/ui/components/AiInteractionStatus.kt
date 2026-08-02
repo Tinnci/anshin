@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
-import com.driezy.medlog.domain.health.AiExecutionMode
-import com.driezy.medlog.domain.health.AiExecutionStatus
+import com.driezy.medlog.feature.health.application.AiExecutionMode
+import com.driezy.medlog.feature.health.application.AiExecutionStatus
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing

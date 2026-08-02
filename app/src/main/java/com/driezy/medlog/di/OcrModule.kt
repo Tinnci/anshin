@@ -1,8 +1,8 @@
 package com.driezy.medlog.di
 
-import com.driezy.medlog.ui.ocr.HealthOcrPipeline
-import com.driezy.medlog.ui.ocr.MlKitOcrPipeline
-import com.driezy.medlog.ui.ocr.OcrPipeline
+import com.driezy.medlog.capability.ocr.HealthOcrPipeline
+import com.driezy.medlog.capability.ocr.MlKitOcrPipeline
+import com.driezy.medlog.capability.ocr.OcrPipeline
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

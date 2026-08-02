@@ -1,7 +1,7 @@
 package com.driezy.medlog.ui.theme
 
 import com.driezy.medlog.data.repository.SettingsPreferences
-import com.driezy.medlog.ui.screen.settings.SettingsUiState
+import com.driezy.medlog.feature.settings.SettingsUiState
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -37,10 +37,10 @@ class BrandConsistencyTest {
             "app/src/main/java/com/driezy/medlog/data/repository/UserPreferencesRepository.kt",
         )
         val widgetTheme = source(
-            "app/src/main/java/com/driezy/medlog/widget/MedLogGlanceTheme.kt",
+            "app/src/main/java/com/driezy/medlog/capability/widgets/MedLogGlanceTheme.kt",
         )
         val welcome = source(
-            "app/src/main/java/com/driezy/medlog/ui/screen/welcome/WelcomeIntroPages.kt",
+            "app/src/main/java/com/driezy/medlog/feature/onboarding/WelcomeIntroPages.kt",
         )
 
         assertTrue(colors.contains("""name="brand_icon_background">#F7EBD8</color>"""))

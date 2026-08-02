@@ -15,9 +15,7 @@ import java.time.LocalTime
 import java.time.ZoneId
 import javax.inject.Inject
 
-class SeedDemoDataUseCase @Inject constructor(
-    private val database: MedLogDatabase,
-) {
+class SeedDemoDataUseCase @Inject constructor(private val database: MedLogDatabase) {
 
     suspend fun seed(
         reset: Boolean,
@@ -76,17 +74,10 @@ class SeedDemoDataUseCase @Inject constructor(
         db.execSQL("DELETE FROM medications WHERE notes LIKE 'seed:%'")
     }
 
-    data class SeedResult(
-        val medicationCount: Int,
-        val logCount: Int,
-        val healthRecordCount: Int,
-    )
+    data class SeedResult(val medicationCount: Int, val logCount: Int, val healthRecordCount: Int)
 
     companion object {
-        fun buildDataset(
-            profile: SeedDemoProfile,
-            calendar: SeedDemoCalendar,
-        ): SeedDemoDataset {
+        fun buildDataset(profile: SeedDemoProfile, calendar: SeedDemoCalendar): SeedDemoDataset {
             val tag = "seed:${profile.wireName}"
             val today = calendar.startOfTodayMs()
             val meds = listOf(
@@ -196,14 +187,45 @@ class SeedDemoDataUseCase @Inject constructor(
             )
 
             val logs = listOf(
-                log("bp_lisinopril", calendar.todayAtMs(8, 0), LogStatus.TAKEN, "$tag:bp:morning", actualOffsetMinutes = 3),
-                log("glucose_metformin", calendar.todayAtMs(7, 30), LogStatus.TAKEN, "$tag:metformin:morning", actualOffsetMinutes = 6),
+                log(
+                    "bp_lisinopril",
+                    calendar.todayAtMs(8, 0),
+                    LogStatus.TAKEN,
+                    "$tag:bp:morning",
+                    actualOffsetMinutes = 3,
+                ),
+                log(
+                    "glucose_metformin",
+                    calendar.todayAtMs(7, 30),
+                    LogStatus.TAKEN,
+                    "$tag:metformin:morning",
+                    actualOffsetMinutes = 6,
+                ),
                 log("glucose_metformin", calendar.todayAtMs(19, 30), LogStatus.PENDING, "$tag:metformin:evening"),
                 log("vitamin_d", calendar.todayAtMs(12, 30), LogStatus.SKIPPED, "$tag:vitamin:lunch"),
-                log("antibiotic_amoxicillin", calendar.todayAtMs(6, 0), LogStatus.TAKEN, "$tag:antibiotic:morning", actualOffsetMinutes = 2),
-                log("antibiotic_amoxicillin", calendar.todayAtMs(14, 0), LogStatus.PARTIAL, "$tag:antibiotic:afternoon", actualOffsetMinutes = 12, actualDoseQuantity = 0.5),
+                log(
+                    "antibiotic_amoxicillin",
+                    calendar.todayAtMs(6, 0),
+                    LogStatus.TAKEN,
+                    "$tag:antibiotic:morning",
+                    actualOffsetMinutes = 2,
+                ),
+                log(
+                    "antibiotic_amoxicillin",
+                    calendar.todayAtMs(14, 0),
+                    LogStatus.PARTIAL,
+                    "$tag:antibiotic:afternoon",
+                    actualOffsetMinutes = 12,
+                    actualDoseQuantity = 0.5,
+                ),
                 log("antibiotic_amoxicillin", calendar.todayAtMs(22, 0), LogStatus.PENDING, "$tag:antibiotic:night"),
-                log("inhaler_prn", calendar.todayAtMs(10, 15), LogStatus.TAKEN, "$tag:inhaler:prn", actualOffsetMinutes = 0),
+                log(
+                    "inhaler_prn",
+                    calendar.todayAtMs(10, 15),
+                    LogStatus.TAKEN,
+                    "$tag:inhaler:prn",
+                    actualOffsetMinutes = 0,
+                ),
             )
 
             val health = listOf(
@@ -263,10 +285,7 @@ class SeedDemoDataUseCase @Inject constructor(
     }
 }
 
-enum class SeedDemoProfile(
-    val wireName: String,
-    val label: String,
-) {
+enum class SeedDemoProfile(val wireName: String, val label: String) {
     STANDARD("standard", "Standard"),
     OCR("ocr", "OCR"),
     ;
@@ -278,9 +297,7 @@ enum class SeedDemoProfile(
     }
 }
 
-class SeedDemoCalendar(
-    private val clock: Clock = Clock.system(ZoneId.of("Asia/Shanghai")),
-) {
+class SeedDemoCalendar(private val clock: Clock = Clock.system(ZoneId.of("Asia/Shanghai"))) {
     private val zone: ZoneId = clock.zone
 
     fun startOfTodayMs(): Long = LocalDate.now(clock).atStartOfDay(zone).toInstant().toEpochMilli()
@@ -289,8 +306,7 @@ class SeedDemoCalendar(
 
     fun todayAtMs(hour: Int, minute: Int): Long = atMs(LocalDate.now(clock), hour, minute)
 
-    fun daysAgoAtMs(days: Long, hour: Int, minute: Int): Long =
-        atMs(LocalDate.now(clock).minusDays(days), hour, minute)
+    fun daysAgoAtMs(days: Long, hour: Int, minute: Int): Long = atMs(LocalDate.now(clock).minusDays(days), hour, minute)
 
     fun daysFromTodayAtMs(days: Long, hour: Int, minute: Int): Long =
         atMs(LocalDate.now(clock).plusDays(days), hour, minute)
@@ -308,16 +324,8 @@ data class SeedDemoDataset(
     val tomorrowStartMs: Long,
 )
 
-data class SeedMedication(
-    val key: String,
-    val medication: Medication,
-)
+data class SeedMedication(val key: String, val medication: Medication)
 
-data class SeedMedicationLog(
-    val medicationKey: String,
-    val log: MedicationLog,
-)
+data class SeedMedicationLog(val medicationKey: String, val log: MedicationLog)
 
-data class SeedHealthRecord(
-    val record: HealthRecord,
-)
+data class SeedHealthRecord(val record: HealthRecord)

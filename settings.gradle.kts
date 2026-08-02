@@ -45,3 +45,10 @@ dependencyResolutionManagement {
 
 rootProject.name = "Anshin"
 include(":app")
+include(":core:model")
+include(":core:database")
+include(":core:preferences")
+include(":core:testing")
+include(":core:ui")
+include(":capability:reminders")
+include(":feature:onboarding")

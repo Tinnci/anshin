@@ -24,9 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
+import com.driezy.medlog.feature.medications.home.MedicationWithStatus
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
-import com.driezy.medlog.ui.screen.home.MedicationWithStatus
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formIcon
@@ -246,12 +246,13 @@ fun MedicationCard(
                             color = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     }
-                    if (item.isTaken && item.log?.actualTakenTimeMs != null) {
+                    val actualTakenTimeMs = item.log?.actualTakenTimeMs
+                    if (item.isTaken && actualTakenTimeMs != null) {
                         val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
                         Text(
                             text = stringResource(
                                 R.string.med_card_taken_at,
-                                timeFmt.format(Date(item.log.actualTakenTimeMs)),
+                                timeFmt.format(Date(actualTakenTimeMs)),
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
@@ -279,7 +280,9 @@ fun MedicationCard(
                             color = MaterialTheme.colorScheme.outline,
                         )
                     }
-                    if (med.stock != null && med.refillThreshold != null && med.stock <= med.refillThreshold) {
+                    val stock = med.stock
+                    val refillThreshold = med.refillThreshold
+                    if (stock != null && refillThreshold != null && stock <= refillThreshold) {
                         Spacer(Modifier.height(MedLogSpacing.Tiny))
                         Surface(
                             shape = RoundedCornerShape(12.dp),
@@ -299,7 +302,7 @@ fun MedicationCard(
                                 Text(
                                     stringResource(
                                         R.string.med_card_low_stock,
-                                        med.stock.toInt().toString(),
+                                        stock.toInt().toString(),
                                         med.doseUnit,
                                     ),
                                     style = MaterialTheme.typography.labelMedium,

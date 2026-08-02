@@ -36,6 +36,29 @@ class FakeMedicationRepository : MedicationRepository {
         }
     }
 
+    override suspend fun updateMedications(medications: List<Medication>) {
+        val replacements = medications.associateBy(Medication::id)
+        _medications.value = _medications.value.map { replacements[it.id] ?: it }
+    }
+
+    override suspend fun mergeMedicationsByName(medications: List<Medication>) {
+        val current = _medications.value
+        val names = current.filterNot(Medication::isArchived)
+            .map { it.name.trim().lowercase() }
+            .toMutableSet()
+        val additions = medications.mapNotNull { medication ->
+            val normalizedName = medication.name.trim().lowercase()
+            if (names.add(normalizedName)) medication.copy(id = nextId++) else null
+        }
+        _medications.value = current + additions
+    }
+
+    override suspend fun replaceActiveMedications(medications: List<Medication>) {
+        val archived = _medications.value.filter(Medication::isArchived)
+        val replacements = medications.map { it.copy(id = nextId++) }
+        _medications.value = archived + replacements
+    }
+
     override suspend fun deleteMedication(medication: Medication) {
         _medications.value = _medications.value.filter { it.id != medication.id }
     }

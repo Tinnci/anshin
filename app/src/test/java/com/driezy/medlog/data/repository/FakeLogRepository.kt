@@ -35,6 +35,9 @@ class FakeLogRepository : LogRepository {
                 it.scheduledTimeMs in startMs..endMs
         }
 
+    override suspend fun getLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long): MedicationLog? =
+        _logs.value.find { it.medicationId == medicationId && it.scheduledTimeMs == scheduledTimeMs }
+
     override suspend fun insertLog(log: MedicationLog): Long {
         val id = nextId++
         _logs.value = _logs.value + log.copy(id = id)

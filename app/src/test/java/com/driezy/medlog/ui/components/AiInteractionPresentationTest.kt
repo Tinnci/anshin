@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui.components
 
-import com.driezy.medlog.domain.health.AiExecutionMode
-import com.driezy.medlog.domain.health.AiExecutionStatus
-import com.driezy.medlog.domain.health.AiFallbackReason
+import com.driezy.medlog.feature.health.application.AiExecutionMode
+import com.driezy.medlog.feature.health.application.AiExecutionStatus
+import com.driezy.medlog.feature.health.application.AiFallbackReason
 import org.junit.Assert.assertEquals
 import org.junit.Test
 

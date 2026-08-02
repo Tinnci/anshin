@@ -63,7 +63,7 @@
 
         <!-- 桌面小组件设置页（长按小组件 → 小组件设置；或主应用设置页跳转） -->
         <activity
-            android:name=".widget.WidgetSettingsActivity"
+            android:name=".capability.widgets.WidgetSettingsActivity"
             android:exported="true"
             android:label="@string/widget_settings_title"
             android:theme="@style/Theme.MedLog">
@@ -73,21 +73,24 @@
         </activity>
 
         <receiver
-            android:name=".notification.MedLogBootReceiver"
+            android:name=".capability.reminders.MedLogBootReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.intent.action.TIME_SET" />
+                <action android:name="android.intent.action.TIMEZONE_CHANGED" />
                 <action android:name="android.app.action.SCHEDULE_EXACT_ALARM_PERMISSION_STATE_CHANGED" />
             </intent-filter>
         </receiver>
 
         <receiver
-            android:name=".notification.MedLogAlarmReceiver"
+            android:name=".capability.reminders.MedLogAlarmReceiver"
             android:exported="false" />
 
         <!-- 桌面小组件：今日进度 -->
         <receiver
-            android:name=".widget.MedLogWidgetReceiver"
+            android:name=".capability.widgets.MedLogWidgetReceiver"
             android:exported="true"
             android:label="@string/widget_today_name">
             <intent-filter>
@@ -100,7 +103,7 @@
 
         <!-- 桌面小组件：下次服药 -->
         <receiver
-            android:name=".widget.NextDoseWidgetReceiver"
+            android:name=".capability.widgets.NextDoseWidgetReceiver"
             android:exported="true"
             android:label="@string/widget_next_dose_name">
             <intent-filter>
@@ -113,7 +116,7 @@
 
         <!-- 桌面小组件：连续打卡 -->
         <receiver
-            android:name=".widget.StreakWidgetReceiver"
+            android:name=".capability.widgets.StreakWidgetReceiver"
             android:exported="true"
             android:label="@string/widget_streak_name">
             <intent-filter>

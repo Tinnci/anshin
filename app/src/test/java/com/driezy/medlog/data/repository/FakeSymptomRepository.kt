@@ -40,4 +40,7 @@ class FakeSymptomRepository : SymptomRepository {
     override suspend fun deleteById(id: Long) {
         logs.value = logs.value.filter { it.id != id }
     }
+
+    /** 直接读取当前已保存的日志，供断言副作用使用。 */
+    fun currentLogs(): List<SymptomLog> = logs.value
 }

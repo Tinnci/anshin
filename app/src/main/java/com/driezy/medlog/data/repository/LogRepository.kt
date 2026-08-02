@@ -11,6 +11,7 @@ interface LogRepository {
     fun getLogsForDateRange(startMs: Long, endMs: Long): Flow<List<MedicationLog>>
     fun getLogsForMedication(medicationId: Long, limit: Int = 60): Flow<List<MedicationLog>>
     suspend fun getLogForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long): MedicationLog?
+    suspend fun getLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long): MedicationLog?
     suspend fun insertLog(log: MedicationLog): Long
 
     /** 更新已有日志记录（如修改实际服药时间） */

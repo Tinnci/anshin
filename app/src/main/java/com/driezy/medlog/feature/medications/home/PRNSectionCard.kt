@@ -1,0 +1,222 @@
+package com.driezy.medlog.feature.medications.home
+
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.slideInVertically
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
+import com.driezy.medlog.R
+import com.driezy.medlog.ui.icons.MedLogIcon
+import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.displayName
+import kotlinx.coroutines.delay
+
+/**
+ * 专为 [com.driezy.medlog.data.model.Medication.isPRN] == true 的药品设计的卡片区域。
+ * 不显示"跳过"选项；用"今日已服 N 次"替代进度显示。
+ */
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+internal fun PRNSectionCard(
+    items: List<MedicationWithStatus>,
+    onToggleTaken: (MedicationWithStatus) -> Unit,
+    onClick: (Long) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val motionScheme = MaterialTheme.motionScheme
+    Card(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(28.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+        ),
+    ) {
+        // 头部
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = MedLogSpacing.Large,
+                    end = MedLogSpacing.Medium,
+                    top = MedLogSpacing.Medium,
+                    bottom = MedLogSpacing.Small,
+                ),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+        ) {
+            MedLogIcon(
+                MedLogIcons.Healing,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.secondary,
+                modifier = Modifier.size(18.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    stringResource(R.string.home_prn_title),
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.SemiBold,
+                    color = MaterialTheme.colorScheme.secondary,
+                )
+                Text(
+                    stringResource(R.string.home_prn_body),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium),
+            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f),
+        )
+
+        // 药品列表
+        items.forEachIndexed { idx, item ->
+            var visible by remember(item.medication.id) { mutableStateOf(false) }
+            LaunchedEffect(item.medication.id) {
+                delay(idx * STAGGER_DELAY_MS)
+                visible = true
+            }
+            AnimatedVisibility(
+                visible = visible,
+                enter = fadeIn(motionScheme.defaultEffectsSpec()) +
+                    slideInVertically(motionScheme.defaultSpatialSpec()) { it / 3 },
+            ) {
+                Column {
+                    ListItem(
+                        headlineContent = {
+                            val displayName = remember(item.medication.name) { item.medication.displayName() }
+                            Text(displayName, fontWeight = FontWeight.Medium)
+                        },
+                        supportingContent = {
+                            val maxDose = item.medication.maxDailyDose
+                            if (maxDose != null) {
+                                Text(
+                                    if (item.isTaken) {
+                                        stringResource(
+                                            R.string.home_prn_taken_with_max,
+                                            maxDose.toString(),
+                                            item.medication.doseUnit,
+                                        )
+                                    } else {
+                                        stringResource(
+                                            R.string.home_prn_max_dose,
+                                            maxDose.toString(),
+                                            item.medication.doseUnit,
+                                        )
+                                    },
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = if (item.isTaken) {
+                                        MaterialTheme.colorScheme.tertiary
+                                    } else {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    },
+                                )
+                            } else if (item.isTaken) {
+                                Text(
+                                    stringResource(R.string.home_prn_taken_once),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.tertiary,
+                                )
+                            }
+                        },
+                        leadingContent = {
+                            MedLogIcon(
+                                if (item.medication.isTcm) {
+                                    MedLogIcons.LocalFlorist
+                                } else {
+                                    MedLogIcons.Medication
+                                },
+                                contentDescription = null,
+                                tint = if (item.isTaken) {
+                                    MaterialTheme.colorScheme.outline
+                                } else {
+                                    MaterialTheme.colorScheme.secondary
+                                },
+                            )
+                        },
+                        trailingContent = {
+                            FilledTonalButton(
+                                onClick = { onToggleTaken(item) },
+                                modifier = Modifier.height(36.dp),
+                                contentPadding = PaddingValues(horizontal = MedLogSpacing.Medium),
+                                colors = ButtonDefaults.filledTonalButtonColors(
+                                    containerColor = if (item.isTaken) {
+                                        MaterialTheme.colorScheme.surfaceContainerHigh
+                                    } else {
+                                        MaterialTheme.colorScheme.secondaryContainer
+                                    },
+                                    contentColor = if (item.isTaken) {
+                                        MaterialTheme.colorScheme.onSurfaceVariant
+                                    } else {
+                                        MaterialTheme.colorScheme.onSecondaryContainer
+                                    },
+                                ),
+                            ) {
+                                MedLogIcon(
+                                    if (item.isTaken) MedLogIcons.CheckCircle else MedLogIcons.Add,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(14.dp),
+                                )
+                                Spacer(Modifier.width(MedLogSpacing.Tiny))
+                                Text(
+                                    if (item.isTaken) {
+                                        stringResource(
+                                            R.string.home_prn_btn_taken,
+                                        )
+                                    } else {
+                                        stringResource(R.string.home_prn_btn_take)
+                                    },
+                                    style = MaterialTheme.typography.labelMedium,
+                                )
+                            }
+                        },
+                        modifier = Modifier.clickable { onClick(item.medication.id) },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    )
+                    if (idx < items.lastIndex) {
+                        HorizontalDivider(
+                            modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
+                            color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(Modifier.height(MedLogSpacing.Tiny))
+    }
+}

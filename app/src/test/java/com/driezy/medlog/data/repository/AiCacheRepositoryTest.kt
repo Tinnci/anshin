@@ -7,6 +7,7 @@ import com.driezy.medlog.data.model.AiAnalysisKind
 import com.driezy.medlog.data.model.AiUsageEvent
 import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.model.AiUsageResult
+import com.driezy.medlog.data.model.AiUsageSummaryRow
 import com.driezy.medlog.data.model.NetworkType
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals

@@ -1,7 +1,6 @@
 package com.driezy.medlog.ui.components
 
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Test
 
@@ -51,17 +50,11 @@ class ScreenPresentationModelsTest {
     }
 
     @Test
-    fun adaptiveCollectionSpecRequiresStableKeysAndContentTypes() {
-        val items = listOf("tablet", "capsule")
-        val spec = AdaptiveItemCollectionSpec(
-            items = items,
-            key = { it },
-            contentType = { "dose-option" },
-        )
+    fun chromeDescriptorsCarryActionIdsInsteadOfCallbacks() {
+        val fab = ScreenFab(id = "add", label = "Add", icon = 1)
+        val empty = ScreenEmptyState(title = "Empty", actionLabel = "Create", actionId = "create")
 
-        assertEquals(listOf("tablet", "capsule"), spec.stableKeys())
-        assertEquals(setOf("dose-option"), spec.contentTypes().toSet())
-        assertFalse(spec.prefersGrid(MainScreenWidthClass.Compact))
-        assertTrue(spec.copy(preferGridOnExpanded = true).prefersGrid(MainScreenWidthClass.Expanded))
+        assertEquals("add", fab.id)
+        assertEquals("create", empty.actionId)
     }
 }

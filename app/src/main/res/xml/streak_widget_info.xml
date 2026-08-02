@@ -13,5 +13,5 @@
     android:description="@string/widget_streak_desc"
     android:initialLayout="@layout/glance_default_loading_layout"
     android:previewImage="@drawable/widget_preview_streak"
-    android:configure="com.driezy.medlog.widget.WidgetSettingsActivity"
+    android:configure="com.driezy.medlog.capability.widgets.WidgetSettingsActivity"
     android:widgetFeatures="reconfigurable|configuration_optional" />

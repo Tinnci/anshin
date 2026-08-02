@@ -6,6 +6,8 @@
 .DS_Store
 /build
 /app/build
+# Gradle output of the extracted core/feature/capability modules
+build/
 /captures
 /artifacts/
 /design-qa.md

@@ -10,6 +10,7 @@ import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.security.MessageDigest
+import java.time.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -17,6 +18,7 @@ import javax.inject.Singleton
 class DoubaoDeviceClient @Inject constructor(
     private val okHttpClient: OkHttpClient,
     private val store: DoubaoCredentialStore,
+    private val clock: Clock,
 ) {
     private val json = Json {
         ignoreUnknownKeys = true
@@ -118,7 +120,7 @@ class DoubaoDeviceClient @Inject constructor(
         }
         .build()
 
-    private fun nowMs(): Long = System.currentTimeMillis()
+    private fun nowMs(): Long = clock.millis()
 
     private fun String.md5Uppercase(): String {
         val digest = MessageDigest.getInstance("MD5").digest(toByteArray())

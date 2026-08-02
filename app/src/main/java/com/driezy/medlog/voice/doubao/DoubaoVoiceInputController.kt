@@ -9,6 +9,7 @@ import android.media.AudioRecord
 import android.media.MediaRecorder
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.os.SystemClock
 import androidx.core.content.ContextCompat
 import com.driezy.medlog.di.ApplicationScope
 import com.driezy.medlog.voice.VoiceInputController
@@ -132,7 +133,7 @@ class DoubaoVoiceInputController @Inject constructor(
         }
         val silenceEndDetector = DoubaoSilenceEndDetector()
         val readBuffer = ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES * 2)
-        val startedAt = System.currentTimeMillis()
+        val startedAt = SystemClock.elapsedRealtime()
 
         try {
             recorder.startRecording()
@@ -144,14 +145,14 @@ class DoubaoVoiceInputController @Inject constructor(
                             break@recording
                         }
                         encoder.encode(pcmFrame)?.let { opusFrame ->
-                            val elapsed = System.currentTimeMillis() - startedAt
+                            val elapsed = SystemClock.elapsedRealtime() - startedAt
                             socket.sendAudio(sequencer.next(opusFrame, elapsed))
                         }
                     }
                 }
             }
         } finally {
-            val elapsed = System.currentTimeMillis() - startedAt
+            val elapsed = SystemClock.elapsedRealtime() - startedAt
             if (sequencer.sentFrameCount > 0) {
                 encoder.encode(
                     ByteArray(DoubaoAudioFrameChunker.PCM_FRAME_BYTES),

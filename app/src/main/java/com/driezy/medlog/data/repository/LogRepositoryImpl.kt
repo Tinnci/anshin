@@ -18,6 +18,9 @@ class LogRepositoryImpl @Inject constructor(private val logDao: MedicationLogDao
     override suspend fun getLogForMedicationAndDate(medicationId: Long, startMs: Long, endMs: Long): MedicationLog? =
         logDao.getLogForMedicationAndDate(medicationId, startMs, endMs)
 
+    override suspend fun getLogForScheduledTime(medicationId: Long, scheduledTimeMs: Long): MedicationLog? =
+        logDao.getLogForScheduledTime(medicationId, scheduledTimeMs)
+
     override suspend fun insertLog(log: MedicationLog): Long = logDao.insertLog(log)
 
     override suspend fun updateLog(log: MedicationLog) = logDao.updateLog(log)

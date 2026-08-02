@@ -5,27 +5,16 @@ import com.driezy.medlog.data.local.AiUsageEventDao
 import com.driezy.medlog.data.model.AiAnalysisCacheEntry
 import com.driezy.medlog.data.model.AiAnalysisKind
 import com.driezy.medlog.data.model.AiUsageEvent
-import com.driezy.medlog.data.model.AiUsageFeature
+import com.driezy.medlog.data.model.AiUsageSummaryRow
 import java.security.MessageDigest
 
 interface AiCacheRepository {
-    suspend fun getFresh(cacheKey: String, nowMillis: Long = System.currentTimeMillis()): AiAnalysisCacheEntry?
-    suspend fun put(entry: AiAnalysisCacheEntry, nowMillis: Long = System.currentTimeMillis())
+    suspend fun getFresh(cacheKey: String, nowMillis: Long): AiAnalysisCacheEntry?
+    suspend fun put(entry: AiAnalysisCacheEntry, nowMillis: Long)
     suspend fun recordUsage(event: AiUsageEvent)
     suspend fun usageSummary(sinceMillis: Long): List<AiUsageSummaryRow>
     suspend fun clearAll()
 }
-
-data class AiUsageSummaryRow(
-    val feature: AiUsageFeature,
-    val totalCount: Int,
-    val successCount: Int,
-    val fallbackCount: Int,
-    val errorCount: Int,
-    val cacheHitCount: Int,
-    val lastUsedAt: Long,
-    val lastErrorCategory: String?,
-)
 
 class AiCacheRepositoryImpl(
     private val cacheDao: AiAnalysisCacheDao,

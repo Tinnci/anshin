@@ -13,7 +13,9 @@ class SystemBarStyleGuardTest {
     @Test
     fun `activities reapply system bar appearance when app theme changes`() {
         val mainActivity = source("app/src/main/java/com/driezy/medlog/ui/MainActivity.kt")
-        val widgetSettings = source("app/src/main/java/com/driezy/medlog/widget/WidgetSettingsActivity.kt")
+        val widgetSettings = source(
+            "app/src/main/java/com/driezy/medlog/capability/widgets/WidgetSettingsActivity.kt",
+        )
 
         listOf(
             "MainActivity" to mainActivity,

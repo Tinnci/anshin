@@ -13,124 +13,16 @@ import com.driezy.medlog.data.local.settingsDataStore
 import com.driezy.medlog.data.model.RoutineSchedule
 import com.driezy.medlog.data.model.RoutineTime
 import com.driezy.medlog.data.model.RoutineTimeSlot
+import com.driezy.medlog.feature.onboarding.model.OnboardingDraft
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import java.io.IOException
+import java.time.ZoneId
 import javax.inject.Inject
 import javax.inject.Singleton
-
-/** 应用主题模式 */
-enum class ThemeMode { SYSTEM, LIGHT, DARK }
-
-/** 应用字体模式：默认尊重系统字体，可切换为品牌字体。 */
-enum class FontMode {
-    SYSTEM,
-    ANSHIN,
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): FontMode = entries.firstOrNull { it.name == name } ?: SYSTEM
-    }
-}
-
-enum class AppTextScale(val factor: Float) {
-    SMALL(0.90f),
-    STANDARD(1.00f),
-    LARGE(1.15f),
-    EXTRA_LARGE(1.30f),
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): AppTextScale = entries.firstOrNull { it.name == name } ?: STANDARD
-    }
-}
-
-enum class UiDensityScale(val factor: Float) {
-    COMPACT(0.94f),
-    STANDARD(1.00f),
-    COMFORTABLE(1.08f),
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): UiDensityScale = entries.firstOrNull { it.name == name } ?: STANDARD
-    }
-}
-
-/** 首页焦点区域的视觉组织方式；三种样式共享同一状态和操作语义。 */
-enum class HomeHeroStyle {
-    ACTION,
-    PROGRESS,
-    TIMELINE,
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): HomeHeroStyle = entries.firstOrNull { it.name == name } ?: ACTION
-    }
-}
-
-/** 小组件明暗主题。默认跟随系统/桌面环境，而不是跟随 App 内主题。 */
-enum class WidgetThemeMode {
-    SYSTEM,
-    APP,
-    LIGHT,
-    DARK,
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): WidgetThemeMode = entries.firstOrNull { it.name == name } ?: SYSTEM
-    }
-}
-
-/** 小组件配色来源：设备动态色、App 当前色板，或独立小组件色板。 */
-enum class WidgetColorSource {
-    SYSTEM_DYNAMIC,
-    APP_THEME,
-    CUSTOM_PALETTE,
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): WidgetColorSource = entries.firstOrNull { it.name == name } ?: SYSTEM_DYNAMIC
-    }
-}
-
-enum class WidgetDensityScale(val factor: Float) {
-    COMPACT(0.90f),
-    STANDARD(1.00f),
-    COMFORTABLE(1.10f),
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): WidgetDensityScale = entries.firstOrNull { it.name == name } ?: STANDARD
-    }
-}
-
-enum class WidgetTextScale(val factor: Float) {
-    STANDARD(1.00f),
-    LARGE(1.10f),
-    ;
-
-    companion object {
-        fun fromStoredName(name: String?): WidgetTextScale = entries.firstOrNull { it.name == name } ?: STANDARD
-    }
-}
-
-/** 七段数码管 OCR 识别模型类型 */
-enum class OcrModelType { LIGHT_SVTR, FASTVIT_T8 }
-
-/** 云端 AI provider。API key 不存放在 DataStore，后续由加密存储提供。 */
-enum class CloudAiProvider(val providerName: String, val defaultModel: String) {
-    MIMO("MiMo", "mimo-v2.5-pro"),
-    GEMINI("Gemini", "gemini-2.5-flash"),
-    ANTHROPIC("Anthropic", "claude-sonnet-4-20250514"),
-    OPENAI_COMPATIBLE("OpenAI-compatible", "gpt-4.1"),
-}
-
-enum class OpenAiCompatibleCloudAuthMode {
-    API_KEY_HEADER,
-    BEARER,
-}
 
 /** DataStore 文件名 */
 // 已移至 data/local/SettingsDataStore.kt 统一管理
@@ -272,8 +164,20 @@ internal fun SettingsPreferences.routineSchedule(): RoutineSchedule = RoutineSch
     bed = RoutineTime(bedHour, bedMinute),
 )
 
+fun SettingsPreferences.reminderZone(fallback: ZoneId): ZoneId = if (travelMode && homeTimeZoneId.isNotBlank()) {
+    runCatching { ZoneId.of(homeTimeZoneId) }.getOrDefault(fallback)
+} else {
+    fallback
+}
+
 @Singleton
-class UserPreferencesRepository @Inject constructor(@param:ApplicationContext private val context: Context) {
+class UserPreferencesRepository @Inject constructor(@param:ApplicationContext private val context: Context) :
+    AppearancePreferences,
+    ReminderPreferences,
+    FeaturePreferences,
+    AiPreferences,
+    WidgetPreferences,
+    OnboardingPreferences {
     private val dataStore: DataStore<Preferences> = context.settingsDataStore
 
     companion object Keys {
@@ -472,15 +376,84 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
             )
         }
 
-    suspend fun updatePersistentReminder(enabled: Boolean) {
+    override val appearance: Flow<AppearancePreferenceState> = settingsFlow.map { prefs ->
+        AppearancePreferenceState(
+            themeMode = prefs.themeMode,
+            useDynamicColor = prefs.useDynamicColor,
+            themePaletteName = prefs.themePaletteName,
+            fontMode = prefs.fontMode,
+            appTextScale = prefs.appTextScale,
+            uiDensityScale = prefs.uiDensityScale,
+            autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
+            homeHeroStyle = prefs.homeHeroStyle,
+        )
+    }.distinctUntilChanged()
+
+    override val reminders: Flow<ReminderPreferenceState> = settingsFlow.map { prefs ->
+        ReminderPreferenceState(
+            persistentReminder = prefs.persistentReminder,
+            persistentIntervalMinutes = prefs.persistentIntervalMinutes,
+            routineSchedule = prefs.routineSchedule(),
+            travelMode = prefs.travelMode,
+            homeTimeZoneId = prefs.homeTimeZoneId,
+            earlyReminderMinutes = prefs.earlyReminderMinutes,
+            followUpReminderEnabled = prefs.followUpReminderEnabled,
+            followUpDelayMinutes = prefs.followUpDelayMinutes,
+            followUpMaxCount = prefs.followUpMaxCount,
+        )
+    }.distinctUntilChanged()
+
+    override val features: Flow<FeaturePreferenceState> = settingsFlow.map { prefs ->
+        FeaturePreferenceState(
+            enableSymptomDiary = prefs.enableSymptomDiary,
+            enableDrugInteractionCheck = prefs.enableDrugInteractionCheck,
+            enableDrugDatabase = prefs.enableDrugDatabase,
+            enableHealthModule = prefs.enableHealthModule,
+            enableTimePeriodMode = prefs.enableTimePeriodMode,
+        )
+    }.distinctUntilChanged()
+
+    override val ai: Flow<AiPreferenceState> = settingsFlow.map { prefs ->
+        AiPreferenceState(
+            ocrModelType = prefs.ocrModelType,
+            cloudAiEnabled = prefs.cloudAiEnabled,
+            cloudAiImageAnalysisEnabled = prefs.cloudAiImageAnalysisEnabled,
+            cloudAiHealthInsightsEnabled = prefs.cloudAiHealthInsightsEnabled,
+            cloudAiWifiOnly = prefs.cloudAiWifiOnly,
+            cloudAiProvider = prefs.cloudAiProvider,
+            cloudAiModel = prefs.activeCloudAiModel(),
+            mimoCloudAiBaseUrl = prefs.mimoCloudAiBaseUrl,
+            anthropicCloudAiBaseUrl = prefs.anthropicCloudAiBaseUrl,
+            openAiCompatibleBaseUrl = prefs.openAiCompatibleBaseUrl,
+            openAiCompatibleAuthMode = prefs.openAiCompatibleAuthMode,
+            openAiCompatibleProviderName = prefs.openAiCompatibleProviderName,
+        )
+    }.distinctUntilChanged()
+
+    override val widgets: Flow<WidgetPreferenceState> = settingsFlow.map { prefs ->
+        WidgetPreferenceState(
+            showActions = prefs.widgetShowActions,
+            themeMode = prefs.widgetThemeMode,
+            colorSource = prefs.widgetColorSource,
+            paletteName = prefs.widgetPaletteName,
+            densityScale = prefs.widgetDensityScale,
+            textScale = prefs.widgetTextScale,
+        )
+    }.distinctUntilChanged()
+
+    override val onboarding: Flow<OnboardingPreferenceState> = settingsFlow
+        .map { OnboardingPreferenceState(it.hasSeenWelcome) }
+        .distinctUntilChanged()
+
+    override suspend fun updatePersistentReminder(enabled: Boolean) {
         dataStore.edit { it[PERSISTENT_REMINDER] = enabled }
     }
 
-    suspend fun updatePersistentInterval(minutes: Int) {
+    override suspend fun updatePersistentInterval(minutes: Int) {
         dataStore.edit { it[PERSISTENT_INTERVAL_MINUTES] = minutes }
     }
 
-    suspend fun updateRoutineTime(slot: RoutineTimeSlot, time: RoutineTime) {
+    override suspend fun updateRoutineTime(slot: RoutineTimeSlot, time: RoutineTime) {
         dataStore.edit { prefs ->
             when (slot) {
                 RoutineTimeSlot.WAKE -> {
@@ -507,7 +480,7 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
         }
     }
 
-    suspend fun updateRoutineSchedule(schedule: RoutineSchedule) {
+    override suspend fun updateRoutineSchedule(schedule: RoutineSchedule) {
         dataStore.edit { prefs ->
             prefs[WAKE_HOUR] = schedule.wake.hour
             prefs[WAKE_MINUTE] = schedule.wake.minute
@@ -522,11 +495,33 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
         }
     }
 
-    suspend fun updateHasSeenWelcome(seen: Boolean) {
+    override suspend fun updateHasSeenWelcome(seen: Boolean) {
         dataStore.edit { it[HAS_SEEN_WELCOME] = seen }
     }
 
-    suspend fun updateTravelMode(enabled: Boolean, homeTimeZoneId: String = "") {
+    /** Writes the complete onboarding draft atomically so observers never see a partially applied setup. */
+    override suspend fun saveOnboardingDraft(draft: OnboardingDraft) {
+        dataStore.edit { prefs ->
+            prefs[WAKE_HOUR] = draft.routineSchedule.wake.hour
+            prefs[WAKE_MINUTE] = draft.routineSchedule.wake.minute
+            prefs[BREAKFAST_HOUR] = draft.routineSchedule.breakfast.hour
+            prefs[BREAKFAST_MIN] = draft.routineSchedule.breakfast.minute
+            prefs[LUNCH_HOUR] = draft.routineSchedule.lunch.hour
+            prefs[LUNCH_MIN] = draft.routineSchedule.lunch.minute
+            prefs[DINNER_HOUR] = draft.routineSchedule.dinner.hour
+            prefs[DINNER_MIN] = draft.routineSchedule.dinner.minute
+            prefs[BED_HOUR] = draft.routineSchedule.bed.hour
+            prefs[BED_MIN] = draft.routineSchedule.bed.minute
+            prefs[ENABLE_SYMPTOM_DIARY] = draft.enableSymptomDiary
+            prefs[ENABLE_DRUG_INTERACTION] = draft.enableDrugInteractionCheck
+            prefs[ENABLE_DRUG_DATABASE] = draft.enableDrugDatabase
+            prefs[ENABLE_HEALTH_MODULE] = draft.enableHealthModule
+            prefs[ENABLE_TIME_PERIOD_MODE] = draft.enableTimePeriodMode
+            prefs[THEME_MODE] = draft.themeMode.name
+        }
+    }
+
+    override suspend fun updateTravelMode(enabled: Boolean, homeTimeZoneId: String) {
         dataStore.edit {
             it[TRAVEL_MODE] = enabled
             if (homeTimeZoneId.isNotBlank()) it[HOME_TIMEZONE_ID] = homeTimeZoneId
@@ -536,12 +531,12 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     /**
      * 更新可选功能开关（null = 保持原值不变）。
      */
-    suspend fun updateFeatureFlags(
-        enableSymptomDiary: Boolean? = null,
-        enableDrugInteraction: Boolean? = null,
-        enableDrugDatabase: Boolean? = null,
-        enableHealthModule: Boolean? = null,
-        enableTimePeriodMode: Boolean? = null,
+    override suspend fun updateFeatureFlags(
+        enableSymptomDiary: Boolean?,
+        enableDrugInteraction: Boolean?,
+        enableDrugDatabase: Boolean?,
+        enableHealthModule: Boolean?,
+        enableTimePeriodMode: Boolean?,
     ) {
         dataStore.edit { prefs ->
             if (enableSymptomDiary != null) prefs[ENABLE_SYMPTOM_DIARY] = enableSymptomDiary
@@ -553,57 +548,57 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     }
 
     /** 更新外观主题模式 */
-    suspend fun updateThemeMode(themeMode: ThemeMode) {
+    override suspend fun updateThemeMode(themeMode: ThemeMode) {
         dataStore.edit { it[THEME_MODE] = themeMode.name }
     }
 
     /** 更新动态颜色（Material You）开关 */
-    suspend fun updateUseDynamicColor(enabled: Boolean) {
+    override suspend fun updateUseDynamicColor(enabled: Boolean) {
         dataStore.edit { it[USE_DYNAMIC_COLOR] = enabled }
     }
 
     /** 更新主题配色方案 */
-    suspend fun updateThemePalette(paletteName: String) {
+    override suspend fun updateThemePalette(paletteName: String) {
         dataStore.edit { it[THEME_PALETTE] = paletteName }
     }
 
-    suspend fun updateFontMode(fontMode: FontMode) {
+    override suspend fun updateFontMode(fontMode: FontMode) {
         dataStore.edit { it[FONT_MODE] = fontMode.name }
     }
 
-    suspend fun updateAppTextScale(scale: AppTextScale) {
+    override suspend fun updateAppTextScale(scale: AppTextScale) {
         dataStore.edit { it[APP_TEXT_SCALE] = scale.name }
     }
 
-    suspend fun updateUiDensityScale(scale: UiDensityScale) {
+    override suspend fun updateUiDensityScale(scale: UiDensityScale) {
         dataStore.edit { it[UI_DENSITY_SCALE] = scale.name }
     }
 
     /** 更新「已完成分组默认折叠」开关 */
-    suspend fun updateAutoCollapseCompletedGroups(enabled: Boolean) {
+    override suspend fun updateAutoCollapseCompletedGroups(enabled: Boolean) {
         dataStore.edit { it[AUTO_COLLAPSE_DONE] = enabled }
     }
 
-    suspend fun updateHomeHeroStyle(style: HomeHeroStyle) {
+    override suspend fun updateHomeHeroStyle(style: HomeHeroStyle) {
         dataStore.edit { it[HOME_HERO_STYLE] = style.name }
     }
 
     /** 更新提前预告提醒分钟数（0 = 关闭） */
-    suspend fun updateEarlyReminderMinutes(minutes: Int) {
+    override suspend fun updateEarlyReminderMinutes(minutes: Int) {
         dataStore.edit { it[EARLY_REMINDER_MINUTES] = minutes }
     }
 
     /** 更新小组件显示模式（true = 操作按物，false = 状态显示） */
-    suspend fun updateWidgetShowActions(enabled: Boolean) {
+    override suspend fun updateWidgetShowActions(enabled: Boolean) {
         dataStore.edit { it[WIDGET_SHOW_ACTIONS] = enabled }
     }
 
-    suspend fun updateWidgetAppearance(
-        themeMode: WidgetThemeMode? = null,
-        colorSource: WidgetColorSource? = null,
-        paletteName: String? = null,
-        densityScale: WidgetDensityScale? = null,
-        textScale: WidgetTextScale? = null,
+    override suspend fun updateWidgetAppearance(
+        themeMode: WidgetThemeMode?,
+        colorSource: WidgetColorSource?,
+        paletteName: String?,
+        densityScale: WidgetDensityScale?,
+        textScale: WidgetTextScale?,
     ) {
         dataStore.edit { prefs ->
             if (themeMode != null) prefs[WIDGET_THEME_MODE] = themeMode.name
@@ -615,7 +610,7 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     }
 
     /** 更新漏服再提醒设置 */
-    suspend fun updateFollowUpSettings(enabled: Boolean? = null, delayMinutes: Int? = null, maxCount: Int? = null) {
+    override suspend fun updateFollowUpSettings(enabled: Boolean?, delayMinutes: Int?, maxCount: Int?) {
         dataStore.edit { prefs ->
             if (enabled != null) prefs[FOLLOW_UP_ENABLED] = enabled
             if (delayMinutes != null) prefs[FOLLOW_UP_DELAY_MINUTES] = delayMinutes
@@ -629,22 +624,22 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     }
 
     /** 更新 OCR 识别模型类型 */
-    suspend fun updateOcrModelType(modelType: OcrModelType) {
+    override suspend fun updateOcrModelType(modelType: OcrModelType) {
         dataStore.edit { it[OCR_MODEL_TYPE] = modelType.name }
     }
 
-    suspend fun updateCloudAiSettings(
-        enabled: Boolean? = null,
-        imageAnalysisEnabled: Boolean? = null,
-        healthInsightsEnabled: Boolean? = null,
-        wifiOnly: Boolean? = null,
-        provider: CloudAiProvider? = null,
-        model: String? = null,
-        mimoBaseUrl: String? = null,
-        anthropicBaseUrl: String? = null,
-        openAiCompatibleBaseUrl: String? = null,
-        openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode? = null,
-        openAiCompatibleProviderName: String? = null,
+    override suspend fun updateCloudAiSettings(
+        enabled: Boolean?,
+        imageAnalysisEnabled: Boolean?,
+        healthInsightsEnabled: Boolean?,
+        wifiOnly: Boolean?,
+        provider: CloudAiProvider?,
+        model: String?,
+        mimoBaseUrl: String?,
+        anthropicBaseUrl: String?,
+        openAiCompatibleBaseUrl: String?,
+        openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode?,
+        openAiCompatibleProviderName: String?,
     ) {
         dataStore.edit { prefs ->
             val selectedProvider = provider ?: prefs[CLOUD_AI_PROVIDER]?.let {

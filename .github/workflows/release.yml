@@ -154,7 +154,7 @@ jobs:
         run: bash scripts/verify-room-schema.sh
 
       - name: Verify and build Release APK / 验证并构建发布 APK
-        run: ./gradlew ktlintCheck :app:testDebugUnitTest lintDebug assembleRelease -PenableAbiSplits=true --build-cache --configuration-cache --stacktrace
+        run: ./gradlew ktlintCheck test lintDebug assembleRelease compileDebugAndroidTestKotlin -PenableAbiSplits=true --build-cache --configuration-cache --stacktrace
         env:
           VERSION_NAME: ${{ steps.version.outputs.version_name }}
           VERSION_CODE: ${{ steps.version.outputs.version_code }}

@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-schema_dir="app/schemas/com.driezy.medlog.data.local.MedLogDatabase"
+schema_dir="core/database/schemas/com.driezy.medlog.data.local.MedLogDatabase"
 current_schema="$(
   find "$schema_dir" -maxdepth 1 -type f -name '*.json' -print |
     sort -V |
@@ -37,7 +37,7 @@ restore_on_error() {
 trap restore_on_error EXIT
 
 rm -- "$current_schema"
-./gradlew :app:kspDebugKotlin :app:copyRoomSchemas --rerun-tasks
+./gradlew :core:database:kspDebugKotlin :core:database:copyRoomSchemas --rerun-tasks
 
 if [[ ! -f "$current_schema" ]]; then
   echo "Room did not regenerate $current_schema." >&2

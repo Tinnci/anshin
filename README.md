@@ -79,7 +79,7 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 | UI | Jetpack Compose (BOM 2026.05.01) · Material 3 Expressive 1.5.0-alpha20 |
 | Adaptive Nav | `material3-adaptive-navigation-suite` 1.2.0 |
 | State | Kotlin Coroutines 1.11.0 · StateFlow · `collectAsStateWithLifecycle` |
-| Database | Room 2.8.4 (KSP, 10 migrations) |
+| Database | Room 2.8.4 (KSP, full v5→v16 migration chain) |
 | Preferences | Jetpack DataStore 1.2.1 |
 | DI | Hilt 2.59.2 + HiltViewModel |
 | Background | WorkManager 2.11.2 + AlarmManager (exact) |
@@ -99,8 +99,8 @@ helping users track daily medication, manage inventory, and stay on schedule wit
   Expressive, color roles, icons, carousel usage, and editorial treatment.
 - [AI health intelligence plan](docs/ai-health-intelligence-plan.md): product
   decisions, safety constraints, implementation review, and follow-up plan.
-- [Architecture governance](docs/architecture-governance.md): ranked
-  deepening candidates, reproduced failures, product invariants, and
+- [Architecture governance](docs/architecture-governance.md): module/layer
+  boundaries, architecture decisions, persistence policy, and
   verification gates.
 - [Material Symbols usage](docs/material-symbols.md): local VectorDrawable
   source, update workflow, and icon rules.
@@ -146,32 +146,31 @@ git config hooks.medlogSyncGhIdentity false
 
 ## Architecture
 
-**Clean Architecture + MVVM + SSOT (Single Source of Truth)**
+**Modular monolith · MVVM + UDF · SSOT (Single Source of Truth)**
 
 ```
-┌──────────────────────────────────────────────────┐
-│  UI Layer                                        │
-│  Compose Screens  ←→  ViewModels (BaseViewModel) │
-│                        ↑ StateFlow<UiState>      │
-├──────────────────────────────────────────────────┤
-│  Domain Layer                                    │
-│  ToggleMedicationDoseUseCase                     │
-│  ResyncRemindersUseCase · ImportPlanUseCase       │
-│  ProgressNotificationUseCase · StreakCalculator   │
-│  DateUtils · PlanExportCodec                     │
-├──────────────────────────────────────────────────┤
-│  Data Layer                                      │
-│  Room DAOs · RepositoryImpl · DataStore          │
-│  TransactionRunner · DrugDataSource              │
-└──────────────────────────────────────────────────┘
+:app (composition, navigation, Android infrastructure)
+ ├── :feature:onboarding
+ ├── :capability:reminders
+ ├── :core:model
+ ├── :core:database
+ ├── :core:preferences
+ └── :core:ui
+
+:feature:onboarding ──> :core:preferences ──> :core:model
+:capability:reminders ──────────────────────> :core:model
+:app tests ─────────────────────────────────> :core:testing
 ```
 
 **Key patterns:**
 
-- **SSOT**: `SettingsPreferences` is the single source of truth for all user preferences. All ViewModels read from `UserPreferencesRepository.settingsFlow`.
-- **TransactionRunner**: Abstraction over Room transactions for domain-layer testability.
-- **BaseViewModel**: Shared `safeLaunch` with error handling for all ViewModels.
-- **UI/Data separation**: `TimePeriod` is a pure enum (no Compose deps); UI extensions live in `ui/util/TimePeriodUi.kt`.
+- **SSOT + projections**: Room/DataStore are durable truth; alarms, notifications, and widgets are idempotently rebuilt from it.
+- **Page-level UDF**: complex routes expose immutable `UiState`, `UiAction`, buffered `UiEffect`, and one `onAction` entry point. Content composables do not depend on ViewModels.
+- **Typed domain**: medication/occurrence IDs and schedule variants are pure Kotlin models; legacy Room strings are interpreted only by persistence mappers.
+- **Focused preferences**: appearance, reminders, features, AI, widgets, and onboarding have narrow typed ports over one atomic DataStore.
+- **Application commands**: UI, notification, and Widget actions share the same transactional, idempotent dose commands.
+
+See [Architecture governance](docs/architecture-governance.md) for dependency rules, ADRs, migration policy, and verification gates.
 
 **Adaptive navigation** auto-selects based on `WindowWidthSizeClass`:
 
@@ -186,25 +185,31 @@ git config hooks.medlogSyncGhIdentity false
 ## Project Structure
 
 ```
-app/src/main/java/com/example/medlog/
-├── data/
-│   ├── local/          # Room DAOs · Database · TypeConverters · TransactionRunner · DataStore
-│   ├── model/          # Medication · MedicationLog · TimePeriod · HealthRecord · SymptomLog · Drug
-│   └── repository/     # Repository interfaces + Impl (Medication / Log / Health / Symptom / Drug / UserPrefs)
-├── di/                 # Hilt AppModule (all bindings, migrations, TransactionRunner)
-├── domain/             # Use cases · DateUtils · StreakCalculator · PlanExportCodec
-├── interaction/        # InteractionRuleEngine (drug co-administration checks)
-├── notification/       # NotificationHelper · AlarmScheduler · BootReceiver · AlarmReceiver
-├── ui/
-│   ├── components/     # MedicationCard · ProgressHeader
-│   ├── navigation/     # NavGraph · Adaptive navigation (bottom bar / rail / drawer)
-│   ├── qr/             # QrScannerPage (CameraX + ML Kit)
-│   ├── screen/         # welcome / home / history / drugs / symptom / health / detail / addmedication / settings
-│   ├── theme/          # Color · Type · Shapes · Theme (M3 Dynamic Color)
-│   ├── util/           # DoseFormat · FormIcons · TimePeriodUi
-│   └── utils/          # QrCodeUtils · OemWidgetHelper
-├── util/               # ReminderTimeUtils
-└── widget/             # Glance widgets (Today / NextDose / Streak) · WidgetRefreshWorker
+core/
+├── model/              # typed IDs/schedules plus pure time, streak, reminder rules
+├── database/           # Room entities, DAOs, migrations, exported schemas
+├── preferences/        # typed values and focused preference ports
+├── ui/                 # behavior-free screen descriptors
+└── testing/            # reusable coroutine/JUnit support
+feature/
+└── onboarding/         # onboarding domain language and draft
+capability/
+└── reminders/          # reminder projection ports and reconcile reasons
+app/src/main/java/com/driezy/medlog/
+├── data/               # DataStore, assets, and repository implementations
+├── feature/
+│   ├── medications/    # editor, catalog, detail, home, application commands
+│   ├── history/        # adherence history and projections
+│   ├── health/         # records, journal, health application logic
+│   ├── settings/       # focused settings routes/ViewModels and backup command
+│   └── onboarding/     # Route/Content/ViewModel and completion orchestration
+├── capability/
+│   ├── reminders/      # AlarmManager, notifications, Worker, receivers
+│   ├── widgets/        # Glance projections and shared command adapters
+│   ├── ai/             # cloud clients and key storage
+│   ├── ocr/            # camera/ML Kit/ONNX adapters
+│   └── bpx1/           # BLE adapter and protocol
+└── ui/navigation/      # app composition and type-safe routes
 ```
 
 ---

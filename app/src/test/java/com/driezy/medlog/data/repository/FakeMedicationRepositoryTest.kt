@@ -128,4 +128,32 @@ class FakeMedicationRepositoryTest {
         assertEquals("Lisinopril", med.name)
         assertEquals(1.0, med.dose, 0.001)
     }
+
+    @Test
+    fun `mergeMedicationsByName deduplicates existing names and repeated payload names atomically`() = runTest {
+        repo.addMedication(medication("Aspirin"))
+
+        repo.mergeMedicationsByName(
+            listOf(
+                medication(" aspirin "),
+                medication("Metformin"),
+                medication("METFORMIN"),
+            ),
+        )
+
+        assertEquals(listOf("Aspirin", "Metformin"), repo.getActiveOnce().map(Medication::name))
+    }
+
+    @Test
+    fun `replaceActiveMedications preserves archived history and replaces active set in one update`() = runTest {
+        repo.addMedication(medication("Old active"))
+        val archivedId = repo.addMedication(medication("Historical"))
+        repo.archiveMedication(archivedId)
+
+        repo.replaceActiveMedications(listOf(medication("Replacement A"), medication("Replacement B")))
+
+        assertEquals(listOf("Replacement A", "Replacement B"), repo.getActiveOnce().map(Medication::name))
+        assertEquals("Historical", repo.getMedicationById(archivedId)?.name)
+        assertEquals(true, repo.getMedicationById(archivedId)?.isArchived)
+    }
 }

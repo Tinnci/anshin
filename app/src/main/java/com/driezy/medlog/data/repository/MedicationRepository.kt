@@ -14,6 +14,9 @@ interface MedicationRepository {
     suspend fun getMedicationById(id: Long): Medication?
     suspend fun addMedication(medication: Medication): Long
     suspend fun updateMedication(medication: Medication)
+    suspend fun updateMedications(medications: List<Medication>)
+    suspend fun mergeMedicationsByName(medications: List<Medication>)
+    suspend fun replaceActiveMedications(medications: List<Medication>)
     suspend fun deleteMedication(medication: Medication)
     suspend fun archiveMedication(id: Long)
     suspend fun unarchiveMedication(id: Long)

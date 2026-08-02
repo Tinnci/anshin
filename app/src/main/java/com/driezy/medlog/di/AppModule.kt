@@ -2,8 +2,16 @@ package com.driezy.medlog.di
 
 import android.content.Context
 import androidx.room.Room
-import com.driezy.medlog.ai.AiApiKeyStore
-import com.driezy.medlog.ai.AndroidKeystoreAiApiKeyStore
+import com.driezy.medlog.capability.ai.AiApiKeyStore
+import com.driezy.medlog.capability.ai.AndroidKeystoreAiApiKeyStore
+import com.driezy.medlog.capability.bpx1.AndroidBpx1BleClient
+import com.driezy.medlog.capability.bpx1.AndroidKeystoreBpx1DeviceStore
+import com.driezy.medlog.capability.bpx1.Bpx1BleClient
+import com.driezy.medlog.capability.bpx1.Bpx1DeviceStore
+import com.driezy.medlog.capability.reminders.AndroidReminderReconciler
+import com.driezy.medlog.capability.reminders.WorkManagerReminderReconciliationQueue
+import com.driezy.medlog.capability.widgets.GlanceWidgetRefresher
+import com.driezy.medlog.capability.widgets.WidgetRefresher
 import com.driezy.medlog.data.local.AiAnalysisCacheDao
 import com.driezy.medlog.data.local.AiUsageEventDao
 import com.driezy.medlog.data.local.DrugAliasAssetParser
@@ -16,25 +24,29 @@ import com.driezy.medlog.data.local.SymptomLogDao
 import com.driezy.medlog.data.local.TransactionRunner
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.AiCacheRepositoryImpl
+import com.driezy.medlog.data.repository.AiPreferences
+import com.driezy.medlog.data.repository.AppearancePreferences
 import com.driezy.medlog.data.repository.DrugRepository
 import com.driezy.medlog.data.repository.DrugRepositoryImpl
+import com.driezy.medlog.data.repository.FeaturePreferences
 import com.driezy.medlog.data.repository.HealthRepository
 import com.driezy.medlog.data.repository.HealthRepositoryImpl
 import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.LogRepositoryImpl
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.MedicationRepositoryImpl
+import com.driezy.medlog.data.repository.OnboardingPreferences
+import com.driezy.medlog.data.repository.ReminderPreferences
 import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
-import com.driezy.medlog.device.bpx1.AndroidBpx1BleClient
-import com.driezy.medlog.device.bpx1.AndroidKeystoreBpx1DeviceStore
-import com.driezy.medlog.device.bpx1.Bpx1BleClient
-import com.driezy.medlog.device.bpx1.Bpx1DeviceStore
+import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.data.repository.WidgetPreferences
+import com.driezy.medlog.domain.ReminderReconciler
+import com.driezy.medlog.domain.ReminderReconciliationQueue
+import com.driezy.medlog.domain.ReminderPlanner
 import com.driezy.medlog.interaction.DrugAliasNormalizer
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.doubao.DoubaoVoiceInputController
-import com.driezy.medlog.widget.GlanceWidgetRefresher
-import com.driezy.medlog.widget.WidgetRefresher
 import dagger.Binds
 import dagger.Module
 import dagger.Provides
@@ -47,6 +59,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
+import java.time.Clock
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
@@ -72,6 +85,7 @@ object DatabaseModule {
             MedLogDatabase.MIGRATION_12_13,
             MedLogDatabase.MIGRATION_13_14,
             MedLogDatabase.MIGRATION_14_15,
+            MedLogDatabase.MIGRATION_15_16,
         )
         .build()
 
@@ -120,6 +134,14 @@ object DatabaseModule {
         .readTimeout(15, TimeUnit.SECONDS)
         .writeTimeout(15, TimeUnit.SECONDS)
         .build()
+
+    @Provides
+    @Singleton
+    fun provideClock(): Clock = Clock.systemDefaultZone()
+
+    @Provides
+    @Singleton
+    fun provideReminderPlanner(clock: Clock): ReminderPlanner = ReminderPlanner(clock)
 }
 
 @Module
@@ -161,6 +183,34 @@ abstract class RepositoryModule {
     @Binds
     @Singleton
     abstract fun bindWidgetRefresher(impl: GlanceWidgetRefresher): WidgetRefresher
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderReconciler(impl: AndroidReminderReconciler): ReminderReconciler
+
+    @Binds
+    @Singleton
+    abstract fun bindReminderReconciliationQueue(
+        impl: WorkManagerReminderReconciliationQueue,
+    ): ReminderReconciliationQueue
+
+    @Binds
+    abstract fun bindAppearancePreferences(impl: UserPreferencesRepository): AppearancePreferences
+
+    @Binds
+    abstract fun bindReminderPreferences(impl: UserPreferencesRepository): ReminderPreferences
+
+    @Binds
+    abstract fun bindFeaturePreferences(impl: UserPreferencesRepository): FeaturePreferences
+
+    @Binds
+    abstract fun bindAiPreferences(impl: UserPreferencesRepository): AiPreferences
+
+    @Binds
+    abstract fun bindWidgetPreferences(impl: UserPreferencesRepository): WidgetPreferences
+
+    @Binds
+    abstract fun bindOnboardingPreferences(impl: UserPreferencesRepository): OnboardingPreferences
 
     @Binds
     @Singleton

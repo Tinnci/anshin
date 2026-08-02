@@ -1,4 +1,4 @@
-package com.driezy.medlog.ui.screen.home
+package com.driezy.medlog.feature.medications.home
 
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.junit4.v2.createComposeRule

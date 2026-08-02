@@ -46,14 +46,14 @@ jobs:
         run: bash scripts/verify-room-schema.sh
 
       - name: Verify and build Debug APK
-        run: ./gradlew ktlintCheck testDebugUnitTest lintDebug assembleDebug --build-cache --configuration-cache --stacktrace
+        run: ./gradlew ktlintCheck test lintDebug assembleDebug compileDebugAndroidTestKotlin --build-cache --configuration-cache --stacktrace
 
       - name: Upload unit test results
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: test-results-${{ github.run_number }}
-          path: app/build/test-results/
+          path: "**/build/test-results/"
           if-no-files-found: warn
           retention-days: 7
 

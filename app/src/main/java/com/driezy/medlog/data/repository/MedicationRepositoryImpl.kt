@@ -21,6 +21,14 @@ class MedicationRepositoryImpl @Inject constructor(private val medicationDao: Me
 
     override suspend fun updateMedication(medication: Medication) = medicationDao.updateMedication(medication)
 
+    override suspend fun updateMedications(medications: List<Medication>) = medicationDao.updateMedications(medications)
+
+    override suspend fun mergeMedicationsByName(medications: List<Medication>) =
+        medicationDao.mergeMedicationsByName(medications)
+
+    override suspend fun replaceActiveMedications(medications: List<Medication>) =
+        medicationDao.replaceActiveMedications(medications)
+
     override suspend fun deleteMedication(medication: Medication) = medicationDao.deleteMedication(medication)
 
     override suspend fun archiveMedication(id: Long) = medicationDao.archiveMedication(id)
