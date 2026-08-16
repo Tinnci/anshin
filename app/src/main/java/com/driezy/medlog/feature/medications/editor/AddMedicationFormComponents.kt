@@ -304,3 +304,80 @@ internal fun DatePickerField(
         }
     }
 }
+
+@Composable
+internal fun AddMedicationWizardContent(
+    paddingValues: PaddingValues,
+    currentStep: Int,
+    onBack: () -> Unit,
+    onNext: () -> Unit,
+    uiState: AddMedicationUiState,
+    enableTimePeriodMode: Boolean,
+    formOptions: List<FormOption>,
+    doseUnits: List<String>,
+    onAction: (AddMedicationUiAction) -> Unit,
+    onOpenOcrScanner: () -> Unit,
+    onEditCustomDose: (String) -> Unit,
+) {
+    Column(
+        modifier = Modifier
+            .padding(paddingValues)
+            .verticalScroll(rememberScrollState())
+            .imePadding()
+            .padding(horizontal = MedLogSpacing.Large)
+            .padding(bottom = MedLogSpacing.XXLarge),
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+    ) {
+        Text(
+            stringResource(R.string.add_wizard_step, currentStep + 1, WIZARD_STEP_COUNT),
+            style = MaterialTheme.typography.labelMedium,
+            color = MaterialTheme.colorScheme.primary,
+        )
+        when (currentStep) {
+            0 -> {
+                MedicationBasicInfoSection(uiState = uiState, onAction = onAction, onOpenOcrScanner = onOpenOcrScanner)
+                MedicationFormChoiceSection(uiState = uiState, formOptions = formOptions, onAction = onAction)
+            }
+            1 -> {
+                MedicationDoseSection(
+                    uiState = uiState,
+                    doseUnits = doseUnits,
+                    onAction = onAction,
+                    onEditCustomDose = onEditCustomDose,
+                )
+                MedicationUsageFrequencySection(uiState = uiState, onAction = onAction)
+                MedicationReminderScheduleSection(
+                    uiState = uiState,
+                    enableTimePeriodMode = enableTimePeriodMode,
+                    onAction = onAction,
+                )
+            }
+            else -> {
+                MedicationDateSection(uiState = uiState, onAction = onAction)
+                MedicationStockSection(uiState = uiState, onAction = onAction)
+                MedicationNotesSection(uiState = uiState, onAction = onAction)
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            if (currentStep > 0) {
+                OutlinedButton(onClick = onBack, modifier = Modifier.weight(1f)) {
+                    Text(stringResource(R.string.add_wizard_back))
+                }
+            }
+            Button(onClick = onNext, modifier = Modifier.weight(1f)) {
+                Text(
+                    if (currentStep < WIZARD_STEP_COUNT - 1) {
+                        stringResource(R.string.add_wizard_next)
+                    } else {
+                        stringResource(R.string.add_save)
+                    },
+                )
+            }
+        }
+    }
+}
+
+private const val WIZARD_STEP_COUNT = 3

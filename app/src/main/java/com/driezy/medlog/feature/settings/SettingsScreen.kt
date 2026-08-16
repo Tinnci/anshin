@@ -35,7 +35,7 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import kotlinx.coroutines.launch
 
-private enum class SettingsScreenMode(@param:StringRes val titleRes: Int) {
+internal enum class SettingsScreenMode(@param:StringRes val titleRes: Int) {
     HOME(R.string.tab_settings),
     APPEARANCE(R.string.settings_group_appearance_home),
     REMINDERS(R.string.settings_group_reminders_routine),
@@ -74,98 +74,9 @@ fun SettingsScreen(
     )
 }
 
-@Composable
-fun AppearanceSettingsScreen(onBack: () -> Unit, viewModel: SettingsAppearanceViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.APPEARANCE,
-        onBack = onBack,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun ReminderSettingsScreen(onBack: () -> Unit, viewModel: SettingsReminderViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.REMINDERS,
-        onBack = onBack,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun ModuleSettingsScreen(onBack: () -> Unit, viewModel: SettingsModuleViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.MODULES,
-        onBack = onBack,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun IntelligenceSettingsScreen(
-    onBack: () -> Unit,
-    onNavigateToCloudApiSettings: () -> Unit,
-    viewModel: SettingsIntelligenceViewModel = hiltViewModel(),
-) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.INTELLIGENCE,
-        onBack = onBack,
-        onNavigateToCloudApiSettings = onNavigateToCloudApiSettings,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun CloudApiSettingsScreen(onBack: () -> Unit, viewModel: SettingsCloudApiViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.CLOUD_API,
-        onBack = onBack,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun WidgetSettingsScreen(onBack: () -> Unit, viewModel: SettingsWidgetViewModel = hiltViewModel()) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.WIDGETS,
-        onBack = onBack,
-        uiState = uiState,
-        onAction = viewModel::onAction,
-    )
-}
-
-@Composable
-fun DataSettingsScreen(
-    onBack: () -> Unit,
-    onNavigateToWelcome: () -> Unit = {},
-    viewModel: SettingsDataViewModel = hiltViewModel(),
-) {
-    val inProgress by viewModel.inProgress.collectAsStateWithLifecycle()
-    SettingsScaffold(
-        mode = SettingsScreenMode.DATA,
-        onBack = onBack,
-        onNavigateToWelcome = onNavigateToWelcome,
-        uiState = SettingsUiState(),
-        onAction = viewModel::onAction,
-        dataInProgress = inProgress,
-        dataEffects = viewModel.effects,
-    )
-}
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SettingsScaffold(
+internal fun SettingsScaffold(
     mode: SettingsScreenMode,
     onBack: (() -> Unit)? = null,
     onNavigateToWelcome: () -> Unit = {},
@@ -183,12 +94,19 @@ private fun SettingsScaffold(
     dataEffects: kotlinx.coroutines.flow.Flow<SettingsUiEffect>? = null,
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
+    val context = LocalContext.current
+    var showRestartDialog by remember { mutableStateOf(false) }
+    fun restartApplication() {
+        val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
+        intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        context.startActivity(intent)
+        Runtime.getRuntime().exit(0)
+    }
     LaunchedEffect(Unit) {
         onAction(SettingsUiAction.RefreshAiUsage)
     }
 
     // 精确闹钟权限检测（Android 12+）
-    val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     var canScheduleExactAlarms by remember {
         mutableStateOf(
@@ -283,14 +201,28 @@ private fun SettingsScaffold(
             when (effect) {
                 is SettingsUiEffect.Message -> snackbarHostState.showSnackbar(effect.text)
                 SettingsUiEffect.RestartApplication -> {
-                    // 恢复成功 → 重启进程
-                    val intent = context.packageManager.getLaunchIntentForPackage(context.packageName)
-                    intent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    context.startActivity(intent)
-                    Runtime.getRuntime().exit(0)
+                    showRestartDialog = true
                 }
             }
         }
+    }
+
+    if (showRestartDialog) {
+        AlertDialog(
+            onDismissRequest = { showRestartDialog = false },
+            title = { Text(stringResource(R.string.settings_restart_dialog_title)) },
+            text = { Text(stringResource(R.string.settings_restart_dialog_body)) },
+            confirmButton = {
+                TextButton(onClick = { restartApplication() }) {
+                    Text(stringResource(R.string.settings_restart_dialog_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showRestartDialog = false }) {
+                    Text(stringResource(R.string.common_action_cancel))
+                }
+            },
+        )
     }
 
     Scaffold(

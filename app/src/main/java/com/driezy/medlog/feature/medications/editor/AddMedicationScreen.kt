@@ -96,6 +96,7 @@ private fun AddMedicationContent(
     onAction: (AddMedicationUiAction) -> Unit,
 ) {
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
+    var wizardStep by rememberSaveable { mutableIntStateOf(0) }
     val formOptions = listOf(
         FormOption("tablet", stringResource(R.string.add_form_tablet), MedLogIcons.Medication),
         FormOption("capsule", stringResource(R.string.add_form_capsule), MedLogIcons.Science),
@@ -148,36 +149,78 @@ private fun AddMedicationContent(
             if (id == "save") onAction(AddMedicationUiAction.Save(medicationId))
         },
     ) { paddingValues ->
-        AddMedicationFormContent(
-            paddingValues = paddingValues,
-            uiState = uiState,
-            enableTimePeriodMode = uiState.enableTimePeriodMode,
-            formOptions = formOptions,
-            doseUnits = doseUnits,
-            onAction = onAction,
-            onOpenOcrScanner = {
-                overlay = ScreenOverlay.FullScreen(id = "add:ocr") {
-                    com.driezy.medlog.capability.ocr.OcrScannerPage(
-                        onResult = { text ->
-                            overlay = null
-                            onAction(AddMedicationUiAction.NameChanged(text))
-                        },
-                        onBack = { overlay = null },
+        if (medicationId == null) {
+            AddMedicationWizardContent(
+                paddingValues = paddingValues,
+                currentStep = wizardStep,
+                onBack = { wizardStep = (wizardStep - 1).coerceAtLeast(0) },
+                onNext = {
+                    if (wizardStep < 2) {
+                        wizardStep += 1
+                    } else {
+                        onAction(AddMedicationUiAction.Save(medicationId))
+                    }
+                },
+                uiState = uiState,
+                enableTimePeriodMode = uiState.enableTimePeriodMode,
+                formOptions = formOptions,
+                doseUnits = doseUnits,
+                onAction = onAction,
+                onOpenOcrScanner = {
+                    overlay = ScreenOverlay.FullScreen(id = "add:ocr") {
+                        com.driezy.medlog.capability.ocr.OcrScannerPage(
+                            onResult = { text ->
+                                overlay = null
+                                onAction(AddMedicationUiAction.NameChanged(text))
+                            },
+                            onBack = { overlay = null },
+                        )
+                    }
+                },
+                onEditCustomDose = { doseText ->
+                    overlay = ScreenOverlay.TextInput(
+                        id = "add:custom-dose",
+                        title = customDoseTitle,
+                        label = customDoseLabel,
+                        confirmLabel = confirmLabel,
+                        dismissLabel = cancelLabel,
+                        initialValue = doseText,
+                        keyboardType = KeyboardType.Decimal,
                     )
-                }
-            },
-            onEditCustomDose = { doseText ->
-                overlay = ScreenOverlay.TextInput(
-                    id = "add:custom-dose",
-                    title = customDoseTitle,
-                    label = customDoseLabel,
-                    confirmLabel = confirmLabel,
-                    dismissLabel = cancelLabel,
-                    initialValue = doseText,
-                    keyboardType = KeyboardType.Decimal,
-                )
-            },
-        )
+                },
+            )
+        } else {
+            AddMedicationFormContent(
+                paddingValues = paddingValues,
+                uiState = uiState,
+                enableTimePeriodMode = uiState.enableTimePeriodMode,
+                formOptions = formOptions,
+                doseUnits = doseUnits,
+                onAction = onAction,
+                onOpenOcrScanner = {
+                    overlay = ScreenOverlay.FullScreen(id = "add:ocr") {
+                        com.driezy.medlog.capability.ocr.OcrScannerPage(
+                            onResult = { text ->
+                                overlay = null
+                                onAction(AddMedicationUiAction.NameChanged(text))
+                            },
+                            onBack = { overlay = null },
+                        )
+                    }
+                },
+                onEditCustomDose = { doseText ->
+                    overlay = ScreenOverlay.TextInput(
+                        id = "add:custom-dose",
+                        title = customDoseTitle,
+                        label = customDoseLabel,
+                        confirmLabel = confirmLabel,
+                        dismissLabel = cancelLabel,
+                        initialValue = doseText,
+                        keyboardType = KeyboardType.Decimal,
+                    )
+                },
+            )
+        }
     }
     ScreenOverlayHost(
         overlay = overlay,

@@ -921,4 +921,11 @@
         <item>便秘</item>
         <item>视力模糊</item>
     </string-array>
+    <string name="add_wizard_step">第 %1$d / %2$d 步</string>
+    <string name="add_wizard_back">上一步</string>
+    <string name="add_wizard_next">下一步</string>
+    <string name="health_source_manual">手动录入</string>
+    <string name="settings_restart_dialog_title">恢复完成</string>
+    <string name="settings_restart_dialog_body">数据库已恢复，应用需要重启以生效。立即重启吗？</string>
+    <string name="settings_restart_dialog_confirm">立即重启</string>
 </resources>

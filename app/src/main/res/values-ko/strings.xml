@@ -935,4 +935,11 @@
     <string name="settings_ai_usage_title">최근 7일 내부 상태</string>
     <string name="settings_ai_usage_summary">총 %1$d회, 성공 %2$d회, 오류 %3$d회, 캐시 적중 %4$d회</string>
     <string name="settings_ai_usage_last_error">최근 오류: %s</string>
+    <string name="add_wizard_step">%1$d / %2$d 단계</string>
+    <string name="add_wizard_back">이전</string>
+    <string name="add_wizard_next">다음</string>
+    <string name="health_source_manual">수동 입력</string>
+    <string name="settings_restart_dialog_title">복원 완료</string>
+    <string name="settings_restart_dialog_body">데이터베이스가 복원되었습니다. 변경 사항을 적용하려면 앱을 다시 시작해야 합니다. 지금 다시 시작할까요?</string>
+    <string name="settings_restart_dialog_confirm">지금 다시 시작</string>
 </resources>

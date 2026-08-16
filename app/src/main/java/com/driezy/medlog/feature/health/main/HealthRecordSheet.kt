@@ -7,6 +7,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -43,6 +44,7 @@ internal fun AddEditHealthSheet(
     onSave: () -> Unit,
 ) {
     val sheetState = rememberBottomSheetState(SheetValue.Hidden, HealthRecordSheetEnabledStates)
+    var entrySource by rememberSaveable { mutableStateOf(HealthRecordEntrySource.MANUAL) }
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -146,19 +148,18 @@ internal fun AddEditHealthSheet(
                 )
             }
 
-            // ── OCR 拍照填充 / BPX1 同步 ─────────────────────────────
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                AssistChip(
-                    onClick = onOcrScan,
-                    label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
-                    leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
-                )
-                AssistChip(
-                    onClick = onBpx1Sync,
-                    label = { Text(stringResource(R.string.bpx1_sync_chip)) },
-                    leadingIcon = { MedLogIcon(MedLogIcons.MonitorHeart, null, Modifier.size(18.dp)) },
-                )
-            }
+            // ── 记录来源选择（手动 / OCR / BPX1） ───────────────────
+            HealthRecordSourceSelector(
+                selected = entrySource,
+                onSelect = { source ->
+                    entrySource = source
+                    when (source) {
+                        HealthRecordEntrySource.MANUAL -> Unit
+                        HealthRecordEntrySource.OCR -> onOcrScan()
+                        HealthRecordEntrySource.BPX1 -> onBpx1Sync()
+                    }
+                },
+            )
 
             // ── 备注 ──────────────────────────────────────────────────
             OutlinedTextField(

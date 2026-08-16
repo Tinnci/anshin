@@ -932,4 +932,11 @@
     <string name="settings_ai_usage_title">過去 7 日間の内部状態</string>
     <string name="settings_ai_usage_summary">合計 %1$d 回、成功 %2$d 回、エラー %3$d 回、キャッシュヒット %4$d 回</string>
     <string name="settings_ai_usage_last_error">直近のエラー：%s</string>
+    <string name="add_wizard_step">ステップ %1$d / %2$d</string>
+    <string name="add_wizard_back">戻る</string>
+    <string name="add_wizard_next">次へ</string>
+    <string name="health_source_manual">手動入力</string>
+    <string name="settings_restart_dialog_title">復元完了</string>
+    <string name="settings_restart_dialog_body">データベースを復元しました。変更を反映するにはアプリの再起動が必要です。今すぐ再起動しますか？</string>
+    <string name="settings_restart_dialog_confirm">今すぐ再起動</string>
 </resources>
