@@ -1,5 +1,6 @@
 package com.driezy.medlog.feature.medications.home
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -401,9 +402,12 @@ private fun HomeContent(
                         key = { _, it -> it.doseKey },
                     ) { idx, item ->
                         val motionScheme = MaterialTheme.motionScheme
+                        val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
                         var visible by remember(item.doseKey) { mutableStateOf(false) }
-                        LaunchedEffect(item.doseKey) {
-                            delay(idx * STAGGER_DELAY_MS) // 基于组内索引，而非全局，避免底部首次出现延迟
+                        LaunchedEffect(item.doseKey, animationsEnabled) {
+                            if (animationsEnabled) {
+                                delay(idx * STAGGER_DELAY_MS) // 基于组内索引，而非全局，避免底部首次出现延迟
+                            }
                             visible = true
                         }
                         AnimatedVisibility(

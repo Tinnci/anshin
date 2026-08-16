@@ -1,6 +1,10 @@
 package com.driezy.medlog.feature.settings
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -52,6 +56,7 @@ internal fun EndpointPresetPicker(
     val protocolPresetCount = presets.count { it.protocol == protocol }
     if (protocolPresetCount == 0) return
 
+    val motionScheme = MaterialTheme.motionScheme
     var expanded by rememberSaveable { mutableStateOf(false) }
     var query by rememberSaveable { mutableStateOf("") }
     val presentation = CloudAiEndpointPresetListPresentation.from(
@@ -129,7 +134,14 @@ internal fun EndpointPresetPicker(
                 }
             }
         }
-        AnimatedVisibility(visible = expanded) {
+        AnimatedVisibility(
+            visible = expanded,
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
+            label = "endpoint_preset_picker_animated",
+        ) {
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),

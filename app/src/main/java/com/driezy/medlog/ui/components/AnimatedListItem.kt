@@ -1,5 +1,6 @@
 package com.driezy.medlog.ui.components
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
@@ -29,14 +30,23 @@ fun AnimatedListItem(
 ) {
     val animatedAlpha = remember { Animatable(0f) }
     val animatedOffset = remember { Animatable(24f) }
+    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
 
-    LaunchedEffect(Unit) {
-        delay(index * staggerDelay)
-        animatedAlpha.animateTo(1f, animationSpec = motionScheme.defaultEffectsSpec())
+    LaunchedEffect(animationsEnabled, index, staggerDelay) {
+        if (animationsEnabled) {
+            delay(index * staggerDelay)
+            animatedAlpha.animateTo(1f, animationSpec = motionScheme.defaultEffectsSpec())
+        } else {
+            animatedAlpha.snapTo(1f)
+        }
     }
-    LaunchedEffect(Unit) {
-        delay(index * staggerDelay)
-        animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultSpatialSpec())
+    LaunchedEffect(animationsEnabled, index, staggerDelay) {
+        if (animationsEnabled) {
+            delay(index * staggerDelay)
+            animatedOffset.animateTo(0f, animationSpec = motionScheme.defaultSpatialSpec())
+        } else {
+            animatedOffset.snapTo(0f)
+        }
     }
 
     Box(

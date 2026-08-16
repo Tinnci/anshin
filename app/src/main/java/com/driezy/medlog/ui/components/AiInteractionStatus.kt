@@ -1,5 +1,6 @@
 package com.driezy.medlog.ui.components
 
+import android.animation.ValueAnimator
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
@@ -106,17 +107,18 @@ fun AiInteractionStatusPill(status: AiExecutionStatus, isRunning: Boolean, modif
     )
     val pulse = remember { Animatable(1f) }
     val rotation = remember { Animatable(0f) }
-    LaunchedEffect(presentation.animated, motionScheme) {
-        if (!presentation.animated) {
+    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
+    LaunchedEffect(presentation.animated, motionScheme, animationsEnabled) {
+        if (presentation.animated && animationsEnabled) {
+            while (true) {
+                pulse.animateTo(1.08f, animationSpec = motionScheme.fastSpatialSpec<Float>())
+                rotation.animateTo(180f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
+                pulse.animateTo(0.94f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
+                rotation.animateTo(360f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
+                rotation.snapTo(0f)
+            }
+        } else {
             pulse.snapTo(1f)
-            rotation.snapTo(0f)
-            return@LaunchedEffect
-        }
-        while (true) {
-            pulse.animateTo(1.08f, animationSpec = motionScheme.fastSpatialSpec<Float>())
-            rotation.animateTo(180f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
-            pulse.animateTo(0.94f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
-            rotation.animateTo(360f, animationSpec = motionScheme.defaultSpatialSpec<Float>())
             rotation.snapTo(0f)
         }
     }

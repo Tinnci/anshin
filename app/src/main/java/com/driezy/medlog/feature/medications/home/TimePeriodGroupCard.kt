@@ -1,5 +1,6 @@
 package com.driezy.medlog.feature.medications.home
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -151,9 +152,12 @@ internal fun MedicationTaskGroupCard(
                     color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.4f),
                 )
                 items.forEachIndexed { idx, item ->
+                    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
                     var visible by remember(item.doseKey) { mutableStateOf(false) }
-                    LaunchedEffect(item.doseKey) {
-                        delay(idx * STAGGER_DELAY_MS)
+                    LaunchedEffect(item.doseKey, animationsEnabled) {
+                        if (animationsEnabled) {
+                            delay(idx * STAGGER_DELAY_MS)
+                        }
                         visible = true
                     }
                     AnimatedVisibility(

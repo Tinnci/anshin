@@ -1,5 +1,6 @@
 package com.driezy.medlog.capability.ocr
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.fadeIn
@@ -221,21 +222,30 @@ private fun OcrResultList(output: OcrRecognitionOutput, onSelect: (String) -> Un
                         )
                     }
                     itemsIndexed(group.texts, key = { index, text -> "${group.source}_$index:$text" }) { index, text ->
+                        val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
                         val animatedAlpha = remember { Animatable(0f) }
                         val animatedOffset = remember { Animatable(24f) }
-                        LaunchedEffect(Unit) {
-                            kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
-                            animatedAlpha.animateTo(
-                                1f,
-                                animationSpec = motionScheme.defaultEffectsSpec(),
-                            )
+                        LaunchedEffect(animationsEnabled, groupIndex, index) {
+                            if (animationsEnabled) {
+                                kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
+                                animatedAlpha.animateTo(
+                                    1f,
+                                    animationSpec = motionScheme.defaultEffectsSpec(),
+                                )
+                            } else {
+                                animatedAlpha.snapTo(1f)
+                            }
                         }
-                        LaunchedEffect(Unit) {
-                            kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
-                            animatedOffset.animateTo(
-                                0f,
-                                animationSpec = motionScheme.defaultEffectsSpec(),
-                            )
+                        LaunchedEffect(animationsEnabled, groupIndex, index) {
+                            if (animationsEnabled) {
+                                kotlinx.coroutines.delay((groupIndex * 3 + index) * 50L)
+                                animatedOffset.animateTo(
+                                    0f,
+                                    animationSpec = motionScheme.defaultEffectsSpec(),
+                                )
+                            } else {
+                                animatedOffset.snapTo(0f)
+                            }
                         }
 
                         Card(

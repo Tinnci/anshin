@@ -230,7 +230,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsAppearance>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             AppearanceSettingsScreen(onBack = { navController.popBackStack() })
@@ -238,7 +238,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsReminders>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             ReminderSettingsScreen(onBack = { navController.popBackStack() })
@@ -246,7 +246,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsModules>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             ModuleSettingsScreen(onBack = { navController.popBackStack() })
@@ -254,7 +254,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsIntelligence>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             IntelligenceSettingsScreen(
@@ -265,7 +265,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsCloudApi>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             CloudApiSettingsScreen(onBack = { navController.popBackStack() })
@@ -273,7 +273,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsBpx1>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             Bpx1DeviceSettingsScreen(onBack = { navController.popBackStack() })
@@ -281,7 +281,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsWidgets>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             WidgetSettingsScreen(onBack = { navController.popBackStack() })
@@ -289,7 +289,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.SettingsData>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) {
             DataSettingsScreen(
@@ -306,7 +306,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.MedDetail>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.MedDetail = backStackEntry.toRoute()
@@ -319,7 +319,7 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         composable<Route.AddMedication>(
             enterTransition = { materialSharedAxisX(forward = true) },
             exitTransition = { navFadeOut },
-            popEnterTransition = { navFadeIn },
+            popEnterTransition = { materialSharedAxisX(forward = false) },
             popExitTransition = { materialSharedAxisXOut(forward = true) },
         ) { backStackEntry ->
             val route: Route.AddMedication = backStackEntry.toRoute()

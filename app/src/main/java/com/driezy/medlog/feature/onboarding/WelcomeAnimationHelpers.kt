@@ -1,5 +1,6 @@
 package com.driezy.medlog.feature.onboarding
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.core.Animatable
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.MaterialTheme
@@ -18,14 +19,15 @@ internal fun rememberSpringEntry(
     val scale = remember { Animatable(initialScale) }
     val alpha = remember { Animatable(0f) }
     val motionScheme = MaterialTheme.motionScheme
-    LaunchedEffect(isCurrentPage) {
-        if (isCurrentPage) {
+    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
+    LaunchedEffect(isCurrentPage, animationsEnabled) {
+        if (isCurrentPage && animationsEnabled) {
             if (delayMs > 0) delay(delayMs)
             launch { scale.animateTo(1f, motionScheme.slowSpatialSpec()) }
             launch { alpha.animateTo(1f, motionScheme.defaultEffectsSpec()) }
         } else {
-            scale.snapTo(initialScale)
-            alpha.snapTo(0f)
+            scale.snapTo(if (isCurrentPage) 1f else initialScale)
+            alpha.snapTo(if (isCurrentPage) 1f else 0f)
         }
     }
     return scale.value to alpha.value
@@ -42,14 +44,15 @@ internal fun rememberSlideEntry(
     val offsetY = remember { Animatable(initialOffsetY) }
     val alpha = remember { Animatable(0f) }
     val motionScheme = MaterialTheme.motionScheme
-    LaunchedEffect(isCurrentPage) {
-        if (isCurrentPage) {
+    val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
+    LaunchedEffect(isCurrentPage, animationsEnabled) {
+        if (isCurrentPage && animationsEnabled) {
             if (delayMs > 0) delay(delayMs)
             launch { offsetY.animateTo(0f, motionScheme.defaultSpatialSpec()) }
             launch { alpha.animateTo(1f, motionScheme.defaultEffectsSpec()) }
         } else {
-            offsetY.snapTo(initialOffsetY)
-            alpha.snapTo(0f)
+            offsetY.snapTo(if (isCurrentPage) 0f else initialOffsetY)
+            alpha.snapTo(if (isCurrentPage) 1f else 0f)
         }
     }
     return offsetY.value to alpha.value

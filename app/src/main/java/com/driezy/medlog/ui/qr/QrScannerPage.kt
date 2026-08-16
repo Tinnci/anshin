@@ -16,7 +16,6 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -69,6 +68,7 @@ fun QrScannerPage(
 ) {
     val context = LocalContext.current
     val performHaptic = rememberMedLogHaptics()
+    val motionScheme = MaterialTheme.motionScheme
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.qr_scan_image_not_found)
@@ -270,17 +270,17 @@ fun QrScannerPage(
                 // Smoothly animate the weights, fills, and colors of the guidance icon upon success.
                 val weight by animateFloatAsState(
                     targetValue = if (isScanned) 600f else 300f,
-                    animationSpec = tween(durationMillis = 400),
+                    animationSpec = motionScheme.defaultEffectsSpec(),
                     label = "weightAnim",
                 )
                 val fill by animateFloatAsState(
                     targetValue = if (isScanned) 1f else 0f,
-                    animationSpec = tween(durationMillis = 400),
+                    animationSpec = motionScheme.defaultEffectsSpec(),
                     label = "fillAnim",
                 )
                 val iconColor by animateColorAsState(
                     targetValue = if (isScanned) Color(0xFF4CAF50) else MaterialTheme.colorScheme.primary,
-                    animationSpec = tween(durationMillis = 400),
+                    animationSpec = motionScheme.defaultEffectsSpec(),
                     label = "colorAnim",
                 )
 

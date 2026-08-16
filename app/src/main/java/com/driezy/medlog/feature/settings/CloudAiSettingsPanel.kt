@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -55,6 +56,7 @@ internal fun CloudAiSettingsPanel(
     onApiKeyScan: () -> Unit,
     onApiKeyClear: () -> Unit,
 ) {
+    val motionScheme = MaterialTheme.motionScheme
     var showProviderDetails by rememberSaveable(uiState.cloudAiProvider) {
         mutableStateOf(uiState.cloudAiProvider == CloudAiProvider.OPENAI_COMPATIBLE)
     }
@@ -80,8 +82,11 @@ internal fun CloudAiSettingsPanel(
 
         AnimatedVisibility(
             visible = uiState.cloudAiProvider.needsCustomEndpoint,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+            label = "cloud_ai_settings_animated",
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             ProviderDetailsDisclosureRow(
                 expanded = showProviderDetails,
@@ -91,8 +96,11 @@ internal fun CloudAiSettingsPanel(
 
         AnimatedVisibility(
             visible = showProviderDetails && uiState.cloudAiProvider.needsCustomEndpoint,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+            label = "cloud_ai_settings_animated",
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             EndpointConfigSection(
                 uiState = uiState,
@@ -115,8 +123,11 @@ internal fun CloudAiSettingsPanel(
 
         AnimatedVisibility(
             visible = showConfiguredControls,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+            label = "cloud_ai_settings_animated",
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             CloudAiModelSection(
                 uiState = uiState,
@@ -127,8 +138,11 @@ internal fun CloudAiSettingsPanel(
 
         AnimatedVisibility(
             visible = showConfiguredControls,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+            label = "cloud_ai_settings_animated",
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             CloudAiFeatureToggles(
                 uiState = uiState,
@@ -140,8 +154,11 @@ internal fun CloudAiSettingsPanel(
 
         AnimatedVisibility(
             visible = showConfiguredControls,
-            enter = expandVertically() + fadeIn(),
-            exit = shrinkVertically() + fadeOut(),
+            label = "cloud_ai_settings_animated",
+            enter = expandVertically(motionScheme.defaultSpatialSpec()) +
+                fadeIn(motionScheme.defaultEffectsSpec()),
+            exit = shrinkVertically(motionScheme.fastSpatialSpec()) +
+                fadeOut(motionScheme.fastEffectsSpec()),
         ) {
             CloudAiUsageSummaryCard(summary = uiState.aiUsageSummary)
         }

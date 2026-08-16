@@ -1,5 +1,6 @@
 package com.driezy.medlog.feature.medications.home
 
+import android.animation.ValueAnimator
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.slideInVertically
@@ -105,9 +106,12 @@ internal fun PRNSectionCard(
 
         // 药品列表
         items.forEachIndexed { idx, item ->
+            val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }
             var visible by remember(item.medication.id) { mutableStateOf(false) }
-            LaunchedEffect(item.medication.id) {
-                delay(idx * STAGGER_DELAY_MS)
+            LaunchedEffect(item.medication.id, animationsEnabled) {
+                if (animationsEnabled) {
+                    delay(idx * STAGGER_DELAY_MS)
+                }
                 visible = true
             }
             AnimatedVisibility(
