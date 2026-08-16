@@ -76,4 +76,20 @@
     <string name="bpx1_message_cleared">BPX1 設定を削除しました</string>
     <string name="bpx1_message_scan_failed">スキャンを開始できません。権限と Bluetooth を確認してください</string>
     <string name="bpx1_message_imported">測定値を健康記録に保存しました</string>
+    <string name="bpx1_sync_chip">BPX1 を同期</string>
+    <string name="bpx1_sync_title">BPX1 血圧計を同期</string>
+    <string name="bpx1_sync_needs_config_title">BPX1 が未設定です</string>
+    <string name="bpx1_sync_needs_config_body">先にペアリングしてバインドキーを保存すると、ここで血圧と心拍数を取り込めます。</string>
+    <string name="bpx1_sync_open_pairing">ペアリングへ</string>
+    <string name="bpx1_sync_scanning_title">BPX1 のブロードキャストを待機中</string>
+    <string name="bpx1_sync_scanning_body">血圧計を起動してスマートフォンに近づけてください。測定を受信すると血圧と心拍数が自動保存されます。</string>
+    <string name="bpx1_sync_imported_count">今回のセッションで %1$d 件取り込み済み</string>
+    <string name="bpx1_sync_finished_title">同期完了</string>
+    <string name="bpx1_sync_finished_body">%1$d 件の測定を取り込みました。</string>
+    <string name="bpx1_sync_finished_empty">新しい測定ブロードキャストは見つかりませんでした。</string>
+    <string name="bpx1_sync_failed_title">同期に失敗しました</string>
+    <string name="bpx1_sync_failed_body">利用可能な測定ブロードキャストを受信できませんでした。血圧計を起動して再試行してください。</string>
+    <string name="bpx1_sync_retry">再試行</string>
+    <string name="bpx1_sync_cancel">キャンセル</string>
+    <string name="bpx1_sync_done">完了</string>
 </resources>

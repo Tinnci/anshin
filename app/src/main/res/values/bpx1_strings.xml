@@ -76,4 +76,20 @@
     <string name="bpx1_message_cleared" tools:ignore="Typos">BPX1 配置已移除</string>
     <string name="bpx1_message_scan_failed">扫描未能启动，请检查权限和蓝牙状态</string>
     <string name="bpx1_message_imported">测量已保存到健康记录</string>
+    <string name="bpx1_sync_chip">蓝牙血压计同步</string>
+    <string name="bpx1_sync_title">同步 BPX1 血压计</string>
+    <string name="bpx1_sync_needs_config_title">还未配置 BPX1 设备</string>
+    <string name="bpx1_sync_needs_config_body">先配对并保存绑定密钥，之后就能在这里直接导入血压和心率。</string>
+    <string name="bpx1_sync_open_pairing">前往配对</string>
+    <string name="bpx1_sync_scanning_title">正在等待 BPX1 广播</string>
+    <string name="bpx1_sync_scanning_body">请启动血压计并靠近手机。测量完成后会自动保存血压和心率记录。</string>
+    <string name="bpx1_sync_imported_count">本次已导入 %1$d 组测量</string>
+    <string name="bpx1_sync_finished_title">同步完成</string>
+    <string name="bpx1_sync_finished_body">本次共导入 %1$d 组测量。</string>
+    <string name="bpx1_sync_finished_empty">没有发现新的测量广播。</string>
+    <string name="bpx1_sync_failed_title">同步失败</string>
+    <string name="bpx1_sync_failed_body">没有收到可用测量广播。请确认血压计已启动并重试。</string>
+    <string name="bpx1_sync_retry">重试</string>
+    <string name="bpx1_sync_cancel">取消</string>
+    <string name="bpx1_sync_done">完成</string>
 </resources>

@@ -36,6 +36,7 @@ internal fun AddEditHealthSheet(
     onNotesChange: (String) -> Unit,
     onTimeChange: (Long) -> Unit,
     onOcrScan: () -> Unit,
+    onBpx1Sync: () -> Unit,
     voiceInput: VoiceInputUiState,
     onStartVoiceInput: () -> Unit,
     onStopVoiceInput: () -> Unit,
@@ -145,12 +146,19 @@ internal fun AddEditHealthSheet(
                 )
             }
 
-            // ── OCR 拍照填充 ──────────────────────────────────────────
-            AssistChip(
-                onClick = onOcrScan,
-                label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
-                leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
-            )
+            // ── OCR 拍照填充 / BPX1 同步 ─────────────────────────────
+            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                AssistChip(
+                    onClick = onOcrScan,
+                    label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
+                )
+                AssistChip(
+                    onClick = onBpx1Sync,
+                    label = { Text(stringResource(R.string.bpx1_sync_chip)) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.MonitorHeart, null, Modifier.size(18.dp)) },
+                )
+            }
 
             // ── 备注 ──────────────────────────────────────────────────
             OutlinedTextField(

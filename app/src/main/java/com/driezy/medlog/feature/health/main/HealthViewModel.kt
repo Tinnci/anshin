@@ -94,6 +94,7 @@ sealed interface HealthUiAction {
     data class TypeSelected(val type: HealthType?) : HealthUiAction
     data class HeightChanged(val heightCm: Float) : HealthUiAction
     data object AddStarted : HealthUiAction
+    data object Bpx1SyncDone : HealthUiAction
     data class OcrMetricApplied(val metric: ParsedHealthMetric) : HealthUiAction
     data class EditStarted(val record: HealthRecord) : HealthUiAction
     data object SheetDismissed : HealthUiAction
@@ -145,6 +146,7 @@ class HealthViewModel @Inject constructor(
             is HealthUiAction.TypeSelected -> selectType(action.type)
             is HealthUiAction.HeightChanged -> updateHeight(action.heightCm)
             HealthUiAction.AddStarted -> startAdd()
+            HealthUiAction.Bpx1SyncDone -> finishBpx1Sync()
             is HealthUiAction.OcrMetricApplied -> applyOcrMetric(action.metric)
             is HealthUiAction.EditStarted -> startEdit(action.record)
             HealthUiAction.SheetDismissed -> dismissSheet()
@@ -427,6 +429,12 @@ class HealthViewModel @Inject constructor(
     }
 
     fun dismissSheet() {
+        stopVoiceInput()
+        _uiState.update { it.copy(showAddSheet = false) }
+    }
+
+    /** BPX1 同步完成后关闭新增表单；已导入记录由 Flow 自动刷新。 */
+    fun finishBpx1Sync() {
         stopVoiceInput()
         _uiState.update { it.copy(showAddSheet = false) }
     }

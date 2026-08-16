@@ -10,6 +10,7 @@ import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.capability.bpx1.Bpx1ScanEvent
 import com.driezy.medlog.capability.bpx1.InMemoryBpx1DeviceStore
+import com.driezy.medlog.capability.bpx1.application.Bpx1MeasurementImporter
 import com.driezy.medlog.data.model.HealthRecordSource
 import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.data.repository.FakeHealthRepository
@@ -79,7 +80,8 @@ class Bpx1DeviceSettingsViewModelTest {
             measurement = measurement,
         )
         val repository = FakeHealthRepository()
-        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(scanEvent), repository, clock)
+        val importer = Bpx1MeasurementImporter(repository, clock)
+        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(scanEvent), importer)
 
         viewModel.startScan()
         advanceUntilIdle()
@@ -102,8 +104,7 @@ class Bpx1DeviceSettingsViewModelTest {
         val viewModel = Bpx1DeviceSettingsViewModel(
             InMemoryBpx1DeviceStore(),
             FakeBleClient(),
-            FakeHealthRepository(),
-            clock,
+            Bpx1MeasurementImporter(FakeHealthRepository(), clock),
         )
 
         assertEquals(false, viewModel.uiState.value.hasAttemptedScan)
@@ -121,7 +122,8 @@ class Bpx1DeviceSettingsViewModelTest {
             initial = Bpx1DeviceConfiguration(macAddress = "AA:BB:CC:DD:EE:FF"),
             bindKey = ByteArray(16),
         )
-        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(), FakeHealthRepository(), clock)
+        val viewModel =
+            Bpx1DeviceSettingsViewModel(store, FakeBleClient(), Bpx1MeasurementImporter(FakeHealthRepository(), clock))
 
         viewModel.updateMacInput("11:22:33:44:55:66")
         viewModel.saveConfiguration()
@@ -138,7 +140,8 @@ class Bpx1DeviceSettingsViewModelTest {
             initial = Bpx1DeviceConfiguration(macAddress = "AA:BB:CC:DD:EE:FF"),
             bindKey = key,
         )
-        val viewModel = Bpx1DeviceSettingsViewModel(store, FakeBleClient(), FakeHealthRepository(), clock)
+        val viewModel =
+            Bpx1DeviceSettingsViewModel(store, FakeBleClient(), Bpx1MeasurementImporter(FakeHealthRepository(), clock))
         val effect = async { viewModel.effects.first() }
 
         viewModel.updateMacInput("aa-bb-cc-dd-ee-ff")
@@ -156,8 +159,7 @@ class Bpx1DeviceSettingsViewModelTest {
         val viewModel = Bpx1DeviceSettingsViewModel(
             InMemoryBpx1DeviceStore(),
             FakeBleClient(Bpx1ScanEvent.Failure(errorCode = 2)),
-            FakeHealthRepository(),
-            clock,
+            Bpx1MeasurementImporter(FakeHealthRepository(), clock),
         )
         val effect = async { viewModel.effects.first() }
 

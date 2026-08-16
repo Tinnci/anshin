@@ -17,6 +17,7 @@ import com.driezy.medlog.R
 import com.driezy.medlog.capability.ocr.HealthOcrScannerPage
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
+import com.driezy.medlog.feature.health.bpx1.Bpx1SyncScreen
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
@@ -83,18 +84,28 @@ internal data class HealthInsightsPresentation(
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun HealthScreen(onOpenSettings: () -> Unit, viewModel: HealthViewModel = hiltViewModel()) {
+fun HealthScreen(
+    onOpenSettings: () -> Unit,
+    onNavigateToBpx1Settings: () -> Unit,
+    viewModel: HealthViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HealthContent(
         uiState = uiState,
         onAction = viewModel::onAction,
         onOpenSettings = onOpenSettings,
+        onNavigateToBpx1Settings = onNavigateToBpx1Settings,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-private fun HealthContent(uiState: HealthUiState, onAction: (HealthUiAction) -> Unit, onOpenSettings: () -> Unit) {
+private fun HealthContent(
+    uiState: HealthUiState,
+    onAction: (HealthUiAction) -> Unit,
+    onOpenSettings: () -> Unit,
+    onNavigateToBpx1Settings: () -> Unit,
+) {
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
     fun showOcrScanner() {
         overlay = ScreenOverlay.FullScreen(
@@ -108,6 +119,24 @@ private fun HealthContent(uiState: HealthUiState, onAction: (HealthUiAction) -> 
                 },
                 onBack = { overlay = null },
                 suggestedType = uiState.draft.type,
+            )
+        }
+    }
+    fun showBpx1Sync() {
+        overlay = ScreenOverlay.FullScreen(
+            id = "health:bpx1-sync",
+            dismissOnClickOutside = false,
+        ) {
+            Bpx1SyncScreen(
+                onDone = {
+                    overlay = null
+                    onAction(HealthUiAction.Bpx1SyncDone)
+                },
+                onOpenPairing = {
+                    overlay = null
+                    onAction(HealthUiAction.SheetDismissed)
+                    onNavigateToBpx1Settings()
+                },
             )
         }
     }
@@ -301,6 +330,7 @@ private fun HealthContent(uiState: HealthUiState, onAction: (HealthUiAction) -> 
                 onNotesChange = { onAction(HealthUiAction.DraftNotesChanged(it)) },
                 onTimeChange = { onAction(HealthUiAction.DraftTimeChanged(it)) },
                 onOcrScan = ::showOcrScanner,
+                onBpx1Sync = ::showBpx1Sync,
                 voiceInput = uiState.voiceInput,
                 onStartVoiceInput = { onAction(HealthUiAction.VoiceInputStarted) },
                 onStopVoiceInput = { onAction(HealthUiAction.VoiceInputStopped) },

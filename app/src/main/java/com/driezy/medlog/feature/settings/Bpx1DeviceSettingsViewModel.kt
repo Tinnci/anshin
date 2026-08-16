@@ -12,11 +12,8 @@ import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.capability.bpx1.Bpx1Protocol
 import com.driezy.medlog.capability.bpx1.Bpx1ScanEvent
+import com.driezy.medlog.capability.bpx1.application.Bpx1MeasurementImporter
 import com.driezy.medlog.capability.bpx1.canRetainBindKey
-import com.driezy.medlog.data.model.HealthRecord
-import com.driezy.medlog.data.model.HealthRecordSource
-import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.data.repository.HealthRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -27,7 +24,6 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withTimeoutOrNull
-import java.time.Clock
 import javax.inject.Inject
 
 enum class Bpx1SettingsMessage {
@@ -78,8 +74,7 @@ sealed interface Bpx1SettingsUiEffect {
 class Bpx1DeviceSettingsViewModel @Inject constructor(
     private val deviceStore: Bpx1DeviceStore,
     private val bleClient: Bpx1BleClient,
-    private val healthRepository: HealthRepository,
-    private val clock: Clock,
+    private val measurementImporter: Bpx1MeasurementImporter,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         Bpx1DeviceSettingsUiState(
@@ -284,55 +279,12 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     }
 
     private suspend fun importMeasurement(macAddress: String, measurement: Bpx1Measurement) {
-        val baseKey = buildString {
-            append("bpx1:")
-            append(Bpx1Protocol.normalizeMac(macAddress).replace(":", "").lowercase())
-            append(':')
-            append(measurement.timestampMillis / 1_000L)
-            append(':')
-            append(measurement.systolic)
-            append(':')
-            append(measurement.diastolic)
-            append(':')
-            append(measurement.heartRate)
-        }
-        var inserted = false
-        val bloodPressureKey = "$baseKey:bp"
-        if (!healthRepository.hasSourceCacheKey(bloodPressureKey)) {
-            healthRepository.addRecord(
-                HealthRecord(
-                    type = HealthType.BLOOD_PRESSURE.name,
-                    value = measurement.systolic.toDouble(),
-                    secondaryValue = measurement.diastolic.toDouble(),
-                    timestamp = measurement.timestampMillis,
-                    source = HealthRecordSource.IMPORT,
-                    sourceProvider = Bpx1Protocol.MODEL,
-                    sourceCacheKey = bloodPressureKey,
-                    confirmedAt = clock.millis(),
-                ),
-            )
-            inserted = true
-        }
-        val heartRateKey = "$baseKey:hr"
-        if (!healthRepository.hasSourceCacheKey(heartRateKey)) {
-            healthRepository.addRecord(
-                HealthRecord(
-                    type = HealthType.HEART_RATE.name,
-                    value = measurement.heartRate.toDouble(),
-                    timestamp = measurement.timestampMillis,
-                    source = HealthRecordSource.IMPORT,
-                    sourceProvider = Bpx1Protocol.MODEL,
-                    sourceCacheKey = heartRateKey,
-                    confirmedAt = clock.millis(),
-                ),
-            )
-            inserted = true
-        }
-        if (inserted) {
+        val result = measurementImporter.import(macAddress, measurement)
+        if (result.inserted) {
             _uiState.update {
                 it.copy(
                     lastImportedMeasurement = measurement,
-                    importedMeasurementCount = it.importedMeasurementCount + 1,
+                    importedMeasurementCount = it.importedMeasurementCount + result.importedCount,
                 )
             }
             effectChannel.send(Bpx1SettingsUiEffect.Message(Bpx1SettingsMessage.MEASUREMENT_IMPORTED))

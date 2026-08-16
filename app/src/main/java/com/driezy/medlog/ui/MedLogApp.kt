@@ -201,7 +201,10 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
             enterTransition = { navFadeIn },
             exitTransition = { navFadeOut },
         ) {
-            HealthScreen(onOpenSettings = { navController.navigate(Route.Settings) })
+            HealthScreen(
+                onOpenSettings = { navController.navigate(Route.Settings) },
+                onNavigateToBpx1Settings = { navController.navigate(Route.SettingsBpx1) },
+            )
         }
         composable<Route.Settings>(
             enterTransition = { navFadeIn },

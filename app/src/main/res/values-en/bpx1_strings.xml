@@ -77,4 +77,20 @@
     <string name="bpx1_message_cleared">BPX1 configuration removed</string>
     <string name="bpx1_message_scan_failed">Scanning could not start; check permissions and Bluetooth</string>
     <string name="bpx1_message_imported">Measurement saved to Health</string>
+    <string name="bpx1_sync_chip">Sync BP monitor</string>
+    <string name="bpx1_sync_title">Sync BPX1 Monitor</string>
+    <string name="bpx1_sync_needs_config_title">BPX1 is not configured yet</string>
+    <string name="bpx1_sync_needs_config_body">Pair and save a bind key first, then blood pressure and heart rate can be imported here.</string>
+    <string name="bpx1_sync_open_pairing">Pair device</string>
+    <string name="bpx1_sync_scanning_title">Waiting for BPX1 broadcast</string>
+    <string name="bpx1_sync_scanning_body">Wake the monitor and keep it close. Blood pressure and heart rate are saved automatically when a measurement is received.</string>
+    <string name="bpx1_sync_imported_count">Imported %1$d measurements this session</string>
+    <string name="bpx1_sync_finished_title">Sync complete</string>
+    <string name="bpx1_sync_finished_body">Imported %1$d measurements.</string>
+    <string name="bpx1_sync_finished_empty">No new measurement broadcast was found.</string>
+    <string name="bpx1_sync_failed_title">Sync failed</string>
+    <string name="bpx1_sync_failed_body">No usable measurement broadcast was received. Wake the monitor and try again.</string>
+    <string name="bpx1_sync_retry">Retry</string>
+    <string name="bpx1_sync_cancel">Cancel</string>
+    <string name="bpx1_sync_done">Done</string>
 </resources>
