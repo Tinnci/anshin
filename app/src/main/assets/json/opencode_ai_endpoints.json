@@ -12,6 +12,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "abliteration-ai",
+    "name": "abliteration.ai",
+    "api": "https://api.abliteration.ai/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "alibaba",
     "name": "Alibaba",
     "api": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
@@ -36,9 +42,21 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "amazon-bedrock",
+    "name": "Amazon Bedrock",
+    "api": "https://bedrock-runtime.us-east-1.amazonaws.com",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "ambient",
     "name": "Ambient",
     "api": "https://api.ambient.xyz/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "ant-ling",
+    "name": "Ant Ling",
+    "api": "https://api.antling.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -60,6 +78,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "azure-openai-responses",
+    "name": "Azure OpenAI Responses",
+    "api": "https://YOUR_RESOURCE.openai.azure.com/openai/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "bailing",
     "name": "Bailing",
     "api": "https://api.tbox.cn/api/llm/v1/chat/completions",
@@ -75,6 +99,12 @@
     "id": "berget",
     "name": "Berget.AI",
     "api": "https://api.berget.ai/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "cerebras",
+    "name": "Cerebras",
+    "api": "https://api.cerebras.ai/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -102,6 +132,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "cloudflare-ai-gateway",
+    "name": "Cloudflare AI Gateway",
+    "api": "https://gateway.ai.cloudflare.com/v1/${CLOUDFLARE_ACCOUNT_ID}/${CLOUDFLARE_GATEWAY_ID}",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "cloudflare-workers-ai",
     "name": "Cloudflare Workers AI",
     "api": "https://api.cloudflare.com/client/v4/accounts/${CLOUDFLARE_ACCOUNT_ID}/ai/v1",
@@ -117,18 +153,6 @@
     "id": "crof",
     "name": "CrofAI",
     "api": "https://crof.ai/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "drun",
-    "name": "D.Run (China)",
-    "api": "https://chat.d.run/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "dinference",
-    "name": "DInference",
-    "api": "https://api.dinference.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -150,6 +174,24 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "dinference",
+    "name": "DInference",
+    "api": "https://api.dinference.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "drun",
+    "name": "D.Run (China)",
+    "api": "https://chat.d.run/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "evroc",
+    "name": "evroc",
+    "api": "https://models.think.evroc.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "fastrouter",
     "name": "FastRouter",
     "api": "https://go.fastrouter.ai/api/v1",
@@ -159,6 +201,12 @@
     "id": "firepass",
     "name": "Fireworks (Firepass)",
     "api": "https://api.fireworks.ai/inference/v1/",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "fireworks",
+    "name": "Fireworks AI",
+    "api": "https://api.fireworks.ai/inference/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -180,18 +228,6 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "gmicloud",
-    "name": "GMI Cloud",
-    "api": "https://api.gmi-serving.com/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "groq",
-    "name": "Groq",
-    "api": "https://api.groq.com/openai/v1",
-    "protocol": "openai_compatible"
-  },
-  {
     "id": "github-copilot",
     "name": "GitHub Copilot",
     "api": "https://api.githubcopilot.com",
@@ -204,9 +240,27 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "hpc-ai",
-    "name": "HPC-AI",
-    "api": "https://api.hpc-ai.com/inference/v1",
+    "id": "gmicloud",
+    "name": "GMI Cloud",
+    "api": "https://api.gmi-serving.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "google",
+    "name": "Google Gemini",
+    "api": "https://generativelanguage.googleapis.com/v1beta/openai/",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "google-vertex",
+    "name": "Google Vertex AI",
+    "api": "https://aiplatform.googleapis.com/v1beta1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "groq",
+    "name": "Groq",
+    "api": "https://api.groq.com/openai/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -216,15 +270,21 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "hpc-ai",
+    "name": "HPC-AI",
+    "api": "https://api.hpc-ai.com/inference/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "huggingface",
     "name": "Hugging Face",
     "api": "https://router.huggingface.co/v1",
     "protocol": "openai_compatible"
   },
   {
-    "id": "io-net",
-    "name": "IO.NET",
-    "api": "https://api.intelligence.io.solutions/api/v1",
+    "id": "iflowcn",
+    "name": "iFlow",
+    "api": "https://apis.iflow.cn/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -246,15 +306,15 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "jiekou",
-    "name": "Jiekou.AI",
-    "api": "https://api.jiekou.ai/openai",
+    "id": "io-net",
+    "name": "IO.NET",
+    "api": "https://api.intelligence.io.solutions/api/v1",
     "protocol": "openai_compatible"
   },
   {
-    "id": "kuae-cloud-coding-plan",
-    "name": "KUAE Cloud Coding Plan",
-    "api": "https://coding-plan-endpoint.kuaecloud.net/v1",
+    "id": "jiekou",
+    "name": "Jiekou.AI",
+    "api": "https://api.jiekou.ai/openai",
     "protocol": "openai_compatible"
   },
   {
@@ -264,21 +324,21 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "kimi-coding",
+    "name": "Kimi Coding",
+    "api": "https://api.kimi.com/coding/v1",
+    "protocol": "anthropic"
+  },
+  {
     "id": "kimi-for-coding",
     "name": "Kimi For Coding",
     "api": "https://api.kimi.com/coding/v1",
     "protocol": "anthropic"
   },
   {
-    "id": "llmgateway",
-    "name": "LLM Gateway",
-    "api": "https://api.llmgateway.io/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "lmstudio",
-    "name": "LMStudio",
-    "api": "http://127.0.0.1:1234/v1",
+    "id": "kuae-cloud-coding-plan",
+    "name": "KUAE Cloud Coding Plan",
+    "api": "https://coding-plan-endpoint.kuaecloud.net/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -291,6 +351,18 @@
     "id": "llama",
     "name": "Llama",
     "api": "https://api.llama.com/compat/v1/",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "llmgateway",
+    "name": "LLM Gateway",
+    "api": "https://api.llmgateway.io/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "lmstudio",
+    "name": "LMStudio",
+    "api": "http://127.0.0.1:1234/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -318,16 +390,22 @@
     "protocol": "anthropic"
   },
   {
+    "id": "minimax-cn-coding-plan",
+    "name": "MiniMax Token Plan (minimaxi.com)",
+    "api": "https://api.minimaxi.com/anthropic/v1",
+    "protocol": "anthropic"
+  },
+  {
     "id": "minimax-coding-plan",
     "name": "MiniMax Token Plan (minimax.io)",
     "api": "https://api.minimax.io/anthropic/v1",
     "protocol": "anthropic"
   },
   {
-    "id": "minimax-cn-coding-plan",
-    "name": "MiniMax Token Plan (minimaxi.com)",
-    "api": "https://api.minimaxi.com/anthropic/v1",
-    "protocol": "anthropic"
+    "id": "mistral",
+    "name": "Mistral AI",
+    "api": "https://api.mistral.ai/v1",
+    "protocol": "openai_compatible"
   },
   {
     "id": "mixlayer",
@@ -366,15 +444,15 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "nearai",
-    "name": "NEAR AI Cloud",
-    "api": "https://cloud-api.near.ai/v1",
-    "protocol": "openai_compatible"
-  },
-  {
     "id": "nano-gpt",
     "name": "NanoGPT",
     "api": "https://nano-gpt.com/api/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "nearai",
+    "name": "NEAR AI Cloud",
+    "api": "https://cloud-api.near.ai/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -402,15 +480,15 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "nvidia-nim",
-    "name": "NVIDIA NIM APIs",
+    "id": "nvidia",
+    "name": "NVIDIA NIM",
     "api": "https://integrate.api.nvidia.com/v1",
     "protocol": "openai_compatible"
   },
   {
-    "id": "ovhcloud",
-    "name": "OVHcloud AI Endpoints",
-    "api": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
+    "id": "nvidia-nim",
+    "name": "NVIDIA NIM APIs",
+    "api": "https://integrate.api.nvidia.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -426,9 +504,9 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "opencode-go",
-    "name": "OpenCode Go",
-    "api": "https://opencode.ai/zen/go/v1",
+    "id": "openai",
+    "name": "OpenAI",
+    "api": "https://api.openai.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -438,9 +516,9 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "openai",
-    "name": "OpenAI",
-    "api": "https://api.openai.com/v1",
+    "id": "opencode-go",
+    "name": "OpenCode Go",
+    "api": "https://opencode.ai/zen/go/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -453,6 +531,12 @@
     "id": "orcarouter",
     "name": "OrcaRouter",
     "api": "https://api.orcarouter.ai/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "ovhcloud",
+    "name": "OVHcloud AI Endpoints",
+    "api": "https://oai.endpoints.kepler.ai.cloud.ovh.net/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -492,6 +576,18 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "qwen-token-plan",
+    "name": "Qwen Token Plan",
+    "api": "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "qwen-token-plan-cn",
+    "name": "Qwen Token Plan (China)",
+    "api": "https://dashscope.aliyuncs.com/compatible-mode/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "regolo-ai",
     "name": "Regolo AI",
     "api": "https://api.regolo.ai/v1",
@@ -504,9 +600,9 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "stackit",
-    "name": "STACKIT",
-    "api": "https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1",
+    "id": "routing-run",
+    "name": "routing.run",
+    "api": "https://ai.routing.sh/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -534,15 +630,27 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "stepfun-ai",
-    "name": "StepFun",
-    "api": "https://api.stepfun.ai/step_plan/v1",
+    "id": "stackit",
+    "name": "STACKIT",
+    "api": "https://api.openai-compat.model-serving.eu01.onstackit.cloud/v1",
     "protocol": "openai_compatible"
   },
   {
     "id": "stepfun",
     "name": "StepFun",
     "api": "https://api.stepfun.com/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "stepfun-ai",
+    "name": "StepFun",
+    "api": "https://api.stepfun.ai/step_plan/v1",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "submodel",
+    "name": "submodel",
+    "api": "https://llm.submodel.ai/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -570,6 +678,12 @@
     "protocol": "openai_compatible"
   },
   {
+    "id": "together",
+    "name": "Together AI",
+    "api": "https://api.together.xyz/v1",
+    "protocol": "openai_compatible"
+  },
+  {
     "id": "umans-ai-coding-plan",
     "name": "Umans AI Coding Plan",
     "api": "https://api.code.umans.ai/v1",
@@ -579,6 +693,12 @@
     "id": "upstage",
     "name": "Upstage",
     "api": "https://api.upstage.ai/v1/solar",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "vercel-ai-gateway",
+    "name": "Vercel AI Gateway",
+    "api": "https://ai-gateway.vercel.sh/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -606,15 +726,15 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "xiaomi",
-    "name": "Xiaomi",
-    "api": "https://api.xiaomimimo.com/v1",
+    "id": "xai",
+    "name": "xAI",
+    "api": "https://api.x.ai/v1",
     "protocol": "openai_compatible"
   },
   {
-    "id": "xiaomi-token-plan-cn",
-    "name": "Xiaomi Token Plan (China)",
-    "api": "https://token-plan-cn.xiaomimimo.com/v1",
+    "id": "xiaomi",
+    "name": "Xiaomi",
+    "api": "https://api.xiaomimimo.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -624,15 +744,15 @@
     "protocol": "openai_compatible"
   },
   {
-    "id": "xiaomi-token-plan-sgp",
-    "name": "Xiaomi Token Plan (Singapore)",
-    "api": "https://token-plan-sgp.xiaomimimo.com/v1",
+    "id": "xiaomi-token-plan-cn",
+    "name": "Xiaomi Token Plan (China)",
+    "api": "https://token-plan-cn.xiaomimimo.com/v1",
     "protocol": "openai_compatible"
   },
   {
-    "id": "xai",
-    "name": "xAI",
-    "api": "https://api.x.ai/v1",
+    "id": "xiaomi-token-plan-sgp",
+    "name": "Xiaomi Token Plan (Singapore)",
+    "api": "https://token-plan-sgp.xiaomimimo.com/v1",
     "protocol": "openai_compatible"
   },
   {
@@ -644,6 +764,12 @@
   {
     "id": "zai",
     "name": "Z.AI",
+    "api": "https://api.z.ai/api/paas/v4",
+    "protocol": "openai_compatible"
+  },
+  {
+    "id": "zai-coding-cn",
+    "name": "Z.AI Coding Plan (China)",
     "api": "https://api.z.ai/api/paas/v4",
     "protocol": "openai_compatible"
   },
@@ -669,36 +795,6 @@
     "id": "zhipuai-coding-plan",
     "name": "Zhipu AI Coding Plan",
     "api": "https://open.bigmodel.cn/api/coding/paas/v4",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "abliteration-ai",
-    "name": "abliteration.ai",
-    "api": "https://api.abliteration.ai/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "evroc",
-    "name": "evroc",
-    "api": "https://models.think.evroc.com/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "iflowcn",
-    "name": "iFlow",
-    "api": "https://apis.iflow.cn/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "routing-run",
-    "name": "routing.run",
-    "api": "https://ai.routing.sh/v1",
-    "protocol": "openai_compatible"
-  },
-  {
-    "id": "submodel",
-    "name": "submodel",
-    "api": "https://llm.submodel.ai/v1",
     "protocol": "openai_compatible"
   }
 ]

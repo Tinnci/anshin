@@ -44,7 +44,74 @@ class CloudAiEndpointPresetCodecTest {
         ).associateBy { it.id }
 
         mapOf(
+            "amazon-bedrock" to
+                ExpectedPreset(
+                    "https://bedrock-runtime.us-east-1.amazonaws.com",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "ant-ling" to ExpectedPreset("https://api.antling.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "anthropic" to ExpectedPreset("https://api.anthropic.com", CloudAiEndpointProtocol.ANTHROPIC),
+            "azure-openai-responses" to
+                ExpectedPreset(
+                    "https://YOUR_RESOURCE.openai.azure.com/openai/v1",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "cerebras" to ExpectedPreset("https://api.cerebras.ai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "cloudflare-ai-gateway" to
+                ExpectedPreset(
+                    "https://gateway.ai.cloudflare.com/v1/\${CLOUDFLARE_ACCOUNT_ID}/\${CLOUDFLARE_GATEWAY_ID}",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "cloudflare-workers-ai" to
+                ExpectedPreset(
+                    "https://api.cloudflare.com/client/v4/accounts/\${CLOUDFLARE_ACCOUNT_ID}/ai/v1",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "deepseek" to ExpectedPreset("https://api.deepseek.com", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "fireworks" to
+                ExpectedPreset("https://api.fireworks.ai/inference/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "google" to
+                ExpectedPreset(
+                    "https://generativelanguage.googleapis.com/v1beta/openai",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "google-vertex" to
+                ExpectedPreset("https://aiplatform.googleapis.com/v1beta1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "huggingface" to
+                ExpectedPreset("https://router.huggingface.co/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "kimi-coding" to ExpectedPreset("https://api.kimi.com/coding/v1", CloudAiEndpointProtocol.ANTHROPIC),
+            "minimax" to ExpectedPreset("https://api.minimax.io/anthropic/v1", CloudAiEndpointProtocol.ANTHROPIC),
+            "minimax-cn" to ExpectedPreset("https://api.minimaxi.com/anthropic/v1", CloudAiEndpointProtocol.ANTHROPIC),
+            "mistral" to ExpectedPreset("https://api.mistral.ai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "moonshotai" to ExpectedPreset("https://api.moonshot.ai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "moonshotai-cn" to ExpectedPreset("https://api.moonshot.cn/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "nvidia" to ExpectedPreset(
+                "https://integrate.api.nvidia.com/v1",
+                CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+            ),
+            "qwen-token-plan" to
+                ExpectedPreset(
+                    "https://dashscope-intl.aliyuncs.com/compatible-mode/v1",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "qwen-token-plan-cn" to
+                ExpectedPreset(
+                    "https://dashscope.aliyuncs.com/compatible-mode/v1",
+                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                ),
+            "together" to ExpectedPreset("https://api.together.xyz/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "vercel-ai-gateway" to
+                ExpectedPreset("https://ai-gateway.vercel.sh/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "xiaomi" to ExpectedPreset("https://api.xiaomimimo.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "xiaomi-token-plan-ams" to
+                ExpectedPreset("https://token-plan-ams.xiaomimimo.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "xiaomi-token-plan-cn" to
+                ExpectedPreset("https://token-plan-cn.xiaomimimo.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "xiaomi-token-plan-sgp" to
+                ExpectedPreset("https://token-plan-sgp.xiaomimimo.com/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "zai" to ExpectedPreset("https://api.z.ai/api/paas/v4", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
+            "zai-coding-cn" to
+                ExpectedPreset("https://api.z.ai/api/paas/v4", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "github-copilot" to
                 ExpectedPreset("https://api.githubcopilot.com", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
             "groq" to ExpectedPreset("https://api.groq.com/openai/v1", CloudAiEndpointProtocol.OPENAI_COMPATIBLE),
