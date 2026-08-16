@@ -207,11 +207,17 @@ private fun HomeContent(
                             items = uiState.items,
                             onDismiss = { overlay = null },
                             generateExportUri = { uiState.exportUri },
-                            onQrScanned = { onAction(HomeUiAction.QrScanned(it)) },
+                            onQrScanned = {
+                                performHaptic(MedLogHapticEffect.CONFIRM)
+                                onAction(HomeUiAction.QrScanned(it))
+                            },
                         )
                     }
                 }
-                "group" -> onAction(HomeUiAction.ToggleGrouping)
+                "group" -> {
+                    performHaptic(MedLogHapticEffect.TOGGLE)
+                    onAction(HomeUiAction.ToggleGrouping)
+                }
                 "settings" -> onOpenSettings()
             }
         },
@@ -344,6 +350,7 @@ private fun HomeContent(
                             onToggleTaken = ::toggleDose,
                             onSkip = ::skipDose,
                             onPartialTake = { item, qty ->
+                                performHaptic(MedLogHapticEffect.CONFIRM)
                                 onAction(HomeUiAction.MarkPartial(item, qty))
                             },
                             onTakeAll = {
@@ -410,7 +417,10 @@ private fun HomeContent(
                                 onSkip = { skipDose(item) },
                                 onClick = { onMedicationClick(item.medication.id) },
                                 modifier = Modifier.animateItem(),
-                                onPartialTake = { qty -> onAction(HomeUiAction.MarkPartial(item, qty)) },
+                                onPartialTake = {
+                                    performHaptic(MedLogHapticEffect.CONFIRM)
+                                    onAction(HomeUiAction.MarkPartial(item, it))
+                                },
                             )
                         }
                     }

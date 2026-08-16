@@ -92,7 +92,10 @@ internal fun AddEditHealthSheet(
                 HealthType.entries.forEach { type ->
                     FilterChip(
                         selected = draft.type == type,
-                        onClick = { onTypeChange(type) },
+                        onClick = {
+                            performHaptic(MedLogHapticEffect.SEGMENT_TICK)
+                            onTypeChange(type)
+                        },
                         label = { Text(stringResource(type.labelRes)) },
                         leadingIcon = {
                             MedLogIcon(healthTypeIcon(type), null, Modifier.size(16.dp))

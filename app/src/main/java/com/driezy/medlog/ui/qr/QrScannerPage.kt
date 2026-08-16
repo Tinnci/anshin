@@ -101,15 +101,16 @@ fun QrScannerPage(
                         .addOnSuccessListener { barcodes ->
                             val rawValue = barcodes.firstOrNull()?.rawValue
                             if (rawValue != null) {
-                                isScanned = true
-                                performHaptic(MedLogHapticEffect.CONFIRM)
-                                // Delay callback to allow the icon change animation to finish smoothly
                                 scope.launch {
+                                    isScanned = true
+                                    performHaptic(MedLogHapticEffect.CONFIRM)
+                                    // Delay callback to allow the icon change animation to finish smoothly
                                     kotlinx.coroutines.delay(450)
                                     onResult(rawValue)
                                 }
                             } else {
                                 scope.launch {
+                                    performHaptic(MedLogHapticEffect.REJECT)
                                     snackbarHostState.showSnackbar(errorMessage)
                                 }
                             }
@@ -145,18 +146,17 @@ fun QrScannerPage(
                     .addOnSuccessListener { barcodes ->
                         val rawValue = barcodes.firstOrNull()?.rawValue
                         if (rawValue != null) {
-                            isScanned = true
-                            performHaptic(MedLogHapticEffect.CONFIRM)
-                            // Delay callback to allow the icon change animation to finish smoothly
                             scope.launch {
+                                isScanned = true
+                                performHaptic(MedLogHapticEffect.CONFIRM)
+                                // Delay callback to allow the icon change animation to finish smoothly
                                 kotlinx.coroutines.delay(450)
                                 onResult(rawValue)
                             }
                         } else {
                             scope.launch {
+                                performHaptic(MedLogHapticEffect.REJECT)
                                 snackbarHostState.showSnackbar(errorMessage)
-                            }
-                            scope.launch {
                                 supportedPickerState.deselectUri(uri)
                             }
                         }
@@ -164,6 +164,7 @@ fun QrScannerPage(
                     .addOnFailureListener { e ->
                         Log.e(TAG, "Barcode scan failed from Uri", e)
                         scope.launch {
+                            performHaptic(MedLogHapticEffect.REJECT)
                             snackbarHostState.showSnackbar(errorMessage)
                         }
                         scope.launch {
@@ -173,6 +174,7 @@ fun QrScannerPage(
             }.onFailure { e ->
                 Log.e(TAG, "Failed to load image from Uri", e)
                 scope.launch {
+                    performHaptic(MedLogHapticEffect.REJECT)
                     snackbarHostState.showSnackbar(errorMessage)
                 }
                 scope.launch {
@@ -246,10 +248,11 @@ fun QrScannerPage(
                     modifier = Modifier.fillMaxSize(),
                     onQrScanned = { raw ->
                         if (!isScanned) {
-                            isScanned = true
-                            performHaptic(MedLogHapticEffect.CONFIRM)
-                            // Delay callback to allow the icon change animation to finish smoothly
                             scope.launch {
+                                if (isScanned) return@launch
+                                isScanned = true
+                                performHaptic(MedLogHapticEffect.CONFIRM)
+                                // Delay callback to allow the icon change animation to finish smoothly
                                 kotlinx.coroutines.delay(450)
                                 onResult(raw)
                             }
