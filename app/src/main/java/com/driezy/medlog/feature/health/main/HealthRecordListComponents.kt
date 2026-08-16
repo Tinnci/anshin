@@ -16,14 +16,14 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete: () -> Unit) {
     val type = remember(record.type) { HealthType.fromName(record.type) }
-    val timeFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
+    val timeFormat = remember { DateTimeFormatter.ofPattern("MM-dd HH:mm") }
     var showMenu by remember { mutableStateOf(false) }
     val isAbnormal = !type.isNormal(record.value)
     val visibleNotes = remember(record.notes) { record.userVisibleNotes() }
@@ -62,7 +62,7 @@ internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete
             supportingContent = {
                 Column {
                     Text(
-                        timeFormat.format(Date(record.timestamp)),
+                        timeFormat.format(Instant.ofEpochMilli(record.timestamp).atZone(ZoneId.systemDefault())),
                         style = MaterialTheme.typography.bodySmall,
                     )
                     if (visibleNotes.isNotBlank()) {

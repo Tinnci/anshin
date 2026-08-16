@@ -13,6 +13,9 @@ import com.driezy.medlog.R
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Locale
 
 @Composable
 internal fun SettingsDataContent(
@@ -40,8 +43,8 @@ internal fun SettingsDataContent(
             enabled = !backupInProgress,
             loading = backupInProgress,
             onClick = {
-                val ts = java.text.SimpleDateFormat("yyyyMMdd_HHmmss", java.util.Locale.US)
-                    .format(java.util.Date())
+                val ts = DateTimeFormatter.ofPattern("yyyyMMdd_HHmmss", Locale.US)
+                    .format(LocalDateTime.now())
                 onBackupClick("anshin_backup_$ts.db")
             },
         )

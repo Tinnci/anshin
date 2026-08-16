@@ -5,6 +5,7 @@ import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.os.Build
+import androidx.core.content.edit
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.toDomainSchedule
 import com.driezy.medlog.data.repository.UserPreferencesRepository
@@ -250,7 +251,7 @@ class AlarmScheduler @Inject constructor(
     private fun registerProjection(medicationId: Long) {
         val ids = projectionRegistry.getStringSet(REGISTERED_MEDICATION_IDS, emptySet()).orEmpty().toMutableSet()
         if (ids.add(medicationId.toString())) {
-            projectionRegistry.edit().putStringSet(REGISTERED_MEDICATION_IDS, ids).apply()
+            projectionRegistry.edit { putStringSet(REGISTERED_MEDICATION_IDS, ids) }
         }
     }
 
@@ -258,7 +259,7 @@ class AlarmScheduler @Inject constructor(
     private fun unregisterProjection(medicationId: Long) {
         val ids = projectionRegistry.getStringSet(REGISTERED_MEDICATION_IDS, emptySet()).orEmpty().toMutableSet()
         if (ids.remove(medicationId.toString())) {
-            projectionRegistry.edit().putStringSet(REGISTERED_MEDICATION_IDS, ids).apply()
+            projectionRegistry.edit { putStringSet(REGISTERED_MEDICATION_IDS, ids) }
         }
     }
 

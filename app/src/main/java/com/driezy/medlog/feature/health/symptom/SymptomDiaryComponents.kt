@@ -26,11 +26,12 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun SymptomLogCard(log: SymptomLog, dateFormat: SimpleDateFormat, onEdit: () -> Unit, onDelete: () -> Unit) {
+internal fun SymptomLogCard(log: SymptomLog, dateFormat: DateTimeFormatter, onEdit: () -> Unit, onDelete: () -> Unit) {
     var showDeleteConfirm by remember { mutableStateOf(false) }
 
     Card(
@@ -47,7 +48,7 @@ internal fun SymptomLogCard(log: SymptomLog, dateFormat: SimpleDateFormat, onEdi
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    text = dateFormat.format(Date(log.recordedAt)),
+                    text = dateFormat.format(Instant.ofEpochMilli(log.recordedAt).atZone(ZoneId.systemDefault())),
                     style = MaterialTheme.typography.labelMedium,
                     color = MaterialTheme.colorScheme.outline,
                     modifier = Modifier.weight(1f),

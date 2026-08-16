@@ -23,8 +23,9 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.formatDose
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /** 剂型 key → 本地化标签 */
 
@@ -269,8 +270,8 @@ internal fun StockCard(
 @Composable
 internal fun DetailLogRow(log: MedicationLog) {
     val logItemFmt = stringResource(R.string.date_format_log_item)
-    val dateFmt = remember(logItemFmt) { SimpleDateFormat(logItemFmt, Locale.getDefault()) }
-    val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val dateFmt = remember(logItemFmt) { DateTimeFormatter.ofPattern(logItemFmt) }
+    val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
     val colorScheme = MaterialTheme.colorScheme
     val statusColor = when (log.status) {
         LogStatus.TAKEN -> colorScheme.tertiary
@@ -295,13 +296,16 @@ internal fun DetailLogRow(log: MedicationLog) {
         )
         Column(Modifier.weight(1f)) {
             Text(
-                dateFmt.format(Date(log.scheduledTimeMs)),
+                dateFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(ZoneId.systemDefault())),
                 style = MaterialTheme.typography.bodyMedium,
             )
             log.actualTakenTimeMs?.let {
                 if (log.status == LogStatus.TAKEN) {
                     Text(
-                        stringResource(R.string.detail_log_actual_time, timeFmt.format(Date(it))),
+                        stringResource(
+                            R.string.detail_log_actual_time,
+                            timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
                     )

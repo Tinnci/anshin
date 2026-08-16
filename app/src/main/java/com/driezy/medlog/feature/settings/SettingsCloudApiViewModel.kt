@@ -36,7 +36,7 @@ class SettingsCloudApiViewModel @Inject constructor(
     private val apiKeyStore: AiApiKeyStore,
     private val cacheRepository: AiCacheRepository,
     private val clock: Clock,
-    @param:ApplicationContext context: Context,
+    @ApplicationContext context: Context,
 ) : BaseViewModel() {
     private val usageSummary = MutableStateFlow(emptyList<AiUsageSummaryRow>())
     private val discovery = MutableStateFlow(CloudModelDiscoveryState())

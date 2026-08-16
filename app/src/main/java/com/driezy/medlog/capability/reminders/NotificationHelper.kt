@@ -7,17 +7,18 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Build
-import android.util.Log
 import androidx.compose.ui.graphics.toArgb
 import androidx.core.app.NotificationCompat
 import com.driezy.medlog.R
+import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.di.ApplicationScope
 import com.driezy.medlog.ui.theme.MedLogDarkColorScheme
 import com.driezy.medlog.ui.theme.MedLogLightColorScheme
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -58,17 +59,19 @@ private const val MAX_REMINDER_SLOTS = 20
 class NotificationHelper @Inject constructor(
     @param:ApplicationContext private val context: Context,
     private val prefsRepository: UserPreferencesRepository,
+    @param:ApplicationScope private val scope: CoroutineScope,
 ) {
     private val notificationManager =
         context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
+    @Volatile
+    private var cachedSettings = SettingsPreferences()
+
     /** 通知小图标着色：跟随用户主题设置，Android 12+ 优先使用系统动态色 primary。 */
     private val notificationColor: Int
         get() {
-            val prefs = runCatching { runBlocking { prefsRepository.settingsFlow.first() } }
-                .onFailure { Log.w(TAG, "Failed to read notification preferences", it) }
-                .getOrNull()
-            val darkTheme = when (prefs?.themeMode ?: ThemeMode.SYSTEM) {
+            val prefs = cachedSettings
+            val darkTheme = when (prefs.themeMode) {
                 ThemeMode.LIGHT -> false
                 ThemeMode.DARK -> true
                 ThemeMode.SYSTEM -> {
@@ -77,7 +80,7 @@ class NotificationHelper @Inject constructor(
                 }
             }
             return when {
-                (prefs?.useDynamicColor ?: true) && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
+                prefs.useDynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
                     context.getColor(
                         if (darkTheme) {
                             android.R.color.system_accent1_200
@@ -109,6 +112,9 @@ class NotificationHelper @Inject constructor(
 
     init {
         createChannels()
+        scope.launch {
+            prefsRepository.settingsFlow.collect { cachedSettings = it }
+        }
     }
 
     private fun createChannels() {
@@ -500,5 +506,3 @@ class NotificationHelper @Inject constructor(
         notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET)
     }
 }
-
-private const val TAG = "NotificationHelper"

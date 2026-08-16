@@ -237,9 +237,10 @@ private fun HealthContent(uiState: HealthUiState, onAction: (HealthUiAction) -> 
 
             // ── 趋势图（选中某类型且有 ≥2 个数据点时显示） ───────────
             if (uiState.selectedType != null && uiState.chartPoints.size >= 2) {
+                val selectedType = uiState.selectedType
                 item(key = "trend_chart") {
                     HealthTrendChart(
-                        type = uiState.selectedType!!,
+                        type = selectedType,
                         points = uiState.chartPoints,
                     )
                 }

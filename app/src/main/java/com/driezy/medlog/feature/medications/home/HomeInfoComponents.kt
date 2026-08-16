@@ -26,8 +26,8 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // ── 低库存警告 banner ─────────────────────────────────────────────────────────
@@ -131,5 +131,5 @@ internal fun LowStockBanner(medications: List<Pair<String, Pair<Double, String>>
 @Composable
 internal fun todayDateString(): String {
     val pattern = stringResource(R.string.date_format_day_label)
-    return remember(pattern) { SimpleDateFormat(pattern, Locale.getDefault()).format(Date()) }
+    return remember(pattern) { DateTimeFormatter.ofPattern(pattern, Locale.getDefault()).format(LocalDate.now()) }
 }

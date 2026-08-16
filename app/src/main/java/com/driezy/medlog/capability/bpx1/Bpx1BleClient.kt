@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
+import android.bluetooth.BluetoothGattConnectionSettings
 import android.bluetooth.BluetoothGattService
 import android.bluetooth.BluetoothManager
 import android.bluetooth.BluetoothProfile
@@ -13,6 +14,7 @@ import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.ParcelUuid
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
@@ -224,7 +226,16 @@ class AndroidBpx1BleClient @Inject constructor(
             }
 
             val device = adapter.getRemoteDevice(macAddress)
-            val gatt = device.connectGatt(context, false, callback, android.bluetooth.BluetoothDevice.TRANSPORT_LE)
+            val gatt = if (Build.VERSION.SDK_INT >= 37) {
+                val settings = BluetoothGattConnectionSettings.Builder()
+                    .setTransport(android.bluetooth.BluetoothDevice.TRANSPORT_LE)
+                    .setAutoConnectEnabled(false)
+                    .build()
+                device.connectGatt(settings, context.mainExecutor, callback)
+            } else {
+                @Suppress("DEPRECATION")
+                device.connectGatt(context, false, callback, android.bluetooth.BluetoothDevice.TRANSPORT_LE)
+            }
             gattReference.set(gatt)
             if (gatt == null) {
                 finish(Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED))

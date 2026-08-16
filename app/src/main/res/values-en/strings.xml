@@ -27,11 +27,6 @@
     <string name="archived_medications">Archived Medications</string>
     <string name="tab_diary">Diary</string>
     <string name="tab_health">Health</string>
-    <string name="wake_time">Wake-up Time</string>
-    <string name="breakfast_time">Breakfast Time</string>
-    <string name="lunch_time">Lunch Time</string>
-    <string name="dinner_time">Dinner Time</string>
-    <string name="bed_time">Bedtime</string>
 
     <!-- App Shortcuts -->
     <string name="shortcut_today_short">Today\'s Doses</string>
@@ -71,7 +66,6 @@
     <!-- Welcome Page 2: Routine time setup -->
     <string name="welcome_p2_title">Set Your Daily Routine</string>
     <string name="welcome_p2_body">Anshin uses these times to calculate your medication reminders. You can update them anytime in Settings.</string>
-    <string name="welcome_time_edit_cd">Edit</string>
 
     <!-- Welcome Page 3: Feature selection (Personalization) -->
     <string name="welcome_p4_title">Personalize</string>
@@ -86,7 +80,6 @@
     <string name="welcome_p4_health_desc">Record blood pressure, blood sugar, weight, and other health data</string>
     <string name="welcome_p4_timeperiod_title">Routine-based Timing</string>
     <string name="welcome_p4_timeperiod_desc">Schedule doses by fuzzy time periods like "after breakfast" or "at bedtime"</string>
-    <string name="welcome_p4_tip">⚡ Tip: Keep all features enabled — you can turn them off anytime in Settings.</string>
     <string name="welcome_p4_theme_label">Appearance</string>
     <string name="welcome_p4_theme_system">System</string>
     <string name="welcome_p4_theme_light">Light</string>
@@ -202,10 +195,8 @@
     <string name="welcome_p5_step3">When you get a reminder, open the app and mark your dose</string>
     <string name="settings_alarm_perm_title">Exact alarm permission denied</string>
     <string name="settings_alarm_perm_body">Reminders may be delayed. Enable \'Allow exact alarms\' in system settings</string>
-    <string name="settings_alarm_perm_btn">Grant Permission</string>
     <string name="settings_notif_perm_title">Notification permission denied</string>
     <string name="settings_notif_perm_body">Unable to receive medication reminders. Enable notification permission in system settings</string>
-    <string name="settings_notif_perm_btn">Go to Settings</string>
     <string name="settings_reminder_permissions_desc">Complete these system permissions so medication reminders arrive on time</string>
     <string name="settings_group_appearance_home">Appearance &amp; Home</string>
     <string name="settings_group_appearance_home_desc">Theme palettes, dynamic color, and Today view display preferences</string>
@@ -225,17 +216,7 @@
         <item quantity="one">%d setting needs attention</item>
         <item quantity="other">%d settings need attention</item>
     </plurals>
-    <string name="settings_home_reminders_ok">Reminders ready</string>
     <string name="settings_home_reminders_warning">Reminder permissions need attention</string>
-    <string name="settings_home_ai_ready">AI analysis ready</string>
-    <string name="settings_home_ai_warning">AI setup needed</string>
-    <string name="settings_home_ai_local">OCR running on device</string>
-    <plurals name="settings_home_modules_enabled">
-        <item quantity="one">%d module on</item>
-        <item quantity="other">%d modules on</item>
-    </plurals>
-    <string name="settings_home_dashboard_title">Settings center</string>
-    <string name="settings_home_dashboard_desc">Start with status, open a settings page, and toggle modules below</string>
     <string name="settings_home_frequent_group">Primary settings</string>
     <string name="settings_home_more_group">More settings</string>
     <string name="settings_home_tile_reminders_status">Reminders, routine, permissions</string>

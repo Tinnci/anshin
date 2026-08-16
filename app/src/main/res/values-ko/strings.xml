@@ -23,11 +23,6 @@
     <string name="archived_medications">보관된 약품</string>
     <string name="tab_diary">일기</string>
     <string name="tab_health">건강</string>
-    <string name="wake_time">기상 시간</string>
-    <string name="breakfast_time">아침 식사 시간</string>
-    <string name="lunch_time">점심 식사 시간</string>
-    <string name="dinner_time">저녁 식사 시간</string>
-    <string name="bed_time">취침 시간</string>
 
     <!-- App Shortcuts -->
     <string name="shortcut_today_short">오늘의 복약</string>
@@ -67,7 +62,6 @@
     <!-- Welcome Page 2: Routine time setup -->
     <string name="welcome_p2_title">생활 패턴 설정</string>
     <string name="welcome_p2_body">이 시간을 기준으로 복약 알림 시간을 계산합니다. 설정에서 언제든지 변경할 수 있습니다.</string>
-    <string name="welcome_time_edit_cd">수정</string>
 
     <!-- Welcome Page 3: Feature selection (Personalization) -->
     <string name="welcome_p4_title">개인 설정</string>
@@ -82,7 +76,6 @@
     <string name="welcome_p4_health_desc">혈압, 혈당, 체중 등 건강 데이터 기록</string>
     <string name="welcome_p4_timeperiod_title">루틴 기반 시간대 모드</string>
     <string name="welcome_p4_timeperiod_desc">\"아침 식사 후\" 또는 \"취침 전\"과 같은 시간대로 복약 일정 설정</string>
-    <string name="welcome_p4_tip">⚡ 팁: 모든 기능을 활성화 상태로 유지하면 편리합니다. 설정에서 언제든지 끌 수 있습니다.</string>
     <string name="welcome_p4_theme_label">앱 테마</string>
     <string name="welcome_p4_theme_system">시스템</string>
     <string name="welcome_p4_theme_light">라이트</string>
@@ -181,10 +174,8 @@
     <string name="welcome_p5_step3">알림이 오면 앱을 열어 복약 기록</string>
     <string name="settings_alarm_perm_title">정확한 알람 권한 미부여</string>
     <string name="settings_alarm_perm_body">알림이 지연될 수 있습니다. 시스템 설정에서 \'정확한 알람 허용\'을 활성화하세요</string>
-    <string name="settings_alarm_perm_btn">권한 부여</string>
     <string name="settings_notif_perm_title">알림 권한 꺼짐</string>
     <string name="settings_notif_perm_body">복약 알림을 받을 수 없습니다. 시스템 설정에서 알림 권한을 활성화하세요</string>
-    <string name="settings_notif_perm_btn">설정으로 이동</string>
     <string name="settings_reminder_permissions_desc">복약 알림을 제시간에 받으려면 다음 시스템 권한을 허용하세요</string>
     <string name="settings_group_appearance_home">외관 및 홈</string>
     <string name="settings_group_appearance_home_desc">테마 팔레트, 다이나믹 컬러, 오늘 화면 표시 설정</string>

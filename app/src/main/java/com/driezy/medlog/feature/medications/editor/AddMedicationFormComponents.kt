@@ -22,8 +22,10 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.icon
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun AddMedicationFormContent(
@@ -116,10 +118,10 @@ internal fun FormSection(title: String, icon: Int, content: @Composable ColumnSc
 internal fun ReminderTimesRow(times: List<String>, onAdd: (String) -> Unit, onRemove: (String) -> Unit) {
     val motionScheme = MaterialTheme.motionScheme
     var showPicker by remember { mutableStateOf(false) }
-    val cal = remember { Calendar.getInstance() }
+    val now = remember { LocalTime.now() }
     val timePickerState = rememberTimePickerState(
-        initialHour = cal.get(Calendar.HOUR_OF_DAY),
-        initialMinute = cal.get(Calendar.MINUTE),
+        initialHour = now.hour,
+        initialMinute = now.minute,
         is24Hour = true,
     )
 
@@ -219,8 +221,10 @@ internal fun DatePickerField(
     nullable: Boolean = false,
 ) {
     val motionScheme = MaterialTheme.motionScheme
-    val fmt = remember { SimpleDateFormat("MM/dd", Locale.getDefault()) }
-    val displayText = timestamp?.let { fmt.format(Date(it)) } ?: stringResource(R.string.add_date_unset)
+    val fmt = remember { DateTimeFormatter.ofPattern("MM/dd") }
+    val displayText = timestamp?.let {
+        fmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate())
+    } ?: stringResource(R.string.add_date_unset)
     var expanded by remember { mutableStateOf(false) }
     val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
 

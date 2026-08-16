@@ -16,9 +16,9 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun HealthOcrHeroCard(onScan: () -> Unit) {
@@ -129,7 +129,7 @@ internal fun SectionHeader(title: String, subtitle: String? = null) {
 
 @Composable
 private fun HealthStatCard(stat: HealthTypeStat, modifier: Modifier = Modifier) {
-    val dateFormat = remember { SimpleDateFormat("MM-dd", Locale.getDefault()) }
+    val dateFormat = remember { DateTimeFormatter.ofPattern("MM-dd") }
     val containerColor = if (stat.isAbnormal) {
         MaterialTheme.colorScheme.errorContainer
     } else {
@@ -236,7 +236,9 @@ private fun HealthStatCard(stat: HealthTypeStat, modifier: Modifier = Modifier) 
                     }
                 } else {
                     Text(
-                        dateFormat.format(Date(stat.latestTime)),
+                        dateFormat.format(
+                            Instant.ofEpochMilli(stat.latestTime).atZone(ZoneId.systemDefault()).toLocalDate(),
+                        ),
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )

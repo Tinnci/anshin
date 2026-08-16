@@ -26,11 +26,6 @@
     <string name="archived_medications">已归档药品</string>
     <string name="tab_diary">日记</string>
     <string name="tab_health">健康</string>
-    <string name="wake_time">起床时间</string>
-    <string name="breakfast_time">早餐时间</string>
-    <string name="lunch_time">午餐时间</string>
-    <string name="dinner_time">晚餐时间</string>
-    <string name="bed_time">睡觉时间</string>
 
     <!-- App Shortcuts -->
     <string name="shortcut_today_short">今日用药</string>
@@ -70,7 +65,6 @@
     <!-- Welcome Page 2: Routine time setup -->
     <string name="welcome_p2_title">设置作息时间</string>
     <string name="welcome_p2_body">Anshin 将根据这些时间自动推算服药提醒，可随时在设置中修改</string>
-    <string name="welcome_time_edit_cd">修改</string>
 
     <!-- Welcome Page 3: Feature selection (Personalization) -->
     <string name="welcome_p4_title">个性化功能</string>
@@ -85,7 +79,6 @@
     <string name="welcome_p4_health_desc">记录血压、血糖、体重等健康数据</string>
     <string name="welcome_p4_timeperiod_title">作息时间段模式</string>
     <string name="welcome_p4_timeperiod_desc">允许按「早餐后」「睡前」等模糊时段设置提醒</string>
-    <string name="welcome_p4_tip">⚡ 推荐：所有功能保持开启，随时可以在设置中关闭。</string>
     <string name="welcome_p4_theme_label">外观主题</string>
     <string name="welcome_p4_theme_system">跟随系统</string>
     <string name="welcome_p4_theme_light">浅色</string>
@@ -194,10 +187,8 @@
     <string name="welcome_p5_step3">每次收到提醒后，打开应用完成服药打卡</string>
     <string name="settings_alarm_perm_title">精确闹钟权限未授予</string>
     <string name="settings_alarm_perm_body">提醒可能最多延迟数分钟。前往系统设置开启『允许精确闹钟』</string>
-    <string name="settings_alarm_perm_btn">前往授权</string>
     <string name="settings_notif_perm_title">通知权限未开启</string>
     <string name="settings_notif_perm_body">无法收到服药提醒。在系统设置中开启通知权限</string>
-    <string name="settings_notif_perm_btn">前往设置</string>
     <string name="settings_reminder_permissions_desc">完成以下系统授权，确保服药提醒按时送达</string>
     <string name="settings_group_appearance_home">外观与首页</string>
     <string name="settings_group_appearance_home_desc">主题配色、动态颜色与今日页面显示偏好</string>
@@ -216,16 +207,7 @@
     <plurals name="settings_home_status_attention">
         <item quantity="other">%d 项设置建议处理</item>
     </plurals>
-    <string name="settings_home_reminders_ok">提醒运行中</string>
     <string name="settings_home_reminders_warning">提醒权限待处理</string>
-    <string name="settings_home_ai_ready">AI 分析可用</string>
-    <string name="settings_home_ai_warning">AI 分析待配置</string>
-    <string name="settings_home_ai_local">OCR 本地运行中</string>
-    <plurals name="settings_home_modules_enabled">
-        <item quantity="other">%d 个模块开启</item>
-    </plurals>
-    <string name="settings_home_dashboard_title">设置中心</string>
-    <string name="settings_home_dashboard_desc">先看状态，再进入设置页；模块可在下方开关</string>
     <string name="settings_home_frequent_group">主要设置</string>
     <string name="settings_home_more_group">更多设置</string>
     <string name="settings_home_tile_reminders_status">提醒、作息和权限</string>

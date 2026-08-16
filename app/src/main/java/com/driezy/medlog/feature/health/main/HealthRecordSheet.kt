@@ -21,10 +21,9 @@ import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -200,9 +199,9 @@ internal fun AddEditHealthSheet(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun HealthTimePicker(timestampMs: Long, onTimeChange: (Long) -> Unit) {
-    val cal = remember(timestampMs) { Calendar.getInstance().apply { timeInMillis = timestampMs } }
-    val dateFmt = remember { SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()) }
-    val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val zoned = remember(timestampMs) { Instant.ofEpochMilli(timestampMs).atZone(ZoneId.systemDefault()) }
+    val dateFmt = remember { DateTimeFormatter.ofPattern("yyyy-MM-dd") }
+    val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
 
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
@@ -218,13 +217,13 @@ private fun HealthTimePicker(timestampMs: Long, onTimeChange: (Long) -> Unit) {
     ) {
         AssistChip(
             onClick = { showDatePicker = true },
-            label = { Text(dateFmt.format(Date(timestampMs))) },
+            label = { Text(dateFmt.format(zoned.toLocalDate())) },
             leadingIcon = { MedLogIcon(MedLogIcons.CalendarMonth, null, Modifier.size(18.dp)) },
             modifier = Modifier.weight(1f),
         )
         AssistChip(
             onClick = { showTimePicker = true },
-            label = { Text(timeFmt.format(Date(timestampMs))) },
+            label = { Text(timeFmt.format(zoned.toLocalTime())) },
             leadingIcon = { MedLogIcon(MedLogIcons.Schedule, null, Modifier.size(18.dp)) },
             modifier = Modifier.weight(1f),
         )
@@ -237,14 +236,12 @@ private fun HealthTimePicker(timestampMs: Long, onTimeChange: (Long) -> Unit) {
             confirmButton = {
                 TextButton(onClick = {
                     datePickerState.selectedDateMillis?.let { selectedMs ->
-                        val selected = Calendar.getInstance().apply { timeInMillis = selectedMs }
-                        val merged = Calendar.getInstance().apply {
-                            timeInMillis = timestampMs
-                            set(Calendar.YEAR, selected.get(Calendar.YEAR))
-                            set(Calendar.MONTH, selected.get(Calendar.MONTH))
-                            set(Calendar.DAY_OF_MONTH, selected.get(Calendar.DAY_OF_MONTH))
-                        }
-                        onTimeChange(merged.timeInMillis)
+                        val selectedDate = Instant.ofEpochMilli(selectedMs).atZone(ZoneId.systemDefault()).toLocalDate()
+                        val merged = zoned
+                            .withYear(selectedDate.year)
+                            .withMonth(selectedDate.monthValue)
+                            .withDayOfMonth(selectedDate.dayOfMonth)
+                        onTimeChange(merged.toInstant().toEpochMilli())
                     }
                     showDatePicker = false
                 }) { Text(stringResource(R.string.confirm)) }
@@ -261,22 +258,20 @@ private fun HealthTimePicker(timestampMs: Long, onTimeChange: (Long) -> Unit) {
 
     if (showTimePicker) {
         val tpState = rememberTimePickerState(
-            initialHour = cal.get(Calendar.HOUR_OF_DAY),
-            initialMinute = cal.get(Calendar.MINUTE),
+            initialHour = zoned.hour,
+            initialMinute = zoned.minute,
             is24Hour = true,
         )
         AlertDialog(
             onDismissRequest = { showTimePicker = false },
             confirmButton = {
                 TextButton(onClick = {
-                    val merged = Calendar.getInstance().apply {
-                        timeInMillis = timestampMs
-                        set(Calendar.HOUR_OF_DAY, tpState.hour)
-                        set(Calendar.MINUTE, tpState.minute)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }
-                    onTimeChange(merged.timeInMillis)
+                    val merged = zoned
+                        .withHour(tpState.hour)
+                        .withMinute(tpState.minute)
+                        .withSecond(0)
+                        .withNano(0)
+                    onTimeChange(merged.toInstant().toEpochMilli())
                     showTimePicker = false
                 }) { Text(stringResource(R.string.confirm)) }
             },

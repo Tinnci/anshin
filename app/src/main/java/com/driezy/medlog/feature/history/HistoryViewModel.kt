@@ -280,7 +280,7 @@ class HistoryViewModel @Inject constructor(
      * @param log    要修改的日志对象
      * @param newMs  新的实际服药时间戳（毫秒，UTC，来自设备时钟）
      *
-     * 时区说明：所有时间戳均以 UTC 毫秒存储，显示时由 SimpleDateFormat 根据设备时区格式化。
+     * 时区说明：所有时间戳均以 UTC 毫秒存储，显示时由 java.time 根据设备时区格式化。
      * 修改后数据库更新，日志页签由 Flow 自动刷新，无需手动触发。
      */
     fun editTakenTime(log: com.driezy.medlog.data.model.MedicationLog, newMs: Long) {

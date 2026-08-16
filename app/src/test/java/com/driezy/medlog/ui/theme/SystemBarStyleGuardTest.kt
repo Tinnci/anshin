@@ -34,7 +34,7 @@ class SystemBarStyleGuardTest {
         val helper = source("app/src/main/java/com/driezy/medlog/ui/theme/SystemBars.kt")
 
         assertTrue(helper.contains("enableEdgeToEdge()"))
-        assertTrue(helper.contains("window.statusBarColor = Color.TRANSPARENT"))
+        assertTrue(helper.contains("window.isNavigationBarContrastEnforced = false"))
         assertTrue(helper.contains("controller.isAppearanceLightStatusBars = !darkTheme"))
         assertTrue(helper.contains("controller.isAppearanceLightNavigationBars = !darkTheme"))
     }

@@ -298,7 +298,7 @@ private fun DrugsContent(
                     }
                     // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
                     uiState.selectedCategory != null -> {
-                        val selectedCat = uiState.selectedCategory ?: ""
+                        val selectedCat = uiState.selectedCategory
                         val selectedSub = uiState.selectedSubcategory // 本地 val 避免 smart cast 问题
                         Column(modifier = Modifier.fillMaxSize()) {
                             // 面包屑标题行

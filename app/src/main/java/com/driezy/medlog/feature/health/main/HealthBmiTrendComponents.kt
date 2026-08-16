@@ -26,9 +26,9 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
-import java.text.SimpleDateFormat
-import java.util.Date
-import java.util.Locale
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @Composable
 internal fun BmiCard(
@@ -135,7 +135,7 @@ internal fun HealthTrendChart(type: HealthType, points: List<HealthRecord>) {
     val gridColor = MaterialTheme.colorScheme.outlineVariant
     val labelColor = MaterialTheme.colorScheme.onSurfaceVariant
     val density = LocalDensity.current
-    val dateFormat = remember { SimpleDateFormat("M/d", Locale.getDefault()) }
+    val dateFormat = remember { DateTimeFormatter.ofPattern("M/d") }
 
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -252,7 +252,9 @@ internal fun HealthTrendChart(type: HealthType, points: List<HealthRecord>) {
                     val idx = i * (sorted.size - 1) / (labelCount - 1).coerceAtLeast(1)
                     val x = xOf(sorted[idx].timestamp)
                     drawContext.canvas.nativeCanvas.drawText(
-                        dateFormat.format(Date(sorted[idx].timestamp)),
+                        dateFormat.format(
+                            Instant.ofEpochMilli(sorted[idx].timestamp).atZone(ZoneId.systemDefault()).toLocalDate(),
+                        ),
                         x,
                         size.height - 4.dp.toPx(),
                         xTextPaint,

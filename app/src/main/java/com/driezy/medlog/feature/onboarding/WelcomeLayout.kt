@@ -12,9 +12,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
+import kotlin.math.roundToInt
 
 @Immutable
 internal data class WelcomeLayoutProfile(
@@ -49,11 +50,14 @@ internal fun welcomeEntryDelayMs(index: Int, constrained: Boolean, motionEnabled
 
 @Composable
 internal fun rememberWelcomeLayoutProfile(): WelcomeLayoutProfile {
-    val configuration = LocalConfiguration.current
+    val windowInfo = LocalWindowInfo.current
+    val density = LocalDensity.current
+    val screenWidthDp = (windowInfo.containerSize.width / density.density).roundToInt()
+    val screenHeightDp = (windowInfo.containerSize.height / density.density).roundToInt()
     return welcomeLayoutProfile(
-        fontScale = LocalDensity.current.fontScale,
-        screenWidthDp = configuration.screenWidthDp,
-        screenHeightDp = configuration.screenHeightDp,
+        fontScale = density.fontScale,
+        screenWidthDp = screenWidthDp,
+        screenHeightDp = screenHeightDp,
         motionEnabled = ValueAnimator.areAnimatorsEnabled(),
     )
 }

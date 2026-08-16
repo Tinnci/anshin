@@ -27,11 +27,13 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
-import java.text.SimpleDateFormat
+import java.time.Instant
 import java.time.LocalDate
 import java.time.YearMonth
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.util.*
+import java.util.Locale
 
 @Composable
 internal fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifier) {
@@ -382,7 +384,7 @@ internal fun DayLogRow(
     medicationName: String,
     onEditTakenTime: (MedicationLog, Long) -> Unit = { _, _ -> },
 ) {
-    val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+    val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
     val colorScheme = MaterialTheme.colorScheme
     val takenLabel = stringResource(R.string.history_taken)
     val skippedLabel = stringResource(R.string.history_skipped)
@@ -393,14 +395,12 @@ internal fun DayLogRow(
 
     // 时间戳编辑对话框状态
     var showTimePicker by remember { mutableStateOf(false) }
-    val takenCal = remember(log.actualTakenTimeMs) {
-        Calendar.getInstance().apply {
-            timeInMillis = log.actualTakenTimeMs ?: log.scheduledTimeMs
-        }
+    val takenZoned = remember(log.actualTakenTimeMs) {
+        Instant.ofEpochMilli(log.actualTakenTimeMs ?: log.scheduledTimeMs).atZone(ZoneId.systemDefault())
     }
     val timePickerState = rememberTimePickerState(
-        initialHour = takenCal.get(Calendar.HOUR_OF_DAY),
-        initialMinute = takenCal.get(Calendar.MINUTE),
+        initialHour = takenZoned.hour,
+        initialMinute = takenZoned.minute,
         is24Hour = true,
     )
     Row(
@@ -435,7 +435,10 @@ internal fun DayLogRow(
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
-                    stringResource(R.string.history_scheduled_time, timeFmt.format(Date(log.scheduledTimeMs))),
+                    stringResource(
+                        R.string.history_scheduled_time,
+                        timeFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(ZoneId.systemDefault())),
+                    ),
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
                 )
@@ -474,7 +477,10 @@ internal fun DayLogRow(
         Text(
             when (log.status) {
                 LogStatus.TAKEN -> log.actualTakenTimeMs?.let {
-                    stringResource(R.string.history_taken_time, timeFmt.format(Date(it)))
+                    stringResource(
+                        R.string.history_taken_time,
+                        timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                    )
                 }
                     ?: takenLabel
                 LogStatus.SKIPPED -> skippedLabel
@@ -483,7 +489,9 @@ internal fun DayLogRow(
                 LogStatus.PARTIAL -> {
                     val qtyStr =
                         log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
-                    val timeStr = log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
+                    val timeStr = log.actualTakenTimeMs?.let {
+                        timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
+                    }
                     if (timeStr != null) "$partialLabel $qtyStr @ $timeStr" else "$partialLabel $qtyStr"
                 }
             },
@@ -513,7 +521,9 @@ internal fun DayLogRow(
                     Text(
                         stringResource(
                             R.string.history_current_time_format,
-                            log.actualTakenTimeMs?.let { timeFmt.format(Date(it)) } ?: unrecordedLabel,
+                            log.actualTakenTimeMs?.let {
+                                timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
+                            } ?: unrecordedLabel,
                         ),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,
@@ -525,14 +535,13 @@ internal fun DayLogRow(
             confirmButton = {
                 TextButton(onClick = {
                     // 将选择的 HH:mm 合并到原日期的时间戳
-                    val base = Calendar.getInstance().apply {
-                        timeInMillis = log.actualTakenTimeMs ?: log.scheduledTimeMs
-                        set(Calendar.HOUR_OF_DAY, timePickerState.hour)
-                        set(Calendar.MINUTE, timePickerState.minute)
-                        set(Calendar.SECOND, 0)
-                        set(Calendar.MILLISECOND, 0)
-                    }
-                    onEditTakenTime(log, base.timeInMillis)
+                    val base = Instant.ofEpochMilli(log.actualTakenTimeMs ?: log.scheduledTimeMs)
+                        .atZone(ZoneId.systemDefault())
+                        .withHour(timePickerState.hour)
+                        .withMinute(timePickerState.minute)
+                        .withSecond(0)
+                        .withNano(0)
+                    onEditTakenTime(log, base.toInstant().toEpochMilli())
                     showTimePicker = false
                 }) { Text(stringResource(R.string.confirm)) }
             },

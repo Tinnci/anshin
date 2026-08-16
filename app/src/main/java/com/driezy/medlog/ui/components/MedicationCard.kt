@@ -33,8 +33,9 @@ import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -248,20 +249,22 @@ fun MedicationCard(
                     }
                     val actualTakenTimeMs = item.log?.actualTakenTimeMs
                     if (item.isTaken && actualTakenTimeMs != null) {
-                        val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+                        val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
                         Text(
                             text = stringResource(
                                 R.string.med_card_taken_at,
-                                timeFmt.format(Date(actualTakenTimeMs)),
+                                timeFmt.format(Instant.ofEpochMilli(actualTakenTimeMs).atZone(ZoneId.systemDefault())),
                             ),
                             style = MaterialTheme.typography.bodySmall,
                             color = MaterialTheme.colorScheme.tertiary,
                         )
                     }
                     if (item.isPartial) {
-                        val timeFmt = remember { SimpleDateFormat("HH:mm", Locale.getDefault()) }
+                        val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
                         val qty = item.log?.actualDoseQuantity
-                        val timeStr = item.log?.actualTakenTimeMs?.let { timeFmt.format(Date(it)) }
+                        val timeStr = item.log?.actualTakenTimeMs?.let {
+                            timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
+                        }
                         Text(
                             text = stringResource(
                                 R.string.med_card_partial_taken,

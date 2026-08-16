@@ -61,8 +61,8 @@ import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.utils.generateQrBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.SimpleDateFormat
-import java.util.Date
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 // ── 今日用药 QR 码分享对话框 ─────────────────────────────────────────────────
@@ -93,10 +93,9 @@ internal fun MedicationQrDialog(
     val todayQrText = remember(items, periodStrings) {
         buildString {
             appendLine(
-                "Anshin ${SimpleDateFormat(
-                    "yyyy-MM-dd",
-                    Locale.getDefault(),
-                ).format(Date())} [$takenCount/$totalCount]",
+                "Anshin ${
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.getDefault()))
+                } [$takenCount/$totalCount]",
             )
             items.forEach { item ->
                 val status = when {

@@ -25,8 +25,7 @@ import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.format.DateTimeFormatter
 
 // ─── 评级 Emoji 映射 ─────────────────────────────────────────────────────────
 
@@ -63,7 +62,7 @@ private fun SymptomDiaryContent(
     onOpenSettings: () -> Unit,
     onAction: (SymptomDiaryUiAction) -> Unit,
 ) {
-    val dateFormat = remember { SimpleDateFormat("MM-dd HH:mm", Locale.getDefault()) }
+    val dateFormat = remember { DateTimeFormatter.ofPattern("MM-dd HH:mm") }
 
     MedLogScreenScaffold(
         title = { Text(stringResource(R.string.symptom_screen_title)) },

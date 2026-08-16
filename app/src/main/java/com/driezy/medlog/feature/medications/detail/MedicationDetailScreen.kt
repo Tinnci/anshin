@@ -29,8 +29,9 @@ import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDosePrecise
 import com.driezy.medlog.ui.util.labelRes
-import java.text.SimpleDateFormat
-import java.util.*
+import java.time.Instant
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 /** 剂型 key → 本地化标签 */
 @Composable
@@ -301,9 +302,12 @@ private fun MedicationDetailContent(
                             )
                         }
                         med.stock?.let { DetailRow(stringResource(R.string.detail_label_stock), "$it ${med.doseUnit}") }
-                        val endDateFmt = remember { SimpleDateFormat("yyyy/MM/dd", Locale.getDefault()) }
+                        val endDateFmt = remember { DateTimeFormatter.ofPattern("yyyy/MM/dd") }
                         med.endDate?.let {
-                            DetailRow(stringResource(R.string.detail_label_end_date), endDateFmt.format(Date(it)))
+                            DetailRow(
+                                stringResource(R.string.detail_label_end_date),
+                                endDateFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                            )
                         }
                         if (med.notes.isNotBlank()) DetailRow(stringResource(R.string.detail_label_notes), med.notes)
                     }

@@ -23,11 +23,6 @@
     <string name="archived_medications">アーカイブ済み薬品</string>
     <string name="tab_diary">日記</string>
     <string name="tab_health">健康</string>
-    <string name="wake_time">起床時間</string>
-    <string name="breakfast_time">朝食時間</string>
-    <string name="lunch_time">昼食時間</string>
-    <string name="dinner_time">夕食時間</string>
-    <string name="bed_time">就寝時間</string>
 
     <!-- App Shortcuts -->
     <string name="shortcut_today_short">今日の服薬</string>
@@ -67,7 +62,6 @@
     <!-- Welcome Page 2: Routine time setup -->
     <string name="welcome_p2_title">生活リズムを設定</string>
     <string name="welcome_p2_body">これらの時間をもとに服薬リマインダーを計算します。設定からいつでも変更できます。</string>
-    <string name="welcome_time_edit_cd">編集</string>
 
     <!-- Welcome Page 3: Feature selection (Personalization) -->
     <string name="welcome_p4_title">カスタマイズ</string>
@@ -82,7 +76,6 @@
     <string name="welcome_p4_health_desc">血圧・血糖値・体重などの健康データを記録</string>
     <string name="welcome_p4_timeperiod_title">時間帯モード</string>
     <string name="welcome_p4_timeperiod_desc">「朝食後」「就寝前」などの目安時間帯で服薬スケジュールを設定</string>
-    <string name="welcome_p4_tip">⚡ ヒント：すべての機能を有効にしたままにしておくことをお勧めします。設定からいつでも無効にできます。</string>
     <string name="welcome_p4_theme_label">外観テーマ</string>
     <string name="welcome_p4_theme_system">システム</string>
     <string name="welcome_p4_theme_light">ライト</string>
@@ -181,10 +174,8 @@
     <string name="welcome_p5_step3">リマインダーが届いたらアプリを開いて服用を記録</string>
     <string name="settings_alarm_perm_title">正確なアラーム権限が未付与</string>
     <string name="settings_alarm_perm_body">リマインダーが遅延する可能性があります。システム設定で「正確なアラームを許可」をオンにしてください</string>
-    <string name="settings_alarm_perm_btn">権限を付与</string>
     <string name="settings_notif_perm_title">通知権限がオフです</string>
     <string name="settings_notif_perm_body">服薬リマインダーを受信できません。システム設定で通知権限をオンにしてください</string>
-    <string name="settings_notif_perm_btn">設定へ移動</string>
     <string name="settings_reminder_permissions_desc">服薬リマインダーを時間どおりに受け取るため、次のシステム権限を許可してください</string>
     <string name="settings_group_appearance_home">外観とホーム</string>
     <string name="settings_group_appearance_home_desc">テーマ配色、ダイナミックカラー、今日画面の表示設定</string>
