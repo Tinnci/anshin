@@ -14,7 +14,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -24,12 +23,12 @@ import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.MedicationCard
 import com.driezy.medlog.ui.components.ScreenChromeState
+import com.driezy.medlog.ui.components.ScreenFab
 import com.driezy.medlog.ui.components.ScreenOverlay
 import com.driezy.medlog.ui.components.ScreenOverlayHost
 import com.driezy.medlog.ui.components.ScreenTopBarSize
 import com.driezy.medlog.ui.components.TopBarAction
 import com.driezy.medlog.ui.components.TopBarActionPriority
-import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
@@ -198,10 +197,16 @@ private fun HomeContent(
         ),
         chromeState = ScreenChromeState(
             isLoading = uiState.isLoading,
+            fab = ScreenFab(
+                id = "add",
+                label = stringResource(R.string.home_fab_add),
+                icon = MedLogIcons.Add,
+            ),
         ),
         snackbarHostState = snackbarHostState,
         onChromeAction = { id ->
             when (id) {
+                "add" -> onAddMedication()
                 "qr" -> {
                     overlay = ScreenOverlay.Custom(id = "home:qr") {
                         MedicationQrDialog(
@@ -279,52 +284,21 @@ private fun HomeContent(
                             text = stringResource(R.string.home_hero_plan_title),
                             style = MaterialTheme.emphasizedTypography.titleLarge,
                         )
-                        Row(
-                            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-                            verticalAlignment = Alignment.CenterVertically,
-                        ) {
-                            Text(
-                                text = pluralStringResource(
-                                    R.plurals.home_hero_plan_count,
-                                    uiState.heroPresentation.totalCount,
-                                    uiState.heroPresentation.totalCount,
-                                ),
-                                style = MaterialTheme.typography.labelLarge,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            )
-                            FilledTonalIconButton(
-                                onClick = onAddMedication,
-                                modifier = Modifier
-                                    .size(40.dp)
-                                    .testTag("homePlanAdd"),
-                            ) {
-                                MedLogIcon(
-                                    icon = MedLogIcons.Add,
-                                    contentDescription = stringResource(R.string.home_fab_add),
-                                    modifier = Modifier.size(20.dp),
-                                )
-                            }
-                        }
+                        Text(
+                            text = pluralStringResource(
+                                R.plurals.home_hero_plan_count,
+                                uiState.heroPresentation.totalCount,
+                                uiState.heroPresentation.totalCount,
+                            ),
+                            style = MaterialTheme.typography.labelLarge,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
                     }
                 }
             }
 
-            val focusedPlanItem = uiState.heroPresentation.nextPendingItem
-            if (focusedPlanItem != null) {
-                item(
-                    key = "focused_plan_${focusedPlanItem.doseKey}",
-                    contentType = "compactPlanDose",
-                ) {
-                    CompactMedicationPlanRow(
-                        item = focusedPlanItem,
-                        onToggleTaken = { toggleDose(focusedPlanItem) },
-                        onClick = { onMedicationClick(focusedPlanItem.medication.id) },
-                        modifier = Modifier.animateItem(),
-                    )
-                }
-            }
-
             // ── 药品卡片列表（可按时段或分类分组）────────────────
+            val focusedPlanItem = uiState.heroPresentation.nextPendingItem
             if (uiState.groupByTime) {
                 val taskGroups = listOf(
                     "now" to uiState.nowTaskItems,
