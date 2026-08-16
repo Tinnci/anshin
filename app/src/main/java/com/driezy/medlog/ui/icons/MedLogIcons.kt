@@ -181,8 +181,6 @@ object MedLogIcons {
 
     @DrawableRes val Search: Int = R.drawable.ic_symbol_search
 
-    @DrawableRes val SearchOff: Int = R.drawable.ic_symbol_search_off
-
     @DrawableRes val Settings: Int = R.drawable.ic_symbol_settings
 
     @DrawableRes val SkipNext: Int = R.drawable.ic_symbol_skip_next
@@ -234,8 +232,6 @@ object MedLogIcons {
     @DrawableRes val EditNoteSelected: Int = R.drawable.ic_symbol_edit_note_fill1
 
     @DrawableRes val MonitorHeartSelected: Int = R.drawable.ic_symbol_monitor_heart_fill1
-
-    @DrawableRes val SettingsSelected: Int = R.drawable.ic_symbol_settings_fill1
 
     @DrawableRes val MedicationDisplay40: Int = R.drawable.ic_symbol_medication_opsz40
 

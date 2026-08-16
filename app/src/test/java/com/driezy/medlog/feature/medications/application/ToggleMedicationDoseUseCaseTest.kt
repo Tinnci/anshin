@@ -293,9 +293,6 @@ class ToggleMedicationDoseUseCaseTest {
 
         useCase.markTaken(medication, existingLog = null, timeSlotIndex = 1)
 
-        verify(notificationHelper, never()).cancelReminderNotification(9L, 1)
-        verify(notificationHelper, never()).cancelEarlyReminderNotification(9L, 1)
-        verify(notificationHelper, never()).cancelFollowUpNotification(9L, 1)
         verify(notificationHelper, never()).cancelAllReminderNotifications(9L)
         verify(reminderReconciler).reconcileMedication(MedicationId(9L), ReminderReconcileReason.DOSE_RECORDED)
     }

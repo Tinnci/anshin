@@ -135,31 +135,7 @@ class AlarmScheduler @Inject constructor(
         scheduleEarlyReminderIfNeeded(medication, timeIndex, triggerMs)
     }
 
-    /** 撤销一个剂量后，只恢复该时间槽当前仍可触发的下一次提醒。 */
-    fun restoreReminderForDose(medication: Medication, timeIndex: Int) {
-        val triggerMs = reminderPlanner.nextOccurrenceForSlot(
-            schedule = medication.toDomainSchedule(),
-            slotIndex = timeIndex,
-            after = clock.instant(),
-            endAt = medication.endDate?.let(Instant::ofEpochMilli),
-            zoneId = reminderZoneId,
-        )?.scheduledAt?.toEpochMilli() ?: return
-        scheduleAlarmSlot(medication, timeIndex, triggerMs)
-        scheduleEarlyReminderIfNeeded(medication, timeIndex, triggerMs)
-    }
-
     // ─── 取消 ──────────────────────────────────────────────────────────────
-
-    /** 取消指定药品的单个时间槽，以及该槽的提前预告和漏服再提醒。 */
-    fun cancelAlarmSlot(medicationId: Long, timeIndex: Int) {
-        cancelPendingAlarm((medicationId * 100 + timeIndex).toInt())
-        cancelPendingAlarm(
-            (medicationId * 100 + timeIndex).toInt() + EARLY_REMINDER_CODE_OFFSET,
-        )
-        cancelPendingAlarm(
-            (medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET,
-        )
-    }
 
     /** 只取消指定时间槽的漏服再提醒闹钟。 */
     fun cancelFollowUpAlarm(medicationId: Long, timeIndex: Int) {

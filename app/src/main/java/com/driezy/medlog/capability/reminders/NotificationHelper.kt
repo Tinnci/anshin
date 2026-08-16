@@ -311,12 +311,6 @@ class NotificationHelper @Inject constructor(
 
     // ─── 取消通知 ─────────────────────────────────────────────
 
-    /** 取消指定药品某时间槽的通知（不影响闹钟，闹钟由 [AlarmScheduler] 管理）*/
-    fun cancelReminderNotification(medicationId: Long, timeIndex: Int) {
-        val notificationId = (medicationId * 100 + timeIndex).toInt()
-        notificationManager.cancel(notificationId)
-    }
-
     /**
      * 取消某药品的所有时间槽通知 UI。
      * 不负责取消闹钟 —— 使用 [AlarmScheduler.cancelAllAlarms]。
@@ -431,11 +425,6 @@ class NotificationHelper @Inject constructor(
         notificationManager.notify(notificationId, notification)
     }
 
-    /** 取消指定药品某时间槽的提前通知 */
-    fun cancelEarlyReminderNotification(medicationId: Long, timeIndex: Int) {
-        notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + 50_000)
-    }
-
     // ─── 漏服再提醒通知 ─────────────────────────────────────────
 
     /**
@@ -499,10 +488,5 @@ class NotificationHelper @Inject constructor(
             .asMedicationLiveUpdate(context.getString(R.string.notif_live_short_follow_up))
             .build()
         notificationManager.notify(notificationId, notification)
-    }
-
-    /** 取消漏服再提醒通知 */
-    fun cancelFollowUpNotification(medicationId: Long, timeIndex: Int) {
-        notificationManager.cancel((medicationId * 100 + timeIndex).toInt() + FOLLOW_UP_CODE_OFFSET)
     }
 }

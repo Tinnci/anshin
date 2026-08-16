@@ -28,12 +28,6 @@ class HealthInsightGenerationUseCase @Inject constructor(
     private val networkStatusProvider: AiNetworkStatusProvider,
     private val clock: Clock,
 ) {
-    suspend fun generate(
-        records: List<HealthRecord>,
-        userHeightCm: Float,
-        locale: String = Locale.getDefault().toLanguageTag(),
-    ): List<HealthInsight> = generateWithStatus(records, userHeightCm, locale).insights
-
     suspend fun generateWithStatus(
         records: List<HealthRecord>,
         userHeightCm: Float,

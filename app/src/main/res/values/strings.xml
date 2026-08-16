@@ -595,7 +595,6 @@
     <string name="common_confirm_cd">确认</string>
     <string name="common_action_add">添加</string>
     <string name="common_notes_hint">备注（可选）</string>
-    <string name="common_no_plan_today">今日暂无用药计划</string>
     <string name="common_filter_all">全部</string>
     <string name="time_period_exact">精确时间</string>
     <string name="time_period_morning">早晨</string>
@@ -627,11 +626,6 @@
     <string name="med_card_btn_partial">部分服用</string>
     <string name="med_card_partial_taken">部分服用 %1$s %2$s （%3$s）</string>
     <string name="med_card_partial_input_hint">输入本次实际服用剂量（计划: %1$s %2$s）</string>
-    <string name="progress_header_title">今日进度</string>
-    <string name="progress_header_all_done">全部完成！🎉</string>
-    <plurals name="progress_header_remaining">
-        <item quantity="other">还剩 %d 种药品待服用</item>
-    </plurals>
     <string name="symptom_screen_title">身心记录</string>
     <string name="symptom_screen_fab_cd">记录状态</string>
     <string name="symptom_empty_title">还没有日记记录</string>

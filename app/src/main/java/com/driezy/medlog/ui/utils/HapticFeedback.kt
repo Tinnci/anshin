@@ -52,5 +52,3 @@ fun View.performMedLogHaptic(effect: MedLogHapticEffect) {
 }
 
 fun View.performConfirmHapticFeedback() = performMedLogHaptic(MedLogHapticEffect.CONFIRM)
-
-fun View.performRejectHapticFeedback() = performMedLogHaptic(MedLogHapticEffect.REJECT)
