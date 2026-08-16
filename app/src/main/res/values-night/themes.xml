@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MedLog" parent="android:Theme.Material.NoActionBar">
+        <item name="android:windowBackground">@color/medlog_window_background</item>
+    </style>
+</resources>

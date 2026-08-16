@@ -4,4 +4,5 @@
     <color name="brand_icon_foreground">#0B5F63</color>
     <color name="brand_icon_accent">#9FD0D1</color>
     <color name="splash_background">@color/brand_icon_background</color>
+    <color name="medlog_window_background">#FCF9F4</color>
 </resources>

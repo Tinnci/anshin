@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="brand_icon_background">#101513</color>
+    <color name="splash_background">@color/brand_icon_background</color>
+    <color name="medlog_window_background">#101513</color>
+</resources>
