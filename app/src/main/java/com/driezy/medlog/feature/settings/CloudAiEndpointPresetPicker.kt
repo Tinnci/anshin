@@ -229,21 +229,25 @@ internal data class CloudAiEndpointPresetListPresentation(
                 .filter { preset ->
                     normalizedQuery.isBlank() ||
                         preset.name.lowercase(Locale.ROOT).contains(normalizedQuery) ||
-                        preset.api.lowercase(Locale.ROOT).contains(normalizedQuery) ||
-                        preset.id.lowercase(Locale.ROOT).contains(normalizedQuery)
+                        preset.api.normalizedEndpointUrl().contains(normalizedQuery) ||
+                        preset.id.lowercase(Locale.ROOT).contains(normalizedQuery) ||
+                        preset.aliases.any { it.lowercase(Locale.ROOT).contains(normalizedQuery) }
                 }
                 .toList()
-            val featuredRanks = if (normalizedQuery.isBlank()) {
-                protocol.featuredPresetRanks()
+            val featuredRows = if (normalizedQuery.isBlank()) {
+                filteredPresets
+                    .filter { preset -> preset.featured }
+                    .sortedBy { preset -> preset.name.lowercase(Locale.ROOT) }
+                    .map { preset -> preset.toRow(normalizedCurrentBaseUrl) }
             } else {
-                emptyMap()
+                emptyList()
             }
             val rows = filteredPresets
                 .sortedWith(
                     compareBy<CloudAiEndpointPreset> {
                         it.api.normalizedEndpointUrl() != normalizedCurrentBaseUrl
                     }.thenBy {
-                        featuredRanks[it.id] ?: Int.MAX_VALUE
+                        if (it.featured) 0 else 1
                     }.thenBy {
                         it.name.lowercase(Locale.ROOT)
                     },
@@ -251,10 +255,6 @@ internal data class CloudAiEndpointPresetListPresentation(
                 .take(80)
                 .map { preset -> preset.toRow(normalizedCurrentBaseUrl) }
                 .toList()
-            val featuredRows = filteredPresets
-                .filter { preset -> preset.id in featuredRanks }
-                .sortedBy { preset -> featuredRanks[preset.id] ?: Int.MAX_VALUE }
-                .map { preset -> preset.toRow(normalizedCurrentBaseUrl) }
             return CloudAiEndpointPresetListPresentation(
                 rows = rows,
                 featuredRows = featuredRows,
@@ -263,19 +263,11 @@ internal data class CloudAiEndpointPresetListPresentation(
     }
 }
 
-private fun String.normalizedEndpointUrl(): String = trim().trimEnd('/').lowercase()
-
-private fun CloudAiEndpointProtocol.featuredPresetRanks(): Map<String, Int> = when (this) {
-    CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> listOf(
-        "nvidia-nim",
-        "openai",
-        "openrouter",
-        "groq",
-        "lmstudio",
-        "ollama-local",
-    )
-    CloudAiEndpointProtocol.ANTHROPIC -> listOf("anthropic")
-}.withIndex().associate { (index, id) -> id to index }
+private fun String.normalizedEndpointUrl(): String = trim()
+    .removePrefix("https://")
+    .removePrefix("http://")
+    .trimEnd('/')
+    .lowercase(Locale.ROOT)
 
 private fun CloudAiEndpointPreset.toRow(normalizedCurrentBaseUrl: String): CloudAiEndpointPresetRowPresentation =
     CloudAiEndpointPresetRowPresentation(

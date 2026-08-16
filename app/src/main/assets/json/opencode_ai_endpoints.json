@@ -63,7 +63,11 @@
     "id": "anthropic",
     "name": "Anthropic",
     "api": "https://api.anthropic.com",
-    "protocol": "anthropic"
+    "protocol": "anthropic",
+    "featured": true,
+    "aliases": [
+      "claude"
+    ]
   },
   {
     "id": "atomic-chat",
@@ -165,7 +169,11 @@
     "id": "deepseek",
     "name": "DeepSeek",
     "api": "https://api.deepseek.com",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "ds"
+    ]
   },
   {
     "id": "digitalocean",
@@ -249,7 +257,11 @@
     "id": "google",
     "name": "Google Gemini",
     "api": "https://generativelanguage.googleapis.com/v1beta/openai/",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "gemini"
+    ]
   },
   {
     "id": "google-vertex",
@@ -261,7 +273,8 @@
     "id": "groq",
     "name": "Groq",
     "api": "https://api.groq.com/openai/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true
   },
   {
     "id": "helicone",
@@ -327,7 +340,11 @@
     "id": "kimi-coding",
     "name": "Kimi Coding",
     "api": "https://api.kimi.com/coding/v1",
-    "protocol": "anthropic"
+    "protocol": "anthropic",
+    "featured": true,
+    "aliases": [
+      "kimi coding"
+    ]
   },
   {
     "id": "kimi-for-coding",
@@ -387,7 +404,12 @@
     "id": "minimax-cn",
     "name": "MiniMax (minimaxi.com)",
     "api": "https://api.minimaxi.com/anthropic/v1",
-    "protocol": "anthropic"
+    "protocol": "anthropic",
+    "featured": true,
+    "aliases": [
+      "minimaxi",
+      "minimax china"
+    ]
   },
   {
     "id": "minimax-cn-coding-plan",
@@ -405,7 +427,8 @@
     "id": "mistral",
     "name": "Mistral AI",
     "api": "https://api.mistral.ai/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true
   },
   {
     "id": "mixlayer",
@@ -435,7 +458,12 @@
     "id": "moonshotai-cn",
     "name": "Moonshot AI (China)",
     "api": "https://api.moonshot.cn/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "kimi",
+      "moonshot china"
+    ]
   },
   {
     "id": "morph",
@@ -483,7 +511,11 @@
     "id": "nvidia",
     "name": "NVIDIA NIM",
     "api": "https://integrate.api.nvidia.com/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "nim"
+    ]
   },
   {
     "id": "nvidia-nim",
@@ -507,7 +539,12 @@
     "id": "openai",
     "name": "OpenAI",
     "api": "https://api.openai.com/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "gpt",
+      "chatgpt"
+    ]
   },
   {
     "id": "opencode",
@@ -525,7 +562,11 @@
     "id": "openrouter",
     "name": "OpenRouter",
     "api": "https://openrouter.ai/api/v1",
-    "protocol": "openai_compatible"
+    "protocol": "openai_compatible",
+    "featured": true,
+    "aliases": [
+      "or"
+    ]
   },
   {
     "id": "orcarouter",

@@ -4,7 +4,9 @@ import android.content.Context
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonPrimitive
 
 enum class CloudAiEndpointProtocol {
@@ -17,6 +19,8 @@ data class CloudAiEndpointPreset(
     val name: String,
     val api: String,
     val protocol: CloudAiEndpointProtocol,
+    val featured: Boolean = false,
+    val aliases: List<String> = emptyList(),
 )
 
 object CloudAiEndpointPresetCodec {
@@ -31,11 +35,20 @@ object CloudAiEndpointPresetCodec {
                 "anthropic" -> CloudAiEndpointProtocol.ANTHROPIC
                 else -> CloudAiEndpointProtocol.OPENAI_COMPATIBLE
             }
+            val featured = (obj["featured"] as? JsonPrimitive)
+                ?.contentOrNull
+                ?.toBooleanStrictOrNull()
+                ?: false
+            val aliases = obj["aliases"]?.jsonArray
+                ?.mapNotNull { it.jsonPrimitive.contentOrNull }
+                ?: emptyList()
             CloudAiEndpointPreset(
                 id = id,
                 name = name,
                 api = api.trimEnd('/'),
                 protocol = protocol,
+                featured = featured,
+                aliases = aliases,
             )
         }
     }

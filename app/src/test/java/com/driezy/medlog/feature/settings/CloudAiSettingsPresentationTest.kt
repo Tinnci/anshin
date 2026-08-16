@@ -183,6 +183,7 @@ class CloudAiSettingsPresentationTest {
                     name = "OpenAI",
                     api = "https://api.openai.com/v1",
                     protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                    featured = true,
                 ),
                 CloudAiEndpointPreset(
                     id = "anthropic",
@@ -214,12 +215,14 @@ class CloudAiSettingsPresentationTest {
                     name = "NVIDIA NIM APIs",
                     api = "https://integrate.api.nvidia.com/v1",
                     protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                    featured = true,
                 ),
                 CloudAiEndpointPreset(
                     id = "openai",
                     name = "OpenAI",
                     api = "https://api.openai.com/v1",
                     protocol = CloudAiEndpointProtocol.OPENAI_COMPATIBLE,
+                    featured = true,
                 ),
             ),
             query = "",

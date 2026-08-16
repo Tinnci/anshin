@@ -23,7 +23,9 @@ class CloudAiEndpointPresetCodecTest {
                     "id": "minimax",
                     "name": "MiniMax",
                     "api": "https://api.minimax.io/anthropic/v1/",
-                    "protocol": "anthropic"
+                    "protocol": "anthropic",
+                    "featured": true,
+                    "aliases": ["minimaxi"]
                   }
                 ]
             """.trimIndent(),
@@ -35,6 +37,8 @@ class CloudAiEndpointPresetCodecTest {
         assertEquals(CloudAiEndpointProtocol.OPENAI_COMPATIBLE, presets[0].protocol)
         assertEquals("https://api.minimax.io/anthropic/v1", presets[1].api)
         assertEquals(CloudAiEndpointProtocol.ANTHROPIC, presets[1].protocol)
+        assertEquals(true, presets[1].featured)
+        assertEquals(listOf("minimaxi"), presets[1].aliases)
     }
 
     @Test
