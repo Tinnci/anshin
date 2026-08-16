@@ -1,8 +1,10 @@
 package com.driezy.medlog.feature.medications.editor
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -33,6 +35,9 @@ fun AddMedicationScreen(
     viewModel: AddMedicationViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val isDirty by viewModel.isDirty.collectAsStateWithLifecycle()
+    var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+    BackHandler(enabled = isDirty) { showDiscardDialog = true }
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.onAction(AddMedicationUiAction.LoadExisting(medicationId))
     }
@@ -51,9 +56,35 @@ fun AddMedicationScreen(
     AddMedicationContent(
         medicationId = medicationId,
         uiState = uiState,
-        onBack = onBack,
+        onBack = {
+            if (isDirty) showDiscardDialog = true else onBack()
+        },
         onAction = viewModel::onAction,
     )
+
+    if (showDiscardDialog) {
+        AlertDialog(
+            onDismissRequest = { showDiscardDialog = false },
+            title = { Text(stringResource(R.string.add_discard_title)) },
+            text = { Text(stringResource(R.string.add_discard_body)) },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        showDiscardDialog = false
+                        viewModel.onAction(AddMedicationUiAction.DiscardDraft)
+                        onBack()
+                    },
+                ) {
+                    Text(stringResource(R.string.add_discard_confirm))
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDiscardDialog = false }) {
+                    Text(stringResource(R.string.common_action_cancel))
+                }
+            },
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)

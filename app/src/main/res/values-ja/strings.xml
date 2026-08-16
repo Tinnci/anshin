@@ -436,6 +436,9 @@
     <string name="add_title_edit">薬品を編集</string>
     <string name="add_back_cd">戻る</string>
     <string name="add_save">保存</string>
+    <string name="add_discard_title">編集を破棄しますか？</string>
+    <string name="add_discard_body">入力した内容は保存されていません。戻ると変更内容は失われます。</string>
+    <string name="add_discard_confirm">破棄</string>
     <string name="add_section_basic">基本情報</string>
     <string name="add_name_label">薬品名 *</string>
     <string name="add_clear_cd">クリア</string>

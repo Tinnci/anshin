@@ -2,6 +2,7 @@ package com.driezy.medlog.feature.medications.editor
 
 import android.content.Context
 import androidx.annotation.StringRes
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.reminders.application.ReconcileRemindersUseCase
@@ -28,12 +29,17 @@ import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
 import java.time.Clock
 import javax.inject.Inject
 
 /** 剂型选项 */
 data class DrugForm(val key: String, val label: String, val icon: Int)
 
+@Serializable
 data class AddMedicationUiState(
     // ── 基础信息 ──────────────────────────────────────────────────
     val name: String = "",
@@ -81,14 +87,14 @@ data class AddMedicationUiState(
     val fullPath: String = "",
 
     // ── UI 状态 ──────────────────────────────────────────────────
-    val isSaving: Boolean = false,
+    @Transient val isSaving: Boolean = false,
     val enableTimePeriodMode: Boolean = true,
-    val error: String? = null,
+    @Transient val error: String? = null,
     /** 验证错误资源 ID（优先于 error 文本显示） */
-    @param:StringRes val errorRes: Int? = null,
-    val drugSuggestions: List<Drug> = emptyList(),
-    val showDrugSuggestions: Boolean = false,
-    val voiceInput: VoiceInputUiState = VoiceInputUiState(),
+    @Transient @param:StringRes val errorRes: Int? = null,
+    @Transient val drugSuggestions: List<Drug> = emptyList(),
+    @Transient val showDrugSuggestions: Boolean = false,
+    @Transient val voiceInput: VoiceInputUiState = VoiceInputUiState(),
 )
 
 sealed interface AddMedicationUiAction {
@@ -119,6 +125,7 @@ sealed interface AddMedicationUiAction {
     data class NotesChanged(val value: String) : AddMedicationUiAction
     data object StartVoiceInput : AddMedicationUiAction
     data object StopVoiceInput : AddMedicationUiAction
+    data object DiscardDraft : AddMedicationUiAction
     data class Save(val existingId: Long?) : AddMedicationUiAction
 }
 
@@ -135,10 +142,15 @@ class AddMedicationViewModel @Inject constructor(
     private val voiceInputController: VoiceInputController,
     @param:ApplicationContext private val appContext: Context,
     private val clock: Clock,
+    private val savedStateHandle: SavedStateHandle,
 ) : BaseViewModel() {
 
+    private val json = Json { ignoreUnknownKeys = true }
+    private val restoredDraft: AddMedicationUiState? = runCatching {
+        savedStateHandle.get<String>(DRAFT_KEY)?.let { json.decodeFromString<AddMedicationUiState>(it) }
+    }.getOrNull()
     private val _uiState = MutableStateFlow(
-        AddMedicationUiState(
+        restoredDraft ?: AddMedicationUiState(
             doseUnit = appContext.getString(R.string.default_dose_unit),
             startDate = todayStart(clock),
         ),
@@ -146,6 +158,9 @@ class AddMedicationViewModel @Inject constructor(
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
     private val effectChannel = Channel<AddMedicationUiEffect>(Channel.BUFFERED)
     val effects = effectChannel.receiveAsFlow()
+    private var baselineState: AddMedicationUiState = _uiState.value
+    private val _isDirty = MutableStateFlow(false)
+    val isDirty: StateFlow<Boolean> = _isDirty.asStateFlow()
 
     /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
     private val latestPrefs = MutableStateFlow(SettingsPreferences())
@@ -241,6 +256,7 @@ class AddMedicationViewModel @Inject constructor(
             is AddMedicationUiAction.NotesChanged -> onNotesChange(action.value)
             AddMedicationUiAction.StartVoiceInput -> startVoiceInput()
             AddMedicationUiAction.StopVoiceInput -> stopVoiceInput()
+            AddMedicationUiAction.DiscardDraft -> discardDraft()
             is AddMedicationUiAction.Save -> save(action.existingId)
         }
     }
@@ -249,6 +265,7 @@ class AddMedicationViewModel @Inject constructor(
     fun prefillFromDrug(name: String, category: String) {
         if (_uiState.value.name.isEmpty()) {
             _uiState.value = _uiState.value.copy(name = name, category = category)
+            markBaseline()
         }
     }
 
@@ -282,6 +299,7 @@ class AddMedicationViewModel @Inject constructor(
                 notes = med.notes,
                 intervalHours = med.intervalHours,
             )
+            markBaseline()
         }
     }
 
@@ -435,13 +453,53 @@ class AddMedicationViewModel @Inject constructor(
                 existingId
             }
             reconcileReminders.medication(MedicationId(savedId), ReminderReconcileReason.MEDICATION_CHANGED)
+            clearDraft()
             update { copy(isSaving = false) }
+            _isDirty.value = false
             effectChannel.send(AddMedicationUiEffect.Saved)
         }
     }
 
     private inline fun update(block: AddMedicationUiState.() -> AddMedicationUiState) {
         _uiState.value = _uiState.value.block()
+        persistDraft()
+        _isDirty.value = isDraftDirty(_uiState.value)
+    }
+
+    private fun persistDraft() {
+        savedStateHandle[DRAFT_KEY] = runCatching { json.encodeToString(_uiState.value) }.getOrNull()
+    }
+
+    private fun clearDraft() {
+        savedStateHandle.remove<String>(DRAFT_KEY)
+    }
+
+    private fun normalizedDraft(state: AddMedicationUiState) = state.copy(
+        isSaving = false,
+        error = null,
+        errorRes = null,
+        drugSuggestions = emptyList(),
+        showDrugSuggestions = false,
+        voiceInput = VoiceInputUiState(),
+    )
+
+    private fun isDraftDirty(state: AddMedicationUiState): Boolean =
+        normalizedDraft(state) != normalizedDraft(baselineState)
+
+    private fun markBaseline() {
+        baselineState = normalizedDraft(_uiState.value)
+        _isDirty.value = false
+        persistDraft()
+    }
+
+    fun discardDraft() {
+        stopVoiceInput()
+        clearDraft()
+        _isDirty.value = false
+    }
+
+    private companion object {
+        const val DRAFT_KEY = "add_medication_draft"
     }
 
     private fun applyVoiceTranscript(event: VoiceInputEvent.Transcript) {

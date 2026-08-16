@@ -470,6 +470,9 @@
     <string name="add_title_edit">编辑药品</string>
     <string name="add_back_cd">返回</string>
     <string name="add_save">保存</string>
+    <string name="add_discard_title">放弃本次编辑？</string>
+    <string name="add_discard_body">已填写的内容尚未保存，返回后这些修改会丢失。</string>
+    <string name="add_discard_confirm">放弃修改</string>
     <string name="add_section_basic">基本信息</string>
     <string name="add_name_label">药品名称 *</string>
     <string name="add_clear_cd">清除</string>

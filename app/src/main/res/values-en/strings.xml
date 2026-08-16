@@ -492,6 +492,9 @@
     <string name="add_title_edit">Edit Medication</string>
     <string name="add_back_cd">Back</string>
     <string name="add_save">Save</string>
+    <string name="add_discard_title">Discard changes?</string>
+    <string name="add_discard_body">Your changes have not been saved. They will be lost if you go back.</string>
+    <string name="add_discard_confirm">Discard</string>
     <string name="add_section_basic">Basic Info</string>
     <string name="add_name_label">Medication Name *</string>
     <string name="add_clear_cd">Clear</string>
