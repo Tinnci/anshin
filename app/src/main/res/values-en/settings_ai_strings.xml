@@ -58,7 +58,7 @@
     <string name="settings_ai_endpoint_presets_title">API endpoint presets (%d)</string>
     <string name="settings_ai_endpoint_image_title">Image analysis endpoint</string>
     <string name="settings_ai_endpoint_text_title">Language model endpoint</string>
-    <string name="settings_ai_endpoint_featured_title">Endpoints</string>
+    <string name="settings_ai_endpoint_featured_title">Featured</string>
     <string name="settings_ai_endpoint_search_label">Search endpoints or Base URL</string>
     <string name="settings_ai_endpoint_empty">No matching endpoints</string>
     <string name="settings_ai_endpoint_selected">Current</string>
@@ -90,4 +90,5 @@
     <string name="settings_ai_usage_title">Internal status, last 7 days</string>
     <string name="settings_ai_usage_summary">Runs: %1$d · Successful: %2$d · Errors: %3$d · Cache hits: %4$d</string>
     <string name="settings_ai_usage_last_error">Latest error: %s</string>
+    <string name="settings_ai_endpoint_more_hint">Showing the first 80 presets. Search to narrow down.</string>
 </resources>

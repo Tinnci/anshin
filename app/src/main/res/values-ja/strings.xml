@@ -933,4 +933,5 @@
     <string name="settings_restart_dialog_title">復元完了</string>
     <string name="settings_restart_dialog_body">データベースを復元しました。変更を反映するにはアプリの再起動が必要です。今すぐ再起動しますか？</string>
     <string name="settings_restart_dialog_confirm">今すぐ再起動</string>
+    <string name="settings_ai_endpoint_more_hint">最初の80件を表示しています。検索して絞り込んでください。</string>
 </resources>

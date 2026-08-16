@@ -57,7 +57,7 @@
     <string name="settings_ai_endpoint_presets_title">API 端点预设（%d 个）</string>
     <string name="settings_ai_endpoint_image_title">图片分析端点</string>
     <string name="settings_ai_endpoint_text_title">语言模型端点</string>
-    <string name="settings_ai_endpoint_featured_title">端点</string>
+    <string name="settings_ai_endpoint_featured_title">精选</string>
     <string name="settings_ai_endpoint_search_label">搜索端点或 Base URL</string>
     <string name="settings_ai_endpoint_empty">没有匹配的端点</string>
     <string name="settings_ai_endpoint_selected">当前</string>
@@ -89,4 +89,5 @@
     <string name="settings_ai_usage_title">最近 7 天内部状态</string>
     <string name="settings_ai_usage_summary">共 %1$d 次，成功 %2$d 次，错误 %3$d 次，缓存命中 %4$d 次</string>
     <string name="settings_ai_usage_last_error">最近错误：%s</string>
+    <string name="settings_ai_endpoint_more_hint">已显示前 80 个预设，请输入关键词缩小范围。</string>
 </resources>

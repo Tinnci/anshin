@@ -936,4 +936,5 @@
     <string name="settings_restart_dialog_title">복원 완료</string>
     <string name="settings_restart_dialog_body">데이터베이스가 복원되었습니다. 변경 사항을 적용하려면 앱을 다시 시작해야 합니다. 지금 다시 시작할까요?</string>
     <string name="settings_restart_dialog_confirm">지금 다시 시작</string>
+    <string name="settings_ai_endpoint_more_hint">처음 80개만 표시됩니다. 검색으로 좁혀보세요.</string>
 </resources>

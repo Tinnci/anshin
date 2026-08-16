@@ -13,13 +13,10 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.AssistChip
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
@@ -35,6 +32,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.role
+import androidx.compose.ui.semantics.selected
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -44,8 +45,9 @@ import com.driezy.medlog.capability.ai.CloudAiEndpointProtocol
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import java.util.Locale
 
-@OptIn(ExperimentalLayoutApi::class)
+@OptIn(ExperimentalLayoutApi::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 internal fun EndpointPresetPicker(
     presets: List<CloudAiEndpointPreset>,
@@ -168,16 +170,28 @@ internal fun EndpointPresetPicker(
                         modifier = Modifier.padding(vertical = MedLogSpacing.Tiny),
                     )
                 } else {
-                    LazyColumn(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .heightIn(max = 320.dp),
+                    val featuredIds = presentation.featuredRows.map { it.id }.toSet()
+                    val visibleRows = if (featuredIds.isNotEmpty()) {
+                        presentation.rows.filterNot { it.id in featuredIds }
+                    } else {
+                        presentation.rows
+                    }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
                         verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                     ) {
-                        items(presentation.rows, key = { it.id }) { row ->
+                        visibleRows.forEach { row ->
                             EndpointPresetRow(
                                 row = row,
                                 onClick = { onSelect(row.preset) },
+                            )
+                        }
+                        if (presentation.rows.size >= 80) {
+                            Text(
+                                text = stringResource(R.string.settings_ai_endpoint_more_hint),
+                                style = MaterialTheme.typography.bodySmall,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                modifier = Modifier.padding(vertical = MedLogSpacing.Tiny),
                             )
                         }
                     }
@@ -207,16 +221,16 @@ internal data class CloudAiEndpointPresetListPresentation(
             currentBaseUrl: String,
             protocol: CloudAiEndpointProtocol,
         ): CloudAiEndpointPresetListPresentation {
-            val normalizedQuery = query.trim().lowercase()
+            val normalizedQuery = query.trim().lowercase(Locale.ROOT)
             val normalizedCurrentBaseUrl = currentBaseUrl.normalizedEndpointUrl()
             val filteredPresets = presets
                 .asSequence()
                 .filter { preset -> preset.protocol == protocol }
                 .filter { preset ->
                     normalizedQuery.isBlank() ||
-                        preset.name.lowercase().contains(normalizedQuery) ||
-                        preset.api.lowercase().contains(normalizedQuery) ||
-                        preset.id.lowercase().contains(normalizedQuery)
+                        preset.name.lowercase(Locale.ROOT).contains(normalizedQuery) ||
+                        preset.api.lowercase(Locale.ROOT).contains(normalizedQuery) ||
+                        preset.id.lowercase(Locale.ROOT).contains(normalizedQuery)
                 }
                 .toList()
             val featuredRanks = if (normalizedQuery.isBlank()) {
@@ -231,7 +245,7 @@ internal data class CloudAiEndpointPresetListPresentation(
                     }.thenBy {
                         featuredRanks[it.id] ?: Int.MAX_VALUE
                     }.thenBy {
-                        it.name.lowercase()
+                        it.name.lowercase(Locale.ROOT)
                     },
                 )
                 .take(80)
@@ -279,6 +293,10 @@ private fun EndpointPresetRow(row: CloudAiEndpointPresetRowPresentation, onClick
         modifier = Modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
+            .semantics {
+                role = Role.RadioButton
+                selected = row.selected
+            }
             .clickable(onClick = onClick),
         shape = RoundedCornerShape(8.dp),
         color = if (row.selected) {
@@ -325,18 +343,6 @@ private fun EndpointPresetRow(row: CloudAiEndpointPresetRowPresentation, onClick
                         fontWeight = FontWeight.SemiBold,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
-                    )
-                    AssistChip(
-                        onClick = onClick,
-                        label = {
-                            Text(
-                                text = when (row.protocol) {
-                                    CloudAiEndpointProtocol.ANTHROPIC -> "Anthropic"
-                                    CloudAiEndpointProtocol.OPENAI_COMPATIBLE -> "OpenAI"
-                                },
-                                style = MaterialTheme.typography.labelSmall,
-                            )
-                        },
                     )
                 }
                 Text(
