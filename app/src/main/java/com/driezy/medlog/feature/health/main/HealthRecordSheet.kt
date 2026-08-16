@@ -7,7 +7,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -46,7 +45,6 @@ internal fun AddEditHealthSheet(
     onSave: () -> Unit,
 ) {
     val sheetState = rememberBottomSheetState(SheetValue.Hidden, HealthRecordSheetEnabledStates)
-    var entrySource by rememberSaveable { mutableStateOf(HealthRecordEntrySource.MANUAL) }
     val performHaptic = rememberMedLogHaptics()
 
     ModalBottomSheet(
@@ -154,19 +152,30 @@ internal fun AddEditHealthSheet(
                 )
             }
 
-            // ── 记录来源选择（手动 / OCR / BPX1） ───────────────────
-            HealthRecordSourceSelector(
-                selected = entrySource,
-                onSelect = { source ->
-                    performHaptic(MedLogHapticEffect.SEGMENT_TICK)
-                    entrySource = source
-                    when (source) {
-                        HealthRecordEntrySource.MANUAL -> Unit
-                        HealthRecordEntrySource.OCR -> onOcrScan()
-                        HealthRecordEntrySource.BPX1 -> onBpx1Sync()
-                    }
-                },
-            )
+            // ── 录入辅助动作（拍照识别 / 蓝牙血压计） ───────────────
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.fillMaxWidth(),
+            ) {
+                AssistChip(
+                    onClick = {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
+                        onOcrScan()
+                    },
+                    label = { Text(stringResource(R.string.ocr_health_scan_chip)) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
+                    modifier = Modifier.weight(1f),
+                )
+                AssistChip(
+                    onClick = {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
+                        onBpx1Sync()
+                    },
+                    label = { Text(stringResource(R.string.bpx1_sync_chip)) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.MonitorHeart, null, Modifier.size(18.dp)) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
 
             // ── 备注 ──────────────────────────────────────────────────
             OutlinedTextField(

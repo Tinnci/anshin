@@ -339,7 +339,7 @@ fun MedicationCard(
                             },
                         ),
                         contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                        modifier = Modifier.heightIn(min = 36.dp),
+                        modifier = Modifier.heightIn(min = 48.dp),
                     ) {
                         MedLogIcon(
                             icon = if (item.isHandled) {
@@ -365,7 +365,7 @@ fun MedicationCard(
                         OutlinedButton(
                             onClick = onSkip,
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                            modifier = Modifier.heightIn(min = 32.dp),
+                            modifier = Modifier.heightIn(min = 48.dp),
                         ) {
                             MedLogIcon(MedLogIcons.SkipNext, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
@@ -384,7 +384,7 @@ fun MedicationCard(
                                 showPartialDialog = true
                             },
                             contentPadding = PaddingValues(horizontal = 12.dp, vertical = 0.dp),
-                            modifier = Modifier.heightIn(min = 32.dp),
+                            modifier = Modifier.heightIn(min = 48.dp),
                         ) {
                             MedLogIcon(MedLogIcons.Adjust, null, Modifier.size(12.dp))
                             Spacer(Modifier.width(3.dp))
