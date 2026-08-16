@@ -40,7 +40,7 @@ jobs:
             exit 1
           fi
 
-          git fetch origin main --no-tags --depth=1
+          git fetch origin main --no-tags
           if ! git merge-base --is-ancestor "$GITHUB_SHA" origin/main; then
             echo "::error::Release tags must point to a commit contained in origin/main. / 发布标签必须指向 origin/main 中的提交。"
             exit 1
