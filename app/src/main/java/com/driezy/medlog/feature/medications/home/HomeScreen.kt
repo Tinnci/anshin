@@ -12,9 +12,7 @@ import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
@@ -35,6 +33,8 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.displayName
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.util.*
@@ -90,7 +90,7 @@ private fun HomeContent(
     onMedicationClick: (Long) -> Unit,
     onOpenSettings: () -> Unit,
 ) {
-    val haptic = LocalHapticFeedback.current
+    val performHaptic = rememberMedLogHaptics()
     val scope = rememberCoroutineScope()
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
     val undoLabel = stringResource(R.string.home_snackbar_undo)
@@ -103,7 +103,7 @@ private fun HomeContent(
     val fmtPrnTaken = stringResource(R.string.home_snackbar_prn_taken)
 
     fun toggleDose(item: MedicationWithStatus) {
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        performHaptic(MedLogHapticEffect.CONFIRM)
         if (item.isSkipped) {
             onAction(HomeUiAction.UndoDose(item.doseKey))
             scope.launch {
@@ -129,7 +129,7 @@ private fun HomeContent(
     }
 
     fun skipDose(item: MedicationWithStatus) {
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        performHaptic(MedLogHapticEffect.CONFIRM)
         onAction(HomeUiAction.SkipDose(item))
         scope.launch {
             val result = snackbarHostState.showSnackbar(
@@ -144,7 +144,7 @@ private fun HomeContent(
     }
 
     fun togglePrnDose(item: MedicationWithStatus) {
-        haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+        performHaptic(MedLogHapticEffect.CONFIRM)
         val wasTaken = item.isTaken
         onAction(HomeUiAction.ToggleDose(item))
         scope.launch {
@@ -347,7 +347,7 @@ private fun HomeContent(
                                 onAction(HomeUiAction.MarkPartial(item, qty))
                             },
                             onTakeAll = {
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                performHaptic(MedLogHapticEffect.CONFIRM)
                                 groupItems
                                     .filter { !it.isHandled }
                                     .forEach { onAction(HomeUiAction.ToggleDose(it)) }

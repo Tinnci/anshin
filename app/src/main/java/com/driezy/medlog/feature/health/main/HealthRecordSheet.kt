@@ -20,6 +20,8 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import com.driezy.medlog.voice.VoiceInputPhase
 import com.driezy.medlog.voice.VoiceInputUiState
 import java.time.Instant
@@ -45,6 +47,7 @@ internal fun AddEditHealthSheet(
 ) {
     val sheetState = rememberBottomSheetState(SheetValue.Hidden, HealthRecordSheetEnabledStates)
     var entrySource by rememberSaveable { mutableStateOf(HealthRecordEntrySource.MANUAL) }
+    val performHaptic = rememberMedLogHaptics()
 
     ModalBottomSheet(
         onDismissRequest = onDismiss,
@@ -152,6 +155,7 @@ internal fun AddEditHealthSheet(
             HealthRecordSourceSelector(
                 selected = entrySource,
                 onSelect = { source ->
+                    performHaptic(MedLogHapticEffect.SEGMENT_TICK)
                     entrySource = source
                     when (source) {
                         HealthRecordEntrySource.MANUAL -> Unit
@@ -194,7 +198,10 @@ internal fun AddEditHealthSheet(
                 val isValid = draft.value.toDoubleOrNull() != null &&
                     (draft.type != HealthType.BLOOD_PRESSURE || draft.secondaryValue.toDoubleOrNull() != null)
                 Button(
-                    onClick = onSave,
+                    onClick = {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
+                        onSave()
+                    },
                     enabled = isValid,
                     modifier = Modifier.weight(2f),
                 ) { Text(stringResource(R.string.common_action_save)) }

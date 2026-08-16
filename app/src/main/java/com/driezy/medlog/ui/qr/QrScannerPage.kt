@@ -23,9 +23,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +39,8 @@ import com.driezy.medlog.ui.components.CameraPermissionGate
 import com.driezy.medlog.ui.components.ViewfinderOverlay
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -68,7 +68,7 @@ fun QrScannerPage(
     onBack: () -> Unit,
 ) {
     val context = LocalContext.current
-    val haptic = LocalHapticFeedback.current
+    val performHaptic = rememberMedLogHaptics()
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
     val errorMessage = stringResource(R.string.qr_scan_image_not_found)
@@ -102,7 +102,7 @@ fun QrScannerPage(
                             val rawValue = barcodes.firstOrNull()?.rawValue
                             if (rawValue != null) {
                                 isScanned = true
-                                haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                                performHaptic(MedLogHapticEffect.CONFIRM)
                                 // Delay callback to allow the icon change animation to finish smoothly
                                 scope.launch {
                                     kotlinx.coroutines.delay(450)
@@ -146,7 +146,7 @@ fun QrScannerPage(
                         val rawValue = barcodes.firstOrNull()?.rawValue
                         if (rawValue != null) {
                             isScanned = true
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            performHaptic(MedLogHapticEffect.CONFIRM)
                             // Delay callback to allow the icon change animation to finish smoothly
                             scope.launch {
                                 kotlinx.coroutines.delay(450)
@@ -247,7 +247,7 @@ fun QrScannerPage(
                     onQrScanned = { raw ->
                         if (!isScanned) {
                             isScanned = true
-                            haptic.performHapticFeedback(HapticFeedbackType.LongPress)
+                            performHaptic(MedLogHapticEffect.CONFIRM)
                             // Delay callback to allow the icon change animation to finish smoothly
                             scope.launch {
                                 kotlinx.coroutines.delay(450)

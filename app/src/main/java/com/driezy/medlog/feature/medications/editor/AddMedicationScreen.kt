@@ -18,6 +18,8 @@ import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.util.icon
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import java.util.*
 
 internal data class FormOption(val key: String, val label: String, val icon: Int)
@@ -97,6 +99,7 @@ private fun AddMedicationContent(
 ) {
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
     var wizardStep by rememberSaveable { mutableIntStateOf(0) }
+    val performHaptic = rememberMedLogHaptics()
     val formOptions = listOf(
         FormOption("tablet", stringResource(R.string.add_form_tablet), MedLogIcons.Medication),
         FormOption("capsule", stringResource(R.string.add_form_capsule), MedLogIcons.Science),
@@ -146,7 +149,10 @@ private fun AddMedicationContent(
             ),
         ),
         onChromeAction = { id ->
-            if (id == "save") onAction(AddMedicationUiAction.Save(medicationId))
+            if (id == "save") {
+                performHaptic(MedLogHapticEffect.CONFIRM)
+                onAction(AddMedicationUiAction.Save(medicationId))
+            }
         },
     ) { paddingValues ->
         if (medicationId == null) {
@@ -156,8 +162,10 @@ private fun AddMedicationContent(
                 onBack = { wizardStep = (wizardStep - 1).coerceAtLeast(0) },
                 onNext = {
                     if (wizardStep < 2) {
+                        performHaptic(MedLogHapticEffect.SEGMENT_TICK)
                         wizardStep += 1
                     } else {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
                         onAction(AddMedicationUiAction.Save(medicationId))
                     }
                 },
