@@ -54,7 +54,10 @@ class SettingsDataViewModel @Inject constructor(
         safeLaunch {
             _inProgress.value = true
             runCatching { backupRestore.restore(action.uri) }
-                .onSuccess { effectChannel.send(SettingsUiEffect.RestartApplication) }
+                .onSuccess {
+                    _inProgress.value = false
+                    effectChannel.send(SettingsUiEffect.RestartApplication)
+                }
                 .onFailure { error ->
                     Log.e("SettingsDataVM", "Restore failed", error)
                     val message = if (error is IllegalArgumentException) {

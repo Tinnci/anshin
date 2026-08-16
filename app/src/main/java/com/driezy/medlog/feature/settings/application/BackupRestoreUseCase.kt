@@ -121,5 +121,6 @@ class BackupRestoreUseCase @Inject constructor(
 }
 
 internal object BackupCompatibilityPolicy {
-    fun canRestore(backupVersion: Int): Boolean = backupVersion in 1..DatabaseSchema.VERSION
+    /** v1-v4 没有对应的 Room 迁移链，不能安全恢复。 */
+    fun canRestore(backupVersion: Int): Boolean = backupVersion in 5..DatabaseSchema.VERSION
 }

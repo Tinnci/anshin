@@ -27,6 +27,7 @@ enum class HealthRecordSource {
         Index("type"),
         Index("timestamp"),
         Index("source"),
+        Index(value = ["sourceCacheKey"], unique = true),
     ],
 )
 data class HealthRecord(

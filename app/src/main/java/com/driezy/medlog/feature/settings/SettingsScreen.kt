@@ -209,17 +209,12 @@ internal fun SettingsScaffold(
 
     if (showRestartDialog) {
         AlertDialog(
-            onDismissRequest = { showRestartDialog = false },
+            onDismissRequest = { /* 恢复后必须重启，禁止通过返回键关闭 */ },
             title = { Text(stringResource(R.string.settings_restart_dialog_title)) },
             text = { Text(stringResource(R.string.settings_restart_dialog_body)) },
             confirmButton = {
                 TextButton(onClick = { restartApplication() }) {
                     Text(stringResource(R.string.settings_restart_dialog_confirm))
-                }
-            },
-            dismissButton = {
-                TextButton(onClick = { showRestartDialog = false }) {
-                    Text(stringResource(R.string.common_action_cancel))
                 }
             },
         )

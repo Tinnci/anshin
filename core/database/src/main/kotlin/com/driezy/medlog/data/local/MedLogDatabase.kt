@@ -198,5 +198,17 @@ abstract class MedLogDatabase : RoomDatabase() {
                 )
             }
         }
+
+        /** v16 → v17: 为 sourceCacheKey 添加唯一索引，从数据库层阻止重复导入。 */
+        val MIGRATION_16_17 = object : Migration(16, 17) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL(
+                    """
+                    CREATE UNIQUE INDEX IF NOT EXISTS index_health_records_sourceCacheKey
+                    ON health_records (sourceCacheKey)
+                    """.trimIndent(),
+                )
+            }
+        }
     }
 }

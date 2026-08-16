@@ -1,6 +1,7 @@
 package com.driezy.medlog.capability.ocr
 
 import androidx.camera.core.ImageProxy
+import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.data.model.OcrParseResult
 import com.driezy.medlog.di.HealthOcr
 import com.driezy.medlog.feature.health.application.AiExecutionStatus
@@ -12,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class HealthOcrUiState(
@@ -42,7 +44,8 @@ class HealthOcrViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(HealthOcrUiState())
     val uiState: StateFlow<HealthOcrUiState> = _uiState.asStateFlow()
-    private var capturedCloudImageBytes: ByteArray? = null
+
+    @Volatile private var capturedCloudImageBytes: ByteArray? = null
     private val capturedCloudImageMimeType = "image/jpeg"
 
     fun onAction(action: HealthOcrUiAction) {
@@ -60,7 +63,7 @@ class HealthOcrViewModel @Inject constructor(
 
     fun onImageCaptured(imageProxy: ImageProxy, recognitionRegion: OcrRecognitionRegion) {
         capturedCloudImageBytes = imageProxy.toCloudAnalysisJpegBytes()
-        _uiState.update { it.copy(processingStage = 1) }
+        viewModelScope.launch { _uiState.update { it.copy(processingStage = 1) } }
         pipeline.recognize(imageProxy, recognitionRegion) { output ->
             _uiState.update { it.copy(processingStage = 2) }
             val result = HealthMetricParser.parseAll(output.mergedTexts)

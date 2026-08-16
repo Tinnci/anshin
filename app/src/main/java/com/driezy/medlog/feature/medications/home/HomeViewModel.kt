@@ -218,9 +218,16 @@ class HomeViewModel @Inject constructor(
                 logRepo.getLogsForDateRange(range.first, range.second).map { logs ->
                     HomeDatedLogs(logs, preferences, today, zone)
                 }
+            }.catch { e ->
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
+                emit(HomeDatedLogs(emptyList(), SettingsPreferences(), LocalDate.now(clock.zone), clock.zone))
+            }
+            val medications = medicationRepo.getActiveMedications().catch { e ->
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
+                emit(emptyList())
             }
             combine(
-                medicationRepo.getActiveMedications(),
+                medications,
                 datedLogs,
                 interactionsFlow,
             ) { meds, dated, interactions ->
@@ -273,11 +280,6 @@ class HomeViewModel @Inject constructor(
                         exportUri = PlanExportCodec.encode(items.map { it.medication }, dated.zone),
                     ),
                     showProgressNotification = prefs.persistentReminder,
-                )
-            }.catch { e ->
-                _uiState.value = _uiState.value.copy(
-                    isLoading = false,
-                    errorMessage = e.message,
                 )
             }.collect { observation ->
                 val state = observation.state

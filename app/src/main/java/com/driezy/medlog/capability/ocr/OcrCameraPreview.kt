@@ -52,6 +52,7 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
 import java.util.concurrent.Executors
+import java.util.concurrent.atomic.AtomicReference
 
 private const val TAG = "OcrCameraPreview"
 
@@ -75,6 +76,7 @@ internal fun OcrCameraPreview(
     val lifecycleOwner = LocalLifecycleOwner.current
     val view = LocalView.current
     val executor = remember { Executors.newSingleThreadExecutor() }
+    val cameraProviderRef = remember { AtomicReference<ProcessCameraProvider?>() }
     val imageCapture = remember {
         ImageCapture.Builder()
             .setCaptureMode(ImageCapture.CAPTURE_MODE_MAXIMIZE_QUALITY)
@@ -91,7 +93,10 @@ internal fun OcrCameraPreview(
     }
 
     DisposableEffect(Unit) {
-        onDispose { executor.shutdown() }
+        onDispose {
+            runCatching { cameraProviderRef.get()?.unbindAll() }
+            executor.shutdown()
+        }
     }
 
     val previewView = remember {
@@ -103,6 +108,7 @@ internal fun OcrCameraPreview(
     LaunchedEffect(lifecycleOwner) {
         val cameraProviderFuture = ProcessCameraProvider.getInstance(context)
         val cameraProvider = cameraProviderFuture.get()
+        cameraProviderRef.set(cameraProvider)
         val preview = Preview.Builder().build().also {
             it.surfaceProvider = previewView.surfaceProvider
         }

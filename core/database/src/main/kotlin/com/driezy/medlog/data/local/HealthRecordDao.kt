@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface HealthRecordDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(record: HealthRecord): Long
 
     @Update
@@ -39,12 +39,14 @@ interface HealthRecordDao {
     )
     fun getRecordsByTypeInRange(type: String, from: Long, to: Long): Flow<List<HealthRecord>>
 
-    /** 每种类型的最新一条记录（用于主页快速展示） */
+    /** 每种类型的最新一条记录（用于主页快速展示；同毫秒时按 id 取最大保证确定） */
     @Query(
         "SELECT h.* FROM health_records h " +
-            "INNER JOIN (SELECT type, MAX(timestamp) AS maxTs FROM health_records GROUP BY type) g " +
-            "ON h.type = g.type AND h.timestamp = g.maxTs " +
-            "GROUP BY h.type ORDER BY h.type",
+            "WHERE h.id = (" +
+            "SELECT h2.id FROM health_records h2 " +
+            "WHERE h2.type = h.type " +
+            "ORDER BY h2.timestamp DESC, h2.id DESC LIMIT 1" +
+            ")",
     )
     fun getLatestRecordPerType(): Flow<List<HealthRecord>>
 

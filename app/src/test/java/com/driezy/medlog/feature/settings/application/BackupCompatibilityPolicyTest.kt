@@ -20,5 +20,6 @@ class BackupCompatibilityPolicyTest {
     fun `future and invalid schema backups are rejected`() {
         assertFalse(BackupCompatibilityPolicy.canRestore(DatabaseSchema.VERSION + 1))
         assertFalse(BackupCompatibilityPolicy.canRestore(0))
+        assertFalse(BackupCompatibilityPolicy.canRestore(4))
     }
 }
