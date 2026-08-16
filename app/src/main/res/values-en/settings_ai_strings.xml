@@ -60,7 +60,9 @@
     <string name="settings_ai_endpoint_text_title">Language model endpoint</string>
     <string name="settings_ai_endpoint_featured_title">Featured</string>
     <string name="settings_ai_endpoint_search_label">Search endpoints or Base URL</string>
+    <string name="settings_ai_endpoint_search_clear">Clear search</string>
     <string name="settings_ai_endpoint_empty">No matching endpoints</string>
+    <string name="settings_ai_endpoint_manual_hint">If no preset matches, you can type the endpoint manually in the Base URL field below.</string>
     <string name="settings_ai_endpoint_selected">Current</string>
     <string name="settings_ai_provider_name_label">Provider name</string>
     <string name="settings_ai_auth_bearer">Bearer</string>

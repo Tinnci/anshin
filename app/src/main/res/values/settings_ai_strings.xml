@@ -59,7 +59,9 @@
     <string name="settings_ai_endpoint_text_title">语言模型端点</string>
     <string name="settings_ai_endpoint_featured_title">精选</string>
     <string name="settings_ai_endpoint_search_label">搜索端点或 Base URL</string>
+    <string name="settings_ai_endpoint_search_clear">清除搜索</string>
     <string name="settings_ai_endpoint_empty">没有匹配的端点</string>
+    <string name="settings_ai_endpoint_manual_hint">未找到预设时，也可在下方 Base URL 输入框中手动填写端点。</string>
     <string name="settings_ai_endpoint_selected">当前</string>
     <string name="settings_ai_provider_name_label">Provider 名称</string>
     <string name="settings_ai_auth_bearer">Bearer</string>
