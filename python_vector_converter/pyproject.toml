@@ -7,5 +7,5 @@ requires-python = ">=3.13"
 dependencies = [
     "numpy>=2.4.2",
     "opencv-python>=4.13.0.92",
-    "pillow>=12.1.1",
+    "pillow>=12.3.0",
 ]
