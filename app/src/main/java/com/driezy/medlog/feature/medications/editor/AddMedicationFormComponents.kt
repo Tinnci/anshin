@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.components.MedicationMessageCard
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -47,6 +48,7 @@ internal fun AddMedicationFormContent(
             .padding(bottom = MedLogSpacing.XXLarge),
         verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
     ) {
+        MedicationFormError(uiState)
         MedicationBasicInfoSection(
             uiState = uiState,
             onAction = onAction,
@@ -219,17 +221,21 @@ internal fun DatePickerField(
     onPick: (Long?) -> Unit,
     modifier: Modifier = Modifier,
     nullable: Boolean = false,
+    zone: ZoneId = ZoneId.systemDefault(),
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val fmt = remember { DateTimeFormatter.ofPattern("MM/dd") }
     val displayText = timestamp?.let {
-        fmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()).toLocalDate())
+        fmt.format(Instant.ofEpochMilli(it).atZone(zone).toLocalDate())
     } ?: stringResource(R.string.add_date_unset)
     var expanded by remember { mutableStateOf(false) }
-    val state = rememberDatePickerState(initialSelectedDateMillis = timestamp)
+    val state = rememberDatePickerState(initialSelectedDateMillis = timestamp?.toDatePickerMillis(zone))
 
     Column(modifier = modifier) {
-        OutlinedCard(onClick = { expanded = !expanded }) {
+        OutlinedCard(onClick = {
+            if (!expanded) state.selectedDateMillis = timestamp?.toDatePickerMillis(zone)
+            expanded = !expanded
+        }) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -295,7 +301,7 @@ internal fun DatePickerField(
                         TextButton(onClick = { expanded = false }) { Text(stringResource(R.string.cancel)) }
                         Spacer(Modifier.width(MedLogSpacing.Small))
                         FilledTonalButton(onClick = {
-                            onPick(state.selectedDateMillis)
+                            onPick(state.selectedDateMillis?.toMedicationDateMillis(zone))
                             expanded = false
                         }) { Text(stringResource(R.string.confirm)) }
                     }
@@ -333,6 +339,7 @@ internal fun AddMedicationWizardContent(
             style = MaterialTheme.typography.labelMedium,
             color = MaterialTheme.colorScheme.primary,
         )
+        MedicationFormError(uiState)
         when (currentStep) {
             0 -> {
                 MedicationBasicInfoSection(uiState = uiState, onAction = onAction, onOpenOcrScanner = onOpenOcrScanner)
@@ -367,7 +374,11 @@ internal fun AddMedicationWizardContent(
                     Text(stringResource(R.string.add_wizard_back))
                 }
             }
-            Button(onClick = onNext, modifier = Modifier.weight(1f)) {
+            Button(
+                onClick = onNext,
+                enabled = !uiState.isSaving && !uiState.isLoading,
+                modifier = Modifier.weight(1f),
+            ) {
                 Text(
                     if (currentStep < WIZARD_STEP_COUNT - 1) {
                         stringResource(R.string.add_wizard_next)
@@ -381,3 +392,10 @@ internal fun AddMedicationWizardContent(
 }
 
 private const val WIZARD_STEP_COUNT = 3
+
+@Composable
+private fun MedicationFormError(state: AddMedicationUiState) {
+    val message = state.errorRes?.let { stringResource(it) } ?: state.error
+    if (state.isLoading || state.isSaving) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+    if (message != null) MedicationMessageCard(message, isError = true)
+}

@@ -23,12 +23,14 @@ internal fun MedicationDateSection(uiState: AddMedicationUiState, onAction: (Add
     FormSection(title = stringResource(R.string.add_section_dates), icon = MedLogIcons.DateRange) {
         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
             DatePickerField(
+                zone = java.time.ZoneId.of(uiState.dateZoneId),
                 label = stringResource(R.string.add_date_start),
                 timestamp = uiState.startDate,
                 onPick = { it?.let { ms -> onAction(AddMedicationUiAction.StartDateChanged(ms)) } },
                 modifier = Modifier.weight(1f),
             )
             DatePickerField(
+                zone = java.time.ZoneId.of(uiState.dateZoneId),
                 label = stringResource(R.string.add_date_end),
                 timestamp = uiState.endDate,
                 onPick = { onAction(AddMedicationUiAction.EndDateChanged(it)) },

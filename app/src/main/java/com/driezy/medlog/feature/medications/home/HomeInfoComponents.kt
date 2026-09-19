@@ -129,7 +129,7 @@ internal fun LowStockBanner(medications: List<Pair<String, Pair<Double, String>>
 }
 
 @Composable
-internal fun todayDateString(): String {
+internal fun todayDateString(today: LocalDate): String {
     val pattern = stringResource(R.string.date_format_day_label)
-    return remember(pattern) { DateTimeFormatter.ofPattern(pattern, Locale.getDefault()).format(LocalDate.now()) }
+    return remember(pattern, today) { DateTimeFormatter.ofPattern(pattern, Locale.getDefault()).format(today) }
 }

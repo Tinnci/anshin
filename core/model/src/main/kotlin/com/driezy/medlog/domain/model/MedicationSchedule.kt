@@ -58,7 +58,9 @@ sealed interface MedicationSchedule {
 
     data class Interval(val every: Duration) : MedicationSchedule {
         init {
-            require(!every.isZero && !every.isNegative) { "Interval must be positive" }
+            require(every >= Duration.ofMillis(1)) {
+                "Interval must be at least one millisecond, the persisted occurrence precision"
+            }
         }
     }
 

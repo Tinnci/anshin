@@ -33,7 +33,7 @@ class ReminderPlannerTest {
     }
 
     @Test
-    fun `every three days preserves legacy next-candidate recurrence semantics`() {
+    fun `every three days stays anchored to the plan start`() {
         val occurrence = planner.nextOccurrenceForSlot(
             MedicationSchedule.ExactTimes(
                 listOf(LocalTime.of(8, 0)),
@@ -43,6 +43,7 @@ class ReminderPlannerTest {
             after = now,
             endAt = null,
             zoneId = zone,
+            startAt = Instant.parse("2025-06-14T15:00:00Z"),
         )
 
         assertEquals(Instant.parse("2025-06-17T23:00:00Z"), occurrence?.scheduledAt)
@@ -73,7 +74,7 @@ class ReminderPlannerTest {
         )
         assertEquals(
             emptyList<ReminderOccurrence>(),
-            planner.nextOccurrences(schedule, Instant.parse("2025-06-15T05:59:59Z"), zone, lastTaken),
+            planner.nextOccurrences(schedule, Instant.parse("2025-06-14T00:00:00Z"), zone, lastTaken),
         )
     }
 

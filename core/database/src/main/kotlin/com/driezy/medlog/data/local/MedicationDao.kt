@@ -2,6 +2,8 @@ package com.driezy.medlog.data.local
 
 import androidx.room.*
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.model.MedicationPlanRevision
+import com.driezy.medlog.data.model.planRevision
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -51,6 +53,26 @@ interface MedicationDao {
 
     @Update
     suspend fun updateMedication(medication: Medication)
+
+    @Query("SELECT * FROM medication_plan_revisions ORDER BY effectiveFromMs")
+    fun observePlanRevisions(): Flow<List<MedicationPlanRevision>>
+
+    @Insert
+    suspend fun insertPlanRevision(revision: MedicationPlanRevision)
+
+    /** Store the old schedule and replace the current one atomically. Stock-only writes use updateStock. */
+    @Transaction
+    suspend fun updatePlan(medication: Medication, changedAt: Long) {
+        val previous = getMedicationById(medication.id) ?: return
+        val previousPlan = previous.planRevision(changedAt)
+        val nextPlan = medication.planRevision(changedAt).copy(effectiveFromMs = previous.planEffectiveFromMs)
+        if (previousPlan != nextPlan) {
+            if (changedAt > previous.planEffectiveFromMs) insertPlanRevision(previousPlan)
+            updateMedication(medication.copy(planEffectiveFromMs = changedAt))
+        } else {
+            updateMedication(medication.copy(planEffectiveFromMs = previous.planEffectiveFromMs))
+        }
+    }
 
     /** Rebuilds a group of derived medication plans as one Room transaction. */
     @Transaction

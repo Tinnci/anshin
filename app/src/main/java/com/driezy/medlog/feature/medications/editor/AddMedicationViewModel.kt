@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.reminders.application.ReconcileRemindersUseCase
+import com.driezy.medlog.data.local.TransactionRunner
 import com.driezy.medlog.data.model.Drug
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.TimePeriod
@@ -13,6 +14,7 @@ import com.driezy.medlog.data.repository.DrugRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.data.repository.reminderZone
 import com.driezy.medlog.domain.ReminderReconcileReason
 import com.driezy.medlog.domain.model.MedicationId
 import com.driezy.medlog.domain.todayStart
@@ -33,6 +35,10 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.decodeFromJsonElement
+import kotlinx.serialization.json.encodeToJsonElement
+import kotlinx.serialization.json.jsonObject
 import java.time.Clock
 import javax.inject.Inject
 
@@ -66,6 +72,7 @@ data class AddMedicationUiState(
     val frequencyDays: String = "1,2,3,4,5,6,7", // 逗号分隔的周天
 
     // ── 起止日期 ─────────────────────────────────────────────────
+    @Transient val dateZoneId: String = "UTC",
     val startDate: Long = 0L,
     val endDate: Long? = null,
 
@@ -87,6 +94,8 @@ data class AddMedicationUiState(
     val fullPath: String = "",
 
     // ── UI 状态 ──────────────────────────────────────────────────
+    val wizardStep: Int = 0,
+    @Transient val isLoading: Boolean = false,
     @Transient val isSaving: Boolean = false,
     val enableTimePeriodMode: Boolean = true,
     @Transient val error: String? = null,
@@ -125,6 +134,8 @@ sealed interface AddMedicationUiAction {
     data class NotesChanged(val value: String) : AddMedicationUiAction
     data object StartVoiceInput : AddMedicationUiAction
     data object StopVoiceInput : AddMedicationUiAction
+    data object NextStep : AddMedicationUiAction
+    data object PreviousStep : AddMedicationUiAction
     data object DiscardDraft : AddMedicationUiAction
     data class Save(val existingId: Long?) : AddMedicationUiAction
 }
@@ -143,6 +154,7 @@ class AddMedicationViewModel @Inject constructor(
     @param:ApplicationContext private val appContext: Context,
     private val clock: Clock,
     private val savedStateHandle: SavedStateHandle,
+    private val transactions: TransactionRunner,
 ) : BaseViewModel() {
 
     private val json = Json { ignoreUnknownKeys = true }
@@ -153,13 +165,14 @@ class AddMedicationViewModel @Inject constructor(
         restoredDraft ?: AddMedicationUiState(
             doseUnit = appContext.getString(R.string.default_dose_unit),
             startDate = todayStart(clock),
+            dateZoneId = clock.zone.id,
         ),
     )
     val uiState: StateFlow<AddMedicationUiState> = _uiState.asStateFlow()
     private val effectChannel = Channel<AddMedicationUiEffect>(Channel.BUFFERED)
     val effects = effectChannel.receiveAsFlow()
     private var baselineState: AddMedicationUiState = _uiState.value
-    private val _isDirty = MutableStateFlow(false)
+    private val _isDirty = MutableStateFlow(savedStateHandle[EDITED_KEY] ?: false)
     val isDirty: StateFlow<Boolean> = _isDirty.asStateFlow()
 
     /** 最新作息时间设置缓存，用于运算添加时段自动时间 */
@@ -175,7 +188,9 @@ class AddMedicationViewModel @Inject constructor(
         viewModelScope.launch {
             prefsRepository.settingsFlow.collect {
                 latestPrefs.value = it
-                update { copy(enableTimePeriodMode = it.enableTimePeriodMode) }
+                update {
+                    copy(enableTimePeriodMode = it.enableTimePeriodMode, dateZoneId = it.reminderZone(clock.zone).id)
+                }
             }
         }
         viewModelScope.launch {
@@ -228,6 +243,7 @@ class AddMedicationViewModel @Inject constructor(
     }
 
     fun onAction(action: AddMedicationUiAction) {
+        if (_uiState.value.isSaving) return
         when (action) {
             is AddMedicationUiAction.PrefillDrug -> prefillFromDrug(action.name, action.category)
             is AddMedicationUiAction.LoadExisting -> loadExisting(action.id)
@@ -256,6 +272,24 @@ class AddMedicationViewModel @Inject constructor(
             is AddMedicationUiAction.NotesChanged -> onNotesChange(action.value)
             AddMedicationUiAction.StartVoiceInput -> startVoiceInput()
             AddMedicationUiAction.StopVoiceInput -> stopVoiceInput()
+            AddMedicationUiAction.NextStep -> {
+                val error = _uiState.value.validationError(_uiState.value.wizardStep)
+                update {
+                    copy(
+                        errorRes = error,
+                        wizardStep = if (error ==
+                            null
+                        ) {
+                            (wizardStep + 1).coerceAtMost(2)
+                        } else {
+                            wizardStep
+                        },
+                    )
+                }
+            }
+            AddMedicationUiAction.PreviousStep -> update {
+                copy(wizardStep = (wizardStep - 1).coerceAtLeast(0), errorRes = null)
+            }
             AddMedicationUiAction.DiscardDraft -> discardDraft()
             is AddMedicationUiAction.Save -> save(action.existingId)
         }
@@ -263,7 +297,7 @@ class AddMedicationViewModel @Inject constructor(
 
     /** 从药品数据库选药后预填名称和分类（仅新增时生效） */
     fun prefillFromDrug(name: String, category: String) {
-        if (_uiState.value.name.isEmpty()) {
+        if (_uiState.value.name.isEmpty() && restoredDraft == null && !_isDirty.value) {
             _uiState.value = _uiState.value.copy(name = name, category = category)
             markBaseline()
         }
@@ -271,9 +305,16 @@ class AddMedicationViewModel @Inject constructor(
 
     /** 加载已有药品进行编辑 */
     fun loadExisting(medicationId: Long) {
-        safeLaunch(onError = { e -> update { copy(error = e.message) } }) {
-            val med = repository.getMedicationById(medicationId) ?: return@safeLaunch
-            _uiState.value = AddMedicationUiState(
+        if (savedStateHandle.get<Long>(LOADED_KEY) == medicationId || _uiState.value.isLoading) return
+        update { copy(isLoading = true) }
+        safeLaunch(onError = { e ->
+            update { copy(isLoading = false, error = e.message, errorRes = R.string.medication_load_failed) }
+        }) {
+            val med = checkNotNull(repository.getMedicationById(medicationId))
+            // A restored or edited draft belongs to the user, even if loading finishes later.
+            savedStateHandle[LOADED_KEY] = medicationId
+            val loaded = AddMedicationUiState(
+                enableTimePeriodMode = latestPrefs.value.enableTimePeriodMode,
                 name = med.name,
                 category = med.category,
                 isTcm = med.isTcm,
@@ -299,7 +340,17 @@ class AddMedicationViewModel @Inject constructor(
                 notes = med.notes,
                 intervalHours = med.intervalHours,
             )
-            markBaseline()
+            val edited = savedStateHandle.get<ArrayList<String>>(EDITED_FIELDS_KEY).orEmpty().toSet()
+            val loadedFields = json.encodeToJsonElement(loaded).jsonObject
+            val draftFields = json.encodeToJsonElement(_uiState.value).jsonObject
+            // Keep explicit field edits, including clearing a value back to its default.
+            _uiState.value = json.decodeFromJsonElement<AddMedicationUiState>(
+                JsonObject((loadedFields - edited) + draftFields.filterKeys { it in edited }),
+            ).copy(dateZoneId = latestPrefs.value.reminderZone(clock.zone).id)
+            baselineState = normalizedDraft(loaded)
+            _isDirty.value = edited.isNotEmpty()
+            savedStateHandle[EDITED_KEY] = _isDirty.value
+            persistDraft()
         }
     }
 
@@ -382,7 +433,10 @@ class AddMedicationViewModel @Inject constructor(
     fun onStartDateChange(v: Long) = update { copy(startDate = v) }
     fun onEndDateChange(v: Long?) = update { copy(endDate = v) }
 
-    fun onStockChange(v: String) = update { copy(stock = v) }
+    fun onStockChange(v: String) {
+        savedStateHandle[STOCK_EDITED_KEY] = true
+        update { copy(stock = v) }
+    }
     fun onRefillThresholdChange(v: String) = update { copy(refillThreshold = v) }
     fun onRefillReminderDaysChange(v: Int) = update { copy(refillReminderDays = v) }
     fun onNotesChange(v: String) = update { copy(notes = v) }
@@ -402,68 +456,103 @@ class AddMedicationViewModel @Inject constructor(
 
     // ── 保存 ─────────────────────────────────────────────────────
 
-    fun save(existingId: Long?) {
+    fun save(requestedId: Long?) {
+        val existingId = requestedId ?: savedStateHandle.get<Long>(LOADED_KEY)
         val state = _uiState.value
-        if (state.name.isBlank()) {
-            update { copy(errorRes = R.string.error_name_required) }
+        if (state.isSaving || state.isLoading) return
+        val error = state.validationError()
+        if (error != null) {
+            update { copy(errorRes = error) }
             return
         }
-        safeLaunch(onError = { e -> update { copy(isSaving = false, error = e.message) } }) {
-            stopVoiceInput()
-            update { copy(isSaving = true) }
+        stopVoiceInput()
+        update { copy(isSaving = true, error = null, errorRes = null) }
+        safeLaunch(onError = { e ->
+            update { copy(isSaving = false, error = e.message, errorRes = R.string.medication_save_failed) }
+        }) {
             // 取第一个提醒时间作为 reminderHour/Minute（向后兼容通知调度）
             val firstTime = state.reminderTimes.firstOrNull() ?: "08:00"
             val (h, m) = firstTime.split(":").let {
                 (it.getOrNull(0)?.toIntOrNull() ?: 8) to (it.getOrNull(1)?.toIntOrNull() ?: 0)
             }
-            val medication = Medication(
-                id = existingId ?: 0,
-                name = state.name.trim(),
-                category = state.category.trim(),
-                isTcm = state.isTcm,
-                fullPath = state.fullPath.trim(),
-                form = state.form,
-                isHighPriority = state.isHighPriority,
-                isCustomDrug = state.isCustomDrug,
-                dose = state.doseQuantity, // 兼容旧字段
-                doseUnit = state.doseUnit,
-                doseQuantity = state.doseQuantity,
-                isPRN = state.isPRN,
-                maxDailyDose = state.maxDailyDose.toDoubleOrNull(),
-                timePeriod = state.timePeriod.key,
-                reminderTimes = state.reminderTimes.joinToString(","),
-                reminderHour = h,
-                reminderMinute = m,
-                frequencyType = state.frequencyType,
-                frequencyInterval = state.frequencyInterval,
-                frequencyDays = state.frequencyDays,
-                startDate = state.startDate,
-                endDate = state.endDate,
-                stock = state.stock.toDoubleOrNull(),
-                refillThreshold = state.refillThreshold.toDoubleOrNull(),
-                refillReminderDays = state.refillReminderDays,
-                notes = state.notes,
-                intervalHours = state.intervalHours,
-            )
-            val savedId = if (existingId == null) {
-                val newId = repository.addMedication(medication)
-                newId
-            } else {
-                repository.updateMedication(medication)
-                existingId
+            val savedId = transactions.withTransaction {
+                val latest = existingId?.let { checkNotNull(repository.getMedicationById(it)) }
+                val medication = (
+                    latest
+                        ?: Medication(
+                            name = state.name,
+                            dose = state.doseQuantity,
+                            doseUnit = state.doseUnit,
+                            createdAt = clock.millis(),
+                        )
+                    ).copy(
+                    id = existingId ?: 0,
+                    name = state.name.trim(),
+                    category = state.category.trim(),
+                    isTcm = state.isTcm,
+                    fullPath = state.fullPath.trim(),
+                    form = state.form,
+                    isHighPriority = state.isHighPriority,
+                    isCustomDrug = state.isCustomDrug,
+                    dose = state.doseQuantity, // 兼容旧字段
+                    doseUnit = state.doseUnit,
+                    doseQuantity = state.doseQuantity,
+                    isPRN = state.isPRN,
+                    maxDailyDose = state.maxDailyDose.toDoubleOrNull(),
+                    timePeriod = state.timePeriod.key,
+                    reminderTimes = state.reminderTimes.joinToString(","),
+                    reminderHour = h,
+                    reminderMinute = m,
+                    frequencyType = state.frequencyType,
+                    frequencyInterval = state.frequencyInterval,
+                    frequencyDays = state.frequencyDays,
+                    startDate = state.startDate,
+                    endDate = state.endDate,
+                    stock = if (latest != null &&
+                        state.stock == baselineState.stock &&
+                        savedStateHandle.get<Boolean>(STOCK_EDITED_KEY) != true
+                    ) {
+                        latest.stock
+                    } else {
+                        state.stock.toDoubleOrNull()
+                    },
+                    refillThreshold = state.refillThreshold.toDoubleOrNull(),
+                    refillReminderDays = state.refillReminderDays,
+                    notes = state.notes,
+                    intervalHours = state.intervalHours,
+                )
+                if (existingId == null) {
+                    val newId = repository.addMedication(medication)
+                    newId
+                } else {
+                    repository.updateMedication(medication)
+                    existingId
+                }
             }
+            // Remember a successful insert before retrying a failed reminder projection.
+            savedStateHandle[LOADED_KEY] = savedId
             reconcileReminders.medication(MedicationId(savedId), ReminderReconcileReason.MEDICATION_CHANGED)
-            clearDraft()
             update { copy(isSaving = false) }
+            clearDraft()
             _isDirty.value = false
             effectChannel.send(AddMedicationUiEffect.Saved)
         }
     }
 
     private inline fun update(block: AddMedicationUiState.() -> AddMedicationUiState) {
+        val previousState = normalizedDraft(_uiState.value)
         _uiState.value = _uiState.value.block()
+        val nextState = normalizedDraft(_uiState.value)
+        if (savedStateHandle.get<Long>(LOADED_KEY) == null && previousState != nextState) {
+            val previous = json.encodeToJsonElement(previousState).jsonObject
+            val next = json.encodeToJsonElement(nextState).jsonObject
+            val edited = savedStateHandle.get<ArrayList<String>>(EDITED_FIELDS_KEY).orEmpty().toMutableSet()
+            edited += (previous.keys + next.keys).filter { previous[it] != next[it] }
+            savedStateHandle[EDITED_FIELDS_KEY] = ArrayList(edited)
+        }
         persistDraft()
-        _isDirty.value = isDraftDirty(_uiState.value)
+        _isDirty.value = savedStateHandle.get<Boolean>(EDITED_KEY) == true || isDraftDirty(_uiState.value)
+        savedStateHandle[EDITED_KEY] = _isDirty.value
     }
 
     private fun persistDraft() {
@@ -472,10 +561,17 @@ class AddMedicationViewModel @Inject constructor(
 
     private fun clearDraft() {
         savedStateHandle.remove<String>(DRAFT_KEY)
+        savedStateHandle.remove<Boolean>(EDITED_KEY)
+        savedStateHandle.remove<ArrayList<String>>(EDITED_FIELDS_KEY)
+        savedStateHandle.remove<Boolean>(STOCK_EDITED_KEY)
     }
 
     private fun normalizedDraft(state: AddMedicationUiState) = state.copy(
         isSaving = false,
+        isLoading = false,
+        wizardStep = 0,
+        enableTimePeriodMode = true,
+        dateZoneId = "UTC",
         error = null,
         errorRes = null,
         drugSuggestions = emptyList(),
@@ -499,6 +595,10 @@ class AddMedicationViewModel @Inject constructor(
     }
 
     private companion object {
+        const val LOADED_KEY = "loaded_medication_id"
+        const val EDITED_FIELDS_KEY = "medication_edited_fields"
+        const val EDITED_KEY = "medication_edited"
+        const val STOCK_EDITED_KEY = "medication_stock_edited"
         const val DRAFT_KEY = "add_medication_draft"
     }
 

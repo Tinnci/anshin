@@ -22,6 +22,8 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.MedicationCard
+import com.driezy.medlog.ui.components.MedicationMessageCard
+import com.driezy.medlog.ui.components.RefreshWhileVisible
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
 import com.driezy.medlog.ui.components.ScreenOverlay
@@ -36,7 +38,6 @@ import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import java.util.*
 
 /** 列表项交错入场动画的逐项延迟（毫秒） */
@@ -53,12 +54,36 @@ fun HomeScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
+    RefreshWhileVisible { viewModel.onAction(HomeUiAction.RefreshTime) }
 
     @Suppress("LocalContextResourcesRead") // resources 在组合时捕获，用于 LaunchedEffect 中的 plurals
     val importResources = context.resources
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
+                is HomeUiEffect.DoseSaved -> {
+                    val message = importResources.getString(
+                        if (effect.change.after ==
+                            null
+                        ) {
+                            R.string.dose_record_removed
+                        } else {
+                            R.string.dose_record_saved
+                        },
+                    )
+                    val result = snackbarHostState.showSnackbar(
+                        message,
+                        actionLabel = importResources.getString(R.string.home_snackbar_undo),
+                    )
+                    if (result ==
+                        SnackbarResult.ActionPerformed
+                    ) {
+                        viewModel.onAction(HomeUiAction.RestoreDose(effect.change))
+                    }
+                }
+                is HomeUiEffect.Failed -> snackbarHostState.showSnackbar(
+                    importResources.getString(R.string.dose_record_failed),
+                )
                 is HomeUiEffect.ImportSucceeded -> {
                     val message = importResources.getQuantityString(
                         R.plurals.qr_import_success,
@@ -91,71 +116,26 @@ private fun HomeContent(
     onOpenSettings: () -> Unit,
 ) {
     val performHaptic = rememberMedLogHaptics()
-    val scope = rememberCoroutineScope()
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
-    val undoLabel = stringResource(R.string.home_snackbar_undo)
-    val fmtUndoSkip = stringResource(R.string.home_snackbar_undo_skip)
-    val fmtReset = stringResource(R.string.home_snackbar_reset)
-    val fmtTaken = stringResource(R.string.home_snackbar_taken)
-    val fmtSkipped = stringResource(R.string.home_snackbar_skipped)
-    val fmtPeriodAllTaken = stringResource(R.string.home_snackbar_period_all_taken)
-    val fmtPrnUndo = stringResource(R.string.home_snackbar_prn_undo)
-    val fmtPrnTaken = stringResource(R.string.home_snackbar_prn_taken)
-
     fun toggleDose(item: MedicationWithStatus) {
+        if (item.doseKey in uiState.savingDoses) return
         performHaptic(MedLogHapticEffect.CONFIRM)
-        if (item.isSkipped) {
-            onAction(HomeUiAction.UndoDose(item.doseKey))
-            scope.launch {
-                snackbarHostState.showSnackbar(
-                    fmtUndoSkip.format(item.medication.displayName()),
-                    duration = SnackbarDuration.Short,
-                )
-            }
-            return
-        }
-        val wasHandled = item.isTaken || item.isPartial
         onAction(HomeUiAction.ToggleDose(item))
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = (if (wasHandled) fmtReset else fmtTaken).format(item.medication.displayName()),
-                actionLabel = undoLabel,
-                duration = SnackbarDuration.Short,
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                onAction(HomeUiAction.UndoDose(item.doseKey))
-            }
-        }
     }
 
     fun skipDose(item: MedicationWithStatus) {
+        if (item.doseKey in uiState.savingDoses) return
         performHaptic(MedLogHapticEffect.CONFIRM)
         onAction(HomeUiAction.SkipDose(item))
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                fmtSkipped.format(item.medication.displayName()),
-                actionLabel = undoLabel,
-                duration = SnackbarDuration.Short,
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                onAction(HomeUiAction.UndoDose(item.doseKey))
-            }
-        }
     }
 
-    fun togglePrnDose(item: MedicationWithStatus) {
-        performHaptic(MedLogHapticEffect.CONFIRM)
-        val wasTaken = item.isTaken
-        onAction(HomeUiAction.ToggleDose(item))
-        scope.launch {
-            val result = snackbarHostState.showSnackbar(
-                message = (if (wasTaken) fmtPrnUndo else fmtPrnTaken).format(item.medication.displayName()),
-                actionLabel = undoLabel,
-                duration = SnackbarDuration.Short,
-            )
-            if (result == SnackbarResult.ActionPerformed) {
-                onAction(HomeUiAction.UndoDose(item.doseKey))
-            }
+    fun togglePrnDose(item: MedicationWithStatus) = toggleDose(item)
+
+    val lowStockItems = remember(uiState.items) {
+        uiState.items.distinctBy { it.medication.id }.filter { item ->
+            val stock = item.medication.stock ?: return@filter false
+            val threshold = item.medication.refillThreshold ?: return@filter false
+            stock <= threshold
         }
     }
 
@@ -165,7 +145,7 @@ private fun HomeContent(
             Column {
                 Text(stringResource(R.string.home_title), style = MaterialTheme.emphasizedTypography.titleLarge)
                 Text(
-                    todayDateString(),
+                    todayDateString(uiState.today),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -234,6 +214,18 @@ private fun HomeContent(
             contentPadding = MedLogSpacing.ScreenContentDefault,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
+            if (uiState.savingDoses.isNotEmpty()) {
+                item(key = "saving") { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
+            }
+            if (uiState.errorMessage != null) {
+                item(key = "loadError") {
+                    MedicationMessageCard(
+                        stringResource(R.string.dose_load_failed),
+                        isError = true,
+                        onRetry = { onAction(HomeUiAction.RefreshTime) },
+                    )
+                }
+            }
             item(key = "homeHero", contentType = "homeHero") {
                 HomeHero(
                     presentation = uiState.heroPresentation,
@@ -248,11 +240,6 @@ private fun HomeContent(
             }
 
             // ── 低库存警告 banner ──────────────────────────────
-            val lowStockItems = uiState.items.filter { item ->
-                val stock = item.medication.stock ?: return@filter false
-                val threshold = item.medication.refillThreshold ?: return@filter false
-                stock <= threshold
-            }
             if (lowStockItems.isNotEmpty()) {
                 item {
                     LowStockBanner(
@@ -333,12 +320,6 @@ private fun HomeContent(
                                 groupItems
                                     .filter { !it.isHandled }
                                     .forEach { onAction(HomeUiAction.ToggleDose(it)) }
-                                scope.launch {
-                                    snackbarHostState.showSnackbar(
-                                        fmtPeriodAllTaken.format(groupTitle),
-                                        duration = SnackbarDuration.Short,
-                                    )
-                                }
                             },
                             onClick = onMedicationClick,
                             modifier = Modifier.animateItem(),
@@ -373,7 +354,7 @@ private fun HomeContent(
                     }
                     itemsIndexed(
                         visibleItems,
-                        key = { _, it -> it.doseKey },
+                        key = { _, it -> it.doseKey.listKey },
                     ) { idx, item ->
                         val motionScheme = MaterialTheme.motionScheme
                         val animationsEnabled = remember { ValueAnimator.areAnimatorsEnabled() }

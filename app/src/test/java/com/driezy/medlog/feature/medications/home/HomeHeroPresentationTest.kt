@@ -3,6 +3,7 @@ package com.driezy.medlog.feature.medications.home
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.feature.medications.application.matchDoseLogsToSlots
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Assert.assertSame

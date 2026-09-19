@@ -1,21 +1,22 @@
 package com.driezy.medlog.feature.medications.application
 
+import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.data.model.MedicationPlanRevision
+import com.driezy.medlog.data.model.applyTo
 import com.driezy.medlog.data.model.toDomainSchedule
+import com.driezy.medlog.domain.ReminderOccurrence
+import com.driezy.medlog.domain.ScheduleOccurrences
 import com.driezy.medlog.domain.model.MedicationSchedule
-import com.driezy.medlog.domain.model.ScheduleRecurrence
 import java.time.Clock
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDate
-import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
-import java.time.temporal.ChronoUnit
 import javax.inject.Inject
 import javax.inject.Singleton
 
-/** A typed occurrence used by history and export projections. */
 data class FuturePlanItem(
     val medication: Medication,
     val day: LocalDate,
@@ -24,10 +25,7 @@ data class FuturePlanItem(
     val timeLabel: String,
 )
 
-/**
- * Expands persisted medication plans into occurrences using typed schedules and java.time.
- * Legacy string decoding is confined to [toDomainSchedule].
- */
+/** Persistence adapter for the shared, pure occurrence calculator. */
 @Singleton
 class FuturePlanCalculator @Inject constructor(private val clock: Clock) {
     fun calculate(
@@ -36,123 +34,107 @@ class FuturePlanCalculator @Inject constructor(private val clock: Clock) {
         from: Instant = clock.instant(),
         zoneId: ZoneId = clock.zone,
         includeArchived: Boolean = false,
+        revisions: List<MedicationPlanRevision> = emptyList(),
+        logs: List<MedicationLog> = emptyList(),
     ): List<FuturePlanItem> {
         if (days <= 0) return emptyList()
-        val rangeStartDate = from.atZone(zoneId).toLocalDate()
-        val rangeStart = rangeStartDate.atStartOfDay(zoneId).toInstant()
-        val rangeEnd = rangeStartDate.plusDays(days.toLong()).atStartOfDay(zoneId).toInstant()
-
-        return medications.flatMap { medication ->
-            if (medication.isArchived && !includeArchived) return@flatMap emptyList()
-            when (val schedule = medication.toDomainSchedule()) {
-                MedicationSchedule.AsNeeded -> emptyList()
-                is MedicationSchedule.Interval -> expandInterval(
-                    medication = medication,
-                    interval = schedule.every,
-                    rangeStart = rangeStart,
-                    rangeEnd = rangeEnd,
-                    zoneId = zoneId,
-                )
-                is MedicationSchedule.ExactTimes -> expandClockSchedule(
-                    medication = medication,
-                    times = schedule.times,
-                    recurrence = schedule.recurrence,
-                    rangeStartDate = rangeStartDate,
-                    days = days,
-                    zoneId = zoneId,
-                )
-                is MedicationSchedule.RoutineAnchored -> expandClockSchedule(
-                    medication = medication,
-                    times = listOf(schedule.resolvedTime),
-                    recurrence = schedule.recurrence,
-                    rangeStartDate = rangeStartDate,
-                    days = days,
-                    zoneId = zoneId,
-                )
+        val firstDate = from.atZone(zoneId).toLocalDate()
+        val start = firstDate.atStartOfDay(zoneId).toInstant()
+        val end = firstDate.plusDays(days.toLong()).atStartOfDay(zoneId).toInstant()
+        val revisionsByMedication = revisions.groupBy { it.medicationId }
+        val logsByMedication = logs.groupBy { it.medicationId }
+        return medications.flatMap { current ->
+            val history = revisionsByMedication[current.id].orEmpty()
+            val plans = history.map { it.applyTo(current) to it.effectiveUntilMs } + (current to Long.MAX_VALUE)
+            plans.flatMap planLoop@{ (medication, effectiveUntil) ->
+                if (medication.isArchived && (!includeArchived || history.isNotEmpty())) return@planLoop emptyList()
+                val lower = maxOf(start, Instant.ofEpochMilli(medication.planEffectiveFromMs))
+                val upper = minOf(end, Instant.ofEpochMilli(effectiveUntil))
+                val schedule = medication.toDomainSchedule()
+                val occurrences = if (schedule is MedicationSchedule.Interval) {
+                    intervalOccurrences(
+                        medication,
+                        schedule,
+                        lower,
+                        upper,
+                        zoneId,
+                        logsByMedication[current.id].orEmpty(),
+                    )
+                } else {
+                    ScheduleOccurrences.between(
+                        schedule,
+                        Instant.ofEpochMilli(medication.startDate),
+                        medication.endDate?.let(Instant::ofEpochMilli),
+                        lower,
+                        upper,
+                        zoneId,
+                    )
+                }
+                occurrences.map { occurrence ->
+                    val local = occurrence.scheduledAt.atZone(zoneId)
+                    FuturePlanItem(
+                        medication = medication,
+                        day = local.toLocalDate(),
+                        scheduledAt = occurrence.scheduledAt,
+                        timeSlotIndex = occurrence.slotIndex,
+                        timeLabel = local.toLocalTime().format(TIME_FORMATTER),
+                    )
+                }
             }
         }.sortedBy(FuturePlanItem::scheduledAt)
     }
 
-    private fun expandClockSchedule(
+    /** Each actual interval dose starts the next interval; replay the same anchors for all projections. */
+    private fun intervalOccurrences(
         medication: Medication,
-        times: List<LocalTime>,
-        recurrence: ScheduleRecurrence,
-        rangeStartDate: LocalDate,
-        days: Int,
-        zoneId: ZoneId,
-    ): List<FuturePlanItem> {
-        val medicationStartDate = Instant.ofEpochMilli(medication.startDate).atZone(zoneId).toLocalDate()
-        val medicationEndDate = medication.endDate
-            ?.let(Instant::ofEpochMilli)
-            ?.atZone(zoneId)
-            ?.toLocalDate()
-
-        return buildList {
-            repeat(days) { offset ->
-                val date = rangeStartDate.plusDays(offset.toLong())
-                if (date < medicationStartDate) return@repeat
-                if (medicationEndDate != null && date > medicationEndDate) return@repeat
-                if (!recurrence.matches(medicationStartDate, date)) return@repeat
-
-                times.forEachIndexed { slotIndex, time ->
-                    add(
-                        FuturePlanItem(
-                            medication = medication,
-                            day = date,
-                            scheduledAt = date.atTime(time).atZone(zoneId).toInstant(),
-                            timeSlotIndex = slotIndex,
-                            timeLabel = time.format(TIME_FORMATTER),
-                        ),
+        schedule: MedicationSchedule.Interval,
+        from: Instant,
+        until: Instant,
+        zone: ZoneId,
+        logs: List<MedicationLog>,
+    ): List<ReminderOccurrence> {
+        if (from >= until) return emptyList()
+        var anchor = Instant.ofEpochMilli(medication.startDate)
+        var lower = from
+        val result = mutableListOf<ReminderOccurrence>()
+        val actual = logs.filter {
+            it.medicationId == medication.id &&
+                it.scheduledTimeMs >= medication.planEffectiveFromMs &&
+                it.scheduledTimeMs < until.toEpochMilli() &&
+                it.actualTakenTimeMs != null &&
+                (it.status == LogStatus.TAKEN || it.status == LogStatus.PARTIAL)
+        }.sortedBy { it.scheduledTimeMs }
+        for (log in actual) {
+            val boundary = Instant.ofEpochMilli(log.scheduledTimeMs).plusMillis(1)
+            if (boundary >
+                lower
+            ) {
+                result +=
+                    ScheduleOccurrences.between(
+                        schedule,
+                        anchor,
+                        medication.endDate?.let(Instant::ofEpochMilli),
+                        lower,
+                        minOf(boundary, until),
+                        zone,
                     )
-                }
             }
+            lower = maxOf(lower, boundary)
+            anchor = Instant.ofEpochMilli(requireNotNull(log.actualTakenTimeMs)).plus(schedule.every)
         }
-    }
-
-    private fun expandInterval(
-        medication: Medication,
-        interval: Duration,
-        rangeStart: Instant,
-        rangeEnd: Instant,
-        zoneId: ZoneId,
-    ): List<FuturePlanItem> {
-        val intervalMillis = interval.toMillis()
-        if (intervalMillis <= 0L) return emptyList()
-        val medicationEnd = medication.endDate?.let(Instant::ofEpochMilli)
-        var cursor = Instant.ofEpochMilli(medication.startDate)
-        if (cursor < rangeStart) {
-            val jumps = Duration.between(cursor, rangeStart).toMillis() / intervalMillis
-            cursor = cursor.plus(interval.multipliedBy(jumps))
-            if (cursor < rangeStart) cursor = cursor.plus(interval)
-        }
-
-        return buildList {
-            while (cursor < rangeEnd && (medicationEnd == null || cursor <= medicationEnd)) {
-                val zoned = cursor.atZone(zoneId)
-                add(
-                    FuturePlanItem(
-                        medication = medication,
-                        day = zoned.toLocalDate(),
-                        scheduledAt = cursor,
-                        timeSlotIndex = 0,
-                        timeLabel = zoned.toLocalTime().format(TIME_FORMATTER),
-                    ),
-                )
-                cursor = cursor.plus(interval)
-            }
-        }
+        result +=
+            ScheduleOccurrences.between(
+                schedule,
+                anchor,
+                medication.endDate?.let(Instant::ofEpochMilli),
+                lower,
+                until,
+                zone,
+            )
+        return result.distinctBy { it.scheduledAt }
     }
 
     private companion object {
         val TIME_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm")
     }
-}
-
-private fun ScheduleRecurrence.matches(startDate: LocalDate, date: LocalDate): Boolean = when (this) {
-    ScheduleRecurrence.Daily -> true
-    is ScheduleRecurrence.EveryDays -> {
-        val elapsedDays = ChronoUnit.DAYS.between(startDate, date)
-        elapsedDays >= 0 && elapsedDays % days == 0L
-    }
-    is ScheduleRecurrence.Weekdays -> date.dayOfWeek in days
 }

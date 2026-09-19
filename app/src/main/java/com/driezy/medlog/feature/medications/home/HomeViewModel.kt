@@ -14,18 +14,24 @@ import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.data.repository.reminderZone
+import com.driezy.medlog.di.ComputationDispatcher
 import com.driezy.medlog.domain.StreakCalculator
 import com.driezy.medlog.domain.todayRange
+import com.driezy.medlog.feature.medications.application.DoseChange
+import com.driezy.medlog.feature.medications.application.FuturePlanCalculator
 import com.driezy.medlog.feature.medications.application.ImportMode
 import com.driezy.medlog.feature.medications.application.ImportPlanUseCase
 import com.driezy.medlog.feature.medications.application.PlanExport
 import com.driezy.medlog.feature.medications.application.PlanExportCodec
 import com.driezy.medlog.feature.medications.application.PlanExportDecodeResult
 import com.driezy.medlog.feature.medications.application.ToggleMedicationDoseUseCase
+import com.driezy.medlog.feature.medications.application.matchDoseLogsToSlots
 import com.driezy.medlog.interaction.InteractionRuleEngine
 import com.driezy.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -48,6 +54,7 @@ data class MedicationWithStatus(
      * 便于 UI 显示每个时间槽的具体时间。
      */
     val scheduledTime: String = "",
+    val scheduledAtMs: Long? = null,
 ) {
     val isTaken get() = log?.status == LogStatus.TAKEN
     val isSkipped get() = log?.status == LogStatus.SKIPPED
@@ -58,6 +65,7 @@ data class MedicationWithStatus(
 }
 
 data class HomeUiState(
+    val today: LocalDate = LocalDate.ofEpochDay(0),
     val items: List<MedicationWithStatus> = emptyList(),
     val isLoading: Boolean = true,
     val errorMessage: String? = null,
@@ -75,6 +83,7 @@ data class HomeUiState(
     val importPreview: PlanExport? = null,
     val importError: String? = null,
     val exportUri: String? = null,
+    val savingDoses: Set<MedicationDoseKey> = emptySet(),
 ) {
     val heroPresentation: HomeHeroPresentation by lazy {
         HomeHeroPresentation.from(items)
@@ -117,9 +126,9 @@ data class HomeUiState(
 
     /** 今日稍后：非 PRN 且不属于当前行动组的全部剂量，包含已完成项作为弱化历史。 */
     val laterTaskItems: List<MedicationWithStatus> by lazy {
-        val nowIds = nowTaskItems.map { it.medication.id to it.timeSlotIndex }.toSet()
+        val nowIds = nowTaskItems.map { it.doseKey }.toSet()
         items.filter { item ->
-            !item.medication.isPRN && (item.medication.id to item.timeSlotIndex) !in nowIds
+            !item.medication.isPRN && item.doseKey !in nowIds
         }
     }
 
@@ -137,6 +146,8 @@ sealed interface HomeUiAction {
     data class SkipDose(val item: MedicationWithStatus) : HomeUiAction
     data class MarkPartial(val item: MedicationWithStatus, val quantity: Double) : HomeUiAction
     data class UndoDose(val key: MedicationDoseKey) : HomeUiAction
+    data object RefreshTime : HomeUiAction
+    data class RestoreDose(val change: DoseChange) : HomeUiAction
     data object ToggleGrouping : HomeUiAction
     data class QrScanned(val raw: String) : HomeUiAction
     data class ConfirmImport(val mode: ImportMode) : HomeUiAction
@@ -145,6 +156,8 @@ sealed interface HomeUiAction {
 
 sealed interface HomeUiEffect {
     data class ImportSucceeded(val count: Int) : HomeUiEffect
+    data class DoseSaved(val change: DoseChange) : HomeUiEffect
+    data class Failed(val message: String?) : HomeUiEffect
 }
 
 private data class HomeObservation(val state: HomeUiState, val showProgressNotification: Boolean)
@@ -166,10 +179,15 @@ class HomeViewModel @Inject constructor(
     private val prefsRepository: UserPreferencesRepository,
     private val progressNotif: ProgressNotificationUseCase,
     private val clock: Clock,
+    private val planCalculator: FuturePlanCalculator,
+    @param:ComputationDispatcher private val computationDispatcher: CoroutineDispatcher,
 ) : BaseViewModel() {
 
-    private val _uiState = MutableStateFlow(HomeUiState())
+    private val _uiState = MutableStateFlow(HomeUiState(today = LocalDate.now(clock)))
     val uiState: StateFlow<HomeUiState> = _uiState.asStateFlow()
+
+    private val currentTime = MutableStateFlow(clock.instant())
+    private val busyDoses = mutableSetOf<MedicationDoseKey>()
 
     private val effectChannel = Channel<HomeUiEffect>(Channel.BUFFERED)
     val effects = effectChannel.receiveAsFlow()
@@ -183,7 +201,7 @@ class HomeViewModel @Inject constructor(
         prefsRepository.settingsFlow.map { it.enableDrugInteractionCheck }.distinctUntilChanged(),
     ) { meds, enableCheck ->
         if (enableCheck) interactionEngine.check(meds) else emptyList()
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
+    }.flowOn(computationDispatcher).stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
     /** 上次推送今日进度通知时的 (taken, total)；避免重复更新通知 */
     private var lastProgressNotifState = -1 to -1
@@ -200,6 +218,11 @@ class HomeViewModel @Inject constructor(
             is HomeUiAction.SkipDose -> skipMedication(action.item)
             is HomeUiAction.MarkPartial -> markPartialDose(action.item, action.quantity)
             is HomeUiAction.UndoDose -> undoDose(action.key)
+            HomeUiAction.RefreshTime -> {
+                currentTime.value = clock.instant()
+                if (_uiState.value.errorMessage != null) observeMedications()
+            }
+            is HomeUiAction.RestoreDose -> restoreDose(action.change)
             HomeUiAction.ToggleGrouping -> toggleGroupBy()
             is HomeUiAction.QrScanned -> onQrScanned(action.raw)
             is HomeUiAction.ConfirmImport -> confirmImport(action.mode)
@@ -207,80 +230,82 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    private var observation: Job? = null
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun observeMedications() {
-        viewModelScope.launch {
-            val datedLogs = prefsRepository.settingsFlow.flatMapLatest { preferences ->
+        observation?.cancel()
+        observation = viewModelScope.launch {
+            val datedLogs = combine(prefsRepository.settingsFlow, currentTime) { preferences, now ->
+                preferences to now.atZone(preferences.reminderZone(clock.zone)).toLocalDate()
+            }.distinctUntilChanged().flatMapLatest { (preferences, today) ->
                 val zone = preferences.reminderZone(clock.zone)
-                val zonedClock = clock.withZone(zone)
-                val today = LocalDate.now(zonedClock)
-                val range = todayRange(zonedClock)
-                logRepo.getLogsForDateRange(range.first, range.second).map { logs ->
+                val range = todayRange(Clock.fixed(today.atStartOfDay(zone).toInstant(), zone))
+                logRepo.getLogsForDateRange(0L, range.second).map { logs ->
                     HomeDatedLogs(logs, preferences, today, zone)
                 }
             }.catch { e ->
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
-                emit(HomeDatedLogs(emptyList(), SettingsPreferences(), LocalDate.now(clock.zone), clock.zone))
+                throw e
             }
-            val medications = medicationRepo.getActiveMedications().catch { e ->
+            val medications = medicationRepo.getAllMedications().catch { e ->
                 _uiState.update { it.copy(isLoading = false, errorMessage = e.message) }
-                emit(emptyList())
+                throw e
             }
             combine(
                 medications,
                 datedLogs,
                 interactionsFlow,
-            ) { meds, dated, interactions ->
-                val logs = dated.logs
+                medicationRepo.observePlanRevisions(),
+                currentTime,
+            ) { meds, dated, interactions, revisions, now ->
+                val logs = dated.logs.filter {
+                    Instant.ofEpochMilli(it.scheduledTimeMs).atZone(dated.zone).toLocalDate() ==
+                        dated.today
+                }
                 val prefs = dated.preferences
-                val items = meds.flatMap { med ->
-                    val medLogs = logs.filter { it.medicationId == med.id }
-                    val times = med.reminderTimes.split(",").map { it.trim() }.filter { it.isNotBlank() }
-                    if (med.isPRN) {
-                        listOf(
-                            MedicationWithStatus(
-                                medication = med,
-                                log = medLogs.firstOrNull(),
-                                timeSlotIndex = 0,
-                                scheduledTime = times.firstOrNull() ?: "",
-                            ),
+                val planned = planCalculator.calculate(
+                    meds,
+                    days = 1,
+                    from = dated.today.atStartOfDay(dated.zone).toInstant(),
+                    zoneId = dated.zone,
+                    revisions = revisions,
+                    logs = dated.logs,
+                )
+                val logsByMedication = logs.groupBy { it.medicationId }
+                val items = planned.groupBy { it.medication.id }.flatMap { (id, slots) ->
+                    val matched =
+                        matchDoseLogsToSlots(
+                            slots.map { it.scheduledAt.toEpochMilli() },
+                            logsByMedication[id].orEmpty(),
                         )
-                    } else {
-                        val scheduledTimes = times.ifEmpty {
-                            listOf("%02d:%02d".format(med.reminderHour, med.reminderMinute))
-                        }
-                        val slotTimesMs = scheduledTimes.map { timeStr ->
-                            val parts = timeStr.split(":").mapNotNull { it.toIntOrNull() }
-                            val slotHour = parts.getOrElse(0) { med.reminderHour }.coerceIn(0, 23)
-                            val slotMinute = parts.getOrElse(1) { med.reminderMinute }.coerceIn(0, 59)
-                            dated.today.atTime(slotHour, slotMinute)
-                                .atZone(dated.zone)
-                                .toInstant()
-                                .toEpochMilli()
-                        }
-                        val matchedLogs = matchDoseLogsToSlots(slotTimesMs, medLogs)
-                        scheduledTimes.mapIndexed { index, timeStr ->
-                            MedicationWithStatus(
-                                medication = med,
-                                log = matchedLogs[index],
-                                timeSlotIndex = index,
-                                scheduledTime = timeStr,
-                            )
-                        }
+                    slots.mapIndexed { index, slot ->
+                        MedicationWithStatus(
+                            medication = slot.medication,
+                            log = matched[index],
+                            timeSlotIndex = slot.timeSlotIndex,
+                            scheduledTime = slot.timeLabel,
+                            scheduledAtMs = slot.scheduledAt.toEpochMilli(),
+                        )
                     }
+                } + meds.filter { it.isPRN && !it.isArchived }.map { med ->
+                    MedicationWithStatus(medication = med, log = logsByMedication[med.id]?.lastOrNull())
                 }
                 HomeObservation(
                     state = HomeUiState(
+                        today = dated.today,
                         items = items,
                         isLoading = false,
                         interactions = interactions,
                         autoCollapseCompletedGroups = prefs.autoCollapseCompletedGroups,
                         homeHeroStyle = prefs.homeHeroStyle,
-                        currentMinuteOfDay = clock.instant().atZone(dated.zone).toLocalTime().toSecondOfDay() / 60,
-                        exportUri = PlanExportCodec.encode(items.map { it.medication }, dated.zone),
+                        currentMinuteOfDay = now.atZone(dated.zone).toLocalTime().toSecondOfDay() / 60,
+                        exportUri = PlanExportCodec.encode(meds.filterNot { it.isArchived }, dated.zone),
                     ),
                     showProgressNotification = prefs.persistentReminder,
                 )
+            }.flowOn(computationDispatcher).catch { e ->
+                _uiState.update { it.copy(isLoading = false, errorMessage = e.message ?: "load_failed") }
             }.collect { observation ->
                 val state = observation.state
                 // 保留用户的分组偏好，不被新状态覆盖
@@ -290,6 +315,7 @@ class HomeViewModel @Inject constructor(
                     currentStreak = previous.currentStreak,
                     importPreview = previous.importPreview,
                     importError = previous.importError,
+                    savingDoses = previous.savingDoses,
                 )
                 // 实时更新今日进度通知（去重：仅在 taken/total 真正变化时更新）
                 val hero = state.heroPresentation
@@ -316,54 +342,50 @@ class HomeViewModel @Inject constructor(
     }
 
     fun toggleMedicationStatus(item: MedicationWithStatus) {
-        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            when {
-                item.isTaken -> item.log?.let {
-                    toggleDoseUseCase.undoTaken(item.medication, it, item.timeSlotIndex)
-                }
-                item.isPartial -> item.log?.let {
-                    toggleDoseUseCase.undoPartial(item.medication, it, item.timeSlotIndex)
-                }
-                else -> toggleDoseUseCase.markTaken(item.medication, item.log, item.timeSlotIndex)
+        val target = if (item.isHandled) null else LogStatus.TAKEN
+        saveDose(item, target)
+    }
+
+    fun skipMedication(item: MedicationWithStatus) = saveDose(item, LogStatus.SKIPPED)
+
+    fun markPartialDose(item: MedicationWithStatus, actualQty: Double) = saveDose(item, LogStatus.PARTIAL, actualQty)
+
+    fun undoDose(doseKey: MedicationDoseKey) {
+        _uiState.value.items.find { it.doseKey == doseKey }?.let { saveDose(it, null) }
+    }
+
+    private fun saveDose(
+        item: MedicationWithStatus,
+        status: LogStatus?,
+        quantity: Double = item.medication.doseQuantity,
+    ) {
+        val key = item.doseKey
+        if (!busyDoses.add(key)) return
+        _uiState.update { it.copy(savingDoses = busyDoses.toSet(), errorMessage = null) }
+        viewModelScope.launch {
+            try {
+                val scheduled = item.scheduledAtMs ?: item.log?.scheduledTimeMs ?: clock.millis()
+                val change = toggleDoseUseCase.setStatus(item.medication, scheduled, status, quantity, item.log)
+                if (change.before != change.after) effectChannel.send(HomeUiEffect.DoseSaved(change))
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                effectChannel.send(HomeUiEffect.Failed(error.localizedMessage))
+            } finally {
+                busyDoses.remove(key)
+                _uiState.update { it.copy(savingDoses = busyDoses.toSet()) }
             }
         }
     }
 
-    fun skipMedication(item: MedicationWithStatus) {
-        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            toggleDoseUseCase.markSkipped(item.medication, item.log, item.timeSlotIndex)
-        }
-    }
-
-    /** 标记为部分服用：将实际服用剂量写入日志，并按 actualQty 扣减库存 */
-    fun markPartialDose(item: MedicationWithStatus, actualQty: Double) {
-        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            toggleDoseUseCase.markPartial(item.medication, item.log, actualQty, item.timeSlotIndex)
-        }
-    }
-
-    /** 撤销指定剂量槽的操作，根据当前 state 内的最新记录进行回退。 */
-    fun undoDose(doseKey: MedicationDoseKey) {
-        safeLaunch(onError = { e -> _uiState.update { it.copy(errorMessage = e.message) } }) {
-            val currentItem = _uiState.value.items.find { it.doseKey == doseKey }
-                ?: return@safeLaunch
-            val log = currentItem.log ?: return@safeLaunch
-            when {
-                currentItem.isTaken -> toggleDoseUseCase.undoTaken(
-                    currentItem.medication,
-                    log,
-                    currentItem.timeSlotIndex,
-                )
-                currentItem.isSkipped -> toggleDoseUseCase.undoSkipped(
-                    currentItem.medication,
-                    log,
-                    currentItem.timeSlotIndex,
-                )
-                currentItem.isPartial -> toggleDoseUseCase.undoPartial(
-                    currentItem.medication,
-                    log,
-                    currentItem.timeSlotIndex,
-                )
+    private fun restoreDose(change: DoseChange) {
+        viewModelScope.launch {
+            try {
+                toggleDoseUseCase.restore(change)
+            } catch (cancelled: kotlinx.coroutines.CancellationException) {
+                throw cancelled
+            } catch (error: Exception) {
+                effectChannel.send(HomeUiEffect.Failed(error.localizedMessage))
             }
         }
     }
@@ -431,33 +453,22 @@ class HomeViewModel @Inject constructor(
     }
 
     /** 计算连续服药天数，启动时跑一次 */
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun computeStreak() {
         viewModelScope.launch {
-            val preferences = prefsRepository.settingsFlow.first()
-            val zone = preferences.reminderZone(clock.zone)
-            val zonedClock = clock.withZone(zone)
-            val today = LocalDate.now(zonedClock)
-            val now = clock.millis()
-            // 取近90天日志，足够覆盖合理 streak
-            val startMs = today.minusDays(89).atStartOfDay(zone).toInstant().toEpochMilli()
-            logRepo.getLogsForDateRange(startMs, now)
-                .take(1)
-                .catch { e -> Log.e("HomeVM", "Failed to compute streak data", e) }
-                .collect { logs ->
-                    // 按日期分组，只关心有 TAKEN 记录的日期
-                    val daysWithTaken = logs
-                        .filter { it.status == LogStatus.TAKEN }
-                        .map {
-                            Instant.ofEpochMilli(it.scheduledTimeMs)
-                                .atZone(zone).toLocalDate()
+            combine(prefsRepository.settingsFlow, currentTime) { preferences, now ->
+                val zone = preferences.reminderZone(clock.zone)
+                now.atZone(zone).toLocalDate() to zone
+            }.distinctUntilChanged()
+                .flatMapLatest { (today, zone) ->
+                    logRepo.getLogsForDateRange(0L, today.plusDays(1).atStartOfDay(zone).toInstant().toEpochMilli() - 1)
+                        .map { logs ->
+                            val dates = logs.filter { it.status == LogStatus.TAKEN || it.status == LogStatus.PARTIAL }
+                                .map { Instant.ofEpochMilli(it.scheduledTimeMs).atZone(zone).toLocalDate() }.toSet()
+                            StreakCalculator.currentStreak(dates, today)
                         }
-                        .toSet()
-
-                    val current = StreakCalculator.currentStreak(daysWithTaken, today)
-                    _uiState.value = _uiState.value.copy(
-                        currentStreak = current,
-                    )
-                }
+                }.flowOn(computationDispatcher).catch { e -> Log.e("HomeVM", "Failed to compute streak data", e) }
+                .collect { streak -> _uiState.update { it.copy(currentStreak = streak) } }
         }
     }
 

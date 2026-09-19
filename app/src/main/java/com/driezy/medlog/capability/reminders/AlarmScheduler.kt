@@ -74,14 +74,16 @@ class AlarmScheduler @Inject constructor(
      * PRN（按需服用）药品直接跳过。
      *
      * 间隔给药（[Medication.intervalHours] > 0）：
-     *   triggerMs = [lastTakenMs] ?: now + intervalHours * 3 600 000
+     *   以最后实际服用时间或计划开始时间为锚点，跳过已经处理的剂量。
      */
-    fun scheduleAllReminders(medication: Medication, lastTakenMs: Long? = null) {
+    fun scheduleAllReminders(medication: Medication, lastTakenMs: Long? = null, handled: Set<Instant> = emptySet()) {
         reminderPlanner.nextOccurrences(
             schedule = medication.toDomainSchedule(),
             endAt = medication.endDate?.let(Instant::ofEpochMilli),
             zoneId = reminderZoneId,
             lastTakenAt = lastTakenMs?.let(Instant::ofEpochMilli),
+            startAt = Instant.ofEpochMilli(medication.startDate),
+            handled = handled,
         ).forEach { occurrence ->
             val triggerMs = occurrence.scheduledAt.toEpochMilli()
             scheduleAlarmSlot(medication, occurrence.slotIndex, triggerMs)
@@ -130,6 +132,8 @@ class AlarmScheduler @Inject constructor(
             after = Instant.ofEpochMilli(afterMs),
             endAt = medication.endDate?.let(Instant::ofEpochMilli),
             zoneId = reminderZoneId,
+            startAt = Instant.ofEpochMilli(medication.startDate),
+            lastTakenAt = actualTakenTimeMs?.let(Instant::ofEpochMilli),
         )?.scheduledAt?.toEpochMilli() ?: return
         scheduleAlarmSlot(medication, timeIndex, triggerMs)
         scheduleEarlyReminderIfNeeded(medication, timeIndex, triggerMs)

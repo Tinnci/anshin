@@ -18,6 +18,7 @@ import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Before
 import org.junit.Test
+import org.mockito.kotlin.doReturn
 import java.time.Clock
 import java.time.LocalDate
 import java.time.ZoneId
@@ -78,8 +79,19 @@ class HistoryViewModelTest {
         val clock = Clock.systemDefaultZone()
         return HistoryViewModel(
             logRepo,
-            medRepo,
-            FuturePlanCalculator(clock),
+            com.driezy.medlog.feature.medications.application.ObserveMedicationAdherence(
+                medRepo,
+                logRepo,
+                org.mockito.kotlin.mock<com.driezy.medlog.data.repository.UserPreferencesRepository> {
+                    on { settingsFlow } doReturn
+                        kotlinx.coroutines.flow.flowOf(com.driezy.medlog.data.repository.SettingsPreferences())
+                },
+                com.driezy.medlog.feature.medications.application.MedicationAdherenceCalculator(
+                    FuturePlanCalculator(clock),
+                ),
+                clock,
+                testDispatcher,
+            ),
             clock,
         )
     }

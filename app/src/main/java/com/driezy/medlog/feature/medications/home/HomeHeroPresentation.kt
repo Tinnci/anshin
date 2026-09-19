@@ -1,12 +1,15 @@
 package com.driezy.medlog.feature.medications.home
 
 /** Stable identity for one scheduled dose, including multi-slot medications. */
-data class MedicationDoseKey(val medicationId: Long, val timeSlotIndex: Int)
+data class MedicationDoseKey(val medicationId: Long, val timeSlotIndex: Int, val scheduledAtMs: Long? = null) {
+    val listKey: String get() = "$medicationId:$timeSlotIndex:$scheduledAtMs"
+}
 
 val MedicationWithStatus.doseKey: MedicationDoseKey
     get() = MedicationDoseKey(
         medicationId = medication.id,
         timeSlotIndex = timeSlotIndex,
+        scheduledAtMs = scheduledAtMs,
     )
 
 enum class HomeHeroStatus {

@@ -11,6 +11,9 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.MedicationAdherenceCard
+import com.driezy.medlog.ui.components.MedicationMessageCard
+import com.driezy.medlog.ui.components.RefreshWhileVisible
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
 import com.driezy.medlog.ui.components.TopBarAction
@@ -22,6 +25,7 @@ import java.util.*
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun HistoryScreen(onOpenSettings: () -> Unit, viewModel: HistoryViewModel = hiltViewModel()) {
+    RefreshWhileVisible { viewModel.onAction(HistoryUiAction.RefreshTime) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     HistoryContent(uiState, onOpenSettings, viewModel::onAction)
 }
@@ -72,11 +76,24 @@ private fun HistoryContent(uiState: HistoryUiState, onOpenSettings: () -> Unit, 
             contentPadding = MedLogSpacing.ScreenContentWithFab,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            // 近30天坚持率概览
-            item {
-                AdherenceOverviewCard(
-                    adherence = uiState.overallAdherence,
-                    modifier = Modifier.padding(vertical = 4.dp),
+            if (uiState.error) {
+                item {
+                    MedicationMessageCard(
+                        stringResource(
+                            R.string.dose_load_failed,
+                        ),
+                        isError = true,
+                        onRetry = {
+                            onAction(HistoryUiAction.RefreshTime)
+                        },
+                    )
+                }
+            }
+            item(key = "adherence", contentType = "summary") {
+                MedicationAdherenceCard(
+                    uiState.taken30d,
+                    uiState.partial30d,
+                    uiState.total30d,
                 )
             }
 
@@ -113,6 +130,7 @@ private fun HistoryContent(uiState: HistoryUiState, onOpenSettings: () -> Unit, 
             if (selected != null) {
                 item(key = "detail_$selected") {
                     DayDetailSection(
+                        zone = uiState.zone,
                         date = selected,
                         day = selectedDay,
                         onEditTakenTime = { log, time ->

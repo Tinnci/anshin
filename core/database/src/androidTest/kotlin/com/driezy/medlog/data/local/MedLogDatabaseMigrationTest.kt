@@ -45,6 +45,7 @@ class MedLogDatabaseMigrationTest {
             MedLogDatabase.MIGRATION_14_15,
             MedLogDatabase.MIGRATION_15_16,
             MedLogDatabase.MIGRATION_16_17,
+            MedLogDatabase.MIGRATION_17_18,
         ).use { database ->
             database.query("SELECT name, intervalHours, refillReminderDays FROM medications WHERE id = 1").use {
                 check(it.moveToFirst())
@@ -57,7 +58,7 @@ class MedLogDatabaseMigrationTest {
             ).use {
                 check(it.moveToFirst())
                 assertEquals("TAKEN", it.getString(0))
-                assertEquals(true, it.isNull(1))
+                assertEquals(1.0, it.getDouble(1), 0.0)
                 assertEquals("ORIGINAL", it.getString(2))
             }
         }
@@ -90,6 +91,7 @@ class MedLogDatabaseMigrationTest {
             MedLogDatabase.MIGRATION_14_15,
             MedLogDatabase.MIGRATION_15_16,
             MedLogDatabase.MIGRATION_16_17,
+            MedLogDatabase.MIGRATION_17_18,
         ).use { database ->
             database.query(
                 "SELECT id, type, value, secondaryValue, timestamp, notes FROM health_records WHERE id = 7",
@@ -128,6 +130,7 @@ class MedLogDatabaseMigrationTest {
             true,
             MedLogDatabase.MIGRATION_15_16,
             MedLogDatabase.MIGRATION_16_17,
+            MedLogDatabase.MIGRATION_17_18,
         ).use { database ->
             database.query(
                 "SELECT COUNT(*), MAX(id) FROM medication_logs WHERE medicationId = 42 AND scheduledTimeMs = 1717000000000",

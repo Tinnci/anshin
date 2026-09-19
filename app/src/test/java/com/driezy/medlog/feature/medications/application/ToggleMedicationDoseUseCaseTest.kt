@@ -537,4 +537,50 @@ class ToggleMedicationDoseUseCaseTest {
         .atZone(clock.zone)
         .toInstant()
         .toEpochMilli()
+
+    @Test
+    fun `undo restores recorded dose after plan quantity changes`() = runTest {
+        val id = medicationRepo.addMedication(med(stock = 10.0).copy(doseQuantity = 1.0))
+        val original = medicationRepo.getMedicationById(id)!!
+        val change = useCase.setStatus(original, clock.millis(), LogStatus.TAKEN)
+        assertEquals(1.0, change.after!!.actualDoseQuantity!!, 0.0)
+        medicationRepo.updateMedication(medicationRepo.getMedicationById(id)!!.copy(doseQuantity = 2.0))
+        useCase.restore(change)
+        assertEquals(10.0, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+        assertTrue(logRepo.currentLogs().isEmpty())
+    }
+
+    @Test
+    fun `undo at exhausted stock never creates inventory`() = runTest {
+        val id = medicationRepo.addMedication(med(stock = 0.5))
+        val change = useCase.setStatus(medicationRepo.getMedicationById(id)!!, clock.millis(), LogStatus.TAKEN)
+        assertEquals(0.5, change.after!!.stockDeducted!!, 0.0)
+        assertEquals(0.0, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+        useCase.restore(change)
+        assertEquals(0.5, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+    }
+
+    @Test
+    fun `undoing a removal restores the original record and stock debit`() = runTest {
+        val id = medicationRepo.addMedication(med(stock = 10.0))
+        val med = medicationRepo.getMedicationById(id)!!
+        val saved = useCase.setStatus(med, clock.millis(), LogStatus.PARTIAL, quantity = 0.75)
+        val removal = useCase.setStatus(med, clock.millis(), null, existingLog = saved.after)
+        assertEquals(10.0, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+        useCase.restore(removal)
+        assertEquals(9.25, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+        assertEquals(LogStatus.PARTIAL, logRepo.currentLogs().single().status)
+        assertEquals(0.75, logRepo.currentLogs().single().actualDoseQuantity!!, 0.0)
+    }
+
+    @Test
+    fun `stale undo cannot overwrite a newer dose decision`() = runTest {
+        val id = medicationRepo.addMedication(med(stock = 10.0))
+        val med = medicationRepo.getMedicationById(id)!!
+        val saved = useCase.setStatus(med, clock.millis(), LogStatus.TAKEN)
+        useCase.setStatus(med, clock.millis(), LogStatus.SKIPPED)
+        assertTrue(runCatching { useCase.restore(saved) }.isFailure)
+        assertEquals(LogStatus.SKIPPED, logRepo.currentLogs().single().status)
+        assertEquals(10.0, medicationRepo.getMedicationById(id)!!.stock!!, 0.0)
+    }
 }

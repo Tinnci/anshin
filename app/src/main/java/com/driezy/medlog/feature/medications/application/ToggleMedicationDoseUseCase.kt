@@ -18,6 +18,13 @@ import java.time.LocalDate
 import javax.inject.Inject
 import javax.inject.Singleton
 
+data class DoseChange(
+    val medicationId: Long,
+    val scheduledTimeMs: Long,
+    val before: MedicationLog?,
+    val after: MedicationLog?,
+)
+
 /**
  * 单一职责用例：管理服药操作产生的所有副作用。
  *
@@ -36,6 +43,57 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     private val reconcileReminders: ReconcileRemindersUseCase,
     private val clock: Clock,
 ) {
+    /** Explicit UI command; its receipt permits undoing both a record and a removal. */
+    suspend fun setStatus(
+        med: Medication,
+        scheduledTimeMs: Long,
+        status: LogStatus?,
+        quantity: Double = med.doseQuantity,
+        existingLog: MedicationLog? = null,
+    ): DoseChange {
+        val mutation = if (status == null) {
+            val current = existingLog ?: logRepo.getLogForScheduledTime(med.id, scheduledTimeMs)
+            if (current == null) DoseMutationResult(false, med) else undoOccurrence(med, current, current.status)
+        } else {
+            require(status in setOf(LogStatus.TAKEN, LogStatus.SKIPPED, LogStatus.PARTIAL))
+            require(quantity.isFinite() && quantity > 0.0)
+            recordOccurrence(
+                medication = med,
+                existingLog = existingLog,
+                occurrenceId = DoseOccurrenceId(MedicationId(med.id), Instant.ofEpochMilli(scheduledTimeMs)),
+                status = status,
+                actualTakenTimeMs = clock.millis().takeIf { status != LogStatus.SKIPPED },
+                consumedDose = if (status == LogStatus.SKIPPED) 0.0 else quantity,
+            )
+        }
+        completeDoseProjection(med.id)
+        if (mutation.changed &&
+            status != null &&
+            status != LogStatus.SKIPPED
+        ) {
+            checkAndNotifyLowStock(mutation.medication)
+        }
+        return DoseChange(med.id, scheduledTimeMs, mutation.before, mutation.after)
+    }
+
+    suspend fun restore(change: DoseChange) {
+        transactionRunner.withTransaction {
+            val current = logRepo.getLogForScheduledTime(change.medicationId, change.scheduledTimeMs)
+            check(current == change.after) { "This record has changed; refresh before editing it again." }
+            val medication = medicationRepo.getMedicationById(change.medicationId) ?: return@withTransaction
+            val currentDebit = current?.stockDeducted ?: current.consumedDose(medication.doseQuantity)
+            val previousDebit = change.before?.stockDeducted ?: change.before.consumedDose(medication.doseQuantity)
+            val available = medication.stock?.plus(currentDebit)
+            val restoredStock = available?.let { (it - previousDebit).coerceAtLeast(0.0) }
+            logRepo.deleteLogForScheduledTime(change.medicationId, change.scheduledTimeMs)
+            change.before?.let { before ->
+                logRepo.insertLog(before.copy(stockDeducted = available?.minus(requireNotNull(restoredStock)) ?: 0.0))
+            }
+            if (restoredStock != null) medicationRepo.updateStock(medication.id, restoredStock)
+        }
+        completeDoseProjection(change.medicationId)
+    }
+
     /**
      * 标记为已服 — 写日志、扣库存、取消闹钟/通知、刷新 Widget。
      *
@@ -68,11 +126,11 @@ class ToggleMedicationDoseUseCase @Inject constructor(
      * 从 Widget 直接打卡 — 按 ID 获取药品后调用 [markTaken]。
      * 适用于无法注入 Medication 实体的 Glance ActionCallback。
      */
-    suspend fun markTakenById(medId: Long) {
+    suspend fun markTakenById(medId: Long, scheduledTimeMs: Long? = null) {
         val med = medicationRepo.getMedicationById(medId) ?: return
-        val scheduledTimeMs = scheduledMsForSlot(med, 0)
-        val existingLog = logRepo.getLogForScheduledTime(medId, scheduledTimeMs)
-        markTaken(med, existingLog, scheduledTimeMs = scheduledTimeMs)
+        val slotMs = scheduledTimeMs ?: scheduledMsForSlot(med, 0)
+        val existingLog = logRepo.getLogForScheduledTime(medId, slotMs)
+        markTaken(med, existingLog, scheduledTimeMs = slotMs)
     }
 
     /** 标记为跳过 — 写日志、取消闹钟/通知、刷新 Widget */
@@ -149,16 +207,24 @@ class ToggleMedicationDoseUseCase @Inject constructor(
         actualTakenTimeMs: Long?,
         consumedDose: Double,
     ): DoseMutationResult {
+        require(consumedDose.isFinite() && consumedDose >= 0.0)
         val medicationId = occurrenceId.medicationId.value
         val scheduledTimeMs = occurrenceId.scheduledAt.toEpochMilli()
         var result = DoseMutationResult(changed = false, medication = medication)
         transactionRunner.withTransaction {
             val exactLog = logRepo.getLogForScheduledTime(medicationId, scheduledTimeMs)
-            val previousLog = exactLog ?: existingLog
+            val previousLog =
+                exactLog ?: existingLog?.let { logRepo.getLogForScheduledTime(medicationId, it.scheduledTimeMs) }
             val normalizedDose = consumedDose.coerceIn(0.0, medication.doseQuantity)
             if (previousLog.matches(status, normalizedDose)) {
                 val latestMedication = medicationRepo.getMedicationById(medicationId) ?: medication
-                result = DoseMutationResult(changed = false, medication = latestMedication)
+                result =
+                    DoseMutationResult(
+                        changed = false,
+                        medication = latestMedication,
+                        before = previousLog,
+                        after = previousLog,
+                    )
                 return@withTransaction
             }
 
@@ -167,26 +233,35 @@ class ToggleMedicationDoseUseCase @Inject constructor(
                     ?.takeIf { it.scheduledTimeMs != scheduledTimeMs }
                     ?.let { logRepo.deleteLog(it) }
             }
-            logRepo.deleteLogForScheduledTime(medicationId, scheduledTimeMs)
-            logRepo.insertLog(
-                MedicationLog(
-                    medicationId = medicationId,
-                    scheduledTimeMs = scheduledTimeMs,
-                    actualTakenTimeMs = actualTakenTimeMs,
-                    status = status,
-                    actualDoseQuantity = normalizedDose.takeIf { status == LogStatus.PARTIAL },
-                ),
-            )
-
             val latestMedication = medicationRepo.getMedicationById(medicationId) ?: medication
-            val stockDelta = normalizedDose - previousLog.consumedDose(medication.doseQuantity)
-            val updatedMedication = latestMedication.stock?.let { stock ->
-                latestMedication.copy(stock = (stock - stockDelta).coerceAtLeast(0.0))
-            } ?: latestMedication
+            val previousDebit = previousLog?.stockDeducted ?: previousLog.consumedDose(medication.doseQuantity)
+            val availableStock = latestMedication.stock?.plus(previousDebit)
+            val nextStock = availableStock?.let { (it - normalizedDose).coerceAtLeast(0.0) }
+            logRepo.deleteLogForScheduledTime(medicationId, scheduledTimeMs)
+            val newLog = MedicationLog(
+                medicationId = medicationId,
+                scheduledTimeMs = scheduledTimeMs,
+                actualTakenTimeMs = actualTakenTimeMs,
+                createdAtMs = clock.millis(),
+                status = status,
+                actualDoseQuantity = normalizedDose.takeIf {
+                    status == LogStatus.PARTIAL ||
+                        status == LogStatus.TAKEN
+                },
+                stockDeducted = availableStock?.let { it - requireNotNull(nextStock) } ?: 0.0,
+            )
+            val newLogId = logRepo.insertLog(newLog)
+
+            val updatedMedication = latestMedication.copy(stock = nextStock)
             if (updatedMedication.stock != latestMedication.stock) {
                 medicationRepo.updateStock(updatedMedication.id, updatedMedication.stock!!)
             }
-            result = DoseMutationResult(changed = true, medication = updatedMedication)
+            result = DoseMutationResult(
+                changed = true,
+                medication = updatedMedication,
+                before = previousLog,
+                after = newLog.copy(id = newLogId),
+            )
         }
         return result
     }
@@ -207,18 +282,26 @@ class ToggleMedicationDoseUseCase @Inject constructor(
                 occurrenceId.scheduledAt.toEpochMilli(),
             )
             val latestMedication = medicationRepo.getMedicationById(occurrenceId.medicationId.value) ?: medication
-            if (persistedLog?.status != expectedStatus) {
-                result = DoseMutationResult(changed = false, medication = latestMedication)
+            if (persistedLog?.status != expectedStatus || persistedLog != log) {
+                result =
+                    DoseMutationResult(
+                        changed = false,
+                        medication = latestMedication,
+                        before = persistedLog,
+                        after = persistedLog,
+                    )
                 return@withTransaction
             }
             logRepo.deleteLog(persistedLog)
             val restoredMedication = latestMedication.stock?.let { stock ->
-                latestMedication.copy(stock = stock + persistedLog.consumedDose(medication.doseQuantity))
+                latestMedication.copy(
+                    stock = stock + (persistedLog.stockDeducted ?: persistedLog.consumedDose(medication.doseQuantity)),
+                )
             } ?: latestMedication
             if (restoredMedication.stock != latestMedication.stock) {
                 medicationRepo.updateStock(restoredMedication.id, restoredMedication.stock!!)
             }
-            result = DoseMutationResult(changed = true, medication = restoredMedication)
+            result = DoseMutationResult(changed = true, medication = restoredMedication, before = persistedLog)
         }
         return result
     }
@@ -262,10 +345,15 @@ class ToggleMedicationDoseUseCase @Inject constructor(
     }
 }
 
-private data class DoseMutationResult(val changed: Boolean, val medication: Medication)
+private data class DoseMutationResult(
+    val changed: Boolean,
+    val medication: Medication,
+    val before: MedicationLog? = null,
+    val after: MedicationLog? = null,
+)
 
 private fun MedicationLog?.consumedDose(plannedDose: Double): Double = when (this?.status) {
-    LogStatus.TAKEN -> plannedDose
+    LogStatus.TAKEN -> actualDoseQuantity ?: plannedDose
     LogStatus.PARTIAL -> actualDoseQuantity ?: 0.0
     else -> 0.0
 }

@@ -74,4 +74,6 @@ data class Medication(
      * 而非当天固定时钟时间。
      */
     val intervalHours: Int = 0,
+    /** Earlier schedules are retained separately when a plan changes. */
+    val planEffectiveFromMs: Long = 0L,
 )

@@ -23,11 +23,12 @@ class MarkTakenAction : ActionCallback {
             context.applicationContext,
             WidgetEntryPoint::class.java,
         )
-        entryPoint.toggleMedicationDoseUseCase().markTakenById(medId)
+        entryPoint.toggleMedicationDoseUseCase().markTakenById(medId, parameters[scheduledAtKey])
         // Widget 刷新已由 ToggleMedicationDoseUseCase → WidgetRefresher.refreshAll() 统一处理，无需在此重复调用
     }
 
     companion object {
+        val scheduledAtKey = ActionParameters.Key<Long>("scheduled_at")
         val medIdKey: ActionParameters.Key<Long> =
             ActionParameters.Key("med_id")
     }

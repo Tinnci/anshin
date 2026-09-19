@@ -71,6 +71,8 @@ class WelcomeViewModel @Inject constructor(
                 val reminders = reminderPreferences.reminders.first()
                 val features = featurePreferences.features.first()
                 val appearance = appearancePreferences.appearance.first()
+                // A user action may have claimed the draft while the preference flows were loading.
+                if (savedStateHandle.get<Boolean>(KEY_DRAFT_INITIALIZED) == true) return@launch
                 updateState(
                     _uiState.value.copy(
                         routineSchedule = reminders.routineSchedule,
@@ -88,41 +90,36 @@ class WelcomeViewModel @Inject constructor(
     }
 
     fun onAction(action: WelcomeUiAction) {
-        when (action) {
-            is WelcomeUiAction.PageChanged -> updateState(
-                _uiState.value.copy(pageIndex = action.index.coerceAtLeast(0)),
-            )
-            is WelcomeUiAction.TimeChanged -> updateState(
-                _uiState.value.copy(
-                    routineSchedule = _uiState.value.routineSchedule.withTime(action.slot, action.time),
-                    errorMessage = null,
-                ),
-            )
-            is WelcomeUiAction.SymptomDiaryChanged -> updateState(
-                _uiState.value.copy(enableSymptomDiary = action.enabled),
-            )
-            is WelcomeUiAction.DrugInteractionChanged -> updateState(
-                _uiState.value.copy(enableDrugInteractionCheck = action.enabled),
-            )
-            is WelcomeUiAction.DrugDatabaseChanged -> updateState(
-                _uiState.value.copy(enableDrugDatabase = action.enabled),
-            )
-            is WelcomeUiAction.HealthModuleChanged -> updateState(
-                _uiState.value.copy(enableHealthModule = action.enabled),
-            )
-            is WelcomeUiAction.TimePeriodModeChanged -> updateState(
-                _uiState.value.copy(enableTimePeriodMode = action.enabled),
-            )
-            is WelcomeUiAction.ThemeModeChanged -> updateState(_uiState.value.copy(themeMode = action.mode))
-            WelcomeUiAction.Submit -> submit()
+        // Page notifications also fire on initial composition and do not edit the draft.
+        // Persist ownership on edits or submission so recreation keeps the current draft too.
+        if (action !is WelcomeUiAction.PageChanged) {
+            savedStateHandle[KEY_DRAFT_INITIALIZED] = true
         }
+        val state = _uiState.value
+        val nextState = when (action) {
+            is WelcomeUiAction.PageChanged -> state.copy(pageIndex = action.index.coerceAtLeast(0))
+            is WelcomeUiAction.TimeChanged -> state.copy(
+                routineSchedule = state.routineSchedule.withTime(action.slot, action.time),
+                errorMessage = null,
+            )
+            is WelcomeUiAction.SymptomDiaryChanged -> state.copy(enableSymptomDiary = action.enabled)
+            is WelcomeUiAction.DrugInteractionChanged -> state.copy(enableDrugInteractionCheck = action.enabled)
+            is WelcomeUiAction.DrugDatabaseChanged -> state.copy(enableDrugDatabase = action.enabled)
+            is WelcomeUiAction.HealthModuleChanged -> state.copy(enableHealthModule = action.enabled)
+            is WelcomeUiAction.TimePeriodModeChanged -> state.copy(enableTimePeriodMode = action.enabled)
+            is WelcomeUiAction.ThemeModeChanged -> state.copy(themeMode = action.mode)
+            WelcomeUiAction.Submit -> return submit()
+        }
+        updateState(nextState)
     }
 
     private fun submit() {
-        if (_uiState.value.isSaving) return
-        updateState(_uiState.value.copy(isSaving = true, errorMessage = null))
+        val state = _uiState.value
+        if (state.isSaving) return
+        val draft = state.toDraft()
+        updateState(state.copy(isSaving = true, errorMessage = null))
         viewModelScope.launch {
-            runCatching { completeOnboarding(_uiState.value.toDraft()) }
+            runCatching { completeOnboarding(draft) }
                 .onSuccess {
                     updateState(_uiState.value.copy(isSaving = false))
                     effectChannel.send(WelcomeUiEffect.Finished)

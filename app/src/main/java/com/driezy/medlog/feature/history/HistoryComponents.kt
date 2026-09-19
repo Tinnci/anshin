@@ -6,7 +6,6 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -35,62 +34,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
 
-@Composable
-internal fun AdherenceOverviewCard(adherence: Float, modifier: Modifier = Modifier) {
-    val colorScheme = MaterialTheme.colorScheme
-    val motionScheme = MaterialTheme.motionScheme
-    val adherenceColor by animateColorAsState(
-        targetValue = when {
-            adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> colorScheme.secondary
-            else -> colorScheme.error
-        },
-        animationSpec = motionScheme.defaultEffectsSpec(),
-        label = "adherenceColor",
-    )
-    Card(
-        modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Row(
-            modifier = Modifier.padding(MedLogSpacing.XMedium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
-        ) {
-            // 圆形进度
-            Box(contentAlignment = Alignment.Center) {
-                CircularProgressIndicator(
-                    progress = { adherence },
-                    modifier = Modifier.size(64.dp),
-                    color = adherenceColor,
-                    trackColor = adherenceColor.copy(alpha = 0.15f),
-                    strokeWidth = 6.dp,
-                )
-                Text(
-                    "${(adherence * 100).toInt()}%",
-                    style = MaterialTheme.emphasizedTypography.titleLarge,
-                    color = adherenceColor,
-                )
-            }
-            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                Text(stringResource(R.string.history_adherence_title), style = MaterialTheme.typography.titleSmall)
-                Text(
-                    when {
-                        adherence >= 0.9f -> stringResource(R.string.history_adherence_excellent)
-                        adherence >= 0.75f -> stringResource(R.string.history_adherence_good)
-                        adherence >= 0.5f -> stringResource(R.string.history_adherence_fair)
-                        else -> stringResource(R.string.history_adherence_poor)
-                    },
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
-        }
-    }
-}
-
 // ─── 月历卡 ──────────────────────────────────────────────────
 
 @Composable
@@ -105,7 +48,7 @@ internal fun MonthCalendarCard(
 ) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -125,7 +68,7 @@ internal fun MonthCalendarCard(
                 )
                 IconButton(
                     onClick = { onNavigate(1) },
-                    enabled = displayedMonth < YearMonth.now(),
+                    enabled = displayedMonth < YearMonth.from(today),
                 ) {
                     MedLogIcon(MedLogIcons.ArrowForward, stringResource(R.string.history_next_month_cd))
                 }
@@ -314,11 +257,12 @@ internal fun DayDetailSection(
     day: AdherenceDay?,
     onEditTakenTime: (MedicationLog, Long) -> Unit,
     modifier: Modifier = Modifier,
+    zone: ZoneId = ZoneId.systemDefault(),
 ) {
     val colorScheme = MaterialTheme.colorScheme
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -363,6 +307,7 @@ internal fun DayDetailSection(
                 HorizontalDivider(color = colorScheme.outlineVariant)
                 day.logs.forEach { (log, name) ->
                     DayLogRow(
+                        zone = zone,
                         log = log,
                         medicationName = if (name == HistoryViewModel.UNKNOWN_MEDICATION_NAME) {
                             stringResource(R.string.unknown_medication)
@@ -380,6 +325,7 @@ internal fun DayDetailSection(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun DayLogRow(
+    zone: ZoneId = ZoneId.systemDefault(),
     log: MedicationLog,
     medicationName: String,
     onEditTakenTime: (MedicationLog, Long) -> Unit = { _, _ -> },
@@ -396,7 +342,7 @@ internal fun DayLogRow(
     // 时间戳编辑对话框状态
     var showTimePicker by remember { mutableStateOf(false) }
     val takenZoned = remember(log.actualTakenTimeMs) {
-        Instant.ofEpochMilli(log.actualTakenTimeMs ?: log.scheduledTimeMs).atZone(ZoneId.systemDefault())
+        Instant.ofEpochMilli(log.actualTakenTimeMs ?: log.scheduledTimeMs).atZone(zone)
     }
     val timePickerState = rememberTimePickerState(
         initialHour = takenZoned.hour,
@@ -437,7 +383,7 @@ internal fun DayLogRow(
                 Text(
                     stringResource(
                         R.string.history_scheduled_time,
-                        timeFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(ZoneId.systemDefault())),
+                        timeFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(zone)),
                     ),
                     style = MaterialTheme.typography.bodySmall,
                     color = colorScheme.onSurfaceVariant,
@@ -479,7 +425,7 @@ internal fun DayLogRow(
                 LogStatus.TAKEN -> log.actualTakenTimeMs?.let {
                     stringResource(
                         R.string.history_taken_time,
-                        timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                        timeFmt.format(Instant.ofEpochMilli(it).atZone(zone)),
                     )
                 }
                     ?: takenLabel
@@ -490,7 +436,7 @@ internal fun DayLogRow(
                     val qtyStr =
                         log.actualDoseQuantity?.let { it.toBigDecimal().stripTrailingZeros().toPlainString() } ?: ""
                     val timeStr = log.actualTakenTimeMs?.let {
-                        timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
+                        timeFmt.format(Instant.ofEpochMilli(it).atZone(zone))
                     }
                     if (timeStr != null) "$partialLabel $qtyStr @ $timeStr" else "$partialLabel $qtyStr"
                 }
@@ -522,7 +468,7 @@ internal fun DayLogRow(
                         stringResource(
                             R.string.history_current_time_format,
                             log.actualTakenTimeMs?.let {
-                                timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault()))
+                                timeFmt.format(Instant.ofEpochMilli(it).atZone(zone))
                             } ?: unrecordedLabel,
                         ),
                         style = MaterialTheme.typography.bodySmall,
@@ -536,7 +482,7 @@ internal fun DayLogRow(
                 TextButton(onClick = {
                     // 将选择的 HH:mm 合并到原日期的时间戳
                     val base = Instant.ofEpochMilli(log.actualTakenTimeMs ?: log.scheduledTimeMs)
-                        .atZone(ZoneId.systemDefault())
+                        .atZone(zone)
                         .withHour(timePickerState.hour)
                         .withMinute(timePickerState.minute)
                         .withSecond(0)
@@ -558,7 +504,7 @@ internal fun DayLogRow(
 internal fun StreakCard(currentStreak: Int, longestStreak: Int, modifier: Modifier = Modifier) {
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         ),

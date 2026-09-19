@@ -13,6 +13,8 @@ import kotlinx.serialization.Serializable
 
     @Serializable data object History : Route
 
+    @Serializable data object MyMedications : Route
+
     @Serializable data object Drugs : Route
 
     @Serializable data object Diary : Route
@@ -62,10 +64,10 @@ val TOP_LEVEL_DESTINATIONS = listOf(
         com.driezy.medlog.R.string.tab_history,
     ),
     TopLevelDestination(
-        Route.Drugs,
+        Route.MyMedications,
         MedLogIcons.MedicalServices,
         MedLogIcons.MedicalServicesSelected,
-        com.driezy.medlog.R.string.tab_drugs,
+        com.driezy.medlog.R.string.my_medications,
     ),
     TopLevelDestination(
         Route.Diary,

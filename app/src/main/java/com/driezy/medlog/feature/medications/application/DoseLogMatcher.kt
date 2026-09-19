@@ -1,4 +1,4 @@
-package com.driezy.medlog.feature.medications.home
+package com.driezy.medlog.feature.medications.application
 
 import com.driezy.medlog.data.model.MedicationLog
 import kotlin.math.abs

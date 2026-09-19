@@ -17,6 +17,6 @@ class RoomModelContractTest {
         assertFalse(medication.isArchived)
         assertEquals(7L, log.medicationId)
         assertEquals("WEIGHT", record.type)
-        assertEquals(17, DatabaseSchema.VERSION)
+        assertEquals(18, DatabaseSchema.VERSION)
     }
 }

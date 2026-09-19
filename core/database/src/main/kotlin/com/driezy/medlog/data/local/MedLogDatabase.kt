@@ -10,12 +10,14 @@ import com.driezy.medlog.data.model.AiUsageEvent
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.Medication
 import com.driezy.medlog.data.model.MedicationLog
+import com.driezy.medlog.data.model.MedicationPlanRevision
 import com.driezy.medlog.data.model.SymptomLog
 
 @Database(
     entities = [
         Medication::class,
         MedicationLog::class,
+        MedicationPlanRevision::class,
         SymptomLog::class,
         HealthRecord::class,
         AiAnalysisCacheEntry::class,
@@ -34,6 +36,49 @@ abstract class MedLogDatabase : RoomDatabase() {
     abstract fun aiUsageEventDao(): AiUsageEventDao
 
     companion object {
+        val MIGRATION_17_18 = object : Migration(17, 18) {
+            override fun migrate(db: SupportSQLiteDatabase) {
+                db.execSQL("ALTER TABLE medications ADD COLUMN planEffectiveFromMs INTEGER NOT NULL DEFAULT 0")
+                db.execSQL("ALTER TABLE medication_logs ADD COLUMN stockDeducted REAL")
+                db.execSQL(
+                    """
+                    UPDATE medication_logs SET actualDoseQuantity = (
+                        SELECT doseQuantity FROM medications WHERE id = medicationId
+                    ) WHERE status = 'TAKEN' AND actualDoseQuantity IS NULL
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    """
+                    CREATE TABLE IF NOT EXISTS medication_plan_revisions (
+                        id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+                        medicationId INTEGER NOT NULL,
+                        effectiveFromMs INTEGER NOT NULL,
+                        effectiveUntilMs INTEGER NOT NULL,
+                        startDate INTEGER NOT NULL,
+                        endDate INTEGER,
+                        frequencyType TEXT NOT NULL,
+                        frequencyInterval INTEGER NOT NULL,
+                        frequencyDays TEXT NOT NULL,
+                        timePeriod TEXT NOT NULL,
+                        reminderTimes TEXT NOT NULL,
+                        reminderHour INTEGER NOT NULL,
+                        reminderMinute INTEGER NOT NULL,
+                        intervalHours INTEGER NOT NULL,
+                        isPRN INTEGER NOT NULL,
+                        isArchived INTEGER NOT NULL,
+                        doseQuantity REAL NOT NULL,
+                        doseUnit TEXT NOT NULL,
+                        FOREIGN KEY(medicationId) REFERENCES medications(id) ON UPDATE NO ACTION ON DELETE CASCADE
+                    )
+                    """.trimIndent(),
+                )
+                db.execSQL(
+                    "CREATE INDEX IF NOT EXISTS index_medication_plan_revisions_medicationId " +
+                        "ON medication_plan_revisions (medicationId)",
+                )
+            }
+        }
+
         /** v5 → v6: 添加 intervalHours 列（间隔给药小时数） */
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(db: SupportSQLiteDatabase) {

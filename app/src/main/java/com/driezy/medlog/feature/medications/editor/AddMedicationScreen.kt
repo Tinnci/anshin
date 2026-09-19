@@ -98,7 +98,7 @@ private fun AddMedicationContent(
     onAction: (AddMedicationUiAction) -> Unit,
 ) {
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
-    var wizardStep by rememberSaveable { mutableIntStateOf(0) }
+    val wizardStep = uiState.wizardStep
     val performHaptic = rememberMedLogHaptics()
     val formOptions = listOf(
         FormOption("tablet", stringResource(R.string.add_form_tablet), MedLogIcons.Medication),
@@ -145,7 +145,7 @@ private fun AddMedicationContent(
                 label = stringResource(R.string.add_save),
                 icon = MedLogIcons.Check,
                 priority = TopBarActionPriority.Primary,
-                enabled = !uiState.isSaving,
+                enabled = !uiState.isSaving && !uiState.isLoading && (medicationId != null || wizardStep == 2),
             ),
         ),
         onChromeAction = { id ->
@@ -159,11 +159,11 @@ private fun AddMedicationContent(
             AddMedicationWizardContent(
                 paddingValues = paddingValues,
                 currentStep = wizardStep,
-                onBack = { wizardStep = (wizardStep - 1).coerceAtLeast(0) },
+                onBack = { onAction(AddMedicationUiAction.PreviousStep) },
                 onNext = {
                     if (wizardStep < 2) {
                         performHaptic(MedLogHapticEffect.SEGMENT_TICK)
-                        wizardStep += 1
+                        onAction(AddMedicationUiAction.NextStep)
                     } else {
                         performHaptic(MedLogHapticEffect.CONFIRM)
                         onAction(AddMedicationUiAction.Save(medicationId))

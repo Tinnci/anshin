@@ -36,6 +36,7 @@ fun DrugsScreen(
     onAddCustomDrug: () -> Unit,
     onOpenSettings: () -> Unit,
     onDrugSelect: (Drug) -> Unit,
+    onBack: (() -> Unit)? = null,
     viewModel: DrugsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
@@ -45,6 +46,7 @@ fun DrugsScreen(
         onAddCustomDrug = onAddCustomDrug,
         onOpenSettings = onOpenSettings,
         onDrugSelect = onDrugSelect,
+        onBack = onBack,
     )
 }
 
@@ -56,11 +58,19 @@ private fun DrugsContent(
     onAddCustomDrug: () -> Unit,
     onOpenSettings: () -> Unit,
     onDrugSelect: (Drug) -> Unit,
+    onBack: (() -> Unit)?,
 ) {
     val motionScheme = MaterialTheme.motionScheme
 
     MedLogScreenScaffold(
-        title = { Text(stringResource(R.string.drugs_title)) },
+        title = { Text(stringResource(R.string.medication_catalog)) },
+        navigationIcon = {
+            if (onBack !=
+                null
+            ) {
+                IconButton(onClick = onBack) { MedLogIcon(MedLogIcons.ArrowBack, stringResource(R.string.add_back_cd)) }
+            }
+        },
         actions = listOf(
             TopBarAction(
                 id = "settings",

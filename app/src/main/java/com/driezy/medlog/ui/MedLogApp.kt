@@ -108,16 +108,28 @@ fun MedLogApp(openAddMedication: Boolean = false) {
             navigateToTopLevel = navigateToTopLevel,
             destinations = enabledDestinations,
         ) {
-            MedLogNavHost(navController = navController, startDest = startDest)
+            MedLogNavHost(
+                navController = navController,
+                startDest = startDest,
+                catalogEnabled = featureFlags.enableDrugDatabase,
+            )
         }
     } else {
-        MedLogNavHost(navController = navController, startDest = startDest)
+        MedLogNavHost(
+            navController = navController,
+            startDest = startDest,
+            catalogEnabled = featureFlags.enableDrugDatabase,
+        )
     }
 }
 
 @Composable
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
-private fun MedLogNavHost(navController: androidx.navigation.NavHostController, startDest: Route) {
+private fun MedLogNavHost(
+    navController: androidx.navigation.NavHostController,
+    startDest: Route,
+    catalogEnabled: Boolean,
+) {
     val motionScheme = MaterialTheme.motionScheme
     val navFadeIn = fadeIn(animationSpec = motionScheme.fastEffectsSpec())
     val navFadeOut = fadeOut(animationSpec = motionScheme.fastEffectsSpec())
@@ -174,11 +186,20 @@ private fun MedLogNavHost(navController: androidx.navigation.NavHostController, 
         ) {
             HistoryScreen(onOpenSettings = { navController.navigate(Route.Settings) })
         }
+        composable<Route.MyMedications>(enterTransition = { navFadeIn }, exitTransition = { navFadeOut }) {
+            com.driezy.medlog.feature.medications.list.MyMedicationsScreen(
+                onAdd = { navController.navigate(Route.AddMedication()) },
+                onOpen = { navController.navigate(Route.MedDetail(it)) },
+                onCatalog = if (catalogEnabled) ({ navController.navigate(Route.Drugs) }) else null,
+                onSettings = { navController.navigate(Route.Settings) },
+            )
+        }
         composable<Route.Drugs>(
             enterTransition = { navFadeIn },
             exitTransition = { navFadeOut },
         ) {
             DrugsScreen(
+                onBack = { navController.popBackStack() },
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
                 onOpenSettings = { navController.navigate(Route.Settings) },
                 onDrugSelect = { drug ->

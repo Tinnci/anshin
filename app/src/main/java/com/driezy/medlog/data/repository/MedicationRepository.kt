@@ -1,6 +1,7 @@
 package com.driezy.medlog.data.repository
 
 import com.driezy.medlog.data.model.Medication
+import com.driezy.medlog.data.model.MedicationPlanRevision
 import kotlinx.coroutines.flow.Flow
 
 /**
@@ -11,6 +12,7 @@ interface MedicationRepository {
     fun getActiveMedications(): Flow<List<Medication>>
     fun getArchivedMedications(): Flow<List<Medication>>
     fun getAllMedications(): Flow<List<Medication>>
+    fun observePlanRevisions(): Flow<List<MedicationPlanRevision>>
     suspend fun getMedicationById(id: Long): Medication?
     suspend fun addMedication(medication: Medication): Long
     suspend fun updateMedication(medication: Medication)

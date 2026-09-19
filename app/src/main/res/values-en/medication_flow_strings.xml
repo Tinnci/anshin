@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="my_medications">My medications</string>
+    <string name="medication_catalog">Drug catalog</string>
+    <string name="medication_active">Active</string>
+    <string name="medication_archived">Stopped</string>
+    <string name="medication_resume">Resume schedule</string>
+    <string name="medication_archived_empty">No stopped medications</string>
+    <string name="medication_active_empty">Add a medication to create your daily schedule</string>
+    <string name="medication_as_needed">As needed</string>
+    <string name="medication_stock_value">Stock: %1$s %2$s</string>
+    <string name="medication_manage_hint">View records, refill, or edit schedule</string>
+    <string name="medication_archived_hint">View records or resume schedule</string>
+    <string name="dose_record_removed">Record removed</string>
+    <string name="dose_record_saved">Record saved</string>
+    <string name="dose_record_failed">Could not complete the action. Check the current record and retry.</string>
+    <string name="dose_load_failed">Could not load records. Please retry.</string>
+    <string name="action_retry">Retry</string>
+    <string name="medication_load_failed">Could not load medication. Go back and retry.</string>
+    <string name="medication_save_failed">Could not finish saving. Please retry.</string>
+    <string name="error_dose_invalid">Enter a positive dose and its unit</string>
+    <string name="error_daily_dose_invalid">Maximum daily dose must be positive</string>
+    <string name="error_schedule_invalid">Check reminder times, interval, and selected weekdays</string>
+    <string name="error_date_order">End date must not precede start date</string>
+    <string name="error_stock_invalid">Stock and refill threshold must be nonnegative numbers</string>
+    <string name="adherence_explanation">Adherence = full doses / scheduled doses due. Partial doses are recorded separately; as-needed doses are excluded.</string>
+    <string name="adherence_no_due">No scheduled doses due yet</string>
+    <string name="adherence_due_count">Scheduled doses due</string>
+    <plurals name="medication_every_hours">
+        <item quantity="one">Every %1$d hour</item>
+        <item quantity="other">Every %1$d hours</item>
+    </plurals>
+</resources>

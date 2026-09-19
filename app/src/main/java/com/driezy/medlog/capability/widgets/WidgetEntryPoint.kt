@@ -23,5 +23,6 @@ interface WidgetEntryPoint {
     fun toggleMedicationDoseUseCase(): ToggleMedicationDoseUseCase
     fun medicationRepository(): MedicationRepository
     fun logRepository(): LogRepository
+    fun preferences(): com.driezy.medlog.data.repository.UserPreferencesRepository
     fun clock(): Clock
 }

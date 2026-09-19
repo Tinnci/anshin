@@ -3,7 +3,6 @@ package com.driezy.medlog.feature.medications.detail
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
@@ -17,6 +16,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.model.TimePeriod
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
+import com.driezy.medlog.ui.components.MedicationAdherenceCard
+import com.driezy.medlog.ui.components.MedicationMessageCard
+import com.driezy.medlog.ui.components.RefreshWhileVisible
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenOverlay
 import com.driezy.medlog.ui.components.ScreenOverlayHost
@@ -30,7 +32,6 @@ import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDosePrecise
 import com.driezy.medlog.ui.util.labelRes
 import java.time.Instant
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 /** 剂型 key → 本地化标签 */
@@ -50,6 +51,7 @@ fun MedicationDetailScreen(
     onEdit: (Long) -> Unit,
     viewModel: MedicationDetailViewModel = hiltViewModel(),
 ) {
+    RefreshWhileVisible { viewModel.onAction(DetailUiAction.RefreshTime) }
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     LaunchedEffect(medicationId) { viewModel.onAction(DetailUiAction.Load(medicationId)) }
     LaunchedEffect(viewModel) {
@@ -114,18 +116,21 @@ private fun MedicationDetailContent(
                     label = stringResource(R.string.detail_edit_cd),
                     icon = MedLogIcons.Edit,
                     priority = TopBarActionPriority.Primary,
+                    enabled = !uiState.isSaving,
                 ),
                 TopBarAction(
                     id = "archive",
-                    label = stringResource(R.string.archive),
+                    label = stringResource(if (med.isArchived) R.string.medication_resume else R.string.archive),
                     icon = MedLogIcons.Archive,
                     priority = TopBarActionPriority.Danger,
+                    enabled = !uiState.isSaving,
                 ),
                 TopBarAction(
                     id = "delete",
                     label = stringResource(R.string.delete),
                     icon = MedLogIcons.Delete,
                     priority = TopBarActionPriority.Danger,
+                    enabled = !uiState.isSaving,
                 ),
             )
         } else {
@@ -136,7 +141,9 @@ private fun MedicationDetailContent(
             if (med != null) {
                 when (id) {
                     "edit" -> onEdit(med.id)
-                    "archive" -> {
+                    "archive" -> if (med.isArchived) {
+                        onAction(DetailUiAction.Archive)
+                    } else {
                         overlay = ScreenOverlay.Confirm(
                             id = "detail:archive:${med.id}",
                             title = archiveTitle,
@@ -166,7 +173,7 @@ private fun MedicationDetailContent(
                 Modifier.fillMaxSize().padding(innerPadding),
                 contentAlignment = Alignment.Center,
             ) {
-                Text(stringResource(R.string.detail_not_found))
+                Text(stringResource(if (uiState.error) R.string.medication_load_failed else R.string.detail_not_found))
             }
             return@MedLogScreenScaffold
         }
@@ -176,12 +183,25 @@ private fun MedicationDetailContent(
             contentPadding = MedLogSpacing.ScreenContentDefault,
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
-            // ── 坚持率统计卡 ──────────────────────────────────
-            item {
-                AdherenceStatsCard(
-                    adherence = uiState.adherence30d,
-                    taken = uiState.taken30d,
-                    total = uiState.total30d,
+            if (uiState.isSaving) item(key = "saving") { LinearProgressIndicator(modifier = Modifier.fillMaxWidth()) }
+            if (uiState.error) {
+                item {
+                    MedicationMessageCard(
+                        stringResource(
+                            R.string.dose_record_failed,
+                        ),
+                        isError = true,
+                        onRetry = {
+                            onAction(DetailUiAction.Load(med.id))
+                        },
+                    )
+                }
+            }
+            item(key = "adherence", contentType = "summary") {
+                MedicationAdherenceCard(
+                    uiState.taken30d,
+                    uiState.partial30d,
+                    uiState.total30d,
                 )
             }
 
@@ -189,7 +209,7 @@ private fun MedicationDetailContent(
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(28.dp),
+                    shape = MaterialTheme.shapes.extraLarge,
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
                     elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
                 ) {
@@ -306,7 +326,7 @@ private fun MedicationDetailContent(
                         med.endDate?.let {
                             DetailRow(
                                 stringResource(R.string.detail_label_end_date),
-                                endDateFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                                endDateFmt.format(Instant.ofEpochMilli(it).atZone(uiState.zone)),
                             )
                         }
                         if (med.notes.isNotBlank()) DetailRow(stringResource(R.string.detail_label_notes), med.notes)
@@ -324,6 +344,7 @@ private fun MedicationDetailContent(
                         refillThreshold = refillThreshold,
                         unit = med.doseUnit,
                         doseQuantity = med.doseQuantity,
+                        enabled = !uiState.isSaving,
                         onAdjustStock = { delta -> onAction(DetailUiAction.AdjustStock(delta)) },
                     )
                 }
@@ -366,7 +387,7 @@ private fun MedicationDetailContent(
                 }
             } else {
                 items(uiState.logs, key = { it.id }) { log ->
-                    DetailLogRow(log = log)
+                    DetailLogRow(log = log, zone = uiState.zone)
                 }
             }
         }

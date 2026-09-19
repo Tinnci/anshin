@@ -1,6 +1,5 @@
 package com.driezy.medlog.feature.medications.detail
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -11,8 +10,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,100 +26,6 @@ import java.time.format.DateTimeFormatter
 
 /** 剂型 key → 本地化标签 */
 
-@Composable
-internal fun AdherenceStatsCard(adherence: Float, taken: Int, total: Int) {
-    val colorScheme = MaterialTheme.colorScheme
-    val motionScheme = MaterialTheme.motionScheme
-    val adherenceColor by animateColorAsState(
-        targetValue = when {
-            adherence >= 0.9f -> colorScheme.tertiary
-            adherence >= 0.6f -> colorScheme.secondary
-            else -> colorScheme.error
-        },
-        animationSpec = motionScheme.defaultEffectsSpec(),
-        label = "adhColor",
-    )
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceContainerLow),
-        elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
-    ) {
-        Column(modifier = Modifier.padding(MedLogSpacing.Large)) {
-            Text(
-                stringResource(R.string.detail_adherence_title),
-                style = MaterialTheme.typography.labelLarge,
-                color = colorScheme.primary,
-                modifier = Modifier.padding(bottom = MedLogSpacing.Medium),
-            )
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(20.dp),
-            ) {
-                // 圆形进度指示器
-                Box(contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator(
-                        progress = { adherence },
-                        modifier = Modifier.size(72.dp),
-                        color = adherenceColor,
-                        trackColor = adherenceColor.copy(alpha = 0.15f),
-                        strokeWidth = 7.dp,
-                    )
-                    Text(
-                        "${(adherence * 100).toInt()}%",
-                        style = MaterialTheme.typography.titleLarge,
-                        fontWeight = FontWeight.Bold,
-                        color = adherenceColor,
-                    )
-                }
-                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-                    StatRow(
-                        icon = MedLogIcons.CheckCircle,
-                        tint = colorScheme.tertiary,
-                        label = stringResource(R.string.medication_taken),
-                        value = pluralStringResource(R.plurals.detail_count_times, taken, taken),
-                    )
-                    StatRow(
-                        icon = MedLogIcons.Cancel,
-                        tint = colorScheme.error,
-                        label = stringResource(R.string.detail_missed_skipped),
-                        value = pluralStringResource(
-                            R.plurals.detail_count_times,
-                            (total - taken).coerceAtLeast(0),
-                            (
-                                total -
-                                    taken
-                                ).coerceAtLeast(0),
-                        ),
-                    )
-                    StatRow(
-                        icon = MedLogIcons.DateRange,
-                        tint = colorScheme.secondary,
-                        label = stringResource(R.string.detail_total_count),
-                        value = pluralStringResource(R.plurals.detail_count_times, total, total),
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-internal fun StatRow(icon: Int, tint: Color, label: String, value: String) {
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        MedLogIcon(icon, null, tint = tint, modifier = Modifier.size(16.dp))
-        Text(
-            label,
-            style = MaterialTheme.typography.bodySmall,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-        )
-        Text(value, style = MaterialTheme.typography.bodySmall, fontWeight = FontWeight.Medium)
-    }
-}
-
 // ─── 库存快捷操作卡 ───────────────────────────────────────────────
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
@@ -133,6 +36,7 @@ internal fun StockCard(
     unit: String,
     doseQuantity: Double,
     onAdjustStock: (Double) -> Unit,
+    enabled: Boolean = true,
 ) {
     val colorScheme = MaterialTheme.colorScheme
     val isLow = refillThreshold != null && stock <= refillThreshold
@@ -146,7 +50,7 @@ internal fun StockCard(
 
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(28.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(containerColor = colorScheme.surfaceContainerLow),
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -216,6 +120,7 @@ internal fun StockCard(
                 )
                 Row(horizontalArrangement = Arrangement.spacedBy(4.dp)) {
                     OutlinedIconButton(
+                        enabled = enabled,
                         onClick = { onAdjustStock(-doseQuantity) },
                         modifier = Modifier.size(36.dp),
                     ) {
@@ -268,7 +173,7 @@ internal fun StockCard(
 // ─── 日志行 ───────────────────────────────────────────────────
 
 @Composable
-internal fun DetailLogRow(log: MedicationLog) {
+internal fun DetailLogRow(log: MedicationLog, zone: ZoneId = ZoneId.systemDefault()) {
     val logItemFmt = stringResource(R.string.date_format_log_item)
     val dateFmt = remember(logItemFmt) { DateTimeFormatter.ofPattern(logItemFmt) }
     val timeFmt = remember { DateTimeFormatter.ofPattern("HH:mm") }
@@ -296,7 +201,7 @@ internal fun DetailLogRow(log: MedicationLog) {
         )
         Column(Modifier.weight(1f)) {
             Text(
-                dateFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(ZoneId.systemDefault())),
+                dateFmt.format(Instant.ofEpochMilli(log.scheduledTimeMs).atZone(zone)),
                 style = MaterialTheme.typography.bodyMedium,
             )
             log.actualTakenTimeMs?.let {
@@ -304,7 +209,7 @@ internal fun DetailLogRow(log: MedicationLog) {
                     Text(
                         stringResource(
                             R.string.detail_log_actual_time,
-                            timeFmt.format(Instant.ofEpochMilli(it).atZone(ZoneId.systemDefault())),
+                            timeFmt.format(Instant.ofEpochMilli(it).atZone(zone)),
                         ),
                         style = MaterialTheme.typography.bodySmall,
                         color = colorScheme.onSurfaceVariant,

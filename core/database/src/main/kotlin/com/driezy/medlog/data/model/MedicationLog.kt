@@ -32,6 +32,8 @@ data class MedicationLog(
     val status: LogStatus = LogStatus.TAKEN,
     val notes: String = "", // 本次服药备注
     val actualDoseQuantity: Double? = null, // 实际服用剂量（部分服用时 < 计划剂量）
+    /** Actual inventory debit, which can be smaller than the dose when stock was insufficient. */
+    val stockDeducted: Double? = null,
     val createdAtMs: Long = System.currentTimeMillis(),
     val updatedAtMs: Long? = null,
     val revisionType: LogRevisionType = LogRevisionType.ORIGINAL,

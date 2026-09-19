@@ -29,13 +29,9 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.local.settingsDataStore
-import com.driezy.medlog.data.model.LogStatus
-import com.driezy.medlog.domain.todayEnd
-import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
-import java.time.LocalTime
 
 /**
  * 下次服药桌面小组件（Jetpack Glance M3）
@@ -58,34 +54,11 @@ class NextDoseWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val ep = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        val clock = ep.clock()
-        val medications = ep.medicationRepository().getActiveOnce()
-        val logs = ep.logRepository().getLogsForRangeOnce(todayStart(clock), todayEnd(clock))
-
-        val takenIds = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
-        val total = medications.size
-        val allDone = total > 0 && takenIds.size >= total
-
-        val nowMinutes = LocalTime.now(clock).toSecondOfDay() / 60
-
-        // 找出今日尚未服用的药品及其下次服药时间
-        // 对每个待服药品，解析 reminderTimes（HH:mm 逗号分隔列表）
-        // 取今日最近的未来服药时间
-        val nextDoseGroups = mutableMapOf<Int, MutableList<Pair<Long, String>>>() // 分钟数 → (id, name) 列表
-
-        medications.filter { it.id !in takenIds }.forEach { med ->
-            val earliest = parseReminderTimes(med.reminderTimes)
-                .map { (h, m) -> h * 60 + m }
-                .filter { it >= nowMinutes }
-                .minOrNull()
-                // 如果全部已过，也用主提醒时间（显示今日所有未服）
-                ?: (med.reminderHour * 60 + med.reminderMinute)
-
-            nextDoseGroups.getOrPut(earliest) { mutableListOf() }.add(med.id to med.name)
-        }
-
-        // 取最近的时间组
-        val nextGroup = nextDoseGroups.minByOrNull { it.key }
+        val plan = ep.todayPlan()
+        val total = plan.total
+        val allDone = total > 0 && plan.pending.isEmpty()
+        val nowMinutes = plan.minuteOfDay
+        val nextGroup = plan.pending.groupBy { it.third }.minByOrNull { it.key }
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
             .onFailure { Log.w(TAG, "Failed to read widget preferences", it) }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
@@ -113,7 +86,7 @@ private fun NextDoseContent(
     total: Int,
     allDone: Boolean,
     nextMinutes: Int?,
-    nextMedPairs: List<Pair<Long, String>>,
+    nextMedPairs: List<WidgetDose>,
     nowMinutes: Int,
     sizing: WidgetSizing,
 ) {
@@ -264,7 +237,7 @@ private fun NextDoseContent(
                 )
                 Spacer(GlanceModifier.height(sizing.dp(6)))
                 // 药品列表 + ✓ 打卡按钮（行之间插入细分隔线）
-                nextMedPairs.take(1).forEachIndexed { idx, (medId, name) ->
+                nextMedPairs.take(1).forEachIndexed { idx, (medId, name, _, scheduledAt) ->
                     if (idx > 0) {
                         Spacer(
                             GlanceModifier
@@ -287,7 +260,10 @@ private fun NextDoseContent(
                         WidgetActionButton(
                             label = ctx.getString(R.string.widget_action_btn),
                             action = actionRunCallback<MarkTakenAction>(
-                                actionParametersOf(MarkTakenAction.medIdKey to medId),
+                                actionParametersOf(
+                                    MarkTakenAction.medIdKey to medId,
+                                    MarkTakenAction.scheduledAtKey to scheduledAt,
+                                ),
                             ),
                             sizing = sizing,
                         )

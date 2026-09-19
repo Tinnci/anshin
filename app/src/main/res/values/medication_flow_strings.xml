@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="my_medications">我的药品</string>
+    <string name="medication_catalog">药品库</string>
+    <string name="medication_active">进行中</string>
+    <string name="medication_archived">已停用</string>
+    <string name="medication_resume">恢复用药计划</string>
+    <string name="medication_archived_empty">暂无已停用的药品</string>
+    <string name="medication_active_empty">添加正在服用的药品，建立每日计划</string>
+    <string name="medication_as_needed">按需服用</string>
+    <string name="medication_stock_value">库存：%1$s %2$s</string>
+    <string name="medication_manage_hint">查看记录、补药或修改计划</string>
+    <string name="medication_archived_hint">查看记录或恢复计划</string>
+    <string name="dose_record_removed">已撤销本次记录</string>
+    <string name="dose_record_saved">本次记录已保存</string>
+    <string name="dose_record_failed">操作未完成，请检查当前记录后重试</string>
+    <string name="dose_load_failed">加载失败，请重试</string>
+    <string name="action_retry">重试</string>
+    <string name="medication_load_failed">无法加载药品，请返回后重试</string>
+    <string name="medication_save_failed">保存未完成，请重试</string>
+    <string name="error_dose_invalid">请输入大于 0 的单次剂量和剂量单位</string>
+    <string name="error_daily_dose_invalid">每日最大剂量必须大于 0</string>
+    <string name="error_schedule_invalid">请检查提醒时间、间隔和服药日期</string>
+    <string name="error_date_order">结束日期不能早于开始日期</string>
+    <string name="error_stock_invalid">库存和补药阈值须为不小于 0 的数字</string>
+    <string name="adherence_explanation">坚持率 = 完整服用次数 / 已到期计划次数；部分服用单独记录，按需用药不计入。</string>
+    <string name="adherence_no_due">暂无到期计划</string>
+    <string name="adherence_due_count">已到期计划</string>
+    <plurals name="medication_every_hours">
+        <item quantity="other">每 %1$d 小时</item>
+    </plurals>
+</resources>

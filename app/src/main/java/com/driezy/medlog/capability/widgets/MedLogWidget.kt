@@ -32,14 +32,10 @@ import androidx.glance.text.Text
 import androidx.glance.text.TextStyle
 import com.driezy.medlog.R
 import com.driezy.medlog.data.local.settingsDataStore
-import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.repository.UserPreferencesRepository
-import com.driezy.medlog.domain.todayEnd
-import com.driezy.medlog.domain.todayStart
 import com.driezy.medlog.ui.MainActivity
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
-import java.time.LocalTime
 
 /**
  * 今日用药进度桌面小组件（Jetpack Glance M3）
@@ -63,23 +59,10 @@ class MedLogWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val ep = EntryPointAccessors.fromApplication(context.applicationContext, WidgetEntryPoint::class.java)
-        val clock = ep.clock()
-        val medications = ep.medicationRepository().getActiveOnce()
-        val logs = ep.logRepository().getLogsForRangeOnce(todayStart(clock), todayEnd(clock))
-
-        val takenIds = logs.filter { it.status == LogStatus.TAKEN }.map { it.medicationId }.toSet()
-        val total = medications.size
-        val taken = medications.count { it.id in takenIds }
-        val nowMinutes = LocalTime.now(clock).toSecondOfDay() / 60
-
-        // 待服药品：id + 名称 + 下次服药时间（分钟数，用于显示标签）
-        val pending = medications.filter { it.id !in takenIds }.map { med ->
-            val times = parseReminderTimes(med.reminderTimes).map { (h, m) -> h * 60 + m }
-            val nextTime = times.filter { it > nowMinutes }.minOrNull()
-                ?: times.minOrNull()
-                ?: (med.reminderHour * 60 + med.reminderMinute)
-            Triple(med.id, med.name, nextTime)
-        }.sortedBy { it.third } // 按时间升序
+        val plan = ep.todayPlan()
+        val taken = plan.handled
+        val total = plan.total
+        val pending = plan.pending
 
         // 读取小组件显示设置（SSOT：与主应用共享同一 DataStore）
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
@@ -108,7 +91,7 @@ private const val TAG = "MedLogWidget"
 private fun WidgetContent(
     taken: Int,
     total: Int,
-    pendingMeds: List<Triple<Long, String, Int>>,
+    pendingMeds: List<WidgetDose>,
     showActions: Boolean,
     sizing: WidgetSizing,
 ) {
@@ -177,7 +160,7 @@ private fun CompactContent(
     total: Int,
     allDone: Boolean,
     showActions: Boolean,
-    firstPending: Triple<Long, String, Int>?,
+    firstPending: WidgetDose?,
     pendingCount: Int,
     sizing: WidgetSizing,
 ) {
@@ -228,7 +211,10 @@ private fun CompactContent(
             WidgetActionButton(
                 label = ctx.getString(R.string.widget_action_btn),
                 action = actionRunCallback<MarkTakenAction>(
-                    actionParametersOf(MarkTakenAction.medIdKey to firstPending.first),
+                    actionParametersOf(
+                        MarkTakenAction.medIdKey to firstPending.first,
+                        MarkTakenAction.scheduledAtKey to firstPending.scheduledAtMs,
+                    ),
                 ),
                 modifier = GlanceModifier.fillMaxWidth().height(sizing.dp(48)),
                 sizing = sizing,
@@ -266,7 +252,7 @@ private fun StandardContent(
     taken: Int,
     total: Int,
     allDone: Boolean,
-    pendingMeds: List<Triple<Long, String, Int>>,
+    pendingMeds: List<WidgetDose>,
     maxShow: Int,
     showActions: Boolean,
     sizing: WidgetSizing,
@@ -332,7 +318,7 @@ private fun StandardContent(
         )
         Spacer(GlanceModifier.height(sizing.dp(2)))
 
-        pendingMeds.take(maxShow).forEach { (medId, name, scheduledMinutes) ->
+        pendingMeds.take(maxShow).forEach { (medId, name, scheduledMinutes, scheduledAt) ->
             Spacer(GlanceModifier.height(sizing.dp(3)))
             Row(
                 modifier = GlanceModifier.fillMaxWidth(),
@@ -355,7 +341,10 @@ private fun StandardContent(
                     WidgetActionButton(
                         label = ctx.getString(R.string.widget_action_btn),
                         action = actionRunCallback<MarkTakenAction>(
-                            actionParametersOf(MarkTakenAction.medIdKey to medId),
+                            actionParametersOf(
+                                MarkTakenAction.medIdKey to medId,
+                                MarkTakenAction.scheduledAtKey to scheduledAt,
+                            ),
                         ),
                         sizing = sizing,
                     )
