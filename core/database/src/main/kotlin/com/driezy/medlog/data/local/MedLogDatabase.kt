@@ -244,9 +244,32 @@ abstract class MedLogDatabase : RoomDatabase() {
             }
         }
 
-        /** v16 → v17: 为 sourceCacheKey 添加唯一索引，从数据库层阻止重复导入。 */
+        /** v16 → v17: 为 sourceCacheKey 添加唯一索引，从数据库层阻止重复导入。迁移前清洗空字符串并去重，避免历史重复数据导致迁移失败。 */
         val MIGRATION_16_17 = object : Migration(16, 17) {
             override fun migrate(db: SupportSQLiteDatabase) {
+                // 将空字符串转为 NULL，避免多个空字符串违反 UNIQUE 约束
+                db.execSQL(
+                    """
+                    UPDATE health_records
+                    SET sourceCacheKey = NULL
+                    WHERE sourceCacheKey IS NOT NULL AND TRIM(sourceCacheKey) = ''
+                    """.trimIndent(),
+                )
+                // 对历史存量重复的非空 sourceCacheKey 追加 ":migrated_<id>" 保证唯一，确保不丢失任何历史健康记录
+                db.execSQL(
+                    """
+                    UPDATE health_records
+                    SET sourceCacheKey = sourceCacheKey || ':migrated_' || id
+                    WHERE sourceCacheKey IS NOT NULL
+                      AND sourceCacheKey IN (
+                          SELECT sourceCacheKey
+                          FROM health_records
+                          WHERE sourceCacheKey IS NOT NULL
+                          GROUP BY sourceCacheKey
+                          HAVING COUNT(*) > 1
+                      )
+                    """.trimIndent(),
+                )
                 db.execSQL(
                     """
                     CREATE UNIQUE INDEX IF NOT EXISTS index_health_records_sourceCacheKey

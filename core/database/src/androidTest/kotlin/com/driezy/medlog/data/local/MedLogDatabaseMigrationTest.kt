@@ -153,6 +153,126 @@ class MedLogDatabaseMigrationTest {
         }
     }
 
+    @Test
+    fun migrate16To17HandlesDuplicateSourceCacheKeysWithoutDataLoss() {
+        helper.createDatabase(TEST_DATABASE, 16).use { database ->
+            // 插入具有重复 sourceCacheKey、空字符串及正常 key 的数据
+            database.execSQL(
+                """
+                INSERT INTO health_records (
+                    id, type, value, secondaryValue, timestamp, notes,
+                    source, sourceFeature, sourceProvider, sourceModel, sourceConfidence, sourceCacheKey, confirmedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    1L, "BLOOD_PRESSURE", 120.0, 80.0, 1_717_000_000_000L,
+                    "first dup", "MANUAL", null, null, null, null, "shared_dup_key", null,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO health_records (
+                    id, type, value, secondaryValue, timestamp, notes,
+                    source, sourceFeature, sourceProvider, sourceModel, sourceConfidence, sourceCacheKey, confirmedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    2L, "HEART_RATE", 75.0, null, 1_717_000_000_000L,
+                    "second dup", "MANUAL", null, null, null, null, "shared_dup_key", null,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO health_records (
+                    id, type, value, secondaryValue, timestamp, notes,
+                    source, sourceFeature, sourceProvider, sourceModel, sourceConfidence, sourceCacheKey, confirmedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    3L, "WEIGHT", 65.0, null, 1_717_000_000_000L,
+                    "empty key 1", "MANUAL", null, null, null, null, "", null,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO health_records (
+                    id, type, value, secondaryValue, timestamp, notes,
+                    source, sourceFeature, sourceProvider, sourceModel, sourceConfidence, sourceCacheKey, confirmedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    4L, "WEIGHT", 66.0, null, 1_717_000_000_000L,
+                    "empty key 2", "MANUAL", null, null, null, null, "   ", null,
+                ),
+            )
+            database.execSQL(
+                """
+                INSERT INTO health_records (
+                    id, type, value, secondaryValue, timestamp, notes,
+                    source, sourceFeature, sourceProvider, sourceModel, sourceConfidence, sourceCacheKey, confirmedAt
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                """.trimIndent(),
+                arrayOf<Any?>(
+                    5L, "BLOOD_SUGAR", 5.5, null, 1_717_000_000_000L,
+                    "unique key", "MANUAL", null, null, null, null, "unique_key", null,
+                ),
+            )
+        }
+
+        helper.runMigrationsAndValidate(
+            TEST_DATABASE,
+            DatabaseSchema.VERSION,
+            true,
+            MedLogDatabase.MIGRATION_16_17,
+            MedLogDatabase.MIGRATION_17_18,
+        ).use { database ->
+            // 验证 5 条记录均被完整保留，无任何数据丢失
+            database.query("SELECT COUNT(*) FROM health_records").use { cursor ->
+                check(cursor.moveToFirst())
+                assertEquals(5, cursor.getInt(0))
+            }
+
+            // 验证原重复记录已通过后缀消解冲突，且内容完整
+            database.query(
+                "SELECT id, sourceCacheKey FROM health_records WHERE id IN (1, 2) ORDER BY id",
+            ).use { cursor ->
+                check(cursor.moveToNext())
+                assertEquals(1L, cursor.getLong(0))
+                assertEquals("shared_dup_key:migrated_1", cursor.getString(1))
+
+                check(cursor.moveToNext())
+                assertEquals(2L, cursor.getLong(0))
+                assertEquals("shared_dup_key:migrated_2", cursor.getString(1))
+            }
+
+            // 验证空字符串已转换为 NULL
+            database.query("SELECT sourceCacheKey FROM health_records WHERE id IN (3, 4)").use { cursor ->
+                while (cursor.moveToNext()) {
+                    assertEquals(null, cursor.getString(0))
+                }
+            }
+
+            // 验证原本唯一的 key 未被影响
+            database.query("SELECT sourceCacheKey FROM health_records WHERE id = 5").use { cursor ->
+                check(cursor.moveToFirst())
+                assertEquals("unique_key", cursor.getString(0))
+            }
+
+            // 验证唯一索引成功创建且生效
+            database.query("PRAGMA index_list('health_records')").use { cursor ->
+                val nameIndex = cursor.getColumnIndexOrThrow("name")
+                val uniqueIndex = cursor.getColumnIndexOrThrow("unique")
+                var sourceCacheKeyIndexIsUnique = false
+                while (cursor.moveToNext()) {
+                    if (cursor.getString(nameIndex) == "index_health_records_sourceCacheKey") {
+                        sourceCacheKeyIndexIsUnique = cursor.getInt(uniqueIndex) == 1
+                    }
+                }
+                assertEquals(true, sourceCacheKeyIndexIsUnique)
+            }
+        }
+    }
+
     private fun SupportSQLiteDatabase.use(block: (SupportSQLiteDatabase) -> Unit) {
         try {
             block(this)

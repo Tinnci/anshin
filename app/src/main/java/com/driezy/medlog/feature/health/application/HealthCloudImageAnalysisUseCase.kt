@@ -83,13 +83,13 @@ class HealthCloudImageAnalysisUseCase @Inject constructor(
             nowMillis = clock.millis(),
         )
         result.copy(
-            metrics = result.metrics.map { metric ->
+            metrics = result.metrics.mapIndexed { index, metric ->
                 metric.copy(
                     source = HealthRecordSource.CLOUD_OCR,
                     sourceFeature = AiUsageFeature.IMAGE_OCR,
                     sourceProvider = identity.provider,
                     sourceModel = identity.model,
-                    sourceCacheKey = cacheKey,
+                    sourceCacheKey = "$cacheKey:${metric.type.name}:$index",
                 )
             },
         )

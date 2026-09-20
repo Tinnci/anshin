@@ -34,3 +34,4 @@
 - CI 分别运行构建与静态检查、API 35 无窗口模拟器上的 Room 和 Compose 测试，以及主分支的 Gradle 依赖图提交。设备测试检查文字与语义，不依赖截图。
 - Dependabot 每周检查 GitHub Actions、Gradle 和图标转换工具的 uv 依赖；Kotlin 和 AndroidX 的兼容更新分别分组。安全告警与自动安全修复已启用，版本更新通过普通 PR 和测试审查。
 - 1.22.0 使用 versionCode 12200099，沿用递增的标签版本计算。Release 先验证代码，再读取签名材料构建 APK；始终清理临时密钥，失败时保留测试报告。现有标签来源、签名、校验和与构建来源证明检查继续保留。
+- 1.22.1 (versionCode 12200199) 修复 MIGRATION_16_17 迁移时历史重复 sourceCacheKey 导致启动崩溃的问题，迁移前安全去重保留全部记录，杜绝存量升级闪退。
