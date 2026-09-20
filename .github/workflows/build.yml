@@ -79,6 +79,8 @@ jobs:
     name: Medication UI & Room migrations
     runs-on: ubuntu-latest
     timeout-minutes: 35
+    env:
+      ANDROID_AVD_HOME: /home/runner/.android/avd
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -103,14 +105,30 @@ jobs:
           SDKMANAGER=$(find "$ANDROID_HOME/cmdline-tools" -path '*/bin/sdkmanager' | sort -V | tail -n 1)
           dirname "$SDKMANAGER" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
       - name: Install and boot headless API 35 emulator
         run: |
+          mkdir -p "$HOME/.android/avd"
+          mkdir -p "$HOME/.config/.android"
+          ln -sfn "$HOME/.android/avd" "$HOME/.config/.android/avd"
           sdkmanager 'emulator' 'platform-tools' 'system-images;android-35;google_apis;x86_64'
-          echo no | avdmanager create avd --name medication-tests --package 'system-images;android-35;google_apis;x86_64'
-          "$ANDROID_HOME/emulator/emulator" -avd medication-tests -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          echo no | avdmanager --silent create avd --name medication-tests --package 'system-images;android-35;google_apis;x86_64' --force
+          echo "=== Configured AVDs ==="
+          "$ANDROID_HOME/emulator/emulator" -list-avds
+          "$ANDROID_HOME/emulator/emulator" -avd medication-tests \
+            -no-window \
+            -no-audio \
+            -no-boot-anim \
+            -no-snapshot \
+            -camera-back none \
+            -camera-front none \
+            -gpu swiftshader_indirect > "$RUNNER_TEMP/emulator.log" 2>&1 &
+          echo "Waiting for emulator device..."
+          adb wait-for-device
+          echo "Waiting for system boot completed..."
           # The inner shell evaluates the boot property on each iteration.
           # shellcheck disable=SC2016
-          timeout 240 bash -c 'until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" == 1 ]]; do sleep 2; done'
+          timeout 360 bash -c 'until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d "\r")" == 1 ]]; do sleep 2; done'
           adb shell input keyevent 82
       - name: Test daily medication flow and migrations
         run: bash scripts/test-medication-flow.sh
