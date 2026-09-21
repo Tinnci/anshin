@@ -27,7 +27,7 @@ jobs:
     steps:
       # ── 1. 拉取完整历史（用于生成 CHANGELOG） ─────────────────
       - name: Checkout (full history)
-        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -48,13 +48,13 @@ jobs:
 
       # ── 2. 配置 JDK ───────────────────────────────────────────
       - name: Set up JDK 21
-        uses: actions/setup-java@03ad4de0992f5dab5e18fcb136590ce7c4a0ac95 # v5.6.0
+        uses: actions/setup-java@de7274f081f381c8f8158605e0321c36c376e2e6 # v6.0.1
         with:
           java-version: "21"
           distribution: temurin
 
       - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@3f131e8634966bd73d06cc69884922b02e6faf92 # v6.2.0
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6.3.0
         with:
           cache-cleanup: on-success
           cache-read-only: true
@@ -214,7 +214,7 @@ jobs:
           )
 
       - name: Attest release APK provenance / 证明发布 APK 构建来源
-        uses: actions/attest-build-provenance@0f67c3f4856b2e3261c31976d6725780e5e4c373 # v4.1.1
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
         with:
           subject-path: "app/build/outputs/apk/release/Anshin-*.apk"
 
@@ -241,7 +241,7 @@ jobs:
 
       # ── 9. 发布 GitHub Release，附带 APK ─────────────────────
       - name: Create GitHub Release / 创建 GitHub Release
-        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: "Anshin v${{ steps.version.outputs.version_name }}"
           body: |
