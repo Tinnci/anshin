@@ -22,10 +22,16 @@ dependencyResolutionManagement {
     repositories {
         if (System.getenv("CI") != "true" && System.getenv("USE_CHINA_MAVEN_MIRRORS") != "false") {
             maven {
-                url = uri("https://maven.aliyun.com/repository/public")
+                url = uri("https://maven.aliyun.com/repository/google")
                 content {
                     includeGroupByRegex("androidx.*")
                     includeGroupByRegex("com\\.android.*")
+                    includeGroupByRegex("com\\.google.*")
+                }
+            }
+            maven {
+                url = uri("https://maven.aliyun.com/repository/public")
+                content {
                     includeGroupByRegex("com\\.google.*")
                     includeGroupByRegex("com\\.microsoft.*")
                     includeGroupByRegex("org\\.jetbrains.*")
