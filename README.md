@@ -12,7 +12,7 @@
   <a href="https://github.com/Tinnci/anshin/releases/latest">
     <img src="https://img.shields.io/github/v/release/Tinnci/anshin?label=Latest%20Release&color=4CAF50" alt="Latest Release">
   </a>
-  <img src="https://img.shields.io/badge/Kotlin-2.3.21-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
+  <img src="https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white" alt="Material 3">
   <img src="https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white" alt="Min SDK">
   <img src="https://img.shields.io/badge/License-Apache%202.0-blue" alt="License">
@@ -74,16 +74,16 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 
 | Layer | Technology |
 |-------|-----------|
-| Language | Kotlin 2.3.21 |
-| Build | Gradle 9.4.1 · AGP 9.2.1 · KSP 2.3.8 |
-| UI | Jetpack Compose (BOM 2026.05.01) · Material 3 Expressive 1.5.0-alpha20 |
+| Language | Kotlin 2.4.20 |
+| Build | Gradle 9.6.0 · AGP 9.4.1 · KSP 2.3.12 |
+| UI | Jetpack Compose (BOM 2026.09.00) · Material 3 Expressive 1.5.0-alpha20 |
 | Adaptive Nav | `material3-adaptive-navigation-suite` 1.2.0 |
 | State | Kotlin Coroutines 1.11.0 · StateFlow · `collectAsStateWithLifecycle` |
-| Database | Room 2.8.4 (KSP, full v5→v16 migration chain) |
+| Database | Room 2.8.5 (KSP, historical migrations and exported schemas) |
 | Preferences | Jetpack DataStore 1.2.1 |
-| DI | Hilt 2.59.2 + HiltViewModel |
-| Background | WorkManager 2.11.2 + AlarmManager (exact) |
-| Navigation | Navigation Compose 2.9.8 (type-safe serialized routes) |
+| DI | Hilt 2.60.1 + HiltViewModel |
+| Background | WorkManager 2.12.0 + AlarmManager (exact) |
+| Navigation | Navigation Compose 2.10.2 (type-safe serialized routes) |
 | Widgets | Glance 1.1.1 (Compose-based homescreen widgets) |
 | Camera / QR | CameraX 1.6.1 · ML Kit Barcode 17.3.0 · ZXing 3.5.4 |
 | Animation | `Animatable` · Spring/tween physics · `AnimatedVisibility` · `MotionScheme` |
@@ -95,17 +95,19 @@ helping users track daily medication, manage inventory, and stay on schedule wit
 
 ## Maintained Docs
 
-- [UI design system](docs/ui-design-system.md): durable UI rules for Material 3
-  Expressive, color roles, icons, carousel usage, and editorial treatment.
-- [AI health intelligence plan](docs/ai-health-intelligence-plan.md): product
-  decisions, safety constraints, implementation review, and follow-up plan.
+- [ktlint performance and local checks](docs/ktlint.md):
+  use `bun scripts/ktlint-changed.ts` to check source sets affected by staged,
+  unstaged, and untracked files. CI continues to run full `ktlintCheck`.
+
+- [Android UI and dependency review](docs/android-ui-review.md): source review,
+  dependency compatibility, accessibility follow-ups, and validation limits.
+- [Medication daily flow](docs/medication-daily-flow.md): scheduling, dose records,
+  inventory, undo, and verification entry points.
 - [Architecture governance](docs/architecture-governance.md): module/layer
   boundaries, architecture decisions, persistence policy, and
   verification gates.
-- [Material Symbols usage](docs/material-symbols.md): local VectorDrawable
-  source, update workflow, and icon rules.
-- [UI design and QA archive](docs/ui-qa/README.md): curated visual references,
-  final comparisons, decisions, and verification boundaries.
+- [Release signing](docs/releasing.md): local signing setup, CI secrets,
+  tag conventions, and version codes.
 - [OCR model evaluation](seven_segment_ocr/MODEL_EVALUATION.md): current OCR
   candidates, benchmark schema, evaluator notes, and maintained conclusions.
 - [OCR pipeline design](seven_segment_ocr/PIPELINE_DESIGN.md): headless
@@ -124,23 +126,22 @@ gh auth switch -u Tinnci
 git commit
 ```
 
-The pre-commit hook runs `scripts/sync_git_identity_from_gh.sh`, maps known
-accounts to GitHub no-reply emails, and stores the result in this repository's
-local Git config. Unknown or unauthenticated accounts are rejected instead of
-falling back to a personal email.
+The global hooks in `~/.config/git/hooks` sync repository-local identity from the
+active GitHub CLI account. Pre-commit syncs configuration, post-commit corrects
+the commit identity if needed, and pre-push checks the active account again.
+This repository requires `hooks.expectedGhAccount=Tinnci`. Unknown or
+unauthenticated accounts are rejected instead of using a personal email.
 
 Known accounts:
 
 - `Tinnci` -> `23432137+Tinnci@users.noreply.github.com`
 - `shisoratsu` -> `277485761+shisoratsu@users.noreply.github.com`
 
-Set an account-specific commit message template at `~/.gitmessage-tinnci` or
-`~/.gitmessage-shisoratsu` if needed. To disable the sync for a local
-experiment:
-
-```bash
-git config hooks.medlogSyncGhIdentity false
-```
+When pushing this repository, switch to Tinnci first and restore the previous
+active account after the push. Global hooks chain `.githooks/pre-commit` and
+`.githooks/pre-push`: the local hooks check Kotlin changes before commit and
+run unit tests for source/build changes before push. Keep the global hooks path;
+`setup-hooks.sh` switches to local hooks and would bypass the global identity hooks.
 
 ---
 
@@ -220,7 +221,8 @@ app/src/main/java/com/driezy/medlog/
 
 - **JDK 17+** (CI uses JDK 21)
 - **Android SDK 37** (build-tools 37.0.0)
-- **Android Studio** Meerkat 2024.3.2+ (or command-line only)
+- **Android Studio** compatible with the AGP version in `gradle/libs.versions.toml`
+  (or command-line only)
 
 ### Build
 
@@ -244,7 +246,7 @@ echo "sdk.dir=/path/to/android-sdk" > local.properties
 
 ### Release Signing
 
-See [.github/SIGNING.md](.github/SIGNING.md) for full setup.
+See [Release signing](docs/releasing.md) for full setup.
 
 **Quick summary:**
 - Local: `local.properties` with `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
@@ -266,22 +268,18 @@ See [.github/SIGNING.md](.github/SIGNING.md) for full setup.
 ./gradlew lintDebug      # Android Lint (report: app/build/reports/lint-results-debug.html)
 ```
 
-**Current status:** 0 compile errors · 0 lint errors · all unit tests passing. Android Lint currently reports warning-only follow-ups.
-
-### Pre-commit / Pre-push Hooks
+### Local checks
 
 ```bash
-./setup-hooks.sh    # run once
-# git commit → runs ktlintCheck automatically
-# git push   → runs fast unit-test verification automatically
+bun scripts/ktlint-changed.ts            # source sets affected by local changes
+bun scripts/ktlint-changed.ts --dry-run  # inspect the selected tasks
+bun test scripts/ktlint-changed.test.ts  # check task selection behavior
 ```
 
-Full Android Lint runs in CI. To force it locally before a push:
+CI runs full ktlint, tests, Android Lint, and builds. Run full Android Lint locally:
 
 ```bash
-MEDLOG_PRE_PUSH_LINT=1 git push
-# or persist locally:
-git config hooks.medlogPrePushLint true
+./gradlew lintDebug
 ```
 
 ---
@@ -301,10 +299,10 @@ git push origin v1.2.0   # triggers Release workflow
 ```
 
 The release workflow automatically:
-1. Extracts `versionName` / `versionCode` from the tag (`major×10000 + minor×100 + patch`)
-2. Decodes the Keystore from `KEYSTORE_BASE64` secret
-3. Runs ktlint, unit tests, and lint
-4. Requires the complete release signing secret set and builds three signed ABI APKs
+1. Validates tag format and main ancestry, then derives version values using the [release version rules](docs/releasing.md#versioncode-规则)
+2. Runs ktlint, unit tests, lint, and instrumented-test compilation
+3. Requires the complete signing secret set and decodes a temporary Keystore
+4. Builds three signed ABI APKs and cleans up the temporary Keystore
 5. Verifies every APK with `apksigner` and generates `SHA256SUMS`
 6. Generates changelog from commits since the previous reachable tag
 7. Creates a GitHub Release with the APKs and checksums attached

@@ -87,13 +87,20 @@ git tag v1.1.0-rc1 && git push origin v1.1.0-rc1
 
 ## versionCode 规则
 
-`major × 10000 + minor × 100 + patch`
+以 `.github/workflows/release.yml` 为准：
+
+`major × 10000000 + minor × 100000 + patch × 100 + stage`
+
+正式版 stage 为 99；alpha1–19 为 1–19，beta1–19 为 21–39，rc1–19 为 41–59。
+major ≤ 209、minor ≤ 99、patch ≤ 999。标签必须指向 origin/main 中的提交。
 
 | Tag | versionCode |
 |-----|-------------|
-| v1.0.0 | 10000 |
-| v1.2.3 | 10203 |
-| v2.0.0 | 20000 |
+| v1.22.0-alpha1 | 12200001 |
+| v1.22.0-beta1 | 12200021 |
+| v1.22.0-rc1 | 12200041 |
+| v1.22.0 | 12200099 |
+| v1.22.1 | 12200199 |
 
 ---
 
