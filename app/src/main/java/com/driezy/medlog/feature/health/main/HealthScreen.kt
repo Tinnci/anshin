@@ -193,6 +193,7 @@ private fun HealthContent(
             item(key = "ocr_hero") {
                 HealthOcrHeroCard(
                     onScan = ::showOcrScanner,
+                    onBpx1Sync = ::showBpx1Sync,
                 )
             }
 

@@ -21,7 +21,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun HealthOcrHeroCard(onScan: () -> Unit) {
+internal fun HealthOcrHeroCard(onScan: () -> Unit, onBpx1Sync: (() -> Unit)? = null) {
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -31,7 +31,7 @@ internal fun HealthOcrHeroCard(onScan: () -> Unit) {
     ) {
         Column(
             modifier = Modifier.padding(MedLogSpacing.XMedium),
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
@@ -61,17 +61,37 @@ internal fun HealthOcrHeroCard(onScan: () -> Unit) {
                     )
                 }
             }
-            Button(
-                onClick = onScan,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = MaterialTheme.shapes.large,
-            ) {
-                MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(MedLogSpacing.Small))
-                Text(
-                    stringResource(R.string.health_ocr_hero_scan),
-                    style = MaterialTheme.emphasizedTypography.labelLarge,
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                Button(
+                    onClick = onScan,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
+                    Text(
+                        stringResource(R.string.health_ocr_hero_scan),
+                        style = MaterialTheme.emphasizedTypography.labelLarge,
+                    )
+                }
+                if (onBpx1Sync != null) {
+                    FilledTonalButton(
+                        onClick = onBpx1Sync,
+                        modifier = Modifier.fillMaxWidth().height(44.dp),
+                        shape = MaterialTheme.shapes.large,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
+                    ) {
+                        MedLogIcon(MedLogIcons.MonitorHeart, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(MedLogSpacing.Small))
+                        Text(
+                            stringResource(R.string.bpx1_sync_chip),
+                            style = MaterialTheme.emphasizedTypography.labelLarge,
+                        )
+                    }
+                }
             }
         }
     }

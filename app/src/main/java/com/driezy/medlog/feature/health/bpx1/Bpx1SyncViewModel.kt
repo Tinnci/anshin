@@ -37,6 +37,8 @@ class Bpx1SyncViewModel @Inject constructor(private val syncUseCase: SyncBpx1Mea
     private var syncJob: Job? = null
     private var countdownJob: Job? = null
 
+    fun isConfigured(): Boolean = syncUseCase.isConfigured()
+
     fun startSync() {
         if (syncJob?.isActive == true) return
         syncJob = viewModelScope.launch {

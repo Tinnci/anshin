@@ -113,6 +113,7 @@ internal fun AddEditHealthSheet(
                         onValueChange = onValueChange,
                         label = { Text(stringResource(R.string.health_bp_systolic)) },
                         suffix = { Text("mmHg") },
+                        supportingText = { Text("90–140 mmHg") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.weight(1f),
@@ -122,6 +123,7 @@ internal fun AddEditHealthSheet(
                         onValueChange = onSecondaryChange,
                         label = { Text(stringResource(R.string.health_bp_diastolic)) },
                         suffix = { Text("mmHg") },
+                        supportingText = { Text("60–90 mmHg") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.weight(1f),
@@ -166,15 +168,17 @@ internal fun AddEditHealthSheet(
                     leadingIcon = { MedLogIcon(MedLogIcons.CameraAlt, null, Modifier.size(18.dp)) },
                     modifier = Modifier.weight(1f),
                 )
-                AssistChip(
-                    onClick = {
-                        performHaptic(MedLogHapticEffect.CONFIRM)
-                        onBpx1Sync()
-                    },
-                    label = { Text(stringResource(R.string.bpx1_sync_chip)) },
-                    leadingIcon = { MedLogIcon(MedLogIcons.MonitorHeart, null, Modifier.size(18.dp)) },
-                    modifier = Modifier.weight(1f),
-                )
+                if (draft.type == HealthType.BLOOD_PRESSURE) {
+                    AssistChip(
+                        onClick = {
+                            performHaptic(MedLogHapticEffect.CONFIRM)
+                            onBpx1Sync()
+                        },
+                        label = { Text(stringResource(R.string.bpx1_sync_chip)) },
+                        leadingIcon = { MedLogIcon(MedLogIcons.MonitorHeart, null, Modifier.size(18.dp)) },
+                        modifier = Modifier.weight(1f),
+                    )
+                }
             }
 
             // ── 备注 ──────────────────────────────────────────────────

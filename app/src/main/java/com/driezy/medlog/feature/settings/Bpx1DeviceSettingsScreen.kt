@@ -10,11 +10,11 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
@@ -301,47 +301,74 @@ private fun Bpx1OverviewPanel(uiState: Bpx1DeviceSettingsUiState) {
         color = MaterialTheme.colorScheme.primaryContainer,
         contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
     ) {
-        Row(
+        Column(
             modifier = Modifier.padding(MedLogSpacing.Large),
-            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-            verticalAlignment = Alignment.CenterVertically,
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
-            Surface(
-                shape = RoundedCornerShape(16.dp),
-                color = MaterialTheme.colorScheme.primary,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                verticalAlignment = Alignment.CenterVertically,
             ) {
-                MedLogIcon(
-                    MedLogIcons.MonitorHeart,
-                    contentDescription = null,
-                    modifier = Modifier.padding(MedLogSpacing.Small).size(28.dp),
-                )
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MaterialTheme.colorScheme.primary,
+                    contentColor = MaterialTheme.colorScheme.onPrimary,
+                ) {
+                    MedLogIcon(
+                        MedLogIcons.MonitorHeart,
+                        contentDescription = null,
+                        modifier = Modifier.padding(MedLogSpacing.Small).size(28.dp),
+                    )
+                }
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+                ) {
+                    Text(
+                        stringResource(R.string.bpx1_overview_title),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Text(
+                        stringResource(R.string.bpx1_overview_body),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
+                    )
+                }
             }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+            Surface(
+                shape = RoundedCornerShape(50),
+                color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
+                contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
-                Text(
-                    stringResource(R.string.bpx1_overview_title),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
-                Text(
-                    stringResource(R.string.bpx1_overview_body),
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.82f),
-                )
-                Text(
-                    stringResource(
-                        if (uiState.configuration.isConfigured) {
-                            R.string.bpx1_status_configured
+                Row(
+                    modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Tiny),
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    val configured = uiState.configuration.isConfigured
+                    MedLogIcon(
+                        if (configured) MedLogIcons.CheckCircle else MedLogIcons.Info,
+                        contentDescription = null,
+                        modifier = Modifier.size(16.dp),
+                        tint = if (configured) {
+                            MaterialTheme.colorScheme.primary
                         } else {
-                            R.string.bpx1_status_not_configured
+                            MaterialTheme.colorScheme.onSurfaceVariant
                         },
-                    ),
-                    style = MaterialTheme.typography.labelMedium,
-                    fontWeight = FontWeight.SemiBold,
-                )
+                    )
+                    Text(
+                        stringResource(
+                            if (configured) {
+                                R.string.bpx1_status_configured
+                            } else {
+                                R.string.bpx1_status_not_configured
+                            },
+                        ),
+                        style = MaterialTheme.typography.labelMedium,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
             }
         }
     }
@@ -381,6 +408,13 @@ private fun Bpx1ConfigurationCard(
     onClear: () -> Unit,
 ) {
     var revealBindKey by remember { mutableStateOf(false) }
+    val normalizedMacPreview = remember(uiState.macInput) {
+        val norm = Bpx1Protocol.normalizeMac(uiState.macInput)
+        if (Bpx1Protocol.isValidMac(norm) && norm != uiState.macInput.trim()) norm else null
+    }
+    val hexCharCount = remember(uiState.bindKeyInput) {
+        Bpx1Protocol.normalizeBindKey(uiState.bindKeyInput).length
+    }
     SettingsCard(
         title = stringResource(R.string.bpx1_config_title),
         subtitle = stringResource(R.string.bpx1_config_desc),
@@ -397,7 +431,10 @@ private fun Bpx1ConfigurationCard(
                 label = { Text(stringResource(R.string.bpx1_mac_label)) },
                 placeholder = { Text(stringResource(R.string.bpx1_mac_hint)) },
                 supportingText = {
-                    if (uiState.macInputInvalid) Text(stringResource(R.string.bpx1_mac_invalid))
+                    when {
+                        uiState.macInputInvalid -> Text(stringResource(R.string.bpx1_mac_invalid))
+                        normalizedMacPreview != null -> Text(normalizedMacPreview)
+                    }
                 },
                 isError = uiState.macInputInvalid,
                 singleLine = true,
@@ -410,16 +447,25 @@ private fun Bpx1ConfigurationCard(
                 label = { Text(stringResource(R.string.bpx1_bind_key_label)) },
                 placeholder = { Text(stringResource(R.string.bpx1_bind_key_hint)) },
                 supportingText = {
-                    Text(
-                        stringResource(
-                            when {
-                                uiState.bindKeyInputInvalid -> R.string.bpx1_bind_key_invalid
-                                uiState.canRetainStoredBindKey -> R.string.bpx1_bind_key_saved
-                                uiState.configuration.hasBindKey -> R.string.bpx1_bind_key_new_device
-                                else -> R.string.bpx1_bind_key_hint
-                            },
-                        ),
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(
+                            stringResource(
+                                when {
+                                    uiState.bindKeyInputInvalid -> R.string.bpx1_bind_key_invalid
+                                    uiState.canRetainStoredBindKey -> R.string.bpx1_bind_key_saved
+                                    uiState.configuration.hasBindKey -> R.string.bpx1_bind_key_new_device
+                                    else -> R.string.bpx1_bind_key_hint
+                                },
+                            ),
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (uiState.bindKeyInput.isNotBlank()) {
+                            Text("$hexCharCount/${Bpx1Protocol.BIND_KEY_HEX_LENGTH}")
+                        }
+                    }
                 },
                 isError = uiState.bindKeyInputInvalid,
                 singleLine = true,
@@ -449,14 +495,22 @@ private fun Bpx1ConfigurationCard(
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            Column(
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                Button(onClick = onSave) { Text(stringResource(R.string.bpx1_save_config)) }
+                Button(
+                    onClick = onSave,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    Text(stringResource(R.string.bpx1_save_config))
+                }
                 if (uiState.configuration.macAddress.isNotBlank() || uiState.configuration.hasBindKey) {
                     OutlinedButton(
                         onClick = onClear,
+                        modifier = Modifier.fillMaxWidth().height(44.dp),
+                        shape = MaterialTheme.shapes.large,
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
                     ) {
                         Text(stringResource(R.string.bpx1_clear_config))
@@ -484,23 +538,37 @@ private fun Bpx1ActionsCard(
             modifier = Modifier.padding(horizontal = MedLogSpacing.Large),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
-            Text(
-                text = stringResource(
-                    when (uiState.bluetoothAvailability) {
-                        Bpx1BluetoothAvailability.READY -> R.string.bpx1_bluetooth_ready
-                        Bpx1BluetoothAvailability.DISABLED -> R.string.bpx1_bluetooth_disabled
-                        Bpx1BluetoothAvailability.UNSUPPORTED -> R.string.bpx1_bluetooth_unsupported
-                    },
-                ),
-                style = MaterialTheme.typography.labelLarge,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-            )
-            FlowRow(
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                val ready = uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY
+                MedLogIcon(
+                    if (ready) MedLogIcons.CheckCircle else MedLogIcons.Warning,
+                    contentDescription = null,
+                    modifier = Modifier.size(16.dp),
+                    tint = if (ready) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                )
+                Text(
+                    text = stringResource(
+                        when (uiState.bluetoothAvailability) {
+                            Bpx1BluetoothAvailability.READY -> R.string.bpx1_bluetooth_ready
+                            Bpx1BluetoothAvailability.DISABLED -> R.string.bpx1_bluetooth_disabled
+                            Bpx1BluetoothAvailability.UNSUPPORTED -> R.string.bpx1_bluetooth_unsupported
+                        },
+                    ),
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+            Column(
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Button(
                     onClick = onScan,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = MaterialTheme.shapes.large,
                     enabled = uiState.isScanning ||
                         (uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY && !uiState.isConnecting),
                 ) {
@@ -518,6 +586,8 @@ private fun Bpx1ActionsCard(
                 }
                 OutlinedButton(
                     onClick = onConnect,
+                    modifier = Modifier.fillMaxWidth().height(44.dp),
+                    shape = MaterialTheme.shapes.large,
                     enabled = uiState.bluetoothAvailability == Bpx1BluetoothAvailability.READY &&
                         !uiState.isBusy &&
                         Bpx1Protocol.isValidMac(uiState.macInput),

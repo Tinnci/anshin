@@ -50,6 +50,8 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
     private val bleClient: Bpx1BleClient,
     private val importer: Bpx1MeasurementImporter,
 ) {
+    fun isConfigured(): Boolean = deviceStore.configuration.value.isConfigured
+
     suspend fun sync(
         scanDurationMillis: Long = DEFAULT_SCAN_DURATION_MILLIS,
         onEvent: suspend (Bpx1SyncState) -> Unit,
