@@ -2,11 +2,9 @@
 
 package com.driezy.medlog.feature.settings
 
-import android.Manifest
 import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import android.content.pm.PackageManager
-import android.os.Build
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
@@ -82,6 +80,7 @@ import com.driezy.medlog.capability.bpx1.Bpx1DiscoveredDevice
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.capability.bpx1.Bpx1Protocol
+import com.driezy.medlog.capability.bpx1.requiredBpx1Permissions
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
@@ -785,12 +784,4 @@ private fun Bpx1SettingsMessage.stringRes(): Int = when (this) {
     Bpx1SettingsMessage.CONFIGURATION_CLEARED -> R.string.bpx1_message_cleared
     Bpx1SettingsMessage.SCAN_FAILED -> R.string.bpx1_message_scan_failed
     Bpx1SettingsMessage.MEASUREMENT_IMPORTED -> R.string.bpx1_message_imported
-}
-
-private fun requiredBpx1Permissions(): List<String> = when {
-    Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> listOf(
-        Manifest.permission.BLUETOOTH_SCAN,
-        Manifest.permission.BLUETOOTH_CONNECT,
-    )
-    else -> listOf(Manifest.permission.ACCESS_FINE_LOCATION)
 }

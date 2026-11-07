@@ -49,7 +49,16 @@ data class Bpx1DiscoveredDevice(
 sealed interface Bpx1ScanEvent {
     data class Device(val device: Bpx1DiscoveredDevice, val measurement: Bpx1Measurement?) : Bpx1ScanEvent
 
-    data class Failure(val errorCode: Int) : Bpx1ScanEvent
+    /**
+     * [errorCode] is either a platform `ScanCallback.SCAN_FAILED_*` code or one of
+     * the app-defined negative codes below.
+     */
+    data class Failure(val errorCode: Int) : Bpx1ScanEvent {
+        companion object {
+            const val BLUETOOTH_UNAVAILABLE = -1
+            const val PERMISSION_DENIED = -2
+        }
+    }
 }
 
 enum class Bpx1ConnectionFailure {
@@ -255,7 +264,7 @@ class AndroidBpx1BleClient @Inject constructor(
         val MIBEACON_PARCEL_UUID: ParcelUuid =
             ParcelUuid(UUID.fromString(Bpx1Protocol.MIBEACON_SERVICE_UUID))
         const val CONNECTION_TIMEOUT_MILLIS = 12_000L
-        const val ERROR_BLUETOOTH_UNAVAILABLE = -1
-        const val ERROR_PERMISSION_DENIED = -2
+        const val ERROR_BLUETOOTH_UNAVAILABLE = Bpx1ScanEvent.Failure.BLUETOOTH_UNAVAILABLE
+        const val ERROR_PERMISSION_DENIED = Bpx1ScanEvent.Failure.PERMISSION_DENIED
     }
 }
