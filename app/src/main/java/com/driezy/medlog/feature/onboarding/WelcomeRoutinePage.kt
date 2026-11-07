@@ -2,7 +2,6 @@ package com.driezy.medlog.feature.onboarding
 
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,10 +33,10 @@ internal fun WelcomePage2(
         welcomeEntryDelayMs(1, profile.constrained, profile.motionEnabled),
     )
 
-    WelcomePageScaffold(modifier = Modifier.padding(welcomePagePadding(profile))) {
+    WelcomePageScaffold {
         Text(
             stringResource(R.string.welcome_p2_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = welcomeTitleStyle(),
             fontWeight = FontWeight.Bold,
             modifier = Modifier.graphicsLayer {
                 translationY = titleY

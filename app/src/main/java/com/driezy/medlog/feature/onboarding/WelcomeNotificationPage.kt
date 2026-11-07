@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,8 +44,8 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
     )
 
     WelcomePageScaffold(
-        modifier = Modifier.padding(welcomePagePadding(profile)),
         horizontalAlignment = Alignment.CenterHorizontally,
+        centered = true,
     ) {
         if (profile.showIllustration) {
             Surface(
@@ -75,7 +75,7 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
             } else {
                 stringResource(R.string.welcome_notif_request_title)
             },
-            style = MaterialTheme.typography.headlineSmall,
+            style = welcomeTitleStyle(),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
@@ -89,7 +89,7 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
             } else {
                 stringResource(R.string.welcome_notif_request_body)
             },
-            style = MaterialTheme.typography.bodyLarge,
+            style = welcomeBodyStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
@@ -112,7 +112,7 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
                 onClick = onRequestPermission,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp),
+                    .heightIn(min = 52.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(
@@ -121,7 +121,10 @@ internal fun WelcomeNotificationPage(isCurrentPage: Boolean, notifGranted: Boole
                     modifier = Modifier.size(20.dp),
                 )
                 Spacer(Modifier.width(8.dp))
-                Text(stringResource(R.string.welcome_notif_grant_btn))
+                Text(
+                    stringResource(R.string.welcome_notif_grant_btn),
+                    textAlign = TextAlign.Center,
+                )
             }
             Text(
                 stringResource(R.string.welcome_notif_later),

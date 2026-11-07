@@ -52,8 +52,8 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
     )
 
     WelcomePageScaffold(
-        modifier = Modifier.padding(welcomePagePadding(profile)),
         horizontalAlignment = Alignment.CenterHorizontally,
+        centered = true,
     ) {
         if (profile.showIllustration) {
             Surface(
@@ -79,7 +79,7 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
         }
         Text(
             stringResource(R.string.welcome_p5_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = welcomeTitleStyle(),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
@@ -89,7 +89,7 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
         )
         Text(
             stringResource(R.string.welcome_p5_body),
-            style = MaterialTheme.typography.bodyLarge,
+            style = welcomeBodyStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {

@@ -109,7 +109,8 @@ fun MedLogScreenScaffold(
     val resolvedSnackbarHostState = snackbarHostState ?: remember { SnackbarHostState() }
 
     Scaffold(
-        modifier = modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        // Without a composed top bar the collapse limit is never set, so the behavior would consume all vertical drags.
+        modifier = if (showTopBar) modifier.nestedScroll(scrollBehavior.nestedScrollConnection) else modifier,
         topBar = {
             if (showTopBar) {
                 when (topBarSize) {

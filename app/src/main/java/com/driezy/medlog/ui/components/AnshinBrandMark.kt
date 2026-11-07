@@ -6,9 +6,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import com.driezy.medlog.R
+import com.driezy.medlog.ui.theme.AnshinBrandCream
 
 /**
  * The canonical Anshin mark, rendered from the same resources as the adaptive
@@ -19,7 +19,7 @@ fun AnshinBrandMark(modifier: Modifier = Modifier, contentDescription: String? =
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(percent = 28),
-        color = colorResource(R.color.brand_icon_background),
+        color = AnshinBrandCream,
     ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),

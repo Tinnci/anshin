@@ -1,6 +1,8 @@
 package com.driezy.medlog.feature.onboarding
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,25 +38,24 @@ internal fun WelcomePage0(isCurrentPage: Boolean) {
     val (bodyY, bodyAlpha) = rememberSlideEntry(isCurrentPage, 16f, bodyDelay)
 
     WelcomePageScaffold(
-        modifier = Modifier.padding(welcomePagePadding(profile)),
         horizontalAlignment = Alignment.CenterHorizontally,
+        centered = true,
     ) {
-        Spacer(Modifier.height(if (profile.constrained) 8.dp else 56.dp))
-        if (profile.showIllustration) {
+        if (profile.showBrandMark) {
             AnshinBrandMark(
                 modifier = Modifier
-                    .size(88.dp)
+                    .size(if (profile.constrained) 80.dp else 112.dp)
                     .graphicsLayer {
                         scaleX = iconScale
                         scaleY = iconScale
                         alpha = iconAlpha
                     },
             )
-            Spacer(Modifier.height(12.dp))
+            Spacer(Modifier.height(if (profile.constrained) 4.dp else 12.dp))
         }
         Text(
             stringResource(R.string.welcome_p0_title),
-            style = MaterialTheme.typography.headlineMedium,
+            style = welcomeTitleStyle(hero = true),
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
@@ -64,7 +65,7 @@ internal fun WelcomePage0(isCurrentPage: Boolean) {
         )
         Text(
             stringResource(R.string.welcome_p0_body),
-            style = MaterialTheme.typography.bodyLarge,
+            style = welcomeBodyStyle(),
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             textAlign = TextAlign.Center,
             modifier = Modifier.graphicsLayer {
@@ -103,10 +104,10 @@ internal fun WelcomePage1(isCurrentPage: Boolean) {
         welcomeEntryDelayMs(0, profile.constrained, profile.motionEnabled),
     )
 
-    WelcomePageScaffold(modifier = Modifier.padding(welcomePagePadding(profile))) {
+    WelcomePageScaffold {
         Text(
             stringResource(R.string.welcome_p1_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = welcomeTitleStyle(),
             fontWeight = FontWeight.Bold,
             modifier = Modifier
                 .padding(bottom = if (profile.constrained) 4.dp else 12.dp)
@@ -115,19 +116,29 @@ internal fun WelcomePage1(isCurrentPage: Boolean) {
                     alpha = titleAlpha
                 },
         )
-        features.forEachIndexed { index, feature ->
-            FeatureRow(
-                feature = feature,
-                isCurrentPage = isCurrentPage,
-                delayMs = welcomeEntryDelayMs(index + 1, profile.constrained, profile.motionEnabled),
-                showDescription = profile.showSupportingText,
-            )
+        Surface(
+            shape = RoundedCornerShape(22.dp),
+            color = MaterialTheme.colorScheme.surfaceContainerLow,
+            modifier = Modifier.fillMaxWidth(),
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp),
+            ) {
+                features.forEachIndexed { index, feature ->
+                    FeatureRow(
+                        feature = feature,
+                        isCurrentPage = isCurrentPage,
+                        delayMs = welcomeEntryDelayMs(index + 1, profile.constrained, profile.motionEnabled),
+                    )
+                }
+            }
         }
     }
 }
 
 @Composable
-private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long, showDescription: Boolean) {
+private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long) {
     val (offsetY, alpha) = rememberSlideEntry(isCurrentPage, 20f, delayMs)
     Row(
         verticalAlignment = Alignment.Top,
@@ -153,20 +164,18 @@ private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long, 
             }
         }
         Spacer(Modifier.width(14.dp))
-        androidx.compose.foundation.layout.Column(modifier = Modifier.weight(1f)) {
+        Column(modifier = Modifier.weight(1f)) {
             Text(
                 feature.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.SemiBold,
             )
-            if (showDescription) {
-                Spacer(Modifier.height(2.dp))
-                Text(
-                    feature.description,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
-            }
+            Spacer(Modifier.height(2.dp))
+            Text(
+                feature.description,
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
         }
     }
 }

@@ -1,9 +1,12 @@
 package com.driezy.medlog.feature.onboarding
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -18,16 +21,21 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.ToggleButton
+import androidx.compose.material3.ToggleButtonShapes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.rememberTextMeasurer
+import androidx.compose.ui.text.style.Hyphens
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.data.repository.ThemeMode
@@ -58,10 +66,10 @@ internal fun WelcomePage4(
         welcomeEntryDelayMs(1, profile.constrained, profile.motionEnabled),
     )
 
-    WelcomePageScaffold(modifier = Modifier.padding(welcomePagePadding(profile))) {
+    WelcomePageScaffold {
         Text(
             stringResource(R.string.welcome_p4_title),
-            style = MaterialTheme.typography.headlineSmall,
+            style = welcomeTitleStyle(),
             fontWeight = FontWeight.Bold,
             modifier = Modifier.graphicsLayer {
                 translationY = titleY
@@ -162,13 +170,19 @@ private fun FeatureToggleRow(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     ListItem(
-        headlineContent = { Text(title, fontWeight = FontWeight.Medium) },
+        headlineContent = {
+            // Lets long words such as "Routine-based" break at a hyphen rather than at the last letter.
+            Text(
+                title,
+                style = MaterialTheme.typography.bodyLarge.copy(hyphens = Hyphens.Auto),
+                fontWeight = FontWeight.Medium,
+            )
+        },
         supportingContent = if (showDescription) {
             {
                 Text(
                     description,
                     style = MaterialTheme.typography.bodySmall,
-                    maxLines = 2,
                 )
             }
         } else {
@@ -224,27 +238,69 @@ private fun ThemeModeCard(selected: ThemeMode, onSelected: (ThemeMode) -> Unit, 
                     fontWeight = FontWeight.SemiBold,
                 )
             }
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(ButtonGroupDefaults.ConnectedSpaceBetween),
-            ) {
-                modes.forEachIndexed { index, (mode, label) ->
-                    ToggleButton(
-                        checked = selected == mode,
-                        onCheckedChange = { onSelected(mode) },
-                        modifier = Modifier
-                            .weight(1f)
-                            .semantics { role = Role.RadioButton },
-                        shapes = when (index) {
-                            0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
-                            modes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
-                            else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
-                        },
-                    ) {
-                        Text(label, style = MaterialTheme.typography.labelMedium)
+            BoxWithConstraints(modifier = Modifier.fillMaxWidth()) {
+                val labelStyle = MaterialTheme.typography.labelMedium
+                val textMeasurer = rememberTextMeasurer()
+                val widestLabel = with(LocalDensity.current) {
+                    modes.maxOf { (_, label) -> textMeasurer.measure(label, labelStyle).size.width }.toDp()
+                }
+                val gap = ButtonGroupDefaults.ConnectedSpaceBetween
+                val slotWidth = (maxWidth - gap * (modes.size - 1)) / modes.size
+                if (widestLabel + ThemeButtonHorizontalPadding * 2 <= slotWidth) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(gap)) {
+                        modes.forEachIndexed { index, (mode, label) ->
+                            ThemeModeButton(
+                                label = label,
+                                checked = selected == mode,
+                                onClick = { onSelected(mode) },
+                                modifier = Modifier.weight(1f),
+                                shapes = when (index) {
+                                    0 -> ButtonGroupDefaults.connectedLeadingButtonShapes()
+                                    modes.lastIndex -> ButtonGroupDefaults.connectedTrailingButtonShapes()
+                                    else -> ButtonGroupDefaults.connectedMiddleButtonShapes()
+                                },
+                            )
+                        }
+                    }
+                } else {
+                    // Labels would break mid-word in three columns at large text sizes.
+                    Column(verticalArrangement = Arrangement.spacedBy(gap)) {
+                        modes.forEach { (mode, label) ->
+                            ThemeModeButton(
+                                label = label,
+                                checked = selected == mode,
+                                onClick = { onSelected(mode) },
+                                modifier = Modifier.fillMaxWidth(),
+                                shapes = ButtonGroupDefaults.connectedMiddleButtonShapes(),
+                            )
+                        }
                     }
                 }
             }
         }
+    }
+}
+
+private val ThemeButtonHorizontalPadding = 8.dp
+
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
+@Composable
+private fun ThemeModeButton(
+    label: String,
+    checked: Boolean,
+    onClick: () -> Unit,
+    shapes: ToggleButtonShapes,
+    modifier: Modifier = Modifier,
+) {
+    ToggleButton(
+        checked = checked,
+        onCheckedChange = { onClick() },
+        modifier = modifier
+            .heightIn(min = 48.dp)
+            .semantics { role = Role.RadioButton },
+        shapes = shapes,
+        contentPadding = PaddingValues(horizontal = ThemeButtonHorizontalPadding),
+    ) {
+        Text(label, style = MaterialTheme.typography.labelMedium, textAlign = TextAlign.Center)
     }
 }
