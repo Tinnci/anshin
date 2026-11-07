@@ -83,9 +83,13 @@
     <string name="bpx1_sync_open_pairing">前往配对</string>
     <string name="bpx1_sync_scanning_title">正在等待 BPX1 广播</string>
     <string name="bpx1_sync_scanning_body">现在开始在血压计上测量，并让手机保持在附近。测量完成后会自动保存血压和心率。</string>
-    <string name="bpx1_sync_imported_count">本次已导入 %1$d 组测量</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="other">本次已导入 %1$d 组测量</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">同步完成</string>
-    <string name="bpx1_sync_finished_body">本次共导入 %1$d 组测量。</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="other">本次共导入 %1$d 组测量。</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">同步失败</string>
     <string name="bpx1_sync_failed_body">蓝牙扫描意外中断。请重试；如果反复出现，可以重启手机蓝牙。</string>
     <string name="bpx1_sync_retry">重试</string>

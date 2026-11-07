@@ -86,13 +86,14 @@ android {
         compose = true
         buildConfig = true
     }
+    androidResources {
+        localeFilters += listOf("zh", "en", "ja", "ko")
+    }
     lint {
         lintConfig = file("lint.xml")
         baseline = file("lint-baseline.xml")
         disable += "VectorPath"
         abortOnError = false // CI 中可改为 true
-        htmlReport = true
-        xmlReport = true
     }
 }
 

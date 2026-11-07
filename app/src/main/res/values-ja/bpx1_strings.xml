@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">血圧計</string>
     <string name="settings_home_tile_bpx1_status">BPX1 の接続、キー、測定値の取り込み</string>
     <string name="bpx1_settings_title">BPX1 血圧計</string>
@@ -83,9 +83,13 @@
     <string name="bpx1_sync_open_pairing">ペアリングへ</string>
     <string name="bpx1_sync_scanning_title">BPX1 のブロードキャストを待機中</string>
     <string name="bpx1_sync_scanning_body">今すぐ血圧計で測定を始め、スマートフォンを近くに置いてください。結果を受信すると血圧と心拍数が自動保存されます。</string>
-    <string name="bpx1_sync_imported_count">今回のセッションで %1$d 件取り込み済み</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="other">今回のセッションで %1$d 件取り込み済み</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">同期完了</string>
-    <string name="bpx1_sync_finished_body">%1$d 件の測定を取り込みました。</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="other">%1$d 件の測定を取り込みました。</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">同期に失敗しました</string>
     <string name="bpx1_sync_failed_body">Bluetooth スキャンが予期せず停止しました。再試行してください。繰り返す場合は Bluetooth をオフ・オンしてください。</string>
     <string name="bpx1_sync_retry">再試行</string>

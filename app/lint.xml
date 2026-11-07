@@ -6,8 +6,9 @@
     <!-- 未使用的资源 -->
     <issue id="UnusedResources" severity="warning" />
 
-    <!-- 多语言翻译缺失（本项目暂不支持多语言，设为 ignore） -->
-    <issue id="MissingTranslation" severity="ignore" />
+    <!-- 多语言翻译完整性检查（zh / en / ja / ko 保持完整对齐） -->
+    <issue id="MissingTranslation" severity="error" />
+    <issue id="ExtraTranslation" severity="error" />
 
     <!-- 过时的 API -->
     <issue id="Deprecated" severity="warning" />
@@ -25,6 +26,7 @@
     <issue id="UnusedAttribute" severity="ignore" />
 
     <!-- 依赖版本升级建议：使用 + 通配符已是灵活版本，不作为错误处理 -->
+    <issue id="AndroidGradlePluginVersion" severity="ignore" />
     <issue id="GradleDependency" severity="ignore" />
     <issue id="NewerVersionAvailable" severity="ignore" />
 </lint>

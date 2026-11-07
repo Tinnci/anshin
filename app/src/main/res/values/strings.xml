@@ -2,7 +2,6 @@
     <string name="app_name">安心用药提醒</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">历史</string>
-    <string name="tab_drugs">药品</string>
     <string name="tab_settings">设置</string>
     <string name="delete">删除</string>
     <string name="archive">归档</string>
@@ -105,14 +104,7 @@
     <string name="home_now_group_body">已到时间或即将到点的服药任务</string>
     <string name="home_later_group_title">今日稍后</string>
     <string name="home_later_group_body">后续时段和已处理的今日记录</string>
-    <string name="home_snackbar_undo_skip">%s 已撤销跳过，恢复待服</string>
-    <string name="home_snackbar_reset">%s 已重置为待服</string>
-    <string name="home_snackbar_taken">%s 已标记为已服</string>
     <string name="home_snackbar_undo">撤销</string>
-    <string name="home_snackbar_skipped">%s 已跳过今日</string>
-    <string name="home_snackbar_period_all_taken">「%s」已全部标记为已服</string>
-    <string name="home_snackbar_prn_undo">%s 已撤销</string>
-    <string name="home_snackbar_prn_taken">%s 已记录服用</string>
     <string name="home_period_collapse">折叠</string>
     <string name="home_period_expand">展开</string>
     <string name="home_period_take_all_btn">全部服用</string>
@@ -385,7 +377,6 @@
     <string name="detail_delete_body">删除后将清除所有相关记录，此操作不可撤销。</string>
     <string name="detail_adherence_title">近30天坚持率</string>
     <string name="detail_missed_skipped">漏服/跳过</string>
-    <string name="detail_total_count">计划总次数</string>
     <plurals name="detail_count_times">
         <item quantity="other">%d 次</item>
     </plurals>
@@ -396,7 +387,6 @@
     <string name="detail_stock_decrease_cd">减少一次量</string>
     <string name="detail_stock_increase_cd">增加一次量</string>
     <string name="detail_log_actual_time">实际服用：%s</string>
-    <string name="drugs_title">药品数据库</string>
     <string name="drugs_fab_add">自定义添加</string>
     <string name="drugs_search_placeholder">搜索药品名称、分类、别名或拼音…</string>
     <string name="drugs_close_search_cd">关闭搜索</string>
@@ -424,11 +414,6 @@
     <string name="drugs_compound">复方</string>
     <string name="history_title">服药历史</string>
     <string name="history_adherence_header">近30天坚持率 %d%%</string>
-    <string name="history_adherence_title">近30天坚持率</string>
-    <string name="history_adherence_excellent">优秀！继续保持 🎉</string>
-    <string name="history_adherence_good">表现良好，再接再厉</string>
-    <string name="history_adherence_fair">还需努力，记得按时服药</string>
-    <string name="history_adherence_poor">坚持率偏低，重视用药规律</string>
     <string name="history_prev_month_cd">上月</string>
     <string name="history_next_month_cd">下月</string>
     <string name="history_month_format">%1$d年%2$d月</string>
@@ -918,7 +903,6 @@
     <string name="add_wizard_step">第 %1$d / %2$d 步</string>
     <string name="add_wizard_back">上一步</string>
     <string name="add_wizard_next">下一步</string>
-    <string name="health_source_manual">手动录入</string>
     <string name="settings_restart_dialog_title">恢复完成</string>
     <string name="settings_restart_dialog_body">数据库已恢复，应用需要重启以生效。立即重启吗？</string>
     <string name="settings_restart_dialog_confirm">立即重启</string>

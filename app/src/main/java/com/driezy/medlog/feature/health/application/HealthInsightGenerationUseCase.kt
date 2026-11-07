@@ -46,7 +46,7 @@ class HealthInsightGenerationUseCase @Inject constructor(
             userHeightCm = userHeightCm,
             nowMillis = clock.millis(),
         )
-        val localInsights = HealthIntelligenceEngine.generateLocalInsights(context)
+        val localInsights = HealthIntelligenceEngine.generateLocalInsights(context, locale)
         val settings = preferencesRepository.settingsFlow.first()
         val networkType = networkStatusProvider.currentNetworkType()
         val availability = HealthCloudInsightGenerationGate.evaluate(

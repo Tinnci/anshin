@@ -12,6 +12,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalLocale
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -32,7 +33,6 @@ import java.time.YearMonth
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
-import java.util.Locale
 
 // ─── 月历卡 ──────────────────────────────────────────────────
 
@@ -280,7 +280,7 @@ internal fun DayDetailSection(
                         R.string.history_date_format,
                         date.monthValue,
                         date.dayOfMonth,
-                        date.dayOfWeek.getDisplayName(TextStyle.SHORT, Locale.CHINESE),
+                        date.dayOfWeek.getDisplayName(TextStyle.SHORT, LocalLocale.current.platformLocale),
                     ),
                     style = MaterialTheme.emphasizedTypography.titleSmall,
                 )

@@ -114,6 +114,5 @@ class Bpx1SyncViewModel @Inject constructor(private val syncUseCase: SyncBpx1Mea
 
     override fun onCleared() {
         stopSync()
-        super.onCleared()
     }
 }

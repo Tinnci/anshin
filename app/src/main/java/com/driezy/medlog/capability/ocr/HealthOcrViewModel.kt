@@ -135,7 +135,6 @@ class HealthOcrViewModel @Inject constructor(
     }
 
     override fun onCleared() {
-        super.onCleared()
         (pipeline as? AutoCloseable)?.close()
     }
 

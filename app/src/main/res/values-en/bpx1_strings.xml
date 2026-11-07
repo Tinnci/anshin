@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">Blood pressure monitor</string>
     <string name="settings_home_tile_bpx1_status">BPX1 connection, key, and measurement import</string>
     <string name="bpx1_settings_title">BPX1 monitor</string>
@@ -84,9 +84,15 @@
     <string name="bpx1_sync_open_pairing">Pair device</string>
     <string name="bpx1_sync_scanning_title">Waiting for BPX1 broadcast</string>
     <string name="bpx1_sync_scanning_body">Start a measurement on your monitor now and keep the phone nearby. Blood pressure and heart rate are saved automatically when the result arrives.</string>
-    <string name="bpx1_sync_imported_count">Imported %1$d measurements this session</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="one">Imported %1$d measurement this session</item>
+        <item quantity="other">Imported %1$d measurements this session</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">Sync complete</string>
-    <string name="bpx1_sync_finished_body">Imported %1$d measurements.</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="one">Imported %1$d measurement.</item>
+        <item quantity="other">Imported %1$d measurements.</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">Sync failed</string>
     <string name="bpx1_sync_failed_body">The Bluetooth scan stopped unexpectedly. Try again; if it keeps happening, turn Bluetooth off and on.</string>
     <string name="bpx1_sync_retry">Retry</string>

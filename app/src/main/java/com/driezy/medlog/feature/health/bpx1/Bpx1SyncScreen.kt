@@ -42,6 +42,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.liveRegion
@@ -367,7 +368,7 @@ private fun Bpx1SyncFinished(
         importedCount > 0 -> Triple(
             MedLogIcons.CheckCircleDisplay48,
             stringResource(R.string.bpx1_sync_finished_title),
-            stringResource(R.string.bpx1_sync_finished_body, importedCount),
+            pluralStringResource(R.plurals.bpx1_sync_finished_body, importedCount, importedCount),
         )
         deviceDetected -> Triple(
             MedLogIcons.Info,
@@ -527,7 +528,7 @@ private fun Bpx1MeasurementPreviewCard(measurement: Bpx1Measurement, importedCou
             }
             if (importedCount > 0) {
                 Text(
-                    stringResource(R.string.bpx1_sync_imported_count, importedCount),
+                    pluralStringResource(R.plurals.bpx1_sync_imported_count, importedCount, importedCount),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.8f),
                 )

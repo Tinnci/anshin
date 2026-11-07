@@ -295,7 +295,6 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
         stopScan()
         connectionJob?.cancel()
         connectionJob = null
-        super.onCleared()
     }
 
     private companion object {
