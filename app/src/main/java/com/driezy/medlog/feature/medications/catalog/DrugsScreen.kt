@@ -1,5 +1,6 @@
 package com.driezy.medlog.feature.medications.catalog
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.fadeIn
@@ -15,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -69,14 +71,30 @@ private fun DrugsContent(
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val categoryLabels = rememberDrugCategoryLabels()
+    val canGoBackInternal = uiState.selectedCategory != null || uiState.selectedSubcategory != null
+
+    val handleBack: () -> Unit = {
+        when {
+            uiState.selectedSubcategory != null -> onAction(DrugsUiAction.SubcategorySelected(null))
+            uiState.selectedCategory != null -> {
+                onAction(DrugsUiAction.CategorySelected(null))
+                onAction(DrugsUiAction.TcmFilterChanged(null))
+            }
+            else -> onBack?.invoke()
+        }
+    }
+
+    BackHandler(enabled = canGoBackInternal) {
+        handleBack()
+    }
 
     MedLogScreenScaffold(
         title = { Text(stringResource(R.string.medication_catalog)) },
         navigationIcon = {
-            if (onBack !=
-                null
-            ) {
-                IconButton(onClick = onBack) { MedLogIcon(MedLogIcons.ArrowBack, stringResource(R.string.add_back_cd)) }
+            if (onBack != null || canGoBackInternal) {
+                IconButton(onClick = handleBack) {
+                    MedLogIcon(MedLogIcons.ArrowBack, stringResource(R.string.add_back_cd))
+                }
             }
         },
         actions = listOf(
@@ -328,60 +346,91 @@ private fun DrugsContent(
                         val isTcm = uiState.showTcm
                         Column(modifier = Modifier.fillMaxSize()) {
                             // 面包屑标题行
-                            Row(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Small),
-                                verticalAlignment = Alignment.CenterVertically,
-                                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                            Surface(
+                                modifier = Modifier.fillMaxWidth(),
+                                color = MaterialTheme.colorScheme.surfaceContainerLow,
                             ) {
-                                val catIcon = if (isTcm == true) {
-                                    MedLogIcons.LocalFlorist
-                                } else {
-                                    MedLogIcons.Medication
-                                }
-                                MedLogIcon(
-                                    catIcon,
-                                    null,
-                                    Modifier.size(16.dp),
-                                    tint = MaterialTheme.colorScheme.primary,
-                                )
-                                // 面包屑：一级 > 二级（如果已选）
-                                if (selectedSub != null) {
-                                    Text(
-                                        categoryLabels.label(selectedCat, isTcm),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        " > ",
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                    Text(
-                                        categoryLabels.label("$selectedCat > $selectedSub", isTcm),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f),
-                                        maxLines = 1,
-                                        overflow = TextOverflow.Ellipsis,
-                                    )
-                                    TextButton(onClick = { onAction(DrugsUiAction.SubcategorySelected(null)) }) {
-                                        Text(stringResource(R.string.drugs_back_subcategory))
-                                    }
-                                } else {
-                                    Text(
-                                        categoryLabels.label(selectedCat, isTcm),
-                                        style = MaterialTheme.typography.titleSmall,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        modifier = Modifier.weight(1f),
-                                    )
-                                    TextButton(
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Tiny),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                                ) {
+                                    IconButton(
                                         onClick = {
-                                            onAction(DrugsUiAction.CategorySelected(null))
-                                            onAction(DrugsUiAction.TcmFilterChanged(null))
+                                            if (selectedSub != null) {
+                                                onAction(DrugsUiAction.SubcategorySelected(null))
+                                            } else {
+                                                onAction(DrugsUiAction.CategorySelected(null))
+                                                onAction(DrugsUiAction.TcmFilterChanged(null))
+                                            }
                                         },
-                                    ) { Text(stringResource(R.string.drugs_back_category)) }
+                                        modifier = Modifier.size(36.dp),
+                                    ) {
+                                        MedLogIcon(
+                                            MedLogIcons.ArrowBack,
+                                            contentDescription = stringResource(
+                                                if (selectedSub != null) {
+                                                    R.string.drugs_back_subcategory
+                                                } else {
+                                                    R.string.drugs_back_category
+                                                },
+                                            ),
+                                            modifier = Modifier.size(18.dp),
+                                            tint = MaterialTheme.colorScheme.primary,
+                                        )
+                                    }
+                                    Column(
+                                        modifier = Modifier.weight(1f),
+                                        verticalArrangement = Arrangement.spacedBy(2.dp),
+                                    ) {
+                                        if (selectedSub != null) {
+                                            Text(
+                                                text = categoryLabels.label(selectedCat, isTcm),
+                                                style = MaterialTheme.typography.labelSmall,
+                                                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                            Text(
+                                                text = categoryLabels.label("$selectedCat > $selectedSub", isTcm),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        } else {
+                                            Text(
+                                                text = categoryLabels.label(selectedCat, isTcm),
+                                                style = MaterialTheme.typography.titleSmall,
+                                                fontWeight = FontWeight.SemiBold,
+                                                color = MaterialTheme.colorScheme.primary,
+                                                maxLines = 1,
+                                                overflow = TextOverflow.Ellipsis,
+                                            )
+                                        }
+                                    }
+                                    if (selectedSub != null) {
+                                        TextButton(
+                                            onClick = {
+                                                onAction(DrugsUiAction.CategorySelected(null))
+                                                onAction(DrugsUiAction.TcmFilterChanged(null))
+                                            },
+                                            contentPadding = PaddingValues(
+                                                horizontal = MedLogSpacing.Small,
+                                                vertical = 0.dp,
+                                            ),
+                                        ) {
+                                            Text(
+                                                text = stringResource(R.string.drugs_back_category),
+                                                style = MaterialTheme.typography.labelMedium,
+                                                maxLines = 1,
+                                                softWrap = false,
+                                            )
+                                        }
+                                    }
                                 }
                             }
                             HorizontalDivider()
