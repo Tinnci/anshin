@@ -12,28 +12,24 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -45,11 +41,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.heading
 import androidx.compose.ui.semantics.liveRegion
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
@@ -61,9 +60,13 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Bpx1SyncScreen(onDone: () -> Unit, onOpenPairing: () -> Unit, viewModel: Bpx1SyncViewModel = hiltViewModel()) {
+internal fun Bpx1SyncDialog(
+    onDismiss: () -> Unit,
+    onDone: () -> Unit,
+    onOpenPairing: () -> Unit,
+    viewModel: Bpx1SyncViewModel = hiltViewModel(),
+) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -97,80 +100,88 @@ fun Bpx1SyncScreen(onDone: () -> Unit, onOpenPairing: () -> Unit, viewModel: Bpx
         onDispose { viewModel.stopSync() }
     }
 
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(stringResource(R.string.bpx1_sync_title)) },
-                navigationIcon = {
-                    IconButton(onClick = onDone) {
-                        MedLogIcon(
-                            MedLogIcons.ArrowBack,
-                            contentDescription = stringResource(R.string.common_back),
-                        )
-                    }
-                },
-                actions = {
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(usePlatformDefaultWidth = false, dismissOnClickOutside = false),
+    ) {
+        Surface(
+            modifier = Modifier
+                .padding(MedLogSpacing.Large)
+                .widthIn(max = 560.dp)
+                .fillMaxWidth(),
+            shape = MaterialTheme.shapes.extraLarge,
+            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+        ) {
+            Column {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(start = MedLogSpacing.XLarge, top = MedLogSpacing.Small, end = MedLogSpacing.Small),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = stringResource(R.string.bpx1_sync_title),
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.weight(1f).semantics { heading() },
+                    )
                     IconButton(onClick = onOpenPairing) {
                         MedLogIcon(
                             MedLogIcons.Settings,
                             contentDescription = stringResource(R.string.bpx1_settings_title),
                         )
                     }
-                },
-            )
-        },
-    ) { innerPadding ->
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding)
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Large),
-            contentAlignment = Alignment.Center,
-        ) {
-            val failure = uiState.failure
-            when {
-                uiState.isNeedsConfiguration -> {
-                    Bpx1SyncNeedsConfiguration(onOpenPairing = onOpenPairing, onDone = onDone)
+                    IconButton(onClick = onDismiss) {
+                        MedLogIcon(MedLogIcons.Close, contentDescription = stringResource(R.string.home_close))
+                    }
                 }
-                failure != null -> {
-                    Bpx1SyncFailed(
-                        failure = failure,
-                        onRetry = ::requestPermissionsOrSync,
-                        onEnableBluetooth = {
-                            enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
-                        },
-                        onOpenAppSettings = {
-                            context.startActivity(
-                                Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                                    data = Uri.fromParts("package", context.packageName, null)
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .verticalScroll(rememberScrollState())
+                        .padding(horizontal = MedLogSpacing.XLarge, vertical = MedLogSpacing.Large),
+                ) {
+                    val failure = uiState.failure
+                    when {
+                        uiState.isNeedsConfiguration -> {
+                            Bpx1SyncNeedsConfiguration(onOpenPairing = onOpenPairing, onDone = onDone)
+                        }
+                        failure != null -> {
+                            Bpx1SyncFailed(
+                                failure = failure,
+                                onRetry = ::requestPermissionsOrSync,
+                                onEnableBluetooth = {
+                                    enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
                                 },
+                                onOpenAppSettings = {
+                                    context.startActivity(
+                                        Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                            data = Uri.fromParts("package", context.packageName, null)
+                                            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                        },
+                                    )
+                                },
+                                onDone = onDone,
                             )
-                        },
-                        onDone = onDone,
-                    )
-                }
-                uiState.isFinished -> {
-                    Bpx1SyncFinished(
-                        importedCount = uiState.importedCount,
-                        deviceDetected = uiState.deviceDetected,
-                        measurement = uiState.lastImportedMeasurement,
-                        onKeepListening = ::requestPermissionsOrSync,
-                        onDone = onDone,
-                    )
-                }
-                uiState.isScanning -> {
-                    Bpx1SyncScanning(
-                        uiState = uiState,
-                        onCancel = onDone,
-                    )
-                }
-                else -> {
-                    LinearProgressIndicator(
-                        modifier = Modifier.fillMaxWidth(),
-                        strokeCap = StrokeCap.Round,
-                    )
+                        }
+                        uiState.isFinished -> {
+                            Bpx1SyncFinished(
+                                importedCount = uiState.importedCount,
+                                deviceDetected = uiState.deviceDetected,
+                                measurement = uiState.lastImportedMeasurement,
+                                onKeepListening = ::requestPermissionsOrSync,
+                                onDone = onDone,
+                            )
+                        }
+                        uiState.isScanning -> {
+                            Bpx1SyncScanning(uiState = uiState, onCancel = onDone)
+                        }
+                        else -> {
+                            LinearProgressIndicator(
+                                modifier = Modifier.fillMaxWidth(),
+                                strokeCap = StrokeCap.Round,
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -178,69 +189,59 @@ fun Bpx1SyncScreen(onDone: () -> Unit, onOpenPairing: () -> Unit, viewModel: Bpx
 }
 
 @Composable
-private fun Bpx1SyncCard(
+private fun Bpx1SyncStatusContent(
     icon: Int,
     title: String,
     body: String,
     isError: Boolean = false,
     content: @Composable () -> Unit = {},
 ) {
-    Card(
+    Column(
         modifier = Modifier.fillMaxWidth(),
-        shape = MaterialTheme.shapes.extraLarge,
-        colors = CardDefaults.cardColors(
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-        ),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
     ) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(MedLogSpacing.XLarge),
+        Surface(
+            shape = MaterialTheme.shapes.large,
+            color = if (isError) {
+                MaterialTheme.colorScheme.errorContainer
+            } else {
+                MaterialTheme.colorScheme.primaryContainer
+            },
+            modifier = Modifier.size(56.dp),
         ) {
-            Surface(
-                shape = MaterialTheme.shapes.extraLarge,
-                color = if (isError) {
-                    MaterialTheme.colorScheme.errorContainer
-                } else {
-                    MaterialTheme.colorScheme.primaryContainer
-                },
-                modifier = Modifier.size(72.dp),
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    MedLogIcon(
-                        icon,
-                        contentDescription = null,
-                        modifier = Modifier.size(36.dp),
-                        tint = if (isError) {
-                            MaterialTheme.colorScheme.onErrorContainer
-                        } else {
-                            MaterialTheme.colorScheme.onPrimaryContainer
-                        },
-                    )
-                }
+            Box(contentAlignment = Alignment.Center) {
+                MedLogIcon(
+                    icon,
+                    contentDescription = null,
+                    modifier = Modifier.size(28.dp),
+                    tint = if (isError) {
+                        MaterialTheme.colorScheme.onErrorContainer
+                    } else {
+                        MaterialTheme.colorScheme.onPrimaryContainer
+                    },
+                )
             }
-            Text(
-                title,
-                style = MaterialTheme.emphasizedTypography.titleLarge,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
-            )
-            Text(
-                body,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
-            content()
         }
+        Text(
+            title,
+            style = MaterialTheme.emphasizedTypography.titleLarge,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.semantics { liveRegion = LiveRegionMode.Polite },
+        )
+        Text(
+            body,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
+        content()
     }
 }
 
 @Composable
 private fun Bpx1SyncNeedsConfiguration(onOpenPairing: () -> Unit, onDone: () -> Unit) {
-    Bpx1SyncCard(
+    Bpx1SyncStatusContent(
         icon = MedLogIcons.MonitorHeartDisplay48,
         title = stringResource(R.string.bpx1_sync_needs_config_title),
         body = stringResource(R.string.bpx1_sync_needs_config_body),
@@ -248,7 +249,7 @@ private fun Bpx1SyncNeedsConfiguration(onOpenPairing: () -> Unit, onDone: () -> 
         Spacer(Modifier.height(MedLogSpacing.Tiny))
         Button(
             onClick = onOpenPairing,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             shape = MaterialTheme.shapes.large,
         ) {
             MedLogIcon(MedLogIcons.Settings, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -257,7 +258,7 @@ private fun Bpx1SyncNeedsConfiguration(onOpenPairing: () -> Unit, onDone: () -> 
         }
         OutlinedButton(
             onClick = onDone,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             shape = MaterialTheme.shapes.large,
         ) {
             Text(stringResource(R.string.bpx1_sync_cancel))
@@ -268,7 +269,7 @@ private fun Bpx1SyncNeedsConfiguration(onOpenPairing: () -> Unit, onDone: () -> 
 @Composable
 private fun Bpx1SyncScanning(uiState: Bpx1SyncUiState, onCancel: () -> Unit) {
     val measurement = uiState.lastImportedMeasurement
-    Bpx1SyncCard(
+    Bpx1SyncStatusContent(
         icon = MedLogIcons.MonitorHeartDisplay48,
         title = stringResource(
             if (uiState.deviceDetected) R.string.bpx1_sync_detected_title else R.string.bpx1_sync_scanning_title,
@@ -337,7 +338,7 @@ private fun Bpx1SyncScanning(uiState: Bpx1SyncUiState, onCancel: () -> Unit) {
         if (uiState.importedCount > 0) {
             Button(
                 onClick = onCancel,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(MedLogIcons.Check, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -347,7 +348,7 @@ private fun Bpx1SyncScanning(uiState: Bpx1SyncUiState, onCancel: () -> Unit) {
         } else {
             OutlinedButton(
                 onClick = onCancel,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 Text(stringResource(R.string.bpx1_sync_cancel))
@@ -381,7 +382,7 @@ private fun Bpx1SyncFinished(
             stringResource(R.string.bpx1_sync_not_found_body),
         )
     }
-    Bpx1SyncCard(
+    Bpx1SyncStatusContent(
         icon = icon,
         title = title,
         body = body,
@@ -395,7 +396,7 @@ private fun Bpx1SyncFinished(
         if (importedCount > 0) {
             Button(
                 onClick = onDone,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 Text(stringResource(R.string.bpx1_sync_done))
@@ -403,7 +404,7 @@ private fun Bpx1SyncFinished(
         } else {
             Button(
                 onClick = onKeepListening,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(MedLogIcons.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -412,7 +413,7 @@ private fun Bpx1SyncFinished(
             }
             OutlinedButton(
                 onClick = onDone,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 Text(stringResource(R.string.bpx1_sync_done))
@@ -437,7 +438,7 @@ private fun Bpx1SyncFailed(
             R.string.bpx1_sync_permission_title to R.string.bpx1_sync_permission_body
         Bpx1SyncFailure.SCAN_FAILED -> R.string.bpx1_sync_failed_title to R.string.bpx1_sync_failed_body
     }
-    Bpx1SyncCard(
+    Bpx1SyncStatusContent(
         icon = MedLogIcons.Warning,
         title = stringResource(title),
         body = stringResource(body),
@@ -446,7 +447,7 @@ private fun Bpx1SyncFailed(
         when (failure) {
             Bpx1SyncFailure.BLUETOOTH_DISABLED -> Button(
                 onClick = onEnableBluetooth,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 Text(stringResource(R.string.bpx1_sync_enable_bluetooth))
@@ -455,14 +456,14 @@ private fun Bpx1SyncFailed(
             Bpx1SyncFailure.PERMISSION_DENIED -> {
                 Button(
                     onClick = onRetry,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     shape = MaterialTheme.shapes.large,
                 ) {
                     Text(stringResource(R.string.bpx1_sync_grant_permission))
                 }
                 FilledTonalButton(
                     onClick = onOpenAppSettings,
-                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                     shape = MaterialTheme.shapes.large,
                 ) {
                     Text(stringResource(R.string.bpx1_sync_open_app_settings))
@@ -470,7 +471,7 @@ private fun Bpx1SyncFailed(
             }
             Bpx1SyncFailure.SCAN_FAILED -> Button(
                 onClick = onRetry,
-                modifier = Modifier.fillMaxWidth().height(48.dp),
+                modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
                 shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(MedLogIcons.Refresh, contentDescription = null, modifier = Modifier.size(18.dp))
@@ -480,7 +481,7 @@ private fun Bpx1SyncFailed(
         }
         OutlinedButton(
             onClick = onDone,
-            modifier = Modifier.fillMaxWidth().height(48.dp),
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
             shape = MaterialTheme.shapes.large,
         ) {
             Text(stringResource(R.string.bpx1_sync_cancel))

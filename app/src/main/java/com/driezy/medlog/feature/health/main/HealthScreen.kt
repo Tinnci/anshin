@@ -21,7 +21,7 @@ import com.driezy.medlog.R
 import com.driezy.medlog.capability.ocr.HealthOcrScannerPage
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
-import com.driezy.medlog.feature.health.bpx1.Bpx1SyncScreen
+import com.driezy.medlog.feature.health.bpx1.Bpx1SyncDialog
 import com.driezy.medlog.ui.components.MedLogScreenScaffold
 import com.driezy.medlog.ui.components.ScreenChromeState
 import com.driezy.medlog.ui.components.ScreenFab
@@ -130,11 +130,9 @@ private fun HealthContent(
     }
     fun showBpx1Sync() {
         pendingBpx1Sync = false
-        overlay = ScreenOverlay.FullScreen(
-            id = "health:bpx1-sync",
-            dismissOnClickOutside = false,
-        ) {
-            Bpx1SyncScreen(
+        overlay = ScreenOverlay.Custom(id = "health:bpx1-sync") {
+            Bpx1SyncDialog(
+                onDismiss = { overlay = null },
                 onDone = {
                     overlay = null
                     onAction(HealthUiAction.Bpx1SyncDone)
