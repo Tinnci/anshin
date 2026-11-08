@@ -7,15 +7,11 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.ocr.HealthOcrScannerPage
@@ -111,8 +107,6 @@ private fun HealthContent(
     onNavigateToBpx1Settings: () -> Unit,
 ) {
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
-    var pendingBpx1Sync by rememberSaveable { mutableStateOf(false) }
-    val lifecycleOwner = LocalLifecycleOwner.current
     fun showOcrScanner() {
         overlay = ScreenOverlay.FullScreen(
             id = "health:ocr",
@@ -128,35 +122,6 @@ private fun HealthContent(
             )
         }
     }
-    fun showBpx1Sync() {
-        pendingBpx1Sync = false
-        overlay = ScreenOverlay.Custom(id = "health:bpx1-sync") {
-            Bpx1SyncDialog(
-                onDismiss = { overlay = null },
-                onDone = {
-                    overlay = null
-                    onAction(HealthUiAction.Bpx1SyncDone)
-                },
-                onOpenPairing = {
-                    overlay = null
-                    pendingBpx1Sync = true
-                    onAction(HealthUiAction.SheetDismissed)
-                    onNavigateToBpx1Settings()
-                },
-            )
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_RESUME && pendingBpx1Sync) {
-                showBpx1Sync()
-            }
-        }
-        lifecycleOwner.lifecycle.addObserver(observer)
-        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
-    }
-
     MedLogScreenScaffold(
         title = { Text(stringResource(R.string.health_screen_title)) },
         actions = listOf(
@@ -191,7 +156,7 @@ private fun HealthContent(
             item(key = "ocr_hero") {
                 HealthOcrHeroCard(
                     onScan = ::showOcrScanner,
-                    onBpx1Sync = ::showBpx1Sync,
+                    onBpx1Sync = { onAction(HealthUiAction.Bpx1SyncOpened) },
                     bpx1Status = uiState.bpx1Status,
                     autoSyncedMeasurement = uiState.autoSyncedBpx1Measurement,
                     onDismissAutoSyncBanner = { onAction(HealthUiAction.Bpx1AutoSyncBannerConsumed) },
@@ -340,6 +305,16 @@ private fun HealthContent(
 
     val deleteTarget = uiState.deleteTarget
     val stateOverlay = when {
+        uiState.showBpx1Sync -> ScreenOverlay.Custom(id = "health:bpx1-sync") {
+            Bpx1SyncDialog(
+                onDismiss = { onAction(HealthUiAction.Bpx1SyncDismissed) },
+                onDone = { onAction(HealthUiAction.Bpx1SyncDone) },
+                onOpenPairing = {
+                    onAction(HealthUiAction.SheetDismissed)
+                    onNavigateToBpx1Settings()
+                },
+            )
+        }
         uiState.showAddSheet -> ScreenOverlay.Custom(id = "health:record-sheet") {
             AddEditHealthSheet(
                 draft = uiState.draft,
@@ -350,7 +325,7 @@ private fun HealthContent(
                 onNotesChange = { onAction(HealthUiAction.DraftNotesChanged(it)) },
                 onTimeChange = { onAction(HealthUiAction.DraftTimeChanged(it)) },
                 onOcrScan = ::showOcrScanner,
-                onBpx1Sync = ::showBpx1Sync,
+                onBpx1Sync = { onAction(HealthUiAction.Bpx1SyncOpened) },
                 voiceInput = uiState.voiceInput,
                 onStartVoiceInput = { onAction(HealthUiAction.VoiceInputStarted) },
                 onStopVoiceInput = { onAction(HealthUiAction.VoiceInputStopped) },

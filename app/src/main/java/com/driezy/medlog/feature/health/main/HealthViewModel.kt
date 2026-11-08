@@ -76,6 +76,7 @@ data class HealthUiState(
     val records: List<HealthRecord> = emptyList(),
     val stats: List<HealthTypeStat> = emptyList(),
     val showAddSheet: Boolean = false,
+    val showBpx1Sync: Boolean = false,
     val draft: HealthDraftState = HealthDraftState(),
     val isLoading: Boolean = true,
     val deleteTarget: HealthRecord? = null, // 待确认删除的记录
@@ -100,6 +101,8 @@ sealed interface HealthUiAction {
     data class TypeSelected(val type: HealthType?) : HealthUiAction
     data class HeightChanged(val heightCm: Float) : HealthUiAction
     data object AddStarted : HealthUiAction
+    data object Bpx1SyncOpened : HealthUiAction
+    data object Bpx1SyncDismissed : HealthUiAction
     data object Bpx1SyncDone : HealthUiAction
     data object Bpx1AutoSyncBannerConsumed : HealthUiAction
     data class OcrMetricApplied(val metric: ParsedHealthMetric) : HealthUiAction
@@ -155,6 +158,8 @@ class HealthViewModel @Inject constructor(
             is HealthUiAction.TypeSelected -> selectType(action.type)
             is HealthUiAction.HeightChanged -> updateHeight(action.heightCm)
             HealthUiAction.AddStarted -> startAdd()
+            HealthUiAction.Bpx1SyncOpened -> _uiState.update { it.copy(showBpx1Sync = true) }
+            HealthUiAction.Bpx1SyncDismissed -> _uiState.update { it.copy(showBpx1Sync = false) }
             HealthUiAction.Bpx1SyncDone -> finishBpx1Sync()
             HealthUiAction.Bpx1AutoSyncBannerConsumed -> _uiState.update { it.copy(autoSyncedBpx1Measurement = null) }
             is HealthUiAction.OcrMetricApplied -> applyOcrMetric(action.metric)
@@ -463,7 +468,7 @@ class HealthViewModel @Inject constructor(
     /** BPX1 同步完成后关闭新增表单；已导入记录由 Flow 自动刷新。 */
     fun finishBpx1Sync() {
         stopVoiceInput()
-        _uiState.update { it.copy(showAddSheet = false) }
+        _uiState.update { it.copy(showAddSheet = false, showBpx1Sync = false) }
     }
 
     fun onDraftTypeChange(type: HealthType) = _uiState.update { s ->
