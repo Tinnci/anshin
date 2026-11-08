@@ -31,10 +31,19 @@ fun MyMedicationsScreen(
     onOpen: (Long) -> Unit,
     onCatalog: (() -> Unit)?,
     onSettings: () -> Unit,
+    showTcm: Boolean = false,
     viewModel: MyMedicationsViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
-    MyMedicationsContent(state, onAdd, onOpen, onCatalog, onSettings, viewModel::retry)
+    MyMedicationsContent(
+        state = state,
+        onAdd = onAdd,
+        onOpen = onOpen,
+        onCatalog = onCatalog,
+        onSettings = onSettings,
+        showTcm = showTcm,
+        onRetry = viewModel::retry,
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,6 +54,7 @@ internal fun MyMedicationsContent(
     onOpen: (Long) -> Unit,
     onCatalog: (() -> Unit)?,
     onSettings: () -> Unit,
+    showTcm: Boolean = false,
     onRetry: () -> Unit,
 ) {
     var archived by rememberSaveable { mutableStateOf(false) }
@@ -130,7 +140,13 @@ internal fun MyMedicationsContent(
                                     color = MaterialTheme.colorScheme.onSurface,
                                 )
                                 Text(
-                                    text = stringResource(R.string.medication_browse_catalog_desc),
+                                    text = stringResource(
+                                        if (showTcm) {
+                                            R.string.medication_browse_catalog_desc_tcm
+                                        } else {
+                                            R.string.medication_browse_catalog_desc
+                                        },
+                                    ),
                                     style = MaterialTheme.typography.bodySmall,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )

@@ -132,6 +132,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
                 navController = navController,
                 startDest = startDest,
                 catalogEnabled = featureFlags.enableDrugDatabase,
+                showTcmInCatalog = featureFlags.showTcmInCatalog,
             )
         }
     } else {
@@ -139,6 +140,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
             navController = navController,
             startDest = startDest,
             catalogEnabled = featureFlags.enableDrugDatabase,
+            showTcmInCatalog = featureFlags.showTcmInCatalog,
         )
     }
 }
@@ -149,6 +151,7 @@ private fun MedLogNavHost(
     navController: androidx.navigation.NavHostController,
     startDest: Route,
     catalogEnabled: Boolean,
+    showTcmInCatalog: Boolean = false,
 ) {
     val motionScheme = MaterialTheme.motionScheme
     val navFadeIn = fadeIn(animationSpec = motionScheme.fastEffectsSpec())
@@ -212,6 +215,7 @@ private fun MedLogNavHost(
                 onOpen = { navController.navigate(Route.MedDetail(it)) },
                 onCatalog = if (catalogEnabled) ({ navController.navigate(Route.Drugs) }) else null,
                 onSettings = { navController.navigate(Route.Settings) },
+                showTcm = showTcmInCatalog,
             )
         }
         composable<Route.Drugs>(

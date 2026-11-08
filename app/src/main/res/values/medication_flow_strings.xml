@@ -33,6 +33,7 @@
     <string name="settings_tcm_catalog_title">显示中成药</string>
     <string name="settings_tcm_catalog_subtitle">在药品库和添加药品建议中显示中成药</string>
     <string name="medication_browse_catalog">浏览药品库</string>
-    <string name="medication_browse_catalog_desc">查阅 3,000+ 西药及中成药分类与用法</string>
+    <string name="medication_browse_catalog_desc">查阅 3,000+ 常用药品分类与用法</string>
+    <string name="medication_browse_catalog_desc_tcm">查阅 3,000+ 西药及中成药分类与用法</string>
     <string name="drugs_original_name">原文名称</string>
 </resources>

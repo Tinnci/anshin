@@ -33,6 +33,7 @@
     <string name="settings_tcm_catalog_title">중성약 표시</string>
     <string name="settings_tcm_catalog_subtitle">의약품 목록과 약품 이름 추천에 중성약을 포함합니다</string>
     <string name="medication_browse_catalog">의약품 목록 둘러보기</string>
-    <string name="medication_browse_catalog_desc">3,000개 이상의 의약품 및 한약 데이터베이스 검색</string>
+    <string name="medication_browse_catalog_desc">3,000개 이상의 의약품 데이터베이스 검색</string>
+    <string name="medication_browse_catalog_desc_tcm">3,000개 이상의 의약품 및 한약 데이터베이스 검색</string>
     <string name="drugs_original_name">원문 이름</string>
 </resources>
