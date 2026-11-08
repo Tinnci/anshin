@@ -29,9 +29,15 @@ import com.driezy.medlog.data.model.Drug
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.DrugCategoryLabels
+import com.driezy.medlog.ui.util.medicationNameLanguage
 
 @Composable
-internal fun SubcategoryGrid(subcategories: List<Pair<String, Int>>, onSubcategoryClick: (String) -> Unit) {
+internal fun SubcategoryGrid(
+    subcategories: List<Pair<String, Int>>,
+    categoryLabel: (String) -> String,
+    onSubcategoryClick: (String) -> Unit,
+) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 150.dp),
         contentPadding = PaddingValues(MedLogSpacing.Medium),
@@ -58,7 +64,7 @@ internal fun SubcategoryGrid(subcategories: List<Pair<String, Int>>, onSubcatego
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(
-                        text = sub,
+                        text = categoryLabel(sub),
                         style = MaterialTheme.typography.bodyMedium,
                         fontWeight = FontWeight.Medium,
                         maxLines = 2,
@@ -83,6 +89,8 @@ internal fun SubcategoryGrid(subcategories: List<Pair<String, Int>>, onSubcatego
 internal fun DrugCategoryBrowser(
     westernCategories: List<Pair<String, Int>>,
     tcmCategories: List<Pair<String, Int>>,
+    includeTcm: Boolean,
+    categoryLabels: DrugCategoryLabels,
     onCategoryClick: (String, Boolean) -> Unit,
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
@@ -94,25 +102,27 @@ internal fun DrugCategoryBrowser(
     val motionScheme = MaterialTheme.motionScheme
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
-        PrimaryTabRow(
-            selectedTabIndex = selectedTab,
-            modifier = Modifier
-                .padding(start = MedLogSpacing.Medium, top = MedLogSpacing.Small, end = MedLogSpacing.Medium)
-                .clip(MaterialTheme.shapes.large),
-            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
-            divider = {},
-        ) {
-            tabs.forEachIndexed { index, (label, icon) ->
-                Tab(
-                    selected = selectedTab == index,
-                    onClick = { selectedTab = index },
-                    text = { Text(label) },
-                    icon = { MedLogIcon(icon, null, Modifier.size(16.dp)) },
-                )
+        if (includeTcm) {
+            PrimaryTabRow(
+                selectedTabIndex = selectedTab,
+                modifier = Modifier
+                    .padding(start = MedLogSpacing.Medium, top = MedLogSpacing.Small, end = MedLogSpacing.Medium)
+                    .clip(MaterialTheme.shapes.large),
+                containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+                divider = {},
+            ) {
+                tabs.forEachIndexed { index, (label, icon) ->
+                    Tab(
+                        selected = selectedTab == index,
+                        onClick = { selectedTab = index },
+                        text = { Text(label) },
+                        icon = { MedLogIcon(icon, null, Modifier.size(16.dp)) },
+                    )
+                }
             }
         }
         AnimatedContent(
-            targetState = selectedTab,
+            targetState = if (includeTcm) selectedTab else 0,
             transitionSpec = {
                 fadeIn(motionScheme.defaultEffectsSpec()) togetherWith
                     fadeOut(motionScheme.fastEffectsSpec())
@@ -138,7 +148,7 @@ internal fun DrugCategoryBrowser(
                 ) {
                     items(categories, key = { it.first }) { (cat, count) ->
                         CategoryGridCard(
-                            category = cat,
+                            category = categoryLabels.label(cat, isTcm),
                             count = count,
                             isTcm = isTcm,
                             onClick = { onCategoryClick(cat, isTcm) },
@@ -205,6 +215,7 @@ internal fun CategoryGridCard(category: String, count: Int, isTcm: Boolean, onCl
 @Composable
 internal fun DrugGroupedList(
     groupedDrugs: Map<String, List<Drug>>,
+    categoryLabels: DrugCategoryLabels,
     onDrugSelect: (Drug) -> Unit,
     topPadding: androidx.compose.ui.unit.Dp = 0.dp,
 ) {
@@ -226,7 +237,12 @@ internal fun DrugGroupedList(
             }
             items(drugs, key = { it.name + it.fullPath }) { drug ->
                 Column(modifier = Modifier.animateItem()) {
-                    DrugListItem(drug = drug, query = "", onClick = { onDrugSelect(drug) })
+                    DrugListItem(
+                        drug = drug,
+                        query = "",
+                        categoryLabels = categoryLabels,
+                        onClick = { onDrugSelect(drug) },
+                    )
                     HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
                 }
             }
@@ -237,11 +253,21 @@ internal fun DrugGroupedList(
 // ─── 平铺列表（搜索结果） ─────────────────────────────────────
 
 @Composable
-internal fun DrugFlatList(drugs: List<Drug>, query: String, onDrugSelect: (Drug) -> Unit) {
+internal fun DrugFlatList(
+    drugs: List<Drug>,
+    query: String,
+    categoryLabels: DrugCategoryLabels,
+    onDrugSelect: (Drug) -> Unit,
+) {
     LazyColumn(contentPadding = PaddingValues(bottom = 88.dp)) {
         items(drugs, key = { it.name + it.fullPath }) { drug ->
             Column(modifier = Modifier.animateItem()) {
-                DrugListItem(drug = drug, query = query, onClick = { onDrugSelect(drug) })
+                DrugListItem(
+                    drug = drug,
+                    query = query,
+                    categoryLabels = categoryLabels,
+                    onClick = { onDrugSelect(drug) },
+                )
                 HorizontalDivider(modifier = Modifier.padding(start = MedLogSpacing.Large))
             }
         }
@@ -251,13 +277,10 @@ internal fun DrugFlatList(drugs: List<Drug>, query: String, onDrugSelect: (Drug)
 // ─── 单个药品 Item ────────────────────────────────────────────
 
 @Composable
-internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
-    // 别名匹配提示：当名称不包含 query 但别名匹配时显示
-    val aliasMatchHint = if (query.isNotBlank() && !drug.nameLower.contains(query.lowercase())) {
-        drug.aliases.firstOrNull { it.lowercase().contains(query.lowercase()) }
-    } else {
-        null
-    }
+private fun DrugListItem(drug: Drug, query: String, categoryLabels: DrugCategoryLabels, onClick: () -> Unit) {
+    val language = medicationNameLanguage()
+    val localizedName = drug.localizedName(language)
+    val aliasMatchHint = drug.alternateNameMatching(query.trim(), language)
 
     // 多路径药品：提取所有唯一的一级分类作为 badge 列表
     val extraCategories = if (drug.allPaths.size > 1) {
@@ -271,7 +294,7 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
 
     val tcmBadge = stringResource(R.string.drugs_tcm_badge)
     ListItem(
-        headlineContent = { Text(drug.name) },
+        headlineContent = { Text(localizedName) },
         leadingContent = {
             MedLogIcon(
                 icon = if (drug.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,
@@ -288,9 +311,12 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
             Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny)) {
                 Text(
                     text = buildString {
-                        append(drug.category)
+                        if (!drug.hasLocalizedName(language)) {
+                            append(stringResource(R.string.drugs_original_name))
+                            append(" · ")
+                        }
+                        append(categoryLabels.label(drug.category, drug.isTcm))
                         if (drug.isTcm) append(tcmBadge)
-                        if (drug.aliases.isNotEmpty()) append("  ·  ${drug.aliases.take(2).joinToString(", ")}")
                     },
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -307,7 +333,7 @@ internal fun DrugListItem(drug: Drug, query: String, onClick: () -> Unit) {
                                 onClick = {},
                                 label = {
                                     Text(
-                                        cat,
+                                        categoryLabels.label(cat, drug.isTcm),
                                         style = MaterialTheme.typography.labelSmall,
                                         maxLines = 1,
                                         overflow = TextOverflow.Ellipsis,

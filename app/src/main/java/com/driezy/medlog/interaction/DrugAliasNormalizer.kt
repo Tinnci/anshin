@@ -16,6 +16,6 @@ class DrugAliasNormalizer(aliasToCanonical: Map<String, String> = emptyMap()) {
     private fun canonicalName(name: String): String = normalizedAliases[name.normalizeDrugKey()].orEmpty()
 }
 
-private fun String.normalizeDrugKey(): String = trim()
+internal fun String.normalizeDrugKey(): String = trim()
     .lowercase()
     .replace(Regex("\\s+"), " ")

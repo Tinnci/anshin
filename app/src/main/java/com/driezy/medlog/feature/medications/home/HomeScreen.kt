@@ -35,9 +35,12 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.displayName
+import com.driezy.medlog.ui.util.medicationNameLanguage
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import kotlinx.coroutines.delay
+import java.text.Collator
 import java.util.*
 
 /** 列表项交错入场动画的逐项延迟（毫秒） */
@@ -116,6 +119,21 @@ private fun HomeContent(
     onOpenSettings: () -> Unit,
 ) {
     val performHaptic = rememberMedLogHaptics()
+    val categoryGroups = if (uiState.groupByTime) {
+        emptyList()
+    } else {
+        val labels = rememberDrugCategoryLabels()
+        val language = medicationNameLanguage()
+        val other = stringResource(R.string.category_other)
+        val groups = uiState.groupedItems
+        remember(groups, labels, language, other) {
+            val collator = Collator.getInstance(Locale.forLanguageTag(language))
+            groups.map { (category, items) ->
+                val label = if (category == HomeUiState.UNCATEGORIZED_KEY) other else labels.label(category)
+                Triple(category, label, items)
+            }.sortedWith(compareBy(collator) { it.second })
+        }
+    }
     var overlay by remember { mutableStateOf<ScreenOverlay?>(null) }
     fun toggleDose(item: MedicationWithStatus) {
         if (item.doseKey in uiState.savingDoses) return
@@ -329,7 +347,7 @@ private fun HomeContent(
                 }
             } else {
                 // 分类分组：扁平卡片列表
-                uiState.groupedItems.forEach { (category, groupItems) ->
+                categoryGroups.forEach { (category, label, groupItems) ->
                     val visibleItems = groupItems.filterNot { it.doseKey == focusedPlanItem?.doseKey }
                     if (category.isNotBlank() && visibleItems.isNotEmpty()) {
                         item(key = "header_$category", contentType = "header") {
@@ -341,11 +359,7 @@ private fun HomeContent(
                                     .padding(top = 8.dp, bottom = 2.dp),
                             ) {
                                 Text(
-                                    text = if (category == HomeUiState.UNCATEGORIZED_KEY) {
-                                        stringResource(R.string.category_other)
-                                    } else {
-                                        category
-                                    },
+                                    text = label,
                                     style = MaterialTheme.typography.labelMedium,
                                     color = MaterialTheme.colorScheme.primary,
                                 )

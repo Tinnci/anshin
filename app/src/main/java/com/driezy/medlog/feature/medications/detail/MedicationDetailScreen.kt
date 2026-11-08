@@ -31,6 +31,7 @@ import com.driezy.medlog.ui.util.displayName
 import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDosePrecise
 import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 import java.time.Instant
 import java.time.format.DateTimeFormatter
 
@@ -76,6 +77,7 @@ private fun MedicationDetailContent(
 
     val med = uiState.medication
     val medDisplayName = med?.displayName()
+    val categoryLabels = rememberDrugCategoryLabels()
     val archiveTitle = stringResource(R.string.detail_archive_title)
     val archiveBody = stringResource(R.string.detail_archive_body)
     val archiveLabel = stringResource(R.string.archive)
@@ -226,7 +228,9 @@ private fun MedicationDetailContent(
                         DetailRow(stringResource(R.string.detail_label_name), medDisplayName ?: med.name)
                         DetailRow(stringResource(R.string.detail_label_form), formLabel(med.form))
                         // 分类：支持单路径/多路径（用 \n 分隔的多条 ATC/TCM 路径）
-                        val storedPaths = med.fullPath.split("\n").filter { it.isNotBlank() }
+                        val storedPaths = med.fullPath.lineSequence().filter { it.isNotBlank() }.map {
+                            categoryLabels.medicationPath(it, med.isTcm)
+                        }.toList()
                         when {
                             storedPaths.size > 1 -> {
                                 // 多路径药品：每条路径单独一行展示
@@ -262,12 +266,13 @@ private fun MedicationDetailContent(
                                 DetailRow(stringResource(R.string.detail_label_category), display)
                             }
                             med.category.isNotBlank() -> {
+                                val label = categoryLabels.label(med.category, med.isTcm)
                                 val display = if (med.isTcm) {
-                                    "${med.category}${stringResource(
+                                    "$label${stringResource(
                                         R.string.detail_tcm_suffix,
                                     )}"
                                 } else {
-                                    med.category
+                                    label
                                 }
                                 DetailRow(stringResource(R.string.detail_category_label), display)
                             }

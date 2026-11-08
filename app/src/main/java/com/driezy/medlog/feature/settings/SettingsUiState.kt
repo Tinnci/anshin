@@ -29,6 +29,7 @@ data class SettingsUiState(
     val enableSymptomDiary: Boolean = true,
     val enableDrugInteractionCheck: Boolean = true,
     val enableDrugDatabase: Boolean = true,
+    val showTcmInCatalog: Boolean = false,
     val enableHealthModule: Boolean = true,
     val enableTimePeriodMode: Boolean = true,
     val themeMode: ThemeMode = ThemeMode.SYSTEM,

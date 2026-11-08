@@ -30,4 +30,7 @@
     <plurals name="medication_every_hours">
         <item quantity="other">每 %1$d 小时</item>
     </plurals>
+    <string name="settings_tcm_catalog_title">显示中成药</string>
+    <string name="settings_tcm_catalog_subtitle">在药品库和添加药品建议中显示中成药</string>
+    <string name="drugs_original_name">原文名称</string>
 </resources>

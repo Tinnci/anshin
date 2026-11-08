@@ -30,4 +30,7 @@
     <plurals name="medication_every_hours">
         <item quantity="other">%1$d시간마다</item>
     </plurals>
+    <string name="settings_tcm_catalog_title">중성약 표시</string>
+    <string name="settings_tcm_catalog_subtitle">의약품 목록과 약품 이름 추천에 중성약을 포함합니다</string>
+    <string name="drugs_original_name">원문 이름</string>
 </resources>

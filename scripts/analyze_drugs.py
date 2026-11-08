@@ -14,14 +14,16 @@ import re
 from datetime import datetime, timezone
 
 from drug_category_rules import normalize_western_path
-from drug_aliases import load_alias_source, write_clean_aliases
+from drug_aliases import build_clean_aliases, load_alias_source
+from drug_catalog import CATALOG_FILE, CATEGORIES_FILE, NAMES_FILE, SCHEMA_VERSION, write_catalog
 from drug_data_cleaning import build_drug_initials, merge_format_duplicate_records, should_keep_source_record
+from drug_localization import build_localization
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW_BASE = os.path.join(PROJECT_ROOT, "scripts", "data")
 ASSET_BASE = os.path.join(PROJECT_ROOT, "app", "src", "main", "assets", "json")
 DATASET_MANIFEST = os.path.join(ASSET_BASE, "drug_dataset_manifest.json")
-DATA_VERSION = "1"
+DATA_VERSION = str(SCHEMA_VERSION)
 PROTECTED_CANONICAL_NAMES = set(load_alias_source())
 
 def analyze(path, label):
@@ -161,17 +163,18 @@ def preserved_generated_at(manifest_path, comparable_payload):
             return None
     return existing.get("generatedAt")
 
-def write_dataset_manifest(western_count, tcm_count, reviewed_alias_count, initial_count):
+def write_dataset_manifest(western_count, tcm_count, reviewed_alias_count, initial_count, localization):
     source_files = {
         "drugs.json": os.path.join(RAW_BASE, "drugs.json"),
         "tcm_drugs_flat.json": os.path.join(RAW_BASE, "tcm_drugs_flat.json"),
         "drug_aliases_reviewed.json": os.path.join(RAW_BASE, "drug_aliases_reviewed.json"),
+        "drug_name_starters.json": os.path.join(RAW_BASE, "drug_name_starters.json"),
+        "drug_category_labels.tsv": os.path.join(RAW_BASE, "drug_category_labels.tsv"),
+        "drug_reference_names.tsv": os.path.join(RAW_BASE, "drug_reference_names.tsv"),
+        "drug_rxnorm_matches.json": os.path.join(RAW_BASE, "drug_rxnorm_matches.json"),
     }
     asset_files = {
-        "drugs_clean.json": os.path.join(ASSET_BASE, "drugs_clean.json"),
-        "tcm_drugs_clean.json": os.path.join(ASSET_BASE, "tcm_drugs_clean.json"),
-        "drug_aliases_clean.json": os.path.join(ASSET_BASE, "drug_aliases_clean.json"),
-        "drug_initials_clean.json": os.path.join(ASSET_BASE, "drug_initials_clean.json"),
+        name: os.path.join(ASSET_BASE, name) for name in (CATALOG_FILE, CATEGORIES_FILE, NAMES_FILE)
     }
     comparable_payload = {
         "dataVersion": DATA_VERSION,
@@ -180,6 +183,7 @@ def write_dataset_manifest(western_count, tcm_count, reviewed_alias_count, initi
         "tcmDrugCount": tcm_count,
         "reviewedAliasCount": reviewed_alias_count,
         "initialCount": initial_count,
+        "localization": localization,
         "sourceHashes": {name: sha256_file(path) for name, path in source_files.items()},
         "assetHashes": {name: sha256_file(path) for name, path in asset_files.items()},
     }
@@ -209,29 +213,15 @@ print(f"西药: {len(drugs_data)} -> {len(drugs_clean)} (清理了 {len(drugs_da
 print(f"中药: {len(tcm_data)} -> {len(tcm_clean)} (清理了 {len(tcm_data)-len(tcm_clean)} 条)")
 
 # ---- 输出清理后的文件 ----
-out_drugs = os.path.join(ASSET_BASE, "drugs_clean.json")
-out_tcm = os.path.join(ASSET_BASE, "tcm_drugs_clean.json")
-out_initials = os.path.join(ASSET_BASE, "drug_initials_clean.json")
-
-with open(out_drugs, "w", encoding="utf-8") as f:
-    json.dump(drugs_clean, f, ensure_ascii=False, indent=2)
-
-with open(out_tcm, "w", encoding="utf-8") as f:
-    json.dump(tcm_clean, f, ensure_ascii=False, indent=2)
-
 drug_initials = build_drug_initials(drugs_clean, tcm_clean)
-with open(out_initials, "w", encoding="utf-8") as f:
-    json.dump(drug_initials, f, ensure_ascii=False, indent=2)
-    f.write("\n")
-
-print(f"\n已输出:")
-print(f"  {out_drugs}")
-print(f"  {out_tcm}")
-print(f"  {out_initials} ({len(drug_initials)} 条拼音首字母)")
-
-aliases_clean = write_clean_aliases(set(drugs_clean))
-print(f"  {os.path.join(ASSET_BASE, 'drug_aliases_clean.json')} ({len(aliases_clean)} 条人工审核别名)")
-dataset_manifest = write_dataset_manifest(len(drugs_clean), len(tcm_clean), len(aliases_clean), len(drug_initials))
+aliases_clean = build_clean_aliases(set(drugs_clean), load_alias_source())
+categories, names, starters, localization = build_localization(drugs_clean, tcm_clean)
+write_catalog(
+    {"western": drugs_clean, "tcm": tcm_clean}, categories, drug_initials, aliases_clean, names, starters,
+)
+dataset_manifest = write_dataset_manifest(
+    len(drugs_clean), len(tcm_clean), len(aliases_clean), len(drug_initials), localization,
+)
 print(f"  {DATASET_MANIFEST} (dataVersion {dataset_manifest['dataVersion']})")
 
 # ---- 分类树统计 ----

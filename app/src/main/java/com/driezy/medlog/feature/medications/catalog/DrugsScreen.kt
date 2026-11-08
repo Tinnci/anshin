@@ -29,6 +29,8 @@ import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.util.medicationNameLanguage
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -40,6 +42,8 @@ fun DrugsScreen(
     viewModel: DrugsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val language = medicationNameLanguage()
+    LaunchedEffect(language) { viewModel.onAction(DrugsUiAction.LanguageChanged(language)) }
     DrugsContent(
         uiState = uiState,
         onAction = viewModel::onAction,
@@ -61,6 +65,7 @@ private fun DrugsContent(
     onBack: (() -> Unit)?,
 ) {
     val motionScheme = MaterialTheme.motionScheme
+    val categoryLabels = rememberDrugCategoryLabels()
 
     MedLogScreenScaffold(
         title = { Text(stringResource(R.string.medication_catalog)) },
@@ -138,35 +143,37 @@ private fun DrugsContent(
                     horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                     contentPadding = PaddingValues(horizontal = MedLogSpacing.Large, vertical = MedLogSpacing.Tiny),
                 ) {
-                    item {
-                        FilterChip(
-                            selected = uiState.showTcm == null && uiState.selectedCategory == null,
-                            onClick = {
-                                onAction(DrugsUiAction.TcmFilterChanged(null))
-                                onAction(DrugsUiAction.CategorySelected(null))
-                            },
-                            label = { Text(stringResource(R.string.drugs_tab_all)) },
-                        )
-                    }
-                    item {
-                        FilterChip(
-                            selected = uiState.showTcm == false,
-                            onClick = {
-                                onAction(DrugsUiAction.TcmFilterChanged(false))
-                                onAction(DrugsUiAction.CategorySelected(null))
-                            },
-                            label = { Text(stringResource(R.string.drugs_tab_western)) },
-                        )
-                    }
-                    item {
-                        FilterChip(
-                            selected = uiState.showTcm == true,
-                            onClick = {
-                                onAction(DrugsUiAction.TcmFilterChanged(true))
-                                onAction(DrugsUiAction.CategorySelected(null))
-                            },
-                            label = { Text(stringResource(R.string.drugs_tab_tcm)) },
-                        )
+                    if (uiState.includeTcm) {
+                        item {
+                            FilterChip(
+                                selected = uiState.showTcm == null && uiState.selectedCategory == null,
+                                onClick = {
+                                    onAction(DrugsUiAction.TcmFilterChanged(null))
+                                    onAction(DrugsUiAction.CategorySelected(null))
+                                },
+                                label = { Text(stringResource(R.string.drugs_tab_all)) },
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = uiState.showTcm == false,
+                                onClick = {
+                                    onAction(DrugsUiAction.TcmFilterChanged(false))
+                                    onAction(DrugsUiAction.CategorySelected(null))
+                                },
+                                label = { Text(stringResource(R.string.drugs_tab_western)) },
+                            )
+                        }
+                        item {
+                            FilterChip(
+                                selected = uiState.showTcm == true,
+                                onClick = {
+                                    onAction(DrugsUiAction.TcmFilterChanged(true))
+                                    onAction(DrugsUiAction.CategorySelected(null))
+                                },
+                                label = { Text(stringResource(R.string.drugs_tab_tcm)) },
+                            )
+                        }
                     }
                     if (uiState.categories.isNotEmpty()) {
                         item {
@@ -188,7 +195,7 @@ private fun DrugsContent(
                                     )
                                     onAction(DrugsUiAction.TcmFilterChanged(null))
                                 },
-                                label = { Text(cat) },
+                                label = { Text(categoryLabels.label(cat)) },
                             )
                         }
                     }
@@ -268,6 +275,7 @@ private fun DrugsContent(
                     }
                     uiState.query.isNotBlank() || uiState.selectedCategory != null -> {
                         DrugFlatList(
+                            categoryLabels = categoryLabels,
                             drugs = uiState.drugs,
                             query = uiState.query,
                             onDrugSelect = {
@@ -278,6 +286,7 @@ private fun DrugsContent(
                     }
                     uiState.isSearchActive -> {
                         DrugGroupedList(
+                            categoryLabels = categoryLabels,
                             groupedDrugs = uiState.groupedDrugs,
                             onDrugSelect = {
                                 onDrugSelect(it)
@@ -309,7 +318,8 @@ private fun DrugsContent(
                     // 选了某分类后展示：有二级子分类时显示二级网格，否则直接显示药品列表
                     uiState.selectedCategory != null -> {
                         val selectedCat = uiState.selectedCategory
-                        val selectedSub = uiState.selectedSubcategory // 本地 val 避免 smart cast 问题
+                        val selectedSub = uiState.selectedSubcategory
+                        val isTcm = uiState.showTcm
                         Column(modifier = Modifier.fillMaxSize()) {
                             // 面包屑标题行
                             Row(
@@ -319,7 +329,7 @@ private fun DrugsContent(
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
                             ) {
-                                val catIcon = if (uiState.showTcm == true) {
+                                val catIcon = if (isTcm == true) {
                                     MedLogIcons.LocalFlorist
                                 } else {
                                     MedLogIcons.Medication
@@ -333,7 +343,7 @@ private fun DrugsContent(
                                 // 面包屑：一级 > 二级（如果已选）
                                 if (selectedSub != null) {
                                     Text(
-                                        selectedCat,
+                                        categoryLabels.label(selectedCat, isTcm),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -343,7 +353,7 @@ private fun DrugsContent(
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
                                     Text(
-                                        selectedSub,
+                                        categoryLabels.label("$selectedCat > $selectedSub", isTcm),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.weight(1f),
@@ -355,7 +365,7 @@ private fun DrugsContent(
                                     }
                                 } else {
                                     Text(
-                                        selectedCat,
+                                        categoryLabels.label(selectedCat, isTcm),
                                         style = MaterialTheme.typography.titleSmall,
                                         color = MaterialTheme.colorScheme.primary,
                                         modifier = Modifier.weight(1f),
@@ -373,11 +383,13 @@ private fun DrugsContent(
                             if (uiState.subcategories.isNotEmpty() && uiState.selectedSubcategory == null) {
                                 SubcategoryGrid(
                                     subcategories = uiState.subcategories,
+                                    categoryLabel = { categoryLabels.label("$selectedCat > $it", isTcm) },
                                     onSubcategoryClick = { onAction(DrugsUiAction.SubcategorySelected(it)) },
                                 )
                             } else {
                                 // 选了二级或该一级无二级子类 → 按首字母分组展示
                                 DrugGroupedList(
+                                    categoryLabels = categoryLabels,
                                     groupedDrugs = uiState.groupedDrugs,
                                     onDrugSelect = onDrugSelect,
                                     topPadding = 4.dp,
@@ -389,6 +401,8 @@ private fun DrugsContent(
                     else -> DrugCategoryBrowser(
                         westernCategories = uiState.westernCategories,
                         tcmCategories = uiState.tcmCategories,
+                        includeTcm = uiState.includeTcm,
+                        categoryLabels = categoryLabels,
                         onCategoryClick = { cat, isTcm ->
                             onAction(DrugsUiAction.CategorySelected(cat))
                             onAction(DrugsUiAction.TcmFilterChanged(isTcm))

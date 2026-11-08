@@ -156,6 +156,7 @@ class SettingsModuleViewModel @Inject constructor(
             enableSymptomDiary = feature.enableSymptomDiary,
             enableDrugInteractionCheck = feature.enableDrugInteractionCheck,
             enableDrugDatabase = feature.enableDrugDatabase,
+            showTcmInCatalog = feature.showTcmInCatalog,
             enableHealthModule = feature.enableHealthModule,
             enableTimePeriodMode = feature.enableTimePeriodMode,
         )
@@ -172,6 +173,9 @@ class SettingsModuleViewModel @Inject constructor(
                 )
                 is SettingsUiAction.SetDrugDatabase -> preferences.updateFeatureFlags(
                     enableDrugDatabase = action.enabled,
+                )
+                is SettingsUiAction.SetTcmInCatalog -> preferences.updateFeatureFlags(
+                    showTcmInCatalog = action.enabled,
                 )
                 is SettingsUiAction.SetHealthModule -> preferences.updateFeatureFlags(
                     enableHealthModule = action.enabled,
@@ -280,6 +284,7 @@ class SettingsHomeViewModel @Inject constructor(
             enableSymptomDiary = feature.enableSymptomDiary,
             enableDrugInteractionCheck = feature.enableDrugInteractionCheck,
             enableDrugDatabase = feature.enableDrugDatabase,
+            showTcmInCatalog = feature.showTcmInCatalog,
             enableHealthModule = feature.enableHealthModule,
             cloudAiEnabled = ai.cloudAiEnabled,
             cloudAiProvider = ai.cloudAiProvider,

@@ -40,7 +40,7 @@ class AddMedicationViewModelTest {
                 MutableSharedFlow<com.driezy.medlog.voice.VoiceInputEvent>()
         }
         val drugs = mock<DrugRepository> {
-            onBlocking { searchDrugsRanked(any()) } doReturn emptyList()
+            onBlocking { getAllDrugs() } doReturn emptyList()
         }
         return AddMedicationViewModel(repository, mock(), prefs, drugs, voice, context, clock, handle, transactions)
     }

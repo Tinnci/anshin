@@ -57,6 +57,7 @@ data class FeaturePreferenceState(
     val enableDrugDatabase: Boolean,
     val enableHealthModule: Boolean,
     val enableTimePeriodMode: Boolean,
+    val showTcmInCatalog: Boolean = false,
 )
 
 interface FeaturePreferences {
@@ -67,6 +68,7 @@ interface FeaturePreferences {
         enableDrugDatabase: Boolean? = null,
         enableHealthModule: Boolean? = null,
         enableTimePeriodMode: Boolean? = null,
+        showTcmInCatalog: Boolean? = null,
     )
 }
 

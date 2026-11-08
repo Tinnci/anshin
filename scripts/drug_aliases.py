@@ -10,7 +10,7 @@ from typing import Any
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 RAW_ALIAS_PATH = PROJECT_ROOT / "scripts" / "data" / "drug_aliases_reviewed.json"
-DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "app" / "src" / "main" / "assets" / "json" / "drug_aliases_clean.json"
+DEFAULT_OUTPUT_PATH = PROJECT_ROOT / "build" / "drug_aliases_clean.json"
 
 ALIAS_FIELD_NAMES = ("aliases", "brandNames", "genericNames", "chemicalNames")
 ORGANIZATION_TOKENS = (
@@ -172,8 +172,9 @@ def write_clean_aliases(
 
 
 def main() -> None:
-    drugs_path = PROJECT_ROOT / "app" / "src" / "main" / "assets" / "json" / "drugs_clean.json"
-    drugs = json.loads(drugs_path.read_text(encoding="utf-8"))
+    from drug_catalog import CATALOG_FILE, read_asset
+
+    drugs = read_asset(CATALOG_FILE)["western"]
     clean = write_clean_aliases(set(drugs))
     print(f"Wrote {len(clean)} reviewed drug alias entries to {DEFAULT_OUTPUT_PATH}")
 

@@ -30,4 +30,7 @@
     <plurals name="medication_every_hours">
         <item quantity="other">%1$d時間ごと</item>
     </plurals>
+    <string name="settings_tcm_catalog_title">中成薬を表示</string>
+    <string name="settings_tcm_catalog_subtitle">医薬品一覧と薬品名の候補に中成薬を表示します</string>
+    <string name="drugs_original_name">原文の名称</string>
 </resources>

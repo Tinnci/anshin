@@ -1,20 +1,41 @@
 {
-  "dataVersion": "1",
+  "dataVersion": "2",
   "generator": "scripts/analyze_drugs.py",
   "westernDrugCount": 4245,
   "tcmDrugCount": 7094,
   "reviewedAliasCount": 886,
   "initialCount": 11339,
+  "localization": {
+    "categoryNodes": 1221,
+    "topLevelCategories": 43,
+    "translatedCategoryNodes": {
+      "zh": 1221,
+      "en": 276,
+      "ja": 276,
+      "ko": 276
+    },
+    "conventionalNames": {
+      "zh": 4245,
+      "en": 763,
+      "ja": 11,
+      "ko": 11
+    },
+    "ambiguousRxNormMatches": 8,
+    "tcmOriginalNames": 7094
+  },
   "sourceHashes": {
     "drugs.json": "822287eda8c7d17afd26e252d01f5c589510cebd33daec0b1a45480554e3162a",
     "tcm_drugs_flat.json": "2638d8a8faf546b59402588cf0a7e951e0107858eb32a85cc98fc9dca2160a30",
-    "drug_aliases_reviewed.json": "06e143fbb5bd2b98a5ca49059e5e2d57d88faa12a16b3d04120aa9bb791c8596"
+    "drug_aliases_reviewed.json": "dd149fcbc72fcb11a27dc95666b30774755770374423013c877537f9242f5726",
+    "drug_name_starters.json": "d83975de93f783715e086f9b007e7b98ff13ef60038dde888436b3cbbe12353b",
+    "drug_category_labels.tsv": "e8a5a7fda27fe64de7d6fb2523dad3e243680e2c280ce37e5782ef26056d7563",
+    "drug_reference_names.tsv": "d24fad59b8688e5aaec77b63605a7f3538c50b5d3674c67c4ed36f2e51c6f0a4",
+    "drug_rxnorm_matches.json": "ed87e9d25c8dd8139f5ddf6b865357c1355f2adf30e4fc7c9c9e13fb057ee868"
   },
   "assetHashes": {
-    "drugs_clean.json": "42c70bb6a79c156e2cfcc2dfa875c98ead01b35f66bf63458e21fc9f31fc7302",
-    "tcm_drugs_clean.json": "4ae56a0f6c761673dbb639f320b8adc5944687e488c2d3f8f5e76ed38b747cc5",
-    "drug_aliases_clean.json": "10abf2b9e4954e80696e47e9662a5f0593cc72a62471485f2c3f122469c0e832",
-    "drug_initials_clean.json": "bdc06f05d620a7ad5bbd56513201b2d32db0fc683122b7555c4f4bec5ff95a22"
+    "drug_catalog.json": "340f3655b3d89590939d497ca83fc486faf4dd7df847e6d73c1fe8a576a67a3f",
+    "drug_categories.json": "08fe953cafa105b6c33689e5c409eb30a74cabd928b2b15356ee176ba98c0f2c",
+    "drug_names.json": "665a02d97fdfb8d26b955b1de4c6ab733050caa04b13d5b79dea4bd1b23980e7"
   },
-  "generatedAt": "2026-05-30T15:55:36Z"
+  "generatedAt": "2026-11-08T09:45:55Z"
 }

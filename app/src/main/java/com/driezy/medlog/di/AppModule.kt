@@ -14,7 +14,7 @@ import com.driezy.medlog.capability.widgets.GlanceWidgetRefresher
 import com.driezy.medlog.capability.widgets.WidgetRefresher
 import com.driezy.medlog.data.local.AiAnalysisCacheDao
 import com.driezy.medlog.data.local.AiUsageEventDao
-import com.driezy.medlog.data.local.DrugAliasAssetParser
+import com.driezy.medlog.data.local.DrugCatalogAssets
 import com.driezy.medlog.data.local.HealthRecordDao
 import com.driezy.medlog.data.local.MedLogDatabase
 import com.driezy.medlog.data.local.MedicationDao
@@ -45,6 +45,7 @@ import com.driezy.medlog.domain.ReminderPlanner
 import com.driezy.medlog.domain.ReminderReconciler
 import com.driezy.medlog.domain.ReminderReconciliationQueue
 import com.driezy.medlog.interaction.DrugAliasNormalizer
+import com.driezy.medlog.interaction.normalizeDrugKey
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.doubao.DoubaoVoiceInputController
 import dagger.Binds
@@ -56,7 +57,6 @@ import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Protocol
 import java.time.Clock
@@ -112,15 +112,23 @@ object DatabaseModule {
     @Provides
     @Singleton
     fun provideDrugAliasNormalizer(@ApplicationContext context: Context): DrugAliasNormalizer {
-        val json = Json {
-            ignoreUnknownKeys = true
-            isLenient = true
-        }
-        val aliasMap = runCatching {
-            val text = context.assets.open("json/drug_aliases_clean.json").bufferedReader().use { it.readText() }
-            DrugAliasAssetParser.parseAliasToCanonical(text, json)
-        }.getOrDefault(emptyMap())
-        return DrugAliasNormalizer(aliasMap)
+        val names = runCatching { DrugCatalogAssets.names(context) }.getOrDefault(emptyMap())
+        val aliases = names.flatMap { (canonical, record) ->
+            record.aliases.map { it to canonical }
+        }.toMap()
+        val starterAliases = names.filterValues { it.starter }.flatMap { (canonical, record) ->
+            record.localized.values.map { it to canonical }
+        }.toMap()
+        val reviewedAliases = aliases + starterAliases
+        val reviewedOwners = reviewedAliases.keys.map { it.normalizeDrugKey() }.toSet()
+        val referenceAliases = names.filterValues { !it.starter }.flatMap { (canonical, record) ->
+            record.localized.values.map { it.normalizeDrugKey() to canonical }
+        }.groupBy({ it.first }, { it.second })
+            .mapNotNull { (alias, owners) ->
+                val owner = owners.distinct().singleOrNull()
+                owner?.takeIf { alias !in reviewedOwners }?.let { alias to it }
+            }.toMap()
+        return DrugAliasNormalizer(reviewedAliases + referenceAliases)
     }
 
     @Provides

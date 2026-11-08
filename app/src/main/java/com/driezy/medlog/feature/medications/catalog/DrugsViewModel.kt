@@ -1,13 +1,22 @@
 package com.driezy.medlog.feature.medications.catalog
 
+import android.content.Context
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.data.local.DRUG_PATH_SEPARATOR
+import com.driezy.medlog.data.local.DrugCatalogAssets
+import com.driezy.medlog.data.local.DrugTaxonomy
 import com.driezy.medlog.data.model.Drug
 import com.driezy.medlog.data.repository.DrugRepository
+import com.driezy.medlog.data.repository.FeaturePreferences
 import com.driezy.medlog.ui.BaseViewModel
+import com.driezy.medlog.ui.util.DrugCategoryLabels
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.text.Collator
 import java.util.Locale
 import javax.inject.Inject
@@ -19,6 +28,7 @@ data class DrugsUiState(
     val query: String = "",
     val isLoading: Boolean = true,
     val selectedCategory: String? = null,
+    val includeTcm: Boolean = false,
     val showTcm: Boolean? = null, // null = 全部, true = 仅中药, false = 仅西药
     /** 所有可用分类列表 */
     val categories: List<String> = emptyList(),
@@ -40,6 +50,7 @@ data class DrugsUiState(
 
 sealed interface DrugsUiAction {
     data class QueryChanged(val value: String) : DrugsUiAction
+    data class LanguageChanged(val language: String) : DrugsUiAction
     data class CategorySelected(val value: String?) : DrugsUiAction
     data class SubcategorySelected(val value: String?) : DrugsUiAction
     data class TcmFilterChanged(val value: Boolean?) : DrugsUiAction
@@ -48,172 +59,154 @@ sealed interface DrugsUiAction {
 
 @OptIn(FlowPreview::class)
 @HiltViewModel
-class DrugsViewModel @Inject constructor(private val drugRepository: DrugRepository) : BaseViewModel() {
+class DrugsViewModel @Inject constructor(
+    private val drugRepository: DrugRepository,
+    preferences: FeaturePreferences,
+    @param:ApplicationContext private val context: Context,
+) : BaseViewModel() {
+    private data class Filters(
+        val category: String? = null,
+        val subcategory: String? = null,
+        val tcm: Boolean? = null,
+        val searchActive: Boolean = false,
+    )
 
-    private val queryFlow = MutableStateFlow("")
-    private val selectedCategoryFlow = MutableStateFlow<String?>(null)
-    private val selectedSubcategoryFlow = MutableStateFlow<String?>(null)
-    private val showTcmFlow = MutableStateFlow<Boolean?>(null)
-    private val loadingFlow = MutableStateFlow(true)
-    private val categoriesFlow = MutableStateFlow<List<String>>(emptyList())
-    private val searchActiveFlow = MutableStateFlow(false)
-    private val westernCategoriesFlow = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
-    private val tcmCategoriesFlow = MutableStateFlow<List<Pair<String, Int>>>(emptyList())
+    private data class Catalog(val drugs: List<Drug>, val taxonomy: DrugTaxonomy?)
 
-    /** 所有药品缓存（init 后填充，用于计算子分类） */
-    private var allDrugsCache: List<Drug> = emptyList()
-
-    // ── 中间合并：将"过滤参数"收敛成一个 Flow，确保子分类变更也能触发重算 ──────────
-    private val filterParams = combine(
-        queryFlow.debounce(200),
-        selectedCategoryFlow,
-        selectedSubcategoryFlow,
-        showTcmFlow,
-    ) { q, cat, sub, tcm -> arrayOf<Any?>(q, cat, sub, tcm) }
+    private val query = MutableStateFlow("")
+    private val filters = MutableStateFlow(Filters())
+    private val catalog = MutableStateFlow<Catalog?>(null)
+    private val language = MutableStateFlow("en")
 
     val uiState: StateFlow<DrugsUiState> = combine(
-        filterParams,
-        combine(loadingFlow, categoriesFlow) { loading, cats -> loading to cats },
-        searchActiveFlow,
-        combine(westernCategoriesFlow, tcmCategoriesFlow) { w, t -> w to t },
-    ) { fp, (loading, cats), active, (western, tcm) ->
-        val query = fp[0] as String
-        val category = fp[1] as String?
-        val subcat = fp[2] as String?
-        val showTcm = fp[3] as Boolean?
+        query.debounce(200),
+        filters,
+        catalog,
+        language,
+        preferences.features.map { it.showTcmInCatalog }.distinctUntilChanged(),
+    ) { text, filter, loaded, locale, includeTcm ->
+        if (loaded == null) return@combine DrugsUiState(includeTcm = includeTcm)
+        val labels = DrugCategoryLabels(loaded.taxonomy, locale)
+        val collator = Collator.getInstance(Locale.forLanguageTag(locale))
+        val visible = loaded.drugs.filter { includeTcm || !it.isTcm }
+        val visibleCategories = visible.map { it.category }.distinct()
+        val category = filter.category?.takeIf { it in visibleCategories }
+        val subcategory = filter.subcategory?.takeIf { category != null }
+        val tcm = filter.tcm?.takeIf { includeTcm }
+        val scoped = visible.filter { drug ->
+            (category == null || drug.category == category) &&
+                (tcm == null || drug.isTcm == tcm) &&
+                (subcategory == null || subcategory in drug.subcategories())
+        }
+        val matching = rankCatalogDrugs(scoped, text, locale, labels, collator)
+        val results = matching.map { it.drug }
+        val exact = matching.count { it.directMatch }
 
-        val (filtered, exactCount) = rankedDrugs(query, category, showTcm, subcat)
-        // 计算二级子分类列表（仅当选了一级分类、未选二级时显示）
-        val subcats = if (category != null && subcat == null && query.isBlank()) {
-            allDrugsCache
-                .filter { it.category == category }
-                .flatMap { drug ->
-                    (listOf(drug.fullPath) + drug.allPaths)
-                        .filter { it.startsWith(category) }
-                        .mapNotNull { path ->
-                            path.split(" > ").map { it.trim() }.let { parts ->
-                                if (parts.size >= 2) parts[1] else null
-                            }
-                        }
-                }
-                .groupingBy { it }
-                .eachCount()
-                .entries
-                .sortedByDescending { it.value }
-                .map { it.key to it.value }
+        val categoriesByType = visible.groupBy { it.isTcm }.mapValues { (isTcm, drugs) ->
+            drugs.groupingBy { it.category }.eachCount().toList()
+                .sortedWith(compareBy(collator) { labels.label(it.first, isTcm) })
+        }
+        val subcategories = if (category != null && subcategory == null && text.isBlank()) {
+            scoped.flatMap(Drug::subcategories).groupingBy { it }.eachCount().toList()
+                .sortedWith(compareBy(collator) { labels.label("$category$DRUG_PATH_SEPARATOR${it.first}", tcm) })
         } else {
             emptyList()
         }
-
         DrugsUiState(
-            query = query,
+            query = text,
             selectedCategory = category,
-            selectedSubcategory = subcat,
-            subcategories = subcats,
-            showTcm = showTcm,
-            isLoading = loading,
-            isSearchActive = active,
-            drugs = filtered,
-            groupedDrugs = if (query.isBlank()) {
-                filtered.groupBy { drug ->
-                    val initial = drug.initial.ifBlank {
-                        drug.name.firstOrNull()?.uppercaseChar()?.toString() ?: "#"
-                    }
-                    if (initial.first().isLetter()) initial.first().uppercaseChar().toString() else "#"
-                }.toSortedMap()
-            } else {
-                emptyMap()
-            },
-            categories = cats,
-            westernCategories = western,
-            tcmCategories = tcm,
-            hasFuzzyResults = query.isNotBlank() && filtered.isNotEmpty() && exactCount < filtered.size,
-            exactMatchCount = exactCount,
+            selectedSubcategory = subcategory,
+            subcategories = subcategories,
+            includeTcm = includeTcm,
+            showTcm = tcm,
+            isLoading = false,
+            isSearchActive = filter.searchActive,
+            drugs = results,
+            groupedDrugs = if (text.isBlank()) results.groupBy { it.displayInitial(locale) } else emptyMap(),
+            categories = visibleCategories.sortedWith(compareBy(collator) { labels.label(it) }),
+            westernCategories = categoriesByType[false].orEmpty(),
+            tcmCategories = categoriesByType[true].orEmpty(),
+            hasFuzzyResults = text.isNotBlank() && exact < results.size,
+            exactMatchCount = exact,
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
+    }.flowOn(Dispatchers.Default).stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), DrugsUiState())
 
     init {
         viewModelScope.launch {
-            val allDrugs = drugRepository.getAllDrugs()
-            categoriesFlow.value = allDrugs.map { it.category }.distinct().sorted()
-            // 按拼音/字典序排列分类卡片（Collator 支持中文拼音排序）
-            val collator = Collator.getInstance(Locale.CHINESE)
-            val western = allDrugs.filter { !it.isTcm }
-                .groupBy { it.category }
-                .entries
-                .sortedWith(compareBy(collator) { it.key })
-                .map { it.key to it.value.size }
-            val tcm = allDrugs.filter { it.isTcm }
-                .groupBy { it.category }
-                .entries
-                .sortedWith(compareBy(collator) { it.key })
-                .map { it.key to it.value.size }
-            westernCategoriesFlow.value = western
-            tcmCategoriesFlow.value = tcm
-            allDrugsCache = allDrugs
-            loadingFlow.value = false
+            val drugs = drugRepository.getAllDrugs()
+            val taxonomy = withContext(Dispatchers.IO) {
+                runCatching { DrugCatalogAssets.taxonomy(context) }.getOrNull()
+            }
+            catalog.value = Catalog(drugs, taxonomy)
         }
     }
 
     fun onAction(action: DrugsUiAction) {
         when (action) {
-            is DrugsUiAction.QueryChanged -> onQueryChange(action.value)
-            is DrugsUiAction.CategorySelected -> onCategorySelect(action.value)
-            is DrugsUiAction.SubcategorySelected -> onSubcategorySelect(action.value)
-            is DrugsUiAction.TcmFilterChanged -> onToggleTcm(action.value)
-            is DrugsUiAction.SearchActiveChanged -> onSearchActiveChange(action.active)
-        }
-    }
-
-    fun onQueryChange(q: String) {
-        queryFlow.value = q
-    }
-    fun onCategorySelect(cat: String?) {
-        selectedCategoryFlow.value = cat
-        selectedSubcategoryFlow.value = null // 切换一级时清空二级
-    }
-    fun onSubcategorySelect(subcat: String?) {
-        selectedSubcategoryFlow.value = subcat
-    }
-    fun onToggleTcm(tcm: Boolean?) {
-        showTcmFlow.value = tcm
-    }
-    fun onSearchActiveChange(active: Boolean) {
-        searchActiveFlow.value = active
-        if (!active) {
-            queryFlow.value = ""
-            selectedCategoryFlow.value = null
-            selectedSubcategoryFlow.value = null
-            showTcmFlow.value = null
-        }
-    }
-
-    /**
-     * 执行模糊+语义排名搜索，并应用分类/中西药过滤。
-     * @return Pair(排序后结果, 精确匹配数)
-     */
-    private suspend fun rankedDrugs(
-        query: String,
-        category: String?,
-        tcm: Boolean?,
-        subcategory: String? = null,
-    ): Pair<List<Drug>, Int> {
-        var result = drugRepository.searchDrugsRanked(query)
-        if (category != null) result = result.filter { it.category == category }
-        if (tcm != null) result = result.filter { it.isTcm == tcm }
-        // 二级分类过滤：检查路径第二段是否匹配
-        if (subcategory != null) {
-            result = result.filter { drug ->
-                (listOf(drug.fullPath) + drug.allPaths).any { path ->
-                    path.split(" > ").map { it.trim() }.getOrNull(1) == subcategory
-                }
+            is DrugsUiAction.QueryChanged -> query.value = action.value
+            is DrugsUiAction.LanguageChanged -> language.value = action.language
+            is DrugsUiAction.CategorySelected -> filters.update {
+                it.copy(category = action.value, subcategory = null)
+            }
+            is DrugsUiAction.SubcategorySelected -> filters.update { it.copy(subcategory = action.value) }
+            is DrugsUiAction.TcmFilterChanged -> filters.update { it.copy(tcm = action.value) }
+            is DrugsUiAction.SearchActiveChanged -> {
+                if (!action.active) query.value = ""
+                filters.update { if (action.active) it.copy(searchActive = true) else Filters() }
             }
         }
-        val exact = if (query.isNotBlank()) {
-            result.count { it.nameLower.contains(query.lowercase()) || it.categoryLower.contains(query.lowercase()) }
-        } else {
-            result.size
-        }
-        return result to exact
     }
+}
+
+private fun Drug.subcategories(): List<String> = allPaths.ifEmpty { listOf(fullPath) }.mapNotNull { path ->
+    val parts = path.split(DRUG_PATH_SEPARATOR, limit = 3)
+    parts.getOrNull(1)?.takeIf { parts.size == 3 && parts.first() == category }
+}.distinct()
+
+internal fun Drug.displayInitial(language: String): String {
+    if (language == "zh") return initial
+    if (!hasLocalizedName(language)) return "#"
+    val first = localizedName(language).firstOrNull()?.takeIf(Char::isLetter) ?: return "#"
+    return if (language == "ja" && first in 'ァ'..'ヶ') {
+        (first - ('ァ' - 'ぁ')).toString()
+    } else {
+        first.uppercaseChar().toString()
+    }
+}
+
+internal data class RankedCatalogDrug(val drug: Drug, val directMatch: Boolean)
+
+internal fun rankCatalogDrugs(
+    drugs: List<Drug>,
+    query: String,
+    language: String,
+    labels: DrugCategoryLabels,
+    collator: Collator,
+): List<RankedCatalogDrug> {
+    val byLocalizedName = compareByDescending<Drug> { it.hasLocalizedName(language) }
+        .thenBy(collator) { it.localizedName(language) }
+        .thenBy { it.name }
+    val text = query.trim().lowercase()
+    if (text.isEmpty()) {
+        return drugs.sortedWith(byLocalizedName).map { RankedCatalogDrug(it, true) }
+    }
+
+    data class Match(val drug: Drug, val nameRank: Int, val score: Float, val directMatch: Boolean)
+
+    val categoryMatches = mutableMapOf<Pair<String, Boolean>, Boolean>()
+    return drugs.mapNotNull { drug ->
+        val nameRank = drug.nameSuggestionRank(text, language)
+        val localizedCategory = drug.allPaths.ifEmpty { listOf(drug.fullPath) }.any { path ->
+            val categoryPath = path.substringBeforeLast(DRUG_PATH_SEPARATOR, "")
+            categoryMatches.getOrPut(categoryPath to drug.isTcm) {
+                labels.matchesCategoryPath(categoryPath, drug.isTcm, text)
+            }
+        }
+        val directCategory = localizedCategory || drug.categoryLower.contains(text)
+        val score = maxOf(drug.relevanceScore(text), if (directCategory) 0.55f else 0f)
+        if (nameRank == 0 && score == 0f) null else Match(drug, nameRank, score, nameRank > 0 || directCategory)
+    }.sortedWith(
+        compareByDescending<Match> { it.nameRank }.thenByDescending { it.score }
+            .thenComparator { first, second -> byLocalizedName.compare(first.drug, second.drug) },
+    ).map { RankedCatalogDrug(it.drug, it.directMatch) }
 }

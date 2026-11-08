@@ -54,6 +54,15 @@ internal fun ModuleToggleList(uiState: SettingsUiState, onAction: (SettingsUiAct
         )
         HorizontalDivider()
         SettingsModuleToggleCard(
+            title = stringResource(R.string.settings_tcm_catalog_title),
+            subtitle = stringResource(R.string.settings_tcm_catalog_subtitle),
+            icon = MedLogIcons.LocalFlorist,
+            checked = uiState.showTcmInCatalog,
+            onCheckedChange = { onAction(SettingsUiAction.SetTcmInCatalog(it)) },
+            showSubtitle = layoutProfile.showSupportingText,
+        )
+        HorizontalDivider()
+        SettingsModuleToggleCard(
             title = stringResource(R.string.settings_health_title),
             subtitle = stringResource(R.string.settings_health_subtitle),
             icon = MedLogIcons.MonitorHeart,

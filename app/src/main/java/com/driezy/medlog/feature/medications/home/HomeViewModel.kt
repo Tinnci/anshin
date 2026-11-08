@@ -101,13 +101,6 @@ data class HomeUiState(
         regularItems
             .groupBy { it.medication.category.ifBlank { UNCATEGORIZED_KEY } }
             .entries
-            .sortedWith(
-                // 中成药相关分类排序靠前，其次按药名首字母
-                compareBy(
-                    { if (it.key.contains("中成药") || TCM_CATEGORY_KEYWORDS.any { kw -> it.key.contains(kw) }) 0 else 1 },
-                    { it.key },
-                ),
-            )
             .map { it.key to it.value }
     }
 
@@ -135,9 +128,6 @@ data class HomeUiState(
     companion object {
         /** 哨兵键：无分类药品归入此组，Compose UI 层用 stringResource 解析显示文本 */
         const val UNCATEGORIZED_KEY = "\u0000__uncategorized__"
-        private val TCM_CATEGORY_KEYWORDS = listOf(
-            "理气", "补益", "清热", "祛湿", "活血", "止咳", "安神", "妇科", "骨伤", "外科",
-        )
     }
 }
 

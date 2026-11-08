@@ -1,0 +1,3091 @@
+{
+  "ambiguous": {
+    "叶酸": [
+      "4511",
+      "62356"
+    ],
+    "格隆溴铵": [
+      "1546438",
+      "4955"
+    ],
+    "氟轻松": [
+      "4461",
+      "4462"
+    ],
+    "硝普钠": [
+      "7476",
+      "9895"
+    ],
+    "碳酸锂": [
+      "42351",
+      "6448"
+    ],
+    "维生素B6": [
+      "42954",
+      "684879"
+    ],
+    "维生素D": [
+      "11253",
+      "2418"
+    ],
+    "维生素E": [
+      "11256",
+      "1236136"
+    ]
+  },
+  "matches": {
+    "丁丙诺啡": {
+      "name": "buprenorphine",
+      "rxcui": "1819"
+    },
+    "丁卡因": {
+      "name": "tetracaine",
+      "rxcui": "10391"
+    },
+    "丁咯地尔": {
+      "name": "buflomedil",
+      "rxcui": "19836"
+    },
+    "丁螺环酮": {
+      "name": "buspirone",
+      "rxcui": "1827"
+    },
+    "丁酸氢化可的松": {
+      "name": "hydrocortisone butyrate",
+      "rxcui": "103468"
+    },
+    "七氟烷": {
+      "name": "sevoflurane",
+      "rxcui": "36453"
+    },
+    "万古霉素": {
+      "name": "vancomycin",
+      "rxcui": "11124"
+    },
+    "三唑仑": {
+      "name": "triazolam",
+      "rxcui": "10767"
+    },
+    "三氟拉嗪": {
+      "name": "trifluoperazine",
+      "rxcui": "10800"
+    },
+    "三氧化二砷": {
+      "name": "arsenic trioxide",
+      "rxcui": "18330"
+    },
+    "三甲双酮": {
+      "name": "trimethadione",
+      "rxcui": "10827"
+    },
+    "丙卡特罗": {
+      "name": "procaterol",
+      "rxcui": "34530"
+    },
+    "丙吡胺": {
+      "name": "disopyramide",
+      "rxcui": "3541"
+    },
+    "丙哌维林": {
+      "name": "propiverine",
+      "rxcui": "55175"
+    },
+    "丙戊酸": {
+      "name": "valproic acid",
+      "rxcui": "11118"
+    },
+    "丙戊酸钠": {
+      "name": "sodium valproate",
+      "rxcui": "9919"
+    },
+    "丙戊酸镁": {
+      "name": "magnesium valproate",
+      "rxcui": "134422"
+    },
+    "丙泊酚": {
+      "name": "propofol",
+      "rxcui": "8782"
+    },
+    "丙环定": {
+      "name": "procyclidine",
+      "rxcui": "8718"
+    },
+    "丙硫异烟胺": {
+      "name": "prothionamide",
+      "rxcui": "8871"
+    },
+    "丙硫氧嘧啶": {
+      "name": "propylthiouracil",
+      "rxcui": "8794"
+    },
+    "丙磺舒": {
+      "name": "probenecid",
+      "rxcui": "8698"
+    },
+    "丙米嗪": {
+      "name": "imipramine",
+      "rxcui": "5691"
+    },
+    "丙美卡因": {
+      "name": "proparacaine",
+      "rxcui": "34905"
+    },
+    "丙胺卡因": {
+      "name": "prilocaine",
+      "rxcui": "8686"
+    },
+    "丙酚替诺福韦": {
+      "name": "tenofovir alafenamide",
+      "rxcui": "1721603"
+    },
+    "东莨菪碱": {
+      "name": "scopolamine",
+      "rxcui": "9601"
+    },
+    "丝裂霉素": {
+      "name": "mitomycin",
+      "rxcui": "632"
+    },
+    "两性霉素B": {
+      "name": "amphotericin B",
+      "rxcui": "732"
+    },
+    "乌司奴单抗": {
+      "name": "ustekinumab",
+      "rxcui": "847083"
+    },
+    "乌拉地尔": {
+      "name": "urapidil",
+      "rxcui": "39230"
+    },
+    "乌美溴铵": {
+      "name": "umeclidinium",
+      "rxcui": "1487514"
+    },
+    "乐卡地平": {
+      "name": "lercanidipine",
+      "rxcui": "135056"
+    },
+    "乙琥胺": {
+      "name": "ethosuximide",
+      "rxcui": "4135"
+    },
+    "乙硫异烟胺": {
+      "name": "ethionamide",
+      "rxcui": "4127"
+    },
+    "乙胺丁醇": {
+      "name": "ethambutol",
+      "rxcui": "4110"
+    },
+    "乙胺嘧啶": {
+      "name": "pyrimethamine",
+      "rxcui": "9010"
+    },
+    "乙酰半胱氨酸": {
+      "name": "acetylcysteine",
+      "rxcui": "197"
+    },
+    "乙酰唑胺": {
+      "name": "acetazolamide",
+      "rxcui": "167"
+    },
+    "乙酰麦迪霉素": {
+      "name": "miocamycin",
+      "rxcui": "6985"
+    },
+    "乙醇": {
+      "name": "ethanol",
+      "rxcui": "448"
+    },
+    "乳果糖": {
+      "name": "lactulose",
+      "rxcui": "6218"
+    },
+    "乳酸钙": {
+      "name": "calcium lactate",
+      "rxcui": "47622"
+    },
+    "乳酸钠": {
+      "name": "sodium lactate",
+      "rxcui": "56489"
+    },
+    "二巯丁二酸": {
+      "name": "succimer",
+      "rxcui": "3446"
+    },
+    "二巯丙醇": {
+      "name": "dimercaprol",
+      "rxcui": "3445"
+    },
+    "二氮嗪": {
+      "name": "diazoxide",
+      "rxcui": "3327"
+    },
+    "二甲双胍": {
+      "name": "metformin",
+      "rxcui": "6809"
+    },
+    "二甲硅油": {
+      "name": "dimethicone",
+      "rxcui": "324072"
+    },
+    "二硫化硒": {
+      "name": "selenium sulfide",
+      "rxcui": "36345"
+    },
+    "五氟利多": {
+      "name": "penfluridol",
+      "rxcui": "7974"
+    },
+    "亚甲蓝": {
+      "name": "methylene blue",
+      "rxcui": "6878"
+    },
+    "交沙霉素": {
+      "name": "josamycin",
+      "rxcui": "6084"
+    },
+    "仑伐替尼": {
+      "name": "lenvatinib",
+      "rxcui": "1603296"
+    },
+    "他克莫司": {
+      "name": "tacrolimus",
+      "rxcui": "42316"
+    },
+    "他卡西醇": {
+      "name": "tacalcitol",
+      "rxcui": "291204"
+    },
+    "他扎罗汀": {
+      "name": "tazarotene",
+      "rxcui": "83947"
+    },
+    "他氟前列素": {
+      "name": "tafluprost",
+      "rxcui": "1244607"
+    },
+    "他莫昔芬": {
+      "name": "tamoxifen",
+      "rxcui": "10324"
+    },
+    "他达拉非": {
+      "name": "tadalafil",
+      "rxcui": "358263"
+    },
+    "伊伐布雷定": {
+      "name": "ivabradine",
+      "rxcui": "1649480"
+    },
+    "伊布替尼": {
+      "name": "ibrutinib",
+      "rxcui": "1442981"
+    },
+    "伊拉地平": {
+      "name": "isradipine",
+      "rxcui": "33910"
+    },
+    "伊曲康唑": {
+      "name": "itraconazole",
+      "rxcui": "28031"
+    },
+    "伊沙佐米": {
+      "name": "ixazomib",
+      "rxcui": "1723735"
+    },
+    "伊洛前列素": {
+      "name": "iloprost",
+      "rxcui": "40138"
+    },
+    "伊班膦酸": {
+      "name": "ibandronic acid",
+      "rxcui": "115265"
+    },
+    "伊立替康": {
+      "name": "irinotecan",
+      "rxcui": "51499"
+    },
+    "伊米苷酶": {
+      "name": "imiglucerase",
+      "rxcui": "84959"
+    },
+    "伊维菌素": {
+      "name": "ivermectin",
+      "rxcui": "6069"
+    },
+    "伊马替尼": {
+      "name": "imatinib",
+      "rxcui": "282388"
+    },
+    "伏硫西汀": {
+      "name": "vortioxetine",
+      "rxcui": "1455099"
+    },
+    "伏立康唑": {
+      "name": "voriconazole",
+      "rxcui": "121243"
+    },
+    "伐地那非": {
+      "name": "vardenafil",
+      "rxcui": "306674"
+    },
+    "伪麻黄碱": {
+      "name": "pseudoephedrine",
+      "rxcui": "8896"
+    },
+    "伯氨喹": {
+      "name": "primaquine",
+      "rxcui": "8687"
+    },
+    "佐匹克隆": {
+      "name": "zopiclone",
+      "rxcui": "40001"
+    },
+    "佐米曲普坦": {
+      "name": "zolmitriptan",
+      "rxcui": "135775"
+    },
+    "依前列醇": {
+      "name": "epoprostenol",
+      "rxcui": "8814"
+    },
+    "依奇珠单抗": {
+      "name": "ixekizumab",
+      "rxcui": "1745099"
+    },
+    "依巴斯汀": {
+      "name": "ebastine",
+      "rxcui": "23796"
+    },
+    "依库珠单抗": {
+      "name": "eculizumab",
+      "rxcui": "591781"
+    },
+    "依托咪酯": {
+      "name": "etomidate",
+      "rxcui": "4177"
+    },
+    "依托泊苷": {
+      "name": "etoposide",
+      "rxcui": "4179"
+    },
+    "依托考昔": {
+      "name": "etoricoxib",
+      "rxcui": "307296"
+    },
+    "依折麦布": {
+      "name": "ezetimibe",
+      "rxcui": "341248"
+    },
+    "依拉环素": {
+      "name": "eravacycline",
+      "rxcui": "2055906"
+    },
+    "依普利酮": {
+      "name": "eplerenone",
+      "rxcui": "298869"
+    },
+    "依普沙坦": {
+      "name": "eprosartan",
+      "rxcui": "83515"
+    },
+    "依替巴肽": {
+      "name": "eptifibatide",
+      "rxcui": "75635"
+    },
+    "依替膦酸二钠": {
+      "name": "etidronate disodium",
+      "rxcui": "9872"
+    },
+    "依洛尤单抗": {
+      "name": "evolocumab",
+      "rxcui": "1665684"
+    },
+    "依特卡肽": {
+      "name": "etelcalcetide",
+      "rxcui": "1876119"
+    },
+    "依美斯汀": {
+      "name": "emedastine",
+      "rxcui": "28144"
+    },
+    "依西美坦": {
+      "name": "exemestane",
+      "rxcui": "258494"
+    },
+    "依诺沙星": {
+      "name": "enoxacin",
+      "rxcui": "3925"
+    },
+    "依诺肝素": {
+      "name": "enoxaparin",
+      "rxcui": "67108"
+    },
+    "依那普利": {
+      "name": "enalapril",
+      "rxcui": "3827"
+    },
+    "依那西普": {
+      "name": "etanercept",
+      "rxcui": "214555"
+    },
+    "依非韦伦": {
+      "name": "efavirenz",
+      "rxcui": "195085"
+    },
+    "倍他司汀": {
+      "name": "betahistine",
+      "rxcui": "1511"
+    },
+    "倍他洛尔": {
+      "name": "betaxolol",
+      "rxcui": "1520"
+    },
+    "倍他米松": {
+      "name": "betamethasone",
+      "rxcui": "1514"
+    },
+    "倍氯米松": {
+      "name": "beclomethasone",
+      "rxcui": "1347"
+    },
+    "克仑特罗": {
+      "name": "clenbuterol",
+      "rxcui": "2580"
+    },
+    "克唑替尼": {
+      "name": "crizotinib",
+      "rxcui": "1148495"
+    },
+    "克拉屈滨": {
+      "name": "cladribine",
+      "rxcui": "44157"
+    },
+    "克拉霉素": {
+      "name": "clarithromycin",
+      "rxcui": "21212"
+    },
+    "克林霉素": {
+      "name": "clindamycin",
+      "rxcui": "2582"
+    },
+    "克立硼罗": {
+      "name": "crisaborole",
+      "rxcui": "1865953"
+    },
+    "克罗米通": {
+      "name": "crotamiton",
+      "rxcui": "21766"
+    },
+    "克霉唑": {
+      "name": "clotrimazole",
+      "rxcui": "2623"
+    },
+    "兰地洛尔": {
+      "name": "landiolol",
+      "rxcui": "2712070"
+    },
+    "兰瑞肽": {
+      "name": "lanreotide",
+      "rxcui": "68092"
+    },
+    "兰索拉唑": {
+      "name": "lansoprazole",
+      "rxcui": "17128"
+    },
+    "决奈达隆": {
+      "name": "dronedarone",
+      "rxcui": "233698"
+    },
+    "利伐沙班": {
+      "name": "rivaroxaban",
+      "rxcui": "1114195"
+    },
+    "利司那肽": {
+      "name": "lixisenatide",
+      "rxcui": "1440051"
+    },
+    "利培酮": {
+      "name": "risperidone",
+      "rxcui": "35636"
+    },
+    "利多卡因": {
+      "name": "lidocaine",
+      "rxcui": "6387"
+    },
+    "利奈唑胺": {
+      "name": "linezolid",
+      "rxcui": "190376"
+    },
+    "利妥昔单抗": {
+      "name": "rituximab",
+      "rxcui": "121191"
+    },
+    "利巴韦林": {
+      "name": "ribavirin",
+      "rxcui": "9344"
+    },
+    "利扎曲普坦": {
+      "name": "rizatriptan",
+      "rxcui": "88014"
+    },
+    "利托那韦": {
+      "name": "ritonavir",
+      "rxcui": "85762"
+    },
+    "利拉鲁肽": {
+      "name": "liraglutide",
+      "rxcui": "475968"
+    },
+    "利格列汀": {
+      "name": "linagliptin",
+      "rxcui": "1100699"
+    },
+    "利福喷丁": {
+      "name": "rifapentine",
+      "rxcui": "35617"
+    },
+    "利福布汀": {
+      "name": "rifabutin",
+      "rxcui": "55672"
+    },
+    "利福平": {
+      "name": "rifampin",
+      "rxcui": "9384"
+    },
+    "利福昔明": {
+      "name": "rifaximin",
+      "rxcui": "35619"
+    },
+    "利血平": {
+      "name": "reserpine",
+      "rxcui": "9260"
+    },
+    "利那洛肽": {
+      "name": "linaclotide",
+      "rxcui": "1307404"
+    },
+    "别嘌醇": {
+      "name": "allopurinol",
+      "rxcui": "519"
+    },
+    "加兰他敏": {
+      "name": "galantamine",
+      "rxcui": "4637"
+    },
+    "加巴喷丁": {
+      "name": "gabapentin",
+      "rxcui": "25480"
+    },
+    "加替沙星": {
+      "name": "gatifloxacin",
+      "rxcui": "228476"
+    },
+    "劳拉西泮": {
+      "name": "lorazepam",
+      "rxcui": "6470"
+    },
+    "匹伐他汀": {
+      "name": "pitavastatin",
+      "rxcui": "861634"
+    },
+    "匹维溴铵": {
+      "name": "pinaverium bromide",
+      "rxcui": "54743"
+    },
+    "十一酸睾酮": {
+      "name": "testosterone undecanoate",
+      "rxcui": "37864"
+    },
+    "华法林": {
+      "name": "warfarin",
+      "rxcui": "11289"
+    },
+    "单硝酸异山梨酯": {
+      "name": "isosorbide mononitrate",
+      "rxcui": "28004"
+    },
+    "博来霉素": {
+      "name": "bleomycin",
+      "rxcui": "1622"
+    },
+    "卡博替尼": {
+      "name": "cabozantinib",
+      "rxcui": "1363268"
+    },
+    "卡培他滨": {
+      "name": "capecitabine",
+      "rxcui": "194000"
+    },
+    "卡巴拉汀": {
+      "name": "rivastigmine",
+      "rxcui": "183379"
+    },
+    "卡托普利": {
+      "name": "captopril",
+      "rxcui": "1998"
+    },
+    "卡替洛尔": {
+      "name": "carteolol",
+      "rxcui": "2116"
+    },
+    "卡格列净": {
+      "name": "canagliflozin",
+      "rxcui": "1373458"
+    },
+    "卡比马唑": {
+      "name": "carbimazole",
+      "rxcui": "2020"
+    },
+    "卡泊芬净": {
+      "name": "caspofungin",
+      "rxcui": "140108"
+    },
+    "卡维地洛": {
+      "name": "carvedilol",
+      "rxcui": "20352"
+    },
+    "卡莫司汀": {
+      "name": "carmustine",
+      "rxcui": "2105"
+    },
+    "卡那霉素": {
+      "name": "kanamycin",
+      "rxcui": "6099"
+    },
+    "卡铂": {
+      "name": "carboplatin",
+      "rxcui": "40048"
+    },
+    "卡非佐米": {
+      "name": "carfilzomib",
+      "rxcui": "1302966"
+    },
+    "卡马西平": {
+      "name": "carbamazepine",
+      "rxcui": "2002"
+    },
+    "卡麦角林": {
+      "name": "cabergoline",
+      "rxcui": "47579"
+    },
+    "卤米松": {
+      "name": "halometasone",
+      "rxcui": "26416"
+    },
+    "厄他培南": {
+      "name": "ertapenem",
+      "rxcui": "325642"
+    },
+    "厄多司坦": {
+      "name": "erdosteine",
+      "rxcui": "24305"
+    },
+    "厄洛替尼": {
+      "name": "erlotinib",
+      "rxcui": "337525"
+    },
+    "厄贝沙坦": {
+      "name": "irbesartan",
+      "rxcui": "83818"
+    },
+    "去氨加压素": {
+      "name": "desmopressin",
+      "rxcui": "3251"
+    },
+    "去甲肾上腺素": {
+      "name": "norepinephrine",
+      "rxcui": "7512"
+    },
+    "去铁胺": {
+      "name": "deferoxamine",
+      "rxcui": "3131"
+    },
+    "去铁酮": {
+      "name": "deferiprone",
+      "rxcui": "11645"
+    },
+    "双嘧达莫": {
+      "name": "dipyridamole",
+      "rxcui": "3521"
+    },
+    "双氯芬酸": {
+      "name": "diclofenac",
+      "rxcui": "3355"
+    },
+    "可乐定": {
+      "name": "clonidine",
+      "rxcui": "2599"
+    },
+    "可待因": {
+      "name": "codeine",
+      "rxcui": "2670"
+    },
+    "可的松": {
+      "name": "cortisone",
+      "rxcui": "2878"
+    },
+    "右佐匹克隆": {
+      "name": "eszopiclone",
+      "rxcui": "461016"
+    },
+    "右兰索拉唑": {
+      "name": "dexlansoprazole",
+      "rxcui": "816346"
+    },
+    "右旋糖酐": {
+      "name": "dextran",
+      "rxcui": "42635"
+    },
+    "右美沙芬": {
+      "name": "dextromethorphan",
+      "rxcui": "3289"
+    },
+    "司坦唑醇": {
+      "name": "stanozolol",
+      "rxcui": "10032"
+    },
+    "司库奇尤单抗": {
+      "name": "secukinumab",
+      "rxcui": "1599788"
+    },
+    "司来吉兰": {
+      "name": "selegiline",
+      "rxcui": "9639"
+    },
+    "司美格鲁肽": {
+      "name": "semaglutide",
+      "rxcui": "1991302"
+    },
+    "吉西他滨": {
+      "name": "gemcitabine",
+      "rxcui": "12574"
+    },
+    "吉非替尼": {
+      "name": "gefitinib",
+      "rxcui": "328134"
+    },
+    "吗啡": {
+      "name": "morphine",
+      "rxcui": "7052"
+    },
+    "吗替麦考酚酯": {
+      "name": "mycophenolate mofetil",
+      "rxcui": "68149"
+    },
+    "吗氯贝胺": {
+      "name": "moclobemide",
+      "rxcui": "30121"
+    },
+    "吗茚酮": {
+      "name": "molindone",
+      "rxcui": "7019"
+    },
+    "吡哌酸": {
+      "name": "pipemidic acid",
+      "rxcui": "8337"
+    },
+    "吡喹酮": {
+      "name": "praziquantel",
+      "rxcui": "8628"
+    },
+    "吡嗪酰胺": {
+      "name": "pyrazinamide",
+      "rxcui": "8987"
+    },
+    "吡格列酮": {
+      "name": "pioglitazone",
+      "rxcui": "33738"
+    },
+    "吡硫翁锌": {
+      "name": "zinc pyrithione",
+      "rxcui": "39952"
+    },
+    "吡美莫司": {
+      "name": "pimecrolimus",
+      "rxcui": "321952"
+    },
+    "吡诺克辛": {
+      "name": "pirenoxine",
+      "rxcui": "228080"
+    },
+    "吲哚洛尔": {
+      "name": "pindolol",
+      "rxcui": "8332"
+    },
+    "吲哚美辛": {
+      "name": "indomethacin",
+      "rxcui": "5781"
+    },
+    "吲达帕胺": {
+      "name": "indapamide",
+      "rxcui": "5764"
+    },
+    "呋喃妥因": {
+      "name": "nitrofurantoin",
+      "rxcui": "7454"
+    },
+    "呋塞米": {
+      "name": "furosemide",
+      "rxcui": "4603"
+    },
+    "咪康唑": {
+      "name": "miconazole",
+      "rxcui": "6932"
+    },
+    "咪达唑仑": {
+      "name": "midazolam",
+      "rxcui": "6960"
+    },
+    "咪达普利": {
+      "name": "imidapril",
+      "rxcui": "60245"
+    },
+    "哈西奈德": {
+      "name": "halcinonide",
+      "rxcui": "5084"
+    },
+    "哌拉西林": {
+      "name": "piperacillin",
+      "rxcui": "8339"
+    },
+    "哌替啶": {
+      "name": "meperidine",
+      "rxcui": "6754"
+    },
+    "哌甲酯": {
+      "name": "methylphenidate",
+      "rxcui": "6901"
+    },
+    "唑吡坦": {
+      "name": "zolpidem",
+      "rxcui": "39993"
+    },
+    "唑尼沙胺": {
+      "name": "zonisamide",
+      "rxcui": "39998"
+    },
+    "唑来膦酸": {
+      "name": "zoledronic acid",
+      "rxcui": "77655"
+    },
+    "喷布洛尔": {
+      "name": "penbutolol",
+      "rxcui": "7973"
+    },
+    "喷昔洛韦": {
+      "name": "penciclovir",
+      "rxcui": "59839"
+    },
+    "喹硫平": {
+      "name": "quetiapine",
+      "rxcui": "51272"
+    },
+    "喹那普利": {
+      "name": "quinapril",
+      "rxcui": "35208"
+    },
+    "噻吗洛尔": {
+      "name": "timolol",
+      "rxcui": "10600"
+    },
+    "噻托溴铵": {
+      "name": "tiotropium",
+      "rxcui": "69120"
+    },
+    "四环素": {
+      "name": "tetracycline",
+      "rxcui": "10395"
+    },
+    "地塞米松": {
+      "name": "dexamethasone",
+      "rxcui": "3264"
+    },
+    "地奈德": {
+      "name": "desonide",
+      "rxcui": "3254"
+    },
+    "地尔硫䓬": {
+      "name": "diltiazem",
+      "rxcui": "3443"
+    },
+    "地屈孕酮": {
+      "name": "dydrogesterone",
+      "rxcui": "3706"
+    },
+    "地拉罗司": {
+      "name": "deferasirox",
+      "rxcui": "614373"
+    },
+    "地昔帕明": {
+      "name": "desipramine",
+      "rxcui": "3247"
+    },
+    "地氟烷": {
+      "name": "desflurane",
+      "rxcui": "27340"
+    },
+    "地特胰岛素": {
+      "name": "insulin detemir",
+      "rxcui": "139825"
+    },
+    "地红霉素": {
+      "name": "dirithromycin",
+      "rxcui": "23437"
+    },
+    "地舒单抗": {
+      "name": "denosumab",
+      "rxcui": "993449"
+    },
+    "地西他滨": {
+      "name": "decitabine",
+      "rxcui": "15657"
+    },
+    "地西泮": {
+      "name": "diazepam",
+      "rxcui": "3322"
+    },
+    "地高辛": {
+      "name": "digoxin",
+      "rxcui": "3407"
+    },
+    "坎地沙坦": {
+      "name": "candesartan",
+      "rxcui": "214354"
+    },
+    "坦索罗辛": {
+      "name": "tamsulosin",
+      "rxcui": "77492"
+    },
+    "培哚普利": {
+      "name": "perindopril",
+      "rxcui": "54552"
+    },
+    "塞利洛尔": {
+      "name": "celiprolol",
+      "rxcui": "20498"
+    },
+    "塞来昔布": {
+      "name": "celecoxib",
+      "rxcui": "140587"
+    },
+    "壬二酸": {
+      "name": "azelaic acid",
+      "rxcui": "18602"
+    },
+    "多佐胺": {
+      "name": "dorzolamide",
+      "rxcui": "60207"
+    },
+    "多塞平": {
+      "name": "doxepin",
+      "rxcui": "3638"
+    },
+    "多奈哌齐": {
+      "name": "donepezil",
+      "rxcui": "135447"
+    },
+    "多巴胺": {
+      "name": "dopamine",
+      "rxcui": "3628"
+    },
+    "多巴酚丁胺": {
+      "name": "dobutamine",
+      "rxcui": "3616"
+    },
+    "多廿烷醇": {
+      "name": "policosanol",
+      "rxcui": "69440"
+    },
+    "多柔比星": {
+      "name": "doxorubicin",
+      "rxcui": "3639"
+    },
+    "多沙唑嗪": {
+      "name": "doxazosin",
+      "rxcui": "49276"
+    },
+    "多潘立酮": {
+      "name": "domperidone",
+      "rxcui": "3626"
+    },
+    "多粘菌素B": {
+      "name": "polymyxin B",
+      "rxcui": "8536"
+    },
+    "多西他赛": {
+      "name": "docetaxel",
+      "rxcui": "72962"
+    },
+    "多西环素": {
+      "name": "doxycycline",
+      "rxcui": "3640"
+    },
+    "大观霉素": {
+      "name": "spectinomycin",
+      "rxcui": "270"
+    },
+    "夫西地酸": {
+      "name": "fusidic acid",
+      "rxcui": "4608"
+    },
+    "头孢丙烯": {
+      "name": "cefprozil",
+      "rxcui": "19552"
+    },
+    "头孢他啶": {
+      "name": "ceftazidime",
+      "rxcui": "2191"
+    },
+    "头孢克洛": {
+      "name": "cefaclor",
+      "rxcui": "2176"
+    },
+    "头孢克肟": {
+      "name": "cefixime",
+      "rxcui": "25033"
+    },
+    "头孢吡肟": {
+      "name": "cefepime",
+      "rxcui": "20481"
+    },
+    "头孢呋辛": {
+      "name": "cefuroxime",
+      "rxcui": "2194"
+    },
+    "头孢哌酮": {
+      "name": "cefoperazone",
+      "rxcui": "2184"
+    },
+    "头孢唑林": {
+      "name": "cefazolin",
+      "rxcui": "2180"
+    },
+    "头孢噻肟": {
+      "name": "cefotaxime",
+      "rxcui": "2186"
+    },
+    "头孢地尼": {
+      "name": "cefdinir",
+      "rxcui": "25037"
+    },
+    "头孢拉定": {
+      "name": "cephradine",
+      "rxcui": "2239"
+    },
+    "头孢曲松": {
+      "name": "ceftriaxone",
+      "rxcui": "2193"
+    },
+    "头孢泊肟": {
+      "name": "cefpodoxime",
+      "rxcui": "20489"
+    },
+    "头孢美唑": {
+      "name": "cefmetazole",
+      "rxcui": "2182"
+    },
+    "头孢西丁": {
+      "name": "cefoxitin",
+      "rxcui": "2189"
+    },
+    "夸西泮": {
+      "name": "quazepam",
+      "rxcui": "35185"
+    },
+    "奈必洛尔": {
+      "name": "nebivolol",
+      "rxcui": "31555"
+    },
+    "奈替米星": {
+      "name": "netilmicin",
+      "rxcui": "7337"
+    },
+    "奈西立肽": {
+      "name": "nesiritide",
+      "rxcui": "19666"
+    },
+    "奋乃静": {
+      "name": "perphenazine",
+      "rxcui": "8076"
+    },
+    "奎宁": {
+      "name": "quinine",
+      "rxcui": "9071"
+    },
+    "奎尼丁": {
+      "name": "quinidine",
+      "rxcui": "9068"
+    },
+    "奥利司他": {
+      "name": "orlistat",
+      "rxcui": "37925"
+    },
+    "奥卡西平": {
+      "name": "oxcarbazepine",
+      "rxcui": "32624"
+    },
+    "奥司他韦": {
+      "name": "oseltamivir",
+      "rxcui": "260101"
+    },
+    "奥希替尼": {
+      "name": "osimertinib",
+      "rxcui": "1721560"
+    },
+    "奥拉西坦": {
+      "name": "oxiracetam",
+      "rxcui": "32645"
+    },
+    "奥昔布宁": {
+      "name": "oxybutynin",
+      "rxcui": "32675"
+    },
+    "奥曲肽": {
+      "name": "octreotide",
+      "rxcui": "7617"
+    },
+    "奥替溴铵": {
+      "name": "otilonium bromide",
+      "rxcui": "54216"
+    },
+    "奥氮平": {
+      "name": "olanzapine",
+      "rxcui": "61381"
+    },
+    "奥沙利铂": {
+      "name": "oxaliplatin",
+      "rxcui": "32592"
+    },
+    "奥沙西泮": {
+      "name": "oxazepam",
+      "rxcui": "7781"
+    },
+    "奥洛他定": {
+      "name": "olopatadine",
+      "rxcui": "135391"
+    },
+    "奥美拉唑": {
+      "name": "omeprazole",
+      "rxcui": "7646"
+    },
+    "奥美沙坦": {
+      "name": "olmesartan",
+      "rxcui": "321064"
+    },
+    "奥马环素": {
+      "name": "omadacycline",
+      "rxcui": "2059269"
+    },
+    "奥马珠单抗": {
+      "name": "omalizumab",
+      "rxcui": "302379"
+    },
+    "妥布霉素": {
+      "name": "tobramycin",
+      "rxcui": "10627"
+    },
+    "孟鲁司特": {
+      "name": "montelukast",
+      "rxcui": "88249"
+    },
+    "安立生坦": {
+      "name": "ambrisentan",
+      "rxcui": "358274"
+    },
+    "安非他酮": {
+      "name": "bupropion",
+      "rxcui": "42347"
+    },
+    "富马酸亚铁": {
+      "name": "ferrous fumarate",
+      "rxcui": "24941"
+    },
+    "对乙酰氨基酚": {
+      "name": "acetaminophen",
+      "rxcui": "161"
+    },
+    "小檗碱": {
+      "name": "berberine",
+      "rxcui": "1437"
+    },
+    "尼卡地平": {
+      "name": "nicardipine",
+      "rxcui": "7396"
+    },
+    "尼可地尔": {
+      "name": "nicorandil",
+      "rxcui": "31748"
+    },
+    "尼扎替丁": {
+      "name": "nizatidine",
+      "rxcui": "42319"
+    },
+    "尼替西农": {
+      "name": "nitisinone",
+      "rxcui": "61805"
+    },
+    "尼索地平": {
+      "name": "nisoldipine",
+      "rxcui": "7435"
+    },
+    "尼群地平": {
+      "name": "nitrendipine",
+      "rxcui": "7441"
+    },
+    "尼莫地平": {
+      "name": "nimodipine",
+      "rxcui": "7426"
+    },
+    "尼麦角林": {
+      "name": "nicergoline",
+      "rxcui": "7398"
+    },
+    "尿激酶": {
+      "name": "urokinase",
+      "rxcui": "11055"
+    },
+    "尿素": {
+      "name": "urea",
+      "rxcui": "11002"
+    },
+    "屈螺酮": {
+      "name": "drospirenone",
+      "rxcui": "11636"
+    },
+    "左乙拉西坦": {
+      "name": "levetiracetam",
+      "rxcui": "114477"
+    },
+    "左布比卡因": {
+      "name": "levobupivacaine",
+      "rxcui": "259453"
+    },
+    "左旋多巴": {
+      "name": "levodopa",
+      "rxcui": "6375"
+    },
+    "左氧氟沙星": {
+      "name": "levofloxacin",
+      "rxcui": "82122"
+    },
+    "左炔诺孕酮": {
+      "name": "levonorgestrel",
+      "rxcui": "6373"
+    },
+    "左甲状腺素": {
+      "name": "levothyroxine",
+      "rxcui": "10582"
+    },
+    "左西孟旦": {
+      "name": "levosimendan",
+      "rxcui": "73107"
+    },
+    "巯嘌呤": {
+      "name": "mercaptopurine",
+      "rxcui": "103"
+    },
+    "己酮可可碱": {
+      "name": "pentoxifylline",
+      "rxcui": "8013"
+    },
+    "巴利昔单抗": {
+      "name": "basiliximab",
+      "rxcui": "196102"
+    },
+    "巴氯芬": {
+      "name": "baclofen",
+      "rxcui": "1292"
+    },
+    "巴瑞替尼": {
+      "name": "baricitinib",
+      "rxcui": "2047232"
+    },
+    "布地奈德": {
+      "name": "budesonide",
+      "rxcui": "19831"
+    },
+    "布托啡诺": {
+      "name": "butorphanol",
+      "rxcui": "1841"
+    },
+    "布林佐胺": {
+      "name": "brinzolamide",
+      "rxcui": "194881"
+    },
+    "布比卡因": {
+      "name": "bupivacaine",
+      "rxcui": "1815"
+    },
+    "布洛芬": {
+      "name": "ibuprofen",
+      "rxcui": "5640"
+    },
+    "布美他尼": {
+      "name": "bumetanide",
+      "rxcui": "1808"
+    },
+    "帕利哌酮": {
+      "name": "paliperidone",
+      "rxcui": "679314"
+    },
+    "帕博利珠单抗": {
+      "name": "pembrolizumab",
+      "rxcui": "1547545"
+    },
+    "帕尼单抗": {
+      "name": "panitumumab",
+      "rxcui": "263034"
+    },
+    "帕拉米韦": {
+      "name": "peramivir",
+      "rxcui": "619693"
+    },
+    "帕瑞肽": {
+      "name": "pasireotide",
+      "rxcui": "1364105"
+    },
+    "帕立骨化醇": {
+      "name": "paricalcitol",
+      "rxcui": "73710"
+    },
+    "帕罗西汀": {
+      "name": "paroxetine",
+      "rxcui": "32937"
+    },
+    "庆大霉素": {
+      "name": "gentamicin",
+      "rxcui": "1596450"
+    },
+    "度他雄胺": {
+      "name": "dutasteride",
+      "rxcui": "228790"
+    },
+    "度伐利尤单抗": {
+      "name": "durvalumab",
+      "rxcui": "1919503"
+    },
+    "度拉糖肽": {
+      "name": "dulaglutide",
+      "rxcui": "1551291"
+    },
+    "度普利尤单抗": {
+      "name": "dupilumab",
+      "rxcui": "1876376"
+    },
+    "度洛西汀": {
+      "name": "duloxetine",
+      "rxcui": "72625"
+    },
+    "度骨化醇": {
+      "name": "doxercalciferol",
+      "rxcui": "11516"
+    },
+    "异丙嗪": {
+      "name": "promethazine",
+      "rxcui": "8745"
+    },
+    "异丙托溴铵": {
+      "name": "ipratropium",
+      "rxcui": "7213"
+    },
+    "异丙肾上腺素": {
+      "name": "isoproterenol",
+      "rxcui": "6054"
+    },
+    "异氟烷": {
+      "name": "isoflurane",
+      "rxcui": "6026"
+    },
+    "异烟肼": {
+      "name": "isoniazid",
+      "rxcui": "6038"
+    },
+    "异环磷酰胺": {
+      "name": "ifosfamide",
+      "rxcui": "5657"
+    },
+    "异维A酸": {
+      "name": "isotretinoin",
+      "rxcui": "6064"
+    },
+    "德谷胰岛素": {
+      "name": "insulin degludec",
+      "rxcui": "1670007"
+    },
+    "恩他卡朋": {
+      "name": "entacapone",
+      "rxcui": "60307"
+    },
+    "恩曲他滨": {
+      "name": "emtricitabine",
+      "rxcui": "276237"
+    },
+    "恩曲替尼": {
+      "name": "entrectinib",
+      "rxcui": "2197862"
+    },
+    "恩替卡韦": {
+      "name": "entecavir",
+      "rxcui": "306266"
+    },
+    "恩格列净": {
+      "name": "empagliflozin",
+      "rxcui": "1545653"
+    },
+    "恩氟烷": {
+      "name": "enflurane",
+      "rxcui": "3920"
+    },
+    "愈创甘油醚": {
+      "name": "guaifenesin",
+      "rxcui": "5032"
+    },
+    "戈利木单抗": {
+      "name": "golimumab",
+      "rxcui": "819300"
+    },
+    "戈舍瑞林": {
+      "name": "goserelin",
+      "rxcui": "50610"
+    },
+    "戈那瑞林": {
+      "name": "gonadorelin",
+      "rxcui": "6384"
+    },
+    "戊酸雌二醇": {
+      "name": "estradiol valerate",
+      "rxcui": "24395"
+    },
+    "扎来普隆": {
+      "name": "zaleplon",
+      "rxcui": "74667"
+    },
+    "扎那米韦": {
+      "name": "zanamivir",
+      "rxcui": "69722"
+    },
+    "扎鲁司特": {
+      "name": "zafirlukast",
+      "rxcui": "114970"
+    },
+    "扑灭司林": {
+      "name": "permethrin",
+      "rxcui": "33199"
+    },
+    "扑米酮": {
+      "name": "primidone",
+      "rxcui": "8691"
+    },
+    "托吡卡胺": {
+      "name": "tropicamide",
+      "rxcui": "10869"
+    },
+    "托吡酯": {
+      "name": "topiramate",
+      "rxcui": "38404"
+    },
+    "托拉塞米": {
+      "name": "torsemide",
+      "rxcui": "38413"
+    },
+    "托烷司琼": {
+      "name": "tropisetron",
+      "rxcui": "27392"
+    },
+    "托特罗定": {
+      "name": "tolterodine",
+      "rxcui": "119565"
+    },
+    "托珠单抗": {
+      "name": "tocilizumab",
+      "rxcui": "612865"
+    },
+    "托莫西汀": {
+      "name": "atomoxetine",
+      "rxcui": "38400"
+    },
+    "拉坦前列素": {
+      "name": "latanoprost",
+      "rxcui": "43611"
+    },
+    "拉米夫定": {
+      "name": "lamivudine",
+      "rxcui": "68244"
+    },
+    "拉罗尼酶": {
+      "name": "laronidase",
+      "rxcui": "392509"
+    },
+    "拉莫三嗪": {
+      "name": "lamotrigine",
+      "rxcui": "28439"
+    },
+    "拉西地平": {
+      "name": "lacidipine",
+      "rxcui": "28382"
+    },
+    "拉贝洛尔": {
+      "name": "labetalol",
+      "rxcui": "6185"
+    },
+    "文拉法辛": {
+      "name": "venlafaxine",
+      "rxcui": "39786"
+    },
+    "新斯的明": {
+      "name": "neostigmine",
+      "rxcui": "7315"
+    },
+    "昂丹司琼": {
+      "name": "ondansetron",
+      "rxcui": "26225"
+    },
+    "普伐他汀": {
+      "name": "pravastatin",
+      "rxcui": "42463"
+    },
+    "普拉克索": {
+      "name": "pramipexole",
+      "rxcui": "746741"
+    },
+    "普拉格雷": {
+      "name": "prasugrel",
+      "rxcui": "613391"
+    },
+    "普瑞巴林": {
+      "name": "pregabalin",
+      "rxcui": "187832"
+    },
+    "普罗帕酮": {
+      "name": "propafenone",
+      "rxcui": "8754"
+    },
+    "普芦卡必利": {
+      "name": "prucalopride",
+      "rxcui": "2107310"
+    },
+    "普萘洛尔": {
+      "name": "propranolol",
+      "rxcui": "8787"
+    },
+    "曲伏前列素": {
+      "name": "travoprost",
+      "rxcui": "283809"
+    },
+    "曲唑酮": {
+      "name": "trazodone",
+      "rxcui": "10737"
+    },
+    "曲妥珠单抗": {
+      "name": "trastuzumab",
+      "rxcui": "224905"
+    },
+    "曲安奈德": {
+      "name": "triamcinolone acetonide",
+      "rxcui": "10761"
+    },
+    "曲普瑞林": {
+      "name": "triptorelin",
+      "rxcui": "38782"
+    },
+    "曲美他嗪": {
+      "name": "trimetazidine",
+      "rxcui": "10826"
+    },
+    "曲美替尼": {
+      "name": "trametinib",
+      "rxcui": "1425099"
+    },
+    "曲马多": {
+      "name": "tramadol",
+      "rxcui": "10689"
+    },
+    "更昔洛韦": {
+      "name": "ganciclovir",
+      "rxcui": "4678"
+    },
+    "替加氟": {
+      "name": "tegafur",
+      "rxcui": "4582"
+    },
+    "替加环素": {
+      "name": "tigecycline",
+      "rxcui": "384455"
+    },
+    "替勃龙": {
+      "name": "tibolone",
+      "rxcui": "38260"
+    },
+    "替扎尼定": {
+      "name": "tizanidine",
+      "rxcui": "57258"
+    },
+    "替格瑞洛": {
+      "name": "ticagrelor",
+      "rxcui": "1116632"
+    },
+    "替比夫定": {
+      "name": "telbivudine",
+      "rxcui": "474128"
+    },
+    "替硝唑": {
+      "name": "tinidazole",
+      "rxcui": "10612"
+    },
+    "替米沙坦": {
+      "name": "telmisartan",
+      "rxcui": "73494"
+    },
+    "替莫唑胺": {
+      "name": "temozolomide",
+      "rxcui": "37776"
+    },
+    "替诺福韦": {
+      "name": "tenofovir",
+      "rxcui": "117466"
+    },
+    "替雷利珠单抗": {
+      "name": "tislelizumab",
+      "rxcui": "2677426"
+    },
+    "来曲唑": {
+      "name": "letrozole",
+      "rxcui": "72965"
+    },
+    "来氟米特": {
+      "name": "leflunomide",
+      "rxcui": "27169"
+    },
+    "来那度胺": {
+      "name": "lenalidomide",
+      "rxcui": "342369"
+    },
+    "林可霉素": {
+      "name": "lincomycin",
+      "rxcui": "6398"
+    },
+    "林旦": {
+      "name": "lindane",
+      "rxcui": "1388"
+    },
+    "枸橼酸钙": {
+      "name": "calcium citrate",
+      "rxcui": "47613"
+    },
+    "柔红霉素": {
+      "name": "daunorubicin",
+      "rxcui": "3109"
+    },
+    "柳氮磺吡啶": {
+      "name": "sulfasalazine",
+      "rxcui": "9524"
+    },
+    "格列吡嗪": {
+      "name": "glipizide",
+      "rxcui": "4821"
+    },
+    "格列美脲": {
+      "name": "glimepiride",
+      "rxcui": "25789"
+    },
+    "格列齐特": {
+      "name": "gliclazide",
+      "rxcui": "4816"
+    },
+    "格拉司琼": {
+      "name": "granisetron",
+      "rxcui": "26237"
+    },
+    "桂利嗪": {
+      "name": "cinnarizine",
+      "rxcui": "2549"
+    },
+    "比卡鲁胺": {
+      "name": "bicalutamide",
+      "rxcui": "83008"
+    },
+    "比沙可啶": {
+      "name": "bisacodyl",
+      "rxcui": "1596"
+    },
+    "比索洛尔": {
+      "name": "bisoprolol",
+      "rxcui": "19484"
+    },
+    "毛果芸香碱": {
+      "name": "pilocarpine",
+      "rxcui": "8328"
+    },
+    "氟伏沙明": {
+      "name": "fluvoxamine",
+      "rxcui": "42355"
+    },
+    "氟伐他汀": {
+      "name": "fluvastatin",
+      "rxcui": "41127"
+    },
+    "氟卡尼": {
+      "name": "flecainide",
+      "rxcui": "4441"
+    },
+    "氟哌啶醇": {
+      "name": "haloperidol",
+      "rxcui": "5093"
+    },
+    "氟尿嘧啶": {
+      "name": "fluorouracil",
+      "rxcui": "4492"
+    },
+    "氟康唑": {
+      "name": "fluconazole",
+      "rxcui": "4450"
+    },
+    "氟替卡松": {
+      "name": "fluticasone",
+      "rxcui": "41126"
+    },
+    "氟桂利嗪": {
+      "name": "flunarizine",
+      "rxcui": "4459"
+    },
+    "氟氢可的松": {
+      "name": "fludrocortisone",
+      "rxcui": "4452"
+    },
+    "氟米龙": {
+      "name": "fluorometholone",
+      "rxcui": "4491"
+    },
+    "氟维司群": {
+      "name": "fulvestrant",
+      "rxcui": "282357"
+    },
+    "氟胞嘧啶": {
+      "name": "flucytosine",
+      "rxcui": "4451"
+    },
+    "氟西汀": {
+      "name": "fluoxetine",
+      "rxcui": "4493"
+    },
+    "氟西泮": {
+      "name": "flurazepam",
+      "rxcui": "4501"
+    },
+    "氟达拉滨": {
+      "name": "fludarabine",
+      "rxcui": "24698"
+    },
+    "氢化可的松": {
+      "name": "hydrocortisone",
+      "rxcui": "5492"
+    },
+    "氢氯噻嗪": {
+      "name": "hydrochlorothiazide",
+      "rxcui": "5487"
+    },
+    "氧化锌": {
+      "name": "zinc oxide",
+      "rxcui": "11423"
+    },
+    "氧氟沙星": {
+      "name": "ofloxacin",
+      "rxcui": "7623"
+    },
+    "氧雄龙": {
+      "name": "oxandrolone",
+      "rxcui": "7779"
+    },
+    "氨基葡萄糖": {
+      "name": "glucosamine",
+      "rxcui": "4845"
+    },
+    "氨己烯酸": {
+      "name": "vigabatrin",
+      "rxcui": "14851"
+    },
+    "氨曲南": {
+      "name": "aztreonam",
+      "rxcui": "1272"
+    },
+    "氨氯地平": {
+      "name": "amlodipine",
+      "rxcui": "17767"
+    },
+    "氨溴索": {
+      "name": "ambroxol",
+      "rxcui": "625"
+    },
+    "氨甲环酸": {
+      "name": "tranexamic acid",
+      "rxcui": "10691"
+    },
+    "氨苄西林": {
+      "name": "ampicillin",
+      "rxcui": "733"
+    },
+    "氨苯蝶啶": {
+      "name": "triamterene",
+      "rxcui": "10763"
+    },
+    "氨茶碱": {
+      "name": "aminophylline",
+      "rxcui": "689"
+    },
+    "氯化钙": {
+      "name": "calcium chloride",
+      "rxcui": "1901"
+    },
+    "氯化钠": {
+      "name": "sodium chloride",
+      "rxcui": "9863"
+    },
+    "氯化钾": {
+      "name": "potassium chloride",
+      "rxcui": "8591"
+    },
+    "氯吡格雷": {
+      "name": "clopidogrel",
+      "rxcui": "32968"
+    },
+    "氯唑沙宗": {
+      "name": "chlorzoxazone",
+      "rxcui": "2410"
+    },
+    "氯喹": {
+      "name": "chloroquine",
+      "rxcui": "2393"
+    },
+    "氯己定": {
+      "name": "chlorhexidine",
+      "rxcui": "2358"
+    },
+    "氯巴占": {
+      "name": "clobazam",
+      "rxcui": "21241"
+    },
+    "氯普噻吨": {
+      "name": "chlorprothixene",
+      "rxcui": "2406"
+    },
+    "氯氮平": {
+      "name": "clozapine",
+      "rxcui": "2626"
+    },
+    "氯沙坦": {
+      "name": "losartan",
+      "rxcui": "52175"
+    },
+    "氯硝西泮": {
+      "name": "clonazepam",
+      "rxcui": "2598"
+    },
+    "氯米帕明": {
+      "name": "clomipramine",
+      "rxcui": "2597"
+    },
+    "氯米芬": {
+      "name": "clomiphene",
+      "rxcui": "2596"
+    },
+    "氯胺酮": {
+      "name": "ketamine",
+      "rxcui": "6130"
+    },
+    "氯贝丁酯": {
+      "name": "clofibrate",
+      "rxcui": "2594"
+    },
+    "氯雷他定": {
+      "name": "loratadine",
+      "rxcui": "28889"
+    },
+    "氯霉素": {
+      "name": "chloramphenicol",
+      "rxcui": "2348"
+    },
+    "水杨酸": {
+      "name": "salicylic acid",
+      "rxcui": "9525"
+    },
+    "水飞蓟宾": {
+      "name": "silybin",
+      "rxcui": "155067"
+    },
+    "沙丁胺醇": {
+      "name": "albuterol",
+      "rxcui": "435"
+    },
+    "沙利度胺": {
+      "name": "thalidomide",
+      "rxcui": "10432"
+    },
+    "沙格列汀": {
+      "name": "saxagliptin",
+      "rxcui": "857974"
+    },
+    "泊沙康唑": {
+      "name": "posaconazole",
+      "rxcui": "282446"
+    },
+    "泊马度胺": {
+      "name": "pomalidomide",
+      "rxcui": "1369713"
+    },
+    "法莫替丁": {
+      "name": "famotidine",
+      "rxcui": "4278"
+    },
+    "泛昔洛韦": {
+      "name": "famciclovir",
+      "rxcui": "68099"
+    },
+    "泛酸钙": {
+      "name": "calcium pantothenate",
+      "rxcui": "1918"
+    },
+    "波生坦": {
+      "name": "bosentan",
+      "rxcui": "75207"
+    },
+    "泮托拉唑": {
+      "name": "pantoprazole",
+      "rxcui": "40790"
+    },
+    "泼尼松龙": {
+      "name": "prednisolone",
+      "rxcui": "8638"
+    },
+    "泽布替尼": {
+      "name": "zanubrutinib",
+      "rxcui": "2262435"
+    },
+    "洛伐他汀": {
+      "name": "lovastatin",
+      "rxcui": "6472"
+    },
+    "洛哌丁胺": {
+      "name": "loperamide",
+      "rxcui": "6468"
+    },
+    "洛美沙星": {
+      "name": "lomefloxacin",
+      "rxcui": "28872"
+    },
+    "洛莫司汀": {
+      "name": "lomustine",
+      "rxcui": "6466"
+    },
+    "溴芬酸": {
+      "name": "bromfenac",
+      "rxcui": "19737"
+    },
+    "溴莫尼定": {
+      "name": "brimonidine",
+      "rxcui": "134615"
+    },
+    "溴西泮": {
+      "name": "bromazepam",
+      "rxcui": "1749"
+    },
+    "溴隐亭": {
+      "name": "bromocriptine",
+      "rxcui": "1760"
+    },
+    "炉甘石": {
+      "name": "calamine",
+      "rxcui": "106212"
+    },
+    "炔诺酮": {
+      "name": "norethindrone",
+      "rxcui": "7514"
+    },
+    "烟酸": {
+      "name": "niacin",
+      "rxcui": "7393"
+    },
+    "煤焦油": {
+      "name": "coal tar",
+      "rxcui": "2635"
+    },
+    "特利加压素": {
+      "name": "terlipressin",
+      "rxcui": "57048"
+    },
+    "特地唑胺": {
+      "name": "tedizolid",
+      "rxcui": "1540825"
+    },
+    "特布他林": {
+      "name": "terbutaline",
+      "rxcui": "10368"
+    },
+    "特拉唑嗪": {
+      "name": "terazosin",
+      "rxcui": "37798"
+    },
+    "特比萘芬": {
+      "name": "terbinafine",
+      "rxcui": "37801"
+    },
+    "特瑞普利单抗": {
+      "name": "toripalimab",
+      "rxcui": "2669406"
+    },
+    "特立帕肽": {
+      "name": "teriparatide",
+      "rxcui": "32915"
+    },
+    "玛巴洛沙韦": {
+      "name": "baloxavir marboxil",
+      "rxcui": "2099995"
+    },
+    "环丙沙星": {
+      "name": "ciprofloxacin",
+      "rxcui": "2551"
+    },
+    "环吡酮胺": {
+      "name": "ciclopirox olamine",
+      "rxcui": "52172"
+    },
+    "环孢素": {
+      "name": "cyclosporine",
+      "rxcui": "3008"
+    },
+    "环磷酰胺": {
+      "name": "cyclophosphamide",
+      "rxcui": "3002"
+    },
+    "环索奈德": {
+      "name": "ciclesonide",
+      "rxcui": "274964"
+    },
+    "环苯扎林": {
+      "name": "cyclobenzaprine",
+      "rxcui": "21949"
+    },
+    "玻璃酸钠": {
+      "name": "sodium hyaluronate",
+      "rxcui": "42892"
+    },
+    "班布特罗": {
+      "name": "bambuterol",
+      "rxcui": "18751"
+    },
+    "琥珀酸亚铁": {
+      "name": "ferrous succinate",
+      "rxcui": "24946"
+    },
+    "瑞替普酶": {
+      "name": "reteplase",
+      "rxcui": "76895"
+    },
+    "瑞格列奈": {
+      "name": "repaglinide",
+      "rxcui": "73044"
+    },
+    "瑞舒伐他汀": {
+      "name": "rosuvastatin",
+      "rxcui": "301542"
+    },
+    "甘精胰岛素": {
+      "name": "insulin glargine",
+      "rxcui": "274783"
+    },
+    "甘草酸": {
+      "name": "glycyrrhizic acid",
+      "rxcui": "26143"
+    },
+    "生长抑素": {
+      "name": "somatostatin",
+      "rxcui": "9939"
+    },
+    "甲基多巴": {
+      "name": "methyldopa",
+      "rxcui": "6876"
+    },
+    "甲巯咪唑": {
+      "name": "methimazole",
+      "rxcui": "6835"
+    },
+    "甲氟喹": {
+      "name": "mefloquine",
+      "rxcui": "6694"
+    },
+    "甲氧氯普胺": {
+      "name": "metoclopramide",
+      "rxcui": "6915"
+    },
+    "甲氧苄啶": {
+      "name": "trimethoprim",
+      "rxcui": "10829"
+    },
+    "甲氨蝶呤": {
+      "name": "methotrexate",
+      "rxcui": "6851"
+    },
+    "甲泼尼龙": {
+      "name": "methylprednisolone",
+      "rxcui": "6902"
+    },
+    "甲硝唑": {
+      "name": "metronidazole",
+      "rxcui": "6922"
+    },
+    "甲羟孕酮": {
+      "name": "medroxyprogesterone",
+      "rxcui": "6691"
+    },
+    "甲钴胺": {
+      "name": "mecobalamin",
+      "rxcui": "29421"
+    },
+    "白消安": {
+      "name": "busulfan",
+      "rxcui": "1828"
+    },
+    "睾酮": {
+      "name": "testosterone",
+      "rxcui": "10379"
+    },
+    "石杉碱甲": {
+      "name": "huperzine A",
+      "rxcui": "2267703"
+    },
+    "硝苯地平": {
+      "name": "nifedipine",
+      "rxcui": "7417"
+    },
+    "硝西泮": {
+      "name": "nitrazepam",
+      "rxcui": "7440"
+    },
+    "硝酸异山梨酯": {
+      "name": "isosorbide dinitrate",
+      "rxcui": "6058"
+    },
+    "硝酸甘油": {
+      "name": "nitroglycerin",
+      "rxcui": "4917"
+    },
+    "硫唑嘌呤": {
+      "name": "azathioprine",
+      "rxcui": "1256"
+    },
+    "硫喷妥钠": {
+      "name": "thiopental sodium",
+      "rxcui": "282416"
+    },
+    "硫糖铝": {
+      "name": "sucralfate",
+      "rxcui": "10156"
+    },
+    "硫酸亚铁": {
+      "name": "ferrous sulfate",
+      "rxcui": "24947"
+    },
+    "硫酸钡": {
+      "name": "barium sulfate",
+      "rxcui": "1331"
+    },
+    "硫酸锌": {
+      "name": "zinc sulfate",
+      "rxcui": "39954"
+    },
+    "硼替佐米": {
+      "name": "bortezomib",
+      "rxcui": "358258"
+    },
+    "碘佛醇": {
+      "name": "ioversol",
+      "rxcui": "27792"
+    },
+    "碘克沙醇": {
+      "name": "iodixanol",
+      "rxcui": "27729"
+    },
+    "碘塞罗宁": {
+      "name": "liothyronine",
+      "rxcui": "10814"
+    },
+    "碘普罗胺": {
+      "name": "iopromide",
+      "rxcui": "27781"
+    },
+    "碘海醇": {
+      "name": "iohexol",
+      "rxcui": "5956"
+    },
+    "碳酸氢钠": {
+      "name": "sodium bicarbonate",
+      "rxcui": "36676"
+    },
+    "碳酸钙": {
+      "name": "calcium carbonate",
+      "rxcui": "1897"
+    },
+    "磷霉素": {
+      "name": "fosfomycin",
+      "rxcui": "4550"
+    },
+    "磺胺甲噁唑": {
+      "name": "sulfamethoxazole",
+      "rxcui": "10180"
+    },
+    "福莫特罗": {
+      "name": "formoterol",
+      "rxcui": "25255"
+    },
+    "福辛普利": {
+      "name": "fosinopril",
+      "rxcui": "50166"
+    },
+    "秋水仙碱": {
+      "name": "colchicine",
+      "rxcui": "2683"
+    },
+    "米力农": {
+      "name": "milrinone",
+      "rxcui": "52769"
+    },
+    "米卡芬净": {
+      "name": "micafungin",
+      "rxcui": "325887"
+    },
+    "米托蒽醌": {
+      "name": "mitoxantrone",
+      "rxcui": "7005"
+    },
+    "米拉贝隆": {
+      "name": "mirabegron",
+      "rxcui": "1300786"
+    },
+    "米格列醇": {
+      "name": "miglitol",
+      "rxcui": "30009"
+    },
+    "米氮平": {
+      "name": "mirtazapine",
+      "rxcui": "15996"
+    },
+    "米索前列醇": {
+      "name": "misoprostol",
+      "rxcui": "42331"
+    },
+    "米诺地尔": {
+      "name": "minoxidil",
+      "rxcui": "6984"
+    },
+    "米诺环素": {
+      "name": "minocycline",
+      "rxcui": "6980"
+    },
+    "米非司酮": {
+      "name": "mifepristone",
+      "rxcui": "6964"
+    },
+    "索他洛尔": {
+      "name": "sotalol",
+      "rxcui": "9947"
+    },
+    "索利那新": {
+      "name": "solifenacin",
+      "rxcui": "322167"
+    },
+    "索拉非尼": {
+      "name": "sorafenib",
+      "rxcui": "495881"
+    },
+    "索磷布韦": {
+      "name": "sofosbuvir",
+      "rxcui": "1484911"
+    },
+    "紫杉醇": {
+      "name": "paclitaxel",
+      "rxcui": "56946"
+    },
+    "红霉素": {
+      "name": "erythromycin",
+      "rxcui": "4053"
+    },
+    "纳武利尤单抗": {
+      "name": "nivolumab",
+      "rxcui": "1597876"
+    },
+    "纳洛酮": {
+      "name": "naloxone",
+      "rxcui": "7242"
+    },
+    "维A酸": {
+      "name": "tretinoin",
+      "rxcui": "10753"
+    },
+    "维奈克拉": {
+      "name": "venetoclax",
+      "rxcui": "1747556"
+    },
+    "维库溴铵": {
+      "name": "vecuronium",
+      "rxcui": "71535"
+    },
+    "维拉帕米": {
+      "name": "verapamil",
+      "rxcui": "11170"
+    },
+    "维格列汀": {
+      "name": "vildagliptin",
+      "rxcui": "596554"
+    },
+    "维生素A": {
+      "name": "vitamin A",
+      "rxcui": "11246"
+    },
+    "维生素B1": {
+      "name": "thiamine",
+      "rxcui": "10454"
+    },
+    "维生素B12": {
+      "name": "vitamin B12",
+      "rxcui": "11248"
+    },
+    "维生素B2": {
+      "name": "riboflavin",
+      "rxcui": "9346"
+    },
+    "维生素C": {
+      "name": "ascorbic acid",
+      "rxcui": "1151"
+    },
+    "维生素K1": {
+      "name": "vitamin K1",
+      "rxcui": "8308"
+    },
+    "维莫非尼": {
+      "name": "vemurafenib",
+      "rxcui": "1147220"
+    },
+    "缬沙坦": {
+      "name": "valsartan",
+      "rxcui": "69749"
+    },
+    "罗匹尼罗": {
+      "name": "ropinirole",
+      "rxcui": "72302"
+    },
+    "罗哌卡因": {
+      "name": "ropivacaine",
+      "rxcui": "35780"
+    },
+    "罗库溴铵": {
+      "name": "rocuronium",
+      "rxcui": "68139"
+    },
+    "罗格列酮": {
+      "name": "rosiglitazone",
+      "rxcui": "84108"
+    },
+    "罗红霉素": {
+      "name": "roxithromycin",
+      "rxcui": "9478"
+    },
+    "美司钠": {
+      "name": "mesna",
+      "rxcui": "44"
+    },
+    "美托拉宗": {
+      "name": "metolazone",
+      "rxcui": "6916"
+    },
+    "美托洛尔": {
+      "name": "metoprolol",
+      "rxcui": "6918"
+    },
+    "美替洛尔": {
+      "name": "metipranolol",
+      "rxcui": "10824"
+    },
+    "美泊利珠单抗": {
+      "name": "mepolizumab",
+      "rxcui": "1720597"
+    },
+    "美法仑": {
+      "name": "melphalan",
+      "rxcui": "6718"
+    },
+    "美洛昔康": {
+      "name": "meloxicam",
+      "rxcui": "41493"
+    },
+    "美索巴莫": {
+      "name": "methocarbamol",
+      "rxcui": "6845"
+    },
+    "美罗培南": {
+      "name": "meropenem",
+      "rxcui": "29561"
+    },
+    "美贝维林": {
+      "name": "mebeverine",
+      "rxcui": "29410"
+    },
+    "美金刚": {
+      "name": "memantine",
+      "rxcui": "6719"
+    },
+    "羟基脲": {
+      "name": "hydroxyurea",
+      "rxcui": "5552"
+    },
+    "羟氯喹": {
+      "name": "hydroxychloroquine",
+      "rxcui": "5521"
+    },
+    "羟甲烯龙": {
+      "name": "oxymetholone",
+      "rxcui": "7813"
+    },
+    "羟考酮": {
+      "name": "oxycodone",
+      "rxcui": "7804"
+    },
+    "群多普利": {
+      "name": "trandolapril",
+      "rxcui": "38454"
+    },
+    "羧甲基纤维素": {
+      "name": "carboxymethylcellulose",
+      "rxcui": "2062"
+    },
+    "考比替尼": {
+      "name": "cobimetinib",
+      "rxcui": "1722365"
+    },
+    "联苯苄唑": {
+      "name": "bifonazole",
+      "rxcui": "19295"
+    },
+    "聚乙烯醇": {
+      "name": "polyvinyl alcohol",
+      "rxcui": "8570"
+    },
+    "肝素": {
+      "name": "heparin",
+      "rxcui": "5224"
+    },
+    "肾上腺素": {
+      "name": "epinephrine",
+      "rxcui": "3992"
+    },
+    "胰酶": {
+      "name": "pancreatin",
+      "rxcui": "7880"
+    },
+    "胰高血糖素": {
+      "name": "glucagon",
+      "rxcui": "4832"
+    },
+    "胺碘酮": {
+      "name": "amiodarone",
+      "rxcui": "703"
+    },
+    "腺苷钴胺": {
+      "name": "cobamamide",
+      "rxcui": "21373"
+    },
+    "舍曲林": {
+      "name": "sertraline",
+      "rxcui": "36437"
+    },
+    "舒尼替尼": {
+      "name": "sunitinib",
+      "rxcui": "357977"
+    },
+    "舒必利": {
+      "name": "sulpiride",
+      "rxcui": "10239"
+    },
+    "舒马普坦": {
+      "name": "sumatriptan",
+      "rxcui": "37418"
+    },
+    "艾司唑仑": {
+      "name": "estazolam",
+      "rxcui": "4077"
+    },
+    "艾司西酞普兰": {
+      "name": "escitalopram",
+      "rxcui": "321988"
+    },
+    "艾塞那肽": {
+      "name": "exenatide",
+      "rxcui": "60548"
+    },
+    "艾多沙班": {
+      "name": "edoxaban",
+      "rxcui": "1599538"
+    },
+    "艾托格列净": {
+      "name": "ertugliflozin",
+      "rxcui": "1992672"
+    },
+    "艾曲泊帕": {
+      "name": "eltrombopag",
+      "rxcui": "711942"
+    },
+    "艾沙康唑": {
+      "name": "isavuconazole",
+      "rxcui": "1720882"
+    },
+    "芬太尼": {
+      "name": "fentanyl",
+      "rxcui": "4337"
+    },
+    "苯丁酸氮芥": {
+      "name": "chlorambucil",
+      "rxcui": "2346"
+    },
+    "苯丙哌林": {
+      "name": "benproperine",
+      "rxcui": "236749"
+    },
+    "苯丙醇": {
+      "name": "phenylpropanol",
+      "rxcui": "2475178"
+    },
+    "苯乙肼": {
+      "name": "phenelzine",
+      "rxcui": "8123"
+    },
+    "苯唑西林": {
+      "name": "oxacillin",
+      "rxcui": "7773"
+    },
+    "苯妥英": {
+      "name": "phenytoin",
+      "rxcui": "8183"
+    },
+    "苯巴比妥": {
+      "name": "phenobarbital",
+      "rxcui": "8134"
+    },
+    "苯扎氯铵": {
+      "name": "benzalkonium chloride",
+      "rxcui": "1379"
+    },
+    "苯扎贝特": {
+      "name": "bezafibrate",
+      "rxcui": "1525"
+    },
+    "苯海拉明": {
+      "name": "diphenhydramine",
+      "rxcui": "3498"
+    },
+    "苯海索": {
+      "name": "trihexyphenidyl",
+      "rxcui": "10811"
+    },
+    "苯溴马隆": {
+      "name": "benzbromarone",
+      "rxcui": "1385"
+    },
+    "茚达特罗": {
+      "name": "indacaterol",
+      "rxcui": "1114326"
+    },
+    "茴拉西坦": {
+      "name": "aniracetam",
+      "rxcui": "17939"
+    },
+    "茶碱": {
+      "name": "theophylline",
+      "rxcui": "10438"
+    },
+    "莫匹罗星": {
+      "name": "mupirocin",
+      "rxcui": "42372"
+    },
+    "莫沙必利": {
+      "name": "mosapride",
+      "rxcui": "135091"
+    },
+    "莫西沙星": {
+      "name": "moxifloxacin",
+      "rxcui": "139462"
+    },
+    "萘普生": {
+      "name": "naproxen",
+      "rxcui": "7258"
+    },
+    "葡萄糖酸钙": {
+      "name": "calcium gluconate",
+      "rxcui": "1908"
+    },
+    "葡萄糖酸锌": {
+      "name": "zinc gluconate",
+      "rxcui": "58300"
+    },
+    "蒿甲醚": {
+      "name": "artemether",
+      "rxcui": "18343"
+    },
+    "螺内酯": {
+      "name": "spironolactone",
+      "rxcui": "9997"
+    },
+    "表柔比星": {
+      "name": "epirubicin",
+      "rxcui": "3995"
+    },
+    "西咪替丁": {
+      "name": "cimetidine",
+      "rxcui": "2541"
+    },
+    "西地那非": {
+      "name": "sildenafil",
+      "rxcui": "136411"
+    },
+    "西妥昔单抗": {
+      "name": "cetuximab",
+      "rxcui": "318341"
+    },
+    "西布曲明": {
+      "name": "sibutramine",
+      "rxcui": "36514"
+    },
+    "西拉普利": {
+      "name": "cilazapril",
+      "rxcui": "21102"
+    },
+    "西替利嗪": {
+      "name": "cetirizine",
+      "rxcui": "20610"
+    },
+    "西格列汀": {
+      "name": "sitagliptin",
+      "rxcui": "593411"
+    },
+    "西洛他唑": {
+      "name": "cilostazol",
+      "rxcui": "21107"
+    },
+    "西甲硅油": {
+      "name": "simethicone",
+      "rxcui": "9796"
+    },
+    "西罗莫司": {
+      "name": "sirolimus",
+      "rxcui": "35302"
+    },
+    "西那卡塞": {
+      "name": "cinacalcet",
+      "rxcui": "407990"
+    },
+    "西酞普兰": {
+      "name": "citalopram",
+      "rxcui": "2556"
+    },
+    "诺氟沙星": {
+      "name": "norfloxacin",
+      "rxcui": "7517"
+    },
+    "贝伐珠单抗": {
+      "name": "bevacizumab",
+      "rxcui": "253337"
+    },
+    "贝那普利": {
+      "name": "benazepril",
+      "rxcui": "18867"
+    },
+    "赖脯胰岛素": {
+      "name": "insulin lispro",
+      "rxcui": "86009"
+    },
+    "赖诺普利": {
+      "name": "lisinopril",
+      "rxcui": "29046"
+    },
+    "赛洛多辛": {
+      "name": "silodosin",
+      "rxcui": "720825"
+    },
+    "辛伐他汀": {
+      "name": "simvastatin",
+      "rxcui": "36567"
+    },
+    "达卡巴嗪": {
+      "name": "dacarbazine",
+      "rxcui": "3098"
+    },
+    "达托霉素": {
+      "name": "daptomycin",
+      "rxcui": "22299"
+    },
+    "达拉非尼": {
+      "name": "dabrafenib",
+      "rxcui": "1424911"
+    },
+    "达格列净": {
+      "name": "dapagliflozin",
+      "rxcui": "1488564"
+    },
+    "达比加群": {
+      "name": "dabigatran",
+      "rxcui": "1546356"
+    },
+    "达芦那韦": {
+      "name": "darunavir",
+      "rxcui": "460132"
+    },
+    "过氧化氢": {
+      "name": "hydrogen peroxide",
+      "rxcui": "5499"
+    },
+    "过氧苯甲酰": {
+      "name": "benzoyl peroxide",
+      "rxcui": "1418"
+    },
+    "那他霉素": {
+      "name": "natamycin",
+      "rxcui": "7268"
+    },
+    "那格列奈": {
+      "name": "nateglinide",
+      "rxcui": "274332"
+    },
+    "酚妥拉明": {
+      "name": "phentolamine",
+      "rxcui": "8153"
+    },
+    "酚酞": {
+      "name": "phenolphthalein",
+      "rxcui": "155122"
+    },
+    "酮咯酸": {
+      "name": "ketorolac",
+      "rxcui": "35827"
+    },
+    "酮康唑": {
+      "name": "ketoconazole",
+      "rxcui": "6135"
+    },
+    "酮替芬": {
+      "name": "ketotifen",
+      "rxcui": "6146"
+    },
+    "醋甲唑胺": {
+      "name": "methazolamide",
+      "rxcui": "6826"
+    },
+    "金刚烷胺": {
+      "name": "amantadine",
+      "rxcui": "620"
+    },
+    "钆喷酸葡胺": {
+      "name": "gadopentetate dimeglumine",
+      "rxcui": "25486"
+    },
+    "钆布醇": {
+      "name": "gadobutrol",
+      "rxcui": "84990"
+    },
+    "钆特酸葡胺": {
+      "name": "gadoterate meglumine",
+      "rxcui": "1421151"
+    },
+    "铁": {
+      "name": "iron",
+      "rxcui": "90176"
+    },
+    "铝碳酸镁": {
+      "name": "hydrotalcite",
+      "rxcui": "27221"
+    },
+    "链激酶": {
+      "name": "streptokinase",
+      "rxcui": "10106"
+    },
+    "链霉素": {
+      "name": "streptomycin",
+      "rxcui": "10109"
+    },
+    "长春新碱": {
+      "name": "vincristine",
+      "rxcui": "11202"
+    },
+    "长春瑞滨": {
+      "name": "vinorelbine",
+      "rxcui": "39541"
+    },
+    "长春碱": {
+      "name": "vinblastine",
+      "rxcui": "11198"
+    },
+    "长春西汀": {
+      "name": "vinpocetine",
+      "rxcui": "24506"
+    },
+    "阿利吉仑": {
+      "name": "aliskiren",
+      "rxcui": "325646"
+    },
+    "阿利维A酸": {
+      "name": "alitretinoin",
+      "rxcui": "81864"
+    },
+    "阿利西尤单抗": {
+      "name": "alirocumab",
+      "rxcui": "1659152"
+    },
+    "阿加曲班": {
+      "name": "argatroban",
+      "rxcui": "15202"
+    },
+    "阿卡波糖": {
+      "name": "acarbose",
+      "rxcui": "16681"
+    },
+    "阿司匹林": {
+      "name": "aspirin",
+      "rxcui": "1191"
+    },
+    "阿哌沙班": {
+      "name": "apixaban",
+      "rxcui": "1364430"
+    },
+    "阿奇霉素": {
+      "name": "azithromycin",
+      "rxcui": "18631"
+    },
+    "阿尼芬净": {
+      "name": "anidulafungin",
+      "rxcui": "341018"
+    },
+    "阿巴西普": {
+      "name": "abatacept",
+      "rxcui": "614391"
+    },
+    "阿德福韦酯": {
+      "name": "adefovir dipivoxil",
+      "rxcui": "141400"
+    },
+    "阿扎胞苷": {
+      "name": "azacitidine",
+      "rxcui": "1251"
+    },
+    "阿扎那韦": {
+      "name": "atazanavir",
+      "rxcui": "343047"
+    },
+    "阿扑吗啡": {
+      "name": "apomorphine",
+      "rxcui": "1043"
+    },
+    "阿托伐他汀": {
+      "name": "atorvastatin",
+      "rxcui": "83367"
+    },
+    "阿托品": {
+      "name": "atropine",
+      "rxcui": "1223"
+    },
+    "阿昔替尼": {
+      "name": "axitinib",
+      "rxcui": "1242999"
+    },
+    "阿昔洛韦": {
+      "name": "acyclovir",
+      "rxcui": "281"
+    },
+    "阿昔莫司": {
+      "name": "acipimox",
+      "rxcui": "16817"
+    },
+    "阿普唑仑": {
+      "name": "alprazolam",
+      "rxcui": "596"
+    },
+    "阿普米司特": {
+      "name": "apremilast",
+      "rxcui": "1492727"
+    },
+    "阿曲库铵": {
+      "name": "atracurium",
+      "rxcui": "1218"
+    },
+    "阿替利珠单抗": {
+      "name": "atezolizumab",
+      "rxcui": "1792776"
+    },
+    "阿替普酶": {
+      "name": "alteplase",
+      "rxcui": "8410"
+    },
+    "阿替洛尔": {
+      "name": "atenolol",
+      "rxcui": "1202"
+    },
+    "阿来替尼": {
+      "name": "alectinib",
+      "rxcui": "1727455"
+    },
+    "阿柏西普": {
+      "name": "aflibercept",
+      "rxcui": "1232150"
+    },
+    "阿法替尼": {
+      "name": "afatinib",
+      "rxcui": "1430438"
+    },
+    "阿洛司琼": {
+      "name": "alosetron",
+      "rxcui": "85248"
+    },
+    "阿立哌唑": {
+      "name": "aripiprazole",
+      "rxcui": "89013"
+    },
+    "阿米卡星": {
+      "name": "amikacin",
+      "rxcui": "641"
+    },
+    "阿米替林": {
+      "name": "amitriptyline",
+      "rxcui": "704"
+    },
+    "阿米洛利": {
+      "name": "amiloride",
+      "rxcui": "644"
+    },
+    "阿糖胞苷": {
+      "name": "cytarabine",
+      "rxcui": "3041"
+    },
+    "阿维A": {
+      "name": "acitretin",
+      "rxcui": "16818"
+    },
+    "阿苯达唑": {
+      "name": "albendazole",
+      "rxcui": "430"
+    },
+    "阿莫罗芬": {
+      "name": "amorolfine",
+      "rxcui": "17804"
+    },
+    "阿莫西林": {
+      "name": "amoxicillin",
+      "rxcui": "723"
+    },
+    "阿贝西利": {
+      "name": "abemaciclib",
+      "rxcui": "1946825"
+    },
+    "阿达帕林": {
+      "name": "adapalene",
+      "rxcui": "60223"
+    },
+    "阿达木单抗": {
+      "name": "adalimumab",
+      "rxcui": "327361"
+    },
+    "阿那曲唑": {
+      "name": "anastrozole",
+      "rxcui": "84857"
+    },
+    "雌二醇": {
+      "name": "estradiol",
+      "rxcui": "4083"
+    },
+    "雷尼替丁": {
+      "name": "ranitidine",
+      "rxcui": "9143"
+    },
+    "雷沙吉兰": {
+      "name": "rasagiline",
+      "rxcui": "134748"
+    },
+    "雷洛昔芬": {
+      "name": "raloxifene",
+      "rxcui": "72143"
+    },
+    "雷珠单抗": {
+      "name": "ranibizumab",
+      "rxcui": "595060"
+    },
+    "雷米普利": {
+      "name": "ramipril",
+      "rxcui": "35296"
+    },
+    "雷贝拉唑": {
+      "name": "rabeprazole",
+      "rxcui": "114979"
+    },
+    "青蒿琥酯": {
+      "name": "artesunate",
+      "rxcui": "18346"
+    },
+    "青蒿素": {
+      "name": "artemisinin",
+      "rxcui": "2367409"
+    },
+    "非布司他": {
+      "name": "febuxostat",
+      "rxcui": "73689"
+    },
+    "非洛地平": {
+      "name": "felodipine",
+      "rxcui": "4316"
+    },
+    "非索非那定": {
+      "name": "fexofenadine",
+      "rxcui": "87636"
+    },
+    "非诺贝特": {
+      "name": "fenofibrate",
+      "rxcui": "8703"
+    },
+    "非那雄胺": {
+      "name": "finasteride",
+      "rxcui": "25025"
+    },
+    "顺铂": {
+      "name": "cisplatin",
+      "rxcui": "2555"
+    },
+    "马尼地平": {
+      "name": "manidipine",
+      "rxcui": "29275"
+    },
+    "马普替林": {
+      "name": "maprotiline",
+      "rxcui": "6646"
+    },
+    "骨化三醇": {
+      "name": "calcitriol",
+      "rxcui": "1894"
+    },
+    "鲁拉西酮": {
+      "name": "lurasidone",
+      "rxcui": "1040028"
+    },
+    "麻黄碱": {
+      "name": "ephedrine",
+      "rxcui": "3966"
+    },
+    "黄体酮": {
+      "name": "progesterone",
+      "rxcui": "8727"
+    },
+    "黄酮哌酯": {
+      "name": "flavoxate",
+      "rxcui": "4440"
+    },
+    "齐拉西酮": {
+      "name": "ziprasidone",
+      "rxcui": "115698"
+    }
+  },
+  "source": "https://rxnav.nlm.nih.gov/REST/allconcepts.json?tty=IN%20PIN%20MIN"
+}

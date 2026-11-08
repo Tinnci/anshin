@@ -109,8 +109,9 @@ data class AddMedicationUiState(
 sealed interface AddMedicationUiAction {
     data class PrefillDrug(val name: String, val category: String) : AddMedicationUiAction
     data class LoadExisting(val id: Long) : AddMedicationUiAction
-    data class NameChanged(val value: String) : AddMedicationUiAction
-    data class DrugSelected(val drug: Drug) : AddMedicationUiAction
+    data class NameChanged(val value: String, val suggestionLanguage: String? = null) : AddMedicationUiAction
+    data class DrugSelected(val drug: Drug, val language: String) : AddMedicationUiAction
+    data class DrugSuggestionsRequested(val language: String) : AddMedicationUiAction
     data object DismissDrugSuggestions : AddMedicationUiAction
     data class CategoryChanged(val value: String) : AddMedicationUiAction
     data class FormChanged(val value: String) : AddMedicationUiAction
@@ -179,7 +180,8 @@ class AddMedicationViewModel @Inject constructor(
     private val latestPrefs = MutableStateFlow(SettingsPreferences())
 
     /** 药品名称搜索查询 Flow，用于 debounce */
-    private val nameQuery = MutableStateFlow("")
+    private data class DrugNameQuery(val text: String, val language: String)
+    private val nameQuery = MutableStateFlow<DrugNameQuery?>(null)
     private var acceptsVoiceInput = false
     private var transcriptAppender: VoiceTranscriptAppender? = null
 
@@ -229,14 +231,16 @@ class AddMedicationViewModel @Inject constructor(
         // 搜索建议：300ms debounce 避免每次击键都触发全库搜索
         @OptIn(FlowPreview::class)
         viewModelScope.launch {
-            nameQuery
-                .debounce(300)
-                .collectLatest { query ->
-                    if (query.isNotBlank()) {
-                        val results = drugRepository.searchDrugsRanked(query).take(8)
+            drugRepository.getAllDrugs()
+            combine(
+                nameQuery.debounce { if (it?.text.isNullOrBlank()) 0L else 300L },
+                latestPrefs.map { it.showTcmInCatalog }.distinctUntilChanged(),
+            ) { query, includeTcm -> query to includeTcm }
+                .collectLatest { (query, includeTcm) ->
+                    if (query == null) return@collectLatest
+                    val results = drugRepository.suggestDrugNames(query.text, query.language, includeTcm)
+                    if (nameQuery.value == query) {
                         update { copy(drugSuggestions = results, showDrugSuggestions = results.isNotEmpty()) }
-                    } else {
-                        update { copy(drugSuggestions = emptyList(), showDrugSuggestions = false) }
                     }
                 }
         }
@@ -247,8 +251,11 @@ class AddMedicationViewModel @Inject constructor(
         when (action) {
             is AddMedicationUiAction.PrefillDrug -> prefillFromDrug(action.name, action.category)
             is AddMedicationUiAction.LoadExisting -> loadExisting(action.id)
-            is AddMedicationUiAction.NameChanged -> onNameChange(action.value)
-            is AddMedicationUiAction.DrugSelected -> onDrugSelected(action.drug)
+            is AddMedicationUiAction.NameChanged -> onNameChange(action.value, action.suggestionLanguage)
+            is AddMedicationUiAction.DrugSelected -> onDrugSelected(action.drug, action.language)
+            is AddMedicationUiAction.DrugSuggestionsRequested -> {
+                nameQuery.value = DrugNameQuery(_uiState.value.name, action.language)
+            }
             AddMedicationUiAction.DismissDrugSuggestions -> dismissDrugSuggestions()
             is AddMedicationUiAction.CategoryChanged -> onCategoryChange(action.value)
             is AddMedicationUiAction.FormChanged -> onFormChange(action.value)
@@ -356,18 +363,19 @@ class AddMedicationViewModel @Inject constructor(
 
     // ── 字段 setters ────────────────────────────────────────────
 
-    fun onNameChange(v: String) {
-        update { copy(name = v, error = null, errorRes = null) }
-        nameQuery.value = v
+    private fun onNameChange(value: String, language: String?) {
+        update { copy(name = value, error = null, errorRes = null, showDrugSuggestions = false) }
+        nameQuery.value = language?.let { DrugNameQuery(value, it) }
     }
 
     /** 从下拉建议中选中一种药，自动填入名称+分类+完整路径+是否中成药并关闭建议列表 */
-    fun onDrugSelected(drug: Drug) {
+    private fun onDrugSelected(drug: Drug, language: String) {
+        nameQuery.value = null
         // 多路径药品（复方/多效药）用换行符连接所有路径存储；单路径直接取 fullPath
         val storedPath = if (drug.allPaths.size > 1) drug.allPaths.joinToString("\n") else drug.fullPath
         update {
             copy(
-                name = drug.name,
+                name = drug.localizedName(language),
                 category = drug.category,
                 isTcm = drug.isTcm,
                 fullPath = storedPath,
@@ -380,7 +388,10 @@ class AddMedicationViewModel @Inject constructor(
     }
 
     /** 关闭建议下拉（用户点击外部时） */
-    fun dismissDrugSuggestions() = update { copy(showDrugSuggestions = false) }
+    private fun dismissDrugSuggestions() {
+        nameQuery.value = null
+        update { copy(showDrugSuggestions = false, drugSuggestions = emptyList()) }
+    }
 
     fun onCategoryChange(v: String) = update { copy(category = v) }
     fun onFormChange(v: String) = update { copy(form = v) }

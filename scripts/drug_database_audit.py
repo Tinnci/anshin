@@ -35,10 +35,10 @@ from rapidfuzz import fuzz
 
 from drug_category_rules import MISC_REHOME_RULES
 from drug_aliases import find_alias_semantic_warnings, load_alias_source
+from drug_catalog import load_catalog
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
-ASSET_BASE = PROJECT_ROOT / "app" / "src" / "main" / "assets" / "json"
 RAW_BASE = PROJECT_ROOT / "scripts" / "data"
 DEFAULT_OUTPUT = PROJECT_ROOT / "build" / "reports" / "drug_database_audit"
 
@@ -97,34 +97,14 @@ class DrugRecord:
         return path_part(self.primary_path, 1)
 
 
-def load_json_dict(path: Path) -> dict[str, list[str]]:
-    with path.open(encoding="utf-8") as handle:
-        raw = json.load(handle)
-    normalized: dict[str, list[str]] = {}
-    for name, value in raw.items():
-        if isinstance(value, str):
-            paths = [value]
-        else:
-            paths = list(value)
-        normalized[name.strip()] = [p.strip() for p in paths if p and p.strip()]
-    return normalized
-
-
-def load_records() -> list[DrugRecord]:
-    western = load_json_dict(ASSET_BASE / "drugs_clean.json")
-    tcm = load_json_dict(ASSET_BASE / "tcm_drugs_clean.json")
-    return [
-        *(DrugRecord(name, "western", tuple(paths)) for name, paths in western.items()),
-        *(DrugRecord(name, "tcm", tuple(paths)) for name, paths in tcm.items()),
+def load_records() -> tuple[list[DrugRecord], dict[str, str]]:
+    catalogs, initials = load_catalog()
+    records = [
+        DrugRecord(name, source, tuple(paths))
+        for source, catalog in catalogs.items()
+        for name, paths in catalog.items()
     ]
-
-
-def load_initials() -> dict[str, str]:
-    path = ASSET_BASE / "drug_initials_clean.json"
-    if not path.exists():
-        return {}
-    with path.open(encoding="utf-8") as handle:
-        return {str(name): str(initial) for name, initial in json.load(handle).items()}
+    return records, initials
 
 
 def path_part(path: str, index: int) -> str:
@@ -204,7 +184,7 @@ def find_fuzzy_duplicates(records: list[DrugRecord], limit: int = 80) -> list[tu
     return sorted(rows, key=lambda row: row[2], reverse=True)[:limit]
 
 
-def audit(records: list[DrugRecord], output_dir: Path) -> None:
+def audit(records: list[DrugRecord], initials: dict[str, str], output_dir: Path) -> None:
     output_dir.mkdir(parents=True, exist_ok=True)
     name_classes = Counter(classify_name(record.name) for record in records)
     top_categories = Counter(record.top_category for record in records)
@@ -220,7 +200,6 @@ def audit(records: list[DrugRecord], output_dir: Path) -> None:
         for record in records
         if record.top_category == "杂类" and record.second_category in MISC_REHOME_RULES
     ]
-    initials = load_initials()
     pinyin_mismatches = [
         (record.name, initials.get(record.name, ""), pinyin_initial(record.name))
         for record in records
@@ -404,8 +383,8 @@ def parse_args() -> argparse.Namespace:
 
 def main() -> None:
     args = parse_args()
-    records = load_records()
-    audit(records, args.output_dir)
+    records, initials = load_records()
+    audit(records, initials, args.output_dir)
     external_enrichment(args.output_dir, args.external_limit, args.external_timeout_seconds)
     print(f"Wrote audit report to {args.output_dir}")
 

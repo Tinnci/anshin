@@ -40,6 +40,7 @@ sealed interface SettingsUiAction {
     data class SetSymptomDiary(val enabled: Boolean) : SettingsUiAction
     data class SetDrugInteraction(val enabled: Boolean) : SettingsUiAction
     data class SetDrugDatabase(val enabled: Boolean) : SettingsUiAction
+    data class SetTcmInCatalog(val enabled: Boolean) : SettingsUiAction
     data class SetHealthModule(val enabled: Boolean) : SettingsUiAction
     data class SetTimePeriodMode(val enabled: Boolean) : SettingsUiAction
     data class UnarchiveMedication(val id: Long) : SettingsUiAction

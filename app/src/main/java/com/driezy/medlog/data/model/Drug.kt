@@ -13,6 +13,8 @@ data class Drug(
     val aliases: List<String> = emptyList(),
     val semanticTags: List<String> = emptyList(),
     val isCompound: Boolean = false,
+    val localizedNames: Map<String, String> = emptyMap(),
+    val isSuggestionStarter: Boolean = false,
 ) {
     /** 预小写化，用于高性能搜索 */
     val nameLower: String = name.lowercase()
@@ -20,16 +22,40 @@ data class Drug(
     val aliasesLower: List<String> = aliases.map { it.lowercase() }
     val semanticTagsLower: List<String> = semanticTags.map { it.lowercase() }
     val allPathsLower: List<String> = allPaths.map { it.lowercase() }
+    private val localizedNamesLower = localizedNames.values.map { it.lowercase() }
+    private val searchNames = listOf(nameLower) + aliasesLower + localizedNamesLower
+
+    fun localizedName(language: String): String = localizedNames[language] ?: name
+
+    fun hasLocalizedName(language: String): Boolean = language == "zh" || language in localizedNames
+
+    internal fun alternateNameMatching(query: String, language: String): String? {
+        val displayed = localizedName(language)
+        if (query.isBlank() || displayed.contains(query, ignoreCase = true)) return null
+        return sequenceOf(name).plus(localizedNames.values).plus(aliases)
+            .firstOrNull { it.contains(query, ignoreCase = true) }
+    }
+
+    internal fun nameSuggestionRank(query: String, language: String): Int {
+        val localName = localizedName(language).takeIf { hasLocalizedName(language) }?.lowercase()
+        return when {
+            localName == query -> 5
+            query in searchNames -> 4
+            localName?.startsWith(query) == true -> 3
+            searchNames.any { it.startsWith(query) } -> 2
+            searchNames.any { it.contains(query) } -> 1
+            else -> 0
+        }
+    }
 
     /** 精确/包含匹配（保留向后兼容） */
     fun matches(query: String): Boolean {
         if (query.isEmpty()) return true
         val q = query.lowercase()
-        return nameLower.contains(q) ||
-            categoryLower.contains(q) ||
+        return categoryLower.contains(q) ||
             fullPath.lowercase().contains(q) ||
             allPathsLower.any { it.contains(q) } ||
-            aliasesLower.any { it.contains(q) } ||
+            searchNames.any { it.contains(q) } ||
             semanticTagsLower.any { it.contains(q) }
     }
 
@@ -57,6 +83,9 @@ data class Drug(
         if (nameLower == q) return 1.00f
         if (nameLower.startsWith(q)) return 0.92f
         if (nameLower.contains(q)) return 0.80f
+        if (q in localizedNamesLower) return 1.00f
+        if (localizedNamesLower.any { it.startsWith(q) }) return 0.92f
+        if (localizedNamesLower.any { it.contains(q) }) return 0.80f
 
         if (aliasesLower.any { it == q }) return 0.88f
         if (aliasesLower.any { it.startsWith(q) }) return 0.78f

@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -22,6 +23,8 @@ import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.formatDosePrecise
 import com.driezy.medlog.ui.util.icon
+import com.driezy.medlog.ui.util.medicationNameLanguage
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 import java.util.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -31,20 +34,33 @@ internal fun MedicationBasicInfoSection(
     onAction: (AddMedicationUiAction) -> Unit,
     onOpenOcrScanner: () -> Unit,
 ) {
+    val language = medicationNameLanguage()
+    val categoryLabels = rememberDrugCategoryLabels()
     // ── 基本信息 ─────────────────────────────────────────
     FormSection(title = stringResource(R.string.add_section_basic), icon = MedLogIcons.Info) {
         // 药品名称：带数据库搜索建议的下拉输入框
         ExposedDropdownMenuBox(
             expanded = uiState.showDrugSuggestions,
-            onExpandedChange = { if (!it) onAction(AddMedicationUiAction.DismissDrugSuggestions) },
+            onExpandedChange = { expanded ->
+                onAction(
+                    if (expanded) {
+                        AddMedicationUiAction.DrugSuggestionsRequested(language)
+                    } else {
+                        AddMedicationUiAction.DismissDrugSuggestions
+                    },
+                )
+            },
             modifier = Modifier.fillMaxWidth(),
         ) {
             OutlinedTextField(
                 value = uiState.name,
-                onValueChange = { onAction(AddMedicationUiAction.NameChanged(it)) },
+                onValueChange = { onAction(AddMedicationUiAction.NameChanged(it, language)) },
                 label = { Text(stringResource(R.string.add_name_label)) },
                 modifier = Modifier
                     .fillMaxWidth()
+                    .onFocusChanged { state ->
+                        if (state.isFocused) onAction(AddMedicationUiAction.DrugSuggestionsRequested(language))
+                    }
                     .menuAnchor(ExposedDropdownMenuAnchorType.PrimaryEditable),
                 isError = (uiState.errorRes != null || uiState.error != null) && uiState.name.isBlank(),
                 supportingText = {
@@ -57,7 +73,7 @@ internal fun MedicationBasicInfoSection(
                 trailingIcon = {
                     Row {
                         if (uiState.name.isNotBlank()) {
-                            IconButton(onClick = { onAction(AddMedicationUiAction.NameChanged("")) }) {
+                            IconButton(onClick = { onAction(AddMedicationUiAction.NameChanged("", language)) }) {
                                 MedLogIcon(
                                     MedLogIcons.Close,
                                     contentDescription = stringResource(R.string.add_clear_cd),
@@ -84,17 +100,23 @@ internal fun MedicationBasicInfoSection(
                     shape = MaterialTheme.shapes.large,
                 ) {
                     uiState.drugSuggestions.forEach { drug ->
+                        val localizedName = drug.localizedName(language)
+                        val alternate = drug.alternateNameMatching(uiState.name.trim(), language)
+                        val subtitle = when {
+                            alternate != null -> stringResource(R.string.drugs_tag_hint, alternate)
+                            !drug.hasLocalizedName(language) -> stringResource(R.string.drugs_original_name)
+                            else -> categoryLabels.label(drug.category, drug.isTcm)
+                        }
+                        val tcmSuffix = if (drug.isTcm) stringResource(R.string.add_tcm_suffix) else ""
                         DropdownMenuItem(
                             text = {
                                 Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                                     Text(
-                                        text = drug.name,
+                                        text = localizedName,
                                         style = MaterialTheme.typography.bodyMedium,
                                     )
                                     Text(
-                                        text =
-                                        drug.category +
-                                            if (drug.isTcm) stringResource(R.string.add_tcm_suffix) else "",
+                                        text = subtitle + tcmSuffix,
                                         style = MaterialTheme.typography.bodySmall,
                                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                                     )
@@ -107,7 +129,7 @@ internal fun MedicationBasicInfoSection(
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             },
-                            onClick = { onAction(AddMedicationUiAction.DrugSelected(drug)) },
+                            onClick = { onAction(AddMedicationUiAction.DrugSelected(drug, language)) },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )
                     }
@@ -115,10 +137,12 @@ internal fun MedicationBasicInfoSection(
             }
         }
 
+        val categoryLabel = categoryLabels.label(uiState.category, uiState.isTcm)
         OutlinedTextField(
             value = uiState.category,
             onValueChange = { onAction(AddMedicationUiAction.CategoryChanged(it)) },
             label = { Text(stringResource(R.string.add_category_label)) },
+            supportingText = if (categoryLabel != uiState.category) ({ Text(categoryLabel) }) else null,
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
             leadingIcon = { MedLogIcon(MedLogIcons.Category, null) },
