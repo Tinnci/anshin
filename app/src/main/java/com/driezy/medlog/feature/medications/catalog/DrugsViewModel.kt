@@ -74,6 +74,7 @@ class DrugsViewModel @Inject constructor(
     private data class Catalog(val drugs: List<Drug>, val taxonomy: DrugTaxonomy?)
 
     private val query = MutableStateFlow("")
+    val searchText: StateFlow<String> = query.asStateFlow()
     private val filters = MutableStateFlow(Filters())
     private val catalog = MutableStateFlow<Catalog?>(null)
     private val language = MutableStateFlow("en")

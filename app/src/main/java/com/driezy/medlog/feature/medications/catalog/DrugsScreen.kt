@@ -42,10 +42,12 @@ fun DrugsScreen(
     viewModel: DrugsViewModel = hiltViewModel(),
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val searchText by viewModel.searchText.collectAsStateWithLifecycle()
     val language = medicationNameLanguage()
     LaunchedEffect(language) { viewModel.onAction(DrugsUiAction.LanguageChanged(language)) }
     DrugsContent(
         uiState = uiState,
+        searchText = searchText,
         onAction = viewModel::onAction,
         onAddCustomDrug = onAddCustomDrug,
         onOpenSettings = onOpenSettings,
@@ -58,6 +60,7 @@ fun DrugsScreen(
 @Composable
 private fun DrugsContent(
     uiState: DrugsUiState,
+    searchText: String,
     onAction: (DrugsUiAction) -> Unit,
     onAddCustomDrug: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -107,7 +110,7 @@ private fun DrugsContent(
             SearchBar(
                 inputField = {
                     SearchBarDefaults.InputField(
-                        query = uiState.query,
+                        query = searchText,
                         onQueryChange = { onAction(DrugsUiAction.QueryChanged(it)) },
                         onSearch = {},
                         expanded = uiState.isSearchActive,
@@ -117,7 +120,7 @@ private fun DrugsContent(
                         trailingIcon = {
                             if (uiState.isSearchActive) {
                                 IconButton(onClick = {
-                                    if (uiState.query.isNotEmpty()) {
+                                    if (searchText.isNotEmpty()) {
                                         onAction(DrugsUiAction.QueryChanged(""))
                                     } else {
                                         onAction(DrugsUiAction.SearchActiveChanged(false))
