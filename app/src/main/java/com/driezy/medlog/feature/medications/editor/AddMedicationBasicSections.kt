@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -13,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
@@ -90,7 +92,9 @@ internal fun MedicationBasicInfoSection(
                         }
                     }
                 },
-                singleLine = true,
+                minLines = 1,
+                maxLines = 3,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
             )
             if (uiState.drugSuggestions.isNotEmpty()) {
                 ExposedDropdownMenu(
@@ -153,7 +157,9 @@ internal fun MedicationBasicInfoSection(
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
             leadingIcon = { MedLogIcon(MedLogIcons.Category, null) },
-            singleLine = true,
+            minLines = 1,
+            maxLines = 3,
+            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
         )
         Row(
             modifier = Modifier.fillMaxWidth(),

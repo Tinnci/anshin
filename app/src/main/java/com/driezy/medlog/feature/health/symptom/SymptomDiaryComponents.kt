@@ -6,6 +6,7 @@ import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -15,6 +16,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import com.driezy.medlog.R
@@ -295,7 +297,9 @@ internal fun AddEditDiarySheet(
                     value = draft.customSymptom,
                     onValueChange = onCustomSymptomChange,
                     label = { Text(stringResource(R.string.symptom_custom_input_label)) },
-                    singleLine = true,
+                    minLines = 1,
+                    maxLines = 3,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     modifier = Modifier.weight(1f),
                 )
                 FilledTonalButton(
@@ -330,7 +334,9 @@ internal fun AddEditDiarySheet(
                     value = draft.customSideEffect,
                     onValueChange = onCustomSideEffectChange,
                     label = { Text(stringResource(R.string.symptom_custom_se_label)) },
-                    singleLine = true,
+                    minLines = 1,
+                    maxLines = 3,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     modifier = Modifier.weight(1f),
                 )
                 FilledTonalButton(
