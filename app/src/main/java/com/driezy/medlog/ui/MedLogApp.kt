@@ -253,6 +253,7 @@ private fun MedLogNavHost(
             exitTransition = { navFadeOut },
         ) {
             SettingsScreen(
+                onBack = { navController.popBackStack() },
                 onNavigateToWelcome = {
                     navController.navigate(Route.Welcome) {
                         popUpTo(navController.graph.findStartDestination().id) {

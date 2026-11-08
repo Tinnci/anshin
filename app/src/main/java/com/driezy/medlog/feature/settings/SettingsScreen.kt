@@ -48,6 +48,7 @@ internal enum class SettingsScreenMode(@param:StringRes val titleRes: Int) {
 
 @Composable
 fun SettingsScreen(
+    onBack: (() -> Unit)? = null,
     onNavigateToWelcome: () -> Unit = {},
     onNavigateToAppearanceSettings: () -> Unit = {},
     onNavigateToReminderSettings: () -> Unit = {},
@@ -61,6 +62,7 @@ fun SettingsScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     SettingsScaffold(
         mode = SettingsScreenMode.HOME,
+        onBack = onBack,
         onNavigateToWelcome = onNavigateToWelcome,
         onNavigateToAppearanceSettings = onNavigateToAppearanceSettings,
         onNavigateToReminderSettings = onNavigateToReminderSettings,
