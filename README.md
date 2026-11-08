@@ -12,347 +12,70 @@
   <a href="https://github.com/Tinnci/anshin/releases/latest">
     <img src="https://img.shields.io/github/v/release/Tinnci/anshin?label=Latest%20Release&color=4CAF50" alt="Latest Release">
   </a>
-  <img src="https://img.shields.io/badge/Kotlin-2.4.20-7F52FF?logo=kotlin&logoColor=white" alt="Kotlin">
   <img src="https://img.shields.io/badge/Material%203-Expressive-6750A4?logo=material-design&logoColor=white" alt="Material 3">
   <img src="https://img.shields.io/badge/Min%20SDK-26-brightgreen?logo=android&logoColor=white" alt="Min SDK">
   <img src="https://img.shields.io/badge/License-Apache%202.0-blue" alt="License">
 </p>
 
-> **Anshin** (*an-shin*) — *Adherence & Notification System for Health Intelligence*
-> 中文：安心用药，不再遗忘 · 日本語：安心して服薬管理 · 한국어：안심하고 복약 관리
+<p align="center">
+  <img src="screenshots/today.png" width="170" alt="Today">
+  <img src="screenshots/history.png" width="170" alt="History">
+  <img src="screenshots/meds.png" width="170" alt="Medications">
+  <img src="screenshots/journal.png" width="170" alt="Wellbeing journal">
+  <img src="screenshots/health.png" width="170" alt="Health vitals">
+</p>
 
-A native Android app built with **Kotlin · Jetpack Compose · Material 3 Expressive**,
-helping users track daily medication, manage inventory, and stay on schedule with precise alarms.
-
----
+A native Android app built with **Kotlin · Jetpack Compose · Material 3 Expressive** that helps you
+take the right dose at the right time, keep stock in check, and track vitals in one place.
 
 ## Features
 
-| Feature | Description |
-|---------|-------------|
-| **Onboarding** | 6-page spring-animated guide — routine times, feature toggles, theme selection |
-| **Today's Doses** | Dashboard with per-period grouping, progress ring, one-tap mark-all, auto-collapse |
-| **Status Tracking** | Taken / Skipped / Undo per dose with automatic stock deduction & restoration |
-| **Precise Reminders** | AlarmManager exact alarms; direct Taken / Skip actions in the notification |
-| **Routine-based Timing** | 11 fuzzy time periods (morning, before/after meals, bedtime…) mapped to personal schedule |
-| **PRN (As-Needed)** | Separate section for on-demand medications with interval tracking |
-| **History & Heatmap** | 90-day scrollable log; calendar heatmap with daily adherence rates |
-| **Streak Tracking** | Current & longest adherence streaks displayed on the home screen |
-| **Medication Management** | Add / Edit / Archive / Delete; dose, form, frequency, category, notes |
-| **Stock Tracking** | Inventory counter + refill threshold; proactive low-stock banner alert |
-| **Health Records** | Blood pressure, blood sugar, weight, temperature logging with trend charts |
-| **Symptom Diary** | Daily symptom & side-effect journaling with preset quick-picks |
-| **Drug Database** | Browse 7,000+ Chinese/TCM drug catalog for quick medication adding |
-| **Interaction Check** | Automatic multi-drug co-administration risk detection with severity levels |
-| **QR Share** | Export today's status or full medication plan as QR code for backup / sharing |
-| **Plan Import** | Scan QR to import another user's medication plan (merge or replace) |
-| **Homescreen Widgets** | Three Glance widgets — Today overview, Next dose, Streak counter |
-| **Adaptive Layout** | Phone → Tablet → Desktop auto-switching (bottom bar / rail / drawer) |
-| **Alarm Recovery** | All alarms re-scheduled after reboot via `BootReceiver` |
-| **Travel Mode** | Keep hometown-timezone reminders when traveling across time zones |
-| **Personalization** | Routine times, early reminder offset, persistent reminder, dark/light/auto theme, dynamic color |
-| **i18n** | Full Chinese / English / Japanese / Korean support (800+ localized resources) |
-
----
-
-## Screenshots
-
-<p align="center">
-  <img src="screenshots/home.png" width="180" alt="Today's doses">
-  <img src="screenshots/history.png" width="180" alt="History & heatmap">
-  <img src="screenshots/drugs.png" width="180" alt="Drug database">
-</p>
-<p align="center">
-  <img src="screenshots/diary.png" width="180" alt="Symptom diary">
-  <img src="screenshots/health.png" width="180" alt="Health records">
-  <img src="screenshots/settings.png" width="180" alt="Settings">
-</p>
-
----
-
-## Tech Stack
-
-| Layer | Technology |
-|-------|-----------|
-| Language | Kotlin 2.4.20 |
-| Build | Gradle 9.6.0 · AGP 9.4.1 · KSP 2.3.12 |
-| UI | Jetpack Compose (BOM 2026.09.00) · Material 3 Expressive 1.5.0-alpha20 |
-| Adaptive Nav | `material3-adaptive-navigation-suite` 1.2.0 |
-| State | Kotlin Coroutines 1.11.0 · StateFlow · `collectAsStateWithLifecycle` |
-| Database | Room 2.8.5 (KSP, historical migrations and exported schemas) |
-| Preferences | Jetpack DataStore 1.2.1 |
-| DI | Hilt 2.60.1 + HiltViewModel |
-| Background | WorkManager 2.12.0 + AlarmManager (exact) |
-| Navigation | Navigation Compose 2.10.2 (type-safe serialized routes) |
-| Widgets | Glance 1.1.1 (Compose-based homescreen widgets) |
-| Camera / QR | CameraX 1.6.1 · ML Kit Barcode 17.3.0 · ZXing 3.5.4 |
-| Animation | `Animatable` · Spring/tween physics · `AnimatedVisibility` · `MotionScheme` |
-| Code Quality | ktlint Gradle 14.2.0 · Android Lint · EditorConfig |
-| Testing | JUnit 4 · Mockito-Kotlin 6.3.0 · Turbine 1.2.1 |
-| Min / Target SDK | 26 / 37 |
-
----
-
-## Maintained Docs
-
-- [ktlint performance and local checks](docs/ktlint.md):
-  use `bun scripts/ktlint-changed.ts` to check source sets affected by staged,
-  unstaged, and untracked files. CI continues to run full `ktlintCheck`.
-
-- [Android UI and dependency review](docs/android-ui-review.md): source review,
-  dependency compatibility, accessibility follow-ups, and validation limits.
-- [Medication daily flow](docs/medication-daily-flow.md): scheduling, dose records,
-  inventory, undo, and verification entry points.
-- [Architecture governance](docs/architecture-governance.md): module/layer
-  boundaries, architecture decisions, persistence policy, and
-  verification gates.
-- [Release signing](docs/releasing.md): local signing setup, CI secrets,
-  tag conventions, and version codes.
-- [OCR model evaluation](seven_segment_ocr/MODEL_EVALUATION.md): current OCR
-  candidates, benchmark schema, evaluator notes, and maintained conclusions.
-- [OCR pipeline design](seven_segment_ocr/PIPELINE_DESIGN.md): headless
-  pipeline, PySide6 console boundary, Kaggle packaging, and dataset rules.
-
-Project notes should be folded into these topic documents instead of adding
-root-level work logs or calendar-named Markdown files.
-
-## Git Identity
-
-Local commits sync their author and committer identity from the active GitHub
-CLI account before each commit:
-
-```bash
-gh auth switch -u Tinnci
-git commit
-```
-
-The global hooks in `~/.config/git/hooks` sync repository-local identity from the
-active GitHub CLI account. Pre-commit syncs configuration, post-commit corrects
-the commit identity if needed, and pre-push checks the active account again.
-This repository requires `hooks.expectedGhAccount=Tinnci`. Unknown or
-unauthenticated accounts are rejected instead of using a personal email.
-
-Known accounts:
-
-- `Tinnci` -> `23432137+Tinnci@users.noreply.github.com`
-- `shisoratsu` -> `277485761+shisoratsu@users.noreply.github.com`
-
-When pushing this repository, switch to Tinnci first and restore the previous
-active account after the push. Global hooks chain `.githooks/pre-commit` and
-`.githooks/pre-push`: the local hooks check Kotlin changes before commit and
-run unit tests for source/build changes before push. Keep the global hooks path;
-`setup-hooks.sh` switches to local hooks and would bypass the global identity hooks.
-
----
-
-## Architecture
-
-**Modular monolith · MVVM + UDF · SSOT (Single Source of Truth)**
-
-```
-:app (composition, navigation, Android infrastructure)
- ├── :feature:onboarding
- ├── :capability:reminders
- ├── :core:model
- ├── :core:database
- ├── :core:preferences
- └── :core:ui
-
-:feature:onboarding ──> :core:preferences ──> :core:model
-:capability:reminders ──────────────────────> :core:model
-:app tests ─────────────────────────────────> :core:testing
-```
-
-**Key patterns:**
-
-- **SSOT + projections**: Room/DataStore are durable truth; alarms, notifications, and widgets are idempotently rebuilt from it.
-- **Page-level UDF**: complex routes expose immutable `UiState`, `UiAction`, buffered `UiEffect`, and one `onAction` entry point. Content composables do not depend on ViewModels.
-- **Typed domain**: medication/occurrence IDs and schedule variants are pure Kotlin models; legacy Room strings are interpreted only by persistence mappers.
-- **Focused preferences**: appearance, reminders, features, AI, widgets, and onboarding have narrow typed ports over one atomic DataStore.
-- **Application commands**: UI, notification, and Widget actions share the same transactional, idempotent dose commands.
-
-See [Architecture governance](docs/architecture-governance.md) for dependency rules, ADRs, migration policy, and verification gates.
-
-**Adaptive navigation** auto-selects based on `WindowWidthSizeClass`:
-
-| Screen Width | Navigation Component |
-|-------------|----------------------|
-| Compact | `BottomNavigationBar` |
-| Medium | `NavigationRail` |
-| Expanded | `PermanentNavigationDrawer` |
-
----
-
-## Project Structure
-
-```
-core/
-├── model/              # typed IDs/schedules plus pure time, streak, reminder rules
-├── database/           # Room entities, DAOs, migrations, exported schemas
-├── preferences/        # typed values and focused preference ports
-├── ui/                 # behavior-free screen descriptors
-└── testing/            # reusable coroutine/JUnit support
-feature/
-└── onboarding/         # onboarding domain language and draft
-capability/
-└── reminders/          # reminder projection ports and reconcile reasons
-app/src/main/java/com/driezy/medlog/
-├── data/               # DataStore, assets, and repository implementations
-├── feature/
-│   ├── medications/    # editor, catalog, detail, home, application commands
-│   ├── history/        # adherence history and projections
-│   ├── health/         # records, journal, health application logic
-│   ├── settings/       # focused settings routes/ViewModels and backup command
-│   └── onboarding/     # Route/Content/ViewModel and completion orchestration
-├── capability/
-│   ├── reminders/      # AlarmManager, notifications, Worker, receivers
-│   ├── widgets/        # Glance projections and shared command adapters
-│   ├── ai/             # cloud clients and key storage
-│   ├── ocr/            # camera/ML Kit/ONNX adapters
-│   └── bpx1/           # BLE adapter and protocol
-└── ui/navigation/      # app composition and type-safe routes
-```
-
----
+- **Today** — an "Up next" hero, grouped daily plan, one-tap Take / Skip / Undo, and streaks.
+- **Precise reminders** — exact alarms with Taken / Skip actions in the notification, restored after reboot.
+- **Flexible schedules** — exact times or fuzzy periods (after breakfast, bedtime…), PRN doses, travel-mode time zones.
+- **History** — 30-day adherence, streaks, and a calendar heatmap.
+- **Medications** — dose, form, category, stock and refill alerts, a 7,000+ drug catalog, and interaction checks.
+- **Health vitals** — blood pressure, glucose, weight and more with trends and on-device smart insights.
+- **Device readings** — scan monitor screens with OCR, or auto-sync a BPX1 blood pressure monitor over Bluetooth.
+- **Wellbeing journal** — daily mood, symptom and side-effect notes.
+- **Share & backup** — QR export/import of plans, homescreen widgets, adaptive phone/tablet layouts.
+- **Languages** — English, 中文, 日本語, 한국어.
 
 ## Getting Started
 
-### Prerequisites
-
-- **JDK 17+** (CI uses JDK 21)
-- **Android SDK 37** (build-tools 37.0.0)
-- **Android Studio** compatible with the AGP version in `gradle/libs.versions.toml`
-  (or command-line only)
-
-### Build
+Requires JDK 17+ (CI uses 21) and Android SDK 37.
 
 ```bash
-# Clone
 git clone https://github.com/Tinnci/anshin.git
 cd anshin
-
-# Create local.properties (auto-detected if using Android Studio)
-echo "sdk.dir=/path/to/android-sdk" > local.properties
-
-# Build debug APK
-./gradlew assembleDebug
-
-# Install on device/emulator
-./gradlew installDebug
-
-# Run unit tests
-./gradlew test
+./gradlew installDebug      # build and install on a device/emulator
+./gradlew test              # unit tests
+./gradlew ktlintCheck lintDebug
 ```
 
-### Release Signing
+Release signing and tagging are documented in [docs/releasing.md](docs/releasing.md).
+Pushing a `vX.Y.Z` tag from `main` triggers the signed release workflow.
 
-See [Release signing](docs/releasing.md) for full setup.
+## Architecture
 
-**Quick summary:**
-- Local: `local.properties` with `KEYSTORE_PATH`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`
-- CI: GitHub Secrets (`KEYSTORE_BASE64`, `KEYSTORE_PASSWORD`, `KEY_ALIAS`, `KEY_PASSWORD`)
-- Local builds without keys: graceful fallback to unsigned APK; GitHub Releases require all signing Secrets
+Modular monolith with MVVM + UDF and a single source of truth: Room and DataStore are durable truth;
+alarms, notifications and widgets are rebuilt from them.
 
-```bash
-# macOS one-liner (iCloud Drive + Keychain)
-./scripts/setup-signing.sh
+```
+:app ─┬─ :feature:onboarding
+      ├─ :capability:reminders
+      ├─ :core:model · :core:database · :core:preferences · :core:ui
 ```
 
----
-
-## Code Quality
-
-```bash
-./gradlew ktlintCheck    # lint check
-./gradlew ktlintFormat   # auto-fix
-./gradlew lintDebug      # Android Lint (report: app/build/reports/lint-results-debug.html)
-```
-
-### Local checks
-
-```bash
-bun scripts/ktlint-changed.ts            # source sets affected by local changes
-bun scripts/ktlint-changed.ts --dry-run  # inspect the selected tasks
-bun test scripts/ktlint-changed.test.ts  # check task selection behavior
-```
-
-CI runs full ktlint, tests, Android Lint, and builds. Run full Android Lint locally:
-
-```bash
-./gradlew lintDebug
-```
-
----
-
-## CI / CD
-
-| Workflow | Trigger | Steps | Artifact |
-|----------|---------|-------|---------|
-| [CI Build](.github/workflows/build.yml) | push / PR to `main` | ktlint → test → lint → build | Debug APK + reports |
-| [Release](.github/workflows/release.yml) | `main` commit tagged `v*.*.*` | validate → test → lint → sign → verify → release | Signed ABI APKs + SHA-256 checksums |
-
-**Release flow:**
-
-```bash
-git tag v1.2.0
-git push origin v1.2.0   # triggers Release workflow
-```
-
-The release workflow automatically:
-1. Validates tag format and main ancestry, then derives version values using the [release version rules](docs/releasing.md#versioncode-规则)
-2. Runs ktlint, unit tests, lint, and instrumented-test compilation
-3. Requires the complete signing secret set and decodes a temporary Keystore
-4. Builds three signed ABI APKs and cleans up the temporary Keystore
-5. Verifies every APK with `apksigner` and generates `SHA256SUMS`
-6. Generates changelog from commits since the previous reachable tag
-7. Creates a GitHub Release with the APKs and checksums attached
-
-Pre-release tags (`-rc`, `-beta`, `-alpha`) are automatically marked as GitHub pre-releases.
-
----
-
-## Internationalization
-
-| Locale | Status | Resource Count |
-|--------|--------|---------------|
-| 🇨🇳 Chinese (default) | ✅ Complete | 802 |
-| 🇬🇧 English | ✅ Complete | 802 |
-| 🇯🇵 Japanese | ✅ Complete | 813 |
-| 🇰🇷 Korean | ✅ Complete | 813 |
-
-All Compose screens are fully extracted — zero hardcoded strings in UI files.
-Resources include `<string>`, `<plurals>`, and `<string-array>` entries.
-
-> **Contributions welcome:** To translate Anshin into your language,
-> open an issue or PR with `app/src/main/res/values-{lang}/strings.xml`.
-
----
+See [Architecture governance](docs/architecture-governance.md) for boundaries and verification gates, and
+[Medication daily flow](docs/medication-daily-flow.md) for scheduling and dose records.
 
 ## Contributing
 
-Contributions are welcome in any language.
-
-1. Fork → feature branch → PR
-2. Pass `ktlintCheck` and `lintDebug` before submitting
-3. Follow the existing MVVM + SSOT + Clean Architecture patterns
-4. Add unit tests for new domain/ViewModel logic
-
----
+Fork → feature branch → PR. Run `ktlintCheck` and `lintDebug` first, follow the existing architecture,
+and add tests for new domain or ViewModel logic. Translations are welcome via
+`app/src/main/res/values-{lang}/`.
 
 ## License
 
-```
-Copyright 2025 tinnci
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-    https://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-```
+Apache License 2.0 — see https://www.apache.org/licenses/LICENSE-2.0.
