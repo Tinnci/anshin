@@ -11,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.ui.icons.MedLogIcon
@@ -128,6 +130,7 @@ internal fun MedicationBasicInfoSection(
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Row(
+                modifier = Modifier.weight(1f),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             ) {
@@ -141,6 +144,7 @@ internal fun MedicationBasicInfoSection(
                     )
                 }
             }
+            Spacer(Modifier.width(MedLogSpacing.Small))
             Switch(
                 checked = uiState.isHighPriority,
                 onCheckedChange = { onAction(AddMedicationUiAction.HighPriorityChanged(it)) },
@@ -157,11 +161,12 @@ internal fun MedicationFormChoiceSection(
 ) {
     // ── 药品剂型 ─────────────────────────────────────────
     FormSection(title = stringResource(R.string.add_section_form), icon = MedLogIcons.Healing) {
+        val enlargedText = LocalDensity.current.fontScale > 1.3f
         LazyVerticalGrid(
-            columns = GridCells.Fixed(3),
+            columns = GridCells.Fixed(if (enlargedText) 2 else 3),
             modifier = Modifier
                 .fillMaxWidth()
-                .heightIn(max = 200.dp),
+                .heightIn(max = if (enlargedText) 480.dp else 200.dp),
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
             userScrollEnabled = false,
@@ -198,6 +203,8 @@ internal fun MedicationFormChoiceSection(
                         )
                         Text(
                             option.label,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
                             style = MaterialTheme.typography.labelMedium,
                             color = if (isSelected) {
                                 MaterialTheme.colorScheme.onPrimaryContainer
