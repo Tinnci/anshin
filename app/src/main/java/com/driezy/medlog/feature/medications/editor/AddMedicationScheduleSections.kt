@@ -73,6 +73,7 @@ internal fun MedicationUsageFrequencySection(
                 modifier = Modifier.fillMaxWidth().padding(top = MedLogSpacing.Small),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 suffix = { Text(stringResource(R.string.add_times_per_day)) },
+                shape = MaterialTheme.shapes.large,
                 singleLine = true,
             )
         }
@@ -132,6 +133,7 @@ internal fun MedicationUsageFrequencySection(
                             },
                             modifier = Modifier.width(80.dp),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            shape = MaterialTheme.shapes.large,
                             singleLine = true,
                         )
                         Text(
@@ -349,6 +351,7 @@ internal fun MedicationReminderScheduleSection(
                         label = { Text(stringResource(R.string.add_interval_hours_label)) },
                         suffix = { Text(stringResource(R.string.add_interval_hours_unit)) },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                        shape = MaterialTheme.shapes.large,
                         singleLine = true,
                         modifier = Modifier.fillMaxWidth(),
                         supportingText = { Text(stringResource(R.string.add_interval_hours_hint)) },

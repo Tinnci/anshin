@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -79,7 +78,7 @@ internal fun MedicationTaskGroupCard(
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = if (pendingCount > 0) {
                 MaterialTheme.colorScheme.surfaceContainerHigh
@@ -209,7 +208,7 @@ internal fun CompactMedicationPlanRow(
             .heightIn(min = 80.dp)
             .testTag("homeCompactPlanRow")
             .clickable(onClick = onClick),
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = if (item.isHandled) {
             MaterialTheme.colorScheme.surfaceContainerLow
         } else {
@@ -224,7 +223,7 @@ internal fun CompactMedicationPlanRow(
         ) {
             Surface(
                 modifier = Modifier.size(44.dp),
-                shape = RoundedCornerShape(15.dp),
+                shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ) {

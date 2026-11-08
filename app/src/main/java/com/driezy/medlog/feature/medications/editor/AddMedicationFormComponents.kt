@@ -84,7 +84,7 @@ internal fun AddMedicationFormContent(
 internal fun FormSection(title: String, icon: Int, content: @Composable ColumnScope.() -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
@@ -180,7 +180,7 @@ internal fun ReminderTimesRow(times: List<String>, onAdd: (String) -> Unit, onRe
         ) {
             Card(
                 modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceContainer,
                 ),
@@ -232,10 +232,13 @@ internal fun DatePickerField(
     val state = rememberDatePickerState(initialSelectedDateMillis = timestamp?.toDatePickerMillis(zone))
 
     Column(modifier = modifier) {
-        OutlinedCard(onClick = {
-            if (!expanded) state.selectedDateMillis = timestamp?.toDatePickerMillis(zone)
-            expanded = !expanded
-        }) {
+        OutlinedCard(
+            onClick = {
+                if (!expanded) state.selectedDateMillis = timestamp?.toDatePickerMillis(zone)
+                expanded = !expanded
+            },
+            shape = MaterialTheme.shapes.large,
+        ) {
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

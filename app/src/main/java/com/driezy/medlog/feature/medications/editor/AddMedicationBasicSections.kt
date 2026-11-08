@@ -6,7 +6,6 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -91,6 +90,7 @@ internal fun MedicationBasicInfoSection(
                         }
                     }
                 },
+                shape = MaterialTheme.shapes.large,
                 singleLine = true,
             )
             if (uiState.drugSuggestions.isNotEmpty()) {
@@ -146,6 +146,7 @@ internal fun MedicationBasicInfoSection(
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
             leadingIcon = { MedLogIcon(MedLogIcons.Category, null) },
+            shape = MaterialTheme.shapes.large,
             singleLine = true,
         )
         Row(
@@ -199,7 +200,7 @@ internal fun MedicationFormChoiceSection(
                 val isSelected = uiState.form == option.key
                 Card(
                     onClick = { onAction(AddMedicationUiAction.FormChanged(option.key)) },
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.large,
                     colors = CardDefaults.cardColors(
                         containerColor = if (isSelected) {
                             MaterialTheme.colorScheme.primaryContainer
