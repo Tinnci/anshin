@@ -1,6 +1,7 @@
 package com.driezy.medlog.ui
 
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.capability.bpx1.application.Bpx1SyncService
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.ui.BaseViewModel
@@ -14,10 +15,17 @@ import javax.inject.Inject
 
 /**
  * App 壳层 ViewModel。
- * 职责（SRP）：确定 NavHost 的初始目的地 + 全局功能开关。
+ * 职责（SRP）：确定 NavHost 的初始目的地 + 全局功能开关 + 前台 BPX1 自动同步生命周期协调。
  */
 @HiltViewModel
-class MedLogAppViewModel @Inject constructor(prefsRepository: UserPreferencesRepository) : BaseViewModel() {
+class MedLogAppViewModel @Inject constructor(
+    prefsRepository: UserPreferencesRepository,
+    private val bpx1SyncService: Bpx1SyncService,
+) : BaseViewModel() {
+
+    fun setAppForegroundActive(active: Boolean) {
+        bpx1SyncService.setForegroundActive(active)
+    }
 
     val startDestination: StateFlow<Route?> = prefsRepository.settingsFlow
         .map { prefs -> if (prefs.hasSeenWelcome) Route.Home else Route.Welcome }

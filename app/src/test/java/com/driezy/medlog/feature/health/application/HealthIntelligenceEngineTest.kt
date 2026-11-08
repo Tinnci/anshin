@@ -178,6 +178,41 @@ class HealthIntelligenceEngineTest {
         assertTrue(context.toPromptContext().contains("lowConfidenceCount=1"))
     }
 
+    @Test
+    fun `generateLocalInsights localizes titles and bodies for en ja and ko`() {
+        val emptyContext = HealthIntelligenceEngine.buildContext(
+            records = emptyList(),
+            userHeightCm = 0f,
+            nowMillis = now,
+        )
+
+        val enEmpty = HealthIntelligenceEngine.generateLocalInsights(emptyContext, locale = "en-US").single()
+        val jaEmpty = HealthIntelligenceEngine.generateLocalInsights(emptyContext, locale = "ja-JP").single()
+        val koEmpty = HealthIntelligenceEngine.generateLocalInsights(emptyContext, locale = "ko-KR").single()
+
+        assertEquals("Build a tracking routine", enEmpty.title)
+        assertTrue(enEmpty.body.contains("blood pressure"))
+        assertEquals("まずは記録のリズムを作る", jaEmpty.title)
+        assertEquals("측정 기록 습관 만들기", koEmpty.title)
+
+        val richContext = HealthIntelligenceEngine.buildContext(
+            records = listOf(
+                record(HealthType.BLOOD_PRESSURE, 185.0, now, secondary = 122.0),
+                record(HealthType.BLOOD_GLUCOSE, 15.2, now - 1_000),
+                record(HealthType.WEIGHT, 78.0, now - 2_000),
+            ),
+            userHeightCm = 170f,
+            nowMillis = now,
+        )
+
+        listOf("en", "ja", "ko").forEach { locale ->
+            val localized = HealthIntelligenceEngine.generateLocalInsights(richContext, locale = locale)
+            assertTrue(localized.isNotEmpty())
+            assertTrue(localized.all { it.body.length in 12..120 })
+            assertFalse(localized.any { it.title.contains("血压") || it.body.contains("就医") })
+        }
+    }
+
     private fun record(
         type: HealthType,
         value: Double,

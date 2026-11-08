@@ -3,7 +3,6 @@
     <string name="app_name">安心服薬</string>
     <string name="tab_today">今日</string>
     <string name="tab_history">服薬履歴</string>
-    <string name="tab_drugs">薬品</string>
     <string name="tab_settings">設定</string>
     <string name="delete">削除</string>
     <string name="archive">アーカイブ</string>
@@ -98,14 +97,7 @@
     <string name="home_share_chooser">今日の服薬計画を共有</string>
     <string name="home_group_toggle_by_category">カテゴリ別に切替</string>
     <string name="home_group_toggle_by_time">時間帯別に切替</string>
-    <string name="home_snackbar_undo_skip">%s のスキップを取り消し、未服用に戻しました</string>
-    <string name="home_snackbar_reset">%s を未服用にリセットしました</string>
-    <string name="home_snackbar_taken">%s を服用済みにしました</string>
     <string name="home_snackbar_undo">元に戻す</string>
-    <string name="home_snackbar_skipped">%s を今日スキップしました</string>
-    <string name="home_snackbar_period_all_taken">%s をすべて服用済みにしました</string>
-    <string name="home_snackbar_prn_undo">%s を取り消しました</string>
-    <string name="home_snackbar_prn_taken">%s の服用を記録しました</string>
     <string name="home_period_collapse">折りたたむ</string>
     <string name="home_period_expand">展開</string>
     <string name="home_period_take_all_btn">まとめて服用</string>
@@ -353,7 +345,6 @@
     <string name="detail_delete_body">関連するすべての記録が完全に削除されます。取り消しはできません。</string>
     <string name="detail_adherence_title">30日間の服薬率</string>
     <string name="detail_missed_skipped">漏服/スキップ</string>
-    <string name="detail_total_count">計画合計回数</string>
     <plurals name="detail_count_times">
         <item quantity="other">%d 回</item>
     </plurals>
@@ -364,7 +355,6 @@
     <string name="detail_stock_decrease_cd">1回分を減らす</string>
     <string name="detail_stock_increase_cd">1回分を増やす</string>
     <string name="detail_log_actual_time">実際の服用：%s</string>
-    <string name="drugs_title">薬品データベース</string>
     <string name="drugs_fab_add">カスタム追加</string>
     <string name="drugs_search_placeholder">名前・分類・別名・ピンイン検索…</string>
     <string name="drugs_close_search_cd">検索を閉じる</string>
@@ -392,11 +382,6 @@
     <string name="drugs_compound">複合</string>
     <string name="history_title">服薬履歴</string>
     <string name="history_adherence_header">30日間の服薬率 %d%%</string>
-    <string name="history_adherence_title">30日間の服薬率</string>
-    <string name="history_adherence_excellent">素晴らしい！この調子で 🎉</string>
-    <string name="history_adherence_good">良い調子です、継続しましょう</string>
-    <string name="history_adherence_fair">改善が必要です。時間通りに服用しましょう</string>
-    <string name="history_adherence_poor">服薬率が低いです、規則正しく服用しましょう</string>
     <string name="history_prev_month_cd">前月</string>
     <string name="history_next_month_cd">翌月</string>
     <string name="history_month_format">%1$d年%2$d月</string>
@@ -821,20 +806,6 @@
     <string name="health_recent_records_title">最近の記録</string>
     <string name="health_recent_records_subtitle">時系列の履歴。編集や削除ができます</string>
     <string name="settings_group_data_about">データと概要</string>
-    <string name="settings_ocr_model_card_title">7セグメント OCR モデル設定</string>
-    <string name="settings_ocr_model_desc">血圧計や血糖測定器など、7セグメント表示の医療バイタルを認識する深層学習モデルを選択します。</string>
-    <string name="settings_ocr_model_light_title">速度モード (LightSVTR)</string>
-    <string name="settings_ocr_model_light_desc">非常に軽快。1.0 MB、約4msの低遅延。標準的で明るい環境に適しています。</string>
-    <string name="settings_ocr_model_light_tag">高速</string>
-    <string name="settings_ocr_model_light_size">1.0 MB</string>
-    <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
-    <string name="settings_ocr_model_light_accuracy">94.2% 精度</string>
-    <string name="settings_ocr_model_fastvit_title">精度モード (FastViT)</string>
-    <string name="settings_ocr_model_fastvit_desc">高精度。13.0 MB、約50ms。低照度、反射、斜め撮影、低コントラストに対応します。</string>
-    <string name="settings_ocr_model_fastvit_tag">推奨</string>
-    <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
-    <string name="settings_ocr_model_fastvit_latency">約 50ms</string>
-    <string name="settings_ocr_model_fastvit_accuracy">98.6% 精度</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d種類の薬をインポートしました</item>
     </plurals>
@@ -888,56 +859,37 @@
         <item>便秘</item>
         <item>視力低下</item>
     </string-array>
-    <string name="settings_ai_section_title">強化分析</string>
-    <string name="settings_ai_section_desc">より強力なクラウドモデルで画像認識と健康提案を補助できます。既定ではオフで、アップロードにはユーザー操作が必要です。</string>
-    <string name="settings_ai_enable_title">強化分析を有効化</string>
-    <string name="settings_ai_enable_subtitle">設定済みクラウドモデルを優先し、ローカル認識も引き続き利用できます。</string>
-    <string name="settings_ai_provider_title">サービスとモデル</string>
-    <string name="settings_ai_status_off">強化分析はオフです</string>
-    <string name="settings_ai_status_off_body">写真認識と健康提案はローカルで継続し、データはアップロードされません。</string>
-    <string name="settings_ai_status_needs_key">あと 1 つ設定が必要です</string>
-    <string name="settings_ai_status_needs_key_body">API key を保存すると、強化認識と健康提案を利用できます。</string>
-    <string name="settings_ai_status_ready">強化分析を利用できます</string>
-    <string name="settings_ai_status_ready_body">画像認識と健康提案に利用できます。失敗時はローカル結果へ自動で戻ります。</string>
-    <string name="settings_ai_status_text_only">健康提案を利用できます</string>
-    <string name="settings_ai_status_text_only_body">現在のモデルは画像入力に対応していませんが、保存済み健康記録の分析に利用できます。</string>
-    <string name="settings_ai_model_label">モデル</string>
-    <string name="settings_ai_model_hint">既定：%s</string>
-    <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
-    <string name="settings_ai_base_url_hint">例: https://api.example.com/v1</string>
-    <string name="settings_ai_endpoint_presets_title">API endpoint プリセット（%d 件）</string>
-    <string name="settings_ai_endpoint_featured_title">おすすめ endpoint</string>
-    <string name="settings_ai_endpoint_search_label">endpoint または Base URL を検索</string>
-    <string name="settings_ai_endpoint_search_clear">検索をクリア</string>
-    <string name="settings_ai_endpoint_empty">一致する endpoint がありません</string>
-    <string name="settings_ai_endpoint_selected">現在</string>
-    <string name="settings_ai_endpoint_manual_hint">一致するプリセットがない場合は、下の Base URL 欄で手動入力できます。</string>
-    <string name="settings_ai_provider_name_label">Provider 名</string>
-    <string name="settings_ai_auth_bearer">Bearer</string>
-    <string name="settings_ai_auth_api_key">api-key</string>
-    <string name="settings_ai_image_title">クラウド画像分析</string>
-    <string name="settings_ai_image_subtitle">結果ページから手動で実行します。写真は自動アップロードされません。</string>
-    <string name="settings_ai_image_unsupported_subtitle">現在の provider/model は画像入力に対応していません。健康インサイトはテキスト文脈で引き続き利用できます。</string>
-    <string name="settings_ai_insights_title">クラウド健康インサイト</string>
-    <string name="settings_ai_insights_subtitle">保存済み記録のみ使用し、OCR 画像キャッシュは読みません。</string>
-    <string name="settings_ai_wifi_only_title">Wi-Fi のみアップロード</string>
-    <string name="settings_ai_wifi_only_subtitle">モバイル通信では画像や健康コンテキストを既定でアップロードしません。</string>
-    <string name="settings_ai_api_key_title">API Key</string>
-    <string name="settings_ai_api_key_configured">%s の key は設定済み</string>
-    <string name="settings_ai_api_key_missing">%s の key は未設定</string>
-    <string name="settings_ai_api_key_label">API key を入力</string>
-    <string name="settings_ai_api_key_storage_hint">Key は Android Keystore で暗号化され、バックアップ、ログ、キャッシュには入りません。</string>
-    <string name="settings_ai_api_key_save">key を保存</string>
-    <string name="settings_ai_api_key_clear">クリア</string>
-    <string name="settings_ai_usage_title">過去 7 日間の内部状態</string>
-    <string name="settings_ai_usage_summary">合計 %1$d 回、成功 %2$d 回、エラー %3$d 回、キャッシュヒット %4$d 回</string>
-    <string name="settings_ai_usage_last_error">直近のエラー：%s</string>
     <string name="add_wizard_step">ステップ %1$d / %2$d</string>
     <string name="add_wizard_back">戻る</string>
     <string name="add_wizard_next">次へ</string>
-    <string name="health_source_manual">手動入力</string>
     <string name="settings_restart_dialog_title">復元完了</string>
     <string name="settings_restart_dialog_body">データベースを復元しました。変更を反映するにはアプリの再起動が必要です。今すぐ再起動しますか？</string>
     <string name="settings_restart_dialog_confirm">今すぐ再起動</string>
-    <string name="settings_ai_endpoint_more_hint">最初の80件を表示しています。検索して絞り込んでください。</string>
+    <string name="common_back">戻る</string>
+    <string name="common_collapse">折りたたむ</string>
+    <string name="common_expand">展開</string>
+    <string name="common_select">選択</string>
+    <string name="history_revision_retroactive">事後修正</string>
+    <string name="history_revision_same_day">修正済み</string>
+    <string name="qr_scan_from_gallery">アルバムから選択</string>
+    <string name="qr_scan_image_not_found">写真から有効な QR コードが検出されませんでした</string>
+    <string name="settings_destination_data_about">データと情報</string>
+    <string name="settings_destination_intelligence">AI と OCR</string>
+    <string name="settings_destination_reminders">リマインダーと生活リズム</string>
+    <string name="settings_destination_widgets">ホーム画面ウィジェット</string>
+    <string name="settings_home_reminders_warning">リマインダー権限の確認が必要</string>
+    <string name="settings_home_status_all_good">リマインダー・モジュール・OCR が稼働中</string>
+    <string name="settings_home_status_title">設定ステータス</string>
+    <string name="settings_home_tile_ai_status">OCR とオフライン解析</string>
+    <string name="settings_home_tile_ai_status_cloud">クラウド解析が有効</string>
+    <string name="settings_home_tile_reminders_status">リマインダー・生活リズム・権限</string>
+    <string name="settings_home_tile_widgets_status">ホーム画面ショートカット</string>
+    <string name="settings_on">オン</string>
+    <string name="symptom_empty_action">今日を記録</string>
+    <plurals name="settings_home_status_attention">
+        <item quantity="other">%d 件の設定確認をおすすめします</item>
+    </plurals>
+    <plurals name="settings_home_tile_data_status">
+        <item quantity="other">アーカイブ済み薬品 %d 件</item>
+    </plurals>
 </resources>

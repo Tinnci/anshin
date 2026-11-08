@@ -140,7 +140,11 @@ internal fun MedicationQrDialog(
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
             ) {
                 // ── Tab 切换 ────────────────────────────────────────
-                PrimaryTabRow(selectedTabIndex = selectedTab) {
+                PrimaryTabRow(
+                    selectedTabIndex = selectedTab,
+                    modifier = Modifier.clip(MaterialTheme.shapes.large),
+                    divider = {},
+                ) {
                     Tab(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },

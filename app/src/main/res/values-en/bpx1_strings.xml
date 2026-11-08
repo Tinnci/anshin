@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">Blood pressure monitor</string>
     <string name="settings_home_tile_bpx1_status">BPX1 connection, key, and measurement import</string>
     <string name="bpx1_settings_title">BPX1 monitor</string>
@@ -83,14 +83,40 @@
     <string name="bpx1_sync_needs_config_body">Pair and save a bind key first, then blood pressure and heart rate can be imported here.</string>
     <string name="bpx1_sync_open_pairing">Pair device</string>
     <string name="bpx1_sync_scanning_title">Waiting for BPX1 broadcast</string>
-    <string name="bpx1_sync_scanning_body">Wake the monitor and keep it close. Blood pressure and heart rate are saved automatically when a measurement is received.</string>
-    <string name="bpx1_sync_imported_count">Imported %1$d measurements this session</string>
+    <string name="bpx1_sync_scanning_body">Start a measurement on your monitor now and keep the phone nearby. Blood pressure and heart rate are saved automatically when the result arrives.</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="one">Imported %1$d measurement this session</item>
+        <item quantity="other">Imported %1$d measurements this session</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">Sync complete</string>
-    <string name="bpx1_sync_finished_body">Imported %1$d measurements.</string>
-    <string name="bpx1_sync_finished_empty">No new measurement broadcast was found.</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="one">Imported %1$d measurement.</item>
+        <item quantity="other">Imported %1$d measurements.</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">Sync failed</string>
-    <string name="bpx1_sync_failed_body">No usable measurement broadcast was received. Wake the monitor and try again.</string>
+    <string name="bpx1_sync_failed_body">The Bluetooth scan stopped unexpectedly. Try again; if it keeps happening, turn Bluetooth off and on.</string>
     <string name="bpx1_sync_retry">Retry</string>
     <string name="bpx1_sync_cancel">Cancel</string>
     <string name="bpx1_sync_done">Done</string>
+    <string name="bpx1_sync_detected_title">Monitor found, waiting for a result</string>
+    <string name="bpx1_sync_remaining">%1$d s left</string>
+    <string name="bpx1_sync_no_new_title">No new measurements</string>
+    <string name="bpx1_sync_no_new_body">Your monitor was found, but every reading it broadcast is already saved. Take a new measurement, then keep listening.</string>
+    <string name="bpx1_sync_not_found_title">Monitor not found</string>
+    <string name="bpx1_sync_not_found_body">Nothing was heard from your monitor. Start a measurement near the phone, then keep listening.</string>
+    <string name="bpx1_sync_keep_listening">Keep listening</string>
+    <string name="bpx1_sync_bt_off_title">Bluetooth is off</string>
+    <string name="bpx1_sync_bt_off_body">Turn on Bluetooth to sync your blood pressure monitor.</string>
+    <string name="bpx1_sync_enable_bluetooth">Turn on Bluetooth</string>
+    <string name="bpx1_sync_unsupported_title">Bluetooth LE not supported</string>
+    <string name="bpx1_sync_unsupported_body">This phone can\'t receive BPX1 broadcasts. You can still enter blood pressure manually or by photo.</string>
+    <string name="bpx1_sync_permission_title">Bluetooth permission needed</string>
+    <string name="bpx1_sync_permission_body">The Nearby devices permission is needed to receive your monitor\'s broadcasts. It is only used to scan for the monitor you configured.</string>
+    <string name="bpx1_sync_grant_permission">Grant permission</string>
+    <string name="bpx1_sync_open_app_settings">Open app settings</string>
+    <string name="bpx1_auto_sync_listening">BPX1 auto-sync active</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 nearby · Auto-receiving</string>
+    <string name="bpx1_auto_sync_last_reading">Last synced %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 auto-sync paused (Bluetooth off)</string>
+    <string name="bpx1_auto_sync_toast">Auto-synced BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

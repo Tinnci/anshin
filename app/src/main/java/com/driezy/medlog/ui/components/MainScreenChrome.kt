@@ -197,6 +197,7 @@ fun PriorityTopBarActions(
                     DropdownMenu(
                         expanded = expanded,
                         onDismissRequest = { expanded = false },
+                        shape = MaterialTheme.shapes.large,
                     ) {
                         placement.overflow.forEach { action ->
                             DropdownMenuItem(

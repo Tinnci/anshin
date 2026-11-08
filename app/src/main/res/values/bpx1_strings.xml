@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">血压计</string>
     <string name="settings_home_tile_bpx1_status" tools:ignore="Typos">BPX1 连接、密钥与测量导入</string>
     <string name="bpx1_settings_title" tools:ignore="Typos">BPX1 血压计</string>
@@ -82,14 +82,38 @@
     <string name="bpx1_sync_needs_config_body">先配对并保存绑定密钥，之后就能在这里直接导入血压和心率。</string>
     <string name="bpx1_sync_open_pairing">前往配对</string>
     <string name="bpx1_sync_scanning_title">正在等待 BPX1 广播</string>
-    <string name="bpx1_sync_scanning_body">请启动血压计并靠近手机。测量完成后会自动保存血压和心率记录。</string>
-    <string name="bpx1_sync_imported_count">本次已导入 %1$d 组测量</string>
+    <string name="bpx1_sync_scanning_body">现在开始在血压计上测量，并让手机保持在附近。测量完成后会自动保存血压和心率。</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="other">本次已导入 %1$d 组测量</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">同步完成</string>
-    <string name="bpx1_sync_finished_body">本次共导入 %1$d 组测量。</string>
-    <string name="bpx1_sync_finished_empty">没有发现新的测量广播。</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="other">本次共导入 %1$d 组测量。</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">同步失败</string>
-    <string name="bpx1_sync_failed_body">没有收到可用测量广播。请确认血压计已启动并重试。</string>
+    <string name="bpx1_sync_failed_body">蓝牙扫描意外中断。请重试；如果反复出现，可以重启手机蓝牙。</string>
     <string name="bpx1_sync_retry">重试</string>
     <string name="bpx1_sync_cancel">取消</string>
     <string name="bpx1_sync_done">完成</string>
+    <string name="bpx1_sync_detected_title">已找到血压计，等待测量结果</string>
+    <string name="bpx1_sync_remaining">还剩 %1$d 秒</string>
+    <string name="bpx1_sync_no_new_title">没有新的测量</string>
+    <string name="bpx1_sync_no_new_body">已找到血压计，但它广播的读数都已保存过。请完成一次新的测量后继续监听。</string>
+    <string name="bpx1_sync_not_found_title">没有找到血压计</string>
+    <string name="bpx1_sync_not_found_body">没有收到这台血压计的广播。请在手机附近开始一次测量，然后继续监听。</string>
+    <string name="bpx1_sync_keep_listening">继续监听</string>
+    <string name="bpx1_sync_bt_off_title">蓝牙已关闭</string>
+    <string name="bpx1_sync_bt_off_body">同步血压计需要开启蓝牙。</string>
+    <string name="bpx1_sync_enable_bluetooth">开启蓝牙</string>
+    <string name="bpx1_sync_unsupported_title">此设备不支持低功耗蓝牙</string>
+    <string name="bpx1_sync_unsupported_body">这台手机无法接收 BPX1 广播。你仍然可以手动或拍照录入血压。</string>
+    <string name="bpx1_sync_permission_title">需要蓝牙权限</string>
+    <string name="bpx1_sync_permission_body">需要“附近设备”权限才能接收血压计广播。应用只用它扫描你配置的血压计。</string>
+    <string name="bpx1_sync_grant_permission">授予权限</string>
+    <string name="bpx1_sync_open_app_settings">打开应用设置</string>
+    <string name="bpx1_auto_sync_listening">BPX1 自动同步已就绪</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 在附近 · 自动接收中</string>
+    <string name="bpx1_auto_sync_last_reading">上次同步 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 自动同步已暂停（蓝牙关闭）</string>
+    <string name="bpx1_auto_sync_toast">已自动同步 BPX1：%1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

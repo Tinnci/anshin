@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">血圧計</string>
     <string name="settings_home_tile_bpx1_status">BPX1 の接続、キー、測定値の取り込み</string>
     <string name="bpx1_settings_title">BPX1 血圧計</string>
@@ -82,14 +82,38 @@
     <string name="bpx1_sync_needs_config_body">先にペアリングしてバインドキーを保存すると、ここで血圧と心拍数を取り込めます。</string>
     <string name="bpx1_sync_open_pairing">ペアリングへ</string>
     <string name="bpx1_sync_scanning_title">BPX1 のブロードキャストを待機中</string>
-    <string name="bpx1_sync_scanning_body">血圧計を起動してスマートフォンに近づけてください。測定を受信すると血圧と心拍数が自動保存されます。</string>
-    <string name="bpx1_sync_imported_count">今回のセッションで %1$d 件取り込み済み</string>
+    <string name="bpx1_sync_scanning_body">今すぐ血圧計で測定を始め、スマートフォンを近くに置いてください。結果を受信すると血圧と心拍数が自動保存されます。</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="other">今回のセッションで %1$d 件取り込み済み</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">同期完了</string>
-    <string name="bpx1_sync_finished_body">%1$d 件の測定を取り込みました。</string>
-    <string name="bpx1_sync_finished_empty">新しい測定ブロードキャストは見つかりませんでした。</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="other">%1$d 件の測定を取り込みました。</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">同期に失敗しました</string>
-    <string name="bpx1_sync_failed_body">利用可能な測定ブロードキャストを受信できませんでした。血圧計を起動して再試行してください。</string>
+    <string name="bpx1_sync_failed_body">Bluetooth スキャンが予期せず停止しました。再試行してください。繰り返す場合は Bluetooth をオフ・オンしてください。</string>
     <string name="bpx1_sync_retry">再試行</string>
     <string name="bpx1_sync_cancel">キャンセル</string>
     <string name="bpx1_sync_done">完了</string>
+    <string name="bpx1_sync_detected_title">血圧計を検出しました。結果を待っています</string>
+    <string name="bpx1_sync_remaining">残り %1$d 秒</string>
+    <string name="bpx1_sync_no_new_title">新しい測定はありません</string>
+    <string name="bpx1_sync_no_new_body">血圧計は見つかりましたが、ブロードキャストされた値はすべて保存済みです。新しく測定してから待機を続けてください。</string>
+    <string name="bpx1_sync_not_found_title">血圧計が見つかりません</string>
+    <string name="bpx1_sync_not_found_body">血圧計からの信号を受信できませんでした。スマートフォンの近くで測定を始めてから、待機を続けてください。</string>
+    <string name="bpx1_sync_keep_listening">待機を続ける</string>
+    <string name="bpx1_sync_bt_off_title">Bluetooth がオフです</string>
+    <string name="bpx1_sync_bt_off_body">血圧計を同期するには Bluetooth をオンにしてください。</string>
+    <string name="bpx1_sync_enable_bluetooth">Bluetooth をオン</string>
+    <string name="bpx1_sync_unsupported_title">Bluetooth LE に対応していません</string>
+    <string name="bpx1_sync_unsupported_body">この端末は BPX1 のブロードキャストを受信できません。手入力または写真で血圧を記録できます。</string>
+    <string name="bpx1_sync_permission_title">Bluetooth の権限が必要です</string>
+    <string name="bpx1_sync_permission_body">血圧計のブロードキャストを受信するには「付近のデバイス」権限が必要です。設定した血圧計のスキャンにのみ使用します。</string>
+    <string name="bpx1_sync_grant_permission">権限を許可</string>
+    <string name="bpx1_sync_open_app_settings">アプリ設定を開く</string>
+    <string name="bpx1_auto_sync_listening">BPX1 自動同期が有効</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 が近くにあります · 自動受信中</string>
+    <string name="bpx1_auto_sync_last_reading">前回同期 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 自動同期が一時停止中（Bluetooth オフ）</string>
+    <string name="bpx1_auto_sync_toast">BPX1 を自動同期しました：%1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">혈압계</string>
     <string name="settings_home_tile_bpx1_status">BPX1 연결, 키 및 측정값 가져오기</string>
     <string name="bpx1_settings_title">BPX1 혈압계</string>
@@ -82,14 +82,38 @@
     <string name="bpx1_sync_needs_config_body">먼저 페어링하고 바인딩 키를 저장하면 여기서 혈압과 심박수를 가져올 수 있습니다.</string>
     <string name="bpx1_sync_open_pairing">페어링으로 이동</string>
     <string name="bpx1_sync_scanning_title">BPX1 브로드캐스트 대기 중</string>
-    <string name="bpx1_sync_scanning_body">혈압계를 켜고 휴대전화 가까이 두세요. 측정값을 받으면 혈압과 심박수가 자동 저장됩니다.</string>
-    <string name="bpx1_sync_imported_count">이번 세션에서 %1$d개 가져옴</string>
+    <string name="bpx1_sync_scanning_body">지금 혈압계로 측정을 시작하고 휴대전화를 가까이 두세요. 결과를 받으면 혈압과 심박수가 자동 저장됩니다.</string>
+    <plurals name="bpx1_sync_imported_count">
+        <item quantity="other">이번 세션에서 %1$d개 가져옴</item>
+    </plurals>
     <string name="bpx1_sync_finished_title">동기화 완료</string>
-    <string name="bpx1_sync_finished_body">%1$d개의 측정값을 가져왔습니다.</string>
-    <string name="bpx1_sync_finished_empty">새로운 측정 브로드캐스트를 찾지 못했습니다.</string>
+    <plurals name="bpx1_sync_finished_body">
+        <item quantity="other">%1$d개의 측정값을 가져왔습니다.</item>
+    </plurals>
     <string name="bpx1_sync_failed_title">동기화 실패</string>
-    <string name="bpx1_sync_failed_body">사용 가능한 측정 브로드캐스트를 받지 못했습니다. 혈압계를 켜고 다시 시도하세요.</string>
+    <string name="bpx1_sync_failed_body">블루투스 스캔이 예기치 않게 중단되었습니다. 다시 시도하세요. 계속 발생하면 블루투스를 껐다 켜세요.</string>
     <string name="bpx1_sync_retry">재시도</string>
     <string name="bpx1_sync_cancel">취소</string>
     <string name="bpx1_sync_done">완료</string>
+    <string name="bpx1_sync_detected_title">혈압계를 찾았습니다. 결과를 기다리는 중</string>
+    <string name="bpx1_sync_remaining">%1$d초 남음</string>
+    <string name="bpx1_sync_no_new_title">새 측정값 없음</string>
+    <string name="bpx1_sync_no_new_body">혈압계를 찾았지만 전송된 값은 모두 이미 저장되어 있습니다. 새로 측정한 뒤 계속 수신하세요.</string>
+    <string name="bpx1_sync_not_found_title">혈압계를 찾지 못했습니다</string>
+    <string name="bpx1_sync_not_found_body">혈압계 신호를 받지 못했습니다. 휴대전화 근처에서 측정을 시작한 뒤 계속 수신하세요.</string>
+    <string name="bpx1_sync_keep_listening">계속 수신</string>
+    <string name="bpx1_sync_bt_off_title">블루투스가 꺼져 있습니다</string>
+    <string name="bpx1_sync_bt_off_body">혈압계를 동기화하려면 블루투스를 켜세요.</string>
+    <string name="bpx1_sync_enable_bluetooth">블루투스 켜기</string>
+    <string name="bpx1_sync_unsupported_title">블루투스 LE를 지원하지 않습니다</string>
+    <string name="bpx1_sync_unsupported_body">이 휴대전화는 BPX1 신호를 받을 수 없습니다. 혈압은 직접 입력하거나 사진으로 기록할 수 있습니다.</string>
+    <string name="bpx1_sync_permission_title">블루투스 권한 필요</string>
+    <string name="bpx1_sync_permission_body">혈압계 신호를 받으려면 \'근처 기기\' 권한이 필요합니다. 설정한 혈압계를 찾는 데만 사용합니다.</string>
+    <string name="bpx1_sync_grant_permission">권한 허용</string>
+    <string name="bpx1_sync_open_app_settings">앱 설정 열기</string>
+    <string name="bpx1_auto_sync_listening">BPX1 자동 동기화 활성</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 근처 감지됨 · 자동 수신 중</string>
+    <string name="bpx1_auto_sync_last_reading">최근 동기화 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 자동 동기화 일시 중지됨 (블루투스 꺼짐)</string>
+    <string name="bpx1_auto_sync_toast">BPX1 자동 동기화됨: %1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

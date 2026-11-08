@@ -79,6 +79,7 @@ internal fun MedicationBasicInfoSection(
                 ExposedDropdownMenu(
                     expanded = uiState.showDrugSuggestions,
                     onDismissRequest = { onAction(AddMedicationUiAction.DismissDrugSuggestions) },
+                    shape = MaterialTheme.shapes.large,
                 ) {
                     uiState.drugSuggestions.forEach { drug ->
                         DropdownMenuItem(

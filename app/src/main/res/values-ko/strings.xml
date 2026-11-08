@@ -3,7 +3,6 @@
     <string name="app_name">안심 복약</string>
     <string name="tab_today">오늘</string>
     <string name="tab_history">복약 기록</string>
-    <string name="tab_drugs">약품</string>
     <string name="tab_settings">설정</string>
     <string name="delete">삭제</string>
     <string name="archive">보관</string>
@@ -98,14 +97,7 @@
     <string name="home_share_chooser">오늘의 복약 계획 공유</string>
     <string name="home_group_toggle_by_category">카테고리별로 전환</string>
     <string name="home_group_toggle_by_time">시간대별로 전환</string>
-    <string name="home_snackbar_undo_skip">%s — 건너뜀 취소, 복용 전으로 복원</string>
-    <string name="home_snackbar_reset">%s 복용 전으로 초기화</string>
-    <string name="home_snackbar_taken">%s 복용 완료로 표시</string>
     <string name="home_snackbar_undo">되돌리기</string>
-    <string name="home_snackbar_skipped">%s 오늘 건너뜀</string>
-    <string name="home_snackbar_period_all_taken">%s 모두 복용 완료로 표시</string>
-    <string name="home_snackbar_prn_undo">%s 취소됨</string>
-    <string name="home_snackbar_prn_taken">%s 복용 기록됨</string>
     <string name="home_period_collapse">접기</string>
     <string name="home_period_expand">펼치기</string>
     <string name="home_period_take_all_btn">모두 복용</string>
@@ -353,7 +345,6 @@
     <string name="detail_delete_body">관련 모든 기록이 영구적으로 삭제됩니다. 취소할 수 없습니다.</string>
     <string name="detail_adherence_title">30일 준수율</string>
     <string name="detail_missed_skipped">누락/건너뜀</string>
-    <string name="detail_total_count">계획 총 횟수</string>
     <plurals name="detail_count_times">
         <item quantity="other">%d회</item>
     </plurals>
@@ -364,7 +355,6 @@
     <string name="detail_stock_decrease_cd">1회 감소</string>
     <string name="detail_stock_increase_cd">1회 증가</string>
     <string name="detail_log_actual_time">복용 시간: %s</string>
-    <string name="drugs_title">약품 데이터베이스</string>
     <string name="drugs_fab_add">직접 추가</string>
     <string name="drugs_search_placeholder">이름, 분류, 별칭 또는 핀인으로 검색…</string>
     <string name="drugs_close_search_cd">검색 닫기</string>
@@ -392,11 +382,6 @@
     <string name="drugs_compound">복합</string>
     <string name="history_title">복약 기록</string>
     <string name="history_adherence_header">30일 복약률 %d%%</string>
-    <string name="history_adherence_title">30일 복약률</string>
-    <string name="history_adherence_excellent">훌륭해요! 계속 유지하세요 🎉</string>
-    <string name="history_adherence_good">잘 하고 있어요, 계속해요</string>
-    <string name="history_adherence_fair">개선이 필요해요, 제때 복약하세요</string>
-    <string name="history_adherence_poor">복약률이 낮습니다, 주의가 필요해요</string>
     <string name="history_prev_month_cd">이전 달</string>
     <string name="history_next_month_cd">다음 달</string>
     <string name="history_month_format">%1$d년 %2$d월</string>
@@ -824,20 +809,6 @@
     <string name="health_recent_records_title">최근 기록</string>
     <string name="health_recent_records_subtitle">시간순 기록. 편집하거나 삭제할 수 있습니다</string>
     <string name="settings_group_data_about">데이터 및 정보</string>
-    <string name="settings_ocr_model_card_title">7세그먼트 OCR 모델 설정</string>
-    <string name="settings_ocr_model_desc">혈압계, 혈당계 등 7세그먼트 표시 장치의 건강 지표를 인식할 딥러닝 모델을 선택합니다.</string>
-    <string name="settings_ocr_model_light_title">속도 모드 (LightSVTR)</string>
-    <string name="settings_ocr_model_light_desc">매우 빠름. 1.0 MB, 약 4ms 지연 시간. 표준 조명 환경에 적합합니다.</string>
-    <string name="settings_ocr_model_light_tag">빠름</string>
-    <string name="settings_ocr_model_light_size">1.0 MB</string>
-    <string name="settings_ocr_model_light_latency">&lt; 5ms</string>
-    <string name="settings_ocr_model_light_accuracy">94.2% 정확도</string>
-    <string name="settings_ocr_model_fastvit_title">정확도 모드 (FastViT)</string>
-    <string name="settings_ocr_model_fastvit_desc">높은 정확도. 13.0 MB, 약 50ms. 어두운 환경, 반사, 각도, 낮은 대비에 대응합니다.</string>
-    <string name="settings_ocr_model_fastvit_tag">추천</string>
-    <string name="settings_ocr_model_fastvit_size">13.0 MB</string>
-    <string name="settings_ocr_model_fastvit_latency">약 50ms</string>
-    <string name="settings_ocr_model_fastvit_accuracy">98.6% 정확도</string>
     <plurals name="qr_import_success">
         <item quantity="other">%d가지 약품을 가져왔습니다</item>
     </plurals>
@@ -891,56 +862,37 @@
         <item>변비</item>
         <item>시야 흐림</item>
     </string-array>
-    <string name="settings_ai_section_title">향상된 분석</string>
-    <string name="settings_ai_section_desc">더 강력한 클라우드 모델로 이미지 인식과 건강 제안을 보조할 수 있습니다. 기본은 꺼짐이며 업로드는 사용자 동작이 필요합니다.</string>
-    <string name="settings_ai_enable_title">향상된 분석 사용</string>
-    <string name="settings_ai_enable_subtitle">설정된 클라우드 모델을 우선 사용하고 로컬 인식도 계속 사용할 수 있습니다.</string>
-    <string name="settings_ai_provider_title">서비스 및 모델</string>
-    <string name="settings_ai_status_off">향상된 분석 꺼짐</string>
-    <string name="settings_ai_status_off_body">사진 인식과 건강 제안은 로컬에서 계속 처리되며 데이터는 업로드되지 않습니다.</string>
-    <string name="settings_ai_status_needs_key">설정이 한 단계 남았습니다</string>
-    <string name="settings_ai_status_needs_key_body">API key를 저장하면 향상된 인식과 건강 제안을 사용할 수 있습니다.</string>
-    <string name="settings_ai_status_ready">향상된 분석 사용 가능</string>
-    <string name="settings_ai_status_ready_body">이미지 인식과 건강 제안에 사용할 수 있으며 실패 시 로컬 결과로 자동 전환됩니다.</string>
-    <string name="settings_ai_status_text_only">건강 제안 사용 가능</string>
-    <string name="settings_ai_status_text_only_body">현재 모델은 이미지 입력을 지원하지 않지만 저장된 건강 기록 분석에는 사용할 수 있습니다.</string>
-    <string name="settings_ai_model_label">모델</string>
-    <string name="settings_ai_model_hint">기본값: %s</string>
-    <string name="settings_ai_base_url_label">OpenAI-compatible Base URL</string>
-    <string name="settings_ai_base_url_hint">예: https://api.example.com/v1</string>
-    <string name="settings_ai_endpoint_presets_title">API endpoint 프리셋 (%d개)</string>
-    <string name="settings_ai_endpoint_featured_title">추천 endpoint</string>
-    <string name="settings_ai_endpoint_search_label">endpoint 또는 Base URL 검색</string>
-    <string name="settings_ai_endpoint_search_clear">검색 지우기</string>
-    <string name="settings_ai_endpoint_empty">일치하는 endpoint가 없습니다</string>
-    <string name="settings_ai_endpoint_selected">현재</string>
-    <string name="settings_ai_endpoint_manual_hint">일치하는 프리셋이 없으면 아래 Base URL 입력란에 직접 입력할 수 있습니다.</string>
-    <string name="settings_ai_provider_name_label">Provider 이름</string>
-    <string name="settings_ai_auth_bearer">Bearer</string>
-    <string name="settings_ai_auth_api_key">api-key</string>
-    <string name="settings_ai_image_title">클라우드 이미지 분석</string>
-    <string name="settings_ai_image_subtitle">결과 화면에서 수동으로 실행합니다. 사진은 자동 업로드되지 않습니다.</string>
-    <string name="settings_ai_image_unsupported_subtitle">현재 provider/model은 이미지 입력을 지원하지 않습니다. 건강 인사이트는 텍스트 컨텍스트로 계속 사용할 수 있습니다.</string>
-    <string name="settings_ai_insights_title">클라우드 건강 인사이트</string>
-    <string name="settings_ai_insights_subtitle">저장된 기록만 사용하며 OCR 이미지 캐시는 읽지 않습니다.</string>
-    <string name="settings_ai_wifi_only_title">Wi-Fi에서만 업로드</string>
-    <string name="settings_ai_wifi_only_subtitle">모바일 네트워크에서는 이미지나 건강 컨텍스트를 기본적으로 업로드하지 않습니다.</string>
-    <string name="settings_ai_api_key_title">API Key</string>
-    <string name="settings_ai_api_key_configured">%s key 설정됨</string>
-    <string name="settings_ai_api_key_missing">%s key 미설정</string>
-    <string name="settings_ai_api_key_label">API key 입력</string>
-    <string name="settings_ai_api_key_storage_hint">Key는 Android Keystore로 암호화되며 백업, 로그, 캐시에 포함되지 않습니다.</string>
-    <string name="settings_ai_api_key_save">key 저장</string>
-    <string name="settings_ai_api_key_clear">삭제</string>
-    <string name="settings_ai_usage_title">최근 7일 내부 상태</string>
-    <string name="settings_ai_usage_summary">총 %1$d회, 성공 %2$d회, 오류 %3$d회, 캐시 적중 %4$d회</string>
-    <string name="settings_ai_usage_last_error">최근 오류: %s</string>
     <string name="add_wizard_step">%1$d / %2$d 단계</string>
     <string name="add_wizard_back">이전</string>
     <string name="add_wizard_next">다음</string>
-    <string name="health_source_manual">수동 입력</string>
     <string name="settings_restart_dialog_title">복원 완료</string>
     <string name="settings_restart_dialog_body">데이터베이스가 복원되었습니다. 변경 사항을 적용하려면 앱을 다시 시작해야 합니다. 지금 다시 시작할까요?</string>
     <string name="settings_restart_dialog_confirm">지금 다시 시작</string>
-    <string name="settings_ai_endpoint_more_hint">처음 80개만 표시됩니다. 검색으로 좁혀보세요.</string>
+    <string name="common_back">뒤로</string>
+    <string name="common_collapse">접기</string>
+    <string name="common_expand">펼치기</string>
+    <string name="common_select">선택</string>
+    <string name="history_revision_retroactive">소급 수정됨</string>
+    <string name="history_revision_same_day">수정됨</string>
+    <string name="qr_scan_from_gallery">앨범에서 선택</string>
+    <string name="qr_scan_image_not_found">사진에서 유효한 QR 코드를 찾지 못했습니다</string>
+    <string name="settings_destination_data_about">데이터 및 정보</string>
+    <string name="settings_destination_intelligence">AI 및 OCR</string>
+    <string name="settings_destination_reminders">알림 및 일과</string>
+    <string name="settings_destination_widgets">홈 화면 위젯</string>
+    <string name="settings_home_reminders_warning">알림 권한 확인 필요</string>
+    <string name="settings_home_status_all_good">알림, 모듈 및 OCR이 정상 작동 중</string>
+    <string name="settings_home_status_title">설정 상태</string>
+    <string name="settings_home_tile_ai_status">OCR 및 오프라인 분석</string>
+    <string name="settings_home_tile_ai_status_cloud">클라우드 분석 켜짐</string>
+    <string name="settings_home_tile_reminders_status">알림, 일과 및 권한</string>
+    <string name="settings_home_tile_widgets_status">홈 화면 바로가기</string>
+    <string name="settings_on">켜짐</string>
+    <string name="symptom_empty_action">오늘 기록하기</string>
+    <plurals name="settings_home_status_attention">
+        <item quantity="other">%d개의 설정 확인이 필요합니다</item>
+    </plurals>
+    <plurals name="settings_home_tile_data_status">
+        <item quantity="other">보관된 약품 %d개</item>
+    </plurals>
 </resources>

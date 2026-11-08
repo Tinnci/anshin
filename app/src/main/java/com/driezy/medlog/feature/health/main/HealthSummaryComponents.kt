@@ -10,18 +10,34 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.capability.bpx1.Bpx1Measurement
+import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceMode
+import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceStatus
 import com.driezy.medlog.data.model.BloodPressureClassification
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
 import com.driezy.medlog.ui.util.labelRes
+import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 
 @Composable
-internal fun HealthOcrHeroCard(onScan: () -> Unit) {
+internal fun HealthOcrHeroCard(
+    onScan: () -> Unit,
+    onBpx1Sync: (() -> Unit)? = null,
+    bpx1Status: Bpx1ServiceStatus = Bpx1ServiceStatus(),
+    autoSyncedMeasurement: Bpx1Measurement? = null,
+    onDismissAutoSyncBanner: () -> Unit = {},
+) {
+    LaunchedEffect(autoSyncedMeasurement) {
+        if (autoSyncedMeasurement != null) {
+            delay(5_000L)
+            onDismissAutoSyncBanner()
+        }
+    }
     Card(
         modifier = Modifier.fillMaxWidth(),
         shape = MaterialTheme.shapes.extraLarge,
@@ -31,7 +47,7 @@ internal fun HealthOcrHeroCard(onScan: () -> Unit) {
     ) {
         Column(
             modifier = Modifier.padding(MedLogSpacing.XMedium),
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Large),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
@@ -61,17 +77,110 @@ internal fun HealthOcrHeroCard(onScan: () -> Unit) {
                     )
                 }
             }
-            Button(
-                onClick = onScan,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = MaterialTheme.shapes.large,
-            ) {
-                MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
-                Spacer(Modifier.width(MedLogSpacing.Small))
-                Text(
-                    stringResource(R.string.health_ocr_hero_scan),
-                    style = MaterialTheme.emphasizedTypography.labelLarge,
-                )
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                Button(
+                    onClick = onScan,
+                    modifier = Modifier.fillMaxWidth().height(48.dp),
+                    shape = MaterialTheme.shapes.large,
+                ) {
+                    MedLogIcon(MedLogIcons.DocumentScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                    Spacer(Modifier.width(MedLogSpacing.Small))
+                    Text(
+                        stringResource(R.string.health_ocr_hero_scan),
+                        style = MaterialTheme.emphasizedTypography.labelLarge,
+                    )
+                }
+                if (onBpx1Sync != null) {
+                    FilledTonalButton(
+                        onClick = onBpx1Sync,
+                        modifier = Modifier.fillMaxWidth().height(44.dp),
+                        shape = MaterialTheme.shapes.large,
+                        colors = ButtonDefaults.filledTonalButtonColors(
+                            containerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
+                            contentColor = MaterialTheme.colorScheme.onSurface,
+                        ),
+                    ) {
+                        MedLogIcon(MedLogIcons.MonitorHeart, contentDescription = null, modifier = Modifier.size(18.dp))
+                        Spacer(Modifier.width(MedLogSpacing.Small))
+                        Text(
+                            stringResource(R.string.bpx1_sync_chip),
+                            style = MaterialTheme.emphasizedTypography.labelLarge,
+                        )
+                    }
+                    Bpx1HeroStatusRow(
+                        bpx1Status = bpx1Status,
+                        autoSyncedMeasurement = autoSyncedMeasurement,
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun Bpx1HeroStatusRow(bpx1Status: Bpx1ServiceStatus, autoSyncedMeasurement: Bpx1Measurement?) {
+    val config = bpx1Status.configuration
+    val statusText = when {
+        autoSyncedMeasurement != null -> stringResource(
+            R.string.bpx1_auto_sync_toast,
+            autoSyncedMeasurement.systolic,
+            autoSyncedMeasurement.diastolic,
+            autoSyncedMeasurement.heartRate,
+        )
+        !config.isConfigured -> null
+        bpx1Status.mode == Bpx1ServiceMode.BLUETOOTH_OFF -> stringResource(R.string.bpx1_auto_sync_bt_off)
+        bpx1Status.isAutoSyncActive && bpx1Status.isDeviceNearby -> stringResource(R.string.bpx1_auto_sync_nearby)
+        bpx1Status.isAutoSyncActive -> stringResource(R.string.bpx1_auto_sync_listening)
+        else -> null
+    }
+    val lastReadingText = if (
+        autoSyncedMeasurement == null &&
+        config.lastSystolic != null &&
+        config.lastDiastolic != null &&
+        config.lastHeartRate != null
+    ) {
+        stringResource(
+            R.string.bpx1_auto_sync_last_reading,
+            config.lastSystolic,
+            config.lastDiastolic,
+            config.lastHeartRate,
+        )
+    } else {
+        null
+    }
+    if (statusText == null && lastReadingText == null) return
+
+    Surface(
+        shape = MaterialTheme.shapes.medium,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.56f),
+        modifier = Modifier.fillMaxWidth(),
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium, vertical = MedLogSpacing.Small),
+            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            MedLogIcon(
+                if (autoSyncedMeasurement != null) MedLogIcons.CheckCircle else MedLogIcons.MonitorHeart,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(16.dp),
+            )
+            Column(modifier = Modifier.weight(1f)) {
+                if (statusText != null) {
+                    Text(
+                        statusText,
+                        style = MaterialTheme.emphasizedTypography.labelMedium,
+                        color = MaterialTheme.colorScheme.onSurface,
+                    )
+                }
+                if (lastReadingText != null) {
+                    Text(
+                        lastReadingText,
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
             }
         }
     }

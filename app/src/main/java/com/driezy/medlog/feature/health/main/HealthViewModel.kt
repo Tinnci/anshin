@@ -3,6 +3,10 @@ package com.driezy.medlog.feature.health
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.ai.AiApiKeyStore
+import com.driezy.medlog.capability.bpx1.Bpx1Measurement
+import com.driezy.medlog.capability.bpx1.application.Bpx1AutoSyncEvent
+import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceStatus
+import com.driezy.medlog.capability.bpx1.application.Bpx1SyncService
 import com.driezy.medlog.data.model.AiUsageFeature
 import com.driezy.medlog.data.model.BloodPressureClassification
 import com.driezy.medlog.data.model.BmiClassification
@@ -88,6 +92,8 @@ data class HealthUiState(
     /** AI 执行/回退内部状态，普通用户界面不显著展示。 */
     val insightExecutionStatus: AiExecutionStatus = AiExecutionStatus.LocalOnly,
     val voiceInput: VoiceInputUiState = VoiceInputUiState(),
+    val bpx1Status: Bpx1ServiceStatus = Bpx1ServiceStatus(),
+    val autoSyncedBpx1Measurement: Bpx1Measurement? = null,
 )
 
 sealed interface HealthUiAction {
@@ -95,6 +101,7 @@ sealed interface HealthUiAction {
     data class HeightChanged(val heightCm: Float) : HealthUiAction
     data object AddStarted : HealthUiAction
     data object Bpx1SyncDone : HealthUiAction
+    data object Bpx1AutoSyncBannerConsumed : HealthUiAction
     data class OcrMetricApplied(val metric: ParsedHealthMetric) : HealthUiAction
     data class EditStarted(val record: HealthRecord) : HealthUiAction
     data object SheetDismissed : HealthUiAction
@@ -120,10 +127,11 @@ class HealthViewModel @Inject constructor(
     private val insightGeneration: HealthInsightGenerationUseCase,
     private val apiKeyStore: AiApiKeyStore,
     private val voiceInputController: VoiceInputController,
+    private val bpx1SyncService: Bpx1SyncService,
     private val clock: Clock,
 ) : BaseViewModel() {
 
-    private val _uiState = MutableStateFlow(HealthUiState())
+    private val _uiState = MutableStateFlow(HealthUiState(bpx1Status = bpx1SyncService.status.value))
     val uiState: StateFlow<HealthUiState> = _uiState.asStateFlow()
     private var acceptsVoiceInput = false
     private var transcriptAppender: VoiceTranscriptAppender? = null
@@ -139,6 +147,7 @@ class HealthViewModel @Inject constructor(
         collectChartData()
         collectInsights()
         collectVoiceInput()
+        collectBpx1Status()
     }
 
     fun onAction(action: HealthUiAction) {
@@ -147,6 +156,7 @@ class HealthViewModel @Inject constructor(
             is HealthUiAction.HeightChanged -> updateHeight(action.heightCm)
             HealthUiAction.AddStarted -> startAdd()
             HealthUiAction.Bpx1SyncDone -> finishBpx1Sync()
+            HealthUiAction.Bpx1AutoSyncBannerConsumed -> _uiState.update { it.copy(autoSyncedBpx1Measurement = null) }
             is HealthUiAction.OcrMetricApplied -> applyOcrMetric(action.metric)
             is HealthUiAction.EditStarted -> startEdit(action.record)
             HealthUiAction.SheetDismissed -> dismissSheet()
@@ -161,6 +171,23 @@ class HealthViewModel @Inject constructor(
             is HealthUiAction.DeleteRequested -> requestDelete(action.record)
             HealthUiAction.DeleteCancelled -> cancelDelete()
             HealthUiAction.DeleteConfirmed -> confirmDelete()
+        }
+    }
+
+    private fun collectBpx1Status() {
+        viewModelScope.launch {
+            bpx1SyncService.status.collect { status ->
+                _uiState.update { it.copy(bpx1Status = status) }
+            }
+        }
+        viewModelScope.launch {
+            bpx1SyncService.events.collect { event ->
+                when (event) {
+                    is Bpx1AutoSyncEvent.MeasurementAutoImported -> {
+                        _uiState.update { it.copy(autoSyncedBpx1Measurement = event.measurement) }
+                    }
+                }
+            }
         }
     }
 

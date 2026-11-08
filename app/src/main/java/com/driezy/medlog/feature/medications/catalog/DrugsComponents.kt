@@ -18,6 +18,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -93,7 +94,12 @@ internal fun DrugCategoryBrowser(
     val motionScheme = MaterialTheme.motionScheme
 
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
-        PrimaryTabRow(selectedTabIndex = selectedTab) {
+        PrimaryTabRow(
+            selectedTabIndex = selectedTab,
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium).clip(MaterialTheme.shapes.large),
+            containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
+            divider = {},
+        ) {
             tabs.forEachIndexed { index, (label, icon) ->
                 Tab(
                     selected = selectedTab == index,
