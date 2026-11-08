@@ -46,7 +46,7 @@ internal fun CloudAiStatusSummary(uiState: SettingsUiState, modifier: Modifier =
 
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = colors,
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
@@ -99,7 +99,7 @@ internal fun OcrModelOptionCard(
         modifier = Modifier
             .fillMaxWidth()
             .clickable(onClick = onSelect),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = if (selected) {
                 MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.15f)
@@ -176,7 +176,7 @@ internal fun OcrModelOptionCard(
 @Composable
 private fun SpecBadge(icon: Int, text: String) {
     Surface(
-        shape = RoundedCornerShape(8.dp),
+        shape = MaterialTheme.shapes.small,
         color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f),
     ) {
         Row(

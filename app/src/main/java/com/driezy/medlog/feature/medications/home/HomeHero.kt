@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -128,7 +127,7 @@ private fun ActionHomeHero(
     val next = presentation.nextPendingItem ?: return
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroAction"),
-        shape = RoundedCornerShape(32.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
@@ -178,7 +177,7 @@ private fun ActionHomeHero(
                     .fillMaxWidth()
                     .heightIn(min = 60.dp)
                     .testTag("homeHeroPrimary"),
-                shape = RoundedCornerShape(20.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(
                     icon = MedLogIcons.Medication,
@@ -216,7 +215,7 @@ private fun ProgressHomeHero(
     )
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroProgress"),
-        shape = RoundedCornerShape(32.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
@@ -254,7 +253,7 @@ private fun ProgressHomeHero(
                     .fillMaxWidth()
                     .heightIn(min = 56.dp)
                     .testTag("homeHeroPrimary"),
-                shape = RoundedCornerShape(18.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
                 Text(
                     text = stringResource(R.string.home_hero_take_next),
@@ -318,7 +317,7 @@ private fun ProgressNextDose(next: MedicationWithStatus, modifier: Modifier = Mo
         modifier = modifier
             .fillMaxWidth()
             .testTag("homeHeroProgressNextDose"),
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {
@@ -375,7 +374,7 @@ private fun TimelineHomeHero(
     val next = presentation.nextPendingItem ?: return
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroTimeline"),
-        shape = RoundedCornerShape(32.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
@@ -424,7 +423,7 @@ private fun TimelineHomeHero(
                     .fillMaxWidth()
                     .heightIn(min = 56.dp)
                     .testTag("homeHeroPrimary"),
-                shape = RoundedCornerShape(18.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
                 Text(
                     text = stringResource(R.string.home_hero_take_now),
@@ -435,7 +434,7 @@ private fun TimelineHomeHero(
             OutlinedButton(
                 onClick = { onSkipNext(next) },
                 modifier = Modifier.fillMaxWidth().testTag("homeHeroSecondary"),
-                shape = RoundedCornerShape(18.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
                 Text(stringResource(R.string.home_hero_skip_dose))
             }
@@ -550,7 +549,7 @@ private fun CompletedHomeHero(presentation: HomeHeroPresentation, currentStreak:
     val allTaken = presentation.status == HomeHeroStatus.ALL_TAKEN
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroCompleted"),
-        shape = RoundedCornerShape(32.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.tertiaryContainer,
         ),
@@ -628,7 +627,7 @@ private fun CompletedHomeHero(presentation: HomeHeroPresentation, currentStreak:
 private fun EmptyHomeHero(onAddMedication: () -> Unit) {
     Card(
         modifier = Modifier.fillMaxWidth().testTag("homeHeroEmpty"),
-        shape = RoundedCornerShape(32.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
         ),
@@ -664,7 +663,7 @@ private fun EmptyHomeHero(onAddMedication: () -> Unit) {
             Button(
                 onClick = onAddMedication,
                 modifier = Modifier.fillMaxWidth().heightIn(min = 56.dp).testTag("homeHeroPrimary"),
-                shape = RoundedCornerShape(18.dp),
+                shape = MaterialTheme.shapes.large,
             ) {
                 MedLogIcon(MedLogIcons.Add, contentDescription = null)
                 Spacer(Modifier.width(MedLogSpacing.Small))
@@ -677,7 +676,7 @@ private fun EmptyHomeHero(onAddMedication: () -> Unit) {
 @Composable
 private fun HeroCountPill(presentation: HomeHeroPresentation) {
     Surface(
-        shape = RoundedCornerShape(999.dp),
+        shape = CircleShape,
         color = MaterialTheme.colorScheme.surface.copy(alpha = 0.72f),
         contentColor = MaterialTheme.colorScheme.onSurface,
     ) {

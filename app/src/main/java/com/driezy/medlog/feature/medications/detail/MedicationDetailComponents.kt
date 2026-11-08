@@ -3,7 +3,6 @@ package com.driezy.medlog.feature.medications.detail
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
@@ -86,7 +85,7 @@ internal fun StockCard(
             // ── 状态提示 ──
             if (refillThreshold != null) {
                 Surface(
-                    shape = RoundedCornerShape(8.dp),
+                    shape = MaterialTheme.shapes.small,
                     color = (if (isLow) colorScheme.errorContainer else colorScheme.tertiaryContainer).copy(
                         alpha = 0.7f,
                     ),

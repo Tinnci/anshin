@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -66,7 +65,7 @@ internal fun LowStockBanner(medications: List<Pair<String, Pair<Double, String>>
     val presentation = remember(medications) { LowStockPresentation.from(medications) }
     Card(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
+        shape = MaterialTheme.shapes.extraLarge,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.errorContainer,
         ),
@@ -80,7 +79,7 @@ internal fun LowStockBanner(medications: List<Pair<String, Pair<Double, String>>
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
         ) {
             Surface(
-                shape = RoundedCornerShape(18.dp),
+                shape = MaterialTheme.shapes.large,
                 color = MaterialTheme.colorScheme.onErrorContainer.copy(alpha = 0.14f),
                 contentColor = MaterialTheme.colorScheme.onErrorContainer,
             ) {

@@ -472,7 +472,7 @@ private fun HealthMetricResultList(
                                 onSelect(ParsedHealthMetric(type, 0.0, rawText = text))
                             },
                             modifier = Modifier.fillMaxWidth(),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = MaterialTheme.shapes.small,
                             color = MaterialTheme.colorScheme.surfaceContainerLow,
                         ) {
                             Text(
@@ -518,7 +518,7 @@ private fun BpMergeSuggestionCard(systolic: ExtractedNumber, diastolic: Extracte
     Card(
         onClick = onAccept,
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
         ),
@@ -634,7 +634,7 @@ private fun CandidateNumberCard(
             }
         },
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         colors = CardDefaults.outlinedCardColors(
             containerColor = MaterialTheme.colorScheme.surfaceContainer,
         ),

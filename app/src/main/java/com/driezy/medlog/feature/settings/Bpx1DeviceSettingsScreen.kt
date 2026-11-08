@@ -19,7 +19,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -310,7 +310,7 @@ private fun Bpx1OverviewPanel(uiState: Bpx1DeviceSettingsUiState) {
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
                 ) {
@@ -337,7 +337,7 @@ private fun Bpx1OverviewPanel(uiState: Bpx1DeviceSettingsUiState) {
                 }
             }
             Surface(
-                shape = RoundedCornerShape(50),
+                shape = CircleShape,
                 color = MaterialTheme.colorScheme.surface.copy(alpha = 0.6f),
                 contentColor = MaterialTheme.colorScheme.onSurface,
             ) {
@@ -682,7 +682,7 @@ private fun Bpx1DeviceRow(device: Bpx1DiscoveredDevice, isSelected: Boolean, onC
 private fun Bpx1ConnectionSummary(result: Bpx1ConnectionResult) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(16.dp),
+        shape = MaterialTheme.shapes.medium,
         color = when (result) {
             is Bpx1ConnectionResult.Connected -> MaterialTheme.colorScheme.secondaryContainer
             is Bpx1ConnectionResult.Failed -> MaterialTheme.colorScheme.errorContainer

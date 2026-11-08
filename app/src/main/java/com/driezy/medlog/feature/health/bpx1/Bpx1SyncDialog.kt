@@ -20,7 +20,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.FilledTonalButton
@@ -277,7 +277,7 @@ private fun Bpx1SyncScanning(uiState: Bpx1SyncUiState, onCancel: () -> Unit) {
         body = stringResource(R.string.bpx1_sync_scanning_body),
     ) {
         Surface(
-            shape = RoundedCornerShape(50),
+            shape = CircleShape,
             color = if (uiState.deviceDetected) {
                 MaterialTheme.colorScheme.secondaryContainer
             } else {

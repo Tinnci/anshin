@@ -55,7 +55,6 @@ internal fun MedicationStockSection(uiState: AddMedicationUiState, onAction: (Ad
                 modifier = fieldModifier,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 suffix = { Text(uiState.doseUnit) },
-                shape = MaterialTheme.shapes.large,
                 singleLine = true,
             )
             OutlinedTextField(
@@ -65,7 +64,6 @@ internal fun MedicationStockSection(uiState: AddMedicationUiState, onAction: (Ad
                 modifier = fieldModifier,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 suffix = { Text(uiState.doseUnit) },
-                shape = MaterialTheme.shapes.large,
                 singleLine = true,
             )
         }
@@ -122,7 +120,6 @@ internal fun MedicationNotesSection(uiState: AddMedicationUiState, onAction: (Ad
             onValueChange = { onAction(AddMedicationUiAction.NotesChanged(it)) },
             label = { Text(stringResource(R.string.add_notes_label)) },
             modifier = Modifier.fillMaxWidth(),
-            shape = MaterialTheme.shapes.large,
             minLines = 2,
             maxLines = 5,
             placeholder = { Text(stringResource(R.string.add_notes_placeholder)) },

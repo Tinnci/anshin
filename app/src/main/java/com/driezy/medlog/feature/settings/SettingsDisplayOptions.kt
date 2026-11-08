@@ -33,13 +33,13 @@ internal fun ThemePaletteChip(palette: ThemePalette, selected: Boolean, darkThem
         modifier = Modifier
             .widthIn(min = 148.dp)
             .heightIn(min = 64.dp)
-            .clip(RoundedCornerShape(18.dp))
+            .clip(MaterialTheme.shapes.large)
             .selectable(
                 selected = selected,
                 role = Role.RadioButton,
                 onClick = onClick,
             ),
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = if (selected) scheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh,
         contentColor = if (selected) scheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface,
         border = BorderStroke(

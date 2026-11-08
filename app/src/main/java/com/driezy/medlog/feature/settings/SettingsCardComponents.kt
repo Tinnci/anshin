@@ -1,7 +1,6 @@
 package com.driezy.medlog.feature.settings
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -155,7 +154,7 @@ internal fun SettingsHomeOverviewPanel(
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
             ) {
                 Surface(
-                    shape = RoundedCornerShape(16.dp),
+                    shape = MaterialTheme.shapes.medium,
                     color = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.primary,
                 ) {
@@ -203,7 +202,7 @@ internal fun NotificationSettingsOverview(uiState: SettingsUiState) {
             .fillMaxWidth()
             .padding(horizontal = MedLogSpacing.Large)
             .padding(top = MedLogSpacing.Small, bottom = MedLogSpacing.Medium),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Column(
@@ -275,7 +274,7 @@ internal fun NotificationSettingsOverview(uiState: SettingsUiState) {
 @Composable
 private fun NotificationStatusChip(selected: Boolean, text: String) {
     Surface(
-        shape = RoundedCornerShape(12.dp),
+        shape = MaterialTheme.shapes.small,
         color = if (selected) {
             MaterialTheme.colorScheme.primaryContainer
         } else {

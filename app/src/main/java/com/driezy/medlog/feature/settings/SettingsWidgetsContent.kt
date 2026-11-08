@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarDuration
@@ -87,7 +86,7 @@ internal fun SettingsWidgetsContent(
             if (!canPin) {
                 // 桌面不支持直接固定时，显示手动添加引导
                 Surface(
-                    shape = RoundedCornerShape(12.dp),
+                    shape = MaterialTheme.shapes.small,
                     color = MaterialTheme.colorScheme.secondaryContainer,
                 ) {
                     Row(
@@ -121,7 +120,7 @@ internal fun SettingsWidgetsContent(
                 // OEM 专属权限提醒（小米 / OPPO / vivo）
                 if (oemNeedsPermission) {
                     Surface(
-                        shape = RoundedCornerShape(12.dp),
+                        shape = MaterialTheme.shapes.small,
                         color = MaterialTheme.colorScheme.tertiaryContainer,
                     ) {
                         Column(

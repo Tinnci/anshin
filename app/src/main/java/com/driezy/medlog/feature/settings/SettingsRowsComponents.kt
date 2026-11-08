@@ -7,7 +7,6 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.*
@@ -108,7 +107,7 @@ internal fun SettingsNavigationRow(title: String, subtitle: String, icon: Int, o
         },
         leadingContent = {
             Surface(
-                shape = RoundedCornerShape(14.dp),
+                shape = MaterialTheme.shapes.medium,
                 color = MaterialTheme.colorScheme.secondaryContainer,
                 contentColor = MaterialTheme.colorScheme.onSecondaryContainer,
             ) {
@@ -146,7 +145,7 @@ internal fun DataSafetyPanel() {
             .fillMaxWidth()
             .padding(horizontal = MedLogSpacing.Large)
             .padding(top = MedLogSpacing.Small, bottom = MedLogSpacing.Medium),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         color = MaterialTheme.colorScheme.surfaceContainerHigh,
     ) {
         Row(
@@ -193,7 +192,7 @@ internal fun DataActionRow(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = MedLogSpacing.Large),
-        shape = RoundedCornerShape(18.dp),
+        shape = MaterialTheme.shapes.large,
         color = if (destructive) {
             MaterialTheme.colorScheme.errorContainer
         } else {

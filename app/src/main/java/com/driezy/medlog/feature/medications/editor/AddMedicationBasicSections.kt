@@ -90,7 +90,6 @@ internal fun MedicationBasicInfoSection(
                         }
                     }
                 },
-                shape = MaterialTheme.shapes.large,
                 singleLine = true,
             )
             if (uiState.drugSuggestions.isNotEmpty()) {
@@ -146,7 +145,6 @@ internal fun MedicationBasicInfoSection(
             modifier = Modifier.fillMaxWidth(),
             placeholder = { Text(stringResource(R.string.add_category_placeholder)) },
             leadingIcon = { MedLogIcon(MedLogIcons.Category, null) },
-            shape = MaterialTheme.shapes.large,
             singleLine = true,
         )
         Row(

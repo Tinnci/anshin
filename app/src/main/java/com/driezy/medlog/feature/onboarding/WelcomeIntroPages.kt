@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -117,7 +116,7 @@ internal fun WelcomePage1(isCurrentPage: Boolean) {
                 },
         )
         Surface(
-            shape = RoundedCornerShape(22.dp),
+            shape = MaterialTheme.shapes.extraLarge,
             color = MaterialTheme.colorScheme.surfaceContainerLow,
             modifier = Modifier.fillMaxWidth(),
         ) {
@@ -150,7 +149,7 @@ private fun FeatureRow(feature: Feature, isCurrentPage: Boolean, delayMs: Long) 
             },
     ) {
         Surface(
-            shape = RoundedCornerShape(14.dp),
+            shape = MaterialTheme.shapes.medium,
             color = MaterialTheme.colorScheme.primaryContainer,
             modifier = Modifier.size(44.dp),
         ) {
