@@ -241,8 +241,8 @@ internal fun DataActionRow(
                 )
             }
         }
-        if (LocalDensity.current.fontScale > 1.3f) {
-            // Large text: stack the action under the copy so neither is squeezed into a narrow column.
+        if (LocalDensity.current.fontScale > 1.3f || actionLabel.length > LONG_ACTION_LABEL_LENGTH) {
+            // Large text or a long action label: stack the action under the copy so neither is squeezed.
             Column(
                 modifier = Modifier.padding(MedLogSpacing.Medium),
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
@@ -349,3 +349,5 @@ internal fun ArchivedMedicationsRow(archived: List<Medication>, onRestore: (Long
         }
     }
 }
+
+private const val LONG_ACTION_LABEL_LENGTH = 14
