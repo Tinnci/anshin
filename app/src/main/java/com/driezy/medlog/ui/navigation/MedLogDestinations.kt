@@ -53,7 +53,13 @@ import kotlinx.serialization.Serializable
 
 // ── Top-level navigation destinations ────────────────────────────────────────
 
-data class TopLevelDestination(val route: Route, val icon: Int, val selectedIcon: Int, val labelRes: Int)
+data class TopLevelDestination(
+    val route: Route,
+    val icon: Int,
+    val selectedIcon: Int,
+    val labelRes: Int,
+    val bottomLabelRes: Int = labelRes,
+)
 
 val TOP_LEVEL_DESTINATIONS = listOf(
     TopLevelDestination(Route.Home, MedLogIcons.Home, MedLogIcons.HomeSelected, com.driezy.medlog.R.string.tab_today),
@@ -68,6 +74,7 @@ val TOP_LEVEL_DESTINATIONS = listOf(
         MedLogIcons.MedicalServices,
         MedLogIcons.MedicalServicesSelected,
         com.driezy.medlog.R.string.my_medications,
+        bottomLabelRes = com.driezy.medlog.R.string.tab_medications,
     ),
     TopLevelDestination(
         Route.Diary,

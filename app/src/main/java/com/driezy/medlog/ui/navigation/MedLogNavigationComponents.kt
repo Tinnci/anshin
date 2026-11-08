@@ -28,6 +28,8 @@ import androidx.compose.material3.adaptive.navigationsuite.NavigationSuiteType
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavDestination
 import androidx.navigation.NavDestination.Companion.hasRoute
@@ -120,7 +122,14 @@ fun MedLogBottomNavigationBar(
                 selected = selected,
                 onClick = { navigateToTopLevel(dest) },
                 icon = { MedLogIcon(if (selected) dest.selectedIcon else dest.icon, contentDescription = null) },
-                label = { Text(stringResource(dest.labelRes)) },
+                label = {
+                    Text(
+                        text = stringResource(dest.bottomLabelRes),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        textAlign = TextAlign.Center,
+                    )
+                },
             )
         }
     }
