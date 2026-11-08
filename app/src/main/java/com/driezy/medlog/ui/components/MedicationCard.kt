@@ -33,6 +33,7 @@ import com.driezy.medlog.ui.util.formIcon
 import com.driezy.medlog.ui.util.formatDose
 import com.driezy.medlog.ui.util.icon
 import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 import java.time.Instant
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
@@ -51,6 +52,7 @@ fun MedicationCard(
     onPartialTake: ((Double) -> Unit)? = null,
 ) {
     val med = item.medication
+    val categoryLabels = rememberDrugCategoryLabels()
     val medDisplayName = remember(med.name) { med.displayName() }
     val motionScheme = MaterialTheme.motionScheme
 
@@ -212,13 +214,13 @@ fun MedicationCard(
                                     onClick = {},
                                     label = {
                                         Text(
-                                            med.category,
+                                            categoryLabels.label(med.category, med.isTcm),
                                             style = MaterialTheme.typography.labelSmall,
                                             maxLines = 1,
                                             overflow = TextOverflow.Ellipsis,
                                         )
                                     },
-                                    modifier = Modifier.height(24.dp).widthIn(max = 120.dp),
+                                    modifier = Modifier.height(24.dp).widthIn(max = 140.dp),
                                 )
                             }
                         }

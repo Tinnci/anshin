@@ -128,7 +128,15 @@ internal fun MedicationBasicInfoSection(
                                     tint = MaterialTheme.colorScheme.primary,
                                 )
                             },
-                            onClick = { onAction(AddMedicationUiAction.DrugSelected(drug, language)) },
+                            onClick = {
+                                onAction(
+                                    AddMedicationUiAction.DrugSelected(
+                                        drug = drug,
+                                        language = language,
+                                        localizedCategory = categoryLabels.label(drug.category, drug.isTcm),
+                                    ),
+                                )
+                            },
                             contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding,
                         )
                     }

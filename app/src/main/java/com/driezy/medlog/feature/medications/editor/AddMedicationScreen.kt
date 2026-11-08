@@ -18,6 +18,7 @@ import com.driezy.medlog.ui.components.TopBarActionPriority
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.util.icon
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import java.util.*
@@ -39,13 +40,15 @@ fun AddMedicationScreen(
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val isDirty by viewModel.isDirty.collectAsStateWithLifecycle()
     var showDiscardDialog by rememberSaveable { mutableStateOf(false) }
+    val categoryLabels = rememberDrugCategoryLabels()
     BackHandler(enabled = isDirty) { showDiscardDialog = true }
     LaunchedEffect(medicationId) {
         if (medicationId != null) viewModel.onAction(AddMedicationUiAction.LoadExisting(medicationId))
     }
-    LaunchedEffect(drugName) {
+    LaunchedEffect(drugName, drugCategory) {
         if (!drugName.isNullOrEmpty() && medicationId == null) {
-            viewModel.onAction(AddMedicationUiAction.PrefillDrug(drugName, drugCategory.orEmpty()))
+            val resolvedCategory = drugCategory?.let { categoryLabels.label(it) } ?: ""
+            viewModel.onAction(AddMedicationUiAction.PrefillDrug(drugName, resolvedCategory))
         }
     }
     LaunchedEffect(viewModel) {

@@ -110,7 +110,8 @@ sealed interface AddMedicationUiAction {
     data class PrefillDrug(val name: String, val category: String) : AddMedicationUiAction
     data class LoadExisting(val id: Long) : AddMedicationUiAction
     data class NameChanged(val value: String, val suggestionLanguage: String? = null) : AddMedicationUiAction
-    data class DrugSelected(val drug: Drug, val language: String) : AddMedicationUiAction
+    data class DrugSelected(val drug: Drug, val language: String, val localizedCategory: String = drug.category) :
+        AddMedicationUiAction
     data class DrugSuggestionsRequested(val language: String) : AddMedicationUiAction
     data object DismissDrugSuggestions : AddMedicationUiAction
     data class CategoryChanged(val value: String) : AddMedicationUiAction
@@ -252,7 +253,11 @@ class AddMedicationViewModel @Inject constructor(
             is AddMedicationUiAction.PrefillDrug -> prefillFromDrug(action.name, action.category)
             is AddMedicationUiAction.LoadExisting -> loadExisting(action.id)
             is AddMedicationUiAction.NameChanged -> onNameChange(action.value, action.suggestionLanguage)
-            is AddMedicationUiAction.DrugSelected -> onDrugSelected(action.drug, action.language)
+            is AddMedicationUiAction.DrugSelected -> onDrugSelected(
+                action.drug,
+                action.language,
+                action.localizedCategory,
+            )
             is AddMedicationUiAction.DrugSuggestionsRequested -> {
                 nameQuery.value = DrugNameQuery(_uiState.value.name, action.language)
             }
@@ -369,14 +374,14 @@ class AddMedicationViewModel @Inject constructor(
     }
 
     /** 从下拉建议中选中一种药，自动填入名称+分类+完整路径+是否中成药并关闭建议列表 */
-    private fun onDrugSelected(drug: Drug, language: String) {
+    private fun onDrugSelected(drug: Drug, language: String, localizedCategory: String) {
         nameQuery.value = null
         // 多路径药品（复方/多效药）用换行符连接所有路径存储；单路径直接取 fullPath
         val storedPath = if (drug.allPaths.size > 1) drug.allPaths.joinToString("\n") else drug.fullPath
         update {
             copy(
                 name = drug.localizedName(language),
-                category = drug.category,
+                category = localizedCategory,
                 isTcm = drug.isTcm,
                 fullPath = storedPath,
                 showDrugSuggestions = false,

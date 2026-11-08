@@ -49,6 +49,7 @@ import com.driezy.medlog.ui.navigation.Route
 import com.driezy.medlog.ui.navigation.TOP_LEVEL_DESTINATIONS
 import com.driezy.medlog.ui.navigation.TopLevelDestination
 import com.driezy.medlog.ui.util.medicationNameLanguage
+import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -223,6 +224,7 @@ private fun MedLogNavHost(
             exitTransition = { navFadeOut },
         ) {
             val language = medicationNameLanguage()
+            val categoryLabels = rememberDrugCategoryLabels()
             DrugsScreen(
                 onBack = { navController.popBackStack() },
                 onAddCustomDrug = { navController.navigate(Route.AddMedication()) },
@@ -231,7 +233,7 @@ private fun MedLogNavHost(
                     navController.navigate(
                         Route.AddMedication(
                             drugName = drug.localizedName(language),
-                            drugCategory = drug.category,
+                            drugCategory = categoryLabels.label(drug.category, drug.isTcm),
                         ),
                     )
                 },
