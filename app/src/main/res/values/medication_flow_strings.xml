@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="my_medications">我的药品</string>
+    <string name="tab_medications">药品</string>
     <string name="medication_catalog">药品库</string>
     <string name="medication_active">进行中</string>
     <string name="medication_archived">已停用</string>

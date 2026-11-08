@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="my_medications">내 약</string>
+    <string name="tab_medications">약</string>
     <string name="medication_catalog">의약품 목록</string>
     <string name="medication_active">복용 중</string>
     <string name="medication_archived">복용 중단</string>

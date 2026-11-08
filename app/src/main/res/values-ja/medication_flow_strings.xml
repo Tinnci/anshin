@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="my_medications">服用中の薬</string>
+    <string name="tab_medications">お薬</string>
     <string name="medication_catalog">医薬品一覧</string>
     <string name="medication_active">継続中</string>
     <string name="medication_archived">中止済み</string>

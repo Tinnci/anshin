@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="my_medications">My medications</string>
+    <string name="tab_medications">Meds</string>
     <string name="medication_catalog">Drug catalog</string>
     <string name="medication_active">Active</string>
     <string name="medication_archived">Stopped</string>
