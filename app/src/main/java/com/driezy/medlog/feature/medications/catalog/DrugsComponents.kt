@@ -13,12 +13,12 @@ import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -51,7 +51,7 @@ internal fun SubcategoryGrid(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(80.dp),
-                shape = RoundedCornerShape(16.dp),
+                shape = MaterialTheme.shapes.large,
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.7f),
                 ),
@@ -170,7 +170,7 @@ internal fun CategoryGridCard(category: String, count: Int, isTcm: Boolean, onCl
         modifier = Modifier
             .fillMaxWidth()
             .height(96.dp),
-        shape = RoundedCornerShape(20.dp),
+        shape = MaterialTheme.shapes.large,
         colors = CardDefaults.cardColors(
             containerColor = if (isTcm) {
                 colorScheme.tertiaryContainer.copy(alpha = 0.6f)
@@ -295,6 +295,7 @@ private fun DrugListItem(drug: Drug, query: String, categoryLabels: DrugCategory
     val tcmBadge = stringResource(R.string.drugs_tcm_badge)
     ListItem(
         headlineContent = { Text(localizedName) },
+        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         leadingContent = {
             MedLogIcon(
                 icon = if (drug.isTcm) MedLogIcons.LocalFlorist else MedLogIcons.Medication,

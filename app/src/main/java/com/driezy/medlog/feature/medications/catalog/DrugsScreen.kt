@@ -107,7 +107,7 @@ private fun DrugsContent(
                 .padding(padding),
         ) {
             // ── M3 SearchBar ─────────────────────────────────
-            SearchBar(
+            DockedSearchBar(
                 inputField = {
                     SearchBarDefaults.InputField(
                         query = searchText,
@@ -137,9 +137,8 @@ private fun DrugsContent(
                 },
                 expanded = uiState.isSearchActive,
                 onExpandedChange = { onAction(DrugsUiAction.SearchActiveChanged(it)) },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = if (uiState.isSearchActive) 0.dp else MedLogSpacing.Large),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = MedLogSpacing.Large),
+                shape = MaterialTheme.shapes.extraLarge,
             ) {
                 // ── 西药 / 中药 筛选 + 分类 Chip ───────────────
                 LazyRow(
@@ -155,6 +154,7 @@ private fun DrugsContent(
                                     onAction(DrugsUiAction.CategorySelected(null))
                                 },
                                 label = { Text(stringResource(R.string.drugs_tab_all)) },
+                                shape = MaterialTheme.shapes.large,
                             )
                         }
                         item {
@@ -165,6 +165,7 @@ private fun DrugsContent(
                                     onAction(DrugsUiAction.CategorySelected(null))
                                 },
                                 label = { Text(stringResource(R.string.drugs_tab_western)) },
+                                shape = MaterialTheme.shapes.large,
                             )
                         }
                         item {
@@ -175,6 +176,7 @@ private fun DrugsContent(
                                     onAction(DrugsUiAction.CategorySelected(null))
                                 },
                                 label = { Text(stringResource(R.string.drugs_tab_tcm)) },
+                                shape = MaterialTheme.shapes.large,
                             )
                         }
                     }
@@ -199,6 +201,7 @@ private fun DrugsContent(
                                     onAction(DrugsUiAction.TcmFilterChanged(null))
                                 },
                                 label = { Text(categoryLabels.label(cat)) },
+                                shape = MaterialTheme.shapes.large,
                             )
                         }
                     }
