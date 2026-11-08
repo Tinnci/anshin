@@ -41,8 +41,8 @@ fun MyMedicationsScreen(
         onOpen = onOpen,
         onCatalog = onCatalog,
         onSettings = onSettings,
-        showTcm = showTcm,
         onRetry = viewModel::retry,
+        showTcm = showTcm,
     )
 }
 
@@ -54,8 +54,8 @@ internal fun MyMedicationsContent(
     onOpen: (Long) -> Unit,
     onCatalog: (() -> Unit)?,
     onSettings: () -> Unit,
+    onRetry: () -> Unit = {},
     showTcm: Boolean = false,
-    onRetry: () -> Unit,
 ) {
     var archived by rememberSaveable { mutableStateOf(false) }
     val visible = remember(state.medications, archived) { state.medications.filter { it.isArchived == archived } }
