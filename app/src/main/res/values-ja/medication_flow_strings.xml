@@ -32,5 +32,7 @@
     </plurals>
     <string name="settings_tcm_catalog_title">中成薬を表示</string>
     <string name="settings_tcm_catalog_subtitle">医薬品一覧と薬品名の候補に中成薬を表示します</string>
+    <string name="medication_browse_catalog">医薬品一覧を見る</string>
+    <string name="medication_browse_catalog_desc">3,000件以上の医薬品・漢方薬データを検索</string>
     <string name="drugs_original_name">原文の名称</string>
 </resources>

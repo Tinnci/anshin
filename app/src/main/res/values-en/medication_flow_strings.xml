@@ -33,5 +33,7 @@
     </plurals>
     <string name="settings_tcm_catalog_title">Show traditional Chinese medicines</string>
     <string name="settings_tcm_catalog_subtitle">Include them in the drug catalog and Add Medication suggestions</string>
+    <string name="medication_browse_catalog">Browse drug catalog</string>
+    <string name="medication_browse_catalog_desc">Explore 3,000+ preloaded medicines &amp; TCM</string>
     <string name="drugs_original_name">Original name</string>
 </resources>
