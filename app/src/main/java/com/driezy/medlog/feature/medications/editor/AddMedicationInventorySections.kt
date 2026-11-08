@@ -5,6 +5,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
@@ -45,12 +46,13 @@ internal fun MedicationDateSection(uiState: AddMedicationUiState, onAction: (Add
 internal fun MedicationStockSection(uiState: AddMedicationUiState, onAction: (AddMedicationUiAction) -> Unit) {
     // ── 库存管理 ─────────────────────────────────────────
     FormSection(title = stringResource(R.string.add_section_stock), icon = MedLogIcons.Inventory) {
-        Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+        val enlargedText = LocalDensity.current.fontScale > 1.3f
+        val stockFields: @Composable (Modifier) -> Unit = { fieldModifier ->
             OutlinedTextField(
                 value = uiState.stock,
                 onValueChange = { onAction(AddMedicationUiAction.StockChanged(it)) },
                 label = { Text(stringResource(R.string.add_current_stock)) },
-                modifier = Modifier.weight(1f),
+                modifier = fieldModifier,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 suffix = { Text(uiState.doseUnit) },
                 singleLine = true,
@@ -59,11 +61,20 @@ internal fun MedicationStockSection(uiState: AddMedicationUiState, onAction: (Ad
                 value = uiState.refillThreshold,
                 onValueChange = { onAction(AddMedicationUiAction.RefillThresholdChanged(it)) },
                 label = { Text(stringResource(R.string.add_refill_remind_label)) },
-                modifier = Modifier.weight(1f),
+                modifier = fieldModifier,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                 suffix = { Text(uiState.doseUnit) },
                 singleLine = true,
             )
+        }
+        if (enlargedText) {
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                stockFields(Modifier.fillMaxWidth())
+            }
+        } else {
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                stockFields(Modifier.weight(1f))
+            }
         }
         // ── 按天数估算备货提醒 ──────────────────────────────
         Text(
@@ -76,8 +87,9 @@ internal fun MedicationStockSection(uiState: AddMedicationUiState, onAction: (Ad
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
-        Row(
+        FlowRow(
             horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
         ) {
             val offLabel = stringResource(R.string.add_refill_off)
             val refillDaysLabel7 = pluralStringResource(R.plurals.history_streak_max_days, 7, 7)

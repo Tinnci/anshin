@@ -14,6 +14,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.pluralStringResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -204,14 +205,28 @@ internal fun DataActionRow(
             MaterialTheme.colorScheme.onSurface
         },
     ) {
-        Row(
-            modifier = Modifier.padding(MedLogSpacing.Medium),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-        ) {
-            MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
+        val action: @Composable () -> Unit = {
+            if (loading) {
+                LoadingIndicator(modifier = Modifier.size(24.dp))
+            } else if (destructive) {
+                OutlinedButton(
+                    onClick = onClick,
+                    enabled = enabled,
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.onErrorContainer,
+                    ),
+                ) {
+                    Text(actionLabel)
+                }
+            } else {
+                FilledTonalButton(onClick = onClick, enabled = enabled) {
+                    Text(actionLabel)
+                }
+            }
+        }
+        val details: @Composable (Modifier) -> Unit = { detailsModifier ->
             Column(
-                modifier = Modifier.weight(1f),
+                modifier = detailsModifier,
                 verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
             ) {
                 Text(title, style = MaterialTheme.typography.titleSmall, fontWeight = FontWeight.SemiBold)
@@ -225,24 +240,28 @@ internal fun DataActionRow(
                     },
                 )
             }
-            if (loading) {
-                LoadingIndicator(modifier = Modifier.size(24.dp))
-            } else {
-                if (destructive) {
-                    OutlinedButton(
-                        onClick = onClick,
-                        enabled = enabled,
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = MaterialTheme.colorScheme.onErrorContainer,
-                        ),
-                    ) {
-                        Text(actionLabel)
-                    }
-                } else {
-                    FilledTonalButton(onClick = onClick, enabled = enabled) {
-                        Text(actionLabel)
-                    }
+        }
+        if (LocalDensity.current.fontScale > 1.3f) {
+            // Large text: stack the action under the copy so neither is squeezed into a narrow column.
+            Column(
+                modifier = Modifier.padding(MedLogSpacing.Medium),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+            ) {
+                Row(horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
+                    MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                    details(Modifier.weight(1f))
                 }
+                action()
+            }
+        } else {
+            Row(
+                modifier = Modifier.padding(MedLogSpacing.Medium),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+            ) {
+                MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                details(Modifier.weight(1f))
+                action()
             }
         }
     }
