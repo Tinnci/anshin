@@ -111,4 +111,9 @@
     <string name="bpx1_sync_permission_body">혈압계 신호를 받으려면 \'근처 기기\' 권한이 필요합니다. 설정한 혈압계를 찾는 데만 사용합니다.</string>
     <string name="bpx1_sync_grant_permission">권한 허용</string>
     <string name="bpx1_sync_open_app_settings">앱 설정 열기</string>
+    <string name="bpx1_auto_sync_listening">BPX1 자동 동기화 활성</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 근처 감지됨 · 자동 수신 중</string>
+    <string name="bpx1_auto_sync_last_reading">최근 동기화 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 자동 동기화 일시 중지됨 (블루투스 꺼짐)</string>
+    <string name="bpx1_auto_sync_toast">BPX1 자동 동기화됨: %1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

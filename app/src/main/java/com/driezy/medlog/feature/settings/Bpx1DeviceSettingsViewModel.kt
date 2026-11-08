@@ -13,6 +13,7 @@ import com.driezy.medlog.capability.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.capability.bpx1.Bpx1Protocol
 import com.driezy.medlog.capability.bpx1.Bpx1ScanEvent
 import com.driezy.medlog.capability.bpx1.application.Bpx1MeasurementImporter
+import com.driezy.medlog.capability.bpx1.application.Bpx1SyncService
 import com.driezy.medlog.capability.bpx1.canRetainBindKey
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -75,6 +76,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     private val deviceStore: Bpx1DeviceStore,
     private val bleClient: Bpx1BleClient,
     private val measurementImporter: Bpx1MeasurementImporter,
+    private val syncService: Bpx1SyncService? = null,
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(
         Bpx1DeviceSettingsUiState(
@@ -189,6 +191,7 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     }
 
     fun refreshBluetoothAvailability() {
+        syncService?.refreshAvailabilityAndPermissions()
         _uiState.update { it.copy(bluetoothAvailability = bleClient.availability()) }
     }
 
@@ -200,27 +203,37 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
             return
         }
         scanJob = viewModelScope.launch {
-            val bindKey = deviceStore.getBindKey()
-            _uiState.update {
-                it.copy(
-                    bluetoothAvailability = availability,
-                    isScanning = true,
-                    hasAttemptedScan = true,
-                    discoveredDevices = emptyList(),
-                    connectionResult = null,
-                )
-            }
-            withTimeoutOrNull(SCAN_DURATION_MILLIS) {
-                bleClient.scan(bindKey).collect { event ->
-                    when (event) {
-                        is Bpx1ScanEvent.Device -> handleScanDevice(event)
-                        is Bpx1ScanEvent.Failure -> {
-                            effectChannel.send(Bpx1SettingsUiEffect.Message(Bpx1SettingsMessage.SCAN_FAILED))
+            val runScan: suspend () -> Unit = {
+                val bindKey = deviceStore.getBindKey()
+                _uiState.update {
+                    it.copy(
+                        bluetoothAvailability = availability,
+                        isScanning = true,
+                        hasAttemptedScan = true,
+                        discoveredDevices = emptyList(),
+                        connectionResult = null,
+                    )
+                }
+                try {
+                    withTimeoutOrNull(SCAN_DURATION_MILLIS) {
+                        bleClient.scan(bindKey).collect { event ->
+                            when (event) {
+                                is Bpx1ScanEvent.Device -> handleScanDevice(event)
+                                is Bpx1ScanEvent.Failure -> {
+                                    effectChannel.send(Bpx1SettingsUiEffect.Message(Bpx1SettingsMessage.SCAN_FAILED))
+                                }
+                            }
                         }
                     }
+                } finally {
+                    _uiState.update { it.copy(isScanning = false) }
                 }
             }
-            _uiState.update { it.copy(isScanning = false) }
+            if (syncService != null) {
+                syncService.withManualOperation(runScan)
+            } else {
+                runScan()
+            }
         }
     }
 
@@ -239,12 +252,19 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
         if (connectionJob?.isActive == true) return
         stopScan()
         connectionJob = viewModelScope.launch {
-            _uiState.update { it.copy(isConnecting = true, connectionResult = null) }
-            try {
-                val result = bleClient.checkConnection(macAddress)
-                _uiState.update { it.copy(connectionResult = result) }
-            } finally {
-                _uiState.update { it.copy(isConnecting = false) }
+            val runConnect: suspend () -> Unit = {
+                _uiState.update { it.copy(isConnecting = true, connectionResult = null) }
+                try {
+                    val result = bleClient.checkConnection(macAddress)
+                    _uiState.update { it.copy(connectionResult = result) }
+                } finally {
+                    _uiState.update { it.copy(isConnecting = false) }
+                }
+            }
+            if (syncService != null) {
+                syncService.withManualOperation(runConnect)
+            } else {
+                runConnect()
             }
         }
     }
@@ -281,6 +301,11 @@ class Bpx1DeviceSettingsViewModel @Inject constructor(
     private suspend fun importMeasurement(macAddress: String, measurement: Bpx1Measurement) {
         val result = measurementImporter.import(macAddress, measurement)
         if (result.inserted) {
+            syncService?.recordImportedMeasurement(
+                measurement = measurement,
+                importedCount = result.importedCount,
+                isAutoSync = false,
+            )
             _uiState.update {
                 it.copy(
                     lastImportedMeasurement = measurement,

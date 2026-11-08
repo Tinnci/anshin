@@ -6,6 +6,7 @@ import com.driezy.medlog.capability.bpx1.Bpx1DeviceStore
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.Bpx1Protocol
 import com.driezy.medlog.capability.bpx1.Bpx1ScanEvent
+import com.driezy.medlog.capability.bpx1.Bpx1ScanMode
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
@@ -49,6 +50,7 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
     private val deviceStore: Bpx1DeviceStore,
     private val bleClient: Bpx1BleClient,
     private val importer: Bpx1MeasurementImporter,
+    private val syncService: Bpx1SyncService? = null,
 ) {
     fun isConfigured(): Boolean = deviceStore.configuration.value.isConfigured
 
@@ -56,6 +58,17 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
         scanDurationMillis: Long = DEFAULT_SCAN_DURATION_MILLIS,
         onEvent: suspend (Bpx1SyncState) -> Unit,
     ) {
+        val block: suspend () -> Unit = {
+            performSync(scanDurationMillis, onEvent)
+        }
+        if (syncService != null) {
+            syncService.withManualOperation(block)
+        } else {
+            block()
+        }
+    }
+
+    private suspend fun performSync(scanDurationMillis: Long, onEvent: suspend (Bpx1SyncState) -> Unit) {
         val configuration = deviceStore.configuration.value
         if (!configuration.isConfigured) {
             onEvent(Bpx1SyncState.NeedsConfiguration)
@@ -80,7 +93,11 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
         var failed = false
         onEvent(Bpx1SyncState.Scanning(scanDurationMillis))
         withTimeoutOrNull(scanDurationMillis) {
-            bleClient.scan(bindKey)
+            bleClient.scan(
+                bindKey = bindKey,
+                targetMacAddress = configuredMac,
+                scanMode = Bpx1ScanMode.LOW_LATENCY,
+            )
                 .takeWhile { !failed }
                 .collect { event ->
                     when (event) {
@@ -92,12 +109,18 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
                             }
                             if (!deviceDetected) {
                                 deviceDetected = true
+                                syncService?.markDeviceNearby()
                                 onEvent(Bpx1SyncState.DeviceDetected)
                             }
                             val measurement = event.measurement ?: return@collect
                             val result = importer.import(event.device.macAddress, measurement)
                             if (result.inserted) {
                                 importedCount += result.importedCount
+                                syncService?.recordImportedMeasurement(
+                                    measurement = measurement,
+                                    importedCount = result.importedCount,
+                                    isAutoSync = false,
+                                )
                                 onEvent(
                                     Bpx1SyncState.MeasurementImported(
                                         measurement = measurement,

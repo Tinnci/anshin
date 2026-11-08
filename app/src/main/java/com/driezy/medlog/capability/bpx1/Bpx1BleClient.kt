@@ -12,19 +12,26 @@ import android.bluetooth.le.ScanCallback
 import android.bluetooth.le.ScanFilter
 import android.bluetooth.le.ScanResult
 import android.bluetooth.le.ScanSettings
+import android.content.BroadcastReceiver
 import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.ParcelUuid
+import androidx.core.content.ContextCompat
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.awaitClose
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.withTimeoutOrNull
 import java.time.Clock
 import java.util.Locale
 import java.util.UUID
+import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicReference
 import javax.inject.Inject
@@ -35,6 +42,11 @@ enum class Bpx1BluetoothAvailability {
     READY,
     DISABLED,
     UNSUPPORTED,
+}
+
+enum class Bpx1ScanMode {
+    PASSIVE,
+    LOW_LATENCY,
 }
 
 data class Bpx1DiscoveredDevice(
@@ -82,7 +94,13 @@ sealed interface Bpx1ConnectionResult {
 
 interface Bpx1BleClient {
     fun availability(): Bpx1BluetoothAvailability
+    fun observeAvailability(): Flow<Bpx1BluetoothAvailability> = flowOf(availability())
     fun scan(bindKey: ByteArray?): Flow<Bpx1ScanEvent>
+    fun scan(
+        bindKey: ByteArray?,
+        targetMacAddress: String? = null,
+        scanMode: Bpx1ScanMode = Bpx1ScanMode.LOW_LATENCY,
+    ): Flow<Bpx1ScanEvent> = scan(bindKey)
     suspend fun checkConnection(macAddress: String): Bpx1ConnectionResult
 }
 
@@ -103,67 +121,135 @@ class AndroidBpx1BleClient @Inject constructor(
         return if (adapter.isEnabled) Bpx1BluetoothAvailability.READY else Bpx1BluetoothAvailability.DISABLED
     }
 
-    @SuppressLint("MissingPermission")
-    override fun scan(bindKey: ByteArray?): Flow<Bpx1ScanEvent> = callbackFlow {
-        val adapter = bluetoothManager?.adapter
-        val scanner = adapter?.bluetoothLeScanner
-        if (adapter == null || !adapter.isEnabled || scanner == null) {
-            trySend(Bpx1ScanEvent.Failure(ERROR_BLUETOOTH_UNAVAILABLE))
+    override fun observeAvailability(): Flow<Bpx1BluetoothAvailability> = callbackFlow {
+        trySend(availability())
+        if (!context.packageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             close()
             return@callbackFlow
         }
-        val callback = object : ScanCallback() {
-            override fun onScanResult(callbackType: Int, result: ScanResult) {
-                val receivedAtMillis = clock.millis()
-                val serviceData = result.scanRecord
-                    ?.getServiceData(MIBEACON_PARCEL_UUID)
-                    ?: return
-                val address = runCatching { Bpx1Protocol.normalizeMac(result.device.address) }.getOrNull() ?: return
-                val advertisement = Bpx1MiBeaconDecoder.decode(
-                    serviceData = serviceData,
-                    sourceMac = address,
-                    bindKey = bindKey,
-                    receivedAtMillis = receivedAtMillis,
-                ) ?: return
-                val name = result.scanRecord?.deviceName
-                    ?: runCatching { result.device.name }.getOrNull()
-                    ?: "BPX1"
-                trySend(
-                    Bpx1ScanEvent.Device(
-                        device = Bpx1DiscoveredDevice(
-                            macAddress = address,
-                            name = name,
-                            rssi = result.rssi,
-                            registered = advertisement.registered,
-                            payloadStatus = advertisement.payloadStatus,
-                            lastSeenMillis = receivedAtMillis,
-                        ),
-                        measurement = advertisement.measurement,
-                    ),
-                )
+        val receiver = object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                if (intent?.action == BluetoothAdapter.ACTION_STATE_CHANGED) {
+                    trySend(availability())
+                }
             }
+        }
+        ContextCompat.registerReceiver(
+            context,
+            receiver,
+            IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED),
+            ContextCompat.RECEIVER_NOT_EXPORTED,
+        )
+        awaitClose {
+            runCatching { context.unregisterReceiver(receiver) }
+        }
+    }.distinctUntilChanged()
 
-            override fun onScanFailed(errorCode: Int) {
-                trySend(Bpx1ScanEvent.Failure(errorCode))
+    override fun scan(bindKey: ByteArray?): Flow<Bpx1ScanEvent> = scan(
+        bindKey = bindKey,
+        targetMacAddress = null,
+        scanMode = Bpx1ScanMode.LOW_LATENCY,
+    )
+
+    @SuppressLint("MissingPermission")
+    override fun scan(bindKey: ByteArray?, targetMacAddress: String?, scanMode: Bpx1ScanMode): Flow<Bpx1ScanEvent> =
+        callbackFlow {
+            val adapter = bluetoothManager?.adapter
+            val scanner = adapter?.bluetoothLeScanner
+            if (adapter == null || !adapter.isEnabled || scanner == null) {
+                trySend(Bpx1ScanEvent.Failure(ERROR_BLUETOOTH_UNAVAILABLE))
                 close()
+                return@callbackFlow
             }
+            val normalizedTargetMac = targetMacAddress
+                ?.let(Bpx1Protocol::normalizeMac)
+                ?.takeIf(Bpx1Protocol::isValidMac)
+            val frameCache = ConcurrentHashMap<String, CachedFrame>()
+            val bindKeyHash = bindKey?.contentHashCode() ?: 0
+
+            val callback = object : ScanCallback() {
+                override fun onScanResult(callbackType: Int, result: ScanResult) {
+                    val receivedAtMillis = clock.millis()
+                    val serviceData = result.scanRecord
+                        ?.getServiceData(MIBEACON_PARCEL_UUID)
+                        ?: return
+                    val address = runCatching { Bpx1Protocol.normalizeMac(result.device.address) }.getOrNull() ?: return
+                    if (normalizedTargetMac != null && !address.equals(normalizedTargetMac, ignoreCase = true)) {
+                        return
+                    }
+                    val payloadHash = 31 * serviceData.contentHashCode() + bindKeyHash
+                    val cached = frameCache[address]
+                    val advertisement = if (
+                        cached != null &&
+                        cached.payloadHash == payloadHash &&
+                        receivedAtMillis - cached.cachedAtMillis <= FRAME_CACHE_TTL_MILLIS
+                    ) {
+                        cached.advertisement
+                    } else {
+                        Bpx1MiBeaconDecoder.decode(
+                            serviceData = serviceData,
+                            sourceMac = address,
+                            bindKey = bindKey,
+                            receivedAtMillis = receivedAtMillis,
+                        )?.also { decoded ->
+                            frameCache[address] = CachedFrame(
+                                payloadHash = payloadHash,
+                                advertisement = decoded,
+                                cachedAtMillis = receivedAtMillis,
+                            )
+                        } ?: return
+                    }
+                    val name = result.scanRecord?.deviceName
+                        ?: runCatching { result.device.name }.getOrNull()
+                        ?: "BPX1"
+                    trySend(
+                        Bpx1ScanEvent.Device(
+                            device = Bpx1DiscoveredDevice(
+                                macAddress = address,
+                                name = name,
+                                rssi = result.rssi,
+                                registered = advertisement.registered,
+                                payloadStatus = advertisement.payloadStatus,
+                                lastSeenMillis = receivedAtMillis,
+                            ),
+                            measurement = advertisement.measurement,
+                        ),
+                    )
+                }
+
+                override fun onScanFailed(errorCode: Int) {
+                    trySend(Bpx1ScanEvent.Failure(errorCode))
+                    close()
+                }
+            }
+            val filter = ScanFilter.Builder()
+                .setServiceUuid(MIBEACON_PARCEL_UUID)
+                .apply {
+                    if (normalizedTargetMac != null) {
+                        setDeviceAddress(normalizedTargetMac)
+                    }
+                }
+                .build()
+            val settings = ScanSettings.Builder()
+                .setScanMode(
+                    when (scanMode) {
+                        Bpx1ScanMode.PASSIVE -> ScanSettings.SCAN_MODE_BALANCED
+                        Bpx1ScanMode.LOW_LATENCY -> ScanSettings.SCAN_MODE_LOW_LATENCY
+                    },
+                )
+                .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+                .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
+                .setReportDelay(0)
+                .build()
+            try {
+                scanner.startScan(listOf(filter), settings, callback)
+            } catch (_: SecurityException) {
+                trySend(Bpx1ScanEvent.Failure(ERROR_PERMISSION_DENIED))
+                close()
+                return@callbackFlow
+            }
+            awaitClose { runCatching { scanner.stopScan(callback) } }
         }
-        val filter = ScanFilter.Builder()
-            .setServiceUuid(MIBEACON_PARCEL_UUID)
-            .build()
-        val settings = ScanSettings.Builder()
-            .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
-            .setReportDelay(0)
-            .build()
-        try {
-            scanner.startScan(listOf(filter), settings, callback)
-        } catch (_: SecurityException) {
-            trySend(Bpx1ScanEvent.Failure(ERROR_PERMISSION_DENIED))
-            close()
-            return@callbackFlow
-        }
-        awaitClose { runCatching { scanner.stopScan(callback) } }
-    }
 
     @SuppressLint("MissingPermission")
     override suspend fun checkConnection(macAddress: String): Bpx1ConnectionResult {
@@ -260,10 +346,17 @@ class AndroidBpx1BleClient @Inject constructor(
         )
     }
 
+    private data class CachedFrame(
+        val payloadHash: Int,
+        val advertisement: Bpx1Advertisement,
+        val cachedAtMillis: Long,
+    )
+
     private companion object {
         val MIBEACON_PARCEL_UUID: ParcelUuid =
             ParcelUuid(UUID.fromString(Bpx1Protocol.MIBEACON_SERVICE_UUID))
         const val CONNECTION_TIMEOUT_MILLIS = 12_000L
+        const val FRAME_CACHE_TTL_MILLIS = 30_000L
         const val ERROR_BLUETOOTH_UNAVAILABLE = Bpx1ScanEvent.Failure.BLUETOOTH_UNAVAILABLE
         const val ERROR_PERMISSION_DENIED = Bpx1ScanEvent.Failure.PERMISSION_DENIED
     }

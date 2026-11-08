@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources xmlns:tools="http://schemas.android.com/tools">
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
     <string name="settings_destination_bpx1">血压计</string>
     <string name="settings_home_tile_bpx1_status" tools:ignore="Typos">BPX1 连接、密钥与测量导入</string>
     <string name="bpx1_settings_title" tools:ignore="Typos">BPX1 血压计</string>
@@ -111,4 +111,9 @@
     <string name="bpx1_sync_permission_body">需要“附近设备”权限才能接收血压计广播。应用只用它扫描你配置的血压计。</string>
     <string name="bpx1_sync_grant_permission">授予权限</string>
     <string name="bpx1_sync_open_app_settings">打开应用设置</string>
+    <string name="bpx1_auto_sync_listening">BPX1 自动同步已就绪</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 在附近 · 自动接收中</string>
+    <string name="bpx1_auto_sync_last_reading">上次同步 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 自动同步已暂停（蓝牙关闭）</string>
+    <string name="bpx1_auto_sync_toast">已自动同步 BPX1：%1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

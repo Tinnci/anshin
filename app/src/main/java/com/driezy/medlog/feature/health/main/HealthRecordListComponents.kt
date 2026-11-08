@@ -93,7 +93,11 @@ internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete
                             contentDescription = stringResource(R.string.health_more_ops_cd),
                         )
                     }
-                    DropdownMenu(expanded = showMenu, onDismissRequest = { showMenu = false }) {
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false },
+                        shape = MaterialTheme.shapes.large,
+                    ) {
                         DropdownMenuItem(
                             text = { Text(stringResource(R.string.common_action_edit)) },
                             onClick = {

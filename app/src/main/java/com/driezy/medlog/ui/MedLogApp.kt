@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -15,6 +16,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.IntOffset
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavDestination.Companion.hasRoute
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -49,6 +53,21 @@ import com.driezy.medlog.ui.navigation.TopLevelDestination
 @Composable
 fun MedLogApp(openAddMedication: Boolean = false) {
     val appViewModel: MedLogAppViewModel = hiltViewModel()
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner, appViewModel) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_START -> appViewModel.setAppForegroundActive(true)
+                Lifecycle.Event.ON_STOP -> appViewModel.setAppForegroundActive(false)
+                else -> Unit
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            appViewModel.setAppForegroundActive(false)
+            lifecycleOwner.lifecycle.removeObserver(observer)
+        }
+    }
     val startDestState by appViewModel.startDestination.collectAsStateWithLifecycle()
     // DataStore 加载期间显示居中加载指示器；捕获到本地 val 以消除后续 !! 需求
     val startDest = startDestState ?: run {

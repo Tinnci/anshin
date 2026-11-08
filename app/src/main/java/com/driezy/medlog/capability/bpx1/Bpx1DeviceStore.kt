@@ -22,6 +22,10 @@ data class Bpx1DeviceConfiguration(
     val macAddress: String = "",
     val hasBindKey: Boolean = false,
     val autoImport: Boolean = true,
+    val lastSyncedAtMillis: Long? = null,
+    val lastSystolic: Int? = null,
+    val lastDiastolic: Int? = null,
+    val lastHeartRate: Int? = null,
 ) {
     val isConfigured: Boolean get() = Bpx1Protocol.isValidMac(macAddress) && hasBindKey
 }
@@ -32,6 +36,7 @@ interface Bpx1DeviceStore {
     suspend fun getBindKey(): ByteArray?
     suspend fun save(macAddress: String, bindKey: ByteArray?)
     suspend fun setAutoImport(enabled: Boolean)
+    suspend fun recordSyncedMeasurement(measurement: Bpx1Measurement, syncedAtMillis: Long)
     suspend fun clear()
 }
 
@@ -74,10 +79,24 @@ class AndroidKeystoreBpx1DeviceStore @Inject constructor(@ApplicationContext con
         publish()
     }
 
+    override suspend fun recordSyncedMeasurement(measurement: Bpx1Measurement, syncedAtMillis: Long) {
+        preferences.edit {
+            putLong(KEY_LAST_SYNCED_AT, syncedAtMillis)
+            putInt(KEY_LAST_SYSTOLIC, measurement.systolic)
+            putInt(KEY_LAST_DIASTOLIC, measurement.diastolic)
+            putInt(KEY_LAST_HEART_RATE, measurement.heartRate)
+        }
+        publish()
+    }
+
     override suspend fun clear() {
         preferences.edit {
             remove(KEY_MAC_ADDRESS)
             remove(KEY_BIND_KEY)
+            remove(KEY_LAST_SYNCED_AT)
+            remove(KEY_LAST_SYSTOLIC)
+            remove(KEY_LAST_DIASTOLIC)
+            remove(KEY_LAST_HEART_RATE)
         }
         publish()
     }
@@ -86,6 +105,10 @@ class AndroidKeystoreBpx1DeviceStore @Inject constructor(@ApplicationContext con
         macAddress = preferences.getString(KEY_MAC_ADDRESS, "").orEmpty(),
         hasBindKey = !preferences.getString(KEY_BIND_KEY, null).isNullOrBlank(),
         autoImport = preferences.getBoolean(KEY_AUTO_IMPORT, true),
+        lastSyncedAtMillis = preferences.getLong(KEY_LAST_SYNCED_AT, -1L).takeIf { it > 0L },
+        lastSystolic = preferences.getInt(KEY_LAST_SYSTOLIC, -1).takeIf { it > 0 },
+        lastDiastolic = preferences.getInt(KEY_LAST_DIASTOLIC, -1).takeIf { it > 0 },
+        lastHeartRate = preferences.getInt(KEY_LAST_HEART_RATE, -1).takeIf { it > 0 },
     )
 
     private fun publish() {
@@ -139,6 +162,10 @@ class AndroidKeystoreBpx1DeviceStore @Inject constructor(@ApplicationContext con
         const val KEY_MAC_ADDRESS = "mac_address"
         const val KEY_BIND_KEY = "bind_key"
         const val KEY_AUTO_IMPORT = "auto_import"
+        const val KEY_LAST_SYNCED_AT = "last_synced_at"
+        const val KEY_LAST_SYSTOLIC = "last_systolic"
+        const val KEY_LAST_DIASTOLIC = "last_diastolic"
+        const val KEY_LAST_HEART_RATE = "last_heart_rate"
         const val ANDROID_KEYSTORE = "AndroidKeyStore"
         const val KEY_ALIAS = "medlog_bpx1_bind_key_aes_gcm"
         const val TRANSFORMATION = "AES/GCM/NoPadding"
@@ -179,9 +206,25 @@ class InMemoryBpx1DeviceStore(
         _configuration.value = _configuration.value.copy(autoImport = enabled)
     }
 
+    override suspend fun recordSyncedMeasurement(measurement: Bpx1Measurement, syncedAtMillis: Long) {
+        _configuration.value = _configuration.value.copy(
+            lastSyncedAtMillis = syncedAtMillis,
+            lastSystolic = measurement.systolic,
+            lastDiastolic = measurement.diastolic,
+            lastHeartRate = measurement.heartRate,
+        )
+    }
+
     override suspend fun clear() {
         key = null
-        _configuration.value = _configuration.value.copy(macAddress = "", hasBindKey = false)
+        _configuration.value = _configuration.value.copy(
+            macAddress = "",
+            hasBindKey = false,
+            lastSyncedAtMillis = null,
+            lastSystolic = null,
+            lastDiastolic = null,
+            lastHeartRate = null,
+        )
     }
 }
 

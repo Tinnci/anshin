@@ -111,4 +111,9 @@
     <string name="bpx1_sync_permission_body">血圧計のブロードキャストを受信するには「付近のデバイス」権限が必要です。設定した血圧計のスキャンにのみ使用します。</string>
     <string name="bpx1_sync_grant_permission">権限を許可</string>
     <string name="bpx1_sync_open_app_settings">アプリ設定を開く</string>
+    <string name="bpx1_auto_sync_listening">BPX1 自動同期が有効</string>
+    <string name="bpx1_auto_sync_nearby">BPX1 が近くにあります · 自動受信中</string>
+    <string name="bpx1_auto_sync_last_reading">前回同期 %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_bt_off">BPX1 自動同期が一時停止中（Bluetooth オフ）</string>
+    <string name="bpx1_auto_sync_toast">BPX1 を自動同期しました：%1$d/%2$d mmHg · %3$d bpm</string>
 </resources>
