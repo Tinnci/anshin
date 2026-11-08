@@ -96,7 +96,9 @@ internal fun DrugCategoryBrowser(
     Column(modifier = Modifier.fillMaxSize().padding(top = topPadding)) {
         PrimaryTabRow(
             selectedTabIndex = selectedTab,
-            modifier = Modifier.padding(horizontal = MedLogSpacing.Medium).clip(MaterialTheme.shapes.large),
+            modifier = Modifier
+                .padding(start = MedLogSpacing.Medium, top = MedLogSpacing.Small, end = MedLogSpacing.Medium)
+                .clip(MaterialTheme.shapes.large),
             containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
             divider = {},
         ) {
