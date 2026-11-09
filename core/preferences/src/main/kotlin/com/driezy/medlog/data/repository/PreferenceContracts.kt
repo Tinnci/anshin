@@ -125,3 +125,11 @@ interface WidgetPreferences {
         textScale: WidgetTextScale? = null,
     )
 }
+
+data class UpdatePreferenceState(val autoCheckUpdates: Boolean = true, val lastUpdateCheckTime: Long = 0L)
+
+interface UpdatePreferences {
+    val update: Flow<UpdatePreferenceState>
+    suspend fun updateAutoCheckUpdates(enabled: Boolean)
+    suspend fun updateLastUpdateCheckTime(timestamp: Long)
+}

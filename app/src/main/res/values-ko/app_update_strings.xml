@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
+    <!-- 인앱 버전 업데이트 확인 -->
+    <string name="settings_check_update_title">업데이트 확인</string>
+    <string name="settings_check_update_subtitle_idle">새로운 버전이 있는지 확인합니다</string>
+    <string name="settings_check_update_checking">업데이트 확인 중…</string>
+    <string name="settings_check_update_up_to_date">최신 버전입니다 (%s)</string>
+    <string name="settings_check_update_available">새 버전 사용 가능: %s</string>
+    <string name="settings_check_update_failed">업데이트 확인 실패, 다시 시도</string>
+    <string name="settings_auto_check_updates_title">자동 업데이트 확인</string>
+    <string name="settings_auto_check_updates_desc">새 버전이 있을 때 알림을 받아 중요한 기능을 놓치지 마세요</string>
+    <string name="update_dialog_title">새 버전 출시</string>
+    <string name="update_dialog_changelog_title">업데이트 내용</string>
+    <string name="update_action_download">다운로드</string>
+    <string name="update_action_view_github">GitHub에서 보기</string>
+    <string name="update_action_later">나중에</string>
+    <string name="update_badge_new">새 버전</string>
+    <string name="update_status_latest_msg">현재 최신 버전을 사용 중입니다 (%s)</string>
+</resources>

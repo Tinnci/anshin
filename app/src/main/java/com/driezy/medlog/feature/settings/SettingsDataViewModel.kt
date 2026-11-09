@@ -2,22 +2,31 @@ package com.driezy.medlog.feature.settings
 
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.R
+import com.driezy.medlog.capability.update.application.AppUpdateManager
+import com.driezy.medlog.capability.update.model.AppUpdateState
 import com.driezy.medlog.data.repository.OnboardingPreferences
+import com.driezy.medlog.data.repository.UpdatePreferences
 import com.driezy.medlog.feature.settings.application.BackupRestoreUseCase
 import com.driezy.medlog.ui.BaseViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
+import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 
 @HiltViewModel
 class SettingsDataViewModel @Inject constructor(
     private val backupRestore: BackupRestoreUseCase,
     private val onboardingPreferences: OnboardingPreferences,
+    private val updatePreferences: UpdatePreferences,
+    private val appUpdateManager: AppUpdateManager,
     @param:ApplicationContext private val context: Context,
 ) : BaseViewModel() {
     private val _inProgress = MutableStateFlow(false)
@@ -26,6 +35,12 @@ class SettingsDataViewModel @Inject constructor(
     private val effectChannel = Channel<SettingsUiEffect>(Channel.BUFFERED)
     val effects = effectChannel.receiveAsFlow()
 
+    val updateState = appUpdateManager.updateState
+    val showUpdateDialog = appUpdateManager.showUpdateDialog
+    val autoCheckUpdates = updatePreferences.update
+        .map { it.autoCheckUpdates }
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), true)
+
     fun onAction(action: SettingsUiAction) {
         when (action) {
             is SettingsUiAction.Backup -> backup(action)
@@ -33,6 +48,37 @@ class SettingsDataViewModel @Inject constructor(
             SettingsUiAction.ResetWelcome -> safeLaunch { onboardingPreferences.updateHasSeenWelcome(false) }
             else -> Unit
         }
+    }
+
+    fun checkForUpdates() {
+        safeLaunch {
+            val result = appUpdateManager.checkForUpdates(isUserInitiated = true)
+            if (result is AppUpdateState.UpToDate) {
+                effectChannel.send(
+                    SettingsUiEffect.Message(
+                        context.getString(R.string.update_status_latest_msg, result.version),
+                    ),
+                )
+            } else if (result is AppUpdateState.Error) {
+                effectChannel.send(
+                    SettingsUiEffect.Message(result.message),
+                )
+            }
+        }
+    }
+
+    fun setAutoCheckUpdates(enabled: Boolean) {
+        safeLaunch {
+            updatePreferences.updateAutoCheckUpdates(enabled)
+        }
+    }
+
+    fun openUpdateDialog() {
+        appUpdateManager.openUpdateDialog()
+    }
+
+    fun dismissUpdateDialog() {
+        appUpdateManager.dismissUpdateDialog()
     }
 
     private fun backup(action: SettingsUiAction.Backup) {

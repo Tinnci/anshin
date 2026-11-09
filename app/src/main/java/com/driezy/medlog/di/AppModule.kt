@@ -10,6 +10,8 @@ import com.driezy.medlog.capability.bpx1.Bpx1BleClient
 import com.driezy.medlog.capability.bpx1.Bpx1DeviceStore
 import com.driezy.medlog.capability.reminders.AndroidReminderReconciler
 import com.driezy.medlog.capability.reminders.WorkManagerReminderReconciliationQueue
+import com.driezy.medlog.capability.update.remote.AppUpdateService
+import com.driezy.medlog.capability.update.remote.GitHubReleaseClient
 import com.driezy.medlog.capability.widgets.GlanceWidgetRefresher
 import com.driezy.medlog.capability.widgets.WidgetRefresher
 import com.driezy.medlog.data.local.AiAnalysisCacheDao
@@ -39,6 +41,7 @@ import com.driezy.medlog.data.repository.OnboardingPreferences
 import com.driezy.medlog.data.repository.ReminderPreferences
 import com.driezy.medlog.data.repository.SymptomRepository
 import com.driezy.medlog.data.repository.SymptomRepositoryImpl
+import com.driezy.medlog.data.repository.UpdatePreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.data.repository.WidgetPreferences
 import com.driezy.medlog.domain.ReminderPlanner
@@ -221,6 +224,13 @@ abstract class RepositoryModule {
 
     @Binds
     abstract fun bindOnboardingPreferences(impl: UserPreferencesRepository): OnboardingPreferences
+
+    @Binds
+    abstract fun bindUpdatePreferences(impl: UserPreferencesRepository): UpdatePreferences
+
+    @Binds
+    @Singleton
+    abstract fun bindAppUpdateService(impl: GitHubReleaseClient): AppUpdateService
 
     @Binds
     @Singleton

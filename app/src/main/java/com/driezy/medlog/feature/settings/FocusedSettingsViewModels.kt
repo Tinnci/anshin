@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.ai.AiApiKeyStore
 import com.driezy.medlog.capability.reminders.application.ReconcileRemindersUseCase
 import com.driezy.medlog.capability.reminders.application.ResyncRemindersUseCase
+import com.driezy.medlog.capability.update.application.AppUpdateManager
+import com.driezy.medlog.capability.update.model.AppUpdateState
 import com.driezy.medlog.capability.widgets.WidgetRefresher
 import com.driezy.medlog.data.repository.AiPreferences
 import com.driezy.medlog.data.repository.AppearancePreferences
@@ -272,13 +274,16 @@ class SettingsHomeViewModel @Inject constructor(
     features: FeaturePreferences,
     aiPreferences: AiPreferences,
     apiKeyStore: AiApiKeyStore,
+    appUpdateManager: AppUpdateManager,
 ) : BaseViewModel() {
     val uiState = combine(
         medications.getArchivedMedications().catch { emit(emptyList()) },
         features.features,
         aiPreferences.ai,
         apiKeyStore.availableProviders,
-    ) { archived, feature, ai, availableProviders ->
+        appUpdateManager.updateState,
+    ) { archived, feature, ai, availableProviders, updateState ->
+        val updateAvailable = updateState as? AppUpdateState.UpdateAvailable
         SettingsUiState(
             archivedMedications = archived,
             enableSymptomDiary = feature.enableSymptomDiary,
@@ -289,6 +294,8 @@ class SettingsHomeViewModel @Inject constructor(
             cloudAiEnabled = ai.cloudAiEnabled,
             cloudAiProvider = ai.cloudAiProvider,
             cloudAiProviderHasApiKey = ai.cloudAiProvider in availableProviders,
+            hasUpdateAvailable = updateAvailable != null,
+            availableUpdateVersion = updateAvailable?.updateInfo?.latestVersion ?: "",
         )
     }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SettingsUiState())
 }

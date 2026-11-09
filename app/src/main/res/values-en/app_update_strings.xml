@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
+    <!-- In-app Version Update Check -->
+    <string name="settings_check_update_title">Check for updates</string>
+    <string name="settings_check_update_subtitle_idle">Check if a new release is available</string>
+    <string name="settings_check_update_checking">Checking for updates…</string>
+    <string name="settings_check_update_up_to_date">Already the latest version (%s)</string>
+    <string name="settings_check_update_available">New version available: %s</string>
+    <string name="settings_check_update_failed">Update check failed, tap to retry</string>
+    <string name="settings_auto_check_updates_title">Auto-check for updates</string>
+    <string name="settings_auto_check_updates_desc">Notify when a new release is available</string>
+    <string name="update_dialog_title">New Version Available</string>
+    <string name="update_dialog_changelog_title">What\'s changed</string>
+    <string name="update_action_download">Download</string>
+    <string name="update_action_view_github">View on GitHub</string>
+    <string name="update_action_later">Later</string>
+    <string name="update_badge_new">NEW</string>
+    <string name="update_status_latest_msg">You are using the latest version (%s)</string>
+</resources>

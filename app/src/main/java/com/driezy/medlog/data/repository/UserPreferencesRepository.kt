@@ -134,6 +134,10 @@ data class SettingsPreferences(
     val openAiCompatibleBaseUrl: String = "",
     val openAiCompatibleAuthMode: OpenAiCompatibleCloudAuthMode = OpenAiCompatibleCloudAuthMode.BEARER,
     val openAiCompatibleProviderName: String = "OpenAI-compatible",
+
+    // ── 版本更新偏好 ───────────────────────────────────────────────────────────
+    val autoCheckUpdates: Boolean = true,
+    val lastUpdateCheckTime: Long = 0L,
 ) {
     fun cloudAiModelFor(provider: CloudAiProvider): String = when (provider) {
         CloudAiProvider.MIMO -> mimoCloudAiModel.ifBlank { provider.defaultModel }
@@ -178,7 +182,8 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     FeaturePreferences,
     AiPreferences,
     WidgetPreferences,
-    OnboardingPreferences {
+    OnboardingPreferences,
+    UpdatePreferences {
     private val dataStore: DataStore<Preferences> = context.settingsDataStore
 
     companion object Keys {
@@ -256,6 +261,10 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
         val OPENAI_COMPATIBLE_BASE_URL = stringPreferencesKey("openai_compatible_base_url")
         val OPENAI_COMPATIBLE_AUTH_MODE = stringPreferencesKey("openai_compatible_auth_mode")
         val OPENAI_COMPATIBLE_PROVIDER_NAME = stringPreferencesKey("openai_compatible_provider_name")
+
+        // 版本更新检查
+        val AUTO_CHECK_UPDATES = booleanPreferencesKey("auto_check_updates")
+        val LAST_UPDATE_CHECK_TIME = androidx.datastore.preferences.core.longPreferencesKey("last_update_check_time")
 
         private fun cloudAiModelKey(provider: CloudAiProvider): Preferences.Key<String> = when (provider) {
             CloudAiProvider.MIMO -> CLOUD_AI_MIMO_MODEL
@@ -376,6 +385,8 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
                     runCatching { OpenAiCompatibleCloudAuthMode.valueOf(it) }.getOrNull()
                 } ?: OpenAiCompatibleCloudAuthMode.BEARER,
                 openAiCompatibleProviderName = prefs[OPENAI_COMPATIBLE_PROVIDER_NAME] ?: "OpenAI-compatible",
+                autoCheckUpdates = prefs[AUTO_CHECK_UPDATES] ?: true,
+                lastUpdateCheckTime = prefs[LAST_UPDATE_CHECK_TIME] ?: 0L,
             )
         }
 
@@ -448,6 +459,23 @@ class UserPreferencesRepository @Inject constructor(@param:ApplicationContext pr
     override val onboarding: Flow<OnboardingPreferenceState> = settingsFlow
         .map { OnboardingPreferenceState(it.hasSeenWelcome) }
         .distinctUntilChanged()
+
+    override val update: Flow<UpdatePreferenceState> = settingsFlow
+        .map {
+            UpdatePreferenceState(
+                autoCheckUpdates = it.autoCheckUpdates,
+                lastUpdateCheckTime = it.lastUpdateCheckTime,
+            )
+        }
+        .distinctUntilChanged()
+
+    override suspend fun updateAutoCheckUpdates(enabled: Boolean) {
+        dataStore.edit { it[AUTO_CHECK_UPDATES] = enabled }
+    }
+
+    override suspend fun updateLastUpdateCheckTime(timestamp: Long) {
+        dataStore.edit { it[LAST_UPDATE_CHECK_TIME] = timestamp }
+    }
 
     override suspend fun updatePersistentReminder(enabled: Boolean) {
         dataStore.edit { it[PERSISTENT_REMINDER] = enabled }

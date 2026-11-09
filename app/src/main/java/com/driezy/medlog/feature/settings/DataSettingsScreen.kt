@@ -12,6 +12,10 @@ fun DataSettingsScreen(
     viewModel: SettingsDataViewModel = hiltViewModel(),
 ) {
     val inProgress by viewModel.inProgress.collectAsStateWithLifecycle()
+    val updateState by viewModel.updateState.collectAsStateWithLifecycle()
+    val showUpdateDialog by viewModel.showUpdateDialog.collectAsStateWithLifecycle()
+    val autoCheckUpdates by viewModel.autoCheckUpdates.collectAsStateWithLifecycle()
+
     SettingsScaffold(
         mode = SettingsScreenMode.DATA,
         onBack = onBack,
@@ -20,5 +24,12 @@ fun DataSettingsScreen(
         onAction = viewModel::onAction,
         dataInProgress = inProgress,
         dataEffects = viewModel.effects,
+        updateState = updateState,
+        showUpdateDialog = showUpdateDialog,
+        autoCheckUpdates = autoCheckUpdates,
+        onCheckForUpdates = viewModel::checkForUpdates,
+        onToggleAutoCheckUpdates = viewModel::setAutoCheckUpdates,
+        onOpenUpdateDialog = viewModel::openUpdateDialog,
+        onDismissUpdateDialog = viewModel::dismissUpdateDialog,
     )
 }

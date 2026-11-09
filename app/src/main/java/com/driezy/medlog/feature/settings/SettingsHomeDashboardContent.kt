@@ -75,11 +75,15 @@ internal fun SettingsHomeDashboard(
             HorizontalDivider()
             SettingsNavigationRow(
                 title = stringResource(R.string.settings_destination_data_about),
-                subtitle = pluralStringResource(
-                    R.plurals.settings_home_tile_data_status,
-                    uiState.archivedMedications.size,
-                    uiState.archivedMedications.size,
-                ),
+                subtitle = if (uiState.hasUpdateAvailable) {
+                    stringResource(R.string.settings_check_update_available, uiState.availableUpdateVersion)
+                } else {
+                    pluralStringResource(
+                        R.plurals.settings_home_tile_data_status,
+                        uiState.archivedMedications.size,
+                        uiState.archivedMedications.size,
+                    )
+                },
                 icon = MedLogIcons.CloudUpload,
                 onClick = onNavigateToDataSettings,
             )

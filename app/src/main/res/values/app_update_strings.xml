@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="Typos">
+    <!-- 应用内版本更新检查 -->
+    <string name="settings_check_update_title">检查更新</string>
+    <string name="settings_check_update_subtitle_idle">检查是否有新版本发布</string>
+    <string name="settings_check_update_checking">正在检查更新…</string>
+    <string name="settings_check_update_up_to_date">已是最新版本 (%s)</string>
+    <string name="settings_check_update_available">发现新版本：%s</string>
+    <string name="settings_check_update_failed">检查更新失败，点击重试</string>
+    <string name="settings_auto_check_updates_title">自动检查更新</string>
+    <string name="settings_auto_check_updates_desc">在有新版本时提醒，避免错过重要功能</string>
+    <string name="update_dialog_title">发现新版本</string>
+    <string name="update_dialog_changelog_title">更新内容</string>
+    <string name="update_action_download">下载更新</string>
+    <string name="update_action_view_github">查看发布</string>
+    <string name="update_action_later">稍后</string>
+    <string name="update_badge_new">新版本</string>
+    <string name="update_status_latest_msg">当前已是最新版本 (%s)</string>
+</resources>

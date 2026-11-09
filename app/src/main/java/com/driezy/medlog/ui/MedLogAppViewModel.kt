@@ -2,6 +2,7 @@ package com.driezy.medlog.ui
 
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.bpx1.application.Bpx1SyncService
+import com.driezy.medlog.capability.update.application.AppUpdateManager
 import com.driezy.medlog.data.repository.SettingsPreferences
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.ui.BaseViewModel
@@ -21,7 +22,14 @@ import javax.inject.Inject
 class MedLogAppViewModel @Inject constructor(
     prefsRepository: UserPreferencesRepository,
     private val bpx1SyncService: Bpx1SyncService,
+    private val appUpdateManager: AppUpdateManager,
 ) : BaseViewModel() {
+
+    init {
+        safeLaunch {
+            appUpdateManager.checkSilentlyIfDue()
+        }
+    }
 
     fun setAppForegroundActive(active: Boolean) {
         bpx1SyncService.setForegroundActive(active)

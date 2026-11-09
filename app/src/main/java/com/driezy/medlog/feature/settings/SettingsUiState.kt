@@ -73,4 +73,6 @@ data class SettingsUiState(
     val cloudAiDiscoveredModels: List<CloudAiDiscoveredModel> = emptyList(),
     val cloudAiEndpointPresets: List<CloudAiEndpointPreset> = emptyList(),
     val aiUsageSummary: List<AiUsageSummaryRow> = emptyList(),
+    val hasUpdateAvailable: Boolean = false,
+    val availableUpdateVersion: String = "",
 )

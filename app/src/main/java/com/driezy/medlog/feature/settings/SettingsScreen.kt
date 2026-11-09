@@ -29,6 +29,7 @@ import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.driezy.medlog.R
+import com.driezy.medlog.capability.update.model.AppUpdateState
 import com.driezy.medlog.data.repository.ThemeMode
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
@@ -94,6 +95,13 @@ internal fun SettingsScaffold(
     onAction: (SettingsUiAction) -> Unit,
     dataInProgress: Boolean = false,
     dataEffects: kotlinx.coroutines.flow.Flow<SettingsUiEffect>? = null,
+    updateState: AppUpdateState = AppUpdateState.Idle,
+    showUpdateDialog: Boolean = false,
+    autoCheckUpdates: Boolean = true,
+    onCheckForUpdates: () -> Unit = {},
+    onToggleAutoCheckUpdates: (Boolean) -> Unit = {},
+    onOpenUpdateDialog: () -> Unit = {},
+    onDismissUpdateDialog: () -> Unit = {},
 ) {
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val context = LocalContext.current
@@ -364,6 +372,13 @@ internal fun SettingsScaffold(
                             onAction(SettingsUiAction.ResetWelcome)
                             onNavigateToWelcome()
                         },
+                        updateState = updateState,
+                        showUpdateDialog = showUpdateDialog,
+                        autoCheckUpdates = autoCheckUpdates,
+                        onCheckForUpdates = onCheckForUpdates,
+                        onToggleAutoCheckUpdates = onToggleAutoCheckUpdates,
+                        onOpenUpdateDialog = onOpenUpdateDialog,
+                        onDismissUpdateDialog = onDismissUpdateDialog,
                     )
                 }
             }
