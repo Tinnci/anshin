@@ -240,27 +240,32 @@ internal fun DataActionRow(
                 )
             }
         }
-        if (LocalDensity.current.fontScale > 1.3f || actionLabel.length > LONG_ACTION_LABEL_LENGTH) {
-            // Large text or a long action label: stack the action under the copy so neither is squeezed.
-            Column(
-                modifier = Modifier.padding(MedLogSpacing.Medium),
-                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
-            ) {
-                Row(horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
+        BoxWithConstraints {
+            val shouldStack = maxWidth < 340.dp ||
+                LocalDensity.current.fontScale > 1.25f ||
+                actionLabel.length > LONG_ACTION_LABEL_LENGTH
+            if (shouldStack) {
+                // Large text, narrow width, or a long action label: stack the action under the copy so neither is squeezed.
+                Column(
+                    modifier = Modifier.padding(MedLogSpacing.Medium),
+                    verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                ) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium)) {
+                        MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
+                        details(Modifier.weight(1f))
+                    }
+                    action()
+                }
+            } else {
+                Row(
+                    modifier = Modifier.padding(MedLogSpacing.Medium),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
+                ) {
                     MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
                     details(Modifier.weight(1f))
+                    action()
                 }
-                action()
-            }
-        } else {
-            Row(
-                modifier = Modifier.padding(MedLogSpacing.Medium),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Medium),
-            ) {
-                MedLogIcon(icon, contentDescription = null, modifier = Modifier.size(22.dp))
-                details(Modifier.weight(1f))
-                action()
             }
         }
     }

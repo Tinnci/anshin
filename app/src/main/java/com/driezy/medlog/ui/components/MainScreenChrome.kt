@@ -1,5 +1,6 @@
 package com.driezy.medlog.ui.components
 
+import android.content.res.Configuration
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -39,6 +40,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -102,7 +104,10 @@ fun MedLogScreenScaffold(
     onChromeAction: (String) -> Unit = {},
     content: @Composable (PaddingValues) -> Unit,
 ) {
-    val scrollBehavior = when (topBarSize) {
+    val configuration = LocalConfiguration.current
+    val isLandscape = configuration.orientation == Configuration.ORIENTATION_LANDSCAPE
+    val effectiveTopBarSize = if (isLandscape) ScreenTopBarSize.Compact else topBarSize
+    val scrollBehavior = when (effectiveTopBarSize) {
         ScreenTopBarSize.Compact -> TopAppBarDefaults.pinnedScrollBehavior()
         ScreenTopBarSize.Large -> TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     }
@@ -113,7 +118,7 @@ fun MedLogScreenScaffold(
         modifier = if (showTopBar) modifier.nestedScroll(scrollBehavior.nestedScrollConnection) else modifier,
         topBar = {
             if (showTopBar) {
-                when (topBarSize) {
+                when (effectiveTopBarSize) {
                     ScreenTopBarSize.Compact -> TopAppBar(
                         title = title,
                         navigationIcon = { navigationIcon?.invoke() },
@@ -134,9 +139,9 @@ fun MedLogScreenScaffold(
             chromeState.fab?.let { fab ->
                 ExtendedFloatingActionButton(
                     onClick = { onChromeAction(fab.id) },
-                    icon = { MedLogIcon(fab.icon, contentDescription = null) },
+                    icon = { MedLogIcon(fab.icon, contentDescription = fab.label) },
                     text = { Text(fab.label) },
-                    expanded = true,
+                    expanded = !isLandscape,
                 )
             }
         },
