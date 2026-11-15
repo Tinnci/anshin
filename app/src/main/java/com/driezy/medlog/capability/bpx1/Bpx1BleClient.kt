@@ -375,15 +375,14 @@ class AndroidBpx1BleClient @Inject constructor(
         runCatching { scanner.stopScan(backgroundScanPendingIntent()) }
     }
 
-    private fun buildMiBeaconScanFilter(targetMacAddress: String?): ScanFilter =
-        ScanFilter.Builder()
-            .setServiceData(MIBEACON_PARCEL_UUID, EMPTY_SERVICE_DATA)
-            .apply {
-                if (targetMacAddress != null) {
-                    setDeviceAddress(targetMacAddress)
-                }
+    private fun buildMiBeaconScanFilter(targetMacAddress: String?): ScanFilter = ScanFilter.Builder()
+        .setServiceData(MIBEACON_PARCEL_UUID, EMPTY_SERVICE_DATA)
+        .apply {
+            if (targetMacAddress != null) {
+                setDeviceAddress(targetMacAddress)
             }
-            .build()
+        }
+        .build()
 
     private fun backgroundScanPendingIntent(): PendingIntent {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or
