@@ -8,6 +8,7 @@ on:
   push:
     tags:
       - "v*.*.*"
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -219,16 +220,34 @@ jobs:
           PREV_TAG=$(git describe --tags --abbrev=0 "$GITHUB_SHA^" \
             --match 'v[0-9]*.[0-9]*.[0-9]*' 2>/dev/null || true)
           if [ -n "$PREV_TAG" ]; then
-            LOG=$(git log "$PREV_TAG"..HEAD --pretty=format:"- %s (%h)" --no-merges)
+            RAW_LOG=$(git log "$PREV_TAG".."$GITHUB_SHA" --pretty=format:"%s (%h)" --no-merges)
           else
-            LOG=$(git log --pretty=format:"- %s (%h)" --no-merges)
+            RAW_LOG=$(git log "$GITHUB_SHA" --pretty=format:"%s (%h)" --no-merges)
           fi
+
+          FEATS="" FIXES="" DEPS="" OTHER=""
+          while IFS= read -r line; do
+            [ -n "$line" ] || continue
+            case "$line" in
+              feat*|FEAT*) FEATS+="- $line"$'\n' ;;
+              fix*|FIX*) FIXES+="- $line"$'\n' ;;
+              Bump\ *|chore\(deps\)*|build\(deps\)*) DEPS+="- $line"$'\n' ;;
+              *) OTHER+="- $line"$'\n' ;;
+            esac
+          done <<< "$RAW_LOG"
+
+          LOG=""
+          if [ -n "$FEATS" ]; then LOG+="### Features"$'\n'"$FEATS"$'\n'; fi
+          if [ -n "$FIXES" ]; then LOG+="### Bug Fixes"$'\n'"$FIXES"$'\n'; fi
+          if [ -n "$DEPS" ]; then LOG+="### Dependencies"$'\n'"$DEPS"$'\n'; fi
+          if [ -n "$OTHER" ]; then LOG+="### Other Changes"$'\n'"$OTHER"$'\n'; fi
           if [ -z "$LOG" ]; then
             LOG="- Maintenance release / 维护版本"
           fi
+
           {
             echo "changelog<<EOF"
-            echo "$LOG"
+            printf '%s\n' "$LOG"
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
 

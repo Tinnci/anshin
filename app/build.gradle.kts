@@ -25,6 +25,42 @@ private fun signingProp(key: String): String? {
 
 val enableAbiSplits = providers.gradleProperty("enableAbiSplits").map(String::toBoolean).orElse(false)
 
+private data class GitVersion(val versionCode: Int, val versionName: String)
+
+private val gitDescribeOutput: String? =
+    providers.exec {
+        commandLine("git", "describe", "--tags", "--long", "--match", "v[0-9]*.[0-9]*.[0-9]*", "--abbrev=7")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map(String::trim).orNull?.takeIf { it.isNotBlank() }
+
+private fun parseGitVersion(describe: String?): GitVersion {
+    val fallback = GitVersion(versionCode = 12600099, versionName = "1.26.0")
+    if (describe == null) return fallback
+    val match = Regex("""^v(\d+)\.(\d+)\.(\d+)(?:-(alpha|beta|rc)(\d+))?-(\d+)-g[0-9a-f]+$""").matchEntire(describe)
+        ?: return fallback
+    val (majorStr, minorStr, patchStr, channel, counterStr, aheadStr) = match.destructured
+    val major = majorStr.toInt()
+    val minor = minorStr.toInt()
+    val patch = patchStr.toInt()
+    val commitsAhead = aheadStr.toInt()
+    val stage = when (channel) {
+        "" -> 99
+        "alpha" -> counterStr.toInt()
+        "beta" -> 20 + counterStr.toInt()
+        "rc" -> 40 + counterStr.toInt()
+        else -> 99
+    }
+    val code = major * 10_000_000 + minor * 100_000 + patch * 100 + stage
+    val baseName = buildString {
+        append("$major.$minor.$patch")
+        if (channel.isNotEmpty()) append("-$channel$counterStr")
+    }
+    val name = if (commitsAhead > 0) "$baseName-dev.$commitsAhead" else baseName
+    return GitVersion(versionCode = code, versionName = name)
+}
+
+private val fallbackGitVersion = parseGitVersion(gitDescribeOutput)
+
 android {
     namespace = "com.driezy.medlog"
     compileSdk = 37
@@ -33,8 +69,8 @@ android {
         applicationId = "com.driezy.medlog"
         minSdk = 26
         targetSdk = 37
-        versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: 12600099
-        versionName = System.getenv("VERSION_NAME") ?: "1.26.0"
+        versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: fallbackGitVersion.versionCode
+        versionName = System.getenv("VERSION_NAME") ?: fallbackGitVersion.versionName
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
