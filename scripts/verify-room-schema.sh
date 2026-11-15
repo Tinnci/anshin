@@ -37,7 +37,7 @@ restore_on_error() {
 trap restore_on_error EXIT
 
 rm -- "$current_schema"
-./gradlew :core:database:kspDebugKotlin :core:database:copyRoomSchemas --rerun-tasks
+./gradlew :core:database:kspDebugKotlin :core:database:copyRoomSchemas --rerun-tasks --configuration-cache
 
 if [[ ! -f "$current_schema" ]]; then
   echo "Room did not regenerate $current_schema." >&2

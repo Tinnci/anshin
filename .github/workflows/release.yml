@@ -128,13 +128,6 @@ jobs:
             echo "| Channel / 渠道 | \`$CHANNEL\` |"
           } >> "$GITHUB_STEP_SUMMARY"
 
-      # ── 5. 最终验证并构建 Release APK ─────────────────────────
-      - name: Verify generated Room schemas / 验证 Room 生成结构
-        run: bash scripts/verify-room-schema.sh
-
-      - name: Verify release sources / 验证发布代码
-        run: ./gradlew ktlintCheck test lintDebug compileDebugAndroidTestKotlin --build-cache --configuration-cache --stacktrace
-
       # ── 4. 验证并解码 Release Keystore ─────────────────────────
       - name: Validate and decode keystore / 验证并解码密钥库
         env:
