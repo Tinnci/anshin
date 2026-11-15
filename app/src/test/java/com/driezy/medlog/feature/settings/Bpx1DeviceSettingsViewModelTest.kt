@@ -171,6 +171,15 @@ class Bpx1DeviceSettingsViewModelTest {
         assertEquals(Bpx1SettingsMessage.SCAN_FAILED, (effect.await() as Bpx1SettingsUiEffect.Message).value)
     }
 
+    @Test
+    fun `extractBindKeyHex extracts 32-char hex key from formatted clipboard text`() {
+        assertEquals(
+            "00112233445566778899aabbccddeeff",
+            extractBindKeyHex("BindKey: 00:11:22:33-44556677 8899AABBCCDDEEFF"),
+        )
+        assertEquals(null, extractBindKeyHex("not a bind key"))
+    }
+
     private class FakeBleClient(vararg events: Bpx1ScanEvent) : Bpx1BleClient {
         private val events = events
 

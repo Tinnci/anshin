@@ -1,6 +1,7 @@
 package com.driezy.medlog.capability.bpx1
 
 import android.annotation.SuppressLint
+import android.app.PendingIntent
 import android.bluetooth.BluetoothAdapter
 import android.bluetooth.BluetoothGatt
 import android.bluetooth.BluetoothGattCallback
@@ -102,6 +103,8 @@ interface Bpx1BleClient {
         scanMode: Bpx1ScanMode = Bpx1ScanMode.LOW_LATENCY,
     ): Flow<Bpx1ScanEvent> = scan(bindKey)
     suspend fun checkConnection(macAddress: String): Bpx1ConnectionResult
+    fun startBackgroundScan(targetMacAddress: String): Boolean = false
+    fun stopBackgroundScan() {}
 }
 
 @Singleton
@@ -352,9 +355,48 @@ class AndroidBpx1BleClient @Inject constructor(
         val cachedAtMillis: Long,
     )
 
+    @SuppressLint("MissingPermission")
+    override fun startBackgroundScan(targetMacAddress: String): Boolean {
+        if (availability() != Bpx1BluetoothAvailability.READY) return false
+        if (missingBpx1Permissions(context).isNotEmpty()) return false
+        val normalizedMac = Bpx1Protocol.normalizeMac(targetMacAddress)
+        if (!Bpx1Protocol.isValidMac(normalizedMac)) return false
+        val scanner = bluetoothManager?.adapter?.bluetoothLeScanner ?: return false
+        val filter = ScanFilter.Builder()
+            .setServiceUuid(MIBEACON_PARCEL_UUID)
+            .setDeviceAddress(normalizedMac)
+            .build()
+        val settings = ScanSettings.Builder()
+            .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
+            .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
+            .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
+            .setReportDelay(0)
+            .build()
+        return try {
+            scanner.startScan(listOf(filter), settings, backgroundScanPendingIntent()) == 0
+        } catch (_: SecurityException) {
+            false
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    override fun stopBackgroundScan() {
+        val scanner = bluetoothManager?.adapter?.bluetoothLeScanner ?: return
+        runCatching { scanner.stopScan(backgroundScanPendingIntent()) }
+    }
+
+    private fun backgroundScanPendingIntent(): PendingIntent {
+        val flags = PendingIntent.FLAG_UPDATE_CURRENT or
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
+        val intent = Intent(context, Bpx1BackgroundScanReceiver::class.java)
+            .setAction(Bpx1BackgroundScanReceiver.ACTION_SCAN_RESULT)
+        return PendingIntent.getBroadcast(context, BACKGROUND_SCAN_REQUEST_CODE, intent, flags)
+    }
+
     private companion object {
         val MIBEACON_PARCEL_UUID: ParcelUuid =
             ParcelUuid(UUID.fromString(Bpx1Protocol.MIBEACON_SERVICE_UUID))
+        const val BACKGROUND_SCAN_REQUEST_CODE = 4201
         const val CONNECTION_TIMEOUT_MILLIS = 12_000L
         const val FRAME_CACHE_TTL_MILLIS = 30_000L
         const val ERROR_BLUETOOTH_UNAVAILABLE = Bpx1ScanEvent.Failure.BLUETOOTH_UNAVAILABLE

@@ -160,6 +160,7 @@ private fun HealthContent(
                     bpx1Status = uiState.bpx1Status,
                     autoSyncedMeasurement = uiState.autoSyncedBpx1Measurement,
                     onDismissAutoSyncBanner = { onAction(HealthUiAction.Bpx1AutoSyncBannerConsumed) },
+                    onRefreshBpx1Sync = { onAction(HealthUiAction.Bpx1SyncRefreshed) },
                 )
             }
 

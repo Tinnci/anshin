@@ -154,6 +154,37 @@ class Bpx1SyncServiceTest {
         runCurrent()
     }
 
+    @Test
+    fun `arms background scan when backgrounded with autoImport and stops when foregrounded`() = runTest {
+        val dispatcher = StandardTestDispatcher(testScheduler)
+        val store = InMemoryBpx1DeviceStore(
+            initial = Bpx1DeviceConfiguration(macAddress = MAC, autoImport = true),
+            bindKey = ByteArray(16) { it.toByte() },
+        )
+        val bleClient = FakeReactiveBleClient(holdScanOpen = true)
+        val service = Bpx1SyncService(
+            deviceStore = store,
+            bleClient = bleClient,
+            importer = Bpx1MeasurementImporter(FakeHealthRepository(), clock),
+            clock = clock,
+            dispatcher = dispatcher,
+        )
+
+        runCurrent()
+        assertEquals(MAC, bleClient.backgroundScanTargetMac)
+        assertTrue(bleClient.backgroundScanStarts > 0)
+
+        service.setForegroundActive(true)
+        runCurrent()
+        assertTrue(bleClient.backgroundScanStops > 0)
+        assertEquals(Bpx1ServiceMode.PASSIVE_LISTENING, service.status.value.mode)
+
+        service.setForegroundActive(false)
+        runCurrent()
+        assertEquals(Bpx1ServiceMode.IDLE, service.status.value.mode)
+        assertEquals(2, bleClient.backgroundScanStarts)
+    }
+
     private fun deviceEvent(measurement: Bpx1Measurement) = Bpx1ScanEvent.Device(
         device = Bpx1DiscoveredDevice(
             macAddress = MAC,
@@ -184,6 +215,9 @@ class Bpx1SyncServiceTest {
         private val availabilityFlow = MutableStateFlow(initialAvailability)
         var lastRequestedTargetMac: String? = null
         var lastRequestedScanMode: Bpx1ScanMode? = null
+        var backgroundScanTargetMac: String? = null
+        var backgroundScanStarts: Int = 0
+        var backgroundScanStops: Int = 0
 
         fun setAvailability(value: Bpx1BluetoothAvailability) {
             availabilityFlow.value = value
@@ -213,6 +247,16 @@ class Bpx1SyncServiceTest {
 
         override suspend fun checkConnection(macAddress: String): Bpx1ConnectionResult =
             Bpx1ConnectionResult.Failed(Bpx1ConnectionFailure.CONNECT_FAILED)
+
+        override fun startBackgroundScan(targetMacAddress: String): Boolean {
+            backgroundScanTargetMac = targetMacAddress
+            backgroundScanStarts += 1
+            return true
+        }
+
+        override fun stopBackgroundScan() {
+            backgroundScanStops += 1
+        }
     }
 
     private companion object {

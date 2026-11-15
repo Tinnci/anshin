@@ -35,6 +35,8 @@ class MedLogAppViewModel @Inject constructor(
         bpx1SyncService.setForegroundActive(active)
     }
 
+    val bpx1Events = bpx1SyncService.events
+
     val startDestination: StateFlow<Route?> = prefsRepository.settingsFlow
         .map { prefs -> if (prefs.hasSeenWelcome) Route.Home else Route.Welcome }
         .stateIn(

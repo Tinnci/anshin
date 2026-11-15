@@ -119,4 +119,15 @@
     <string name="bpx1_auto_sync_last_reading">Last synced %1$d/%2$d mmHg · %3$d bpm</string>
     <string name="bpx1_auto_sync_bt_off">BPX1 auto-sync paused (Bluetooth off)</string>
     <string name="bpx1_auto_sync_toast">Auto-synced BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_view">View</string>
+    <string name="bpx1_auto_sync_permission_required">BPX1 auto-sync paused (Bluetooth permission needed)</string>
+    <string name="bpx1_auto_sync_enable_bt_action">Turn on</string>
+    <string name="bpx1_auto_sync_grant_permission_action">Grant</string>
+    <string name="bpx1_paste_bind_key">Paste BindKey</string>
+    <string name="bpx1_bind_key_clipboard_empty">No 32-char hex BindKey found in clipboard</string>
+    <string name="bpx1_bind_key_verified_badge">BindKey verified · Decrypted reading</string>
+    <string name="bpx1_bind_key_mismatch_badge">Encrypted broadcast received, but BindKey did not match</string>
+    <string name="bpx1_bg_sync_channel_name">Blood pressure background sync</string>
+    <string name="bpx1_bg_sync_notif_title">Blood pressure logged</string>
+    <string name="bpx1_bg_sync_notif_body">BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

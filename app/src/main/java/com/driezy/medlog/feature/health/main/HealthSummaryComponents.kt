@@ -1,5 +1,9 @@
 package com.driezy.medlog.feature.health
 
+import android.bluetooth.BluetoothAdapter
+import android.content.Intent
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
@@ -7,12 +11,14 @@ import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceMode
 import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceStatus
+import com.driezy.medlog.capability.bpx1.missingBpx1Permissions
 import com.driezy.medlog.data.model.BloodPressureClassification
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
@@ -31,6 +37,7 @@ internal fun HealthOcrHeroCard(
     bpx1Status: Bpx1ServiceStatus = Bpx1ServiceStatus(),
     autoSyncedMeasurement: Bpx1Measurement? = null,
     onDismissAutoSyncBanner: () -> Unit = {},
+    onRefreshBpx1Sync: () -> Unit = {},
 ) {
     LaunchedEffect(autoSyncedMeasurement) {
         if (autoSyncedMeasurement != null) {
@@ -110,6 +117,7 @@ internal fun HealthOcrHeroCard(
                     Bpx1HeroStatusRow(
                         bpx1Status = bpx1Status,
                         autoSyncedMeasurement = autoSyncedMeasurement,
+                        onRefreshBpx1Sync = onRefreshBpx1Sync,
                     )
                 }
             }
@@ -118,7 +126,18 @@ internal fun HealthOcrHeroCard(
 }
 
 @Composable
-private fun Bpx1HeroStatusRow(bpx1Status: Bpx1ServiceStatus, autoSyncedMeasurement: Bpx1Measurement?) {
+private fun Bpx1HeroStatusRow(
+    bpx1Status: Bpx1ServiceStatus,
+    autoSyncedMeasurement: Bpx1Measurement?,
+    onRefreshBpx1Sync: () -> Unit,
+) {
+    val context = LocalContext.current
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions(),
+    ) { onRefreshBpx1Sync() }
+    val enableBluetoothLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.StartActivityForResult(),
+    ) { onRefreshBpx1Sync() }
     val config = bpx1Status.configuration
     val statusText = when {
         autoSyncedMeasurement != null -> stringResource(
@@ -129,6 +148,8 @@ private fun Bpx1HeroStatusRow(bpx1Status: Bpx1ServiceStatus, autoSyncedMeasureme
         )
         !config.isConfigured -> null
         bpx1Status.mode == Bpx1ServiceMode.BLUETOOTH_OFF -> stringResource(R.string.bpx1_auto_sync_bt_off)
+        bpx1Status.mode == Bpx1ServiceMode.PERMISSION_REQUIRED ->
+            stringResource(R.string.bpx1_auto_sync_permission_required)
         bpx1Status.isAutoSyncActive && bpx1Status.isDeviceNearby -> stringResource(R.string.bpx1_auto_sync_nearby)
         bpx1Status.isAutoSyncActive -> stringResource(R.string.bpx1_auto_sync_listening)
         else -> null
@@ -180,6 +201,36 @@ private fun Bpx1HeroStatusRow(bpx1Status: Bpx1ServiceStatus, autoSyncedMeasureme
                         style = MaterialTheme.typography.bodySmall,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                     )
+                }
+            }
+            if (autoSyncedMeasurement == null && config.isConfigured) {
+                when (bpx1Status.mode) {
+                    Bpx1ServiceMode.BLUETOOTH_OFF -> {
+                        TextButton(
+                            onClick = {
+                                enableBluetoothLauncher.launch(Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE))
+                            },
+                            contentPadding = PaddingValues(horizontal = MedLogSpacing.Small, vertical = 0.dp),
+                        ) {
+                            Text(stringResource(R.string.bpx1_auto_sync_enable_bt_action))
+                        }
+                    }
+                    Bpx1ServiceMode.PERMISSION_REQUIRED -> {
+                        TextButton(
+                            onClick = {
+                                val missing = missingBpx1Permissions(context)
+                                if (missing.isEmpty()) {
+                                    onRefreshBpx1Sync()
+                                } else {
+                                    permissionLauncher.launch(missing.toTypedArray())
+                                }
+                            },
+                            contentPadding = PaddingValues(horizontal = MedLogSpacing.Small, vertical = 0.dp),
+                        ) {
+                            Text(stringResource(R.string.bpx1_auto_sync_grant_permission_action))
+                        }
+                    }
+                    else -> Unit
                 }
             }
         }

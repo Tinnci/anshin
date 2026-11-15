@@ -180,9 +180,21 @@ class Bpx1SyncService(
                     )
                 }
                 if (nextMode == Bpx1ServiceMode.PASSIVE_LISTENING) {
+                    bleClient.stopBackgroundScan()
                     runPassiveAutoSyncLoop(state.config)
                 } else {
                     stopPassiveLoop()
+                    val shouldBackgroundScan = !state.foreground &&
+                        state.config.isConfigured &&
+                        state.config.autoImport &&
+                        state.availability == Bpx1BluetoothAvailability.READY &&
+                        !state.permDenied &&
+                        state.manualCount == 0
+                    if (shouldBackgroundScan) {
+                        bleClient.startBackgroundScan(state.config.macAddress)
+                    } else {
+                        bleClient.stopBackgroundScan()
+                    }
                 }
             }
         }

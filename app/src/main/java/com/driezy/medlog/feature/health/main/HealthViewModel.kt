@@ -105,6 +105,7 @@ sealed interface HealthUiAction {
     data object Bpx1SyncDismissed : HealthUiAction
     data object Bpx1SyncDone : HealthUiAction
     data object Bpx1AutoSyncBannerConsumed : HealthUiAction
+    data object Bpx1SyncRefreshed : HealthUiAction
     data class OcrMetricApplied(val metric: ParsedHealthMetric) : HealthUiAction
     data class EditStarted(val record: HealthRecord) : HealthUiAction
     data object SheetDismissed : HealthUiAction
@@ -162,6 +163,7 @@ class HealthViewModel @Inject constructor(
             HealthUiAction.Bpx1SyncDismissed -> _uiState.update { it.copy(showBpx1Sync = false) }
             HealthUiAction.Bpx1SyncDone -> finishBpx1Sync()
             HealthUiAction.Bpx1AutoSyncBannerConsumed -> _uiState.update { it.copy(autoSyncedBpx1Measurement = null) }
+            HealthUiAction.Bpx1SyncRefreshed -> bpx1SyncService.refreshAvailabilityAndPermissions()
             is HealthUiAction.OcrMetricApplied -> applyOcrMetric(action.metric)
             is HealthUiAction.EditStarted -> startEdit(action.record)
             HealthUiAction.SheetDismissed -> dismissSheet()

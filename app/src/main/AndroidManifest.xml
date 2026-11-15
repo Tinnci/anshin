@@ -128,6 +128,17 @@
                 android:resource="@xml/streak_widget_info" />
         </receiver>
 
+        <!-- BPX1 后台 BLE 扫描接收器（PendingIntent / 开机与蓝牙恢复） -->
+        <receiver
+            android:name=".capability.bpx1.Bpx1BackgroundScanReceiver"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
         <provider
             android:name="androidx.startup.InitializationProvider"
             android:authorities="${applicationId}.androidx-startup"

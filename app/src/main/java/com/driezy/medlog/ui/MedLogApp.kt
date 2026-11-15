@@ -6,6 +6,8 @@ import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -14,7 +16,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalResources
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.IntOffset
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -27,6 +32,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.driezy.medlog.R
+import com.driezy.medlog.capability.bpx1.application.Bpx1AutoSyncEvent
 import com.driezy.medlog.feature.health.HealthScreen
 import com.driezy.medlog.feature.health.symptom.SymptomDiaryScreen
 import com.driezy.medlog.feature.history.HistoryScreen
@@ -82,6 +89,9 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentDestination = navBackStackEntry?.destination
+    val globalSnackbarHostState = remember { SnackbarHostState() }
+    val resources = LocalResources.current
+    val viewLabel = stringResource(R.string.bpx1_auto_sync_view)
 
     // 响应快捷方式"添加药品"intent
     LaunchedEffect(openAddMedication) {
@@ -123,12 +133,52 @@ fun MedLogApp(openAddMedication: Boolean = false) {
                 TOP_LEVEL_DESTINATIONS.any { currentDestination.hasRoute(it.route::class) }
             )
 
-    if (showMainNav) {
-        MedLogNavigationWrapper(
-            currentDestination = currentDestination,
-            navigateToTopLevel = navigateToTopLevel,
-            destinations = enabledDestinations,
-        ) {
+    LaunchedEffect(appViewModel, navController, featureFlags.enableHealthModule) {
+        appViewModel.bpx1Events.collect { event ->
+            if (event is Bpx1AutoSyncEvent.MeasurementAutoImported) {
+                if (navController.currentDestination?.hasRoute(Route.Health::class) == true) {
+                    return@collect
+                }
+                val message = resources.getString(
+                    R.string.bpx1_auto_sync_toast,
+                    event.measurement.systolic,
+                    event.measurement.diastolic,
+                    event.measurement.heartRate,
+                )
+                val actionLabel = if (featureFlags.enableHealthModule) viewLabel else null
+                val result = globalSnackbarHostState.showSnackbar(
+                    message = message,
+                    actionLabel = actionLabel,
+                    duration = SnackbarDuration.Short,
+                )
+                if (result == SnackbarResult.ActionPerformed && featureFlags.enableHealthModule) {
+                    navController.navigate(Route.Health) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        launchSingleTop = true
+                        restoreState = true
+                    }
+                }
+            }
+        }
+    }
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (showMainNav) {
+            MedLogNavigationWrapper(
+                currentDestination = currentDestination,
+                navigateToTopLevel = navigateToTopLevel,
+                destinations = enabledDestinations,
+            ) {
+                MedLogNavHost(
+                    navController = navController,
+                    startDest = startDest,
+                    catalogEnabled = featureFlags.enableDrugDatabase,
+                    showTcmInCatalog = featureFlags.showTcmInCatalog,
+                )
+            }
+        } else {
             MedLogNavHost(
                 navController = navController,
                 startDest = startDest,
@@ -136,12 +186,12 @@ fun MedLogApp(openAddMedication: Boolean = false) {
                 showTcmInCatalog = featureFlags.showTcmInCatalog,
             )
         }
-    } else {
-        MedLogNavHost(
-            navController = navController,
-            startDest = startDest,
-            catalogEnabled = featureFlags.enableDrugDatabase,
-            showTcmInCatalog = featureFlags.showTcmInCatalog,
+        SnackbarHost(
+            hostState = globalSnackbarHostState,
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(bottom = 80.dp),
         )
     }
 }

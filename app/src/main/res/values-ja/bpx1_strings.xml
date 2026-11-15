@@ -116,4 +116,15 @@
     <string name="bpx1_auto_sync_last_reading">前回同期 %1$d/%2$d mmHg · %3$d bpm</string>
     <string name="bpx1_auto_sync_bt_off">BPX1 自動同期が一時停止中（Bluetooth オフ）</string>
     <string name="bpx1_auto_sync_toast">BPX1 を自動同期しました：%1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_view">表示</string>
+    <string name="bpx1_auto_sync_permission_required">BPX1 自動同期が一時停止中（Bluetooth 権限が必要）</string>
+    <string name="bpx1_auto_sync_enable_bt_action">オンにする</string>
+    <string name="bpx1_auto_sync_grant_permission_action">許可</string>
+    <string name="bpx1_paste_bind_key">BindKey を貼り付け</string>
+    <string name="bpx1_bind_key_clipboard_empty">クリップボードに 32 文字の 16 進数 BindKey が見つかりません</string>
+    <string name="bpx1_bind_key_verified_badge">BindKey 検証済み · 復号成功</string>
+    <string name="bpx1_bind_key_mismatch_badge">暗号化データを受信しましたが BindKey が一致しません</string>
+    <string name="bpx1_bg_sync_channel_name">血圧計バックグラウンド自動同期</string>
+    <string name="bpx1_bg_sync_notif_title">血圧を自動記録しました</string>
+    <string name="bpx1_bg_sync_notif_body">BPX1：%1$d/%2$d mmHg · %3$d bpm</string>
 </resources>

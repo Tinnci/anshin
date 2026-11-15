@@ -3,6 +3,7 @@
 package com.driezy.medlog.feature.settings
 
 import android.bluetooth.BluetoothAdapter
+import android.content.ClipboardManager
 import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -23,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -52,6 +54,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -84,6 +87,7 @@ import com.driezy.medlog.capability.bpx1.requiredBpx1Permissions
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import kotlinx.coroutines.launch
 
 private enum class Bpx1PendingAction { SCAN, CONNECT }
 
@@ -98,6 +102,7 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
     val lifecycleOwner = LocalLifecycleOwner.current
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
     var pendingAction by remember { mutableStateOf<Bpx1PendingAction?>(null) }
     var permissionRefresh by remember { mutableIntStateOf(0) }
     var showClearDialog by rememberSaveable { mutableStateOf(false) }
@@ -202,6 +207,9 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
             onConnect = { requestOrRun(Bpx1PendingAction.CONNECT) },
             onAction = viewModel::onAction,
             onClear = { showClearDialog = true },
+            onShowMessage = { msg ->
+                coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
+            },
         )
     }
 
@@ -244,6 +252,7 @@ private fun Bpx1DeviceSettingsContent(
     onConnect: () -> Unit,
     onAction: (Bpx1SettingsUiAction) -> Unit,
     onClear: () -> Unit,
+    onShowMessage: (String) -> Unit,
 ) {
     Column(
         modifier = modifier
@@ -284,6 +293,7 @@ private fun Bpx1DeviceSettingsContent(
             onBindKeyChange = { onAction(Bpx1SettingsUiAction.BindKeyChanged(it)) },
             onSave = { onAction(Bpx1SettingsUiAction.ConfigurationSaved) },
             onClear = onClear,
+            onShowMessage = onShowMessage,
         )
         Bpx1ImportCard(
             uiState = uiState,
@@ -406,7 +416,10 @@ private fun Bpx1ConfigurationCard(
     onBindKeyChange: (String) -> Unit,
     onSave: () -> Unit,
     onClear: () -> Unit,
+    onShowMessage: (String) -> Unit,
 ) {
+    val context = LocalContext.current
+    val clipboardEmptyMessage = stringResource(R.string.bpx1_bind_key_clipboard_empty)
     var revealBindKey by remember { mutableStateOf(false) }
     val normalizedMacPreview = remember(uiState.macInput) {
         val norm = Bpx1Protocol.normalizeMac(uiState.macInput)
@@ -489,6 +502,19 @@ private fun Bpx1ConfigurationCard(
                         )
                     }
                 },
+            )
+            AssistChip(
+                onClick = {
+                    val clipboard = context.getSystemService(ClipboardManager::class.java)
+                    val clipText = clipboard?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
+                    val extracted = extractBindKeyHex(clipText)
+                    if (extracted != null) {
+                        onBindKeyChange(extracted)
+                    } else {
+                        onShowMessage(clipboardEmptyMessage)
+                    }
+                },
+                label = { Text(stringResource(R.string.bpx1_paste_bind_key)) },
             )
             Text(
                 stringResource(R.string.bpx1_bind_key_source),
@@ -645,9 +671,10 @@ private fun Bpx1DeviceRow(device: Bpx1DiscoveredDevice, isSelected: Boolean, onC
             ),
         headlineContent = { Text(device.name) },
         supportingContent = {
-            Column {
+            Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(device.macAddress)
                 Text(stringResource(R.string.bpx1_device_signal, device.rssi, payloadStatusLabel(device.payloadStatus)))
+                Bpx1PayloadVerificationBadge(device.payloadStatus)
             }
         },
         leadingContent = {
@@ -839,6 +866,39 @@ private fun payloadStatusLabel(status: Bpx1PayloadStatus): String = stringResour
         Bpx1PayloadStatus.MALFORMED -> R.string.bpx1_payload_malformed
     },
 )
+
+@Composable
+private fun Bpx1PayloadVerificationBadge(status: Bpx1PayloadStatus) {
+    val (textRes, containerColor, contentColor) = when (status) {
+        Bpx1PayloadStatus.DECRYPTED -> Triple(
+            R.string.bpx1_bind_key_verified_badge,
+            MaterialTheme.colorScheme.primaryContainer,
+            MaterialTheme.colorScheme.onPrimaryContainer,
+        )
+        Bpx1PayloadStatus.KEY_REJECTED -> Triple(
+            R.string.bpx1_bind_key_mismatch_badge,
+            MaterialTheme.colorScheme.errorContainer,
+            MaterialTheme.colorScheme.onErrorContainer,
+        )
+        else -> return
+    }
+    Surface(
+        shape = MaterialTheme.shapes.small,
+        color = containerColor,
+        contentColor = contentColor,
+    ) {
+        Text(
+            text = stringResource(textRes),
+            style = MaterialTheme.typography.labelSmall,
+            modifier = Modifier.padding(horizontal = MedLogSpacing.Small, vertical = 2.dp),
+        )
+    }
+}
+
+internal fun extractBindKeyHex(rawText: String): String? {
+    val normalized = rawText.replace(Regex("[:\\-\\s]"), "")
+    return Regex("[0-9a-fA-F]{32}").find(normalized)?.value?.lowercase()
+}
 
 private fun Bpx1ConnectionFailure.stringRes(): Int = when (this) {
     Bpx1ConnectionFailure.INVALID_ADDRESS -> R.string.bpx1_connection_invalid_address

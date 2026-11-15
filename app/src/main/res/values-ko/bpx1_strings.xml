@@ -116,4 +116,15 @@
     <string name="bpx1_auto_sync_last_reading">최근 동기화 %1$d/%2$d mmHg · %3$d bpm</string>
     <string name="bpx1_auto_sync_bt_off">BPX1 자동 동기화 일시 중지됨 (블루투스 꺼짐)</string>
     <string name="bpx1_auto_sync_toast">BPX1 자동 동기화됨: %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_auto_sync_view">보기</string>
+    <string name="bpx1_auto_sync_permission_required">BPX1 자동 동기화 일시 중지됨 (블루투스 권한 필요)</string>
+    <string name="bpx1_auto_sync_enable_bt_action">켜기</string>
+    <string name="bpx1_auto_sync_grant_permission_action">허용</string>
+    <string name="bpx1_paste_bind_key">BindKey 붙여넣기</string>
+    <string name="bpx1_bind_key_clipboard_empty">클립보드에서 32자리 16진수 BindKey를 찾지 못했습니다</string>
+    <string name="bpx1_bind_key_verified_badge">BindKey 확인됨 · 복호화 성공</string>
+    <string name="bpx1_bind_key_mismatch_badge">암호화된 브로드캐스트를 수신했으나 BindKey가 일치하지 않습니다</string>
+    <string name="bpx1_bg_sync_channel_name">혈압계 백그라운드 자동 동기화</string>
+    <string name="bpx1_bg_sync_notif_title">혈압 자동 기록됨</string>
+    <string name="bpx1_bg_sync_notif_body">BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
 </resources>
