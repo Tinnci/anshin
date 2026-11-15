@@ -82,7 +82,11 @@
     <string name="bpx1_sync_needs_config_body">먼저 페어링하고 바인딩 키를 저장하면 여기서 혈압과 심박수를 가져올 수 있습니다.</string>
     <string name="bpx1_sync_open_pairing">페어링으로 이동</string>
     <string name="bpx1_sync_scanning_title">BPX1 브로드캐스트 대기 중</string>
-    <string name="bpx1_sync_scanning_body">지금 혈압계로 측정을 시작하고 휴대전화를 가까이 두세요. 결과를 받으면 혈압과 심박수가 자동 저장됩니다.</string>
+    <string name="bpx1_sync_scanning_body">지금 혈압계로 측정을 시작하고 휴대전화를 가까이 두세요. 결과를 받으면 혈압과 심박수를 확인한 뒤 저장할 수 있습니다.</string>
+    <string name="bpx1_sync_confirm_title">이 측정값을 저장할까요?</string>
+    <string name="bpx1_sync_confirm_body">혈압계에서 받은 혈압과 심박수를 확인한 뒤 건강 기록에 저장하세요.</string>
+    <string name="bpx1_sync_confirm_save">측정값 저장</string>
+    <string name="bpx1_sync_confirm_discard">버리기</string>
     <plurals name="bpx1_sync_imported_count">
         <item quantity="other">이번 세션에서 %1$d개 가져옴</item>
     </plurals>

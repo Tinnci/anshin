@@ -12,6 +12,7 @@ import com.driezy.medlog.capability.bpx1.Bpx1ScanEvent
 import com.driezy.medlog.capability.bpx1.InMemoryBpx1DeviceStore
 import com.driezy.medlog.data.repository.FakeHealthRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -77,6 +78,38 @@ class SyncBpx1MeasurementsUseCaseTest {
         assertEquals(1, imported.size)
         assertEquals(1, imported.single().importedCount)
         assertEquals(Bpx1SyncState.Finished(deviceDetected = true), events.last())
+    }
+
+    @Test
+    fun `confirmBeforeImport emits pending confirmation before writing and confirmImport persists`() = runTest {
+        val repository = FakeHealthRepository()
+        val store = InMemoryBpx1DeviceStore(
+            initial = Bpx1DeviceConfiguration(macAddress = MAC),
+            bindKey = ByteArray(16) { it.toByte() },
+        )
+        val useCase = SyncBpx1MeasurementsUseCase(
+            deviceStore = store,
+            bleClient = FakeBleClient(deviceEvent(measurement = measurement)),
+            importer = Bpx1MeasurementImporter(repository, clock),
+        )
+        val events = mutableListOf<Bpx1SyncState>()
+
+        useCase.sync(scanDurationMillis = SCAN_MILLIS, confirmBeforeImport = true) { events += it }
+
+        assertEquals(
+            listOf(
+                Bpx1SyncState.Scanning(SCAN_MILLIS),
+                Bpx1SyncState.DeviceDetected,
+                Bpx1SyncState.MeasurementPendingConfirmation(MAC, measurement),
+                Bpx1SyncState.Finished(deviceDetected = true),
+            ),
+            events,
+        )
+        assertEquals(0, repository.getAllRecords().first().size)
+
+        val result = useCase.confirmImport(MAC, measurement)
+        assertEquals(Bpx1ImportResult(inserted = true, importedCount = 1), result)
+        assertEquals(2, repository.getAllRecords().first().size)
     }
 
     private suspend fun sync(client: Bpx1BleClient): List<Bpx1SyncState> {

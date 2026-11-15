@@ -20,6 +20,10 @@ sealed interface Bpx1SyncState {
 
     /** The configured monitor was heard for the first time in this session. */
     data object DeviceDetected : Bpx1SyncState
+    data class MeasurementPendingConfirmation(
+        val macAddress: String,
+        val measurement: Bpx1Measurement,
+    ) : Bpx1SyncState
     data class MeasurementImported(val measurement: Bpx1Measurement, val importedCount: Int) : Bpx1SyncState
 
     /**
@@ -56,10 +60,11 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
 
     suspend fun sync(
         scanDurationMillis: Long = DEFAULT_SCAN_DURATION_MILLIS,
+        confirmBeforeImport: Boolean = false,
         onEvent: suspend (Bpx1SyncState) -> Unit,
     ) {
         val block: suspend () -> Unit = {
-            performSync(scanDurationMillis, onEvent)
+            performSync(scanDurationMillis, confirmBeforeImport, onEvent)
         }
         if (syncService != null) {
             syncService.withManualOperation(block)
@@ -68,7 +73,23 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
         }
     }
 
-    private suspend fun performSync(scanDurationMillis: Long, onEvent: suspend (Bpx1SyncState) -> Unit) {
+    suspend fun confirmImport(macAddress: String, measurement: Bpx1Measurement): Bpx1ImportResult {
+        val result = importer.import(macAddress, measurement)
+        if (result.inserted) {
+            syncService?.recordImportedMeasurement(
+                measurement = measurement,
+                importedCount = result.importedCount,
+                isAutoSync = false,
+            )
+        }
+        return result
+    }
+
+    private suspend fun performSync(
+        scanDurationMillis: Long,
+        confirmBeforeImport: Boolean,
+        onEvent: suspend (Bpx1SyncState) -> Unit,
+    ) {
         val configuration = deviceStore.configuration.value
         if (!configuration.isConfigured) {
             onEvent(Bpx1SyncState.NeedsConfiguration)
@@ -113,20 +134,31 @@ class SyncBpx1MeasurementsUseCase @Inject constructor(
                                 onEvent(Bpx1SyncState.DeviceDetected)
                             }
                             val measurement = event.measurement ?: return@collect
-                            val result = importer.import(event.device.macAddress, measurement)
-                            if (result.inserted) {
-                                importedCount += result.importedCount
-                                syncService?.recordImportedMeasurement(
-                                    measurement = measurement,
-                                    importedCount = result.importedCount,
-                                    isAutoSync = false,
-                                )
-                                onEvent(
-                                    Bpx1SyncState.MeasurementImported(
+                            if (confirmBeforeImport) {
+                                if (!importer.isAlreadyImported(event.device.macAddress, measurement)) {
+                                    onEvent(
+                                        Bpx1SyncState.MeasurementPendingConfirmation(
+                                            macAddress = event.device.macAddress,
+                                            measurement = measurement,
+                                        ),
+                                    )
+                                }
+                            } else {
+                                val result = importer.import(event.device.macAddress, measurement)
+                                if (result.inserted) {
+                                    importedCount += result.importedCount
+                                    syncService?.recordImportedMeasurement(
                                         measurement = measurement,
-                                        importedCount = importedCount,
-                                    ),
-                                )
+                                        importedCount = result.importedCount,
+                                        isAutoSync = false,
+                                    )
+                                    onEvent(
+                                        Bpx1SyncState.MeasurementImported(
+                                            measurement = measurement,
+                                            importedCount = importedCount,
+                                        ),
+                                    )
+                                }
                             }
                         }
                         is Bpx1ScanEvent.Failure -> {

@@ -82,7 +82,11 @@
     <string name="bpx1_sync_needs_config_body">先配对并保存绑定密钥，之后就能在这里直接导入血压和心率。</string>
     <string name="bpx1_sync_open_pairing">前往配对</string>
     <string name="bpx1_sync_scanning_title">正在等待 BPX1 广播</string>
-    <string name="bpx1_sync_scanning_body">现在开始在血压计上测量，并让手机保持在附近。测量完成后会自动保存血压和心率。</string>
+    <string name="bpx1_sync_scanning_body">现在开始在血压计上测量，并让手机保持在附近。收到结果后可以确认并保存血压和心率。</string>
+    <string name="bpx1_sync_confirm_title">确认保存读数？</string>
+    <string name="bpx1_sync_confirm_body">请核对从血压计收到的血压和心率读数，确认无误后保存到健康记录。</string>
+    <string name="bpx1_sync_confirm_save">保存读数</string>
+    <string name="bpx1_sync_confirm_discard">放弃</string>
     <plurals name="bpx1_sync_imported_count">
         <item quantity="other">本次已导入 %1$d 组测量</item>
     </plurals>

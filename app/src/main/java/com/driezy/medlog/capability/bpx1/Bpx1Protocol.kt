@@ -87,6 +87,9 @@ data class Bpx1Advertisement(
  * The BPX1's public MiOT spec defines the measurement payload as current time, systolic,
  * diastolic, heart rate and flags. The outer manufacturer object id is not published, so this
  * decoder accepts a sane 9-byte measurement object only after the product id is verified.
+ *
+ * TODO(bpx1): Watch `adb logcat` during a live cuff inflation to verify whether the BPX1 emits
+ *  any undocumented `objectId` MiBeacon frames while inflating (before the final reading).
  */
 object Bpx1MiBeaconDecoder {
     private const val MIN_HEADER_SIZE = 5

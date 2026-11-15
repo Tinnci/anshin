@@ -83,7 +83,11 @@
     <string name="bpx1_sync_needs_config_body">Pair and save a bind key first, then blood pressure and heart rate can be imported here.</string>
     <string name="bpx1_sync_open_pairing">Pair device</string>
     <string name="bpx1_sync_scanning_title">Waiting for BPX1 broadcast</string>
-    <string name="bpx1_sync_scanning_body">Start a measurement on your monitor now and keep the phone nearby. Blood pressure and heart rate are saved automatically when the result arrives.</string>
+    <string name="bpx1_sync_scanning_body">Start a measurement on your monitor now and keep the phone nearby. You can review and confirm the blood pressure and heart rate when the result arrives.</string>
+    <string name="bpx1_sync_confirm_title">Save this reading?</string>
+    <string name="bpx1_sync_confirm_body">Review the blood pressure and heart rate received from your monitor before saving it to your health log.</string>
+    <string name="bpx1_sync_confirm_save">Save reading</string>
+    <string name="bpx1_sync_confirm_discard">Discard</string>
     <plurals name="bpx1_sync_imported_count">
         <item quantity="one">Imported %1$d measurement this session</item>
         <item quantity="other">Imported %1$d measurements this session</item>

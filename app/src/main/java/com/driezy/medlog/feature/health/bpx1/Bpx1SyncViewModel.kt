@@ -16,11 +16,17 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class PendingBpx1Measurement(
+    val macAddress: String,
+    val measurement: Bpx1Measurement,
+)
+
 data class Bpx1SyncUiState(
     val isNeedsConfiguration: Boolean = false,
     val isScanning: Boolean = false,
     val isFinished: Boolean = false,
     val failure: Bpx1SyncFailure? = null,
+    val pendingConfirmation: PendingBpx1Measurement? = null,
     val lastImportedMeasurement: Bpx1Measurement? = null,
     val importedCount: Int = 0,
     /** Whether the configured monitor has been heard during this session. */
@@ -43,7 +49,7 @@ class Bpx1SyncViewModel @Inject constructor(private val syncUseCase: SyncBpx1Mea
         if (syncJob?.isActive == true) return
         syncJob = viewModelScope.launch {
             _uiState.value = Bpx1SyncUiState()
-            syncUseCase.sync { state ->
+            syncUseCase.sync(confirmBeforeImport = true) { state ->
                 when (state) {
                     Bpx1SyncState.NeedsConfiguration -> {
                         _uiState.update { it.copy(isNeedsConfiguration = true) }
@@ -57,6 +63,22 @@ class Bpx1SyncViewModel @Inject constructor(private val syncUseCase: SyncBpx1Mea
                     }
                     Bpx1SyncState.DeviceDetected -> {
                         _uiState.update { it.copy(deviceDetected = true) }
+                    }
+                    is Bpx1SyncState.MeasurementPendingConfirmation -> {
+                        countdownJob?.cancel()
+                        syncJob?.cancel()
+                        syncJob = null
+                        _uiState.update {
+                            it.copy(
+                                isScanning = false,
+                                deviceDetected = true,
+                                remainingSeconds = 0,
+                                pendingConfirmation = PendingBpx1Measurement(
+                                    macAddress = state.macAddress,
+                                    measurement = state.measurement,
+                                ),
+                            )
+                        }
                     }
                     is Bpx1SyncState.MeasurementImported -> {
                         _uiState.update {
@@ -85,6 +107,33 @@ class Bpx1SyncViewModel @Inject constructor(private val syncUseCase: SyncBpx1Mea
                     }
                 }
             }
+        }
+    }
+
+    fun confirmPendingMeasurement() {
+        val pending = _uiState.value.pendingConfirmation ?: return
+        viewModelScope.launch {
+            val result = syncUseCase.confirmImport(pending.macAddress, pending.measurement)
+            _uiState.update {
+                it.copy(
+                    pendingConfirmation = null,
+                    isFinished = true,
+                    deviceDetected = true,
+                    lastImportedMeasurement = pending.measurement,
+                    importedCount = it.importedCount + result.importedCount,
+                )
+            }
+        }
+    }
+
+    fun discardPendingMeasurement() {
+        if (_uiState.value.pendingConfirmation == null) return
+        _uiState.update {
+            it.copy(
+                pendingConfirmation = null,
+                isFinished = true,
+                deviceDetected = true,
+            )
         }
     }
 

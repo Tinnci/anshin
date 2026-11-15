@@ -168,6 +168,7 @@ internal fun Bpx1SyncDialog(
                         .padding(horizontal = MedLogSpacing.XLarge, vertical = MedLogSpacing.Large),
                 ) {
                     val failure = uiState.failure
+                    val pendingConfirmation = uiState.pendingConfirmation
                     when {
                         uiState.isNeedsConfiguration -> {
                             Bpx1SyncNeedsConfiguration(onOpenPairing = onOpenPairing, onDone = onDone)
@@ -188,6 +189,13 @@ internal fun Bpx1SyncDialog(
                                     )
                                 },
                                 onDone = onDone,
+                            )
+                        }
+                        pendingConfirmation != null -> {
+                            Bpx1SyncConfirmReading(
+                                measurement = pendingConfirmation.measurement,
+                                onConfirm = viewModel::confirmPendingMeasurement,
+                                onDiscard = viewModel::discardPendingMeasurement,
                             )
                         }
                         uiState.isFinished -> {
@@ -527,6 +535,40 @@ private fun Bpx1SyncFailed(
             shape = MaterialTheme.shapes.large,
         ) {
             Text(stringResource(R.string.bpx1_sync_cancel))
+        }
+    }
+}
+
+@Composable
+private fun Bpx1SyncConfirmReading(
+    measurement: Bpx1Measurement,
+    onConfirm: () -> Unit,
+    onDiscard: () -> Unit,
+) {
+    Bpx1SyncStatusContent(
+        icon = MedLogIcons.MonitorHeart,
+        title = stringResource(R.string.bpx1_sync_confirm_title),
+        body = stringResource(R.string.bpx1_sync_confirm_body),
+    ) {
+        Bpx1MeasurementPreviewCard(
+            measurement = measurement,
+            importedCount = 0,
+        )
+        Button(
+            onClick = onConfirm,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            MedLogIcon(MedLogIcons.Check, contentDescription = null, modifier = Modifier.size(18.dp))
+            Spacer(Modifier.width(MedLogSpacing.Small))
+            Text(stringResource(R.string.bpx1_sync_confirm_save))
+        }
+        OutlinedButton(
+            onClick = onDiscard,
+            modifier = Modifier.fillMaxWidth().heightIn(min = 48.dp),
+            shape = MaterialTheme.shapes.large,
+        ) {
+            Text(stringResource(R.string.bpx1_sync_confirm_discard))
         }
     }
 }

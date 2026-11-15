@@ -24,19 +24,14 @@ class Bpx1MeasurementImporter @Inject constructor(
     private val healthRepository: HealthRepository,
     private val clock: Clock,
 ) {
+    suspend fun isAlreadyImported(macAddress: String, measurement: Bpx1Measurement): Boolean {
+        val baseKey = baseKey(macAddress, measurement)
+        return healthRepository.hasSourceCacheKey("$baseKey:bp") &&
+            healthRepository.hasSourceCacheKey("$baseKey:hr")
+    }
+
     suspend fun import(macAddress: String, measurement: Bpx1Measurement): Bpx1ImportResult {
-        val baseKey = buildString {
-            append("bpx1:")
-            append(Bpx1Protocol.normalizeMac(macAddress).replace(":", "").lowercase())
-            append(':')
-            append(measurement.timestampMillis / 1_000L)
-            append(':')
-            append(measurement.systolic)
-            append(':')
-            append(measurement.diastolic)
-            append(':')
-            append(measurement.heartRate)
-        }
+        val baseKey = baseKey(macAddress, measurement)
         var inserted = false
         val bloodPressureKey = "$baseKey:bp"
         if (!healthRepository.hasSourceCacheKey(bloodPressureKey)) {
@@ -73,5 +68,18 @@ class Bpx1MeasurementImporter @Inject constructor(
             inserted = inserted,
             importedCount = if (inserted) 1 else 0,
         )
+    }
+
+    private fun baseKey(macAddress: String, measurement: Bpx1Measurement): String = buildString {
+        append("bpx1:")
+        append(Bpx1Protocol.normalizeMac(macAddress).replace(":", "").lowercase())
+        append(':')
+        append(measurement.timestampMillis / 1_000L)
+        append(':')
+        append(measurement.systolic)
+        append(':')
+        append(measurement.diastolic)
+        append(':')
+        append(measurement.heartRate)
     }
 }

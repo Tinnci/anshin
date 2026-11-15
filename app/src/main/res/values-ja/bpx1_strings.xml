@@ -82,7 +82,11 @@
     <string name="bpx1_sync_needs_config_body">先にペアリングしてバインドキーを保存すると、ここで血圧と心拍数を取り込めます。</string>
     <string name="bpx1_sync_open_pairing">ペアリングへ</string>
     <string name="bpx1_sync_scanning_title">BPX1 のブロードキャストを待機中</string>
-    <string name="bpx1_sync_scanning_body">今すぐ血圧計で測定を始め、スマートフォンを近くに置いてください。結果を受信すると血圧と心拍数が自動保存されます。</string>
+    <string name="bpx1_sync_scanning_body">今すぐ血圧計で測定を始め、スマートフォンを近くに置いてください。結果を受信したら内容を確認して血圧と心拍数を保存できます。</string>
+    <string name="bpx1_sync_confirm_title">この測定結果を保存しますか？</string>
+    <string name="bpx1_sync_confirm_body">血圧計から受信した血圧と心拍数を確認してから、健康記録に保存してください。</string>
+    <string name="bpx1_sync_confirm_save">測定を保存</string>
+    <string name="bpx1_sync_confirm_discard">破棄</string>
     <plurals name="bpx1_sync_imported_count">
         <item quantity="other">今回のセッションで %1$d 件取り込み済み</item>
     </plurals>
