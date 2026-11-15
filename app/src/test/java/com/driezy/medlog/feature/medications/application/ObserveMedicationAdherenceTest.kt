@@ -47,10 +47,10 @@ class ObserveMedicationAdherenceTest {
             runCurrent()
         }
         assertEquals(1, queries)
-        assertEquals(1, latest!!.total30d)
+        assertEquals(1, latest.total30d)
         time.value = time.value.plus(Duration.ofDays(1))
         runCurrent()
         assertEquals(2, queries)
-        assertEquals(LocalDate.of(2026, 9, 20), latest!!.today)
+        assertEquals(LocalDate.of(2026, 9, 20), latest.today)
     }
 }

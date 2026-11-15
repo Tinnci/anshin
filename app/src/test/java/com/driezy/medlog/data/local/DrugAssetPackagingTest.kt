@@ -177,7 +177,7 @@ class DrugAssetPackagingTest {
         val conventional = drugs.getValue("阿司匹林")
         val traditional = drugs.values.first { it.isTcm }
         val dataSource = mock<DrugDataSource> {
-            onBlocking { loadAllDrugs() } doReturn listOf(conventional, traditional)
+            on { loadAllDrugs() } doReturn listOf(conventional, traditional)
         }
         val repository = DrugRepositoryImpl(dataSource)
 

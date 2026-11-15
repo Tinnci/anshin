@@ -112,7 +112,7 @@ internal fun WelcomePage3(isCurrentPage: Boolean) {
             Column {
                 steps.forEachIndexed { index, step ->
                     ListItem(
-                        headlineContent = {
+                        content = {
                             Text(step.text, style = MaterialTheme.typography.bodyMedium)
                         },
                         leadingContent = {

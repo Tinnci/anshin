@@ -294,7 +294,7 @@ private fun DrugListItem(drug: Drug, query: String, categoryLabels: DrugCategory
 
     val tcmBadge = stringResource(R.string.drugs_tcm_badge)
     ListItem(
-        headlineContent = { Text(localizedName) },
+        content = { Text(localizedName) },
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         leadingContent = {
             MedLogIcon(

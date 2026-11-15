@@ -104,7 +104,7 @@ internal fun SettingsDataContent(
             icon = MedLogIcons.Info,
         )
         ListItem(
-            headlineContent = { Text("Anshin") },
+            content = { Text("Anshin") },
             supportingContent = {
                 Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE))
             },
@@ -119,7 +119,7 @@ internal fun SettingsDataContent(
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
         ListItem(
-            headlineContent = { Text(stringResource(R.string.settings_check_update_title)) },
+            content = { Text(stringResource(R.string.settings_check_update_title)) },
             supportingContent = {
                 when (updateState) {
                     is AppUpdateState.Checking -> Text(stringResource(R.string.settings_check_update_checking))
@@ -195,7 +195,7 @@ internal fun SettingsDataContent(
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
         ListItem(
-            headlineContent = { Text(stringResource(R.string.settings_auto_check_updates_title)) },
+            content = { Text(stringResource(R.string.settings_auto_check_updates_title)) },
             supportingContent = { Text(stringResource(R.string.settings_auto_check_updates_desc)) },
             trailingContent = {
                 Switch(
@@ -207,7 +207,7 @@ internal fun SettingsDataContent(
         )
         HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
         ListItem(
-            headlineContent = { Text(stringResource(R.string.settings_replay_title)) },
+            content = { Text(stringResource(R.string.settings_replay_title)) },
             supportingContent = { Text(stringResource(R.string.settings_replay_subtitle)) },
             leadingContent = {
                 MedLogIcon(

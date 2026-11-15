@@ -289,11 +289,23 @@ internal fun MedicationDoseSection(
                     )
                 }
             }
-            Slider(
-                value = uiState.doseQuantity.toFloat().coerceIn(0.25f, 20f),
-                onValueChange = { onAction(AddMedicationUiAction.DoseQuantityChanged(it.toDouble())) },
-                valueRange = 0.25f..10f,
+            val clampedDose = uiState.doseQuantity.toFloat().coerceIn(0.25f, 10f)
+            val sliderState = rememberSliderState(
+                value = clampedDose,
                 steps = 38,
+                trackRange = 0.25f..10f,
+            )
+            LaunchedEffect(clampedDose) {
+                if (!sliderState.isDragging && sliderState.value != clampedDose) {
+                    sliderState.value = clampedDose
+                }
+            }
+            Slider(
+                state = sliderState,
+                onValueChange = { newValue ->
+                    sliderState.value = newValue
+                    onAction(AddMedicationUiAction.DoseQuantityChanged(newValue.toDouble()))
+                },
                 modifier = Modifier.fillMaxWidth(),
             )
             Text(

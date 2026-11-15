@@ -275,7 +275,7 @@ private fun WidgetSettingsScreen(
                 onSelected = onWidgetTextScaleChange,
             )
             ListItem(
-                headlineContent = { Text(stringResource(R.string.widget_settings_show_actions)) },
+                content = { Text(stringResource(R.string.widget_settings_show_actions)) },
                 supportingContent = {
                     Text(
                         if (widgetShowActions) {

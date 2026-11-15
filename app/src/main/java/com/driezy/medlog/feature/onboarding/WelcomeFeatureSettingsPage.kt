@@ -169,7 +169,7 @@ private fun FeatureToggleRow(
     onCheckedChange: (Boolean) -> Unit,
 ) {
     ListItem(
-        headlineContent = {
+        content = {
             // Lets long words such as "Routine-based" break at a hyphen rather than at the last letter.
             Text(
                 title,

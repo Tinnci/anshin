@@ -120,7 +120,7 @@ internal fun PRNSectionCard(
             ) {
                 Column {
                     ListItem(
-                        headlineContent = {
+                        content = {
                             val displayName = remember(item.medication.name) { item.medication.displayName() }
                             Text(displayName, fontWeight = FontWeight.Medium)
                         },

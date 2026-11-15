@@ -10,6 +10,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.text.input.clearText
+import androidx.compose.foundation.text.input.rememberTextFieldState
+import androidx.compose.foundation.text.input.setTextAndPlaceCursorAtEnd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -33,6 +36,7 @@ import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.util.medicationNameLanguage
 import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -125,37 +129,75 @@ private fun DrugsContent(
                 .padding(padding),
         ) {
             // ── M3 SearchBar ─────────────────────────────────
-            DockedSearchBar(
-                inputField = {
-                    SearchBarDefaults.InputField(
-                        query = searchText,
-                        onQueryChange = { onAction(DrugsUiAction.QueryChanged(it)) },
-                        onSearch = {},
-                        expanded = uiState.isSearchActive,
-                        onExpandedChange = { onAction(DrugsUiAction.SearchActiveChanged(it)) },
-                        placeholder = { Text(stringResource(R.string.drugs_search_placeholder)) },
-                        leadingIcon = { MedLogIcon(MedLogIcons.Search, null) },
-                        trailingIcon = {
-                            if (uiState.isSearchActive) {
-                                IconButton(onClick = {
-                                    if (searchText.isNotEmpty()) {
-                                        onAction(DrugsUiAction.QueryChanged(""))
-                                    } else {
-                                        onAction(DrugsUiAction.SearchActiveChanged(false))
-                                    }
-                                }) {
-                                    MedLogIcon(
-                                        MedLogIcons.Close,
-                                        contentDescription = stringResource(R.string.drugs_close_search_cd),
-                                    )
+            val textFieldState = rememberTextFieldState(searchText)
+            val searchBarState = rememberSearchBarState(
+                initialValue = if (uiState.isSearchActive) SearchBarValue.Expanded else SearchBarValue.Collapsed,
+            )
+            val scope = rememberCoroutineScope()
+
+            LaunchedEffect(textFieldState.text) {
+                val current = textFieldState.text.toString()
+                if (current != searchText) {
+                    onAction(DrugsUiAction.QueryChanged(current))
+                }
+            }
+            LaunchedEffect(searchText) {
+                if (textFieldState.text.toString() != searchText) {
+                    textFieldState.setTextAndPlaceCursorAtEnd(searchText)
+                }
+            }
+            LaunchedEffect(searchBarState.targetValue) {
+                val expanded = searchBarState.targetValue == SearchBarValue.Expanded
+                if (expanded != uiState.isSearchActive) {
+                    onAction(DrugsUiAction.SearchActiveChanged(expanded))
+                }
+            }
+            LaunchedEffect(uiState.isSearchActive) {
+                if (uiState.isSearchActive && searchBarState.targetValue != SearchBarValue.Expanded) {
+                    searchBarState.animateToExpanded()
+                } else if (!uiState.isSearchActive && searchBarState.targetValue != SearchBarValue.Collapsed) {
+                    searchBarState.animateToCollapsed()
+                }
+            }
+
+            val inputField: @Composable () -> Unit = {
+                SearchBarDefaults.InputField(
+                    searchBarState = searchBarState,
+                    textFieldState = textFieldState,
+                    onSearch = {},
+                    placeholder = { Text(stringResource(R.string.drugs_search_placeholder)) },
+                    leadingIcon = { MedLogIcon(MedLogIcons.Search, null) },
+                    trailingIcon = {
+                        if (uiState.isSearchActive) {
+                            IconButton(onClick = {
+                                if (textFieldState.text.isNotEmpty()) {
+                                    textFieldState.clearText()
+                                    onAction(DrugsUiAction.QueryChanged(""))
+                                } else {
+                                    onAction(DrugsUiAction.SearchActiveChanged(false))
+                                    scope.launch { searchBarState.animateToCollapsed() }
                                 }
+                            }) {
+                                MedLogIcon(
+                                    MedLogIcons.Close,
+                                    contentDescription = stringResource(R.string.drugs_close_search_cd),
+                                )
                             }
-                        },
-                    )
-                },
-                expanded = uiState.isSearchActive,
-                onExpandedChange = { onAction(DrugsUiAction.SearchActiveChanged(it)) },
+                        }
+                    },
+                )
+            }
+
+            SearchBar(
+                state = searchBarState,
+                inputField = inputField,
                 modifier = Modifier.fillMaxWidth().padding(horizontal = MedLogSpacing.Large),
+                shape = MaterialTheme.shapes.extraLarge,
+            )
+
+            ExpandedDockedSearchBar(
+                state = searchBarState,
+                inputField = inputField,
                 shape = MaterialTheme.shapes.extraLarge,
             ) {
                 // ── 西药 / 中药 筛选 + 分类 Chip ───────────────

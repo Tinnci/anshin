@@ -39,7 +39,7 @@ internal fun SettingsSwitchRow(
     enabled: Boolean = true,
 ) {
     ListItem(
-        headlineContent = {
+        content = {
             Text(
                 text = title,
                 color = if (enabled) {
@@ -87,7 +87,7 @@ internal fun SettingsSwitchRow(
 internal fun SettingsNavigationRow(title: String, subtitle: String, icon: Int, onClick: () -> Unit) {
     val layoutProfile = rememberSettingsLayoutProfile()
     ListItem(
-        headlineContent = {
+        content = {
             Text(
                 text = title,
                 maxLines = 1,
@@ -280,7 +280,7 @@ internal fun ArchivedMedicationsRow(archived: List<Medication>, onRestore: (Long
     var expanded by remember { mutableStateOf(false) }
     Column {
         ListItem(
-            headlineContent = { Text(stringResource(R.string.archived_medications)) },
+            content = { Text(stringResource(R.string.archived_medications)) },
             supportingContent = {
                 Text(
                     if (archived.isEmpty()) {
@@ -314,7 +314,7 @@ internal fun ArchivedMedicationsRow(archived: List<Medication>, onRestore: (Long
                 HorizontalDivider(modifier = Modifier.padding(horizontal = MedLogSpacing.Large))
                 archived.forEach { med ->
                     ListItem(
-                        headlineContent = { Text(med.displayName()) },
+                        content = { Text(med.displayName()) },
                         supportingContent = {
                             val catText = med.category.ifBlank { null }
                             val label = when {

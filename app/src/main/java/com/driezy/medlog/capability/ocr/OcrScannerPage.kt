@@ -261,7 +261,7 @@ private fun OcrResultList(output: OcrRecognitionOutput, onSelect: (String) -> Un
                             ),
                         ) {
                             ListItem(
-                                headlineContent = {
+                                content = {
                                     Text(
                                         text = text,
                                         style = MaterialTheme.typography.bodyLarge,

@@ -773,7 +773,7 @@ private fun Bpx1DeviceRow(device: Bpx1DiscoveredDevice, isSelected: Boolean, onC
                 onClick = onChoose,
                 role = Role.RadioButton,
             ),
-        headlineContent = { Text(device.name) },
+        content = { Text(device.name) },
         supportingContent = {
             Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                 Text(device.macAddress)

@@ -99,7 +99,7 @@ private fun SettingsModuleToggleCard(
     )
 
     ListItem(
-        headlineContent = {
+        content = {
             Text(
                 text = title,
                 style = MaterialTheme.typography.titleSmall,

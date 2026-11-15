@@ -55,7 +55,7 @@ internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete
         elevation = CardDefaults.cardElevation(defaultElevation = 0.dp),
     ) {
         ListItem(
-            headlineContent = {
+            content = {
                 Row(verticalAlignment = Alignment.Bottom) {
                     Text(
                         type.formatMetricValue(record.value, record.secondaryValue),
