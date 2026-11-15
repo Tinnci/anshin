@@ -2,9 +2,9 @@ package com.driezy.medlog.capability.ocr
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
-import android.util.Log
 import androidx.camera.core.ImageProxy
 import androidx.core.graphics.scale
+import com.driezy.medlog.util.AppLog
 import java.io.ByteArrayOutputStream
 
 private const val TAG = "HealthOcrImageCapture"
@@ -24,7 +24,7 @@ internal fun ImageProxy.toCloudAnalysisJpegBytes(): ByteArray? = try {
     source.recycle()
     bytes
 } catch (e: Exception) {
-    Log.w(TAG, "Failed to prepare health OCR image for cloud analysis", e)
+    AppLog.w(TAG, "Failed to prepare health OCR image for cloud analysis", e)
     null
 }
 

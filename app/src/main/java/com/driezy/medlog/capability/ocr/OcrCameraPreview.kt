@@ -1,7 +1,6 @@
 package com.driezy.medlog.capability.ocr
 
 import android.annotation.SuppressLint
-import android.util.Log
 import androidx.camera.core.Camera
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
@@ -51,6 +50,7 @@ import com.driezy.medlog.ui.components.ViewfinderOverlay
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.utils.performConfirmHapticFeedback
+import com.driezy.medlog.util.AppLog
 import java.util.concurrent.Executors
 import java.util.concurrent.atomic.AtomicReference
 
@@ -121,7 +121,7 @@ internal fun OcrCameraPreview(
                 preview,
                 imageCapture,
             )
-        }.onFailure { Log.e(TAG, "Camera bind failed", it) }
+        }.onFailure { AppLog.e(TAG, "Camera bind failed", it) }
     }
 
     LaunchedEffect(isFlashOn, camera) {
@@ -179,7 +179,7 @@ internal fun OcrCameraPreview(
                                     }
 
                                     override fun onError(exception: ImageCaptureException) {
-                                        Log.e(TAG, "Capture failed", exception)
+                                        AppLog.e(TAG, "Capture failed", exception)
                                     }
                                 },
                             )

@@ -3,12 +3,12 @@ package com.driezy.medlog.capability.reminders
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.util.Log
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.data.repository.LogRepository
 import com.driezy.medlog.data.repository.MedicationRepository
 import com.driezy.medlog.data.repository.UserPreferencesRepository
 import com.driezy.medlog.feature.medications.application.ToggleMedicationDoseUseCase
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -32,7 +32,7 @@ fun BroadcastReceiver.goAsyncSafe(block: suspend CoroutineScope.() -> Unit) {
         try {
             block()
         } catch (e: Exception) {
-            Log.e(TAG, "Error in BroadcastReceiver async work", e)
+            AppLog.e(TAG, "Error in BroadcastReceiver async work", e)
         } finally {
             pendingResult.finish()
         }

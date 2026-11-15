@@ -1,8 +1,8 @@
 package com.driezy.medlog.capability.widgets
 
 import android.content.Context
-import android.util.Log
 import androidx.glance.appwidget.updateAll
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -37,11 +37,11 @@ class GlanceWidgetRefresher @Inject constructor(@param:ApplicationContext privat
     WidgetRefresher {
     override suspend fun refreshAll() {
         runCatching { MedLogWidget().updateAll(context) }
-            .onFailure { Log.w(TAG, "Failed to update MedLogWidget", it) }
+            .onFailure { AppLog.w(TAG, "Failed to update MedLogWidget", it) }
         runCatching { NextDoseWidget().updateAll(context) }
-            .onFailure { Log.w(TAG, "Failed to update NextDoseWidget", it) }
+            .onFailure { AppLog.w(TAG, "Failed to update NextDoseWidget", it) }
         runCatching { StreakWidget().updateAll(context) }
-            .onFailure { Log.w(TAG, "Failed to update StreakWidget", it) }
+            .onFailure { AppLog.w(TAG, "Failed to update StreakWidget", it) }
     }
 
     private companion object {

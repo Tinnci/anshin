@@ -5,8 +5,8 @@ import android.graphics.Bitmap
 import android.graphics.Matrix
 import android.os.Handler
 import android.os.Looper
-import android.util.Log
 import androidx.camera.core.ImageProxy
+import com.driezy.medlog.util.AppLog
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.text.TextRecognition
 import com.google.mlkit.vision.text.TextRecognizer
@@ -111,7 +111,7 @@ internal fun processImage(
     val recognizer = try {
         createLocalizedTextRecognizer()
     } catch (e: Exception) {
-        Log.e(TAG, "Failed to create text recognizer", e)
+        AppLog.e(TAG, "Failed to create text recognizer", e)
         imageProxy.close()
         variantBitmaps.forEach { it.recycle() }
         recycleRecognitionBitmaps(sourceBitmap, recognitionBitmap)
@@ -128,7 +128,7 @@ internal fun processImage(
                 allResults[i] = lines
             }
             .addOnFailureListener { e ->
-                Log.w(TAG, "OCR pass $i failed", e)
+                AppLog.w(TAG, "OCR pass $i failed", e)
             }
             .addOnCompleteListener {
                 if (completedCount.incrementAndGet() == allInputs.size) {
@@ -158,7 +158,7 @@ private fun imageProxyToBitmap(imageProxy: ImageProxy): Bitmap? = try {
         bitmap
     }
 } catch (e: Exception) {
-    Log.w(TAG, "Failed to convert ImageProxy to Bitmap", e)
+    AppLog.w(TAG, "Failed to convert ImageProxy to Bitmap", e)
     null
 }
 

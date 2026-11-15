@@ -7,9 +7,9 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
 import android.graphics.RectF
-import android.util.Log
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
+import com.driezy.medlog.util.AppLog
 import java.nio.FloatBuffer
 
 /**
@@ -36,10 +36,10 @@ internal class LcdDisplayDetector(context: Context) {
             session = try {
                 val modelBytes = appContext.assets.open(MODEL_ASSET).use { it.readBytes() }
                 ortEnvironment.createSession(modelBytes).also {
-                    Log.d(TAG, "LCD detector model loaded")
+                    AppLog.d(TAG) { "LCD detector model loaded" }
                 }
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to load LCD detector ONNX model", e)
+                AppLog.e(TAG, "Failed to load LCD detector ONNX model", e)
                 null
             }
         }, "lcd-detector-init").start()
@@ -77,7 +77,7 @@ internal class LcdDisplayDetector(context: Context) {
             )
             results
         } catch (e: Exception) {
-            Log.w(TAG, "LCD detection failed", e)
+            AppLog.w(TAG, "LCD detection failed", e)
             emptyList()
         }
     }

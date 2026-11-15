@@ -75,3 +75,11 @@
 # ── Suppress warnings for optional dependencies ───────────────────────────────
 -dontwarn org.slf4j.**
 -dontwarn java.lang.instrument.**
+
+# ── Strip verbose/debug/info logs in release builds ───────────────────────────
+-assumenosideeffects class android.util.Log {
+    public static boolean isLoggable(java.lang.String, int);
+    public static int v(...);
+    public static int d(...);
+    public static int i(...);
+}

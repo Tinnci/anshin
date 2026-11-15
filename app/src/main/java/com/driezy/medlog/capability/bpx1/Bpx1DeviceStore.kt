@@ -3,8 +3,8 @@ package com.driezy.medlog.capability.bpx1
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
 import androidx.core.content.edit
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -50,7 +50,7 @@ class AndroidKeystoreBpx1DeviceStore @Inject constructor(@ApplicationContext con
     override suspend fun getBindKey(): ByteArray? {
         val encrypted = preferences.getString(KEY_BIND_KEY, null) ?: return null
         val bindKey = runCatching { decrypt(encrypted) }
-            .onFailure { Log.w(TAG, "Failed to decrypt the BPX1 bind key.", it) }
+            .onFailure { AppLog.w(TAG, "Failed to decrypt the BPX1 bind key.", it) }
             .getOrNull()
             ?.let(Bpx1Protocol::decodeBindKey)
         if (bindKey == null) {

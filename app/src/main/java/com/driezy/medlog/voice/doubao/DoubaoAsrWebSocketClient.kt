@@ -1,6 +1,6 @@
 package com.driezy.medlog.voice.doubao
 
-import android.util.Log
+import com.driezy.medlog.util.AppLog
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.ReceiveChannel
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -48,7 +48,7 @@ class DoubaoAsrWebSocketClient @Inject constructor(private val okHttpClient: OkH
                         responseChannel.trySend(response)
                     }.onFailure { error ->
                         val message = "Failed to parse ASR response: ${error.message ?: error::class.java.simpleName}; bytes=${bytes.size}"
-                        Log.e(TAG, message, error)
+                        AppLog.e(TAG, message, error)
                         responseChannel.trySend(
                             DoubaoAsrResponse(
                                 type = DoubaoAsrResponseType.ERROR,
@@ -61,7 +61,7 @@ class DoubaoAsrWebSocketClient @Inject constructor(private val okHttpClient: OkH
                 override fun onFailure(webSocket: WebSocket, t: Throwable, response: Response?) {
                     val httpStatus = "HTTP ${response?.code} ${response?.message.orEmpty()}".trim()
                     val message = "WebSocket failure: ${t.message ?: t::class.java.simpleName}; $httpStatus"
-                    Log.e(TAG, message, t)
+                    AppLog.e(TAG, message, t)
                     responseChannel.trySend(
                         DoubaoAsrResponse(
                             type = DoubaoAsrResponseType.ERROR,
@@ -73,7 +73,7 @@ class DoubaoAsrWebSocketClient @Inject constructor(private val okHttpClient: OkH
                 }
 
                 override fun onClosed(webSocket: WebSocket, code: Int, reason: String) {
-                    Log.i(TAG, "WebSocket closed: code=$code reason=$reason")
+                    AppLog.i(TAG) { "WebSocket closed: code=$code reason=$reason" }
                     if (code != NORMAL_CLOSURE) {
                         responseChannel.trySend(
                             DoubaoAsrResponse(

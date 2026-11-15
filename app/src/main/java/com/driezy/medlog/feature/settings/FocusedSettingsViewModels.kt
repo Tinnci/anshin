@@ -1,6 +1,5 @@
 package com.driezy.medlog.feature.settings
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.ai.AiApiKeyStore
 import com.driezy.medlog.capability.reminders.application.ReconcileRemindersUseCase
@@ -18,6 +17,7 @@ import com.driezy.medlog.domain.ReminderReconcileReason
 import com.driezy.medlog.domain.model.MedicationId
 import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.ui.theme.ThemePalette
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.catch
@@ -148,7 +148,7 @@ class SettingsModuleViewModel @Inject constructor(
 ) : BaseViewModel() {
     val uiState = combine(
         medications.getArchivedMedications().catch { error ->
-            Log.e("SettingsModuleVM", "Failed to load archived medications", error)
+            AppLog.e("SettingsModuleVM", "Failed to load archived medications", error)
             emit(emptyList())
         },
         preferences.features,

@@ -1,8 +1,8 @@
 package com.driezy.medlog.ui
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.driezy.medlog.util.AppLog
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -37,7 +37,7 @@ abstract class BaseViewModel : ViewModel() {
             } catch (e: CancellationException) {
                 throw e // 协程取消不可吞没，必须重新抛出
             } catch (e: Throwable) {
-                Log.e(TAG, "Unhandled ViewModel coroutine failure", e)
+                AppLog.e(TAG, "Unhandled ViewModel coroutine failure", e)
                 onError(e)
             }
         }

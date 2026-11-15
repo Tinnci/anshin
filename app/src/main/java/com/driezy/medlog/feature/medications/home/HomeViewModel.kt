@@ -1,6 +1,5 @@
 package com.driezy.medlog.feature.medications.home
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.reminders.NotificationHelper
 import com.driezy.medlog.capability.reminders.application.ProgressNotificationUseCase
@@ -28,6 +27,7 @@ import com.driezy.medlog.feature.medications.application.ToggleMedicationDoseUse
 import com.driezy.medlog.feature.medications.application.matchDoseLogsToSlots
 import com.driezy.medlog.interaction.InteractionRuleEngine
 import com.driezy.medlog.ui.BaseViewModel
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -390,7 +390,7 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             medicationRepo.getActiveMedications()
                 .take(1)
-                .catch { e -> Log.e("HomeVM", "Failed to scan low stock medications", e) }
+                .catch { e -> AppLog.e("HomeVM", "Failed to scan low stock medications", e) }
                 .collect { meds ->
                     meds.forEach { med ->
                         val stock = med.stock ?: return@forEach
@@ -457,7 +457,7 @@ class HomeViewModel @Inject constructor(
                                 .map { Instant.ofEpochMilli(it.scheduledTimeMs).atZone(zone).toLocalDate() }.toSet()
                             StreakCalculator.currentStreak(dates, today)
                         }
-                }.flowOn(computationDispatcher).catch { e -> Log.e("HomeVM", "Failed to compute streak data", e) }
+                }.flowOn(computationDispatcher).catch { e -> AppLog.e("HomeVM", "Failed to compute streak data", e) }
                 .collect { streak -> _uiState.update { it.copy(currentStreak = streak) } }
         }
     }
@@ -469,14 +469,14 @@ class HomeViewModel @Inject constructor(
         when (val result = PlanExportCodec.decodeWithDiagnostics(raw)) {
             is PlanExportDecodeResult.Success -> {
                 if (result.plan.meds.isEmpty()) {
-                    Log.w("HomeVM", "QR import failed: empty medication list")
+                    AppLog.w("HomeVM", "QR import failed: empty medication list")
                     _uiState.update { it.copy(importError = "invalid_qr") }
                     return
                 }
                 _uiState.update { it.copy(importPreview = result.plan, importError = null) }
             }
             is PlanExportDecodeResult.Failure -> {
-                Log.w("HomeVM", "QR import failed: ${result.reason}")
+                AppLog.w("HomeVM", "QR import failed: ${result.reason}")
                 _uiState.update { it.copy(importError = "invalid_qr") }
             }
         }

@@ -1,6 +1,5 @@
 package com.driezy.medlog.feature.health
 
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.capability.ai.AiApiKeyStore
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
@@ -22,6 +21,7 @@ import com.driezy.medlog.feature.health.application.HealthInsight
 import com.driezy.medlog.feature.health.application.HealthInsightGenerationUseCase
 import com.driezy.medlog.ui.BaseViewModel
 import com.driezy.medlog.ui.util.formatDose
+import com.driezy.medlog.util.AppLog
 import com.driezy.medlog.voice.VoiceInputController
 import com.driezy.medlog.voice.VoiceInputEvent
 import com.driezy.medlog.voice.VoiceInputPhase
@@ -248,7 +248,7 @@ class HealthViewModel @Inject constructor(
                         repository.getRecordsByType(type.name)
                     }
                 }
-                .catch { e -> Log.e("HealthVM", "Failed to collect health records", e) }
+                .catch { e -> AppLog.e("HealthVM", "Failed to collect health records", e) }
                 .collect { records ->
                     _uiState.update { it.copy(records = records, isLoading = false) }
                 }
@@ -274,7 +274,7 @@ class HealthViewModel @Inject constructor(
                 }
                 Triple(stats, bmi, bmi?.let { HealthType.classifyBmi(it) })
             }
-                .catch { e -> Log.e("HealthVM", "Failed to collect health stats", e) }
+                .catch { e -> AppLog.e("HealthVM", "Failed to collect health stats", e) }
                 .collect { (stats, bmi, bmiClass) ->
                     _uiState.update { it.copy(stats = stats, bmi = bmi, bmiClass = bmiClass) }
                 }
@@ -307,7 +307,7 @@ class HealthViewModel @Inject constructor(
                         )
                     }
                 }
-                .catch { e -> Log.e("HealthVM", "Failed to collect chart data", e) }
+                .catch { e -> AppLog.e("HealthVM", "Failed to collect chart data", e) }
                 .collect { points ->
                     _uiState.update { it.copy(chartPoints = points) }
                 }
@@ -324,7 +324,7 @@ class HealthViewModel @Inject constructor(
             ) { records, settings, _ ->
                 records to settings.userHeightCm
             }
-                .catch { e -> Log.e("HealthVM", "Failed to build health insights", e) }
+                .catch { e -> AppLog.e("HealthVM", "Failed to build health insights", e) }
                 .collectLatest { (records, heightCm) ->
                     _uiState.update { it.copy(isInsightRefreshing = true) }
                     val result = insightGeneration.generateWithStatus(

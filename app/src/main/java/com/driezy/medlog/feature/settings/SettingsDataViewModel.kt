@@ -1,7 +1,6 @@
 package com.driezy.medlog.feature.settings
 
 import android.content.Context
-import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.update.application.AppUpdateManager
@@ -10,6 +9,7 @@ import com.driezy.medlog.data.repository.OnboardingPreferences
 import com.driezy.medlog.data.repository.UpdatePreferences
 import com.driezy.medlog.feature.settings.application.BackupRestoreUseCase
 import com.driezy.medlog.ui.BaseViewModel
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.channels.Channel
@@ -89,7 +89,7 @@ class SettingsDataViewModel @Inject constructor(
                     effectChannel.send(SettingsUiEffect.Message(context.getString(R.string.settings_backup_success)))
                 }
                 .onFailure { error ->
-                    Log.e("SettingsDataVM", "Backup failed", error)
+                    AppLog.e("SettingsDataVM", "Backup failed", error)
                     effectChannel.send(SettingsUiEffect.Message(error.localizedMessage ?: "Unknown error"))
                 }
             _inProgress.value = false
@@ -105,7 +105,7 @@ class SettingsDataViewModel @Inject constructor(
                     effectChannel.send(SettingsUiEffect.RestartApplication)
                 }
                 .onFailure { error ->
-                    Log.e("SettingsDataVM", "Restore failed", error)
+                    AppLog.e("SettingsDataVM", "Restore failed", error)
                     val message = if (error is IllegalArgumentException) {
                         context.getString(R.string.settings_backup_invalid_file)
                     } else {

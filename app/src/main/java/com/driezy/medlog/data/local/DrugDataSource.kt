@@ -1,8 +1,8 @@
 package com.driezy.medlog.data.local
 
 import android.content.Context
-import android.util.Log
 import com.driezy.medlog.data.model.Drug
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -19,7 +19,7 @@ class DrugDataSource @Inject constructor(@param:ApplicationContext private val c
                 DrugCatalogAssets.names(context),
             )
         } catch (e: Exception) {
-            Log.e("DrugDataSource", "Could not load the bundled drug catalog", e)
+            AppLog.e("DrugDataSource", "Could not load the bundled drug catalog", e)
             emptyList()
         }
     }

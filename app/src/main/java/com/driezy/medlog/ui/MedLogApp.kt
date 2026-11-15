@@ -34,8 +34,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.bpx1.application.Bpx1AutoSyncEvent
-import com.driezy.medlog.ui.utils.MedLogHapticEffect
-import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import com.driezy.medlog.feature.health.HealthScreen
 import com.driezy.medlog.feature.health.symptom.SymptomDiaryScreen
 import com.driezy.medlog.feature.history.HistoryScreen
@@ -59,6 +57,8 @@ import com.driezy.medlog.ui.navigation.TOP_LEVEL_DESTINATIONS
 import com.driezy.medlog.ui.navigation.TopLevelDestination
 import com.driezy.medlog.ui.util.medicationNameLanguage
 import com.driezy.medlog.ui.util.rememberDrugCategoryLabels
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable

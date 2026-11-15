@@ -1,12 +1,12 @@
 package com.driezy.medlog.capability.ocr
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.core.graphics.get
 import androidx.core.graphics.scale
+import com.driezy.medlog.util.AppLog
 import kotlin.math.roundToInt
 
-private const val TAG = "OcrFrameInputPreprocessor"
+private const val TAG = "OcrFramePreprocessor"
 private const val MIN_RECOGNITION_LONG_EDGE = 1280
 private const val MAX_RECOGNITION_LONG_EDGE = 2400
 
@@ -20,12 +20,11 @@ internal object OcrFrameInputPreprocessor {
         }
 
         val quality = assess(normalized)
-        Log.d(
-            TAG,
+        AppLog.d(TAG) {
             "Prepared OCR frame ${normalized.width}x${normalized.height} " +
                 "brightness=${quality.meanLuminance.roundToInt()} " +
-                "contrast=${quality.contrast.roundToInt()}",
-        )
+                "contrast=${quality.contrast.roundToInt()}"
+        }
         return PreparedFrame(bitmap = normalized, quality = quality)
     }
 

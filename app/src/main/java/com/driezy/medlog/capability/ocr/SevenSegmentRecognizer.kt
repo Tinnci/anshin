@@ -6,11 +6,11 @@ import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.util.Log
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.scale
 import com.driezy.medlog.data.repository.OcrModelType
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.util.AppLog
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -68,12 +68,12 @@ internal class SevenSegmentRecognizer(
             if (currentModelType == modelType && session != null) {
                 return
             }
-            Log.d(TAG, "Switching OCR model from $currentModelType to $modelType")
+            AppLog.d(TAG) { "Switching OCR model from $currentModelType to $modelType" }
 
             try {
                 session?.close()
             } catch (e: Exception) {
-                Log.w(TAG, "Error closing previous OCR session", e)
+                AppLog.w(TAG, "Error closing previous OCR session", e)
             }
             session = null
 
@@ -86,9 +86,9 @@ internal class SevenSegmentRecognizer(
                 val modelBytes = context.applicationContext.assets.open(assetName).use { it.readBytes() }
                 session = ortEnvironment.createSession(modelBytes)
                 currentModelType = modelType
-                Log.d(TAG, "Successfully loaded $modelType OCR model ($assetName)")
+                AppLog.d(TAG) { "Successfully loaded $modelType OCR model ($assetName)" }
             } catch (e: Exception) {
-                Log.e(TAG, "Failed to load ONNX model $assetName for $modelType", e)
+                AppLog.e(TAG, "Failed to load ONNX model $assetName for $modelType", e)
             }
         }
     }
@@ -121,7 +121,7 @@ internal class SevenSegmentRecognizer(
             val result = ctcDecode(logits as Array<Array<FloatArray>>)
             result.ifEmpty { null }
         } catch (e: Exception) {
-            Log.w(TAG, "7-segment recognition failed using $modelType", e)
+            AppLog.w(TAG, "7-segment recognition failed using $modelType", e)
             null
         }
     }

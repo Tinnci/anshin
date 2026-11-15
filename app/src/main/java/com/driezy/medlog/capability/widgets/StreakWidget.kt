@@ -1,7 +1,6 @@
 package com.driezy.medlog.capability.widgets
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -34,6 +33,7 @@ import com.driezy.medlog.data.local.settingsDataStore
 import com.driezy.medlog.data.model.LogStatus
 import com.driezy.medlog.domain.StreakCalculator
 import com.driezy.medlog.ui.MainActivity
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.flow.first
 import java.time.DayOfWeek
@@ -109,7 +109,7 @@ class StreakWidget : GlanceAppWidget() {
             Pair(dayComplete(localDate), label)
         }
         val widgetPrefs = runCatching { context.settingsDataStore.data.first() }
-            .onFailure { Log.w(TAG, "Failed to read widget preferences", it) }
+            .onFailure { AppLog.w(TAG, "Failed to read widget preferences", it) }
             .getOrElse { androidx.datastore.preferences.core.emptyPreferences() }
         val appearance = widgetPrefs.medLogWidgetAppearance()
 

@@ -1,6 +1,5 @@
 package com.driezy.medlog.feature.health.application
 
-import android.util.Log
 import com.driezy.medlog.capability.ai.AiApiKeyStore
 import com.driezy.medlog.capability.ai.AiChatClientFactory
 import com.driezy.medlog.capability.ai.AiCloudConfigResolver
@@ -8,6 +7,7 @@ import com.driezy.medlog.capability.ai.AiProviderException
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.repository.AiCacheRepository
 import com.driezy.medlog.data.repository.UserPreferencesRepository
+import com.driezy.medlog.util.AppLog
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
@@ -103,7 +103,7 @@ class HealthInsightGenerationUseCase @Inject constructor(
                 }
             },
             onFailure = { error ->
-                Log.w(TAG, "Cloud health insight generation failed; using local insights", error)
+                AppLog.w(TAG, "Cloud health insight generation failed; using local insights", error)
                 HealthInsightGenerationResult(
                     insights = localInsights,
                     executionStatus = when (error) {

@@ -3,9 +3,9 @@ package com.driezy.medlog.capability.ai
 import android.content.Context
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import android.util.Log
 import androidx.core.content.edit
 import com.driezy.medlog.data.repository.CloudAiProvider
+import com.driezy.medlog.util.AppLog
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +32,7 @@ class AndroidKeystoreAiApiKeyStore @Inject constructor(@ApplicationContext conte
     override suspend fun getApiKey(provider: CloudAiProvider): String? {
         val encrypted = preferences.getString(provider.preferenceKey(), null) ?: return null
         return runCatching { decrypt(encrypted) }
-            .onFailure { Log.w(TAG, "Failed to decrypt API key for ${provider.name}", it) }
+            .onFailure { AppLog.w(TAG, "Failed to decrypt API key for ${provider.name}", it) }
             .getOrNull()
             ?.takeIf { it.isNotBlank() }
     }

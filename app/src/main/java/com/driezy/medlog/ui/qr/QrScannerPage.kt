@@ -2,7 +2,6 @@ package com.driezy.medlog.ui.qr
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.util.Log
 import android.widget.photopicker.EmbeddedPhotoPickerFeatureInfo
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -40,6 +39,7 @@ import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
+import com.driezy.medlog.util.AppLog
 import com.google.mlkit.vision.barcode.BarcodeScannerOptions
 import com.google.mlkit.vision.barcode.BarcodeScanning
 import com.google.mlkit.vision.barcode.common.Barcode
@@ -116,13 +116,13 @@ fun QrScannerPage(
                             }
                         }
                         .addOnFailureListener { e ->
-                            Log.e(TAG, "Barcode scan failed from Uri", e)
+                            AppLog.e(TAG, "Barcode scan failed from Uri", e)
                             scope.launch {
                                 snackbarHostState.showSnackbar(errorMessage)
                             }
                         }
                 }.onFailure { e ->
-                    Log.e(TAG, "Failed to load image from Uri", e)
+                    AppLog.e(TAG, "Failed to load image from Uri", e)
                     scope.launch {
                         snackbarHostState.showSnackbar(errorMessage)
                     }
@@ -162,7 +162,7 @@ fun QrScannerPage(
                         }
                     }
                     .addOnFailureListener { e ->
-                        Log.e(TAG, "Barcode scan failed from Uri", e)
+                        AppLog.e(TAG, "Barcode scan failed from Uri", e)
                         scope.launch {
                             performHaptic(MedLogHapticEffect.REJECT)
                             snackbarHostState.showSnackbar(errorMessage)
@@ -172,7 +172,7 @@ fun QrScannerPage(
                         }
                     }
             }.onFailure { e ->
-                Log.e(TAG, "Failed to load image from Uri", e)
+                AppLog.e(TAG, "Failed to load image from Uri", e)
                 scope.launch {
                     performHaptic(MedLogHapticEffect.REJECT)
                     snackbarHostState.showSnackbar(errorMessage)
@@ -351,7 +351,7 @@ private fun CameraPreview(isScanned: Boolean, modifier: Modifier = Modifier, onQ
                                     }
                                 }
                             }
-                            .addOnFailureListener { Log.w(TAG, "Barcode scan failed", it) }
+                            .addOnFailureListener { AppLog.w(TAG, "Barcode scan failed", it) }
                             .addOnCompleteListener { imageProxy.close() }
                     } else {
                         imageProxy.close()
@@ -367,7 +367,7 @@ private fun CameraPreview(isScanned: Boolean, modifier: Modifier = Modifier, onQ
                 preview,
                 imageAnalysis,
             )
-        }.onFailure { Log.e(TAG, "Camera bind failed", it) }
+        }.onFailure { AppLog.e(TAG, "Camera bind failed", it) }
     }
 
     AndroidView(
