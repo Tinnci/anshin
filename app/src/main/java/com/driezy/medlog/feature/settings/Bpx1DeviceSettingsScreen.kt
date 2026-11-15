@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -69,6 +70,8 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.content.ContextCompat
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -81,11 +84,13 @@ import com.driezy.medlog.capability.bpx1.Bpx1ConnectionFailure
 import com.driezy.medlog.capability.bpx1.Bpx1ConnectionResult
 import com.driezy.medlog.capability.bpx1.Bpx1DiscoveredDevice
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
+import com.driezy.medlog.capability.bpx1.Bpx1PairingQrParser
 import com.driezy.medlog.capability.bpx1.Bpx1PayloadStatus
 import com.driezy.medlog.capability.bpx1.Bpx1Protocol
 import com.driezy.medlog.capability.bpx1.requiredBpx1Permissions
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
+import com.driezy.medlog.ui.qr.QrScannerPage
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
@@ -109,6 +114,19 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
     var pendingAction by remember { mutableStateOf<Bpx1PendingAction?>(null) }
     var permissionRefresh by remember { mutableIntStateOf(0) }
     var showClearDialog by rememberSaveable { mutableStateOf(false) }
+    var showQrScanner by rememberSaveable { mutableStateOf(false) }
+    var hasAutoShownGuide by rememberSaveable { mutableStateOf(false) }
+    var showPairingGuide by rememberSaveable { mutableStateOf(false) }
+    LaunchedEffect(uiState.configuration.isConfigured, uiState.macInput, uiState.bindKeyInput) {
+        if (!hasAutoShownGuide &&
+            !uiState.configuration.isConfigured &&
+            uiState.macInput.isBlank() &&
+            uiState.bindKeyInput.isBlank()
+        ) {
+            hasAutoShownGuide = true
+            showPairingGuide = true
+        }
+    }
     val requiredPermissions = remember { requiredBpx1Permissions() }
     val missingPermissions = remember(permissionRefresh) {
         requiredPermissions.filter { permission ->
@@ -194,6 +212,14 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
                         )
                     }
                 },
+                actions = {
+                    IconButton(onClick = { showPairingGuide = true }) {
+                        MedLogIcon(
+                            MedLogIcons.Info,
+                            contentDescription = stringResource(R.string.bpx1_pairing_guide_cd),
+                        )
+                    }
+                },
                 scrollBehavior = scrollBehavior,
             )
         },
@@ -226,11 +252,48 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
                 viewModel.onAction(action)
             },
             onClear = { showClearDialog = true },
+            onScanPairingQr = { showQrScanner = true },
             onShowMessage = { msg ->
                 performHaptic(MedLogHapticEffect.REJECT)
                 coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
             },
         )
+    }
+
+    if (showPairingGuide) {
+        Bpx1PairingGuideDialog(
+            onDismiss = { showPairingGuide = false },
+            onScanQr = {
+                showPairingGuide = false
+                showQrScanner = true
+            },
+        )
+    }
+
+    if (showQrScanner) {
+        val qrSuccessMsg = stringResource(R.string.bpx1_qr_import_success)
+        val qrInvalidMsg = stringResource(R.string.bpx1_qr_import_invalid)
+        Dialog(
+            onDismissRequest = { showQrScanner = false },
+            properties = DialogProperties(usePlatformDefaultWidth = false),
+        ) {
+            QrScannerPage(
+                onResult = { raw ->
+                    showQrScanner = false
+                    val parsed = Bpx1PairingQrParser.parse(raw)
+                    if (parsed != null) {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
+                        parsed.macAddress?.let { viewModel.onAction(Bpx1SettingsUiAction.MacChanged(it)) }
+                        viewModel.onAction(Bpx1SettingsUiAction.BindKeyChanged(parsed.bindKeyHex))
+                        coroutineScope.launch { snackbarHostState.showSnackbar(qrSuccessMsg) }
+                    } else {
+                        performHaptic(MedLogHapticEffect.REJECT)
+                        coroutineScope.launch { snackbarHostState.showSnackbar(qrInvalidMsg) }
+                    }
+                },
+                onBack = { showQrScanner = false },
+            )
+        }
     }
 
     if (showClearDialog) {
@@ -272,6 +335,7 @@ private fun Bpx1DeviceSettingsContent(
     onConnect: () -> Unit,
     onAction: (Bpx1SettingsUiAction) -> Unit,
     onClear: () -> Unit,
+    onScanPairingQr: () -> Unit,
     onShowMessage: (String) -> Unit,
 ) {
     Column(
@@ -313,6 +377,7 @@ private fun Bpx1DeviceSettingsContent(
             onBindKeyChange = { onAction(Bpx1SettingsUiAction.BindKeyChanged(it)) },
             onSave = { onAction(Bpx1SettingsUiAction.ConfigurationSaved) },
             onClear = onClear,
+            onScanPairingQr = onScanPairingQr,
             onShowMessage = onShowMessage,
         )
         Bpx1ImportCard(
@@ -436,6 +501,7 @@ private fun Bpx1ConfigurationCard(
     onBindKeyChange: (String) -> Unit,
     onSave: () -> Unit,
     onClear: () -> Unit,
+    onScanPairingQr: () -> Unit,
     onShowMessage: (String) -> Unit,
 ) {
     val context = LocalContext.current
@@ -524,20 +590,36 @@ private fun Bpx1ConfigurationCard(
                     }
                 },
             )
-            AssistChip(
-                onClick = {
-                    val clipboard = context.getSystemService(ClipboardManager::class.java)
-                    val clipText = clipboard?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
-                    val extracted = extractBindKeyHex(clipText)
-                    if (extracted != null) {
-                        performHaptic(MedLogHapticEffect.CONFIRM)
-                        onBindKeyChange(extracted)
-                    } else {
-                        onShowMessage(clipboardEmptyMessage)
-                    }
-                },
-                label = { Text(stringResource(R.string.bpx1_paste_bind_key)) },
-            )
+            FlowRow(
+                horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Small),
+                verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
+            ) {
+                AssistChip(
+                    onClick = onScanPairingQr,
+                    leadingIcon = {
+                        MedLogIcon(
+                            MedLogIcons.QrCodeScanner,
+                            contentDescription = null,
+                            modifier = Modifier.size(18.dp),
+                        )
+                    },
+                    label = { Text(stringResource(R.string.bpx1_scan_pairing_qr)) },
+                )
+                AssistChip(
+                    onClick = {
+                        val clipboard = context.getSystemService(ClipboardManager::class.java)
+                        val clipText = clipboard?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
+                        val extracted = extractBindKeyHex(clipText)
+                        if (extracted != null) {
+                            performHaptic(MedLogHapticEffect.CONFIRM)
+                            onBindKeyChange(extracted)
+                        } else {
+                            onShowMessage(clipboardEmptyMessage)
+                        }
+                    },
+                    label = { Text(stringResource(R.string.bpx1_paste_bind_key)) },
+                )
+            }
             Text(
                 stringResource(R.string.bpx1_bind_key_source),
                 style = MaterialTheme.typography.bodySmall,
@@ -917,10 +999,35 @@ private fun Bpx1PayloadVerificationBadge(status: Bpx1PayloadStatus) {
     }
 }
 
-internal fun extractBindKeyHex(rawText: String): String? {
-    val normalized = rawText.replace(Regex("[:\\-\\s]"), "")
-    return Regex("[0-9a-fA-F]{32}").find(normalized)?.value?.lowercase()
+@Composable
+private fun Bpx1PairingGuideDialog(onDismiss: () -> Unit, onScanQr: () -> Unit) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        icon = { MedLogIcon(MedLogIcons.MonitorHeart, contentDescription = null) },
+        title = { Text(stringResource(R.string.bpx1_pairing_guide_title)) },
+        text = {
+            Column(verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Small)) {
+                Text(stringResource(R.string.bpx1_pairing_guide_step1), style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.bpx1_pairing_guide_step2), style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.bpx1_pairing_guide_step3), style = MaterialTheme.typography.bodyMedium)
+            }
+        },
+        confirmButton = {
+            Button(onClick = onScanQr) {
+                MedLogIcon(MedLogIcons.QrCodeScanner, contentDescription = null, modifier = Modifier.size(18.dp))
+                Spacer(Modifier.size(MedLogSpacing.Small))
+                Text(stringResource(R.string.bpx1_scan_pairing_qr))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(stringResource(R.string.bpx1_pairing_guide_manual))
+            }
+        },
+    )
 }
+
+internal fun extractBindKeyHex(rawText: String): String? = Bpx1PairingQrParser.extractBindKeyHex(rawText)
 
 private fun Bpx1ConnectionFailure.stringRes(): Int = when (this) {
     Bpx1ConnectionFailure.INVALID_ADDRESS -> R.string.bpx1_connection_invalid_address

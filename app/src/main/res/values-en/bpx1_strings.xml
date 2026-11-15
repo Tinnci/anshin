@@ -130,4 +130,13 @@
     <string name="bpx1_bg_sync_channel_name">Blood pressure background sync</string>
     <string name="bpx1_bg_sync_notif_title">Blood pressure logged</string>
     <string name="bpx1_bg_sync_notif_body">BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_scan_pairing_qr">Scan Pairing QR</string>
+    <string name="bpx1_qr_import_success">Imported MAC &amp; BindKey from QR code. Tap Save to apply.</string>
+    <string name="bpx1_qr_import_invalid">No valid BPX1 pairing info found in QR code</string>
+    <string name="bpx1_pairing_guide_cd">Pairing guide</string>
+    <string name="bpx1_pairing_guide_title">Pair Your BP Monitor</string>
+    <string name="bpx1_pairing_guide_step1">1. Get your monitor\'s MAC address and 32-char hex BindKey (or generate a pairing QR code).</string>
+    <string name="bpx1_pairing_guide_step2">2. Tap Scan Pairing QR below to auto-fill, or use Scan + Paste BindKey.</string>
+    <string name="bpx1_pairing_guide_step3">3. Tap Save, then take a reading near your phone for automatic sync.</string>
+    <string name="bpx1_pairing_guide_manual">Manual setup</string>
 </resources>

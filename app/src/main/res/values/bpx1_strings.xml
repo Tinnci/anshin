@@ -127,4 +127,13 @@
     <string name="bpx1_bg_sync_channel_name">血压计后台自动同步</string>
     <string name="bpx1_bg_sync_notif_title">已自动记录血压</string>
     <string name="bpx1_bg_sync_notif_body">BPX1：%1$d/%2$d mmHg · 心率 %3$d bpm</string>
+    <string name="bpx1_scan_pairing_qr">扫码配对</string>
+    <string name="bpx1_qr_import_success">已从二维码导入 MAC 与 BindKey，请点击保存</string>
+    <string name="bpx1_qr_import_invalid">未在二维码中识别到有效的 BPX1 配对信息</string>
+    <string name="bpx1_pairing_guide_cd">配对指引</string>
+    <string name="bpx1_pairing_guide_title">首次配对血压计</string>
+    <string name="bpx1_pairing_guide_step1">1. 准备血压计的 MAC 地址与 32 位十六进制 BindKey（或生成配对二维码）。</string>
+    <string name="bpx1_pairing_guide_step2">2. 点击下方“扫码配对”一键填入，或通过附近扫描 + 粘贴 BindKey 手动填写。</string>
+    <string name="bpx1_pairing_guide_step3">3. 点击“保存”后，在手机旁测量一次血压即可自动同步记录。</string>
+    <string name="bpx1_pairing_guide_manual">手动设置</string>
 </resources>

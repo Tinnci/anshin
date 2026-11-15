@@ -127,4 +127,13 @@
     <string name="bpx1_bg_sync_channel_name">血圧計バックグラウンド自動同期</string>
     <string name="bpx1_bg_sync_notif_title">血圧を自動記録しました</string>
     <string name="bpx1_bg_sync_notif_body">BPX1：%1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_scan_pairing_qr">QR でペアリング</string>
+    <string name="bpx1_qr_import_success">QR コードから MAC と BindKey を読み込みました。「保存」を押してください。</string>
+    <string name="bpx1_qr_import_invalid">QR コードに有効な BPX1 ペアリング情報が見つかりません</string>
+    <string name="bpx1_pairing_guide_cd">ペアリングガイド</string>
+    <string name="bpx1_pairing_guide_title">血圧計の初回ペアリング</string>
+    <string name="bpx1_pairing_guide_step1">1. 血圧計の MAC アドレスと 32 桁の 16 進数 BindKey（またはペアリング用 QR コード）を用意します。</string>
+    <string name="bpx1_pairing_guide_step2">2. 下の「QR でペアリング」で自動入力するか、スキャン + BindKey 貼り付けで入力します。</string>
+    <string name="bpx1_pairing_guide_step3">3. 「保存」を押してからスマホの近くで測定すると自動で記録されます。</string>
+    <string name="bpx1_pairing_guide_manual">手動設定</string>
 </resources>

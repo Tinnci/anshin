@@ -127,4 +127,13 @@
     <string name="bpx1_bg_sync_channel_name">혈압계 백그라운드 자동 동기화</string>
     <string name="bpx1_bg_sync_notif_title">혈압 자동 기록됨</string>
     <string name="bpx1_bg_sync_notif_body">BPX1: %1$d/%2$d mmHg · %3$d bpm</string>
+    <string name="bpx1_scan_pairing_qr">QR로 페어링</string>
+    <string name="bpx1_qr_import_success">QR 코드에서 MAC 및 BindKey를 가져왔습니다. 저장을 눌러 적용하세요.</string>
+    <string name="bpx1_qr_import_invalid">QR 코드에서 유효한 BPX1 페어링 정보를 찾지 못했습니다</string>
+    <string name="bpx1_pairing_guide_cd">페어링 안내</string>
+    <string name="bpx1_pairing_guide_title">혈압계 처음 페어링</string>
+    <string name="bpx1_pairing_guide_step1">1. 혈압계의 MAC 주소와 32자리 16진수 BindKey(또는 페어링 QR 코드)를 준비하세요.</string>
+    <string name="bpx1_pairing_guide_step2">2. 아래 \'QR로 페어링\'으로 자동 입력하거나 스캔 + BindKey 붙여넣기를 사용하세요.</string>
+    <string name="bpx1_pairing_guide_step3">3. 저장을 누른 뒤 휴대폰 근처에서 혈압을 측정하면 자동으로 기록됩니다.</string>
+    <string name="bpx1_pairing_guide_manual">수동 설정</string>
 </resources>
