@@ -34,6 +34,8 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.driezy.medlog.R
 import com.driezy.medlog.capability.bpx1.application.Bpx1AutoSyncEvent
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import com.driezy.medlog.feature.health.HealthScreen
 import com.driezy.medlog.feature.health.symptom.SymptomDiaryScreen
 import com.driezy.medlog.feature.history.HistoryScreen
@@ -92,6 +94,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
     val globalSnackbarHostState = remember { SnackbarHostState() }
     val resources = LocalResources.current
     val viewLabel = stringResource(R.string.bpx1_auto_sync_view)
+    val performHaptic = rememberMedLogHaptics()
 
     // 响应快捷方式"添加药品"intent
     LaunchedEffect(openAddMedication) {
@@ -139,6 +142,7 @@ fun MedLogApp(openAddMedication: Boolean = false) {
                 if (navController.currentDestination?.hasRoute(Route.Health::class) == true) {
                     return@collect
                 }
+                performHaptic(MedLogHapticEffect.CONFIRM)
                 val message = resources.getString(
                     R.string.bpx1_auto_sync_toast,
                     event.measurement.systolic,

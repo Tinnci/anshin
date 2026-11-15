@@ -4,13 +4,21 @@ import android.bluetooth.BluetoothAdapter
 import android.content.Intent
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.*
 import androidx.compose.material3.carousel.HorizontalUncontainedCarousel
 import androidx.compose.material3.carousel.rememberCarouselState
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -19,12 +27,14 @@ import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceMode
 import com.driezy.medlog.capability.bpx1.application.Bpx1ServiceStatus
 import com.driezy.medlog.capability.bpx1.missingBpx1Permissions
-import com.driezy.medlog.data.model.BloodPressureClassification
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
+import com.driezy.medlog.ui.util.BloodPressureClassBadge
 import com.driezy.medlog.ui.util.labelRes
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import kotlinx.coroutines.delay
 import java.time.Instant
 import java.time.ZoneId
@@ -39,8 +49,10 @@ internal fun HealthOcrHeroCard(
     onDismissAutoSyncBanner: () -> Unit = {},
     onRefreshBpx1Sync: () -> Unit = {},
 ) {
+    val performHaptic = rememberMedLogHaptics()
     LaunchedEffect(autoSyncedMeasurement) {
         if (autoSyncedMeasurement != null) {
+            performHaptic(MedLogHapticEffect.CONFIRM)
             delay(5_000L)
             onDismissAutoSyncBanner()
         }
@@ -187,6 +199,24 @@ private fun Bpx1HeroStatusRow(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(16.dp),
             )
+            if (autoSyncedMeasurement == null && bpx1Status.isAutoSyncActive && bpx1Status.isDeviceNearby) {
+                val pulseTransition = rememberInfiniteTransition(label = "bpx1_nearby_pulse")
+                val pulseAlpha by pulseTransition.animateFloat(
+                    initialValue = 0.35f,
+                    targetValue = 1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(durationMillis = 800),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                    label = "bpx1_nearby_alpha",
+                )
+                Box(
+                    modifier = Modifier
+                        .size(8.dp)
+                        .alpha(pulseAlpha)
+                        .background(MaterialTheme.colorScheme.primary, CircleShape),
+                )
+            }
             Column(modifier = Modifier.weight(1f)) {
                 if (statusText != null) {
                     Text(
@@ -349,22 +379,7 @@ private fun HealthStatCard(stat: HealthTypeStat, modifier: Modifier = Modifier) 
 
             // ── 血压分类标签 ──────────────────────────────────────
             if (stat.bloodPressureClass != null) {
-                val bpColor = when (stat.bloodPressureClass) {
-                    BloodPressureClassification.NORMAL -> MaterialTheme.colorScheme.primary
-                    BloodPressureClassification.LOW -> MaterialTheme.colorScheme.tertiary
-                    else -> MaterialTheme.colorScheme.error
-                }
-                Surface(
-                    shape = MaterialTheme.shapes.small,
-                    color = bpColor.copy(alpha = 0.15f),
-                ) {
-                    Text(
-                        stringResource(stat.bloodPressureClass.labelRes),
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = bpColor,
-                    )
-                }
+                BloodPressureClassBadge(stat.bloodPressureClass)
             }
 
             Row(

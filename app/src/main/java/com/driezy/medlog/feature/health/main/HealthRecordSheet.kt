@@ -18,6 +18,7 @@ import com.driezy.medlog.ui.components.messageText
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.emphasizedTypography
+import com.driezy.medlog.ui.util.BloodPressureClassBadge
 import com.driezy.medlog.ui.util.labelRes
 import com.driezy.medlog.ui.utils.MedLogHapticEffect
 import com.driezy.medlog.ui.utils.rememberMedLogHaptics
@@ -127,6 +128,13 @@ internal fun AddEditHealthSheet(
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
                         modifier = Modifier.weight(1f),
+                    )
+                }
+                val systolic = draft.value.toDoubleOrNull()
+                val diastolic = draft.secondaryValue.toDoubleOrNull()
+                if (systolic != null && diastolic != null && systolic > 0 && diastolic > 0) {
+                    BloodPressureClassBadge(
+                        classification = HealthType.classifyBloodPressure(systolic, diastolic),
                     )
                 }
             } else {

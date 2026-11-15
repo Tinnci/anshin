@@ -7,6 +7,11 @@ import android.net.Uri
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +41,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.pluralStringResource
@@ -55,10 +61,14 @@ import com.driezy.medlog.R
 import com.driezy.medlog.capability.bpx1.Bpx1Measurement
 import com.driezy.medlog.capability.bpx1.application.Bpx1SyncFailure
 import com.driezy.medlog.capability.bpx1.missingBpx1Permissions
+import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
+import com.driezy.medlog.ui.util.BloodPressureClassBadge
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 
 @Composable
 internal fun Bpx1SyncDialog(
@@ -69,6 +79,7 @@ internal fun Bpx1SyncDialog(
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val performHaptic = rememberMedLogHaptics()
 
     // Scanning needs runtime Bluetooth permission. Only ask for it once a BPX1
     // monitor is configured so unconfigured users go straight to the pairing prompt.
@@ -94,6 +105,22 @@ internal fun Bpx1SyncDialog(
 
     LaunchedEffect(Unit) {
         requestPermissionsOrSync()
+    }
+
+    LaunchedEffect(uiState.deviceDetected) {
+        if (uiState.deviceDetected && uiState.isScanning && uiState.importedCount == 0) {
+            performHaptic(MedLogHapticEffect.SEGMENT_TICK)
+        }
+    }
+    LaunchedEffect(uiState.importedCount) {
+        if (uiState.importedCount > 0) {
+            performHaptic(MedLogHapticEffect.CONFIRM)
+        }
+    }
+    LaunchedEffect(uiState.isFinished, uiState.failure) {
+        if (uiState.failure != null || (uiState.isFinished && uiState.importedCount == 0)) {
+            performHaptic(MedLogHapticEffect.REJECT)
+        }
     }
 
     DisposableEffect(Unit) {
@@ -289,10 +316,25 @@ private fun Bpx1SyncScanning(uiState: Bpx1SyncUiState, onCancel: () -> Unit) {
                 horizontalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
+                val scanPulseAlpha = if (!uiState.deviceDetected) {
+                    val transition = rememberInfiniteTransition(label = "bpx1_scan_pulse")
+                    val alpha by transition.animateFloat(
+                        initialValue = 0.35f,
+                        targetValue = 1f,
+                        animationSpec = infiniteRepeatable(
+                            animation = tween(durationMillis = 700),
+                            repeatMode = RepeatMode.Reverse,
+                        ),
+                        label = "bpx1_scan_alpha",
+                    )
+                    alpha
+                } else {
+                    1f
+                }
                 MedLogIcon(
                     if (uiState.deviceDetected) MedLogIcons.CheckCircle else MedLogIcons.Search,
                     contentDescription = null,
-                    modifier = Modifier.size(16.dp),
+                    modifier = Modifier.size(16.dp).alpha(scanPulseAlpha),
                     tint = if (uiState.deviceDetected) {
                         MaterialTheme.colorScheme.onSecondaryContainer
                     } else {
@@ -499,7 +541,7 @@ private fun Bpx1MeasurementPreviewCard(measurement: Bpx1Measurement, importedCou
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Hairline),
+            verticalArrangement = Arrangement.spacedBy(MedLogSpacing.Tiny),
             modifier = Modifier.padding(MedLogSpacing.Medium),
         ) {
             Text(
@@ -512,6 +554,12 @@ private fun Bpx1MeasurementPreviewCard(measurement: Bpx1Measurement, importedCou
                 style = MaterialTheme.emphasizedTypography.titleLarge,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center,
+            )
+            BloodPressureClassBadge(
+                classification = HealthType.classifyBloodPressure(
+                    measurement.systolic.toDouble(),
+                    measurement.diastolic.toDouble(),
+                ),
             )
             if (measurement.irregularHeartRhythm) {
                 Text(

@@ -9,12 +9,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.driezy.medlog.R
+import com.driezy.medlog.data.model.BloodPressureClassification
 import com.driezy.medlog.data.model.HealthRecord
 import com.driezy.medlog.data.model.HealthType
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
 import com.driezy.medlog.ui.theme.emphasizedTypography
+import com.driezy.medlog.ui.util.BloodPressureClassBadge
 import com.driezy.medlog.ui.util.labelRes
 import java.time.Instant
 import java.time.ZoneId
@@ -25,7 +27,19 @@ internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete
     val type = remember(record.type) { HealthType.fromName(record.type) }
     val timeFormat = remember { DateTimeFormatter.ofPattern("MM-dd HH:mm") }
     var showMenu by remember { mutableStateOf(false) }
-    val isAbnormal = !type.isNormal(record.value)
+    val bpClass = remember(type, record.value, record.secondaryValue) {
+        val secondary = record.secondaryValue
+        if (type == HealthType.BLOOD_PRESSURE && secondary != null) {
+            HealthType.classifyBloodPressure(record.value, secondary)
+        } else {
+            null
+        }
+    }
+    val isAbnormal = if (bpClass != null) {
+        bpClass != BloodPressureClassification.NORMAL
+    } else {
+        !type.isNormal(record.value)
+    }
     val visibleNotes = remember(record.notes) { record.userVisibleNotes() }
 
     Card(
@@ -54,6 +68,13 @@ internal fun HealthRecordItem(record: HealthRecord, onEdit: () -> Unit, onDelete
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         modifier = Modifier.padding(bottom = 3.dp),
                     )
+                    if (bpClass != null) {
+                        Spacer(Modifier.width(MedLogSpacing.Small))
+                        BloodPressureClassBadge(
+                            classification = bpClass,
+                            modifier = Modifier.padding(bottom = 3.dp),
+                        )
+                    }
                 }
             },
             overlineContent = {

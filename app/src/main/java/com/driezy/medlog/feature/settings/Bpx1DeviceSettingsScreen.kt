@@ -87,6 +87,8 @@ import com.driezy.medlog.capability.bpx1.requiredBpx1Permissions
 import com.driezy.medlog.ui.icons.MedLogIcon
 import com.driezy.medlog.ui.icons.MedLogIcons
 import com.driezy.medlog.ui.theme.MedLogSpacing
+import com.driezy.medlog.ui.utils.MedLogHapticEffect
+import com.driezy.medlog.ui.utils.rememberMedLogHaptics
 import kotlinx.coroutines.launch
 
 private enum class Bpx1PendingAction { SCAN, CONNECT }
@@ -103,6 +105,7 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
     val scrollBehavior = TopAppBarDefaults.pinnedScrollBehavior()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
+    val performHaptic = rememberMedLogHaptics()
     var pendingAction by remember { mutableStateOf<Bpx1PendingAction?>(null) }
     var permissionRefresh by remember { mutableIntStateOf(0) }
     var showClearDialog by rememberSaveable { mutableStateOf(false) }
@@ -161,9 +164,18 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
-                is Bpx1SettingsUiEffect.Message -> snackbarHostState.showSnackbar(
-                    messageResources.getString(effect.value.stringRes()),
-                )
+                is Bpx1SettingsUiEffect.Message -> {
+                    when (effect.value) {
+                        Bpx1SettingsMessage.CONFIGURATION_SAVED,
+                        Bpx1SettingsMessage.MEASUREMENT_IMPORTED,
+                        -> performHaptic(MedLogHapticEffect.CONFIRM)
+                        Bpx1SettingsMessage.SCAN_FAILED -> performHaptic(MedLogHapticEffect.REJECT)
+                        Bpx1SettingsMessage.CONFIGURATION_CLEARED -> performHaptic(MedLogHapticEffect.TOGGLE)
+                    }
+                    snackbarHostState.showSnackbar(
+                        messageResources.getString(effect.value.stringRes()),
+                    )
+                }
             }
         }
     }
@@ -205,9 +217,17 @@ fun Bpx1DeviceSettingsScreen(onBack: () -> Unit, viewModel: Bpx1DeviceSettingsVi
                 }
             },
             onConnect = { requestOrRun(Bpx1PendingAction.CONNECT) },
-            onAction = viewModel::onAction,
+            onAction = { action ->
+                when (action) {
+                    is Bpx1SettingsUiAction.DeviceSelected -> performHaptic(MedLogHapticEffect.SEGMENT_TICK)
+                    is Bpx1SettingsUiAction.AutoImportChanged -> performHaptic(MedLogHapticEffect.TOGGLE)
+                    else -> Unit
+                }
+                viewModel.onAction(action)
+            },
             onClear = { showClearDialog = true },
             onShowMessage = { msg ->
+                performHaptic(MedLogHapticEffect.REJECT)
                 coroutineScope.launch { snackbarHostState.showSnackbar(msg) }
             },
         )
@@ -419,6 +439,7 @@ private fun Bpx1ConfigurationCard(
     onShowMessage: (String) -> Unit,
 ) {
     val context = LocalContext.current
+    val performHaptic = rememberMedLogHaptics()
     val clipboardEmptyMessage = stringResource(R.string.bpx1_bind_key_clipboard_empty)
     var revealBindKey by remember { mutableStateOf(false) }
     val normalizedMacPreview = remember(uiState.macInput) {
@@ -509,6 +530,7 @@ private fun Bpx1ConfigurationCard(
                     val clipText = clipboard?.primaryClip?.getItemAt(0)?.coerceToText(context)?.toString().orEmpty()
                     val extracted = extractBindKeyHex(clipText)
                     if (extracted != null) {
+                        performHaptic(MedLogHapticEffect.CONFIRM)
                         onBindKeyChange(extracted)
                     } else {
                         onShowMessage(clipboardEmptyMessage)
