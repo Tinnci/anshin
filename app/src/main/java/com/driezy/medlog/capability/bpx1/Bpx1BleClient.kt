@@ -225,14 +225,7 @@ class AndroidBpx1BleClient @Inject constructor(
                     close()
                 }
             }
-            val filter = ScanFilter.Builder()
-                .setServiceUuid(MIBEACON_PARCEL_UUID)
-                .apply {
-                    if (normalizedTargetMac != null) {
-                        setDeviceAddress(normalizedTargetMac)
-                    }
-                }
-                .build()
+            val filter = buildMiBeaconScanFilter(normalizedTargetMac)
             val settings = ScanSettings.Builder()
                 .setScanMode(
                     when (scanMode) {
@@ -362,10 +355,7 @@ class AndroidBpx1BleClient @Inject constructor(
         val normalizedMac = Bpx1Protocol.normalizeMac(targetMacAddress)
         if (!Bpx1Protocol.isValidMac(normalizedMac)) return false
         val scanner = bluetoothManager?.adapter?.bluetoothLeScanner ?: return false
-        val filter = ScanFilter.Builder()
-            .setServiceUuid(MIBEACON_PARCEL_UUID)
-            .setDeviceAddress(normalizedMac)
-            .build()
+        val filter = buildMiBeaconScanFilter(normalizedMac)
         val settings = ScanSettings.Builder()
             .setScanMode(ScanSettings.SCAN_MODE_LOW_POWER)
             .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
@@ -385,6 +375,16 @@ class AndroidBpx1BleClient @Inject constructor(
         runCatching { scanner.stopScan(backgroundScanPendingIntent()) }
     }
 
+    private fun buildMiBeaconScanFilter(targetMacAddress: String?): ScanFilter =
+        ScanFilter.Builder()
+            .setServiceData(MIBEACON_PARCEL_UUID, EMPTY_SERVICE_DATA)
+            .apply {
+                if (targetMacAddress != null) {
+                    setDeviceAddress(targetMacAddress)
+                }
+            }
+            .build()
+
     private fun backgroundScanPendingIntent(): PendingIntent {
         val flags = PendingIntent.FLAG_UPDATE_CURRENT or
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) PendingIntent.FLAG_MUTABLE else 0
@@ -396,6 +396,7 @@ class AndroidBpx1BleClient @Inject constructor(
     private companion object {
         val MIBEACON_PARCEL_UUID: ParcelUuid =
             ParcelUuid(UUID.fromString(Bpx1Protocol.MIBEACON_SERVICE_UUID))
+        val EMPTY_SERVICE_DATA = ByteArray(0)
         const val BACKGROUND_SCAN_REQUEST_CODE = 4201
         const val CONNECTION_TIMEOUT_MILLIS = 12_000L
         const val FRAME_CACHE_TTL_MILLIS = 30_000L
