@@ -540,11 +540,7 @@ private fun Bpx1SyncFailed(
 }
 
 @Composable
-private fun Bpx1SyncConfirmReading(
-    measurement: Bpx1Measurement,
-    onConfirm: () -> Unit,
-    onDiscard: () -> Unit,
-) {
+private fun Bpx1SyncConfirmReading(measurement: Bpx1Measurement, onConfirm: () -> Unit, onDiscard: () -> Unit) {
     Bpx1SyncStatusContent(
         icon = MedLogIcons.MonitorHeart,
         title = stringResource(R.string.bpx1_sync_confirm_title),

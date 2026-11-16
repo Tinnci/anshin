@@ -16,10 +16,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class PendingBpx1Measurement(
-    val macAddress: String,
-    val measurement: Bpx1Measurement,
-)
+data class PendingBpx1Measurement(val macAddress: String, val measurement: Bpx1Measurement)
 
 data class Bpx1SyncUiState(
     val isNeedsConfiguration: Boolean = false,

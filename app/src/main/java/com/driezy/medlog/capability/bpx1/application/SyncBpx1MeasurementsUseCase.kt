@@ -20,10 +20,7 @@ sealed interface Bpx1SyncState {
 
     /** The configured monitor was heard for the first time in this session. */
     data object DeviceDetected : Bpx1SyncState
-    data class MeasurementPendingConfirmation(
-        val macAddress: String,
-        val measurement: Bpx1Measurement,
-    ) : Bpx1SyncState
+    data class MeasurementPendingConfirmation(val macAddress: String, val measurement: Bpx1Measurement) : Bpx1SyncState
     data class MeasurementImported(val measurement: Bpx1Measurement, val importedCount: Int) : Bpx1SyncState
 
     /**
