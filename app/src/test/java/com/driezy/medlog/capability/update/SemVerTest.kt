@@ -78,4 +78,16 @@ class SemVerTest {
         assertTrue(rc2 > rc)
         assertTrue(stable > rc2)
     }
+
+    @Test
+    fun parseBuildMetadataAndDisplaySuffixes() {
+        val withDisplay = SemVer.parseOrNull("1.30.2 (r412 · 93a74f9)")
+        assertEquals(SemVer(1, 30, 2), withDisplay)
+
+        val withBuild = SemVer.parseOrNull("v1.30.2+g93a74f9")
+        assertEquals(SemVer(1, 30, 2), withBuild)
+
+        val devWithDisplay = SemVer.parseOrNull("1.30.2-dev.5 (r412 · 93a74f9)")
+        assertEquals(SemVer(1, 30, 2, "dev.5"), devWithDisplay)
+    }
 }

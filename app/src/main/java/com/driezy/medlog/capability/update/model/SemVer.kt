@@ -52,7 +52,11 @@ data class SemVer(val major: Int, val minor: Int, val patch: Int, val preRelease
     companion object {
         fun parseOrNull(version: String?): SemVer? {
             if (version.isNullOrBlank()) return null
-            val trimmed = version.trim().removePrefix("v").removePrefix("V")
+            val trimmed = version.trim()
+                .removePrefix("v")
+                .removePrefix("V")
+                .substringBefore(" ")
+                .substringBefore("+")
             val base = trimmed.substringBefore("-")
             val pre = if (trimmed.contains("-")) trimmed.substringAfter("-") else null
             val parts = base.split(".").mapNotNull { it.toIntOrNull() }
