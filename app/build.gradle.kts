@@ -61,6 +61,21 @@ private fun parseGitVersion(describe: String?): GitVersion {
 
 private val fallbackGitVersion = parseGitVersion(gitDescribeOutput)
 
+private val gitShortSha: String =
+    providers.exec {
+        commandLine("git", "rev-parse", "--short=7", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map(String::trim).orNull?.takeIf { it.isNotBlank() }
+        ?: System.getenv("GITHUB_SHA")?.take(7)?.takeIf { it.isNotBlank() }
+        ?: ""
+
+private val gitCommitCount: String =
+    providers.exec {
+        commandLine("git", "rev-list", "--count", "HEAD")
+        isIgnoreExitValue = true
+    }.standardOutput.asText.map(String::trim).orNull?.takeIf { it.isNotBlank() }
+        ?: ""
+
 android {
     namespace = "com.driezy.medlog"
     compileSdk = 37
@@ -71,6 +86,8 @@ android {
         targetSdk = 37
         versionCode = (System.getenv("VERSION_CODE")?.toIntOrNull()) ?: fallbackGitVersion.versionCode
         versionName = System.getenv("VERSION_NAME") ?: fallbackGitVersion.versionName
+        buildConfigField("String", "GIT_SHA", "\"$gitShortSha\"")
+        buildConfigField("String", "GIT_REV_COUNT", "\"$gitCommitCount\"")
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }

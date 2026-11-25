@@ -106,7 +106,16 @@ internal fun SettingsDataContent(
         ListItem(
             content = { Text("Anshin") },
             supportingContent = {
-                Text(stringResource(R.string.settings_version, BuildConfig.VERSION_NAME, BuildConfig.VERSION_CODE))
+                val buildMeta = listOfNotNull(
+                    BuildConfig.GIT_REV_COUNT.takeIf { it.isNotBlank() }?.let { "r$it" },
+                    BuildConfig.GIT_SHA.takeIf { it.isNotBlank() },
+                ).joinToString(" · ")
+                val displayVersion = if (buildMeta.isNotEmpty()) {
+                    "${BuildConfig.VERSION_NAME} ($buildMeta)"
+                } else {
+                    BuildConfig.VERSION_NAME
+                }
+                Text(stringResource(R.string.settings_version, displayVersion, BuildConfig.VERSION_CODE))
             },
             leadingContent = {
                 MedLogIcon(
